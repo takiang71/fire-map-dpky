@@ -274,7 +274,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
  <div class="rb">
   <h3>แผนที่ฐาน</h3>
   <div class="seg" id="seg"><button data-b="natural" data-src="Esri World Topo · เงาภูเขา AWS Terrain">ธรรมชาติ</button><button data-b="flat" data-src="OpenFreeMap Positron · © OpenStreetMap">เรียบ</button><button data-b="sat" data-src="">ดาวเทียม</button><button data-b="detail" data-src="OpenFreeMap Liberty · © OpenStreetMap">ละเอียด</button><button data-b="road" data-src="OpenFreeMap Bright · © OpenStreetMap">ถนน</button></div>
-  <div class="sg" id="imgsrc" hidden aria-label="แหล่งภาพดาวเทียม"><button data-i="google">Google</button><button data-i="esri">Esri</button><button data-i="s2">Sentinel-2</button><button data-i="day">รายวัน <span id="img-d"></span></button></div>
+  <div class="sg" id="imgsrc" hidden aria-label="แหล่งภาพดาวเทียม"><button data-i="google">Google</button><button data-i="esri">Esri</button><button data-i="s2">Sentinel-2</button><button data-i="day">NOAA-20</button></div>
   <div class="row"><svg class="i" viewBox="0 0 24 24"><path d="M3 20l6-10 4 6 3-4 5 8z"/></svg><b>มุมมอง 3 มิติ</b><button class="sw" data-k="d3" role="switch" aria-label="มุมมอง 3 มิติ"></button></div>
 
   <h3>ไฟและควัน</h3>
@@ -523,7 +523,7 @@ const gibsDay=()=>new Date(Date.now()-10*36e5).toISOString().slice(0,10); // ด
 const IMG={google:{cr:'ภาพ © Google',src:()=>'Google Satellite · ไม่มีข้อมูลวันที่ภาพ',u:()=>[0,1,2,3].map(i=>`https://mt${i}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}`),mz:20},
  esri:{cr:'© Esri',src:()=>'Esri World Imagery · Vantor/Maxar · ละเอียด ~0.3 ม. (อายุภาพต่างกันรายพื้นที่)',u:()=>'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'},
  s2:{cr:'Sentinel-2 cloudless 2025 by EOX',src:()=>'Sentinel-2 cloudless 2025 by EOX (Copernicus Sentinel data 2025) · ภาพไร้เมฆรวมทั้งปี ละเอียด 10 ม.',u:()=>'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2025_3857/default/g/{z}/{y}/{x}.jpg',mz:15},
- day:{cr:'NASA GIBS',src:()=>'NASA GIBS · VIIRS NOAA-20 ภาพสีจริง '+gibsDay()+' · ละเอียด ~375 ม.',u:()=>'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_NOAA20_CorrectedReflectance_TrueColor/default/'+gibsDay()+'/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg',mz:9}};
+ day:{cr:'NASA GIBS',src:()=>'ภาพรายวันจากดาวเทียม NOAA-20 (VIIRS สีจริง) วันที่ '+new Date(gibsDay()).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'})+' · ดาวเทียมผ่านราว 13:30 น. · ละเอียด ~375 ม. · NASA GIBS',u:()=>'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_NOAA20_CorrectedReflectance_TrueColor/default/'+gibsDay()+'/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg',mz:9}};
 const imgOf=()=>IMG[S.img]?S.img:'google',sty=()=>S.base==='sat'?ras(IMG[imgOf()].u(),IMG[imgOf()].mz):STY[S.base];
 // ป้ายวันที่ภาพดาวเทียม #imgdate · Esri ถามวันที่ภาพ ณ กลางจอผ่าน identify (ภาพละเอียดเริ่มที่ระดับไทล์ 12; ต่ำกว่านั้นเป็นภาพรวม 15 ม. ไม่มีวันที่) · ไทล์ 256 px → ระดับไทล์ = ซูม MapLibre + 1
 const thD=d=>d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}),IMC={};let imgQ=0,imgT;
@@ -596,7 +596,7 @@ function sync(){
  $$('.sw[data-k]').forEach(b=>b.setAttribute('aria-checked',!!S[b.dataset.k]));
  $$('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.b===S.base));
  const im=$('#imgsrc'),k=imgOf();im.hidden=S.base!=='sat';$$('#imgsrc button').forEach(b=>{b.setAttribute('aria-pressed',b.dataset.i===k);b.title=IMG[b.dataset.i].src()});
- $('#img-d').textContent=new Date(gibsDay()).toLocaleDateString('th-TH',{day:'numeric',month:'short'});$('#seg [data-b="sat"]').dataset.src=IMG[k].src();$('#attr-b').textContent=S.base==='sat'?IMG[k].cr:'© Esri';imgDate();
+ $('#seg [data-b="sat"]').dataset.src=IMG[k].src();$('#attr-b').textContent=S.base==='sat'?IMG[k].cr:'© Esri';imgDate();
  $('#b3d').classList.toggle('on',S.d3);$('#bLay').classList.toggle('on',$('#right').classList.contains('open'));
 }
 map.on('style.load',()=>{ setup() });
