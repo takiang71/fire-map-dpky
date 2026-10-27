@@ -99,6 +99,13 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .seg button{flex:1;min-height:40px;border:1px solid var(--line);background:var(--bg);font-size:12.5px;margin-left:-1px}
 .seg button:first-child{border-radius:10px 0 0 10px;margin:0}.seg button:last-child{border-radius:0 10px 10px 0}
 #imgdate{position:fixed;top:calc(12px + env(safe-area-inset-top));left:calc(50% + 210px);transform:translateX(-50%);z-index:4;background:rgba(27,42,94,.9);color:#fff;font-size:12.5px;line-height:1.3;padding:6px 14px;border-radius:999px;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis;pointer-events:none;box-shadow:var(--sh)}#imgdate[hidden]{display:none}@media(max-width:767px){#imgdate{left:50%}} /* เดสก์ท็อป: กึ่งกลางพื้นที่แผนที่ขวาของแผงซ้าย 420 px */
+#imgtime{margin:0 0 10px}#imgtime[hidden],#it-d[hidden]{display:none}
+#imgtime .itr{display:flex;align-items:center;gap:6px}#it-r{flex:1;min-width:0;accent-color:var(--navy)}
+#imgtime .itr button{flex:none;width:30px;height:30px;padding:0;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:17px;line-height:1;color:var(--navy)}
+#imgtime .itr button:disabled{opacity:.35}
+#imgtime .itv{display:flex;align-items:center;gap:8px;font-size:12.5px;margin-top:3px}#imgtime .itv b{flex:1;color:var(--navy)}
+#it-d{font:inherit;font-size:12px;padding:2px 4px;border:1px solid var(--line);border-radius:6px;max-width:128px}
+#it-0{cursor:pointer;color:#3e6fd8;white-space:nowrap}#it-0[aria-disabled=true]{color:var(--mut);cursor:default}
 #imgsrc{display:flex;margin:0 0 6px}#imgsrc[hidden]{display:none}#imgsrc button{flex:1;white-space:nowrap;padding:6px 4px}
 .seg button.on{background:var(--sel);font-weight:800;color:var(--navy)}
 .lk{background:none;border:0;color:var(--navy);text-decoration:underline;font-size:12px;padding:6px 0 6px 30px}
@@ -275,6 +282,8 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <h3>แผนที่ฐาน</h3>
   <div class="seg" id="seg"><button data-b="natural" data-src="Esri World Topo · เงาภูเขา AWS Terrain">ธรรมชาติ</button><button data-b="flat" data-src="OpenFreeMap Positron · © OpenStreetMap">เรียบ</button><button data-b="sat" data-src="">ดาวเทียม</button><button data-b="detail" data-src="OpenFreeMap Liberty · © OpenStreetMap">ละเอียด</button><button data-b="road" data-src="OpenFreeMap Bright · © OpenStreetMap">ถนน</button></div>
   <div class="sg" id="imgsrc" hidden aria-label="แหล่งภาพดาวเทียม"><button data-i="google">Google</button><button data-i="esri">Esri</button><button data-i="s2">Sentinel-2</button><button data-i="day">NOAA-20</button></div>
+  <div id="imgtime" hidden><div class="itr"><button id="it-p" aria-label="ภาพก่อนหน้า">‹</button><input type="range" id="it-r" list="it-l" aria-label="เลื่อนดูภาพย้อนหลัง"><datalist id="it-l"></datalist><button id="it-n" aria-label="ภาพถัดไป">›</button></div>
+   <div class="itv"><b id="it-v"></b><input type="date" id="it-d" aria-label="เลือกวันที่ภาพ"><a id="it-0" role="button" tabindex="0">ล่าสุด</a></div></div>
   <div class="row"><svg class="i" viewBox="0 0 24 24"><path d="M3 20l6-10 4 6 3-4 5 8z"/></svg><b>มุมมอง 3 มิติ</b><button class="sw" data-k="d3" role="switch" aria-label="มุมมอง 3 มิติ"></button></div>
 
   <h3>ไฟและควัน</h3>
@@ -520,17 +529,20 @@ const STY={natural:ras('https://server.arcgisonline.com/ArcGIS/rest/services/Wor
 // ภาพดาวเทียม 3 แหล่ง (ฟรี ไม่ต้องใช้ key): Esri ละเอียดสุดแต่อายุภาพต่างกันรายพื้นที่ · Sentinel-2 ไร้เมฆรายปี (EOX, CC BY-NC-SA) · NASA GIBS ภาพ NOAA-20 รายวัน (หยาบแต่ใหม่สุด เห็นควัน/รอยไหม้)
 const gibsDay=()=>new Date(Date.now()-10*36e5).toISOString().slice(0,10); // ดาวเทียมผ่านไทย ~06:30 UTC + ประมวลผล ~3 ชม. → หลัง 10:00 UTC ใช้ภาพวันนี้
 // google = ลิงก์ไทล์ตรง (ไม่ผ่าน Map Tiles API, ผิดเงื่อนไข Google) — ผู้ใช้เลือกเองว่าใช้ไปก่อน ถ้าโดนบล็อกค่อยเอาออก · โหลดพลาดติดกันจะสลับเป็น Esri เอง (gErr)
+// แถบเลื่อนดูภาพย้อนหลัง #imgtime: NOAA-20 รายวัน (GIBS มีตั้งแต่ 1 ม.ค. 2018) · Sentinel-2 รายปี (EOX 2016, 2018–2025; ปี 2017 ไม่มีอย่างเป็นทางการ) — ไม่บันทึกลงค่าเริ่มต้น เปิดใหม่เป็นภาพล่าสุดเสมอ
+const S2YS=[2016,2018,2019,2020,2021,2022,2023,2024,2025],GIBS0=Date.UTC(2018,0,1)/864e5,dNum=v=>Date.parse(v)/864e5;let IDAY=null,S2Y=2025,itT;
+const dayOf=()=>IDAY==null?gibsDay():new Date(IDAY*864e5).toISOString().slice(0,10);
 const IMG={google:{cr:'ภาพ © Google',src:()=>'Google Satellite · ไม่มีข้อมูลวันที่ภาพ',u:()=>[0,1,2,3].map(i=>`https://mt${i}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}`),mz:20},
  esri:{cr:'© Esri',src:()=>'Esri World Imagery · Vantor/Maxar · ละเอียด ~0.3 ม. (อายุภาพต่างกันรายพื้นที่)',u:()=>'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'},
- s2:{cr:'Sentinel-2 cloudless 2025 by EOX',src:()=>'Sentinel-2 cloudless 2025 by EOX (Copernicus Sentinel data 2025) · ภาพไร้เมฆรวมทั้งปี ละเอียด 10 ม.',u:()=>'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2025_3857/default/g/{z}/{y}/{x}.jpg',mz:15},
- day:{cr:'NASA GIBS',src:()=>'ภาพรายวันจากดาวเทียม NOAA-20 (VIIRS สีจริง) วันที่ '+new Date(gibsDay()).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'})+' · ดาวเทียมผ่านราว 13:30 น. · ละเอียด ~375 ม. · NASA GIBS',u:()=>'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_NOAA20_CorrectedReflectance_TrueColor/default/'+gibsDay()+'/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg',mz:9}};
+ s2:{get cr(){return 'Sentinel-2 cloudless '+S2Y+' by EOX'},src:()=>'Sentinel-2 cloudless '+S2Y+' by EOX (Copernicus Sentinel data '+S2Y+') · ภาพไร้เมฆรวมทั้งปี ละเอียด 10 ม.',u:()=>'https://tiles.maps.eox.at/wmts/1.0.0/'+(S2Y===2016?'s2cloudless_3857':'s2cloudless-'+S2Y+'_3857')+'/default/g/{z}/{y}/{x}.jpg',mz:15},
+ day:{cr:'NASA GIBS',src:()=>'ภาพรายวันจากดาวเทียม NOAA-20 (VIIRS สีจริง) วันที่ '+new Date(dayOf()).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'})+' · ดาวเทียมผ่านราว 13:30 น. · ละเอียด ~375 ม. · NASA GIBS',u:()=>'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_NOAA20_CorrectedReflectance_TrueColor/default/'+dayOf()+'/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg',mz:9}};
 const imgOf=()=>IMG[S.img]?S.img:'google',sty=()=>S.base==='sat'?ras(IMG[imgOf()].u(),IMG[imgOf()].mz):STY[S.base];
 // ป้ายวันที่ภาพดาวเทียม #imgdate · Esri ถามวันที่ภาพ ณ กลางจอผ่าน identify (ภาพละเอียดเริ่มที่ระดับไทล์ 12; ต่ำกว่านั้นเป็นภาพรวม 15 ม. ไม่มีวันที่) · ไทล์ 256 px → ระดับไทล์ = ซูม MapLibre + 1
 const thD=d=>d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}),IMC={};let imgQ=0,imgT;
 async function imgDate(){const el=$('#imgdate'),q=++imgQ;if(!el)return;el.hidden=S.base!=='sat';if(el.hidden)return;const k=imgOf();
  if(k==='google'){el.textContent='ภาพ Google · ไม่มีข้อมูลวันที่ภาพ';return}
- if(k==='s2'){el.textContent='ภาพ Sentinel-2 รวมทั้งปี 2568 (ม.ค.–ธ.ค. 2025)';return}
- if(k==='day'){el.textContent='ภาพวันที่ '+thD(new Date(gibsDay()))+' · ดาวเทียมผ่านราว 13:30 น.';return}
+ if(k==='s2'){el.textContent='ภาพ Sentinel-2 รวมทั้งปี '+(S2Y+543)+' (ม.ค.–ธ.ค. '+S2Y+')';return}
+ if(k==='day'){const n=imgFC().features.length;el.textContent='ภาพวันที่ '+thD(new Date(dayOf()))+' · ดาวเทียมผ่านราว 13:30 น.'+(n?' · จุดความร้อน '+n+' จุด (วงเหลือง)':'');return}
  const c=map.getCenter(),L=Math.round(map.getZoom()+1);
  if(L<12){el.textContent='ภาพรวมความละเอียดต่ำ · ซูมเข้าเพื่อดูวันที่ภาพ';return}
  const key=L+','+c.lng.toFixed(3)+','+c.lat.toFixed(3);if(IMC[key]){el.textContent=IMC[key];return}
@@ -551,6 +563,18 @@ function flame(c){ // วาดไอคอนเปลวไฟลง canvas
 const sq=(h,d=.0028)=>({type:'Feature',properties:{id:h.id,g:grp(h),frp:h.frp||12},geometry:{type:'Polygon',coordinates:[[[h.lon-d,h.lat-d],[h.lon+d,h.lat-d],[h.lon+d,h.lat+d],[h.lon-d,h.lat+d],[h.lon-d,h.lat-d]]]}});
 const pt=h=>({type:'Feature',properties:{id:h.id,g:grp(h),frp:h.frp||12},geometry:{type:'Point',coordinates:[h.lon,h.lat]}});
 
+// จุดความร้อนในฐานข้อมูลของวันที่ภาพ NOAA-20 (วงเหลือง): ช่วงที่มี adata ใช้ทุกดาวเทียม ก่อนหน้านั้นใช้ HD (Suomi NPP จากกรมอุทยานฯ)
+function imgFC(){const f=[];if(S.base==='sat'&&imgOf()==='day'){const d=dNum(dayOf()),a0=AD.reduce((m,r)=>Math.min(m,r.d),1e9);(d>=a0?AD:HD).forEach(r=>{if(r.d===d)f.push({type:'Feature',geometry:{type:'Point',coordinates:[r.lo,r.la]},properties:{}})})}return{type:'FeatureCollection',features:f}}
+let HSD=null;const hsDays=()=>HSD||(HSD=new Set([...HD,...AD].map(r=>r.d)));
+function itUI(){const box=$('#imgtime'),k=imgOf(),r=$('#it-r'),on=S.base==='sat'&&(k==='day'||k==='s2');box.hidden=!on;if(!on)return;
+ const isD=k==='day',l=$('#it-l'),dd=$('#it-d');dd.hidden=!isD;let mn,mx,v,lab,lat;
+ if(isD){mx=dNum(gibsDay());v=dNum(dayOf());mn=Math.max(GIBS0,Math.min(v,mx-365));lab=new Date(v*864e5).toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short',year:'2-digit',timeZone:'UTC'});lat=IDAY==null;
+  dd.min='2018-01-01';dd.max=gibsDay();dd.value=dayOf();const H=hsDays(),o=[];for(let d=mn;d<=mx;d++)if(H.has(d))o.push('<option value="'+d+'">');l.innerHTML=o.join('');r.title='เลื่อนทีละวัน · ขีดบนแถบ = วันที่พบจุดความร้อนในฐานข้อมูล'}
+ else{mn=0;mx=S2YS.length-1;v=S2YS.indexOf(S2Y);lab='ภาพรวมปี '+(S2Y+543)+' ('+S2Y+')';lat=S2Y===S2YS[mx];l.innerHTML=S2YS.map((_,i)=>'<option value="'+i+'">').join('');r.title='เลื่อนทีละปี · '+S2YS.map(y=>y+543).join(', ')}
+ r.min=mn;r.max=mx;r.step=1;r.value=v;$('#it-v').textContent=lab;$('#it-p').disabled=v<=(isD?GIBS0:0);$('#it-n').disabled=v>=mx;$('#it-0').setAttribute('aria-disabled',lat)}
+function itSet(v,now){const k=imgOf();if(k==='day'){const mx=dNum(gibsDay());v=Math.max(GIBS0,Math.min(mx,Math.round(v)));IDAY=v>=mx?null:v}else if(k==='s2')S2Y=S2YS[Math.max(0,Math.min(S2YS.length-1,Math.round(v)))];else return;
+ itUI();clearTimeout(itT);itT=setTimeout(imgApply,now?0:250)}
+function imgApply(){const t=map.getSource('t'),u=IMG[imgOf()].u();if(t&&t.setTiles)t.setTiles(Array.isArray(u)?u:[u]);else map.setStyle(sty(),{diff:false});const p=map.getSource('imgpt');if(p)p.setData(imgFC());sync()}
 function setup(){ // เรียกทุกครั้งที่สลับ style เพื่อคงเลเยอร์ข้อมูลไว้
  if(map.getSource('dem'))return;
  map.addSource('dem',{type:'raster-dem',tiles:['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],encoding:'terrarium',tileSize:256,maxzoom:14});
@@ -580,6 +604,7 @@ function setup(){ // เรียกทุกครั้งที่สลั�
  map.addLayer({id:'hot-cl',type:'circle',source:'hot',filter:['has','point_count'],paint:{'circle-color':'#c0301c','circle-opacity':.85,'circle-radius':['step',['get','point_count'],14,10,20,50,28],'circle-stroke-color':'#fff','circle-stroke-width':2}});
  if(map.getStyle().glyphs)map.addLayer({id:'hot-cn',type:'symbol',source:'hot',filter:['has','point_count'],layout:{'text-field':['get','point_count_abbreviated'],'text-font':['Noto Sans Bold'],'text-size':12,'text-allow-overlap':true},paint:{'text-color':'#fff'}});
  map.addLayer({id:'hot-3d',type:'fill-extrusion',source:'hot3',paint:{'fill-extrusion-color':GL,'fill-extrusion-height':['*',['get','frp'],90],'fill-extrusion-opacity':.9}});
+ map.addSource('imgpt',{type:'geojson',data:imgFC()});map.addLayer({id:'imgpt',type:'circle',source:'imgpt',paint:{'circle-radius':['interpolate',['linear'],['zoom'],6,5,12,11],'circle-color':'rgba(0,0,0,0)','circle-stroke-color':'#ffd60a','circle-stroke-width':2.2}});
  map.addLayer({id:'ring',type:'circle',source:'ring',paint:{'circle-radius':22,'circle-color':'rgba(0,0,0,0)','circle-stroke-color':'#D93A1F','circle-stroke-width':3}});
  apply();
 }
@@ -596,7 +621,7 @@ function sync(){
  $$('.sw[data-k]').forEach(b=>b.setAttribute('aria-checked',!!S[b.dataset.k]));
  $$('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.b===S.base));
  const im=$('#imgsrc'),k=imgOf();im.hidden=S.base!=='sat';$$('#imgsrc button').forEach(b=>{b.setAttribute('aria-pressed',b.dataset.i===k);b.title=IMG[b.dataset.i].src()});
- $('#seg [data-b="sat"]').dataset.src=IMG[k].src();$('#attr-b').textContent=S.base==='sat'?IMG[k].cr:'© Esri';imgDate();
+ $('#seg [data-b="sat"]').dataset.src=IMG[k].src();$('#attr-b').textContent=S.base==='sat'?IMG[k].cr:'© Esri';itUI();imgDate();
  $('#b3d').classList.toggle('on',S.d3);$('#bLay').classList.toggle('on',$('#right').classList.contains('open'));
 }
 map.on('style.load',()=>{ setup() });
@@ -788,6 +813,10 @@ $$('.sw[data-k]').forEach(b=>b.onclick=()=>{const k=b.dataset.k;k==='d3'?set3d(!
 $$('#seg button').forEach(b=>b.onclick=()=>{S.base=b.dataset.b;map.setStyle(sty(),{diff:false});sync()});
 let gErr=0;map.on('error',e=>{if(e.sourceId!=='t'||S.base!=='sat'||imgOf()!=='google'||++gErr<6)return;S.img='esri';map.setStyle(sty(),{diff:false});sync();toast('โหลดภาพ Google ไม่ได้ — เปลี่ยนเป็นภาพ Esri')});
 $$('#imgsrc button').forEach(b=>b.onclick=()=>{S.img=b.dataset.i;gErr=0;S.base='sat';map.setStyle(sty(),{diff:false});sync()});
+$('#it-r').oninput=e=>itSet(+e.target.value);
+$('#it-p').onclick=()=>itSet(+$('#it-r').value-1,1);$('#it-n').onclick=()=>itSet(+$('#it-r').value+1,1);
+$('#it-d').onchange=e=>{if(e.target.value)itSet(dNum(e.target.value),1)};
+$('#it-0').onclick=$('#it-0').onkeydown=e=>{if(e.type==='keydown'&&e.key!=='Enter'&&e.key!==' ')return;e.preventDefault();itSet(imgOf()==='s2'?S2YS.length-1:1e9,1)};
 map.on('moveend',()=>{if(S.base==='sat'&&imgOf()==='esri'){clearTimeout(imgT);imgT=setTimeout(imgDate,400)}});
 $('#rf').onclick=async()=>{await load();toast('ดึงข้อมูลใหม่แล้ว')};
 $('#sdef').onclick=()=>{try{localStorage.setItem('fm-v1',JSON.stringify(S));toast('บันทึกค่าเริ่มต้นแล้ว')}catch(e){toast('บันทึกไม่ได้ในเบราว์เซอร์นี้')}};
