@@ -13,13 +13,14 @@
   - `id="adata"` จุดสะสมจาก API (สร้างโดย `scripts/sync_hotspots.js` ห้ามแก้มือ): `{v,upd,from,to,sat,cf,pv,am,tm,ar,st,sb, r:[[day,hhmm,lat*1e5,lon*1e5,sat,cf,pv,am,tm,ar,st,sb,dnp]]}` ทุกดาวเทียม เฉพาะในแนวเขต ตั้งแต่ 1 ต.ค. 68 · `dnp=1` = จุดเดียวกับข้อมูลกรมอุทยานฯ (จับคู่ 1:1 เฉพาะ SNPP วันเดียวกัน ±10 นาที <400 ม.) · `to` = วันสุดท้ายที่ดึงครบ
 - `data/Data_hotspots_61-69_DPYK_Full2.xlsx` — ต้นฉบับจุดย้อนหลังปีงบ 2561–2569 (3,101 จุด) จากกรมอุทยานฯ: **เฉพาะ Suomi NPP** และปีงบ 2569 **กรองเฉพาะป่าคงสภาพ** (80 จุด)
 - `data/hotspots_api.json` — ที่เก็บของ sync (raw + encoded) · `data/FY2569_SNPP_ทั้งกลุ่มป่า.csv` — จุด SNPP ปีงบ 2569 ทั้งกลุ่มป่า 171 จุด (ตรงกับกรมอุทยานฯ 75, กรมอุทยานฯ มีแต่ API ไม่มี 5)
-- **โฮสต์ (เตรียมแล้ว ยังไม่ได้ push):** git repo (branch main, LF ตาม `.gitattributes`) · GitHub Pages ผ่าน Actions
+- **โฮสต์ (ใช้งานจริงแล้ว 27 ต.ค. 69):** https://takiang71.github.io/fire-map-dpky/ · repo สาธารณะ https://github.com/takiang71/fire-map-dpky (branch main, LF ตาม `.gitattributes`) · GitHub Pages แบบ Source = GitHub Actions · ผู้ใช้ยืนยันว่าเปิดเผยข้อมูลทั้งหมดเป็นสาธารณะได้
+  - **ทำงานในเครื่อง: `git pull` ก่อนแก้ทุกครั้ง** (sync บน Actions commit วันละ 2 ครั้ง) แล้ว commit + push เมื่อแก้เสร็จ · push ครั้งแรกล็อกอินผ่าน Git Credential Manager แล้ว · git identity ของ repo: takiang71
   - `.github/workflows/site.yml` ทุก ~10 นาที + push: `node scripts/build_site.js` → `_site/` (index.html + `live.json` จุด 48 ชม. กรองในแนวเขตแล้ว + `air4thai.json`) แล้ว deploy-pages
   - `.github/workflows/sync.yml` 23:00/08:00 UTC (= 06:00/15:00 ไทย): รัน sync, commit index.html + data แล้วสั่ง `gh workflow run site.yml` (push ด้วย GITHUB_TOKEN ไม่ปลุก workflow อื่น)
   - หน้าเว็บ: `liveFile()` อ่าน `live.json` ก่อน (ถ้าเก่ากว่า `LIVE_MAXAGE` 40 นาทีหรือไม่มี → ดึง API ตรง) · `getStations` ลอง `air4thai.json` ก่อน
   - ทดสอบในเครื่องแบบเดียวกับโฮสต์: `node scripts/build_site.js` แล้ว `node scripts/serve.js 8002 _site` (launch config `site-test`)
   - `scripts/lib/area.js` (GEO + `where` + `SBP`) และ `scripts/lib/air4thai.js` (แก้ cert chain) ใช้ร่วมกันโดย sync/build/serve
-  - เมื่อ Actions ทำงานแล้ว **ต้องลบ Task Scheduler ในเครื่อง** (`install_sync_task.ps1 -Remove`) ไม่งั้นไฟล์ในเครื่องกับบน GitHub แก้ชนกัน · ก่อนแก้ไฟล์ในเครื่องให้ `git pull` ก่อนเสมอ
+  - Task Scheduler ในเครื่อง**ลบแล้ว** (sync ย้ายไป Actions) — อย่าติดตั้งกลับ ไม่งั้นไฟล์ในเครื่องกับบน GitHub แก้ชนกัน · ทดสอบแล้ว: site (dispatch) ผ่าน, sync ผ่าน + commit + สั่ง site deploy ต่อได้
 - `scripts/install_sync_task.ps1` — ลงทะเบียน/ลบ (`-Remove`) Task Scheduler รัน sync วันละ 2 รอบผ่าน `conhost --headless` (ไม่มีหน้าต่างเด้ง) · ผลอยู่ใน `data/sync.log` (ตัดเหลือ ~100 KB เมื่อเกิน 200 KB) · กันรันซ้อนด้วย `data/.sync.lock` · เขียนไฟล์แบบ tmp+rename
 - `scripts/sync_hotspots.js` — ดึง API ทีละวัน (ทั้งประเทศ ~1 MB/วันช่วงพีค) กรองในแนวเขต เก็บสะสม ฝัง adata · รอบถัดไปดึงเฉพาะวันที่ขาด + ดึงซ้ำ 2 วันล่าสุด · backfill ครั้งแรก 392 วันใช้ราว 10 นาที
 - `data/kmz/*.kmz` — แนวเขตจริงจากผู้ใช้: พื้นที่อนุรักษ์ สบอ.1 (6), ขสป.ดงใหญ่, สถานีควบคุมไฟป่า (8 จุด), พื้นที่รับผิดชอบไฟป่า ปี 2570 (8 แปลง), จุดเฝ้าระวังไฟป่า ปี 2569 (`Point47จุดเฝ้าระวัง69_Cp.kmz`, 47 จุด)
@@ -91,8 +92,8 @@
 5. แนวเขตอำเภอ/ตำบล (OCHA HDX) เพื่อชื่อพื้นที่ใต้ลมจริง; ความลาดชันจาก DEM (ตอนนี้คงที่ 4°)
 6. ชั้นชนิดป่า + modal เรียนรู้ชนิดป่า (ต้องได้ข้อมูลกรมป่าไม้ 2561 จากผู้ใช้), คู่มือการใช้งาน
 7. ตัวกรองเริ่มต้นตัดดงใหญ่ออก (ให้ตรงภาพตัวอย่าง 2,705 จุด) — ผู้ใช้ยังไม่ตอบ
-8. ~~ตั้ง sync อัตโนมัติ~~ เสร็จแล้ว (27 ต.ค. 69): Task Scheduler "FireMap DPKY - sync hotspots" รัน 06:00 + 15:00 ทุกวัน (รอบที่พลาดจะรันเมื่อเปิดเครื่อง) — ถ้าขึ้นโฮสต์แล้วค่อยย้ายไป GitHub Actions
-9. โฮสต์ฟรี: เลือก GitHub Pages + Actions (ไม่ใช้ Cloudflare — deploy ผ่าน Actions ไม่ติดโควตา build) · เตรียมไฟล์ + commit ในเครื่องแล้ว · **รอผู้ใช้: สร้างบัญชี/repo สาธารณะ, ยืนยันว่าเปิดเผยข้อมูลได้, เปิด Pages แบบ GitHub Actions, push**
+8. ~~ตั้ง sync อัตโนมัติ~~ เสร็จแล้ว — ย้ายไป GitHub Actions (`sync.yml`) และลบ Task Scheduler ในเครื่องแล้ว
+9. ~~โฮสต์ฟรี~~ เสร็จแล้ว (GitHub Pages + Actions) · ยังไม่ได้ยืนยันว่ารอบตั้งเวลา (`schedule`) ของ site ทุก 10 นาทีเริ่มทำงานแล้ว (GitHub อาจใช้เวลาสักพักหลังสร้าง repo) · ไม่ต้องใช้ Cloudflare Worker / AIR4THAI_PROXY แล้ว
 10. LINE bot แจ้งเตือน + สรุปรายวัน (Messaging API, โควตาฟรีไทย ~300 ข้อความ/เดือน ต้องยืนยัน)
 11. ยังไม่ได้ทดสอบจริง: สั่งพิมพ์/บันทึก PDF, ดาวน์โหลด CSV, ภาพแผนที่ในรายงาน, จุดบนแผนที่เปลี่ยนตามปุ่มดาวเทียม, หน้าจอมือถือของการ์ดใหม่ (pane ทดสอบถูกซ่อนจน WebGL ไม่วาด)
 12. จุดของกรมอุทยานฯ ปีงบ 2569 ที่ไม่พบใน API 5 จุด — ควรตรวจกับต้นทาง
