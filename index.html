@@ -533,11 +533,11 @@ const gibsDay=()=>new Date(Date.now()-10*36e5).toISOString().slice(0,10); // ด
 const S2YS=[2016,2018,2019,2020,2021,2022,2023,2024,2025],GIBS0=Date.UTC(2018,0,1)/864e5,dNum=v=>Date.parse(v)/864e5;let IDAY=null,S2Y=2025,itT;
 // Esri Wayback: รุ่นภาพ World Imagery ย้อนหลัง (~197 รุ่นตั้งแต่ 2014) — ค้นเฉพาะรุ่นที่ไทล์กลางจอเปลี่ยนจริง (tilemap: select = รุ่นที่ไทล์มาจริง, size เท่ากัน = ภาพเดิม) แล้วอ่านวันที่ถ่ายจาก metadata ของแต่ละรุ่น · ไม่ต้องใช้ key, CORS เปิด
 const WB='https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery',WB_CFG='https://s3-us-west-2.amazonaws.com/config.maptiles.arcgis.com/waybackconfig.json',ESRI_MS='https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer';
-let WBC=null,WBV=[],WBI=null,WBK='',wbQ=0,wbT,WBL=null; // WBC=ทุกรุ่น ใหม่→เก่า · WBV=รุ่นที่ภาพกลางจอต่างกัน {n,rel,m,d,src,res} · WBI=รุ่นที่เลือก (null=ภาพปัจจุบัน) · WBL=วันที่ภาพปัจจุบันกลางจอ
+let WBC=null,WBV=[],WBI=null,WBK='',wbQ=0,wbT,WBL=null,WBP=0; // WBP = จำนวนรุ่นที่ยังรอวันที่ถ่าย // WBC=ทุกรุ่น ใหม่→เก่า · WBV=รุ่นที่ภาพกลางจอต่างกัน {n,rel,m,d,src,res} · WBI=รุ่นที่เลือก (null=ภาพปัจจุบัน) · WBL=วันที่ภาพปัจจุบันกลางจอ
 const ymdTh=v=>new Date(v.slice(0,4)+'-'+v.slice(4,6)+'-'+v.slice(6)).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'});
 const tileXY=(lon,lat,z)=>{const n=2**z,y=Math.log(Math.tan(Math.PI/4+lat*Math.PI/360));return[Math.floor((lon+180)/360*n),Math.floor((1-y/Math.PI)/2*n)]};
 const idUrl=(base,c,lay)=>{const d=.002;return`${base}/identify?geometry=${c.lng},${c.lat}&geometryType=esriGeometryPoint&sr=4326&layers=${lay}&tolerance=0&mapExtent=${c.lng-d},${c.lat-d},${c.lng+d},${c.lat+d}&imageDisplay=256,256,96&returnGeometry=false&f=json`};
-const idAttr=(j,L)=>(j.results||[]).map(r=>r.attributes||{}).map(a=>({d:a['DATE (YYYYMMDD)']||a.SRC_DATE,src:a.SOURCE||a.NICE_DESC||a.SRC_DESC,res:a['RESOLUTION (M)']||a.SRC_RES,lo:+a.MinMapLevel,hi:+a.MaxMapLevel})).find(a=>a.lo<=L&&L<=a.hi&&/^\d{8}$/.test(a.d));
+const idAttr=(j,L)=>(j.results||[]).map(r=>r.attributes||{}).map(a=>({d:String(a['DATE (YYYYMMDD)']||a.SRC_DATE||''),src:a.SOURCE||a.NICE_DESC||a.SRC_DESC,res:a['RESOLUTION (M)']||a.SRC_RES,lo:+a.MinMapLevel,hi:+a.MaxMapLevel})).find(a=>a.lo<=L&&L<=a.hi&&/^\d{8}$/.test(a.d));
 async function wbScan(){if(S.base!=='sat'||imgOf()!=='esri')return;const c=map.getCenter(),L=Math.min(17,Math.max(12,Math.round(map.getZoom()+1))),[col,row]=tileXY(c.lng,c.lat,L),key=L+'/'+row+'/'+col;if(key===WBK)return;WBK=key;const q=++wbQ;WBV=[];WBL=null;itUI();
  try{if(!WBC){const j=await (await fetch(WB_CFG)).json();WBC=Object.entries(j).map(([k,v])=>({n:+k,rel:(String(v.itemTitle).match(/\d{4}-\d\d-\d\d/)||[''])[0],m:v.metadataLayerUrl})).filter(r=>r.rel&&r.m).sort((a,b)=>a.rel<b.rel?1:-1)}
   const out=[];let i=0,last=null;
@@ -545,16 +545,20 @@ async function wbScan(){if(S.base!=='sat'||imgOf()!=='esri')return;const c=map.g
    if(!x.data||!x.data[0]){i++;continue}
    let ai=x.select?WBC.findIndex(v=>v.n===x.select[0]):i;if(ai<i)ai=i;const sz=x.size&&x.size[0];
    if(!last||last.sz!==sz){last=Object.assign({},WBC[ai],{sz});out.push(last)}i=ai+1}
-  const fin=()=>{let V=out.filter((v,k)=>!v.d||!out.slice(0,k).some(u=>u.d===v.d)); // วันที่ถ่ายเดียวกัน = ภาพเดียวกัน เก็บรุ่นใหม่สุด
-   if(WBL&&V[0]&&V[0].d===WBL.d)V=V.slice(1); // รุ่นล่าสุดซ้ำกับภาพปัจจุบัน
-   if(WBI!=null&&!V.some(v=>v.n===WBI)){const v=WBC.find(v=>v.n===WBI);if(v){V.push(v);const o=x=>x.d||x.rel.replace(/-/g,'');V.sort((a,b)=>o(a)<o(b)?1:-1)}}
-   WBV=V;itUI()};
-  fin(); // แสดงรายการทันที (ป้ายเป็นวันที่ออกรุ่น) แล้วเติมวันที่ถ่ายจริงเมื่อ metadata ตอบ — บางรุ่นตอบช้ามาก (20–60 วิ) จึงตัดที่ 8 วิ
-  const idq=async(u)=>{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),8000);try{return idAttr(await (await fetch(u,{signal:ac.signal})).json(),L)}catch(e){return null}finally{clearTimeout(t)}};
-  await Promise.all([...out.map(async v=>{const a=await idq(idUrl(v.m,c,'all'));if(a&&q===wbQ){Object.assign(v,a);fin()}}),
-   (async()=>{const a=await idq(idUrl(ESRI_MS,c,'all:0'));if(a&&q===wbQ){WBL=a;fin()}})()])}
+  // แถบเรียงตามวันที่ถ่ายจริง (รุ่นใหม่อาจมีภาพถ่ายเก่ากว่ารุ่นก่อน) — รุ่นที่ยังไม่รู้วันที่ถ่ายยังไม่ขึ้นแถบ จนกว่าจะอ่านไม่ได้แน่แล้ว (wf) จึงขึ้นท้ายตามวันที่ออกรุ่น
+  const fin=()=>{let V=out.filter(v=>v.d||v.wf).filter((v,k,A)=>!v.d||!A.slice(0,k).some(u=>u.d===v.d)); // วันที่ถ่ายเดียวกัน = ภาพเดียวกัน เก็บรุ่นใหม่สุด
+   if(WBL)V=V.filter(v=>v.d!==WBL.d); // ซ้ำกับภาพปัจจุบัน
+   if(WBI!=null&&!V.some(v=>v.n===WBI)){const v=out.find(v=>v.n===WBI)||WBC.find(v=>v.n===WBI);if(v)V.push(v)}
+   WBV=V;WBP=out.filter(v=>!v.d&&!v.wf).length;itUI()};
+  WBP=out.length;itUI();
+  // metadata ของ Wayback ช้ามาก (1–20 วิ/คำขอ, ยิงพร้อมกันมากจะ error แบบไม่มี CORS) → query ชั้นตามระดับไทล์ (id = 23−L) ทีละ 3 คำขอ รอได้ 25 วิ ลองซ้ำ 1 ครั้ง
+  const lay=Math.max(0,Math.min(13,23-L)),qu=b=>`${b}/${lay}/query?geometry=${c.lng},${c.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=SRC_DATE,NICE_DESC,SRC_RES,MinMapLevel,MaxMapLevel&returnGeometry=false&f=json`;
+  const idq=async(u,ms)=>{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),ms);try{const j=await (await fetch(u,{signal:ac.signal})).json();return idAttr({results:j.features||j.results},L)||null}catch(e){return undefined}finally{clearTimeout(t)}};
+  idq(idUrl(ESRI_MS,c,'all:0'),15000).then(a=>{if(a&&q===wbQ){WBL=a;fin()}});
+  const job=[...out];await Promise.all([0,1,2].map(async()=>{let v;while((v=job.shift())){if(q!==wbQ)return;let a=await idq(qu(v.m),25000);if(a===undefined&&q===wbQ)a=await idq(qu(v.m),25000);if(q!==wbQ)return;if(a)Object.assign(v,a);else v.wf=1;fin()}}))}
  catch(e){WBK='';if(q===wbQ&&imgOf()==='esri')$('#it-v').textContent='ค้นหาภาพย้อนหลังไม่ได้'}}
-const wbArr=()=>[...WBV].reverse().map(v=>v.n).concat([null]); // แถบเลื่อน: เก่า → ใหม่ → ภาพปัจจุบัน
+// แถบเลื่อน: เก่า → ใหม่ ตามวันที่ถ่าย จบที่ภาพปัจจุบัน · รุ่นที่อ่านวันที่ถ่ายไม่ได้ใช้วันที่ออกรุ่นแทน (วันที่ถ่ายย่อมไม่หลังวันที่ออกรุ่น) แต่ไม่เลยภาพปัจจุบัน
+const wbArr=()=>{const lk=WBL?WBL.d:'99999999';return WBV.map(v=>({n:v.n,k:v.d||(v.rel.replace(/-/g,'')<lk?v.rel.replace(/-/g,''):lk)})).concat([{n:null,k:lk}]).sort((a,b)=>a.k<b.k?-1:a.k>b.k?1:a.n==null?1:b.n==null?-1:0).map(x=>x.n)};
 const dayOf=()=>IDAY==null?gibsDay():new Date(IDAY*864e5).toISOString().slice(0,10);
 const IMG={google:{cr:'ภาพ © Google',src:()=>'Google Satellite · ไม่มีข้อมูลวันที่ภาพ',u:()=>[0,1,2,3].map(i=>`https://mt${i}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}`),mz:20},
  esri:{cr:'© Esri',src:()=>'Esri World Imagery · Vantor/Maxar · ละเอียด ~0.3 ม. (อายุภาพต่างกันรายพื้นที่)',u:()=>WBI==null?'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}':WB+'/WMTS/1.0.0/default028mm/MapServer/tile/'+WBI+'/{z}/{y}/{x}'},
@@ -595,7 +599,8 @@ function itUI(){const box=$('#imgtime'),k=imgOf(),r=$('#it-r'),on=S.base==='sat'
  if(isD){mx=dNum(gibsDay());v=dNum(dayOf());mn=Math.max(GIBS0,Math.min(v,mx-365));lab=new Date(v*864e5).toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short',year:'2-digit',timeZone:'UTC'});lat=IDAY==null;
   dd.min='2018-01-01';dd.max=gibsDay();dd.value=dayOf();const H=hsDays(),o=[];for(let d=mn;d<=mx;d++)if(H.has(d))o.push('<option value="'+d+'">');l.innerHTML=o.join('');r.title='เลื่อนทีละวัน · ขีดบนแถบ = วันที่พบจุดความร้อนในฐานข้อมูล'}
  else if(k==='esri'){const A=wbArr(),w=WBV.find(x=>x.n===WBI)||(WBI!=null&&WBC&&WBC.find(x=>x.n===WBI));mn=0;mx=A.length-1;v=Math.max(0,A.indexOf(WBI));lat=WBI==null;l.innerHTML=A.map((_,i)=>'<option value="'+i+'">').join('');
-  lab=w?(w.d?'ภาพถ่าย '+ymdTh(w.d)+(w.src?' · '+w.src:''):'รุ่นภาพ '+ymdTh(w.rel.replace(/-/g,''))):(WBV.length||WBL?'ภาพปัจจุบัน'+(WBL?' (ถ่าย '+ymdTh(WBL.d)+')':''):'กำลังค้นหาภาพย้อนหลัง…');
+  lab=w?(w.d?'ภาพถ่าย '+ymdTh(w.d)+(w.src?' · '+w.src:''):'รุ่นภาพ '+ymdTh(w.rel.replace(/-/g,''))+(w.wf?' (ไม่ทราบวันที่ถ่าย)':'')):(WBV.length||WBL||WBP?'ภาพปัจจุบัน'+(WBL?' (ถ่าย '+ymdTh(WBL.d)+')':''):'กำลังค้นหาภาพย้อนหลัง…');
+  if(WBP)lab+=' · กำลังอ่านวันที่ภาพเก่า เหลือ '+WBP;
   r.title=A.length>1?'เลื่อนดูภาพ Esri ที่ต่างกัน '+A.length+' ช่วงเวลา ณ กลางจอ (ค้นใหม่เมื่อเลื่อนแผนที่)':'ยังไม่พบภาพย้อนหลังที่ต่างจากปัจจุบัน ณ กลางจอ';wbScan()}
  else{mn=0;mx=S2YS.length-1;v=S2YS.indexOf(S2Y);lab='ภาพรวมปี '+(S2Y+543)+' ('+S2Y+')';lat=S2Y===S2YS[mx];l.innerHTML=S2YS.map((_,i)=>'<option value="'+i+'">').join('');r.title='เลื่อนทีละปี · '+S2YS.map(y=>y+543).join(', ')}
  r.min=mn;r.max=mx;r.step=1;r.value=v;$('#it-v').textContent=lab;r.disabled=mx<=mn;$('#it-p').disabled=v<=(isD?GIBS0:0);$('#it-n').disabled=v>=mx;$('#it-0').setAttribute('aria-disabled',lat)}
@@ -843,7 +848,7 @@ $$('#imgsrc button').forEach(b=>b.onclick=()=>{S.img=b.dataset.i;gErr=0;S.base='
 $('#it-r').oninput=e=>itSet(+e.target.value);
 $('#it-p').onclick=()=>itSet(+$('#it-r').value-1,1);$('#it-n').onclick=()=>itSet(+$('#it-r').value+1,1);
 $('#it-d').onchange=e=>{if(e.target.value)itSet(dNum(e.target.value),1)};
-$('#it-0').onclick=$('#it-0').onkeydown=e=>{if(e.type==='keydown'&&e.key!=='Enter'&&e.key!==' ')return;e.preventDefault();itSet(imgOf()==='s2'?S2YS.length-1:1e9,1)};
+$('#it-0').onclick=$('#it-0').onkeydown=e=>{if(e.type==='keydown'&&e.key!=='Enter'&&e.key!==' ')return;e.preventDefault();itSet(imgOf()==='s2'?S2YS.length-1:imgOf()==='esri'?wbArr().indexOf(null):1e9,1)};
 map.on('moveend',()=>{if(S.base==='sat'&&imgOf()==='esri'){clearTimeout(imgT);imgT=setTimeout(imgDate,400);clearTimeout(wbT);wbT=setTimeout(wbScan,700)}});
 $('#rf').onclick=async()=>{await load();toast('ดึงข้อมูลใหม่แล้ว')};
 $('#sdef').onclick=()=>{try{localStorage.setItem('fm-v1',JSON.stringify(S));toast('บันทึกค่าเริ่มต้นแล้ว')}catch(e){toast('บันทึกไม่ได้ในเบราว์เซอร์นี้')}};
