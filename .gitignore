@@ -1,0 +1,9 @@
+# ผลของ build_site.js (สร้างใหม่บน GitHub Actions ทุกรอบ)
+_site/
+# ไฟล์ชั่วคราว/บันทึกของ sync_hotspots.js
+data/sync.log
+data/.sync.lock
+*.tmp
+# ค่าตั้งเฉพาะเครื่อง
+.claude/settings.local.json
+node_modules/

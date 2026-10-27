@@ -1,0 +1,39 @@
+# เผยแพร่หน้าเว็บขึ้น GitHub Pages พร้อม live.json (จุดความร้อน 48 ชม. กรองเฉพาะกลุ่มป่าแล้ว) และ air4thai.json
+# รันทุก ~10 นาที (GitHub อาจเลื่อนรอบตามคิว 5–15 นาที) + ทุกครั้งที่มีการ push + กดรันเองได้
+name: site
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # ถ้าดึงข้อมูลไม่สำเร็จก็ยังเผยแพร่หน้าเว็บ (หน้าเว็บจะถอยไปดึง API ตรงเอง)
+      - run: node scripts/build_site.js || true
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
