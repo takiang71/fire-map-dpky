@@ -98,6 +98,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .seg{display:flex;margin:6px 0}
 .seg button{flex:1;min-height:40px;border:1px solid var(--line);background:var(--bg);font-size:12.5px;margin-left:-1px}
 .seg button:first-child{border-radius:10px 0 0 10px;margin:0}.seg button:last-child{border-radius:0 10px 10px 0}
+#imgsrc{display:flex;margin:0 0 6px}#imgsrc[hidden]{display:none}#imgsrc button{flex:1;white-space:nowrap;padding:6px 4px}
 .seg button.on{background:var(--sel);font-weight:800;color:var(--navy)}
 .lk{background:none;border:0;color:var(--navy);text-decoration:underline;font-size:12px;padding:6px 0 6px 30px}
 .imp{margin:8px 16px 14px;min-height:42px;border:1.5px solid var(--navy);background:var(--bg);color:var(--navy);font-weight:800;border-radius:12px}
@@ -203,7 +204,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 <div class="md" id="md" hidden role="dialog" aria-modal="true" aria-labelledby="md-t"><div class="mc"><div class="mh"><b id="md-t"></b><button class="cb ib" id="md-x" aria-label="ปิด"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="mb" id="md-b"></div></div></div>
 <div id="toast" role="status"></div>
 <div id="rpt" aria-hidden="true"></div>
-<div id="attr">© Esri · © OpenStreetMap · จุดความร้อน WFSRU/ThaiREN · Open-Meteo · Air4Thai · CAMS · กรมป่าไม้ · OCHA HDX · แนวเขต KMZ ผู้ใช้</div>
+<div id="attr"><span id="attr-b">© Esri</span> · © OpenStreetMap · จุดความร้อน WFSRU/ThaiREN · Open-Meteo · Air4Thai · CAMS · กรมป่าไม้ · OCHA HDX · แนวเขต KMZ ผู้ใช้</div>
 
 <aside id="left">
  <button id="grab" aria-label="ขยายหรือย่อแผง"></button>
@@ -270,7 +271,8 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
  <div class="rh"><b>ชั้นข้อมูล</b><a id="sdef" role="button" tabindex="0">ตั้งที่เลือกเป็นค่าเริ่มต้น</a><button class="cb" id="xr" aria-label="ปิดแผง" style="width:36px;height:36px;box-shadow:none"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
  <div class="rb">
   <h3>แผนที่ฐาน</h3>
-  <div class="seg" id="seg"><button data-b="natural" data-src="Esri World Topo · เงาภูเขา AWS Terrain">ธรรมชาติ</button><button data-b="flat" data-src="OpenFreeMap Positron · © OpenStreetMap">เรียบ</button><button data-b="sat" data-src="Esri World Imagery · Maxar">ดาวเทียม</button><button data-b="detail" data-src="OpenFreeMap Liberty · © OpenStreetMap">ละเอียด</button><button data-b="road" data-src="OpenFreeMap Bright · © OpenStreetMap">ถนน</button></div>
+  <div class="seg" id="seg"><button data-b="natural" data-src="Esri World Topo · เงาภูเขา AWS Terrain">ธรรมชาติ</button><button data-b="flat" data-src="OpenFreeMap Positron · © OpenStreetMap">เรียบ</button><button data-b="sat" data-src="">ดาวเทียม</button><button data-b="detail" data-src="OpenFreeMap Liberty · © OpenStreetMap">ละเอียด</button><button data-b="road" data-src="OpenFreeMap Bright · © OpenStreetMap">ถนน</button></div>
+  <div class="sg" id="imgsrc" hidden aria-label="แหล่งภาพดาวเทียม"><button data-i="esri">ละเอียดสูง</button><button data-i="s2">Sentinel-2 ปี 68</button><button data-i="day">รายวัน <span id="img-d"></span></button></div>
   <div class="row"><svg class="i" viewBox="0 0 24 24"><path d="M3 20l6-10 4 6 3-4 5 8z"/></svg><b>มุมมอง 3 มิติ</b><button class="sw" data-k="d3" role="switch" aria-label="มุมมอง 3 มิติ"></button></div>
 
   <h3>ไฟและควัน</h3>
@@ -503,17 +505,23 @@ const areaHtml=g=>{let s='';if(g.cons)s+=`<b>${esc(g.cons.properties.name)}</b><
  return s||'<span class="sm">อยู่นอกพื้นที่อนุรักษ์และพื้นที่รับผิดชอบไฟป่าตามไฟล์แนวเขต</span><br>'};
 
 /* ---------- สถานะ + จำค่าที่ผู้ใช้เลือก ---------- */
-let S={base:'natural',d3:false,hot:true,prov:true,cons:true,resp:false,stn:false,wpt:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},demo:false,water:true,road:true,wind:false,pm:false,dry:false,hist:false};
+let S={base:'natural',img:'esri',d3:false,hot:true,prov:true,cons:true,resp:false,stn:false,wpt:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},demo:false,water:true,road:true,wind:false,pm:false,dry:false,hist:false};
 try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;
 const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2200)};
 const thTime=d=>new Date(d).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'});
 
 /* ---------- แผนที่ ---------- */
-const ras=u=>({version:8,glyphs:'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',sources:{t:{type:'raster',tiles:[u],tileSize:256,maxzoom:18}},layers:[{id:'bg',type:'raster',source:'t'}]});
+const ras=(u,mz=18)=>({version:8,glyphs:'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',sources:{t:{type:'raster',tiles:[u],tileSize:256,maxzoom:mz}},layers:[{id:'bg',type:'raster',source:'t'}]});
 const OFM='https://tiles.openfreemap.org/styles/';
 const STY={natural:ras('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}'),flat:OFM+'positron',
- sat:ras('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),detail:OFM+'liberty',road:OFM+'bright'};
-const map=new maplibregl.Map({container:'map',style:STY[S.base],bounds:HOME,fitBoundsOptions:{padding:homePad()},attributionControl:false,maxPitch:75,preserveDrawingBuffer:true}); // preserveDrawingBuffer: ให้ดึงภาพแผนที่ใส่รายงานได้
+ detail:OFM+'liberty',road:OFM+'bright'};
+// ภาพดาวเทียม 3 แหล่ง (ฟรี ไม่ต้องใช้ key): Esri ละเอียดสุดแต่อายุภาพต่างกันรายพื้นที่ · Sentinel-2 ไร้เมฆรายปี (EOX, CC BY-NC-SA) · NASA GIBS ภาพ NOAA-20 รายวัน (หยาบแต่ใหม่สุด เห็นควัน/รอยไหม้)
+const gibsDay=()=>new Date(Date.now()-10*36e5).toISOString().slice(0,10); // ดาวเทียมผ่านไทย ~06:30 UTC + ประมวลผล ~3 ชม. → หลัง 10:00 UTC ใช้ภาพวันนี้
+const IMG={esri:{cr:'© Esri',src:()=>'Esri World Imagery · Vantor/Maxar · ละเอียด ~0.3 ม. (อายุภาพต่างกันรายพื้นที่)',u:()=>'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'},
+ s2:{cr:'Sentinel-2 cloudless 2025 by EOX',src:()=>'Sentinel-2 cloudless 2025 by EOX (Copernicus Sentinel data 2025) · ภาพไร้เมฆรวมทั้งปี ละเอียด 10 ม.',u:()=>'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2025_3857/default/g/{z}/{y}/{x}.jpg',mz:15},
+ day:{cr:'NASA GIBS',src:()=>'NASA GIBS · VIIRS NOAA-20 ภาพสีจริง '+gibsDay()+' · ละเอียด ~375 ม.',u:()=>'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_NOAA20_CorrectedReflectance_TrueColor/default/'+gibsDay()+'/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg',mz:9}};
+const imgOf=()=>IMG[S.img]?S.img:'esri',sty=()=>S.base==='sat'?ras(IMG[imgOf()].u(),IMG[imgOf()].mz):STY[S.base];
+const map=new maplibregl.Map({container:'map',style:sty(),bounds:HOME,fitBoundsOptions:{padding:homePad()},attributionControl:false,maxPitch:75,preserveDrawingBuffer:true}); // preserveDrawingBuffer: ให้ดึงภาพแผนที่ใส่รายงานได้
 map.addControl(new maplibregl.ScaleControl({unit:'metric'}),'bottom-right');
 const COL={r:'#e0301e',o:'#f08a1c',b:'#9a6a4a'}, GL=['match',['get','g'],'r',COL.r,'o',COL.o,COL.b];
 
@@ -568,6 +576,8 @@ function apply(){
 function sync(){
  $$('.sw[data-k]').forEach(b=>b.setAttribute('aria-checked',!!S[b.dataset.k]));
  $$('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.b===S.base));
+ const im=$('#imgsrc'),k=imgOf();im.hidden=S.base!=='sat';$$('#imgsrc button').forEach(b=>{b.setAttribute('aria-pressed',b.dataset.i===k);b.title=IMG[b.dataset.i].src()});
+ $('#img-d').textContent=new Date(gibsDay()).toLocaleDateString('th-TH',{day:'numeric',month:'short'});$('#seg [data-b="sat"]').dataset.src=IMG[k].src();$('#attr-b').textContent=S.base==='sat'?IMG[k].cr:'© Esri';
  $('#b3d').classList.toggle('on',S.d3);$('#bLay').classList.toggle('on',$('#right').classList.contains('open'));
 }
 map.on('style.load',()=>{ setup() });
@@ -756,7 +766,8 @@ $('#b3d').onclick=()=>set3d(!S.d3);
 $('#stats').addEventListener('click',e=>{const t=e.target.closest('.zl');if(t)zoomTo(t.dataset.z)});
 $('#bDemo').onclick=()=>{S.demo=!S.demo;if(!S.demo&&typeof closeDetail==='function')try{closeDetail()}catch(e){}refreshHS();toast(S.demo?'แสดงจุดความร้อนตัวอย่างแล้ว':'ซ่อนจุดความร้อนตัวอย่างแล้ว')};
 $$('.sw[data-k]').forEach(b=>b.onclick=()=>{const k=b.dataset.k;k==='d3'?set3d(!S.d3):(S[k]=!S[k],apply())});
-$$('#seg button').forEach(b=>b.onclick=()=>{S.base=b.dataset.b;map.setStyle(STY[S.base],{diff:false});sync()});
+$$('#seg button').forEach(b=>b.onclick=()=>{S.base=b.dataset.b;map.setStyle(sty(),{diff:false});sync()});
+$$('#imgsrc button').forEach(b=>b.onclick=()=>{S.img=b.dataset.i;S.base='sat';map.setStyle(sty(),{diff:false});sync()});
 $('#rf').onclick=async()=>{await load();toast('ดึงข้อมูลใหม่แล้ว')};
 $('#sdef').onclick=()=>{try{localStorage.setItem('fm-v1',JSON.stringify(S));toast('บันทึกค่าเริ่มต้นแล้ว')}catch(e){toast('บันทึกไม่ได้ในเบราว์เซอร์นี้')}};
 addEventListener('keydown',e=>{
