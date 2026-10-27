@@ -76,6 +76,8 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
  #rpt .r3{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}#rpt table{width:100%;border-collapse:collapse}#rpt th,#rpt td{border:1px solid #bbb;padding:2px 5px;text-align:left}#rpt th{background:#eef1f7}#rpt td.n{text-align:right}
  #rpt tr{break-inside:avoid}#rpt thead{display:table-header-group}#rpt .ft{margin-top:8px;color:#555;font-size:9.5px}
 }
+.pmd{display:flex;align-items:center;gap:6px;margin:12px 0 4px}.pmd .sg2{display:flex;background:#eef1f6;border-radius:10px;padding:2px;gap:2px}.pmd .sg2 button{border:0;background:none;border-radius:8px;padding:5px 9px;font-size:13px;color:var(--mut);white-space:nowrap}.pmd .sg2 button[aria-selected=true]{background:#fff;color:var(--navy);font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.12)}.pmd>span{margin-left:auto;font-size:12px;color:var(--mut);white-space:nowrap}
+.ptb2{display:flex;gap:4px;margin:-2px 0 8px}.ptb2[hidden]{display:none}.ptb2 button{border:1px solid var(--line);background:none;border-radius:999px;padding:3px 10px;font-size:12.5px;color:var(--mut);white-space:nowrap}.ptb2 button[aria-selected=true]{border-color:var(--navy);color:var(--navy);font-weight:700;background:#eef1f6}.ptb2 em{font-style:normal;font-weight:400}
 .ptb{display:flex;gap:2px;border-bottom:1px solid var(--line);margin:4px 0 8px}
 .ptb button{border:0;background:none;padding:6px 5px;white-space:nowrap;font-size:13px;color:var(--mut);border-bottom:2px solid transparent;margin-bottom:-1px}.ptb button[aria-selected=true]{color:var(--navy);font-weight:700;border-bottom-color:var(--navy)}.ptb em{font-style:normal;font-weight:400;color:var(--mut)}
 /* แผงขวา + ปุ่ม */
@@ -239,8 +241,9 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div class="plg" id="p-lg"></div>
   <div class="pch" id="p-ch"></div>
   <div class="sm" id="p-yr"></div>
-  <div class="pq"><b>จุดใน 24 ชม. แยกตามพื้นที่</b></div>
+  <div class="pmd"><div class="sg2" role="tablist" id="p-md" aria-label="ช่วงข้อมูลของรายการแยกตามพื้นที่"><button role="tab" data-m="24" aria-selected="true">จุดใน 24 ชม.</button><button role="tab" data-m="fy" aria-selected="false" id="p-mfy" title="นับตามดาวเทียมตัวชี้วัดกรมอุทยานฯ (เท่ากับยอดสะสมปีงบในการ์ด)">จุดสะสมปีงบ</button></div><span>แยกตามพื้นที่</span></div>
   <div class="ptb" role="tablist" id="p-tb"><button role="tab" data-t="pv" aria-selected="true">จังหวัด <em id="pn">0</em></button><button role="tab" data-t="sb" aria-selected="false">สบอ. <em id="pn-sb">0</em></button><button role="tab" data-t="pa" aria-selected="false">พื้นที่อนุรักษ์ <em id="pn-pa">0</em></button><button role="tab" data-t="st" aria-selected="false">สถานีฯ ไฟป่า <em id="pn-st">0</em></button></div>
+  <div class="ptb2" role="tablist" id="p-tb2" aria-label="ระดับพื้นที่ในจังหวัด"><button role="tab" data-t="pv" aria-selected="true">จังหวัด <em id="pn-pv2">0</em></button><button role="tab" data-t="am" aria-selected="false">อำเภอ <em id="pn-am">0</em></button><button role="tab" data-t="tm" aria-selected="false">ตำบล <em id="pn-tm">0</em></button></div>
   <label class="srch"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="q" placeholder="ค้นหาจังหวัด" aria-label="ค้นหาในรายการ" autocomplete="off"></label>
   <div id="pl"></div>
   <div class="sm" id="p-meta" style="margin-top:6px"></div>
@@ -720,10 +723,21 @@ const SB1='สำนักบริหารพื้นที่อนุรั
 const SBP={'ปราจีนบุรี':SB1,'นครนายก':SB1,'สระแก้ว':SB1,'สระบุรี':'สำนักบริหารพื้นที่อนุรักษ์ที่ 1 สาขาสระบุรี','นครราชสีมา':SB7,'บุรีรัมย์':SB7}; // แยก สบอ. ตามจังหวัดที่เกิดจุด
 const sbGeo=g=>{const m=g.cons||g.resp.find(f=>!/พื้นที่รอง/.test(f.properties.station))||g.resp[0];return m?m.properties.paro:'ไม่ระบุ'},
  sbOf=(pv,g)=>SBP[String(pv||'').replace(/^จังหวัด/,'').trim()]||(g?sbGeo(g):'ไม่ระบุ'),sbShort=n=>n.replace(/^สำนักบริหารพื้นที่อนุรักษ์ที่\s*/,'สบอ.');
-function areaRows(){const L=HS.filter(h=>ageH(h)<24);
- if(PT==='pv')return provs().map(p=>({name:p.name,n:p.n,go:()=>map.flyTo({center:p.c,zoom:9.3,duration:dur(1600)})}));
+/* รายการแยกตามพื้นที่: PM '24' = จุดใน 24 ชม. (HS) · 'fy' = จุดสะสมปีงบปัจจุบันตามดาวเทียมตัวชี้วัด (เท่ากับ fyNow) */
+let PM='24',FYC=null;
+function fyPts(){if(!ADI)return[];const T0=thDay(),s=fy0(fyOfDay(T0)),k=s+'|'+loadedAt+'|'+AD.length;if(FYC&&FYC.k===k)return FYC.L;
+ const L=[],seen=new Set();
+ AD.forEach(r=>{if(r.d>=s&&r.d<=T0&&r.sat===indSat(r.d)){seen.add(hKey(r.d,r.t,r.la,r.lo));const[tb,am]=String(r.tm).split('|');L.push(r._h||(r._h={lat:r.la,lon:r.lo,prov:r.pv,amp:am||r.am,tam:tb}))}});
+ LIVE.forEach(h=>{const x=new Date(h.t+7*36e5),d=Math.floor(x/864e5),k=hKey(d,x.getUTCHours()*100+x.getUTCMinutes(),h.lat,h.lon);if(d>ADI.to&&d>=s&&d<=T0&&satKey(h.sat)===indSat(d)&&!seen.has(k)){L.push(h);seen.add(k)}});
+ return(FYC={k,L}).L}
+const areaPts=()=>PM==='fy'?fyPts():HS.filter(h=>ageH(h)<24),okN=v=>v&&!/ไม่ระบุ/.test(v);
+function areaRows(){const L=areaPts();
+ if(PT==='pv'){const m={};L.filter(h=>okN(h.prov)).forEach(h=>(m[h.prov]=m[h.prov]||[]).push(h));
+  return Object.entries(m).map(([k,F])=>({name:k,n:F.length,txt:'จังหวัด'+k,go:()=>PM==='24'?map.flyTo({center:[F.reduce((a,h)=>a+h.lon,0)/F.length,F.reduce((a,h)=>a+h.lat,0)/F.length],zoom:9.3,duration:dur(1600)}):fitPts(F)})).sort((a,b)=>b.n-a.n)}
+ if(PT==='am'||PT==='tm'){const m={};L.filter(h=>okN(h.amp)&&(PT==='am'||okN(h.tam))).forEach(h=>{const k=(PT==='tm'?h.tam+'|':'')+h.amp+'|'+h.prov;(m[k]=m[k]||[]).push(h)});
+  return Object.entries(m).map(([k,F])=>{const p=k.split('|');return PT==='am'?{name:'อ.'+p[0]+' · '+p[1],full:k,txt:'อำเภอ'+p[0]+' จังหวัด'+p[1],n:F.length,go:()=>fitPts(F)}:{name:'ต.'+p[0]+' · อ.'+p[1],full:k,txt:'ตำบล'+p[0]+' อำเภอ'+p[1]+' จังหวัด'+p[2],n:F.length,go:()=>fitPts(F)}}).sort((a,b)=>b.n-a.n)}
  if(PT==='sb'){const m={};L.forEach(h=>{const k=sbOf(h.prov,h.geo||(h.geo=geoAt(h.lon,h.lat)));(m[k]=m[k]||[]).push(h)});return Object.entries(m).map(([k,F])=>({name:sbShort(k),full:k,n:F.length,go:()=>fitPts(F)})).sort((a,b)=>b.n-a.n)}
- if(PT==='pa')return pas().map(([n,c])=>({name:paShort(n),full:n,n:c,go:()=>zoomTo('pa|'+n)}));
+ if(PT==='pa'){const m={};L.forEach(h=>{const g=h.geo||(h.geo=geoAt(h.lon,h.lat));if(g.cons)(m[g.cons.properties.name]=m[g.cons.properties.name]||[]).push(h)});return Object.entries(m).map(([n,F])=>({name:paShort(n),full:n,n:F.length,go:()=>fitPts(F)})).sort((a,b)=>b.n-a.n)}
  const m={};L.forEach(h=>{const g=h.geo||(h.geo=geoAt(h.lon,h.lat)),ks=[...new Set(g.resp.map(f=>f.properties.station.replace(/\s*\(พื้นที่รอง\)/,'').trim()))];(ks.length?ks:['ไม่มีสถานีฯ รับผิดชอบ']).forEach(k=>(m[k]=m[k]||[]).push(h))});
  return Object.entries(m).map(([k,F])=>({name:k.replace(/^สถานีควบคุมไฟป่า\s*/,''),full:k,n:F.length,c:STC[stKey(k)]||'#9aa3b5',out:k==='ไม่มีสถานีฯ รับผิดชอบ',go:()=>fitPts(F)})).sort((a,b)=>a.out-b.out||b.n-a.n)}
 function renderCard(){
@@ -743,10 +757,13 @@ function renderCard(){
  pChart(F,T,now,Hh);
  $('#p-yr').innerHTML=`ตัวชี้วัดกรมอุทยานฯ: ${ind}${ADI&&T0-ADI.to>2?` · <b>ข้อมูลสะสมถึง ${dShort(ADI.to)}</b>`:''}<br>ปีงบ ${Hh.P} ทั้งปี <b>${nf(Hh.tot)}</b> จุด${Hh.tot?` · มากสุดเดือน ${TMO[Hh.pm]} (${nf(Hh.pmN)}) · วันที่มากสุด ${dShort(Hh.pd[0])} (${nf(Hh.pd[1])} จุด)`:''} · กราฟเป็นยอดสะสมตั้งแต่ 1 ต.ค.`;
  // ข้อมูลประกอบ: ดาวเทียม / ความเชื่อมั่น
- const L=HS.filter(h=>ageH(h)<24),sm={};L.forEach(h=>sm[h.sat||'ไม่ระบุ']=(sm[h.sat||'ไม่ระบุ']||0)+1);
- $('#p-meta').textContent=L.length?'24 ชม.: '+Object.entries(sm).sort((a,b)=>b[1]-a[1]).map(([k,v])=>k+' '+v).join(' · ')+' · ความเชื่อมั่นสูง '+L.filter(h=>h.conf==='h').length+' จุด':'';
- const pt=PT;[['pv','pn'],['sb','pn-sb'],['pa','pn-pa'],['st','pn-st']].forEach(([t,id])=>{PT=t;$('#'+id).textContent=areaRows().filter(r=>!r.out).length});PT=pt;
+ $('#p-mfy').textContent='จุดสะสมปีงบ '+F;
  drawList()}
+// ตัวเลขบนแท็บ (จำนวนพื้นที่) + บรรทัดข้อมูลประกอบใต้รายการ ตามช่วงข้อมูล PM
+function listMeta(){const pt=PT;[['pv','pn'],['sb','pn-sb'],['pa','pn-pa'],['st','pn-st'],['pv','pn-pv2'],['am','pn-am'],['tm','pn-tm']].forEach(([t,id])=>{PT=t;$('#'+id).textContent=areaRows().filter(r=>!r.out).length});PT=pt;
+ if(PM==='fy'){const T0=thDay(),L=fyPts();$('#p-meta').innerHTML=ADI?'สะสม 1 ต.ค. – '+dShort(T0)+' รวม <b>'+nf(L.length)+'</b> จุด · นับตามดาวเทียมตัวชี้วัด '+indName(T0)+' (ไม่ขึ้นกับปุ่มดาวเทียม)':'ยังไม่มีข้อมูลสะสม (ต้องรัน scripts/sync_hotspots.js)';return}
+ const L=HS.filter(h=>ageH(h)<24),sm={};L.forEach(h=>sm[h.sat||'ไม่ระบุ']=(sm[h.sat||'ไม่ระบุ']||0)+1);
+ $('#p-meta').textContent=L.length?'24 ชม.: '+Object.entries(sm).sort((a,b)=>b[1]-a[1]).map(([k,v])=>k+' '+v).join(' · ')+' · ความเชื่อมั่นสูง '+L.filter(h=>h.conf==='h').length+' จุด':''}
 function pChart(F,T,now,Hh){const W=311,Ht=128,l=28,r=48,t=8,b=18,iw=W-l-r,ih=Ht-t-b,s=fy0(F),N=fy0(F+1)-s,
  top=Math.max(4,now[T],Hh.cp[N-1],Hh.avg[N-1]),st=Math.pow(10,Math.floor(Math.log10(top/2))),ym=Math.ceil(top/2/st)*st*2,
  x=i=>l+i/(N-1)*iw,y=v=>t+(1-v/ym)*ih,path=(a,n)=>a.slice(0,n+1).map((v,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)).join(''),
@@ -770,17 +787,17 @@ function pChart(F,T,now,Hh){const W=311,Ht=128,l=28,r=48,t=8,b=18,iw=W-l-r,ih=Ht
   tip.innerHTML=`<b>ถึง ${new Date((s+i)*864e5).toLocaleDateString('th-TH',{day:'numeric',month:'short',timeZone:'UTC'})}</b><br>${i<=T?`<i style="border-color:#D93A1F"></i>ปีงบ ${F}: ${nf(now[i])}<br>`:''}<i style="border-color:#3E6FD8"></i>ปีงบ ${Hh.P}: ${nf(Hh.cp[i])}<br><i style="border-color:#9aa3b5;border-top-style:dashed"></i>เฉลี่ย: ${nf(Hh.avg[i],1)}`;
   tip.style.display='block';const px=x(i)/k,tw=tip.offsetWidth;tip.style.left=Math.max(0,Math.min(bx.width-tw,px+(px>bx.width/2?-tw-8:8)))+'px'};
  $('#p-hit').onpointerleave=hide}
-function drawList(){
+function drawList(){listMeta();
  const q=$('#q').value.trim(),R=areaRows().filter(p=>(p.full||p.name).includes(q)),mx=Math.max(1,...R.map(p=>p.n));
- $('#pl').innerHTML=R.map((p,i)=>`<button class="pr${afOn(p)?' on':''}" data-i="${i}" aria-pressed="${afOn(p)}" title="${esc(p.full||p.name)} · คลิกเพื่อเลือกพื้นที่ (ตาราง/CSV/รายงานจะกรองตามนี้) และซูม · คลิกซ้ำเพื่อยกเลิก"><i style="width:${Math.max(8,p.n/mx*60)}px${p.c?';background:'+p.c:''}"></i><span${p.out?' style="color:var(--mut)"':''}>${esc(p.name)}</span><em>${p.n} จุด</em></button>`).join('')||`<div class="sm" style="padding:8px">${q?'ไม่พบรายการที่ค้นหา':'ไม่พบจุดความร้อนใน 24 ชม.'}</div>`;
- $$('#pl .pr').forEach(b=>b.onclick=()=>{const p=R[b.dataset.i];if(afOn(p))AF=null;else{AF={t:PT,full:p.full||p.name,name:p.name};p.go()}drawList();afShow()});
+ $('#pl').innerHTML=R.map((p,i)=>`<button class="pr${afOn(p)?' on':''}" data-i="${i}" aria-pressed="${afOn(p)}" title="${esc(p.full||p.name)} · คลิกเพื่อเลือกพื้นที่ (ตาราง/CSV/รายงานจะกรองตามนี้) และซูม · คลิกซ้ำเพื่อยกเลิก"><i style="width:${Math.max(8,p.n/mx*60)}px${p.c?';background:'+p.c:''}"></i><span${p.out?' style="color:var(--mut)"':''}>${esc(p.name)}</span><em>${p.n} จุด</em></button>`).join('')||`<div class="sm" style="padding:8px">${q?'ไม่พบรายการที่ค้นหา':PM==='fy'?(ADI?'ยังไม่พบจุดความร้อนสะสมในปีงบนี้':'ยังไม่มีข้อมูลสะสม'):'ไม่พบจุดความร้อนใน 24 ชม.'}</div>`;
+ $$('#pl .pr').forEach(b=>b.onclick=()=>{const p=R[b.dataset.i];if(afOn(p))AF=null;else{AF={t:PT,full:p.full||p.name,name:p.name,txt:p.txt};p.go()}drawList();afShow()});
 }
 /* ตัวกรองพื้นที่สำหรับตาราง/CSV/รายงาน (เลือกจากรายการในการ์ด) */
 let AF=null;const AFT={pv:'จังหวัด',sb:'',pa:'',st:'สถานีควบคุมไฟป่า'};
 const afOn=p=>!!(AF&&AF.t===PT&&AF.full===(p.full||p.name));
 const arKey=n=>String(n||'').replace(/^เตรียมประกาศเป็น/,'').replace(/\s*\(เตรียมการ\)/,'').replace(/\s/g,'');
-const afText=()=>AF?(AF.full==='ไม่มีสถานีฯ รับผิดชอบ'?'จุดที่':AFT[AF.t])+AF.full.replace(/^สถานีควบคุมไฟป่า\s*/,''):'';
-const afMatch=r=>!AF||(AF.t==='pv'?r.pv===AF.full:AF.t==='sb'?(r.sb||'ไม่ระบุ')===AF.full:AF.t==='pa'?arKey(r.ar)===arKey(AF.full):AF.full==='ไม่มีสถานีฯ รับผิดชอบ'?(r.sts||[r.st]).every(s=>s==='ไม่มี'):(r.sts||[r.st]).some(s=>stKey(s)===stKey(AF.full)));
+const afText=()=>AF?AF.txt||(AF.full==='ไม่มีสถานีฯ รับผิดชอบ'?'จุดที่':AFT[AF.t])+AF.full.replace(/^สถานีควบคุมไฟป่า\s*/,''):'';
+const afMatch=r=>!AF||(AF.t==='pv'?r.pv===AF.full:AF.t==='am'?r.am+'|'+r.pv===AF.full:AF.t==='tm'?r.tm+'|'+r.am+'|'+r.pv===AF.full:AF.t==='sb'?(r.sb||'ไม่ระบุ')===AF.full:AF.t==='pa'?arKey(r.ar)===arKey(AF.full):AF.full==='ไม่มีสถานีฯ รับผิดชอบ'?(r.sts||[r.st]).every(s=>s==='ไม่มี'):(r.sts||[r.st]).some(s=>stKey(s)===stKey(AF.full)));
 function afShow(){const e=$('#p-af'),v=AF?`<span>ตาราง/CSV/รายงาน:</span><b>เฉพาะ${esc(afText())}</b><button data-afx>ล้าง</button>`:'';e.hidden=!AF;e.innerHTML=v;const m=$('#dt-af');if(m){m.hidden=!AF;m.innerHTML=v}}
 document.addEventListener('click',e=>{if(e.target.closest('[data-afx]')){AF=null;drawList();afShow();if($('#dt-w'))dtRender()}});
 /* ---------- ตารางรายละเอียดจุด · ดาวน์โหลด CSV · รายงานพิมพ์/PDF ---------- */
@@ -827,7 +844,11 @@ async function printReport(){toast('กำลังสร้างรายง�
 /* ---------- การโต้ตอบ ---------- */
 $('#q').oninput=drawList;
 $('#p-tbl').onclick=openTable;$('#p-csv').onclick=dtCSV;$('#p-pdf').onclick=printReport;
-$('#p-tb').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;PT=b.dataset.t;$$('#p-tb [data-t]').forEach(x=>x.setAttribute('aria-selected',x===b));$('#q').placeholder='ค้นหา'+{pv:'จังหวัด',sb:' สบอ.',pa:'พื้นที่อนุรักษ์',st:'สถานีฯ'}[PT];$('#q').value='';drawList()};
+function setPT(t){PT=t;const top=/^(pv|am|tm)$/.test(t)?'pv':t;$$('#p-tb [data-t]').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===top));$$('#p-tb2 [data-t]').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===t));$('#p-tb2').hidden=top!=='pv';
+ $('#q').placeholder='ค้นหา'+{pv:'จังหวัด',am:'อำเภอ',tm:'ตำบล',sb:' สบอ.',pa:'พื้นที่อนุรักษ์',st:'สถานีฯ'}[t];$('#q').value='';drawList()}
+$('#p-tb').onclick=e=>{const b=e.target.closest('[data-t]');if(b)setPT(b.dataset.t)};
+$('#p-tb2').onclick=e=>{const b=e.target.closest('[data-t]');if(b)setPT(b.dataset.t)};
+$('#p-md').onclick=e=>{const b=e.target.closest('[data-m]');if(!b||b.dataset.m===PM)return;PM=b.dataset.m;$$('#p-md [data-m]').forEach(x=>x.setAttribute('aria-selected',x===b));drawList()};
 $('#bHide').onclick=()=>{const h=$('#pcard').hidden=!$('#pcard').hidden;$('#bHide span').textContent=h?'แสดงรายการ':'ซ่อนรายการ'};
 $$('[data-soon]').forEach(b=>b.onclick=()=>{const[a,p]=b.dataset.soon.split('|');toast(`"${a}" จะเปิดใช้ในเฟส ${p}`)});
 $('#grab').onclick=()=>$('#left').classList.toggle('up');
