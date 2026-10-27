@@ -503,8 +503,8 @@ const areaHtml=g=>{let s='';if(g.cons)s+=`<b>${esc(g.cons.properties.name)}</b><
  return s||'<span class="sm">อยู่นอกพื้นที่อนุรักษ์และพื้นที่รับผิดชอบไฟป่าตามไฟล์แนวเขต</span><br>'};
 
 /* ---------- สถานะ + จำค่าที่ผู้ใช้เลือก ---------- */
-let S={base:'natural',d3:false,hot:true,prov:true,cons:true,resp:false,stn:false,wpt:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},demo:true,water:true,road:true,wind:false,pm:false,dry:false,hist:false};
-try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}
+let S={base:'natural',d3:false,hot:true,prov:true,cons:true,resp:false,stn:false,wpt:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},demo:false,water:true,road:true,wind:false,pm:false,dry:false,hist:false};
+try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;
 const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2200)};
 const thTime=d=>new Date(d).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'});
 
@@ -728,7 +728,7 @@ async function buildReport(){const R=dtRows(),img=await mapSnap(),now=Date.now()
  const tb=(h,E)=>`<table><thead><tr><th>${h}</th><th>จุด</th></tr></thead><tbody>${E.map(([k,v])=>`<tr><td>${esc(k)}</td><td class="n">${nf(v)}</td></tr>`).join('')||'<tr><td colspan="2">–</td></tr>'}</tbody></table>`;
  const sv=$('#p-ch svg'),chart=sv?sv.outerHTML.replace(/<line id="p-x"[^>]*\/?>(<\/line>)?/,''):'',demo=R.some(r=>r.demo)||!$('#p-smp').hidden||HS.some(h=>h.demo&&ageH(h)<24);
  $('#rpt').innerHTML=`<h1>รายงานสถานการณ์จุดความร้อน กลุ่มป่าดงพญาเย็น-เขาใหญ่</h1><div>สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี) · ช่วงข้อมูลในตาราง: ${esc(dtLabel())} · ออกรายงาน ${new Date(now).toLocaleString('th-TH',{dateStyle:'long',timeStyle:'short',timeZone:'Asia/Bangkok'})} น.</div>
- ${demo?'<div class="warn">รายงานนี้มีข้อมูลตัวอย่างปนอยู่ในตัวเลข 24 ชม./แผนที่ (ไม่ใช่ข้อมูลจริง) — ปิดสวิตช์ "จุดความร้อนตัวอย่าง" และรัน scripts/sync_hotspots.js ก่อนออกรายงานจริง</div>':''}
+ ${demo?'<div class="warn">รายงานนี้มีข้อมูลตัวอย่างปนอยู่ในตัวเลข 24 ชม./แผนที่ (ไม่ใช่ข้อมูลจริง) — ปิดสวิตช์ "จุดความร้อนตัวอย่าง" ก่อนออกรายงานจริง</div>':''}
  <h2>1. ภาพรวม</h2><div class="pk">${$('#p-kp').innerHTML}</div>
  <div class="rg"><div><b>${esc($('#p-cq').textContent)}</b> <span>(${esc($('#p-asof').textContent)})</span>${$('#p-cmp').innerHTML}<div style="margin-top:6px">${$('#p-yr').innerHTML}</div></div><div><div class="plg">${$('#p-lg').innerHTML}</div>${chart}</div></div>
  ${img?`<h2>2. แผนที่ ณ เวลาออกรายงาน</h2><img class="mp" src="${img}" alt="แผนที่">`:''}

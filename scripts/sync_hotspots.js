@@ -65,12 +65,13 @@ if (fs.existsSync(OUT)) store = JSON.parse(fs.readFileSync(OUT, 'utf8')).raw || 
   const todo = [];
   for (let d = dayOf(FROM); d <= today; d++) if (!(d in store.days) || d > today - REFETCH) todo.push(d);
   console.log(`ดึง ${todo.length} วัน (${todo.length ? isoOf(todo[0]) + ' → ' + isoOf(todo[todo.length - 1]) : '-'})`);
-  const got = {}, fail = [];
+  const got = {}, fail = [], empty = [];
   let i = 0, done = 0, nat = 0;
   await Promise.all(Array.from({ length: CONC }, async () => {
     while (i < todo.length) {
       const d = todo[i++];
-      try { const r = await fetchDay(d); got[d] = r.out; nat += r.n } catch (e) { fail.push(e.message) }
+      // ทั้งประเทศ 0 จุด = API ขัดข้องบ่อยกว่าไม่มีไฟจริง (เคยตอบว่างย้อนหลังหลายวัน 27 ต.ค. 69) → คงข้อมูลเดิมไว้ ไม่บันทึกว่าเสร็จ รอบหน้าดึงใหม่
+      try { const r = await fetchDay(d); if (r.n) got[d] = r.out; else empty.push(isoOf(d)); nat += r.n } catch (e) { fail.push(e.message) }
       if (++done % 20 === 0 || done === todo.length) console.log(`  ${done}/${todo.length} วัน · ทั้งประเทศ ${nat} จุด`);
     }
   }));
@@ -118,5 +119,6 @@ if (fs.existsSync(OUT)) store = JSON.parse(fs.readFileSync(OUT, 'utf8')).raw || 
   const cnt = {}; store.recs.forEach(r => { const k = (r.d >= dayOf('2026-10-01') ? '2570' : '2569') + ' ' + r.sat; cnt[k] = (cnt[k] || 0) + 1 });
   console.log('ในแนวเขต', store.recs.length, 'จุด', cnt, '· ฝังใน index.html', (s.length / 1024).toFixed(1), 'KB');
   console.log('ปีงบ 2569 SNPP', f69.length, 'จุด · ตรงกับข้อมูลกรมอุทยานฯ', f69.filter(r => r.dnp).length, 'จาก', hd.filter(a => a[0] <= dayOf('2026-09-30')).length);
+  if (empty.length) console.log('API ตอบว่างทั้งประเทศ', empty.length, 'วัน (คงข้อมูลเดิม รอบหน้าดึงใหม่):', empty.join(', '));
   if (fail.length) { console.log('ดึงไม่สำเร็จ', fail.length, 'วัน (รันใหม่จะลองวันเหล่านี้อีก):', fail.slice(0, 5)); process.exitCode = 1 }
 })();
