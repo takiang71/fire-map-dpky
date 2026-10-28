@@ -15,14 +15,14 @@
 - `data/hotspots_api.json` — ที่เก็บของ sync (raw + encoded) · `data/FY2569_SNPP_ทั้งกลุ่มป่า.csv` — จุด SNPP ปีงบ 2569 ทั้งกลุ่มป่า 171 จุด (ตรงกับกรมอุทยานฯ 75, กรมอุทยานฯ มีแต่ API ไม่มี 5)
 - **โฮสต์ (ใช้งานจริงแล้ว 27 ต.ค. 69):** https://takiang71.github.io/fire-map-dpky/ · repo สาธารณะ https://github.com/takiang71/fire-map-dpky (branch main, LF ตาม `.gitattributes`) · GitHub Pages แบบ Source = GitHub Actions · ผู้ใช้ยืนยันว่าเปิดเผยข้อมูลทั้งหมดเป็นสาธารณะได้
   - **ทำงานในเครื่อง: `git pull` ก่อนแก้ทุกครั้ง** (sync บน Actions commit วันละ 2 ครั้ง) แล้ว commit + push เมื่อแก้เสร็จ · push ครั้งแรกล็อกอินผ่าน Git Credential Manager แล้ว · git identity ของ repo: takiang71
-  - `.github/workflows/site.yml` ทุก ~10 นาที + push: `node scripts/build_site.js` → `_site/` (index.html + `live.json` จุด 48 ชม. กรองในแนวเขตแล้ว + `air4thai.json`) แล้ว deploy-pages
-  - `.github/workflows/sync.yml` 23:00/08:00 UTC (= 06:00/15:00 ไทย): รัน sync, commit index.html + data แล้วสั่ง `gh workflow run site.yml` (push ด้วย GITHUB_TOKEN ไม่ปลุก workflow อื่น)
+  - `.github/workflows/site.yml` ตั้งไว้ทุก 10 นาที (**จริง GitHub รันแค่ทุก 2–5 ชม.** — หน้าเว็บจึง fallback ดึง API ตรงเมื่อ live.json เก่ากว่า 40 นาที ใช้งานได้ปกติ) + push: `node scripts/build_site.js` → `_site/` (index.html + `live.json` จุด 48 ชม. กรองในแนวเขตแล้ว + `air4thai.json`) แล้ว deploy-pages
+  - `.github/workflows/sync.yml` 4 รอบ `17 23,2,8,11 * * *` UTC (= 06:17/09:17/15:17/18:17 ไทย — เผื่อ GitHub ข้ามรอบ เช่นรอบ 15:00 ของ 28 ต.ค. 69 หายไป): รัน sync, commit index.html + data แล้วสั่ง `gh workflow run site.yml` (push ด้วย GITHUB_TOKEN ไม่ปลุก workflow อื่น)
   - หน้าเว็บ: `liveFile()` อ่าน `live.json` ก่อน (ถ้าเก่ากว่า `LIVE_MAXAGE` 40 นาทีหรือไม่มี → ดึง API ตรง) · `getStations` ลอง `air4thai.json` ก่อน
   - ทดสอบในเครื่องแบบเดียวกับโฮสต์: `node scripts/build_site.js` แล้ว `node scripts/serve.js 8002 _site` (launch config `site-test`)
   - `scripts/lib/area.js` (GEO + `where` + `SBP`) และ `scripts/lib/air4thai.js` (แก้ cert chain) ใช้ร่วมกันโดย sync/build/serve
   - Task Scheduler ในเครื่อง**ลบแล้ว** (sync ย้ายไป Actions) — อย่าติดตั้งกลับ ไม่งั้นไฟล์ในเครื่องกับบน GitHub แก้ชนกัน · ทดสอบแล้ว: site (dispatch) ผ่าน, sync ผ่าน + commit + สั่ง site deploy ต่อได้
 - `scripts/install_sync_task.ps1` — ลงทะเบียน/ลบ (`-Remove`) Task Scheduler รัน sync วันละ 2 รอบผ่าน `conhost --headless` (ไม่มีหน้าต่างเด้ง) · ผลอยู่ใน `data/sync.log` (ตัดเหลือ ~100 KB เมื่อเกิน 200 KB) · กันรันซ้อนด้วย `data/.sync.lock` · เขียนไฟล์แบบ tmp+rename
-- `scripts/sync_hotspots.js` — ดึง API ทีละวัน (ทั้งประเทศ ~1 MB/วันช่วงพีค) กรองในแนวเขต เก็บสะสม ฝัง adata · รอบถัดไปดึงเฉพาะวันที่ขาด + ดึงซ้ำ 2 วันล่าสุด · backfill ครั้งแรก 392 วันใช้ราว 10 นาที
+- `scripts/sync_hotspots.js` — ดึง API ทีละวัน (ทั้งประเทศ ~1 MB/วันช่วงพีค) กรองในแนวเขต เก็บสะสม ฝัง adata · รอบถัดไปดึงเฉพาะวันที่ขาด + ดึงซ้ำ 7 วันล่าสุด แล้ว**รวม**กับจุดเดิม (ไม่แทนที่ทั้งวัน — API เคยตอบไม่ครบ เช่น 27 ต.ค. 69 มีแค่ NOAA-21) · backfill ครั้งแรก 392 วันใช้ราว 10 นาที
   - วันที่ API ตอบ **ทั้งประเทศ 0 จุด** ถือว่าขัดข้อง: คงข้อมูลเดิม ไม่บันทึกว่าเสร็จ (27 ต.ค. 69 API ตอบว่างย้อนหลัง 24–27 ต.ค. ทั้งที่เคยมีข้อมูล — ถ้าไม่กันจะลบจุดเดิมทิ้ง)
 - `data/kmz/*.kmz` — แนวเขตจริงจากผู้ใช้: พื้นที่อนุรักษ์ สบอ.1 (6), ขสป.ดงใหญ่, สถานีควบคุมไฟป่า (8 จุด), พื้นที่รับผิดชอบไฟป่า ปี 2570 (8 แปลง), จุดเฝ้าระวังไฟป่า ปี 2569 (`Point47จุดเฝ้าระวัง69_Cp.kmz`, 47 จุด)
 - `scripts/excel_to_hdata.py [xlsx]` — อัปเดตข้อมูลย้อนหลังใน index.html (คงลำดับ dictionary เดิม, รวมชื่อสถานีที่ต่างแค่เว้นวรรค)
@@ -97,10 +97,11 @@
 6. ชั้นชนิดป่า + modal เรียนรู้ชนิดป่า (ต้องได้ข้อมูลกรมป่าไม้ 2561 จากผู้ใช้), คู่มือการใช้งาน
 7. ตัวกรองเริ่มต้นตัดดงใหญ่ออก (ให้ตรงภาพตัวอย่าง 2,705 จุด) — ผู้ใช้ยังไม่ตอบ
 8. ~~ตั้ง sync อัตโนมัติ~~ เสร็จแล้ว — ย้ายไป GitHub Actions (`sync.yml`) และลบ Task Scheduler ในเครื่องแล้ว
-9. ~~โฮสต์ฟรี~~ เสร็จแล้ว (GitHub Pages + Actions) · ยังไม่ได้ยืนยันว่ารอบตั้งเวลา (`schedule`) ของ site ทุก 10 นาทีเริ่มทำงานแล้ว (GitHub อาจใช้เวลาสักพักหลังสร้าง repo) · ไม่ต้องใช้ Cloudflare Worker / AIR4THAI_PROXY แล้ว
+9. ~~โฮสต์ฟรี~~ เสร็จแล้ว (GitHub Pages + Actions) · ยืนยันแล้ว 28 ต.ค. 69: รอบตั้งเวลาทำงาน แต่ห่างกว่าที่ตั้ง (site ทุก 2–5 ชม.) · ไม่ต้องใช้ Cloudflare Worker / AIR4THAI_PROXY แล้ว
 10. LINE bot แจ้งเตือน + สรุปรายวัน (Messaging API, โควตาฟรีไทย ~300 ข้อความ/เดือน ต้องยืนยัน)
 11. ทดสอบบนเว็บโฮสต์แล้ว (27 ต.ค. 69): ปุ่มดาวเทียมกรองจุดบนแผนที่/การ์ด/ตาราง ถูกต้อง · เนื้อหา CSV (BOM, หัวไทย, ชื่อไฟล์) ถูก · `buildReport` ได้ภาพแผนที่จริง + กราฟ · มือถือ 375 px ไม่ล้นแนวนอน ปุ่มดาวเทียมแถวเดียว — **ยังไม่ได้ทดสอบ**: กล่องพิมพ์/บันทึก PDF จริง, ไฟล์ CSV ที่ดาวน์โหลดจริง, ภาพหน้าจอมือถือ (pane ถูกซ่อนจน WebGL ไม่วาด — canvas ค้าง 400×300 จนสั่ง resize ซึ่งเป็นผลของ pane ไม่ใช่บั๊ก)
-    - API ต้นทางขัดข้อง 27 ต.ค. 69 ~13:00 น. (ตอบว่างทุกวันตั้งแต่ 24 ต.ค.) — ตามดูว่ากลับมาเมื่อไร
+    - API ต้นทางขัดข้อง 27 ต.ค. 69 · 28 ต.ค. 69 ~19:00 น. กลับมาบางส่วน: 28 ต.ค. ครบ 3 ดวง, 27 ต.ค. มีแค่ NOAA-21, 24–26 ต.ค. ยังว่างทั้งประเทศ — ตามดูต่อ
+    - ตรวจรอยต่อตัวชี้วัด SNPP→NOAA-20 (28 ต.ค. 69) ด้วย harness จำลองเวลา 1/2/3 พ.ย.: `fyNow`/`fyPts` นับถูก ไม่ซ้ำ ไม่นับ SNPP/NOAA-21 ตั้งแต่ 2 พ.ย. · **ข้อควรรู้ปีหน้า**: ประวัติในการ์ด (`fyCum`/`prvPts`) ใช้เฉพาะ `!r.api` — ปีงบ 2570 ไม่มี Excel กรมอุทยานฯ จึงจะเป็น 0 เมื่อขึ้นปีงบ 2571 ถ้าไม่นำเข้าข้อมูลกรมอุทยานฯ หรือเปลี่ยนกติกา
 12. จุดของกรมอุทยานฯ ปีงบ 2569 ที่ไม่พบใน API 5 จุด — ควรตรวจกับต้นทาง
 
 ## การตรวจงาน

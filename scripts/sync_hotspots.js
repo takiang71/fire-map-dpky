@@ -1,6 +1,7 @@
 // เก็บสะสมจุดความร้อนจริงรายวันจาก Land Fire Alerts Thailand (WFSRU/ThaiREN) เฉพาะในแนวเขตกลุ่มป่า
 // ใช้: node scripts/sync_hotspots.js [--from YYYY-MM-DD] [--refetch N]
-//  - ครั้งแรกดึงตั้งแต่ 1 ต.ค. 2568 (ต้นปีงบ 2569) ทีละวัน · ครั้งต่อไปดึงเฉพาะวันที่ยังไม่มี + ดึงซ้ำ N วันล่าสุด (ค่าเริ่มต้น 2)
+//  - ครั้งแรกดึงตั้งแต่ 1 ต.ค. 2568 (ต้นปีงบ 2569) ทีละวัน · ครั้งต่อไปดึงเฉพาะวันที่ยังไม่มี + ดึงซ้ำ N วันล่าสุด (ค่าเริ่มต้น 7)
+//    API ต้นทางเคยตอบว่าง/ไม่ครบย้อนหลังหลายวันแล้วค่อยเติมทีหลัง (24–27 ต.ค. 69) จึงดึงซ้ำเป็นสัปดาห์ และรวมจุดเดิมกับจุดใหม่ (ไม่ลบจุดเดิม)
 //  - API ส่งทั้งประเทศ (ช่วงพีค ~1 MB/วัน) สคริปต์กรองเหลือเฉพาะจุดในพื้นที่อนุรักษ์/พื้นที่รับผิดชอบ (GEO ใน index.html)
 //  - ผลลัพธ์: data/hotspots_api.json + ฝังลง index.html (<script type="application/json" id="adata">)
 //    + data/FY2569_SNPP_ทั้งกลุ่มป่า.csv (จุด Suomi NPP ปีงบ 2569 ทั้งหมด พร้อมคอลัมน์ว่าอยู่ในข้อมูลกรมอุทยานฯ หรือไม่)
@@ -10,7 +11,7 @@ const ROOT = path.join(__dirname, '..');
 const H = path.join(ROOT, 'index.html'), OUT = path.join(ROOT, 'data', 'hotspots_api.json');
 const API = 'https://wildlandfire.thairen.net.th/landfirealertsmap_thailand/api/alerts';
 const arg = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null };
-const FROM = arg('--from') || '2025-10-01', REFETCH = +(arg('--refetch') || 2), CONC = 3;
+const FROM = arg('--from') || '2025-10-01', REFETCH = +(arg('--refetch') || 7), CONC = 3;
 
 // บันทึกผลลง data/sync.log ด้วย (ตั้งรันอัตโนมัติผ่าน Task Scheduler จะไม่มีหน้าจอให้ดู) · ตัดให้เหลือ ~200 KB
 const LOG = path.join(ROOT, 'data', 'sync.log');
@@ -75,14 +76,15 @@ if (fs.existsSync(OUT)) store = JSON.parse(fs.readFileSync(OUT, 'utf8')).raw || 
       if (++done % 20 === 0 || done === todo.length) console.log(`  ${done}/${todo.length} วัน · ทั้งประเทศ ${nat} จุด`);
     }
   }));
-  // แทนที่ข้อมูลของวันที่ดึงสำเร็จ (จุดอาจมีวันที่ข้ามไปวันก่อน/หลังเล็กน้อย จึงกันซ้ำด้วย unique_id)
+  // รวมจุดของวันที่ดึงสำเร็จกับจุดเดิม กันซ้ำด้วย unique_id — ไม่แทนที่ทั้งวัน เพราะ API อาจตอบไม่ครบ (เช่น 27 ต.ค. 69 มีแค่ NOAA-21) แล้วจุดเดิมที่ครบกว่าจะหาย
   const fetched = new Set(Object.keys(got).map(Number));
-  const byId = new Map(store.recs.filter(r => !fetched.has(r.d)).map(r => [r.uid || `${r.d}|${r.t}|${r.la}|${r.lo}|${r.sat}`, r]));
+  const byId = new Map(store.recs.map(r => [r.uid || `${r.d}|${r.t}|${r.la}|${r.lo}|${r.sat}`, r]));
   for (const d of fetched) {
     for (const r of got[d]) byId.set(r.uid || `${r.d}|${r.t}|${r.la}|${r.lo}|${r.sat}`, r);
-    if (d < today) store.days[d] = got[d].length; // วันนี้ยังไม่ครบ ไม่บันทึกว่าเสร็จ
+    if (d < today) store.days[d] = 0; // วันนี้ยังไม่ครบ ไม่บันทึกว่าเสร็จ
   }
   store.recs = [...byId.values()].sort((a, b) => a.d - b.d || a.t - b.t || a.la - b.la);
+  for (const r of store.recs) if (r.d in store.days && fetched.has(r.d)) store.days[r.d]++;
 
   // จับคู่กับข้อมูลกรมอุทยานฯ (Excel): วันเดียวกัน เวลาต่างไม่เกิน 10 นาที ห่างไม่เกิน ~400 ม.
   const hd = HDATA.r.filter(a => a[0] >= dayOf(FROM));
