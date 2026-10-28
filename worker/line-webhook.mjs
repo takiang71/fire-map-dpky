@@ -27,7 +27,8 @@ const AREAS = [
 const OUT = 'นอกพื้นที่อนุรักษ์', RED = '#D93A1F', BLUE = '#3E6FD8', MUT = '#8A8F98';
 
 // --- ส่วนประกอบ Flex ---
-const T = (text, o = {}) => ({ type: 'text', text: String(text), ...o });
+// span ใน LINE ไม่รับ size จากข้อความแม่ (ตกไปเป็น md) → ใส่ size ของข้อความแม่ให้ทุก span ที่ไม่ได้ระบุเอง
+const T = (text, o = {}) => ({ type: 'text', text: String(text), ...o, ...(o.contents ? { contents: o.contents.map(sp => sp.size || !o.size ? sp : { ...sp, size: o.size }) } : {}) });
 const B = (layout, contents, o = {}) => ({ type: 'box', layout, contents, ...o });
 const dPct = (c, p) => !p ? (c ? ['▲ ใหม่', RED] : ['–', MUT]) : c === p ? ['= เท่าเดิม', MUT] : [`${c > p ? '▲' : '▼'} ${Math.abs(Math.round((c - p) / p * 100))}%`, c > p ? RED : '#2E7D32'];
 // ไทล์ตัวเลข (กระชับ: ตัวเลข lg, ระยะขอบ 4px — ผู้ใช้ขอให้การ์ดสั้นพอเห็นเต็มจอมือถือ)
@@ -55,7 +56,7 @@ const ptRow = f => {
 const topN = (o, n) => Object.entries(o || {}).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'th')).slice(0, n);
 const LV = { pv: ['จังหวัด', k => 'จ.' + k], am: ['อำเภอ', k => { const [a, p] = k.split('|'); return `อ.${a} จ.${p}` }], tm: ['ตำบล', k => { const [t, a, p] = k.split('|'); return `ต.${t} อ.${a} จ.${p}` }] };
 const mergeCnt = (to, from) => { for (const k in from || {}) to[k] = (to[k] || 0) + from[k] };
-const dateTh = ms => new Date(ms).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Bangkok' });
+const dateTh = ms => new Date(ms).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit', timeZone: 'Asia/Bangkok' });
 const footer = site => B('vertical', [{ type: 'button', style: 'link', height: 'sm', action: { type: 'uri', label: 'เปิดแผนที่', uri: site } }], { paddingAll: '0px' });
 
 // live = live.json, sum = summary.json, fresh = จุดใหม่ที่จะแจ้งเตือน (null = โหมดสรุป แสดงจุด 24 ชม. แทน)
@@ -109,7 +110,7 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
       B('horizontal', [T('รวม', { flex: 9, weight: 'bold' }), T(String(all.fy), { flex: 2, align: 'end', weight: 'bold', color: RED }), T(String(all.prv), { flex: 2, align: 'end', weight: 'bold', color: BLUE }), T(dt, { flex: 3, align: 'end', weight: 'bold', color: dc })].map(x => ({ ...x, size: 'xxs' })), { margin: 'sm', spacing: 'sm' }),
       sub('รายเดือน', [[RED, String(fy)], [BLUE, String(fy - 1)]]),
       ...months(all.m, all.pm),
-      T(`ไม่รวม ขสป.ดงใหญ่ · ปีก่อน=จุดกรมอุทยานฯ${quotaLeft != null ? ` · แจ้งได้อีก ~${quotaLeft} ครั้ง` : ''}`, { size: 'xxs', color: MUT, margin: 'sm' }),
+      T(`ไม่รวม ขสป.ดงใหญ่${quotaLeft != null ? ` · แจ้งเตือนได้อีก ~${quotaLeft} ครั้ง` : ''}`, { size: 'xxs', color: MUT, margin: 'sm' }),
     ], { paddingAll: '10px' }),
     footer: footer(site),
   };
