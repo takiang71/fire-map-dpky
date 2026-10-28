@@ -723,7 +723,8 @@ let PCH=null; // ประวัติ (คำนวณครั้งเดี�
 function pHist(F){if(PCH&&PCH.F===F)return PCH;const P=F-1,yrs=[...new Set(HD.map(r=>r.fy))].filter(y=>y<P).sort(),cp=fyCum(P),cs=yrs.map(fyCum),
  avg=cp.map((_,i)=>cs.reduce((s,a)=>s+a[i],0)/(cs.length||1)),R=HD.filter(r=>r.fy===P&&!r.api),mo=new Array(12).fill(0),dd={};R.forEach(r=>{mo[r.mo]++;dd[r.d]=(dd[r.d]||0)+1});
  const pm=mo.indexOf(Math.max(...mo)),pd=Object.entries(dd).sort((a,b)=>b[1]-a[1])[0];
- return PCH={F,P,yrs,cp,avg,tot:R.length,pm,pmN:mo[pm],pd:pd?[+pd[0],pd[1]]:null}}
+ const an=n=>{const Y=[...new Set(HD.map(r=>r.fy))].filter(y=>y<=P&&y>P-n).sort(),A=Y.map(y=>y===P?cp:fyCum(y));return{n,ys:Y,lab:Y.length?Y[0]+'–'+String(Y.at(-1)).slice(2):'',a:cp.map((_,i)=>A.reduce((s,a)=>s+a[i],0)/(A.length||1))}};
+ return PCH={F,P,yrs,cp,avg,av:[an(3),an(5)],tot:R.length,pm,pmN:mo[pm],pd:pd?[+pd[0],pd[1]]:null}}
 let PT='pv';
 const SB1='สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)',SB7='สำนักบริหารพื้นที่อนุรักษ์ที่ 7 (นครราชสีมา)';
 const SBP={'ปราจีนบุรี':SB1,'นครนายก':SB1,'สระแก้ว':SB1,'สระบุรี':'สำนักบริหารพื้นที่อนุรักษ์ที่ 1 สาขาสระบุรี','นครราชสีมา':SB7,'บุรีรัมย์':SB7}; // แยก สบอ. ตามจังหวัดที่เกิดจุด
@@ -765,12 +766,12 @@ function renderCard(){
  $('#p-kp').innerHTML=tile('24 ชม. ล่าสุด',nf(n24),d?`${d>0?'▲':'▼'} ${nf(Math.abs(d))} จาก 24 ชม. ก่อน`:'เท่ากับ 24 ชม. ก่อน')+tile('ใหม่ใน 6 ชม.',nf(n6),last?'ล่าสุด '+thTime(last)+' น.':'ยังไม่พบ')+tile('สะสมปีงบ '+F,nf(now[T]),'ตัวชี้วัด '+indName(T0));
  $('#p-smp').hidden=!!real;
  // เทียบช่วงเดียวกัน (1 ต.ค. ถึงวันนี้)
- const yr=Hh.yrs.length?Hh.yrs[0]+'–'+String(Hh.yrs[Hh.yrs.length-1]).slice(2):'',C=[['ปีงบ '+F+sx,now[T],'var(--fire)'],['ปีงบ '+Hh.P,Hh.cp[T],'#3E6FD8'],['เฉลี่ยปีงบ '+yr,Hh.avg[T],'#9aa3b5']],cm=Math.max(1,...C.map(c=>c[1]));
+ const yr=Hh.yrs.length?Hh.yrs[0]+'–'+String(Hh.yrs[Hh.yrs.length-1]).slice(2):'',C=[['ปีงบ '+F+sx,now[T],'var(--fire)'],['ปีงบ '+Hh.P,Hh.cp[T],'#3E6FD8'],...Hh.av.map((a,j)=>['เฉลี่ย '+a.n+' ปี ('+a.lab+')',a.a[T],AVC[j]]),['เฉลี่ยปีงบ '+yr,Hh.avg[T],'#9aa3b5']],cm=Math.max(1,...C.map(c=>c[1]));
  $('#p-cq').textContent='เทียบปีงบประมาณ '+Hh.P;$('#p-asof').textContent='ช่วงเดียวกัน 1 ต.ค. – '+dShort(T0);
  const df=now[T]-Hh.cp[T];
  $('#p-cmp').innerHTML=C.map(([l,v,c])=>`<div class="cr"><span>${l}</span><i style="width:${v/cm*100}%;background:${c}"></i><em>${nf(v,v%1?1:0)}</em></div>`).join('')+
   `<div class="cv">${df?`<b>${df>0?'▲ มากกว่า':'▼ น้อยกว่า'}</b> ปีงบ ${Hh.P} ช่วงเดียวกัน <b>${nf(Math.abs(df))}</b> จุด`:`<b>เท่ากับ</b> ปีงบ ${Hh.P} ช่วงเดียวกัน`}${Hh.cp[T]?` (${df>0?'+':''}${Math.round(df/Hh.cp[T]*100)}%)`:''}</div>`;
- $('#p-lg').innerHTML=`<span><i style="border-color:var(--fire)"></i>ปีงบ ${F}${sx}</span><span><i style="border-color:#3E6FD8"></i>ปีงบ ${Hh.P}</span><span><i style="border-color:#9aa3b5;border-top-style:dashed"></i>เฉลี่ย ${yr}</span><span><i class="sb"></i>ช่วงไฟป่า ม.ค.–เม.ย.</span>`;
+ $('#p-lg').innerHTML=`<span><i style="border-color:var(--fire)"></i>ปีงบ ${F}${sx}</span><span><i style="border-color:#3E6FD8"></i>ปีงบ ${Hh.P}</span>${Hh.av.map((a,j)=>`<span><i style="border-color:${AVC[j]};border-top-style:dashed"></i>เฉลี่ย ${a.n} ปี</span>`).join('')}<span><i style="border-color:#9aa3b5;border-top-style:dashed"></i>เฉลี่ย ${yr}</span><span><i class="sb"></i>ช่วงไฟป่า ม.ค.–เม.ย.</span>`;
  pChart(F,T,now,Hh);
  $('#p-yr').innerHTML=`ตัวชี้วัดกรมอุทยานฯ: ${ind}${ADI&&T0-ADI.to>2?` · <b>ข้อมูลสะสมถึง ${dShort(ADI.to)}</b>`:''}<br>ปีงบ ${Hh.P} ทั้งปี <b>${nf(Hh.tot)}</b> จุด${Hh.tot?` · มากสุดเดือน ${TMO[Hh.pm]} (${nf(Hh.pmN)}) · วันที่มากสุด ${dShort(Hh.pd[0])} (${nf(Hh.pd[1])} จุด)`:''} · กราฟเป็นยอดสะสมตั้งแต่ 1 ต.ค.`;
  // ข้อมูลประกอบ: ดาวเทียม / ความเชื่อมั่น
@@ -782,8 +783,9 @@ function listMeta(){const pt=PT;[['pv','pn'],['sb','pn-sb'],['pa','pn-pa'],['st'
  if(PM==='fy'){const T0=thDay(),L=fyPts();$('#p-meta').innerHTML=ADI?'สะสม 1 ต.ค. – '+dShort(T0)+' รวม <b>'+nf(L.length)+'</b> จุด · นับตามดาวเทียมตัวชี้วัด '+indName(T0)+' (ไม่ขึ้นกับปุ่มดาวเทียม) · บนแผนที่แสดงเป็น<b style="color:#ff7a1a">วงกลมสีส้ม</b>':'ยังไม่มีข้อมูลสะสม (ต้องรัน scripts/sync_hotspots.js)';return}
  const L=HS.filter(h=>ageH(h)<24),sm={};L.forEach(h=>sm[h.sat||'ไม่ระบุ']=(sm[h.sat||'ไม่ระบุ']||0)+1);
  $('#p-meta').textContent=L.length?'24 ชม.: '+Object.entries(sm).sort((a,b)=>b[1]-a[1]).map(([k,v])=>k+' '+v).join(' · ')+' · ความเชื่อมั่นสูง '+L.filter(h=>h.conf==='h').length+' จุด':''}
+const AVC=['#E0A21B','#8E5BD8']; // สีเส้นเฉลี่ย 3 ปี / 5 ปี
 function pChart(F,T,now,Hh){const W=311,Ht=128,l=28,r=48,t=8,b=18,iw=W-l-r,ih=Ht-t-b,s=fy0(F),N=fy0(F+1)-s,
- top=Math.max(4,now[T],Hh.cp[N-1],Hh.avg[N-1]),st=Math.pow(10,Math.floor(Math.log10(top/2))),ym=Math.ceil(top/2/st)*st*2,
+ top=Math.max(4,now[T],Hh.cp[N-1],Hh.avg[N-1],...Hh.av.map(a=>a.a[N-1])),st=Math.pow(10,Math.floor(Math.log10(top/2))),ym=Math.ceil(top/2/st)*st*2,
  x=i=>l+i/(N-1)*iw,y=v=>t+(1-v/ym)*ih,path=(a,n)=>a.slice(0,n+1).map((v,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)).join(''),
  mo=TMO.map((_,m)=>Date.UTC(F-544,9+m,1)/864e5-s);
  const svg=`<svg viewBox="0 0 ${W} ${Ht}" role="img" aria-label="กราฟจุดความร้อนสะสม ปีงบ ${F} เทียบ ${Hh.P}">
@@ -791,18 +793,19 @@ function pChart(F,T,now,Hh){const W=311,Ht=128,l=28,r=48,t=8,b=18,iw=W-l-r,ih=Ht
  ${[0,ym/2,ym].map(v=>`<line x1="${l}" x2="${l+iw}" y1="${y(v)}" y2="${y(v)}" stroke="#e3e6ee"/><text x="${l-4}" y="${y(v)+3}" text-anchor="end" font-size="9" fill="#6b7280">${nf(v)}</text>`).join('')}
  ${mo.map((i,m)=>`<text x="${x(i+(m<11?(mo[m+1]-i)/2:(N-i)/2))}" y="${Ht-5}" text-anchor="middle" font-size="8.5" fill="#6b7280">${TMO[m]}</text>`).join('')}
  <path d="${path(Hh.avg,N-1)}" fill="none" stroke="#9aa3b5" stroke-width="2" stroke-dasharray="4 3"/>
+ ${Hh.av.map((a,j)=>`<path d="${path(a.a,N-1)}" fill="none" stroke="${AVC[j]}" stroke-width="1.6" stroke-dasharray="${j?'2 2':'6 3'}"/>`).join('')}
  <path d="${path(Hh.cp,N-1)}" fill="none" stroke="#3E6FD8" stroke-width="2"/>
  <path d="${path(now,T)}" fill="none" stroke="#D93A1F" stroke-width="2"/>
  <circle cx="${x(T)}" cy="${y(now[T])}" r="4" fill="#D93A1F" stroke="#fff" stroke-width="2"/>
- <text x="${x(N-1)+4}" y="${y(Hh.avg[N-1])+3}" font-size="9.5" fill="#1d2433">เฉลี่ย ${nf(Hh.avg[N-1])}</text>
- <text x="${x(N-1)+4}" y="${y(Hh.cp[N-1])+3+(Math.abs(y(Hh.cp[N-1])-y(Hh.avg[N-1]))<11?11:0)}" font-size="9.5" fill="#1d2433">${Hh.P} ${nf(Hh.cp[N-1])}</text>
+ ${(()=>{const L=[[Hh.avg[N-1],'เฉลี่ย '+nf(Hh.avg[N-1])],[Hh.cp[N-1],Hh.P+' '+nf(Hh.cp[N-1])],...Hh.av.map(a=>[a.a[N-1],a.n+' ปี '+nf(a.a[N-1])])].map(([v,t])=>({y:y(v)+3,t})).sort((p,q)=>p.y-q.y);
+  for(let i=1;i<L.length;i++)L[i].y=Math.max(L[i].y,L[i-1].y+10);return L.map(l=>`<text x="${x(N-1)+4}" y="${l.y}" font-size="9" fill="#1d2433">${l.t}</text>`).join('')})()}
  <line id="p-x" y1="${t}" y2="${t+ih}" stroke="#1d2433" stroke-opacity=".35" visibility="hidden"/>
  <rect x="${l}" y="${t}" width="${iw}" height="${ih}" fill="transparent" id="p-hit"/></svg><div class="ptip" id="p-tip"></div>`;
  $('#p-ch').innerHTML=svg;const sv=$('#p-ch svg'),tip=$('#p-tip'),ln=$('#p-x');
  const hide=()=>{tip.style.display='none';ln.setAttribute('visibility','hidden')};
  $('#p-hit').onpointermove=e=>{const bx=sv.getBoundingClientRect(),k=W/bx.width,i=Math.max(0,Math.min(N-1,Math.round(((e.clientX-bx.left)*k-l)/iw*(N-1))));
   ln.setAttribute('x1',x(i));ln.setAttribute('x2',x(i));ln.setAttribute('visibility','visible');
-  tip.innerHTML=`<b>ถึง ${new Date((s+i)*864e5).toLocaleDateString('th-TH',{day:'numeric',month:'short',timeZone:'UTC'})}</b><br>${i<=T?`<i style="border-color:#D93A1F"></i>ปีงบ ${F}: ${nf(now[i])}<br>`:''}<i style="border-color:#3E6FD8"></i>ปีงบ ${Hh.P}: ${nf(Hh.cp[i])}<br><i style="border-color:#9aa3b5;border-top-style:dashed"></i>เฉลี่ย: ${nf(Hh.avg[i],1)}`;
+  tip.innerHTML=`<b>ถึง ${new Date((s+i)*864e5).toLocaleDateString('th-TH',{day:'numeric',month:'short',timeZone:'UTC'})}</b><br>${i<=T?`<i style="border-color:#D93A1F"></i>ปีงบ ${F}: ${nf(now[i])}<br>`:''}<i style="border-color:#3E6FD8"></i>ปีงบ ${Hh.P}: ${nf(Hh.cp[i])}<br><i style="border-color:#9aa3b5;border-top-style:dashed"></i>เฉลี่ย: ${nf(Hh.avg[i],1)}${Hh.av.map((a,j)=>`<br><i style="border-color:${AVC[j]};border-top-style:dashed"></i>เฉลี่ย ${a.n} ปี: ${nf(a.a[i],1)}`).join('')}`;
   tip.style.display='block';const px=x(i)/k,tw=tip.offsetWidth;tip.style.left=Math.max(0,Math.min(bx.width-tw,px+(px>bx.width/2?-tw-8:8)))+'px'};
  $('#p-hit').onpointerleave=hide}
 function drawList(){listMeta();fyMap();
