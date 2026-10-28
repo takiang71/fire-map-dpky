@@ -707,7 +707,8 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-sat]');if(
 const TMO=['ต.ค.','พ.ย.','ธ.ค.','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.'];
 const thDay=()=>Math.floor((Date.now()+7*36e5)/864e5), fy0=F=>Date.UTC(F-544,9,1)/864e5, fyOfDay=d=>{const[y,m]=ymd(d);return y+543+(m>=10?1:0)};
 const dShort=d=>new Date(d*864e5).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit',timeZone:'UTC'});
-function fyCum(F){const a=new Array(366).fill(0),s=fy0(F);HD.forEach(r=>{if(r.fy===F){const i=r.d-s;if(i>=0&&i<366)a[i]++}});for(let i=1;i<366;i++)a[i]+=a[i-1];return a}
+// ประวัติในการ์ดใช้เฉพาะจุดกรมอุทยานฯ ตามตัวชี้วัด (ไม่รวมจุดที่เพิ่มจาก API, r.api) — ปีงบ 2569 = 80 จุด (ผู้ใช้กำหนด)
+function fyCum(F){const a=new Array(366).fill(0),s=fy0(F);HD.forEach(r=>{if(r.fy===F&&!r.api){const i=r.d-s;if(i>=0&&i<366)a[i]++}});for(let i=1;i<366;i++)a[i]+=a[i-1];return a}
 // ยอดสะสมปีงบปัจจุบัน — ตัวอย่าง: API ให้ย้อนหลังแค่ 48 ชม. จึงสุ่มแบบคงที่ก่อน 2 วันล่าสุด แล้วต่อด้วยจุดใน HS (TODO: เก็บสะสมจุดจริงรายวัน)
 // ยอดสะสมจริงตามดาวเทียมตัวชี้วัด: จุดที่เก็บสะสม (AD) + จุดสดที่ยังไม่อยู่ใน AD (ไม่นับจุดตัวอย่าง) · null = ยังไม่เคยรัน sync
 const hKey=(d,t,la,lo)=>d+'|'+t+'|'+Math.round(la*1e3)+'|'+Math.round(lo*1e3);
@@ -720,7 +721,7 @@ function fyNowSample(F,T){const s=fy0(F),a=new Array(366).fill(0);let sd=F;const
  HS.forEach(h=>{const i=Math.floor((h.t+7*36e5)/864e5)-s;if(i>=Math.max(0,T-1)&&i<=T)a[i]++});for(let i=1;i<366;i++)a[i]+=a[i-1];return a}
 let PCH=null; // ประวัติ (คำนวณครั้งเดียว)
 function pHist(F){if(PCH&&PCH.F===F)return PCH;const P=F-1,yrs=[...new Set(HD.map(r=>r.fy))].filter(y=>y<P).sort(),cp=fyCum(P),cs=yrs.map(fyCum),
- avg=cp.map((_,i)=>cs.reduce((s,a)=>s+a[i],0)/(cs.length||1)),R=HD.filter(r=>r.fy===P),mo=new Array(12).fill(0),dd={};R.forEach(r=>{mo[r.mo]++;dd[r.d]=(dd[r.d]||0)+1});
+ avg=cp.map((_,i)=>cs.reduce((s,a)=>s+a[i],0)/(cs.length||1)),R=HD.filter(r=>r.fy===P&&!r.api),mo=new Array(12).fill(0),dd={};R.forEach(r=>{mo[r.mo]++;dd[r.d]=(dd[r.d]||0)+1});
  const pm=mo.indexOf(Math.max(...mo)),pd=Object.entries(dd).sort((a,b)=>b[1]-a[1])[0];
  return PCH={F,P,yrs,cp,avg,tot:R.length,pm,pmN:mo[pm],pd:pd?[+pd[0],pd[1]]:null}}
 let PT='pv';
