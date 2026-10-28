@@ -40,18 +40,18 @@ const IND_SW = Date.UTC(2026, 10, 2) / 864e5, indSat = d => d < IND_SW ? 'SNPP' 
 const satKey = s => { s = String(s == null ? '' : s); return /21/.test(s) ? 'NOAA21' : /20/.test(s) ? 'NOAA20' : /npp|suomi/i.test(s) ? 'SNPP' : s };
 const hKey = (d, t, la, lo) => d + '|' + t + '|' + Math.round(la * 1e3) + '|' + Math.round(lo * 1e3);
 // areas: แยกตามพื้นที่อนุรักษ์ (จุดนอกพื้นที่อนุรักษ์ใช้คีย์ "นอกพื้นที่อนุรักษ์|สถานีฯ") → fy = สะสมปีงบนี้, prv = ปีงบก่อนช่วงเดียวกัน, pfull = ปีงบก่อนทั้งปี,
-//   m/pm = รายเดือน ต.ค.–ก.ย. ของปีนี้/ปีก่อน · ปีงบก่อนใช้ hdata (จุดกรมอุทยานฯ) เหมือนแท็บ "เทียบปีงบก่อน" ในหน้าเว็บ
+//   m/pm = รายเดือน ต.ค.–ก.ย. ของปีนี้/ปีก่อน · pv/am/tm = นับสะสมปีงบนี้ตามจังหวัด / "อำเภอ|จังหวัด" / "ตำบล|อำเภอ|จังหวัด" (การ์ดสูงสุดใน LINE) · ปีงบก่อนใช้ hdata (จุดกรมอุทยานฯ) เหมือนแท็บ "เทียบปีงบก่อน" ในหน้าเว็บ
 function summary(L) {
   const m = block('adata'); if (!m) return null;
   const j = JSON.parse(m[1]), to = j.to ? Date.UTC(+j.to.slice(0, 4), +j.to.slice(5, 7) - 1, +j.to.slice(8, 10)) / 864e5 : -1;
   const T = Math.floor((Date.now() + 7 * 36e5) / 864e5), x = new Date(T * 864e5), F = x.getUTCFullYear() + 543 + (x.getUTCMonth() >= 9 ? 1 : 0), s = Date.UTC(F - 544, 9, 1) / 864e5, sp = Date.UTC(F - 545, 9, 1) / 864e5;
   const mi = d => (new Date(d * 864e5).getUTCMonth() + 3) % 12, key = (a, b) => a && a !== 'นอกพื้นที่อนุรักษ์' ? a : 'นอกพื้นที่อนุรักษ์|' + (b || 'ไม่มี');
-  const seen = new Set(), ar = {}, st = {}, areas = {}, A = k => areas[k] || (areas[k] = { fy: 0, prv: 0, pfull: 0, m: Array(12).fill(0), pm: Array(12).fill(0) });
-  const add = (d, a, b) => { ar[a] = (ar[a] || 0) + 1; st[b] = (st[b] || 0) + 1; const o = A(key(a, b)); o.fy++; o.m[mi(d)]++ };
-  for (const r of j.r) { const d = r[0]; if (d >= s && d <= T && satKey(j.sat[r[4]]) === indSat(d)) { seen.add(hKey(d, r[1], r[2] / 1e5, r[3] / 1e5)); add(d, j.ar[r[9]], j.st[r[10]]) } }
+  const seen = new Set(), ar = {}, st = {}, areas = {}, A = k => areas[k] || (areas[k] = { fy: 0, prv: 0, pfull: 0, m: Array(12).fill(0), pm: Array(12).fill(0), pv: {}, am: {}, tm: {} }), inc = (o, k) => { o[k] = (o[k] || 0) + 1 };
+  const add = (d, a, b, pv, am, tb) => { ar[a] = (ar[a] || 0) + 1; st[b] = (st[b] || 0) + 1; const o = A(key(a, b)); o.fy++; o.m[mi(d)]++; pv = pv || 'ไม่ระบุ'; inc(o.pv, pv); if (am) inc(o.am, am + '|' + pv); if (tb && am) inc(o.tm, tb + '|' + am + '|' + pv) };
+  for (const r of j.r) { const d = r[0]; if (d >= s && d <= T && satKey(j.sat[r[4]]) === indSat(d)) { seen.add(hKey(d, r[1], r[2] / 1e5, r[3] / 1e5)); add(d, j.ar[r[9]], j.st[r[10]], j.pv[r[6]], j.am[r[7]], String(j.tm[r[8]]).split('|')[0]) } }
   for (const f of (L ? L.features : [])) {
     const p = f.properties, fd = String(p.full_date || ''), d = Date.UTC(+fd.slice(0, 4), +fd.slice(5, 7) - 1, +fd.slice(8, 10)) / 864e5, t = +fd.slice(11, 13) * 100 + +fd.slice(14, 16), [lo, la] = f.geometry.coordinates, k = hKey(d, t, la, lo);
-    if (d > to && d >= s && d <= T && satKey(p.satellite_name) === indSat(d) && !seen.has(k)) { seen.add(k); add(d, p._ar, p._st) }
+    if (d > to && d >= s && d <= T && satKey(p.satellite_name) === indSat(d) && !seen.has(k)) { seen.add(k); add(d, p._ar, p._st, p.province_name_th, p.district_name_th, p.subdistrict_name_th) }
   }
   const h = JSON.parse(block('hdata')[1]);
   for (const r of h.r) { const d = r[0]; if (d >= sp && d < s) { const o = A(key(h.ar[r[7]], h.st[r[10]])); o.pfull++; o.pm[mi(d)]++; if (d - sp <= T - s) o.prv++ } }
@@ -61,6 +61,7 @@ function summary(L) {
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   fs.copyFileSync(H, path.join(OUT, 'index.html'));
+  fs.cpSync(path.join(ROOT, 'assets'), path.join(OUT, 'assets'), { recursive: true }); // โลโก้สำหรับการ์ด LINE
   fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
   let ok = true, L = null;
   try {
