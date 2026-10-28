@@ -287,7 +287,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
  <div class="rh"><b>ชั้นข้อมูล</b><a id="sdef" role="button" tabindex="0">ตั้งที่เลือกเป็นค่าเริ่มต้น</a><button class="cb" id="xr" aria-label="ปิดแผง" style="width:36px;height:36px;box-shadow:none"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
  <div class="rb">
   <h3>แผนที่ฐาน</h3>
-  <div class="seg" id="seg"><button data-b="natural" data-src="Esri World Topo · เงาภูเขา AWS Terrain">ธรรมชาติ</button><button data-b="flat" data-src="OpenFreeMap Positron · © OpenStreetMap">เรียบ</button><button data-b="sat" data-src="">ดาวเทียม</button><button data-b="detail" data-src="OpenFreeMap Liberty · © OpenStreetMap">ละเอียด</button><button data-b="road" data-src="OpenFreeMap Bright · © OpenStreetMap">ถนน</button></div>
+  <div class="seg" id="seg"><button data-b="natural" data-src="Esri World Topo · เงาภูเขา AWS Terrain">ธรรมชาติ</button><button data-b="flat" data-src="OpenFreeMap Positron · © OpenStreetMap">เรียบ</button><button data-b="sat" data-src="">ดาวเทียม</button><button data-b="detail" data-src="OpenFreeMap Liberty · © OpenStreetMap — ถนน หมู่บ้าน วัด โรงเรียน อาคาร">ถนน/ชุมชน</button><button data-b="dark" data-src="OpenFreeMap Dark · © OpenStreetMap — โทนมืด จุดไฟเด่น เหมาะจอห้องปฏิบัติการ/กลางคืน">โทนมืด</button></div>
   <div class="sg" id="imgsrc" hidden aria-label="แหล่งภาพดาวเทียม"><button data-i="google">Google</button><button data-i="esri">Esri</button><button data-i="s2">Sentinel-2</button><button data-i="day">NOAA-20</button></div>
   <div id="imgtime" hidden><div class="itr"><button id="it-p" aria-label="ภาพก่อนหน้า">‹</button><input type="range" id="it-r" list="it-l" aria-label="เลื่อนดูภาพย้อนหลัง"><datalist id="it-l"></datalist><button id="it-n" aria-label="ภาพถัดไป">›</button></div>
    <div class="itv"><b id="it-v"></b><input type="date" id="it-d" aria-label="เลือกวันที่ภาพ"><a id="it-0" role="button" tabindex="0">ล่าสุด</a></div></div>
@@ -524,7 +524,7 @@ const areaHtml=g=>{let s='';if(g.cons)s+=`<b>${esc(g.cons.properties.name)}</b><
 
 /* ---------- สถานะ + จำค่าที่ผู้ใช้เลือก ---------- */
 let S={base:'natural',img:'google',d3:false,hot:true,prov:true,cons:true,resp:false,stn:false,wpt:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},demo:false,water:true,road:true,wind:false,pm:false,dry:false,hist:false};
-try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;
+try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;if(S.base==='road')S.base='detail';
 const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2200)};
 const thTime=d=>new Date(d).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'});
 
@@ -533,7 +533,7 @@ const ras=(u,mz=18)=>({version:8,glyphs:'https://tiles.openfreemap.org/fonts/{fo
 const OFM='https://tiles.openfreemap.org/styles/';
 // natural = Esri World Topo (มีเส้นชั้นความสูง) — แนวเขตอุทยานที่ฝังในภาพซ้อนกับแนวเขต KMZ ได้ ผู้ใช้ให้ยึดเส้น KMZ เป็นหลัก (28 ต.ค. 69)
 const STY={natural:ras('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}'),flat:OFM+'positron',
- detail:OFM+'liberty',road:OFM+'bright'};
+ detail:OFM+'liberty',dark:OFM+'dark'}; // เดิมมี road (Bright) แยก แต่แทบเหมือน Liberty จึงรวมเป็น detail "ถนน/ชุมชน" (28 ต.ค. 69)
 // ภาพดาวเทียม 3 แหล่ง (ฟรี ไม่ต้องใช้ key): Esri ละเอียดสุดแต่อายุภาพต่างกันรายพื้นที่ · Sentinel-2 ไร้เมฆรายปี (EOX, CC BY-NC-SA) · NASA GIBS ภาพ NOAA-20 รายวัน (หยาบแต่ใหม่สุด เห็นควัน/รอยไหม้)
 const gibsDay=()=>new Date(Date.now()-10*36e5).toISOString().slice(0,10); // ดาวเทียมผ่านไทย ~06:30 UTC + ประมวลผล ~3 ชม. → หลัง 10:00 UTC ใช้ภาพวันนี้
 // google = ลิงก์ไทล์ตรง (ไม่ผ่าน Map Tiles API, ผิดเงื่อนไข Google) — ผู้ใช้เลือกเองว่าใช้ไปก่อน ถ้าโดนบล็อกค่อยเอาออก · โหลดพลาดติดกันจะสลับเป็น Esri เอง (gErr)
@@ -1148,7 +1148,7 @@ async function loadWind(){if(!S.wind)return;const b=map.getBounds(),px=(b.getEas
  try{let j=await(await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la.join(',')}&longitude=${lo.join(',')}&current=wind_speed_10m,wind_direction_10m&wind_speed_unit=ms`)).json();j=Array.isArray(j)?j:[j];
   WG={x0,y0,dx,dy,nx,ny,u:j.map(p=>-p.current.wind_speed_10m*Math.sin(p.current.wind_direction_10m*Math.PI/180)),v:j.map(p=>-p.current.wind_speed_10m*Math.cos(p.current.wind_direction_10m*Math.PI/180))};
   const sp=WG.u.map((a,i)=>Math.hypot(a,WG.v[i]));tx('wn','ลมในกรอบเฉลี่ย '+nf(sp.reduce((a,b)=>a+b)/sp.length,1)+' ม./วินาที (สูงสุด '+nf(Math.max(...sp),1)+')');if(RM)wstatic()}catch(e){toast('ดึงข้อมูลลมไม่ได้')}}
-const WL=[8,14,22,32,44],wrgb=()=>S.base==='sat'?'255,255,255':'27,42,94',WT=[1,2.5,5,8],wcls=sp=>sp<WT[0]?0:sp<WT[1]?1:sp<WT[2]?2:sp<WT[3]?3:4; // ความยาวเส้น (px) ตามระดับความเร็วลม
+const WL=[8,14,22,32,44],wrgb=()=>S.base==='sat'||S.base==='dark'?'255,255,255':'27,42,94',WT=[1,2.5,5,8],wcls=sp=>sp<WT[0]?0:sp<WT[1]?1:sp<WT[2]?2:sp<WT[3]?3:4; // ความยาวเส้น (px) ตามระดับความเร็วลม
 const wseed=p=>{p.x=Math.random()*wc.width;p.y=Math.random()*wc.height;p.a=Math.random()*40;p.life=120+Math.random()*80};
 function comet(x,y,ux,uy,L,al,col){ // รูปเรียวแหลม: ปลายหางแหลมโปร่งใส หนาและทึบขึ้นไปทางหัว ไม่มีหัวกลม
  const ax=x-ux*L,ay=y-uy*L,nx=-uy*1.3,ny=ux*1.3,g=wx2.createLinearGradient(ax,ay,x,y);g.addColorStop(0,`rgba(${col},0)`);g.addColorStop(.85,`rgba(${col},${al})`);g.addColorStop(1,`rgba(${col},${al})`);
