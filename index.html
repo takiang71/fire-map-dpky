@@ -720,7 +720,7 @@ function fyNowSample(F,T){const s=fy0(F),a=new Array(366).fill(0);let sd=F;const
  for(let i=0;i<T-1;i++)a[i]=r()<.25?1+Math.floor(r()*3):0;
  HS.forEach(h=>{const i=Math.floor((h.t+7*36e5)/864e5)-s;if(i>=Math.max(0,T-1)&&i<=T)a[i]++});for(let i=1;i<366;i++)a[i]+=a[i-1];return a}
 let PCH=null; // ประวัติ (คำนวณครั้งเดียว)
-function pHist(F){if(PCH&&PCH.F===F)return PCH;const P=F-1,yrs=[...new Set(HD.map(r=>r.fy))].filter(y=>y<P).sort(),cp=fyCum(P),cs=yrs.map(fyCum),
+function pHist(F){if(PCH&&PCH.F===F)return PCH;const P=F-1,yrs=[...new Set(HD.map(r=>r.fy))].filter(y=>y<=P).sort(),cp=fyCum(P),cs=yrs.map(y=>y===P?cp:fyCum(y)), /* เฉลี่ยทุกปีงบที่จบแล้ว รวมปีงบก่อน (ผู้ใช้กำหนด) */
  avg=cp.map((_,i)=>cs.reduce((s,a)=>s+a[i],0)/(cs.length||1)),R=HD.filter(r=>r.fy===P&&!r.api),mo=new Array(12).fill(0),dd={};R.forEach(r=>{mo[r.mo]++;dd[r.d]=(dd[r.d]||0)+1});
  const pm=mo.indexOf(Math.max(...mo)),pd=Object.entries(dd).sort((a,b)=>b[1]-a[1])[0];
  const an=n=>{const Y=[...new Set(HD.map(r=>r.fy))].filter(y=>y<=P&&y>P-n).sort(),A=Y.map(y=>y===P?cp:fyCum(y));return{n,ys:Y,lab:Y.length?Y[0]+'–'+String(Y.at(-1)).slice(2):'',a:cp.map((_,i)=>A.reduce((s,a)=>s+a[i],0)/(A.length||1))}};
