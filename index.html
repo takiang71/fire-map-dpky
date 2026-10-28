@@ -177,7 +177,8 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 .hh{position:sticky;top:0;z-index:2;background:var(--bg);display:flex;align-items:center;gap:8px;padding:12px 0 8px;border-bottom:1px solid var(--line)}.hh b{flex:1;font-size:15px;color:var(--navy)}.hh .ib{width:30px;height:30px}
 .kp{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0}.kp div{background:#f4f6fb;border-radius:12px;padding:8px}.kp b{display:block;font-size:20px;font-weight:800;color:var(--navy);line-height:1.2}.kp span{font-size:10.5px;color:var(--mut)}
 .hq{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:14px 0 4px;font-size:13px}.hq b{color:var(--navy)}.hq .lnk{font-size:11.5px;color:var(--navy);text-decoration:underline;cursor:pointer;font-weight:400}
-.vc{display:flex;gap:3px;height:150px}.vb{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;border:0;background:none;padding:0;gap:2px}
+.vc{display:flex;gap:3px;height:150px;position:relative}.vc .avl{position:absolute;left:0;right:0;border-top:1.5px dashed #1d2433;opacity:.7;pointer-events:none}.vc .avl span{position:absolute;right:0;bottom:1px;font-size:9.5px;font-weight:700;color:#1d2433;background:rgba(255,255,255,.85);padding:0 3px;border-radius:3px;white-space:nowrap}
+.kp [data-k]{cursor:pointer;border:1.5px solid transparent}.kp [data-k]:hover{border-color:#c9d1e3}.kp [data-k].on{border-color:var(--navy);background:var(--sel)}.vb{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;border:0;background:none;padding:0;gap:2px}
 .vb i{display:block;width:100%;background:linear-gradient(#f08a3c,#d93a1f);border-radius:3px 3px 0 0}.vb em{font-style:normal;font-size:8.5px;color:var(--mut);line-height:1.1;text-align:center}.vb span{font-size:10px;line-height:1.2}
 .vb.off i{opacity:.28}.vb.on span{font-weight:800;color:var(--fire)}
 .hb{display:grid;grid-template-columns:34% 1fr 86px;align-items:center;gap:6px;width:100%;min-height:26px;border:0;background:none;text-align:left;padding:0;font-size:12px}
@@ -268,7 +269,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div class="hq"><b>การจัดการเชื้อเพลิง / สถานะ</b></div><div class="chs" id="c-fu"></div>
   <div class="hq"><b>แสดงบนแผนที่</b></div>
   <div class="seg" id="h-md"><button data-v="pt">จุด</button><button data-v="cl">Cluster</button><button data-v="heat">ความหนาแน่น</button></div>
-  <div class="seg" id="h-co"><button data-v="fy">สีตามปีงบ</button><button data-v="ld">สีตามประเภทพื้นที่</button></div><div class="sm" id="h-lg" style="margin-top:4px"></div>
+  <div class="seg" id="h-co"><button data-v="fy">สีตามปีงบ</button><button data-v="ld">ประเภทพื้นที่</button><button data-v="fu">การจัดการเชื้อเพลิง</button></div><div class="sm" id="h-lg" style="margin-top:4px"></div>
   <div class="hq" id="pb"><b>เล่นย้อนตามวัน</b><a class="lnk" id="pb-x" role="button" tabindex="0">ออกจากโหมดเล่น</a></div>
   <div class="pbr"><button class="btn" id="pb-p">▶ เล่น</button><input type="range" id="pb-s" min="0" max="0" value="0" step="1" style="flex:1" aria-label="เลื่อนดูตามวัน"></div>
   <div class="sm" id="pb-d" style="margin:4px 0"></div>
@@ -1242,8 +1243,11 @@ const hLdDef=()=>['พื้นที่ราษฎรทำกิน','ป่�
 function hDef(){Object.values(HF).forEach(s=>s.clear());hLdDef().forEach(i=>HF.ld.add(i))}
 const hIsDef=()=>Object.entries(HF).every(([k,s])=>k==='ld'?sameSet(s,hLdDef()):!s.size);
 const tot=m=>[...m.values()].reduce((a,b)=>a+b,0)||1,pctOf=(n,t)=>Math.round(100*n/t);
+// ปีงบที่ใช้หาค่าเฉลี่ย: ปีที่เลือกไว้ ถ้าไม่เลือก = ทุกปีงบที่จบแล้ว (ไม่รวมปีงบปัจจุบันที่ยังไม่ครบปี)
+const hAvgYs=()=>{if(HF.fy.size)return[...HF.fy];const c=fyOfDay(thDay()),L=fyList(),d=L.filter(y=>y<c);return d.length?d:L},
+ hAvg=m=>{const Y=hAvgYs();return{ys:Y,v:Y.reduce((a,y)=>a+(m.get(y)||0),0)/(Y.length||1)}};
 function vbars(id,k,vals,lab){const m=hcount(k),mx=Math.max(1,...vals.map(v=>m.get(v)||0)),T=tot(m);
- tx(id,vals.map(v=>{const n=m.get(v)||0;return`<button class="vb${cls2(k,v)}" data-k="${k}" data-v="${v}" title="${esc(lab(v))}: ${nf(n)} จุด (${pctOf(n,T)}%)"><em>${n?nf(n)+'<br>('+pctOf(n,T)+'%)':''}</em><i style="height:${n?`max(3px,calc((100% - 40px)*${(n/mx).toFixed(3)}))`:'0'};${k==='fy'?'background:'+fyColor(v):''}"></i><span>${esc(lab(v))}</span></button>`}).join(''))}
+ tx(id,vals.map(v=>{const n=m.get(v)||0;return`<button class="vb${cls2(k,v)}" data-k="${k}" data-v="${v}" title="${esc(lab(v))}: ${nf(n)} จุด (${pctOf(n,T)}%)"><em>${n?nf(n)+'<br>('+pctOf(n,T)+'%)':''}</em><i style="height:${n?`max(3px,calc((100% - 40px)*${(n/mx).toFixed(3)}))`:'0'};${k==='fy'?'background:'+fyColor(v):''}"></i><span>${esc(lab(v))}</span></button>`}).join('')+(k==='fy'&&vals.length?(a=>`<div class="avl" style="bottom:calc(14px + (100% - 40px)*${Math.min(1,a.v/mx).toFixed(3)})" title="ค่าเฉลี่ยต่อปีงบ ${a.ys.length} ปี"><span>เฉลี่ย ${nf(a.v)}</span></div>`)(hAvg(m)):''))}
 function hbars(id,k,lab,limit){const m=hcount(k),T=tot(m);let vals=[...new Set([...m.keys(),...HF[k]])].sort((a,b)=>(m.get(b)||0)-(m.get(a)||0));if(limit)vals=vals.filter((v,i)=>i<limit||HF[k].has(v));const mx=Math.max(1,...vals.map(v=>m.get(v)||0));
  tx(id,vals.map(v=>{const n=m.get(v)||0;return`<button class="hb${cls2(k,v)}" data-k="${k}" data-v="${v}" title="${esc(lab(v))}"><span>${esc(lab(v))}</span><b><i style="width:${n/mx*100}%"></i></b><em>${nf(n)} (${pctOf(n,T)}%)</em></button>`}).join('')||'<div class="sm">ไม่มีข้อมูล</div>')}
 function chips(id,k,vals,lab){const m=hcount(k),T=tot(m);tx(id,vals.map(v=>`<button class="ch${cls2(k,v)}" data-k="${k}" data-v="${v}">${esc(lab(v))} <em>${nf(m.get(v)||0)} (${pctOf(m.get(v)||0,T)}%)</em></button>`).join(''))}
@@ -1268,31 +1272,33 @@ const MONF=['ตุลาคม','พฤศจิกายน','ธันวา�
 const kIc=n=>`<svg class="i" viewBox="0 0 24 24"><path d="${KI[n]}"/></svg>`;
 function kpiCards(F){const n=F.length,N=HD.length,ix=(k,v)=>DIC[k].indexOf(v),p1=c=>n?(100*c/n).toFixed(1):'0.0',top=(G,f)=>by(G,f)[0]||null,ns=ix('st','ไม่มี'),
  ri=ix('ld','พื้นที่ราษฎรทำกิน'),rn=ri>=0?F.filter(r=>r.ld===ri).length:0,mo=top(F,r=>r.mo);
- const six=(lb,t,nm)=>`<div class="six"><b class="nm">${t?esc(nm(t[0])):'–'}</b><span class="lb">${lb}</span><span>${t?`${nf(t[1])} จุด (${p1(t[1])}%)`:''}</span></div>`;
- return`<div><b>${nf(n)}</b><span>จุด (${N?Math.round(100*n/N):0}% ของ ${nf(N)})</span></div><div><b>${n?MON[mo[0]]:'–'}</b><span>เดือนสูงสุด${n?' ('+Math.round(100*mo[1]/n)+'%)':''}</span></div><div><b>${n&&ri>=0?Math.round(100*rn/n)+'%':'–'}</b><span>ในพื้นที่ราษฎรทำกิน${n?' ('+nf(rn)+' จุด)':''}</span></div>`
- +six('พื้นที่รับผิดชอบ สบอ. (รายจังหวัด)',top(F,r=>r.sb),v=>shortSb(DIC.sb[v]))
- +six('พื้นที่อนุรักษ์พบสูงสุด',top(F,r=>r.ar),v=>DIC.ar[v])
- +six('สถานีฯไฟป่าพบสูงสุด',top(F.filter(r=>r.st!==ns),r=>r.st),v=>shortSt(DIC.st[v]).trim())
- +six('จังหวัดพบสูงสุด',top(F,r=>r.pv),v=>'จ.'+DIC.pv[v])
- +six('อำเภอพบสูงสุด',top(F,r=>r.am),v=>'อ.'+DIC.am[v])
- +six('ตำบลพบสูงสุด',top(F,r=>r.tm),v=>'ต.'+DIC.tm[v].split('|')[0])}
+ const six=(lb,t,nm,k)=>`<div class="six${t&&HF[k].has(t[0])?' on':''}"${t?` data-k="${k}" data-v="${t[0]}" title="คลิกเพื่อกรองแผนที่เฉพาะ ${esc(nm(t[0]))} · คลิกซ้ำเพื่อยกเลิก"`:''}><b class="nm">${t?esc(nm(t[0])):'–'}</b><span class="lb">${lb}</span><span>${t?`${nf(t[1])} จุด (${p1(t[1])}%)`:''}</span></div>`;
+ const av=hAvg(by(F,r=>r.fy).reduce((m,[y,c])=>m.set(y,c),new Map())),ys=[...av.ys].sort((a,b)=>a-b);
+ return`<div><b>${nf(n)}</b><span>จุด (${N?Math.round(100*n/N):0}% ของ ${nf(N)})</span></div><div title="ปีงบ ${ys.join(', ')}"><b>${nf(av.v)}</b><span>จุดเฉลี่ยต่อปีงบ (${ys.length>1?ys.length+' ปี':'ปีงบ '+ys[0]})</span></div><div${n?` data-k="mo" data-v="${mo[0]}" class="${HF.mo.has(mo[0])?'on':''}" title="คลิกเพื่อกรองแผนที่เฉพาะเดือนนี้ · คลิกซ้ำเพื่อยกเลิก"`:''}><b>${n?MON[mo[0]]:'–'}</b><span>เดือนสูงสุด${n?' ('+Math.round(100*mo[1]/n)+'%)':''}</span></div>`
+ +six('พื้นที่รับผิดชอบ สบอ. (รายจังหวัด)',top(F,r=>r.sb),v=>shortSb(DIC.sb[v]),'sb')
+ +six('พื้นที่อนุรักษ์พบสูงสุด',top(F,r=>r.ar),v=>DIC.ar[v],'ar')
+ +six('สถานีฯไฟป่าพบสูงสุด',top(F.filter(r=>r.st!==ns),r=>r.st),v=>shortSt(DIC.st[v]).trim(),'st')
+ +six('จังหวัดพบสูงสุด',top(F,r=>r.pv),v=>'จ.'+DIC.pv[v],'pv')
+ +six('อำเภอพบสูงสุด',top(F,r=>r.am),v=>'อ.'+DIC.am[v],'am')
+ +six('ตำบลพบสูงสุด',top(F,r=>r.tm),v=>'ต.'+DIC.tm[v].split('|')[0],'tm')}
 function hRender(){const F=hfilt(),N=HD.length,fys=fyList();
  tx('h-kp',kpiCards(F));
  tx('h-rng',HD.length?`ปีงบ ${fys[0]}–${fys.at(-1)}`:'');
  vbars('c-fy','fy',fys,v=>String(v).slice(2));vbars('c-mo','mo',[...Array(12).keys()],v=>MON[v]);
  hbars('c-sb','sb',v=>shortSb(DIC.sb[v]));hbars('c-ar','ar',v=>shortAr(DIC.ar[v]));hbars('c-st','st',v=>shortSt(DIC.st[v]));hbars('c-pv','pv',v=>DIC.pv[v]);hbars('c-am','am',v=>DIC.am[v],8);hbars('c-tm','tm',tmName,8);
  chips('c-ld','ld',[...DIC.ld.keys()],v=>DIC.ld[v]);chips('c-hg','hg',[0,1],v=>v?'กลางวัน (06-18 น.)':'กลางคืน (00-05 น.)');chips('c-fu','fu',[...DIC.fu.keys()],v=>DIC.fu[v]);
- tx('h-lg',HM.color==='fy'?'สีจุดตามปีงบ: '+fys.map(y=>`<span class="yd"><i style="background:${fyColor(y)}"></i>${y}</span>`).join(''):'สีจุด: ส้ม = พื้นที่ราษฎรทำกิน · เขียว = ป่าคงสภาพ');tx('h-ins',insights(F).map(t=>`<li>${esc(t)}</li>`).join(''));tx('h-dq',dq());tx('hs-t',nf(N)+' จุด');
+ tx('h-lg',HM.color==='fy'?'สีจุดตามปีงบ: '+fys.map(y=>`<span class="yd"><i style="background:${fyColor(y)}"></i>${y}</span>`).join(''):'สีจุด: '+DIC[HM.color].map((v,i)=>`<span class="yd"><i style="background:${(HM.color==='ld'?ldColor:fuColor)(i)}"></i>${esc(v)}</span>`).join(''));tx('h-ins',insights(F).map(t=>`<li>${esc(t)}</li>`).join(''));tx('h-dq',dq());tx('hs-t',nf(N)+' จุด');
  $('#h-rs').hidden=hIsDef();
  const pn=[3,5,0].find(n=>sameSet(HF.fy,hPerYs(n)));$$('#h-per button').forEach(b=>b.classList.toggle('on',+b.dataset.v===pn));
  tx('h-pern',HF.fy.size?'ปีงบ '+[...HF.fy].sort((a,b)=>a-b).join(', ')+(pn==null?' (เลือกเอง)':''):'ทุกปีงบ '+(fys.length?fys[0]+'–'+fys.at(-1):''));
  pbDays(F);hMap(F);$$('#h-md button').forEach(b=>b.classList.toggle('on',b.dataset.v===HM.mode));$$('#h-co button').forEach(b=>b.classList.toggle('on',b.dataset.v===HM.color));
  $$('#pb-w button').forEach(b=>b.classList.toggle('on',+b.dataset.v===PB.w));$$('#pb-sp button').forEach(b=>b.classList.toggle('on',+b.dataset.v===PB.sp))}
 /* --- แผนที่: จุด / ความหนาแน่น ตามตัวกรอง (สีตามปีงบหรือประเภทพื้นที่) --- */
-function histColor(){if(HM.color==='ld'){const ri=DIC.ld.indexOf('พื้นที่ราษฎรทำกิน');return['case',['==',['get','ld'],ri],'#e8741c','#1f7a4d']}
+const FUC={'ไม่มี':'#d93a1f','การจัดการเชื้อเพลิง':'#3E6FD8','ตรวจสอบแล้วไม่พบไฟ':'#911eb4'},fuColor=v=>FUC[DIC.fu[v]]||'#9aa3b5',ldColor=v=>({'พื้นที่ราษฎรทำกิน':'#e8741c','ป่าคงสภาพ':'#1f7a4d'})[DIC.ld[v]]||'#9aa3b5';
+function histColor(){if(HM.color==='ld'||HM.color==='fu'){const k=HM.color,c=k==='ld'?ldColor:fuColor,ex=['match',['get',k]];DIC[k].forEach((_,i)=>ex.push(i,c(i)));ex.push('#9aa3b5');return DIC[k].length?ex:'#9aa3b5'}
  const ex=['match',['get','fy']];fyList().forEach(y=>ex.push(y,fyColor(y)));ex.push('#888');return ex}
 function hMap(F){const day=PB.days[PB.i],arr=PB.on?F.filter(r=>r.d<=day&&r.d>day-PB.w):F;
- HFC={type:'FeatureCollection',features:arr.map(r=>({type:'Feature',properties:{i:r.i,fy:r.fy,ld:r.ld,op:PB.on?Math.max(.25,1-(day-r.d)/PB.w*.75):.85},geometry:{type:'Point',coordinates:[r.lo,r.la]}}))};
+ HFC={type:'FeatureCollection',features:arr.map(r=>({type:'Feature',properties:{i:r.i,fy:r.fy,ld:r.ld,fu:r.fu,op:PB.on?Math.max(.25,1-(day-r.d)/PB.w*.75):.85},geometry:{type:'Point',coordinates:[r.lo,r.la]}}))};
  const s=map.getSource('hist');s&&s.setData(HFC);const sc=map.getSource('histc');sc&&sc.setData(HFC);['hist-c','histc-p'].forEach(id=>map.getLayer(id)&&map.setPaintProperty(id,'circle-color',histColor()));L4();
  if(PB.on)tx('pb-d',`${hDate(day)} · พบ ${nf(arr.length)} จุดใน ${PB.w} วันล่าสุด`);else tx('pb-d','ยังไม่เล่น · ลากแถบหรือกดเล่น')}
 function setup4(){const dotPaint={'circle-radius':['interpolate',['linear'],['zoom'],6,3,11,6],'circle-color':histColor(),'circle-opacity':['get','op'],'circle-stroke-color':'#fff','circle-stroke-width':1};
