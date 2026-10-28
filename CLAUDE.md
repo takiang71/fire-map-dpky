@@ -17,6 +17,11 @@
   - **ทำงานในเครื่อง: `git pull` ก่อนแก้ทุกครั้ง** (sync บน Actions commit วันละ 2 ครั้ง) แล้ว commit + push เมื่อแก้เสร็จ · push ครั้งแรกล็อกอินผ่าน Git Credential Manager แล้ว · git identity ของ repo: takiang71
   - `.github/workflows/site.yml` ตั้งไว้ทุก 10 นาที (**จริง GitHub รันแค่ทุก 2–5 ชม.** — หน้าเว็บจึง fallback ดึง API ตรงเมื่อ live.json เก่ากว่า 40 นาที ใช้งานได้ปกติ) + push: `node scripts/build_site.js` → `_site/` (index.html + `live.json` จุด 48 ชม. กรองในแนวเขตแล้ว + `air4thai.json`) แล้ว deploy-pages
   - `.github/workflows/sync.yml` 4 รอบ `17 23,2,8,11 * * *` UTC (= 06:17/09:17/15:17/18:17 ไทย — เผื่อ GitHub ข้ามรอบ เช่นรอบ 15:00 ของ 28 ต.ค. 69 หายไป): รัน sync, commit index.html + data แล้วสั่ง `gh workflow run site.yml` (push ด้วย GITHUB_TOKEN ไม่ปลุก workflow อื่น)
+  - **LINE bot** (คู่มือติดตั้ง `docs/line-bot.md`, 28 ต.ค. 69 — **ผู้ใช้ยังไม่ได้ติดตั้ง LINE OA/Cloudflare/secret**): `site.yml` รัน `scripts/line_notify.js` ต่อจาก build → push จุดใหม่ในแนวเขต (สแกน ≤12 ชม.) เข้ากลุ่ม 1 ข้อความ/รอบ · สถานะ `notify.json` เผยแพร่บน Pages (ไม่ commit; รอบถัดไปอ่านจาก URL; ไม่มี = seed ไม่ส่ง) · ตรวจโควตา (`/quota`, `/quota/consumption`, `members/count`) ก่อนส่ง เพราะ push เข้ากลุ่มนับตามจำนวนสมาชิก (กลุ่มผู้ใช้ 11–30 คน, ฟรี ~300/เดือน) · `LINE_MAX_DAY` (4) `LINE_RESERVE` · secret `LINE_TOKEN`, var `LINE_GROUP_ID`
+    - `worker/line-webhook.js` (Cloudflare Worker ฟรี, วางโค้ดผ่าน dashboard) ตอบ "สรุป"/"ช่วยเหลือ"/"รหัสกลุ่ม" + join event ด้วย reply (ไม่นับโควตา) อ่าน `live.json` + `summary.json` — Worker ฟรีจำกัด CPU 10 ms จึงไม่ให้ parse API ทั้งประเทศใน Worker
+    - build_site เพิ่ม `properties._ar/_st` ใน live.json และ `summary.json` (ยอดสะสมปีงบตัวชี้วัด ตรรกะเดียวกับ `fyNow`, แยก ar/st)
+    - เสนอ cron-job.org เรียก `workflow_dispatch` ของ site ทุก 10 นาที (fine-grained PAT Actions:write) เพราะ schedule ของ GitHub รันจริงทุก 2–5 ชม.
+    - ทดสอบแล้วด้วย LINE API จำลอง (seed/ส่ง/ไม่ซ้ำ/โควตาไม่พอ/ลายเซ็นผิด/คำสั่ง) — **ยังไม่เคยทดสอบกับ LINE และ Cloudflare จริง**
   - หน้าเว็บ: `liveFile()` อ่าน `live.json` ก่อน (ถ้าเก่ากว่า `LIVE_MAXAGE` 40 นาทีหรือไม่มี → ดึง API ตรง) · `getStations` ลอง `air4thai.json` ก่อน
   - ทดสอบในเครื่องแบบเดียวกับโฮสต์: `node scripts/build_site.js` แล้ว `node scripts/serve.js 8002 _site` (launch config `site-test`)
   - `scripts/lib/area.js` (GEO + `where` + `SBP`) และ `scripts/lib/air4thai.js` (แก้ cert chain) ใช้ร่วมกันโดย sync/build/serve
@@ -100,7 +105,7 @@
 7. ตัวกรองเริ่มต้นตัดดงใหญ่ออก (ให้ตรงภาพตัวอย่าง 2,705 จุด) — ผู้ใช้ยังไม่ตอบ
 8. ~~ตั้ง sync อัตโนมัติ~~ เสร็จแล้ว — ย้ายไป GitHub Actions (`sync.yml`) และลบ Task Scheduler ในเครื่องแล้ว
 9. ~~โฮสต์ฟรี~~ เสร็จแล้ว (GitHub Pages + Actions) · ยืนยันแล้ว 28 ต.ค. 69: รอบตั้งเวลาทำงาน แต่ห่างกว่าที่ตั้ง (site ทุก 2–5 ชม.) · ไม่ต้องใช้ Cloudflare Worker / AIR4THAI_PROXY แล้ว
-10. LINE bot แจ้งเตือน + สรุปรายวัน (Messaging API, โควตาฟรีไทย ~300 ข้อความ/เดือน ต้องยืนยัน)
+10. LINE bot — เขียนแล้ว (ดูหัวข้อโฮสต์) รอผู้ใช้ติดตั้งตาม `docs/line-bot.md` · สรุปรายวันแบบ push ไม่ได้ทำเพราะโควตาไม่พอสำหรับกลุ่ม 11–30 คน ใช้พิมพ์ "สรุป" แทน
 11. ทดสอบบนเว็บโฮสต์แล้ว (27 ต.ค. 69): ปุ่มดาวเทียมกรองจุดบนแผนที่/การ์ด/ตาราง ถูกต้อง · เนื้อหา CSV (BOM, หัวไทย, ชื่อไฟล์) ถูก · `buildReport` ได้ภาพแผนที่จริง + กราฟ · มือถือ 375 px ไม่ล้นแนวนอน ปุ่มดาวเทียมแถวเดียว — **ยังไม่ได้ทดสอบ**: กล่องพิมพ์/บันทึก PDF จริง, ไฟล์ CSV ที่ดาวน์โหลดจริง, ภาพหน้าจอมือถือ (pane ถูกซ่อนจน WebGL ไม่วาด — canvas ค้าง 400×300 จนสั่ง resize ซึ่งเป็นผลของ pane ไม่ใช่บั๊ก)
     - API ต้นทางขัดข้อง 27 ต.ค. 69 · 28 ต.ค. 69 ~19:00 น. กลับมาบางส่วน: 28 ต.ค. ครบ 3 ดวง, 27 ต.ค. มีแค่ NOAA-21, 24–26 ต.ค. ยังว่างทั้งประเทศ — ตามดูต่อ
     - ตรวจรอยต่อตัวชี้วัด SNPP→NOAA-20 (28 ต.ค. 69) ด้วย harness จำลองเวลา 1/2/3 พ.ย.: `fyNow`/`fyPts` นับถูก ไม่ซ้ำ ไม่นับ SNPP/NOAA-21 ตั้งแต่ 2 พ.ย. · **ข้อควรรู้ปีหน้า**: ประวัติในการ์ด (`fyCum`/`prvPts`) ใช้เฉพาะ `!r.api` — ปีงบ 2570 ไม่มี Excel กรมอุทยานฯ จึงจะเป็น 0 เมื่อขึ้นปีงบ 2571 ถ้าไม่นำเข้าข้อมูลกรมอุทยานฯ หรือเปลี่ยนกติกา

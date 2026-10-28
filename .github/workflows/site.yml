@@ -1,5 +1,5 @@
 # เผยแพร่หน้าเว็บขึ้น GitHub Pages พร้อม live.json (จุดความร้อน 48 ชม. กรองเฉพาะกลุ่มป่าแล้ว) และ air4thai.json
-# รันทุก ~10 นาที (GitHub อาจเลื่อนรอบตามคิว 5–15 นาที) + ทุกครั้งที่มีการ push + กดรันเองได้
+# ตั้งไว้ทุก 10 นาที แต่ GitHub รันจริงแค่ทุก 2–5 ชม. → ให้ cron-job.org เรียก workflow_dispatch ทุก 10 นาทีแทน (docs/line-bot.md ข้อ 6) + ทุกครั้งที่ push
 name: site
 on:
   schedule:
@@ -31,6 +31,13 @@ jobs:
           node-version: 22
       # ถ้าดึงข้อมูลไม่สำเร็จก็ยังเผยแพร่หน้าเว็บ (หน้าเว็บจะถอยไปดึง API ตรงเอง)
       - run: node scripts/build_site.js || true
+      # แจ้งเตือนจุดใหม่เข้ากลุ่ม LINE (docs/line-bot.md) — ไม่ตั้ง secret ก็ยังเก็บสถานะ notify.json ไว้
+      - run: node scripts/line_notify.js || true
+        env:
+          LINE_TOKEN: ${{ secrets.LINE_TOKEN }}
+          LINE_GROUP_ID: ${{ vars.LINE_GROUP_ID }}
+          LINE_MAX_DAY: ${{ vars.LINE_MAX_DAY }}
+          LINE_RESERVE: ${{ vars.LINE_RESERVE }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
