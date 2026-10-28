@@ -217,7 +217,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 <div id="toast" role="status"></div>
 <div id="rpt" aria-hidden="true"></div>
 <div id="imgdate" hidden aria-live="polite"></div>
-<div id="attr"><span id="attr-b">© Esri</span> · © OpenStreetMap · จุดความร้อน WFSRU/ThaiREN · Open-Meteo · Air4Thai · CAMS · กรมป่าไม้ · OCHA HDX · แนวเขต KMZ ผู้ใช้</div>
+<div id="attr"><span id="attr-b">© OpenFreeMap</span> · © OpenStreetMap · จุดความร้อน WFSRU/ThaiREN · Open-Meteo · Air4Thai · CAMS · กรมป่าไม้ · OCHA HDX · แนวเขต KMZ ผู้ใช้</div>
 
 <aside id="left">
  <button id="grab" aria-label="ขยายหรือย่อแผง"></button>
@@ -287,7 +287,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
  <div class="rh"><b>ชั้นข้อมูล</b><a id="sdef" role="button" tabindex="0">ตั้งที่เลือกเป็นค่าเริ่มต้น</a><button class="cb" id="xr" aria-label="ปิดแผง" style="width:36px;height:36px;box-shadow:none"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
  <div class="rb">
   <h3>แผนที่ฐาน</h3>
-  <div class="seg" id="seg"><button data-b="natural" data-src="Esri World Topo · เงาภูเขา AWS Terrain">ธรรมชาติ</button><button data-b="flat" data-src="OpenFreeMap Positron · © OpenStreetMap">เรียบ</button><button data-b="sat" data-src="">ดาวเทียม</button><button data-b="detail" data-src="OpenFreeMap Liberty · © OpenStreetMap">ละเอียด</button><button data-b="road" data-src="OpenFreeMap Bright · © OpenStreetMap">ถนน</button></div>
+  <div class="seg" id="seg"><button data-b="natural" data-src="OpenFreeMap Liberty (ตัดแนวเขตอุทยานของ OSM ออก) · เงาภูเขา AWS Terrain · © OpenStreetMap">ธรรมชาติ</button><button data-b="flat" data-src="OpenFreeMap Positron · © OpenStreetMap">เรียบ</button><button data-b="sat" data-src="">ดาวเทียม</button><button data-b="detail" data-src="OpenFreeMap Liberty · © OpenStreetMap">ละเอียด</button><button data-b="road" data-src="OpenFreeMap Bright · © OpenStreetMap">ถนน</button></div>
   <div class="sg" id="imgsrc" hidden aria-label="แหล่งภาพดาวเทียม"><button data-i="google">Google</button><button data-i="esri">Esri</button><button data-i="s2">Sentinel-2</button><button data-i="day">NOAA-20</button></div>
   <div id="imgtime" hidden><div class="itr"><button id="it-p" aria-label="ภาพก่อนหน้า">‹</button><input type="range" id="it-r" list="it-l" aria-label="เลื่อนดูภาพย้อนหลัง"><datalist id="it-l"></datalist><button id="it-n" aria-label="ภาพถัดไป">›</button></div>
    <div class="itv"><b id="it-v"></b><input type="date" id="it-d" aria-label="เลือกวันที่ภาพ"><a id="it-0" role="button" tabindex="0">ล่าสุด</a></div></div>
@@ -318,7 +318,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <p class="note">ข้อมูลจากไฟล์ที่นำเข้า (ตอนนี้: Excel ปีงบ 2561-2569) แสดงเป็นจุดหรือความหนาแน่น ตามตัวกรองในการ์ดสถิติ</p><button class="lk" id="hs-o">เปิดการ์ดวิเคราะห์สถิติ →</button>
   <h3>แนวเขต</h3>
   <div class="row"><svg class="i" viewBox="0 0 24 24"><path d="M3 12h18"/></svg><b>จังหวัด</b><button class="sw" data-k="prov" role="switch" aria-label="เส้นแนวเขตจังหวัด"></button></div>
-  <p class="note">แนวเขตจากแผนที่ฐาน (แบบธรรมชาติ/ดาวเทียมไม่มีเส้นนี้) · แนวเขตทางการ 77 จังหวัดมาเฟสถัดไป</p>
+  <p class="note">แนวเขตจากแผนที่ฐาน (แบบดาวเทียมไม่มีเส้นนี้) · แนวเขตทางการ 77 จังหวัดมาเฟสถัดไป</p>
   <div class="row"><svg class="i" viewBox="0 0 24 24"><path d="M3 12h4M10 12h4M17 12h4" /></svg><b>อำเภอ</b><span class="tag">เฟสถัดไป</span><button class="sw" disabled aria-label="อำเภอ"></button></div>
   <div class="row"><svg class="i" viewBox="0 0 24 24"><path d="M4 12h.01M9 12h.01M14 12h.01M19 12h.01"/></svg><b>ตำบล</b><span class="tag">เฟสถัดไป</span><button class="sw" disabled aria-label="ตำบล"></button></div>
   <div class="row"><svg class="i" style="color:#3b9a4c" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="5"/></svg><b>พื้นที่อนุรักษ์</b><span class="tag" id="c-cons">–</span><button class="sw" data-k="cons" role="switch" aria-label="พื้นที่อนุรักษ์"></button></div>
@@ -355,7 +355,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
    <div class="sm">จำลองด้วยสมการฟิสิกส์ไฟป่า Rothermel (1972) · วงรี Anderson (1983) · ความรุนแรง Byram (1959) · กลุ่มควัน Gaussian Plume</div>
    <div class="wh"><div class="sm" style="color:#1d2433;font-weight:600">ระยะเวลาคาดการณ์</div>
     <div class="seg" id="dur"><button data-h="1">1 ชม.</button><button data-h="3">3 ชม.</button><button data-h="6">6 ชม.</button><button data-h="12">12 ชม.</button><button data-h="24">24 ชม.</button></div>
-    <div class="sm" style="color:#1d2433;font-weight:600">เชื้อเพลิงป่าไม้ <span style="font-weight:400;color:var(--mut)">(ประเมินตามความสูง ปรับเองได้)</span></div>
+    <div class="sm" style="color:#1d2433;font-weight:600">เชื้อเพลิงป่าไม้ <span style="font-weight:400;color:var(--mut)">(<span id="fuel-why">เลือกอัตโนมัติ</span> · ปรับเองได้)</span></div>
     <select id="fuel" style="width:100%;min-height:40px;border:1px solid var(--line);border-radius:10px;margin:4px 0;font:inherit;padding:0 8px"></select>
     <div class="sm" style="color:#1d2433;font-weight:600;margin-top:6px">โมเดลกระจายควัน</div><div class="seg" id="sm"><button data-m="g">Gaussian (เร็ว)</button><button data-m="l">Lagrangian (ลมรายชั่วโมง)</button></div>
     <button class="tl" id="d-adj">ปรับตัวแปรจำลอง (ลม / ความชื้น / ความชัน)</button>
@@ -531,7 +531,8 @@ const thTime=d=>new Date(d).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2
 /* ---------- แผนที่ ---------- */
 const ras=(u,mz=18)=>({version:8,glyphs:'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',sources:{t:{type:'raster',tiles:Array.isArray(u)?u:[u],tileSize:256,maxzoom:mz}},layers:[{id:'bg',type:'raster',source:'t'}]});
 const OFM='https://tiles.openfreemap.org/styles/';
-const STY={natural:ras('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}'),flat:OFM+'positron',
+// natural = Liberty + เงาภูเขา โดยตัดชั้นอุทยาน/อาคาร/POI ออกใน setup() — เดิมใช้ Esri World Topo ซึ่งมีแนวเขตอุทยานฝังในภาพ ซ้อนกับแนวเขตจริงจาก KMZ
+const STY={natural:OFM+'liberty',flat:OFM+'positron',
  detail:OFM+'liberty',road:OFM+'bright'};
 // ภาพดาวเทียม 3 แหล่ง (ฟรี ไม่ต้องใช้ key): Esri ละเอียดสุดแต่อายุภาพต่างกันรายพื้นที่ · Sentinel-2 ไร้เมฆรายปี (EOX, CC BY-NC-SA) · NASA GIBS ภาพ NOAA-20 รายวัน (หยาบแต่ใหม่สุด เห็นควัน/รอยไหม้)
 const gibsDay=()=>new Date(Date.now()-10*36e5).toISOString().slice(0,10); // ดาวเทียมผ่านไทย ~06:30 UTC + ประมวลผล ~3 ชม. → หลัง 10:00 UTC ใช้ภาพวันนี้
@@ -617,7 +618,9 @@ function imgApply(){const t=map.getSource('t'),u=IMG[imgOf()].u();if(t&&t.setTil
 function setup(){ // เรียกทุกครั้งที่สลับ style เพื่อคงเลเยอร์ข้อมูลไว้
  if(map.getSource('dem'))return;
  map.addSource('dem',{type:'raster-dem',tiles:['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],encoding:'terrarium',tileSize:256,maxzoom:14});
- if(S.base==='natural')map.addLayer({id:'hs',type:'hillshade',source:'dem',paint:{'hillshade-exaggeration':.45,'hillshade-shadow-color':'#3d4a3a'}});
+ if(S.base==='natural'){(map.getStyle().layers||[]).filter(l=>/^(park|building|poi_)/.test(l.id)).forEach(l=>map.removeLayer(l.id));
+  if(map.getLayer('landcover_wood')){map.setPaintProperty('landcover_wood','fill-color','#9cc98a');map.setPaintProperty('landcover_wood','fill-opacity',.55)}
+  map.addLayer({id:'hs',type:'hillshade',source:'dem',paint:{'hillshade-exaggeration':.55,'hillshade-shadow-color':'#3d4a3a'}},map.getLayer('waterway_tunnel')?'waterway_tunnel':undefined)}
  map.addSource('cons',{type:'geojson',data:CF});
  map.addLayer({id:'cons-f',type:'fill',source:'cons',paint:{'fill-color':['match',['get','kind'],'NPRK',KC.NPRK,'WLDS',KC.WLDS,KC.P_WLDS],'fill-opacity':.14}});
  map.addLayer({id:'cons-l',type:'line',source:'cons',paint:{'line-color':['match',['get','kind'],'NPRK',KCD.NPRK,'WLDS',KCD.WLDS,KCD.P_WLDS],'line-width':1.8}});
@@ -661,7 +664,7 @@ function sync(){
  $$('.sw[data-k]').forEach(b=>b.setAttribute('aria-checked',!!S[b.dataset.k]));
  $$('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.b===S.base));
  const im=$('#imgsrc'),k=imgOf();im.hidden=S.base!=='sat';$$('#imgsrc button').forEach(b=>{b.setAttribute('aria-pressed',b.dataset.i===k);b.title=IMG[b.dataset.i].src()});
- $('#seg [data-b="sat"]').dataset.src=IMG[k].src();$('#attr-b').textContent=S.base==='sat'?IMG[k].cr:'© Esri';itUI();imgDate();
+ $('#seg [data-b="sat"]').dataset.src=IMG[k].src();$('#attr-b').textContent=S.base==='sat'?IMG[k].cr:'© OpenFreeMap';itUI();imgDate();
  $('#b3d').classList.toggle('on',S.d3);$('#bLay').classList.toggle('on',$('#right').classList.contains('open'));
 }
 map.on('style.load',()=>{ setup() });
@@ -991,7 +994,17 @@ function lag(h,r,H){
 const tx=(id,v)=>{$('#'+id).innerHTML=v};
 let CUR=null,P={sm:'g',hr:6,fuel:0,u:11,from:90,rh:61,T:32.3,sl:4},fuelAuto=true,LASTR=null;
 $('#fuel').innerHTML=FUEL.map((f,i)=>`<option value="${i}">${f.n} (${f.w} ตัน/ไร่)</option>`).join('');
-const fuelByElev=z=>z>1000?3:z<250?1:0; // เลือกอัตโนมัติจากความสูง (ชั้นชนิดป่าจริงมาเฟส 4)
+const fuelByElev=z=>z>1000?3:z<250?1:0;
+// เลือกเชื้อเพลิงอัตโนมัติจากชนิดป่าของแปลงพื้นที่รับผิดชอบ (resp.ftype) ที่จุดอยู่ · แปลงที่มีหลายชนิด (เช่น "ป่าเบญจพรรณ/เต็งรัง") ใช้ชนิดแรก
+// เว้นแต่ความสูงชี้ชนิดอื่นในรายการ (ต่ำกว่า 250 ม. → เต็งรัง, ตั้งแต่ 500 ม. → ดิบแล้ง) · สูงกว่า 1,000 ม. = ดิบเขาเสมอ · ไม่อยู่ในแปลงใด → ตามความสูง
+const FTI={เบญจพรรณ:0,เต็งรัง:1,ดิบแล้ง:2,ดิบเขา:3,ไผ่:4};
+function fuelAt(g,z){const r=g&&(g.resp.find(f=>f.properties.ftype&&!/พื้นที่รอง/.test(f.properties.station))||g.resp.find(f=>f.properties.ftype)),ft=r?r.properties.ftype:'',
+ c=[...ft.matchAll(/เบญจพรรณ|เต็งรัง|ดิบแล้ง|ดิบเขา|ไผ่/g)].map(m=>FTI[m[0]]),zt=z==null?'':' · สูง '+nf(Math.round(z))+' ม.';
+ if(z!=null&&z>1000)return{i:3,why:'ความสูงเกิน 1,000 ม.'+(ft?' (แปลง: '+ft+')':'')};
+ if(!c.length)return z==null?{i:0,why:'ค่าเริ่มต้น (รอข้อมูลความสูง)'}:{i:fuelByElev(z),why:'ตามความสูง'+zt};
+ let i=c[0];if(c.length>1&&z!=null){if(c.includes(1)&&z<250)i=1;else if(c.includes(2)&&z>=500)i=2}
+ return{i,why:'ชนิดป่าของแปลง: '+ft+(c.length>1?zt:'')}}
+function fuelAuto1(z){const f=fuelAt(CUR&&CUR.geo,z);P.fuel=f.i;tx('fuel-why','เลือกอัตโนมัติ: '+f.why)}
 function syncSl(){const v=(i,val,u)=>{$('#s-'+i).value=val;tx('v-'+i,Math.round(val)+u)};v('u',P.u,' กม./ชม.');v('f',P.from,'°');v('r',P.rh,'%');v('s',P.sl,'°');$('#fuel').value=P.fuel;$$('#dur button').forEach(b=>b.classList.toggle('on',+b.dataset.h===P.hr));$$('#sm button').forEach(b=>b.classList.toggle('on',b.dataset.m===P.sm))}
 function upd(){
  if(!CUR)return;const r0=calc(P),h=CUR,HY=P.sm==='l'?huy(r0):null,r=HY?hyAdj(r0,HY):r0,L=LV[r.lvl];LASTR=r;const LG=P.sm==='l'?lag(h,r,HY):null,rch=LG?LG.reach:r.reach,fm=c=>c[1].toFixed(4)+', '+c[0].toFixed(4);
@@ -1024,7 +1037,7 @@ function openDetail(h){
  const u=utm(h.lat,h.lon),a=ageH(h);
  tx('d-sat',(h.demo?'จุดความร้อนตัวอย่าง (ไม่ใช่ข้อมูลจริง) · ':'จุดความร้อน · ')+h.sat);tx('d-name',h.ns==='unk'?'ไม่ทราบชื่อพื้นที่ · '+h.lat.toFixed(4)+', '+h.lon.toFixed(4):'ตำบล'+h.tam+' อำเภอ'+h.amp+' จังหวัด'+h.prov);fillHist(h);{const e=document.getElementById('d-pa'),g=geoAt(h.lon,h.lat);h.geo=g;if(e){e.style.display='block';
  e.innerHTML=(g.cons?`พื้นที่อนุรักษ์: <b>${esc(g.cons.properties.name)}</b>`:'พื้นที่อนุรักษ์: <b>อยู่นอกแนวเขต</b>')+(h.live&&h.pa&&(!g.cons||g.cons.properties.name.indexOf(h.pa.replace(/^อุทยานแห่งชาติ|^เขตรักษาพันธุ์สัตว์ป่า/,''))<0)?` <span style="opacity:.75">(API: ${esc(h.pa)})</span>`:'')
- +(g.resp.length?'<br>'+g.resp.map(r=>`สถานีฯ ที่รับผิดชอบ: <b>${esc(r.properties.station.replace(/^สถานีควบคุมไฟป่า/,''))}</b> · ${esc(r.properties.paro)}${r.properties.ftype?' · ชนิดป่า '+esc(r.properties.ftype):''}`).join('<br>'):'<br>สถานีฯ ที่รับผิดชอบ: <b>ไม่อยู่ในพื้นที่รับผิดชอบตามไฟล์</b>')}}tx('d-age',nf(a,1));tx('d-frp',h.frp==null?'–':nf(h.frp,1));
+ +(g.resp.length?'<br>'+g.resp.map(r=>`สถานีฯ ที่รับผิดชอบ: <b>${esc(r.properties.station.replace(/^สถานีควบคุมไฟป่า/,''))}</b> · ${esc(r.properties.paro)}${r.properties.ftype?' · ชนิดป่า '+esc(r.properties.ftype):''}`).join('<br>'):'<br>สถานีฯ ที่รับผิดชอบ: <b>ไม่อยู่ในพื้นที่รับผิดชอบตามไฟล์</b>')}}fuelAuto1(null);tx('d-age',nf(a,1));tx('d-frp',h.frp==null?'–':nf(h.frp,1));
  tx('d-tl',h.live?'เวลาที่ดาวเทียมสแกน':'เวลาที่ตรวจพบ');tx('d-t',new Date(h.t).toLocaleString('th-TH',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'})+' น.');tx('d-cf',h.conf==='h'?'สูง':h.conf==='l'?'ต่ำ':'ปกติ');
  tx('d-ll',h.lat.toFixed(5)+', '+h.lon.toFixed(5));tx('d-utm','UTM '+u.z+'N · E '+nf(u.E)+' N '+nf(u.N));tx('d-el','–');tx('d-wx','ค่าตัวอย่าง (กำลังดึง…)');
  map.getSource('ring').setData({type:'FeatureCollection',features:[{type:'Feature',properties:{},geometry:{type:'Point',coordinates:[h.lon,h.lat]}}]});
@@ -1032,7 +1045,7 @@ function openDetail(h){
  syncSl();upd();fillAq(h);
  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${h.lat}&longitude=${h.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation&hourly=wind_speed_10m,wind_direction_10m&forecast_hours=26&wind_speed_unit=kmh`).then(r=>r.json()).then(j=>{
   if(CUR!==h||!j.current)return;const c=j.current;if(j.hourly&&j.hourly.wind_speed_10m)WS={u:j.hourly.wind_speed_10m,d:j.hourly.wind_direction_10m};Object.assign(P,{T:c.temperature_2m,rh:c.relative_humidity_2m,u:c.wind_speed_10m,from:c.wind_direction_10m});
-  if(fuelAuto)P.fuel=fuelByElev(j.elevation);tx('d-el',Math.round(j.elevation)+' ม. รทก.');tx('d-wx','Open-Meteo ขณะนี้ · '+nf(c.temperature_2m,1)+' °C');syncSl();upd();fillWx(h,c)
+  if(fuelAuto)fuelAuto1(j.elevation);tx('d-el',Math.round(j.elevation)+' ม. รทก.');tx('d-wx','Open-Meteo ขณะนี้ · '+nf(c.temperature_2m,1)+' °C');syncSl();upd();fillWx(h,c)
  }).catch(()=>tx('d-wx','ใช้ค่าตัวอย่าง (ดึงสภาพอากาศไม่ได้)'))}
 function closeDetail(){if(!$('#dp').classList.contains('open'))return;$('#dp').classList.remove('open');CUR=null;FXD={type:'FeatureCollection',features:[]};
  const f=map.getSource('fx');f&&f.setData(FXD);PLU=BLANK;PLC=CO;const pis=map.getSource('plimg');pis&&pis.updateImage({url:PLU,coordinates:PLC});map.getLayer('fx-pi')&&map.setLayoutProperty('fx-pi','visibility','none');const r=map.getSource('ring');r&&r.setData({type:'FeatureCollection',features:[]})}
@@ -1041,10 +1054,10 @@ $('#d-cp').onclick=()=>CUR&&navigator.clipboard.writeText(`${CUR.lat.toFixed(5)}
 $('#d-go').onclick=()=>CUR&&open(`https://www.google.com/maps/dir/?api=1&destination=${CUR.lat},${CUR.lon}`,'_blank','noopener');
 $$('#sm button').forEach(b=>b.onclick=()=>{P.sm=b.dataset.m;syncSl();upd()});
 $$('#dur button').forEach(b=>b.onclick=()=>{P.hr=+b.dataset.h;syncSl();upd()});
-$('#fuel').onchange=e=>{P.fuel=+e.target.value;fuelAuto=false;upd()};
+$('#fuel').onchange=e=>{P.fuel=+e.target.value;fuelAuto=false;tx('fuel-why','เลือกเอง');upd()};
 $('#d-adj').onclick=()=>{$('#sl').hidden=!$('#sl').hidden};$('#d-eq').onclick=()=>{$('#eq').hidden=!$('#eq').hidden};
 [['u','u'],['f','from'],['r','rh'],['s','sl']].forEach(([i,k])=>$('#s-'+i).oninput=e=>{P[k]=+e.target.value;if(k==='u'||k==='from')manualWind=true;syncSl();upd()});
-$('#d-test').onclick=()=>{Object.assign(P,{hr:6,fuel:0,u:11,from:90,rh:61,T:32.3,sl:4});fuelAuto=false;manualWind=true;syncSl();upd()};
+$('#d-test').onclick=()=>{Object.assign(P,{hr:6,fuel:0,u:11,from:90,rh:61,T:32.3,sl:4});fuelAuto=false;manualWind=true;tx('fuel-why','ค่าทดสอบ');syncSl();upd()};
 $('#d-zm').onclick=()=>{if(!CUR||!LASTR)return;const pts=FXD.features.flatMap(f=>f.geometry.coordinates[0]),b=new maplibregl.LngLatBounds(pts[0],pts[0]);pts.forEach(q=>b.extend(q));
  map.fitBounds(b,{padding:{top:70,bottom:90,left:60,right:innerWidth>767?420:60},duration:dur(1200)})};
 
