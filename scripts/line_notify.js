@@ -83,6 +83,12 @@ async function quotaOk() {
     }
   } catch (e) { rec = { why: 'ส่งไม่สำเร็จ: ' + e.message, n: fresh.length } }
 
+  // ตรวจการตั้งค่าทุกชั่วโมง (ไม่ส่งข้อความ ไม่เสียโควตา): token ใช้ได้ไหม บอทอยู่ในกลุ่มไหม โควตาเหลือเท่าไร → ดูได้ที่ notify.json ช่อง line
+  if (!TOKEN || !GROUP) st.line = { ok: 0, why: `ยังไม่ตั้ง ${!TOKEN ? 'LINE_TOKEN ' : ''}${!GROUP ? 'LINE_GROUP_ID' : ''}`.trim(), at: new Date(now).toISOString() };
+  else if (!st.line || !st.line.ok || now - Date.parse(st.line.at) > 36e5) {
+    try { const q = await quotaOk(); st.line = { ok: 1, members: q.members, limit: q.limit ?? null, used: q.used ?? null, left: isFinite(q.left) ? q.left : null, pushes_left: isFinite(q.left) ? Math.max(0, Math.floor(q.left / q.members)) : null, at: new Date(now).toISOString() } }
+    catch (e) { st.line = { ok: 0, why: e.message.slice(0, 200), at: new Date(now).toISOString() } }
+  }
   if (rec) { st.log = [{ t: new Date(now).toISOString(), ...rec }, ...(st.log || [])].slice(0, 50); console.log('LINE:', JSON.stringify(rec)) }
   else console.log('LINE: ไม่มีจุดใหม่');
   for (const k in st.sent) if (now - st.sent[k] > KEEP_H * 36e5) delete st.sent[k];
