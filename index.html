@@ -739,9 +739,9 @@ function fyPts(){if(!ADI)return[];const T0=thDay(),s=fy0(fyOfDay(T0)),k=s+'|'+lo
 function fyFC(){return{type:'FeatureCollection',features:PM!=='24'?fyPts().map(h=>{let d=h.d,t=h.t;if(d==null){const x=new Date(h.t+7*36e5);d=Math.floor(x/864e5);t=x.getUTCHours()*100+x.getUTCMinutes()}
  return{type:'Feature',geometry:{type:'Point',coordinates:[h.lon,h.lat]},properties:{d,t,sat:satKey(h.sat),tam:h.tam||'',amp:h.amp||'',prov:h.prov||''}}}):[]}}
 function fyMap(){const p=map.getSource('fypt');if(p)p.setData(fyFC());if(map.getLayer('fypt'))map.setLayoutProperty('fypt','visibility',PM!=='24'?'visible':'none')}
-// ปีงบก่อน ช่วงเดียวกัน (1 ต.ค. – วันที่เดียวกัน) จาก HD — ชุดเดียวกับแท่ง "เทียบปีงบประมาณ" ในการ์ด
+// ปีงบก่อน จาก HD เฉพาะจุดของกรมอุทยานฯ (ไม่รวมจุดที่เพิ่มจาก API, r.api) — ปีงบ 2569 = 80 จุดตามตัวชี้วัด (ผู้ใช้กำหนด)
 let CM='same'; // ช่วงปีงบก่อนที่ใช้เทียบ: same = 1 ต.ค. – วันที่เดียวกัน · full = ทั้งปีงบ
-function prvPts(){const T0=thDay(),F=fyOfDay(T0),T=T0-fy0(F),s=fy0(F-1);return HD.filter(r=>r.fy===F-1&&(CM==='full'||r.d-s<=T)).map(r=>r._h2||(r._h2={lat:r.la,lon:r.lo,prov:DIC.pv[r.pv],amp:DIC.am[r.am],tam:String(DIC.tm[r.tm]||'').split('|')[0]}))}
+function prvPts(){const T0=thDay(),F=fyOfDay(T0),T=T0-fy0(F),s=fy0(F-1);return HD.filter(r=>r.fy===F-1&&!r.api&&(CM==='full'||r.d-s<=T)).map(r=>r._h2||(r._h2={lat:r.la,lon:r.lo,prov:DIC.pv[r.pv],amp:DIC.am[r.am],tam:String(DIC.tm[r.tm]||'').split('|')[0]}))}
 function cmpRows(){const A=areaRows(fyPts()),B=areaRows(prvPts()),m=new Map(),key=r=>r.full||r.name;
  A.forEach(r=>m.set(key(r),{...r,p:0}));B.forEach(r=>{const k=key(r),a=m.get(k);if(a)a.p=r.n;else m.set(k,{...r,p:r.n,n:0})});
  return[...m.values()].sort((a,b)=>(a.out||0)-(b.out||0)||b.n-a.n||b.p-a.p)}
