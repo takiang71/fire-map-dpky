@@ -1,5 +1,6 @@
 // แจ้งเตือนจุดความร้อนใหม่ในแนวเขตกลุ่มป่าเข้ากลุ่ม LINE (Messaging API push) — รันต่อจาก build_site.js ใน workflow "site"
 // ใช้: LINE_TOKEN=... LINE_GROUP_ID=... node scripts/line_notify.js   ·   --validate = ส่งข้อความตัวอย่างให้ LINE ตรวจรูปแบบ (ไม่ส่งจริง ไม่เสียโควตา)
+//   --test-push = ส่งการ์ดแจ้งเตือนทดสอบเข้ากลุ่มจริง 1 ครั้ง (ใช้จุดจริงล่าสุดใน 6 พื้นที่จาก adata ติดป้าย "ทดสอบ" · เสียโควตาเท่าจำนวนสมาชิก) — ไม่แตะ notify.json
 //  - ข้อความเป็น Flex carousel 7 ใบ (ภาพรวมทั้งปี + 6 พื้นที่อนุรักษ์) สร้างด้วย carousel() ใน worker/line-webhook.mjs ตัวเดียวกับคำตอบ "สรุป"
 //  - ไม่แจ้งเตือนจุดใน ขสป.ดงใหญ่ / พื้นที่รับผิดชอบสถานีฯ ดงใหญ่ (excluded)
 //  - อ่าน _site/live.json (จุด 48 ชม. ในแนวเขต) เทียบกับสถานะเดิม notify.json ที่เผยแพร่ไว้บนเว็บ (ไม่ต้อง commit) → ส่งเฉพาะจุดที่ยังไม่เคยแจ้ง
@@ -51,6 +52,18 @@ async function quotaOk() {
     for (const [n, m] of [['แจ้งเตือน', msg(ex, null)], ['สรุป', msg(null, null)]]) {
       try { await line('/v2/bot/message/validate/push', { messages: [m] }); console.log(n, ': รูปแบบถูกต้อง', JSON.stringify(m).length, 'ไบต์') } catch (e) { console.log(n, ': ไม่ผ่าน', e.message); process.exitCode = 1 }
     }
+    return;
+  }
+  if (process.argv.includes('--test-push')) {
+    if (!TOKEN || !GROUP) { console.log('ต้องตั้ง LINE_TOKEN และ LINE_GROUP_ID'); process.exitCode = 1; return }
+    const { block } = require('./lib/area'), j = JSON.parse(block('adata')[1]), iso = d => new Date(d * 864e5).toISOString().slice(0, 10);
+    const ex = j.r.map(r => { const [tb, am] = String(j.tm[r[8]]).split('|'); return { type: 'Feature', geometry: { type: 'Point', coordinates: [r[3] / 1e5, r[2] / 1e5] },
+      properties: { full_date: `${iso(r[0])} ${String(r[1]).padStart(4, '0').replace(/(..)$/, ':$1')}:00`, satellite_name: j.sat[r[4]], subdistrict_name_th: tb, district_name_th: am || j.am[r[7]], province_name_th: j.pv[r[6]], _ar: j.ar[r[9]], _st: j.st[r[10]] } } })
+      .filter(f => !excluded(f.properties) && f.properties._ar !== 'นอกพื้นที่อนุรักษ์').slice(-5);
+    const q = await quotaOk();
+    if (!q.ok) { console.log('โควตาไม่พอ:', JSON.stringify(q)); process.exitCode = 1; return }
+    await line('/v2/bot/message/push', { to: GROUP, messages: [carousel({ live, sum, fresh: ex, site: SITE, now, test: true, quotaLeft: Math.max(0, Math.floor((q.left - q.members) / q.members)) })] });
+    console.log(`ส่งการ์ดทดสอบแล้ว (${ex.length} จุดตัวอย่าง · สมาชิก ${q.members} คน · โควตาเหลือ ${q.left - q.members})`);
     return;
   }
 

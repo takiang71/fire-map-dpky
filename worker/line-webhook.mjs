@@ -66,7 +66,7 @@ export function carousel(o) {
   for (const per of [4, 2, 1, 0]) { m = build({ ...o, per }); if (bytes(m) < 48000) break }
   return m;
 }
-function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaLeft = null, per = 4 }) {
+function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaLeft = null, per = 4, test = false }) {
   const alert = !!fresh;
   const pts = (live && live.features || []).filter(f => f.properties && !excluded(f.properties)), h24 = pts.filter(f => now - thMs(f.properties.full_date) < 24 * 36e5);
   const nw = (fresh || []).filter(f => !excluded(f.properties)), list = alert ? nw : h24;
@@ -91,7 +91,7 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
     type: 'bubble', size: 'mega',
     header: head(`🔥 สถานการณ์ไฟป่า ปีงบประมาณ ${fy}`, '#B3261E'),
     body: B('vertical', [
-      ...(alert ? [B('vertical', [T(`พบจุดความร้อนใหม่ ${nw.length} จุด`, { color: '#FFFFFF', weight: 'bold', size: 'sm' }),
+      ...(alert ? [B('vertical', [T(`${test ? '🧪 ทดสอบ (จุดจริงย้อนหลัง) · ' : ''}พบจุดความร้อนใหม่ ${nw.length} จุด`, { color: '#FFFFFF', weight: 'bold', size: 'sm' }),
         T(AREAS.map(a => [a.s, inA(nw, a.k).length]).filter(x => x[1]).map(x => `${x[0]} ${x[1]}`).concat(inA(nw, OUT).length ? [`นอกเขตอนุรักษ์ ${inA(nw, OUT).length}`] : []).join(' · ') || '-', { color: '#FFFFFFDD', size: 'xxs', wrap: true })],
         { backgroundColor: RED, cornerRadius: 'md', paddingAll: '8px' })] : []),
       B('baseline', [T('สะสมปีงบ', { size: 'sm', color: MUT, flex: 0 }), T(String(all.fy), { size: '3xl', weight: 'bold', color: RED, flex: 0, margin: 'md' }), T('จุด', { size: 'sm', color: MUT, flex: 0, margin: 'sm' })], { margin: 'md' }),
@@ -139,9 +139,9 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
     };
   });
 
-  const altText = (alert
+  const altText = ((test ? '[ทดสอบ] ' : '') + (alert
     ? `🔥 พบจุดความร้อนใหม่ ${nw.length} จุด ` + AREAS.map(a => [a.s, inA(nw, a.k).length]).filter(x => x[1]).map(x => `${x[0]} ${x[1]}`).join(', ')
-    : `สรุปจุดความร้อน ปีงบ ${fy}: สะสม ${all.fy} จุด · 24 ชม. ${h24.length} จุด`).slice(0, 390);
+    : `สรุปจุดความร้อน ปีงบ ${fy}: สะสม ${all.fy} จุด · 24 ชม. ${h24.length} จุด`)).slice(0, 390);
   return { type: 'flex', altText, contents: { type: 'carousel', contents: [overview, ...cards] } };
 }
 
