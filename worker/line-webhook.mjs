@@ -181,7 +181,19 @@ export async function handle(env, ev) {
 
 export default {
   async fetch(req, env, ctx) {
-    if (req.method !== 'POST') return new Response('LINE webhook: สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่ — ทำงานอยู่', { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+    // ตัดช่องว่าง/ขึ้นบรรทัดที่ติดมาตอนคัดลอกรหัสใส่ Cloudflare
+    env = { ...env, LINE_SECRET: (env.LINE_SECRET || '').trim(), LINE_TOKEN: (env.LINE_TOKEN || '').trim() };
+    if (req.method !== 'POST') {
+      // หน้าตรวจการตั้งค่า (บอกแค่ความยาว ไม่แสดงค่ารหัส) — Channel secret = 32 ตัวอักษร (0-9 a-f), access token ยาว ~170 ตัว
+      const sc = env.LINE_SECRET, tk = env.LINE_TOKEN;
+      const a = !sc ? '✗ ยังไม่ได้ตั้ง' : /^[0-9a-f]{32}$/.test(sc) ? '✓ รูปแบบถูกต้อง (32 ตัวอักษร)' : `✗ รูปแบบไม่ใช่ Channel secret (ยาว ${sc.length} ตัวอักษร ควรเป็น 32 ตัว 0-9 a-f)`;
+      const b = !tk ? '✗ ยังไม่ได้ตั้ง' : tk.length > 100 ? `✓ ตั้งแล้ว (ยาว ${tk.length} ตัวอักษร)` : `✗ สั้นผิดปกติ (ยาว ${tk.length}) — ควรเป็น Channel access token (long-lived)`;
+      return new Response(`LINE webhook: สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่ — ทำงานอยู่
+
+LINE_SECRET: ${a}
+LINE_TOKEN: ${b}
+`, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+    }
     const body = await req.text();
     if (!env.LINE_SECRET || !(await verify(env.LINE_SECRET, body, req.headers.get('x-line-signature') || ''))) return new Response('bad signature', { status: 401 });
     const evs = (JSON.parse(body).events || []);
