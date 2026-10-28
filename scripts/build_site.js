@@ -61,7 +61,6 @@ function summary(L) {
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   fs.copyFileSync(H, path.join(OUT, 'index.html'));
-  fs.cpSync(path.join(ROOT, 'assets'), path.join(OUT, 'assets'), { recursive: true }); // โลโก้สำหรับการ์ด LINE
   fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
   let ok = true, L = null;
   try {

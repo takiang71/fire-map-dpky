@@ -15,7 +15,7 @@ const dTh = ms => new Date(ms).toLocaleDateString('th-TH', { day: 'numeric', mon
 // ไม่แจ้งเตือน/ไม่นับ เขตรักษาพันธุ์สัตว์ป่าดงใหญ่ และพื้นที่รับผิดชอบสถานีฯ ดงใหญ่ (ผู้ใช้กำหนด 28 ต.ค. 69)
 export const EX = /ดงใหญ่/;
 export const excluded = p => EX.test(p._ar || '') || EX.test(p._st || '');
-// การ์ด 3–8: 6 พื้นที่อนุรักษ์ (การ์ด 1 ภาพรวม, 2 จังหวัด/อำเภอ/ตำบลสูงสุด) (ชื่อตาม where() ใน scripts/lib/area.js)
+// การ์ด 2–7: 6 พื้นที่อนุรักษ์ (การ์ด 1 ภาพรวม มีไทล์จังหวัด/อำเภอ/ตำบลสูงสุด) (ชื่อตาม where() ใน scripts/lib/area.js)
 const AREAS = [
   { k: 'อุทยานแห่งชาติเขาใหญ่', s: 'อช.เขาใหญ่', c: '#2E7D32' },
   { k: 'อุทยานแห่งชาติทับลาน', s: 'อช.ทับลาน', c: '#1565C0' },
@@ -33,13 +33,17 @@ const SEP = { type: 'separator', margin: 'md' };
 const dPct = (c, p) => !p ? (c ? ['▲ ใหม่', RED] : ['–', MUT]) : c === p ? ['= เท่าเดิม', MUT] : [`${c > p ? '▲' : '▼'} ${Math.abs(Math.round((c - p) / p * 100))}%`, c > p ? RED : '#2E7D32'];
 const tile = (v, l, color = '#222') => B('vertical', [T(v, { size: 'xl', weight: 'bold', align: 'center', color }), T(l, { size: 'xxs', align: 'center', color: MUT, wrap: true })],
   { flex: 1, backgroundColor: '#F5F6F8', cornerRadius: 'md', paddingAll: '6px' });
-// กราฟรายเดือนแบบตัวอักษร ▁▂▃▄▅▆▇█ (ประหยัดขนาดกว่ากล่องแท่งมาก) สำหรับการ์ดรายพื้นที่
-// ใช้ทั้งการ์ดภาพรวม (ปีนี้ + ปีก่อน สเกลเดียวกัน) และการ์ดรายพื้นที่ (ปีนี้อย่างเดียว) — ตัวอักษรไม่ต้องใช้กล่องทีละแท่ง จึงไม่ชนเพดาน 50 KB
-const sparkTxt = (m, mx) => m.map(v => v ? '▁▂▃▄▅▆▇█'[Math.min(7, Math.ceil(v / mx * 7))] : '▁').join('');
-const spark = (m, c, pm = null, fy = '') => { const mx = Math.max(1, ...m, ...(pm || [])), row = (x, col, l) => B('baseline', [T(sparkTxt(x, mx), { size: pm ? 'xl' : 'xxl', color: col, flex: 0 }), T(l, { size: 'xxs', color: col, margin: 'md' })]);
-  return [row(m, c, pm ? `ปีงบ ${fy}` : ''), ...(pm ? [row(pm, BLUE, `ปีงบ ${fy - 1}`)] : []),
-    T('ต.ค. → ก.ย. · สูงสุด ' + Math.max(0, ...m, ...(pm || [])) + ' จุด/เดือน', { size: 'xxs', color: MUT })] };
-const tbar = (v, mx) => { const n = v ? Math.max(1, Math.round(v / mx * 10)) : 0; return '█'.repeat(n) + '░'.repeat(10 - n) };
+// กราฟแท่งรายเดือน ต.ค.–ก.ย. ปีนี้ (สีพื้นที่/แดง) เทียบปีก่อน (น้ำเงิน) · pm = null แสดงเฉพาะปีนี้ (การ์ดรายพื้นที่)
+// แท่งเรียงในกล่องเดียว (ไม่ห่อรายเดือน) และไม่ใส่คุณสมบัติเกินจำเป็น เพื่อให้ JSON ทั้ง carousel ไม่เกิน 50 KB
+function months(m, pm, fy, c = RED, H = 44) {
+  const mx = Math.max(1, ...m, ...(pm || [])), bar = (v, col, g) => B('vertical', [], { height: (v ? Math.max(2, Math.round(v / mx * H)) : 1) + 'px', backgroundColor: v ? col : '#DADDE2', ...(g ? { margin: 'xs' } : {}) });
+  return [
+    B('horizontal', m.flatMap((v, i) => pm ? [bar(v, c, i > 0), bar(pm[i], BLUE)] : [bar(v, c, i > 0)]), { alignItems: 'flex-end', height: H + 'px', margin: 'sm' }),
+    B('horizontal', ['ต.ค.', 'ม.ค.', 'เม.ย.', 'ก.ค.'].map(x => T(x, { size: 'xxs', color: MUT }))),
+    T('x', { size: 'xxs', color: MUT, contents: [{ type: 'span', text: '■ ', color: c }, { type: 'span', text: 'ปีงบ ' + fy + (pm ? '   ' : ' · สูงสุด ' + Math.max(...m) + ' จุด/เดือน') }, ...(pm ? [{ type: 'span', text: '■ ', color: BLUE }, { type: 'span', text: 'ปีงบ ' + (fy - 1) }] : [])] }),
+  ];
+}
+const hbar = (v, mx, c) => B('vertical', v ? [B('vertical', [], { width: Math.max(4, Math.round(v / mx * 100)) + '%', height: '6px', backgroundColor: c })] : [], { height: '6px', backgroundColor: '#EEF0F3', margin: 'xs' });
 const ptRow = f => {
   const p = f.properties, [lo, la] = f.geometry.coordinates, t = thMs(p.full_date);
   return B('vertical', [
@@ -55,11 +59,11 @@ const dateTh = ms => new Date(ms).toLocaleDateString('th-TH', { day: 'numeric', 
 const footer = site => B('vertical', [{ type: 'button', style: 'link', height: 'sm', action: { type: 'uri', label: 'เปิดแผนที่', uri: site } }], { paddingAll: '4px' });
 
 // live = live.json, sum = summary.json, fresh = จุดใหม่ที่จะแจ้งเตือน (null = โหมดสรุป แสดงจุด 24 ชม. แทน)
-// LINE จำกัด JSON ของ carousel ไม่เกิน 50 KB → ถ้าเกิน 46,000 ไบต์ (UTF-8: อักษรไทยตัวละ 3 ไบต์) ลดจำนวนจุดที่แสดงต่อการ์ดลง
+// LINE จำกัด JSON ของ carousel ไม่เกิน 50 KB → ถ้าเกิน 48,000 ไบต์ (UTF-8: อักษรไทยตัวละ 3 ไบต์) ลดจำนวนจุดที่แสดงต่อการ์ดลง
 export const bytes = m => new TextEncoder().encode(JSON.stringify(m)).length;
 export function carousel(o) {
   let m;
-  for (const per of [4, 2, 1, 0]) { m = build({ ...o, per }); if (bytes(m) < 46000) break }
+  for (const per of [4, 2, 1, 0]) { m = build({ ...o, per }); if (bytes(m) < 48000) break }
   return m;
 }
 function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaLeft = null, per = 4 }) {
@@ -74,12 +78,15 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
 
   // การ์ดที่ 1: ภาพรวมทั้งปี
   const rows = [...AREAS.map(a => [a.s, of(a.k), a.c]), ...(out.fy || out.prv ? [['นอกเขตอนุรักษ์', out, '#9E9E9E']] : [])], mx = Math.max(1, ...rows.flatMap(r => [r[1].fy, r[1].prv]));
-  const logo = { type: 'image', url: site + 'assets/dnp-logo.png', size: '56px', aspectMode: 'fit', aspectRatio: '1:1', flex: 0 };
-  const head = (title, color) => B('horizontal', [logo, B('vertical', [
+  const head = (title, color) => B('vertical', [
     T(title, { color: '#FFFFFF', size: 'lg', weight: 'bold', wrap: true }),
     T('สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)', { color: '#FFFFFFDD', size: 'xxs', wrap: true }),
     T(`📅 ${dateTh(now)}  🕘 ${hm(now)} น.`, { color: '#FFFFFF', size: 'xs', weight: 'bold', margin: 'sm' }),
-  ], { margin: 'md', justifyContent: 'center' })], { backgroundColor: color, paddingAll: '12px', alignItems: 'center' });
+  ], { backgroundColor: color, paddingAll: '14px' });
+  // ไทล์ จังหวัด/อำเภอ/ตำบล ที่พบจุดสูงสุด (สะสมปีงบ) — รูปแบบเดียวกับไทล์ตัวเลขด้านบน (ผู้ใช้ขอ)
+  const topTile = l => { const [x] = topN(all[l], 1);
+    return B('vertical', [T(x ? x[0].split('|')[0] : '–', { size: 'md', weight: 'bold', align: 'center', color: x ? '#B3261E' : MUT, wrap: true }), T(LV[l][0] + 'สูงสุด' + (x ? ` · ${x[1]} จุด` : ''), { size: 'xxs', align: 'center', color: MUT, wrap: true })],
+      { flex: 1, backgroundColor: '#F5F6F8', cornerRadius: 'md', paddingAll: '6px', justifyContent: 'center' }) };
   const overview = {
     type: 'bubble', size: 'mega',
     header: head(`🔥 สถานการณ์ไฟป่า ปีงบประมาณ ${fy}`, '#B3261E'),
@@ -90,12 +97,13 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
       B('baseline', [T('สะสมปีงบ', { size: 'sm', color: MUT, flex: 0 }), T(String(all.fy), { size: '3xl', weight: 'bold', color: RED, flex: 0, margin: 'md' }), T('จุด', { size: 'sm', color: MUT, flex: 0, margin: 'sm' })], { margin: 'md' }),
       T('x', { size: 'xs', wrap: true, contents: [{ type: 'span', text: dt + ' ', color: dc, weight: 'bold' }, { type: 'span', text: `เทียบปีงบ ${fy - 1} ช่วงเดียวกัน (${all.prv} จุด)`, color: MUT }] }),
       B('horizontal', [tile(h24.length, 'จุดใน 24 ชม.'), tile(all.pfull, `ทั้งปีงบ ${fy - 1}`, BLUE), tile(ind.replace('Suomi ', ''), 'ดาวเทียมตัวชี้วัด', '#444')], { spacing: 'sm', margin: 'md' }),
+      B('horizontal', [topTile('pv'), topTile('am'), topTile('tm')], { spacing: 'sm', margin: 'sm' }),
       SEP,
       T(`รายพื้นที่ · สะสมปีงบ ${fy} เทียบ ${fy - 1} ช่วงเดียวกัน`, { size: 'xs', weight: 'bold', margin: 'md', color: '#444', wrap: true }),
       B('horizontal', [T('พื้นที่', { flex: 6 }), T(String(fy), { flex: 2, align: 'end', color: RED }), T(String(fy - 1), { flex: 2, align: 'end', color: BLUE }), T('เปลี่ยนแปลง', { flex: 3, align: 'end' })].map(x => ({ ...x, size: 'xxs', color: x.color || MUT })), { margin: 'sm', spacing: 'sm' }),
       ...rows.map(([n, v, c]) => { const [t, tc] = dPct(v.fy, v.prv);
         return B('horizontal', [
-          B('vertical', [T(n, { size: 'xxs', color: '#333' }), T(tbar(v.fy, mx), { size: 'xxs', color: c })], { flex: 6 }),
+          B('vertical', [T(n, { size: 'xxs', color: '#333' }), hbar(v.fy, mx, c)], { flex: 6 }),
           T(String(v.fy), { size: 'xs', weight: 'bold', align: 'end', flex: 2 }),
           T(String(v.prv), { size: 'xs', color: BLUE, align: 'end', flex: 2 }),
           T(t, { size: 'xxs', weight: 'bold', color: tc, align: 'end', flex: 3 }),
@@ -104,30 +112,13 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
       B('horizontal', [T('รวม', { flex: 6, weight: 'bold' }), T(String(all.fy), { flex: 2, align: 'end', weight: 'bold', color: RED }), T(String(all.prv), { flex: 2, align: 'end', weight: 'bold', color: BLUE }), T(dt, { flex: 3, align: 'end', weight: 'bold', color: dc })].map(x => ({ ...x, size: 'xs' })), { margin: 'md', spacing: 'sm' }),
       SEP,
       T('รายเดือน (ต.ค.–ก.ย.)', { size: 'xs', weight: 'bold', margin: 'md', color: '#444' }),
-      ...spark(all.m, RED, all.pm, fy),
+      ...months(all.m, all.pm, fy),
       T(`กลุ่มป่าดงพญาเย็น-เขาใหญ่ · ปีก่อน = จุดกรมอุทยานฯ${quotaLeft != null ? ` · แจ้งเตือนได้อีก ~${quotaLeft} ครั้งเดือนนี้` : ''} · ไม่รวม ขสป.ดงใหญ่`, { size: 'xxs', color: MUT, wrap: true, margin: 'md' }),
     ], { paddingAll: '14px' }),
     footer: footer(site),
   };
 
-  // การ์ดที่ 2: จังหวัด/อำเภอ/ตำบล ที่พบจุดสูงสุด (สะสมปีงบ ทั้ง 6 พื้นที่ + นอกเขตอนุรักษ์ ไม่รวมดงใหญ่)
-  const rank = (l, n, color) => { const L = topN(all[l], n);
-    return [T(LV[l][0] + 'สูงสุด', { size: 'xs', weight: 'bold', color: '#444', margin: 'lg' }),
-      ...(L.length ? L.map(([k, v], i) => B('horizontal', [
-        T(`${i + 1}. ${LV[l][1](k)}`, { size: 'xxs', color: i ? '#333' : color, weight: i ? 'regular' : 'bold', flex: 1 }),
-        T(v + ' จุด', { size: 'xxs', weight: 'bold', align: 'end', flex: 0 }),
-      ], { margin: 'xs', spacing: 'sm' })) : [T('ยังไม่พบจุดความร้อนในปีงบนี้', { size: 'xxs', color: '#2E7D32', margin: 'sm' })])] };
-  const topCard = {
-    type: 'bubble', size: 'mega',
-    header: head('📍 พื้นที่ที่พบจุดความร้อนสูงสุด', '#37474F'),
-    body: B('vertical', [
-      T(`สะสมปีงบ ${fy} (ดาวเทียมตัวชี้วัด) · 6 พื้นที่อนุรักษ์ รวม ${all.fy} จุด`, { size: 'xxs', color: MUT, wrap: true }),
-      ...rank('pv', 3, '#B3261E'), ...rank('am', 3, '#E65100'), ...rank('tm', 3, '#C77700'),
-    ], { paddingAll: '14px' }),
-    footer: footer(site),
-  };
-
-  // การ์ดที่ 3–8: รายพื้นที่อนุรักษ์ (โหมดแจ้งเตือน: พื้นที่ที่มีจุดใหม่ขึ้นก่อน)
+  // การ์ดที่ 2–7: รายพื้นที่อนุรักษ์ (โหมดแจ้งเตือน: พื้นที่ที่มีจุดใหม่ขึ้นก่อน)
   const order = AREAS.map((a, i) => ({ a, i, n: inA(nw, a.k).length })).sort((x, y) => alert ? y.n - x.n || x.i - y.i : x.i - y.i);
   const cards = order.map(({ a }) => {
     const v = of(a.k), L = inA(list, a.k).sort((x, y) => thMs(y.properties.full_date) - thMs(x.properties.full_date)), n24 = inA(h24, a.k).length, [t, c] = dPct(v.fy, v.prv);
@@ -138,10 +129,7 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
         ...(alert && L.length ? [B('vertical', [T(`🔥 พบจุดใหม่ ${L.length} จุด`, { color: '#FFFFFF', weight: 'bold', size: 'sm' })], { backgroundColor: RED, cornerRadius: 'md', paddingAll: '8px' })] : []),
         B('horizontal', [tile(n24, 'จุดใน 24 ชม.', n24 ? RED : '#222'), tile(v.fy, `สะสมปีงบ ${fy}`), tile(v.prv, `ปีงบ ${fy - 1} ช่วงเดียวกัน`, BLUE)], { spacing: 'sm', margin: alert && L.length ? 'md' : 'none' }),
         T('x', { size: 'xs', margin: 'sm', wrap: true, contents: [{ type: 'span', text: t + ' ', color: c, weight: 'bold' }, { type: 'span', text: `เทียบปีงบก่อนช่วงเดียวกัน · ทั้งปีงบ ${fy - 1} = ${v.pfull} จุด`, color: MUT }] }),
-        ...spark(v.m, a.c),
-        SEP,
-        T(`สูงสุดในพื้นที่ (สะสมปีงบ ${fy})`, { size: 'xs', weight: 'bold', margin: 'md', color: '#444' }),
-        ...['pv', 'am', 'tm'].map(l => { const [x] = topN(v[l], 1); return B('horizontal', [T(LV[l][0], { size: 'xxs', color: MUT, flex: 2 }), T(x ? LV[l][1](x[0]) : '–', { size: 'xxs', color: '#333', flex: 7 }), T(x ? x[1] + ' จุด' : '0 จุด', { size: 'xxs', weight: 'bold', align: 'end', flex: 2 })], { margin: 'xs', spacing: 'sm' }) }),
+        ...months(v.m, null, fy, a.c, 32),
         SEP,
         T(alert ? 'จุดใหม่รอบนี้ (แตะเพื่อเปิดแผนที่)' : 'จุดใน 24 ชม. (แตะเพื่อเปิดแผนที่)', { size: 'xs', weight: 'bold', margin: 'md', color: '#444' }),
         ...(L.length ? L.slice(0, per).map(ptRow) : [T(alert ? 'ไม่มีจุดใหม่ในพื้นที่นี้รอบนี้' : 'ไม่พบจุดความร้อนใน 24 ชม.', { size: 'xs', color: '#2E7D32', margin: 'sm' })]),
@@ -154,7 +142,7 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
   const altText = (alert
     ? `🔥 พบจุดความร้อนใหม่ ${nw.length} จุด ` + AREAS.map(a => [a.s, inA(nw, a.k).length]).filter(x => x[1]).map(x => `${x[0]} ${x[1]}`).join(', ')
     : `สรุปจุดความร้อน ปีงบ ${fy}: สะสม ${all.fy} จุด · 24 ชม. ${h24.length} จุด`).slice(0, 390);
-  return { type: 'flex', altText, contents: { type: 'carousel', contents: [overview, topCard, ...cards] } };
+  return { type: 'flex', altText, contents: { type: 'carousel', contents: [overview, ...cards] } };
 }
 
 async function verify(secret, body, sig) {
