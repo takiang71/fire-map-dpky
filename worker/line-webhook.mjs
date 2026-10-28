@@ -31,7 +31,7 @@ const T = (text, o = {}) => ({ type: 'text', text: String(text), ...o });
 const B = (layout, contents, o = {}) => ({ type: 'box', layout, contents, ...o });
 const SEP = { type: 'separator', margin: 'md' };
 const dPct = (c, p) => !p ? (c ? ['▲ ใหม่', RED] : ['–', MUT]) : c === p ? ['= เท่าเดิม', MUT] : [`${c > p ? '▲' : '▼'} ${Math.abs(Math.round((c - p) / p * 100))}%`, c > p ? RED : '#2E7D32'];
-const tile = (v, l, color = '#222') => B('vertical', [T(v, { size: 'xl', weight: 'bold', align: 'center', color }), T(l, { size: 'xxs', align: 'center', color: MUT, wrap: true })],
+const tile = (v, l, color = '#222222') => B('vertical', [T(v, { size: 'xl', weight: 'bold', align: 'center', color }), T(l, { size: 'xxs', align: 'center', color: MUT, wrap: true })],
   { flex: 1, backgroundColor: '#F5F6F8', cornerRadius: 'md', paddingAll: '6px' });
 // กราฟแท่งรายเดือน ต.ค.–ก.ย. ปีนี้ (สีพื้นที่/แดง) เทียบปีก่อน (น้ำเงิน) · pm = null แสดงเฉพาะปีนี้ (การ์ดรายพื้นที่)
 // แท่งเรียงในกล่องเดียว (ไม่ห่อรายเดือน) และไม่ใส่คุณสมบัติเกินจำเป็น เพื่อให้ JSON ทั้ง carousel ไม่เกิน 50 KB
@@ -47,7 +47,7 @@ const hbar = (v, mx, c) => B('vertical', v ? [B('vertical', [], { width: Math.ma
 const ptRow = f => {
   const p = f.properties, [lo, la] = f.geometry.coordinates, t = thMs(p.full_date);
   return B('vertical', [
-    T(`${hm(t)} น. ${dTh(t)} · ${SATN[satKey(p.satellite_name)] || p.satellite_name}`, { size: 'xs', weight: 'bold', color: '#222' }),
+    T(`${hm(t)} น. ${dTh(t)} · ${SATN[satKey(p.satellite_name)] || p.satellite_name}`, { size: 'xs', weight: 'bold', color: '#222222' }),
     T(`ต.${p.subdistrict_name_th || '-'} อ.${p.district_name_th || '-'} จ.${p.province_name_th || '-'}`, { size: 'xxs', color: MUT, wrap: true }),
   ], { paddingTop: '4px', paddingBottom: '4px', action: { type: 'uri', label: 'แผนที่', uri: `https://maps.google.com/?q=${la.toFixed(5)},${lo.toFixed(5)}` } });
 };
@@ -96,14 +96,14 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
         { backgroundColor: RED, cornerRadius: 'md', paddingAll: '8px' })] : []),
       B('baseline', [T('สะสมปีงบ', { size: 'sm', color: MUT, flex: 0 }), T(String(all.fy), { size: '3xl', weight: 'bold', color: RED, flex: 0, margin: 'md' }), T('จุด', { size: 'sm', color: MUT, flex: 0, margin: 'sm' })], { margin: 'md' }),
       T('x', { size: 'xs', wrap: true, contents: [{ type: 'span', text: dt + ' ', color: dc, weight: 'bold' }, { type: 'span', text: `เทียบปีงบ ${fy - 1} ช่วงเดียวกัน (${all.prv} จุด)`, color: MUT }] }),
-      B('horizontal', [tile(h24.length, 'จุดใน 24 ชม.'), tile(all.pfull, `ทั้งปีงบ ${fy - 1}`, BLUE), tile(ind.replace('Suomi ', ''), 'ดาวเทียมตัวชี้วัด', '#444')], { spacing: 'sm', margin: 'md' }),
+      B('horizontal', [tile(h24.length, 'จุดใน 24 ชม.'), tile(all.pfull, `ทั้งปีงบ ${fy - 1}`, BLUE), tile(ind.replace('Suomi ', ''), 'ดาวเทียมตัวชี้วัด', '#444444')], { spacing: 'sm', margin: 'md' }),
       B('horizontal', [topTile('pv'), topTile('am'), topTile('tm')], { spacing: 'sm', margin: 'sm' }),
       SEP,
-      T(`รายพื้นที่ · สะสมปีงบ ${fy} เทียบ ${fy - 1} ช่วงเดียวกัน`, { size: 'xs', weight: 'bold', margin: 'md', color: '#444', wrap: true }),
+      T(`รายพื้นที่ · สะสมปีงบ ${fy} เทียบ ${fy - 1} ช่วงเดียวกัน`, { size: 'xs', weight: 'bold', margin: 'md', color: '#444444', wrap: true }),
       B('horizontal', [T('พื้นที่', { flex: 6 }), T(String(fy), { flex: 2, align: 'end', color: RED }), T(String(fy - 1), { flex: 2, align: 'end', color: BLUE }), T('เปลี่ยนแปลง', { flex: 3, align: 'end' })].map(x => ({ ...x, size: 'xxs', color: x.color || MUT })), { margin: 'sm', spacing: 'sm' }),
       ...rows.map(([n, v, c]) => { const [t, tc] = dPct(v.fy, v.prv);
         return B('horizontal', [
-          B('vertical', [T(n, { size: 'xxs', color: '#333' }), hbar(v.fy, mx, c)], { flex: 6 }),
+          B('vertical', [T(n, { size: 'xxs', color: '#333333' }), hbar(v.fy, mx, c)], { flex: 6 }),
           T(String(v.fy), { size: 'xs', weight: 'bold', align: 'end', flex: 2 }),
           T(String(v.prv), { size: 'xs', color: BLUE, align: 'end', flex: 2 }),
           T(t, { size: 'xxs', weight: 'bold', color: tc, align: 'end', flex: 3 }),
@@ -111,7 +111,7 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
       { type: 'separator', margin: 'sm' },
       B('horizontal', [T('รวม', { flex: 6, weight: 'bold' }), T(String(all.fy), { flex: 2, align: 'end', weight: 'bold', color: RED }), T(String(all.prv), { flex: 2, align: 'end', weight: 'bold', color: BLUE }), T(dt, { flex: 3, align: 'end', weight: 'bold', color: dc })].map(x => ({ ...x, size: 'xs' })), { margin: 'md', spacing: 'sm' }),
       SEP,
-      T('รายเดือน (ต.ค.–ก.ย.)', { size: 'xs', weight: 'bold', margin: 'md', color: '#444' }),
+      T('รายเดือน (ต.ค.–ก.ย.)', { size: 'xs', weight: 'bold', margin: 'md', color: '#444444' }),
       ...months(all.m, all.pm, fy),
       T(`กลุ่มป่าดงพญาเย็น-เขาใหญ่ · ปีก่อน = จุดกรมอุทยานฯ${quotaLeft != null ? ` · แจ้งเตือนได้อีก ~${quotaLeft} ครั้งเดือนนี้` : ''} · ไม่รวม ขสป.ดงใหญ่`, { size: 'xxs', color: MUT, wrap: true, margin: 'md' }),
     ], { paddingAll: '14px' }),
@@ -127,11 +127,11 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
       header: B('vertical', [T(a.s, { color: '#FFFFFF', size: 'xl', weight: 'bold' }), T(a.n || a.k, { color: '#FFFFFFCC', size: 'xxs', wrap: true })], { backgroundColor: a.c, paddingAll: '14px' }),
       body: B('vertical', [
         ...(alert && L.length ? [B('vertical', [T(`🔥 พบจุดใหม่ ${L.length} จุด`, { color: '#FFFFFF', weight: 'bold', size: 'sm' })], { backgroundColor: RED, cornerRadius: 'md', paddingAll: '8px' })] : []),
-        B('horizontal', [tile(n24, 'จุดใน 24 ชม.', n24 ? RED : '#222'), tile(v.fy, `สะสมปีงบ ${fy}`), tile(v.prv, `ปีงบ ${fy - 1} ช่วงเดียวกัน`, BLUE)], { spacing: 'sm', margin: alert && L.length ? 'md' : 'none' }),
+        B('horizontal', [tile(n24, 'จุดใน 24 ชม.', n24 ? RED : '#222222'), tile(v.fy, `สะสมปีงบ ${fy}`), tile(v.prv, `ปีงบ ${fy - 1} ช่วงเดียวกัน`, BLUE)], { spacing: 'sm', margin: alert && L.length ? 'md' : 'none' }),
         T('x', { size: 'xs', margin: 'sm', wrap: true, contents: [{ type: 'span', text: t + ' ', color: c, weight: 'bold' }, { type: 'span', text: `เทียบปีงบก่อนช่วงเดียวกัน · ทั้งปีงบ ${fy - 1} = ${v.pfull} จุด`, color: MUT }] }),
         ...months(v.m, null, fy, a.c, 32),
         SEP,
-        T(alert ? 'จุดใหม่รอบนี้ (แตะเพื่อเปิดแผนที่)' : 'จุดใน 24 ชม. (แตะเพื่อเปิดแผนที่)', { size: 'xs', weight: 'bold', margin: 'md', color: '#444' }),
+        T(alert ? 'จุดใหม่รอบนี้ (แตะเพื่อเปิดแผนที่)' : 'จุดใน 24 ชม. (แตะเพื่อเปิดแผนที่)', { size: 'xs', weight: 'bold', margin: 'md', color: '#444444' }),
         ...(L.length ? L.slice(0, per).map(ptRow) : [T(alert ? 'ไม่มีจุดใหม่ในพื้นที่นี้รอบนี้' : 'ไม่พบจุดความร้อนใน 24 ชม.', { size: 'xs', color: '#2E7D32', margin: 'sm' })]),
         ...(L.length > per ? [T(`…และอีก ${L.length - per} จุด`, { size: 'xxs', color: MUT })] : []),
       ], { paddingAll: '14px' }),
