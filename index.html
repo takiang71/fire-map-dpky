@@ -45,6 +45,7 @@ h1 small{display:block;font-size:.42em;font-weight:600;color:var(--mut);margin-t
 .pr:hover{background:var(--sel)}
 .pr i{height:6px;border-radius:3px;background:linear-gradient(90deg,#f08a3c,var(--fire));flex:none}
 .pr span{flex:1}.pr em{font-style:normal;color:var(--mut)}
+.pr .cm{display:flex;flex-direction:column;align-items:flex-end;line-height:1.15;white-space:nowrap}.pr .cm small{font-size:11px;color:var(--mut)}.pr .cm b{font-size:11.5px;font-weight:700}.pr .cm .up{color:#c0301c}.pr .cm .dn{color:#1f7a4d}.pr .cm .eq{color:var(--mut)}
 .ph{display:flex;align-items:center;gap:8px}.ph b{flex:1;font-size:15px;font-weight:800;color:var(--navy)}
 .smp{font-size:11px;font-weight:700;color:#8a4200;background:#fff1de;border:1px solid #f5c98f;border-radius:99px;padding:1px 8px;white-space:nowrap;cursor:help}
 .pk{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0 2px}
@@ -76,7 +77,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
  #rpt .r3{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}#rpt table{width:100%;border-collapse:collapse}#rpt th,#rpt td{border:1px solid #bbb;padding:2px 5px;text-align:left}#rpt th{background:#eef1f7}#rpt td.n{text-align:right}
  #rpt tr{break-inside:avoid}#rpt thead{display:table-header-group}#rpt .ft{margin-top:8px;color:#555;font-size:9.5px}
 }
-.pmd{display:flex;align-items:center;gap:6px;margin:12px 0 4px}.pmd .sg2{display:flex;background:#eef1f6;border-radius:10px;padding:2px;gap:2px}.pmd .sg2 button{border:0;background:none;border-radius:8px;padding:5px 9px;font-size:13px;color:var(--mut);white-space:nowrap}.pmd .sg2 button[aria-selected=true]{background:#fff;color:var(--navy);font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.12)}.pmd>span{margin-left:auto;font-size:12px;color:var(--mut);white-space:nowrap}
+.pmd{display:flex;align-items:center;gap:6px;margin:12px 0 4px}.pmd .sg2{display:flex;flex:1;background:#eef1f6;border-radius:10px;padding:2px;gap:2px}.pmd .sg2 button{flex:1 1 auto;border:0;background:none;border-radius:8px;padding:5px 6px;font-size:12.5px;color:var(--mut);white-space:nowrap}.pmd .sg2 button[aria-selected=true]{background:#fff;color:var(--navy);font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.12)}.pmd>span{margin-left:auto;font-size:12px;color:var(--mut);white-space:nowrap}
 .ptb2{display:flex;gap:4px;margin:-2px 0 8px}.ptb2[hidden]{display:none}.ptb2 button{border:1px solid var(--line);background:none;border-radius:999px;padding:3px 10px;font-size:12.5px;color:var(--mut);white-space:nowrap}.ptb2 button[aria-selected=true]{border-color:var(--navy);color:var(--navy);font-weight:700;background:#eef1f6}.ptb2 em{font-style:normal;font-weight:400}
 .ptb{display:flex;gap:2px;border-bottom:1px solid var(--line);margin:4px 0 8px}
 .ptb button{border:0;background:none;padding:6px 5px;white-space:nowrap;font-size:13px;color:var(--mut);border-bottom:2px solid transparent;margin-bottom:-1px}.ptb button[aria-selected=true]{color:var(--navy);font-weight:700;border-bottom-color:var(--navy)}.ptb em{font-style:normal;font-weight:400;color:var(--mut)}
@@ -242,7 +243,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div class="plg" id="p-lg"></div>
   <div class="pch" id="p-ch"></div>
   <div class="sm" id="p-yr"></div>
-  <div class="pmd"><div class="sg2" role="tablist" id="p-md" aria-label="ช่วงข้อมูลของรายการแยกตามพื้นที่"><button role="tab" data-m="24" aria-selected="true">จุดใน 24 ชม.</button><button role="tab" data-m="fy" aria-selected="false" id="p-mfy" title="นับตามดาวเทียมตัวชี้วัดกรมอุทยานฯ (เท่ากับยอดสะสมปีงบในการ์ด)">จุดสะสมปีงบ</button></div><span>แยกตามพื้นที่</span></div>
+  <div class="pmd"><div class="sg2" role="tablist" id="p-md" aria-label="ช่วงข้อมูลของรายการแยกตามพื้นที่"><button role="tab" data-m="24" aria-selected="true">จุดใน 24 ชม.</button><button role="tab" data-m="fy" aria-selected="false" id="p-mfy" title="นับตามดาวเทียมตัวชี้วัดกรมอุทยานฯ (เท่ากับยอดสะสมปีงบในการ์ด)">จุดสะสมปีงบ</button><button role="tab" data-m="cmp" aria-selected="false" id="p-mcp" title="เทียบจุดสะสมปีงบนี้กับปีงบก่อน ช่วงเดียวกัน (1 ต.ค. ถึงวันนี้) แยกตามพื้นที่">เทียบปีงบก่อน</button></div></div>
   <div class="ptb" role="tablist" id="p-tb"><button role="tab" data-t="pv" aria-selected="true">จังหวัด <em id="pn">0</em></button><button role="tab" data-t="sb" aria-selected="false">สบอ. <em id="pn-sb">0</em></button><button role="tab" data-t="pa" aria-selected="false">พื้นที่อนุรักษ์ <em id="pn-pa">0</em></button><button role="tab" data-t="st" aria-selected="false">สถานีฯ ไฟป่า <em id="pn-st">0</em></button></div>
   <div class="ptb2" role="tablist" id="p-tb2" aria-label="ระดับพื้นที่ในจังหวัด"><button role="tab" data-t="pv" aria-selected="true">จังหวัด <em id="pn-pv2">0</em></button><button role="tab" data-t="am" aria-selected="false">อำเภอ <em id="pn-am">0</em></button><button role="tab" data-t="tm" aria-selected="false">ตำบล <em id="pn-tm">0</em></button></div>
   <label class="srch"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="q" placeholder="ค้นหาจังหวัด" aria-label="ค้นหาในรายการ" autocomplete="off"></label>
@@ -642,7 +643,7 @@ function setup(){ // เรียกทุกครั้งที่สลั�
  if(map.getStyle().glyphs)map.addLayer({id:'hot-cn',type:'symbol',source:'hot',filter:['has','point_count'],layout:{'text-field':['get','point_count_abbreviated'],'text-font':['Noto Sans Bold'],'text-size':12,'text-allow-overlap':true},paint:{'text-color':'#fff'}});
  map.addLayer({id:'hot-3d',type:'fill-extrusion',source:'hot3',paint:{'fill-extrusion-color':GL,'fill-extrusion-height':['*',['get','frp'],90],'fill-extrusion-opacity':.9}});
  map.addSource('imgpt',{type:'geojson',data:imgFC()});map.addLayer({id:'imgpt',type:'circle',source:'imgpt',paint:{'circle-radius':['interpolate',['linear'],['zoom'],6,5,12,11],'circle-color':'rgba(0,0,0,0)','circle-stroke-color':'#ffd60a','circle-stroke-width':2.2}});
- map.addSource('fypt',{type:'geojson',data:fyFC()});map.addLayer({id:'fypt',type:'circle',source:'fypt',layout:{visibility:PM==='fy'?'visible':'none'},paint:{'circle-radius':['interpolate',['linear'],['zoom'],6,4,12,9],'circle-color':'#ff7a1a','circle-opacity':.9,'circle-stroke-color':'#fff','circle-stroke-width':1.5}},'hot-glow');
+ map.addSource('fypt',{type:'geojson',data:fyFC()});map.addLayer({id:'fypt',type:'circle',source:'fypt',layout:{visibility:PM!=='24'?'visible':'none'},paint:{'circle-radius':['interpolate',['linear'],['zoom'],6,4,12,9],'circle-color':'#ff7a1a','circle-opacity':.9,'circle-stroke-color':'#fff','circle-stroke-width':1.5}},'hot-glow');
  map.addLayer({id:'ring',type:'circle',source:'ring',paint:{'circle-radius':22,'circle-color':'rgba(0,0,0,0)','circle-stroke-color':'#D93A1F','circle-stroke-width':3}});
  apply();
 }
@@ -734,11 +735,17 @@ function fyPts(){if(!ADI)return[];const T0=thDay(),s=fy0(fyOfDay(T0)),k=s+'|'+lo
  LIVE.forEach(h=>{const x=new Date(h.t+7*36e5),d=Math.floor(x/864e5),k=hKey(d,x.getUTCHours()*100+x.getUTCMinutes(),h.lat,h.lon);if(d>ADI.to&&d>=s&&d<=T0&&satKey(h.sat)===indSat(d)&&!seen.has(k)){L.push(h);seen.add(k)}});
  return(FYC={k,L}).L}
 // จุดสะสมปีงบบนแผนที่ (วงส้ม เลเยอร์ fypt) แสดงเฉพาะตอนเลือกแท็บ "จุดสะสมปีงบ" — เลเยอร์จุดสดแสดงแค่ 48 ชม.
-function fyFC(){return{type:'FeatureCollection',features:PM==='fy'?fyPts().map(h=>{let d=h.d,t=h.t;if(d==null){const x=new Date(h.t+7*36e5);d=Math.floor(x/864e5);t=x.getUTCHours()*100+x.getUTCMinutes()}
+function fyFC(){return{type:'FeatureCollection',features:PM!=='24'?fyPts().map(h=>{let d=h.d,t=h.t;if(d==null){const x=new Date(h.t+7*36e5);d=Math.floor(x/864e5);t=x.getUTCHours()*100+x.getUTCMinutes()}
  return{type:'Feature',geometry:{type:'Point',coordinates:[h.lon,h.lat]},properties:{d,t,sat:satKey(h.sat),tam:h.tam||'',amp:h.amp||'',prov:h.prov||''}}}):[]}}
-function fyMap(){const p=map.getSource('fypt');if(p)p.setData(fyFC());if(map.getLayer('fypt'))map.setLayoutProperty('fypt','visibility',PM==='fy'?'visible':'none')}
-const areaPts=()=>PM==='fy'?fyPts():HS.filter(h=>ageH(h)<24),okN=v=>v&&!/ไม่ระบุ/.test(v);
-function areaRows(){const L=areaPts();
+function fyMap(){const p=map.getSource('fypt');if(p)p.setData(fyFC());if(map.getLayer('fypt'))map.setLayoutProperty('fypt','visibility',PM!=='24'?'visible':'none')}
+// ปีงบก่อน ช่วงเดียวกัน (1 ต.ค. – วันที่เดียวกัน) จาก HD — ชุดเดียวกับแท่ง "เทียบปีงบประมาณ" ในการ์ด
+function prvPts(){const T0=thDay(),F=fyOfDay(T0),T=T0-fy0(F),s=fy0(F-1);return HD.filter(r=>r.fy===F-1&&r.d-s<=T).map(r=>r._h2||(r._h2={lat:r.la,lon:r.lo,prov:DIC.pv[r.pv],amp:DIC.am[r.am],tam:String(DIC.tm[r.tm]||'').split('|')[0]}))}
+function cmpRows(){const A=areaRows(fyPts()),B=areaRows(prvPts()),m=new Map(),key=r=>r.full||r.name;
+ A.forEach(r=>m.set(key(r),{...r,p:0}));B.forEach(r=>{const k=key(r),a=m.get(k);if(a)a.p=r.n;else m.set(k,{...r,p:r.n,n:0})});
+ return[...m.values()].sort((a,b)=>(a.out||0)-(b.out||0)||b.n-a.n||b.p-a.p)}
+const dPct=(n,p)=>!p?(n?['up','▲ ใหม่']:['eq','–']):n===p?['eq','= 0%']:n>p?['up','▲ '+nf(Math.round((n-p)/p*100))+'%']:['dn','▼ '+nf(Math.round((p-n)/p*100))+'%'];
+const areaPts=()=>PM==='24'?HS.filter(h=>ageH(h)<24):fyPts(),okN=v=>v&&!/ไม่ระบุ/.test(v);
+function areaRows(L){if(!L){if(PM==='cmp')return cmpRows();L=areaPts()}
  if(PT==='pv'){const m={};L.filter(h=>okN(h.prov)).forEach(h=>(m[h.prov]=m[h.prov]||[]).push(h));
   return Object.entries(m).map(([k,F])=>({name:k,n:F.length,txt:'จังหวัด'+k,go:()=>PM==='24'?map.flyTo({center:[F.reduce((a,h)=>a+h.lon,0)/F.length,F.reduce((a,h)=>a+h.lat,0)/F.length],zoom:9.3,duration:dur(1600)}):fitPts(F)})).sort((a,b)=>b.n-a.n)}
  if(PT==='am'||PT==='tm'){const m={};L.filter(h=>okN(h.amp)&&(PT==='am'||okN(h.tam))).forEach(h=>{const k=(PT==='tm'?h.tam+'|':'')+h.amp+'|'+h.prov;(m[k]=m[k]||[]).push(h)});
@@ -764,10 +771,11 @@ function renderCard(){
  pChart(F,T,now,Hh);
  $('#p-yr').innerHTML=`ตัวชี้วัดกรมอุทยานฯ: ${ind}${ADI&&T0-ADI.to>2?` · <b>ข้อมูลสะสมถึง ${dShort(ADI.to)}</b>`:''}<br>ปีงบ ${Hh.P} ทั้งปี <b>${nf(Hh.tot)}</b> จุด${Hh.tot?` · มากสุดเดือน ${TMO[Hh.pm]} (${nf(Hh.pmN)}) · วันที่มากสุด ${dShort(Hh.pd[0])} (${nf(Hh.pd[1])} จุด)`:''} · กราฟเป็นยอดสะสมตั้งแต่ 1 ต.ค.`;
  // ข้อมูลประกอบ: ดาวเทียม / ความเชื่อมั่น
- $('#p-mfy').textContent='จุดสะสมปีงบ '+F;
+ $('#p-mfy').textContent='จุดสะสมปีงบ '+F;$('#p-mcp').textContent='เทียบปีงบ '+(F-1);
  drawList()}
 // ตัวเลขบนแท็บ (จำนวนพื้นที่) + บรรทัดข้อมูลประกอบใต้รายการ ตามช่วงข้อมูล PM
 function listMeta(){const pt=PT;[['pv','pn'],['sb','pn-sb'],['pa','pn-pa'],['st','pn-st'],['pv','pn-pv2'],['am','pn-am'],['tm','pn-tm']].forEach(([t,id])=>{PT=t;$('#'+id).textContent=areaRows().filter(r=>!r.out).length});PT=pt;
+ if(PM==='cmp'){const T0=thDay(),F=fyOfDay(T0),a=fyPts().length,b=prvPts().length,[c,t]=dPct(a,b);$('#p-meta').innerHTML=ADI?`ช่วงเดียวกัน 1 ต.ค. – ${dShort(T0)}: ปีงบ ${F} <b>${nf(a)}</b> จุด · ปีงบ ${F-1} <b>${nf(b)}</b> จุด <b style="color:${c==='up'?'#c0301c':c==='dn'?'#1f7a4d':'inherit'}">${t}</b><br>แต่ละรายการ: จำนวนปีงบ ${F} · ใต้ตัวเลข = ปีงบ ${F-1} และ % เปลี่ยนแปลง (ลูกศรแดง = เพิ่มขึ้น, เขียว = ลดลง)`:'ยังไม่มีข้อมูลสะสม (ต้องรัน scripts/sync_hotspots.js)';return}
  if(PM==='fy'){const T0=thDay(),L=fyPts();$('#p-meta').innerHTML=ADI?'สะสม 1 ต.ค. – '+dShort(T0)+' รวม <b>'+nf(L.length)+'</b> จุด · นับตามดาวเทียมตัวชี้วัด '+indName(T0)+' (ไม่ขึ้นกับปุ่มดาวเทียม) · บนแผนที่แสดงเป็น<b style="color:#ff7a1a">วงกลมสีส้ม</b>':'ยังไม่มีข้อมูลสะสม (ต้องรัน scripts/sync_hotspots.js)';return}
  const L=HS.filter(h=>ageH(h)<24),sm={};L.forEach(h=>sm[h.sat||'ไม่ระบุ']=(sm[h.sat||'ไม่ระบุ']||0)+1);
  $('#p-meta').textContent=L.length?'24 ชม.: '+Object.entries(sm).sort((a,b)=>b[1]-a[1]).map(([k,v])=>k+' '+v).join(' · ')+' · ความเชื่อมั่นสูง '+L.filter(h=>h.conf==='h').length+' จุด':''}
@@ -795,8 +803,8 @@ function pChart(F,T,now,Hh){const W=311,Ht=128,l=28,r=48,t=8,b=18,iw=W-l-r,ih=Ht
   tip.style.display='block';const px=x(i)/k,tw=tip.offsetWidth;tip.style.left=Math.max(0,Math.min(bx.width-tw,px+(px>bx.width/2?-tw-8:8)))+'px'};
  $('#p-hit').onpointerleave=hide}
 function drawList(){listMeta();fyMap();
- const q=$('#q').value.trim(),R=areaRows().filter(p=>(p.full||p.name).includes(q)),mx=Math.max(1,...R.map(p=>p.n));
- $('#pl').innerHTML=R.map((p,i)=>`<button class="pr${afOn(p)?' on':''}" data-i="${i}" aria-pressed="${afOn(p)}" title="${esc(p.full||p.name)} · คลิกเพื่อเลือกพื้นที่ (ตาราง/CSV/รายงานจะกรองตามนี้) และซูม · คลิกซ้ำเพื่อยกเลิก"><i style="width:${Math.max(8,p.n/mx*60)}px${p.c?';background:'+p.c:''}"></i><span${p.out?' style="color:var(--mut)"':''}>${esc(p.name)}</span><em>${p.n} จุด</em></button>`).join('')||`<div class="sm" style="padding:8px">${q?'ไม่พบรายการที่ค้นหา':PM==='fy'?(ADI?'ยังไม่พบจุดความร้อนสะสมในปีงบนี้':'ยังไม่มีข้อมูลสะสม'):'ไม่พบจุดความร้อนใน 24 ชม.'}</div>`;
+ const q=$('#q').value.trim(),R=areaRows().filter(p=>(p.full||p.name).includes(q)),mx=Math.max(1,...R.map(p=>Math.max(p.n,p.p||0)));
+ $('#pl').innerHTML=R.map((p,i)=>`<button class="pr${afOn(p)?' on':''}" data-i="${i}" aria-pressed="${afOn(p)}" title="${esc(p.full||p.name)} · คลิกเพื่อเลือกพื้นที่ (ตาราง/CSV/รายงานจะกรองตามนี้) และซูม · คลิกซ้ำเพื่อยกเลิก"><i style="width:${Math.max(8,p.n/mx*60)}px${p.c?';background:'+p.c:''}"></i><span${p.out?' style="color:var(--mut)"':''}>${esc(p.name)}</span>${PM==='cmp'?(d=>`<span class="cm"><em>${p.n} จุด</em><small>${fyOfDay(thDay())-1}: ${p.p} <b class="${d[0]}">${d[1]}</b></small></span>`)(dPct(p.n,p.p)):`<em>${p.n} จุด</em>`}</button>`).join('')||`<div class="sm" style="padding:8px">${q?'ไม่พบรายการที่ค้นหา':PM!=='24'?(ADI?'ยังไม่พบจุดความร้อนสะสมในปีงบนี้'+(PM==='cmp'?'และปีงบก่อนช่วงเดียวกัน':''):'ยังไม่มีข้อมูลสะสม'):'ไม่พบจุดความร้อนใน 24 ชม.'}</div>`;
  $$('#pl .pr').forEach(b=>b.onclick=()=>{const p=R[b.dataset.i];if(afOn(p))AF=null;else{AF={t:PT,full:p.full||p.name,name:p.name,txt:p.txt};p.go()}drawList();afShow()});
 }
 /* ตัวกรองพื้นที่สำหรับตาราง/CSV/รายงาน (เลือกจากรายการในการ์ด) */
@@ -890,7 +898,7 @@ map.on('click',e=>{
  if($('#dp').classList.contains('open')&&!(map.queryRenderedFeatures(e.point,{layers:['hot-icon','hot-3d']})[0])){closeDetail();return}
  const f=map.getLayer('hot-icon')&&map.queryRenderedFeatures(e.point,{layers:['hot-icon','hot-3d']})[0];
  if(f){openDetail(HS.find(x=>x.id===f.properties.id));return}
- const fp=PM==='fy'&&map.getLayer('fypt')&&map.queryRenderedFeatures(e.point,{layers:['fypt']})[0];
+ const fp=PM!=='24'&&map.getLayer('fypt')&&map.queryRenderedFeatures(e.point,{layers:['fypt']})[0];
  if(fp){const p=fp.properties,[lo,la]=fp.geometry.coordinates;new maplibregl.Popup({maxWidth:'260px'}).setLngLat([lo,la]).setHTML(`<b>จุดความร้อนสะสมปีงบ ${fyOfDay(p.d)}</b><br>${dShort(p.d)} เวลา ${hhmmTh(p.t)} น. · ${esc(SATN[p.sat]||p.sat)}<br>${p.tam?'ต.'+esc(p.tam)+' ':''}${p.amp?'อ.'+esc(p.amp)+' ':''}${p.prov?'จ.'+esc(p.prov):''}<br><span class="sm">พิกัด ${la.toFixed(5)}, ${lo.toFixed(5)}</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${la},${lo}">เปิดใน Google Maps</a>`).addTo(map);return}
  const hcl=S.hist&&map.getLayer('histc-cl')&&map.queryRenderedFeatures(e.point,{layers:['histc-cl']})[0];
  if(hcl){map.getSource('histc').getClusterExpansionZoom(hcl.properties.cluster_id).then(z=>map.easeTo({center:hcl.geometry.coordinates,zoom:z+.5,duration:dur(800)}));return}
