@@ -78,7 +78,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
  #rpt .pk b{font-size:17px}#rpt .cr{grid-template-columns:150px 1fr 40px}#rpt .rg{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
  #rpt img.mp{width:100%;max-height:115mm;object-fit:contain;border:1px solid #ccc}
  #rpt .r3{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}#rpt table{width:100%;border-collapse:collapse}#rpt th,#rpt td{border:1px solid #bbb;padding:2px 5px;text-align:left}#rpt th{background:#eef1f7}#rpt td.n{text-align:right}
- #rpt tr{break-inside:avoid}#rpt thead{display:table-header-group}#rpt .r3{break-inside:avoid}
+ #rpt tr{break-inside:avoid}#rpt thead{display:table-header-group}#rpt .r3{break-inside:avoid;align-items:start}
  #rpt table.dl{font-size:9.5px}#rpt table.dl td:nth-child(-n+3),#rpt table.dl td:last-child{white-space:nowrap}#rpt .ft{margin-top:8px;color:#555;font-size:9.5px}
 }
 .pmd{display:flex;align-items:center;gap:6px;margin:12px 0 4px}.pmd .sg2{display:flex;flex:1;background:#eef1f6;border-radius:10px;padding:2px;gap:2px}.pmd .sg2 button{flex:1 1 auto;border:0;background:none;border-radius:8px;padding:5px 6px;font-size:12.5px;color:var(--mut);white-space:nowrap}.pmd .sg2 button[aria-selected=true]{background:#fff;color:var(--navy);font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.12)}.pmd>span{margin-left:auto;font-size:12px;color:var(--mut);white-space:nowrap}
@@ -289,7 +289,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div class="hq"><b>เล่นย้อนตามวัน</b></div><button class="btn" id="pb-o" style="width:100%;box-shadow:none;border:1px solid var(--line)">▶ ย้อนดูการลามของไฟ</button>
   <div class="hq"><b>ข้อสังเกตจากข้อมูลที่กรอง</b></div><ul id="h-ins"></ul>
   <div class="sm" id="h-dq" style="margin-top:8px"></div>
-  <div class="btns" style="margin:12px 0 0"><button class="btn" id="h-csv" style="box-shadow:none;border:1px solid var(--line)">ส่งออก CSV ที่กรอง</button></div>
+  <div class="pbt" style="margin-top:12px"><button id="h-tbl"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></svg>ตารางรายละเอียด</button><button id="h-csv"><svg class="i" viewBox="0 0 24 24"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 20h14"/></svg>ดาวน์โหลด CSV</button><button id="h-pdf"><svg class="i" viewBox="0 0 24 24"><path d="M7 8V3h10v5M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg>รายงาน PDF</button></div>
  </div>
 </aside>
 
@@ -1421,9 +1421,40 @@ $$('#h-md button').forEach(b=>b.onclick=()=>{HM.mode=b.dataset.v;hRender()});$$(
 $$('#pb-w button').forEach(b=>b.onclick=()=>{PB.w=+b.dataset.v;hRender()});$$('#pb-sp button').forEach(b=>b.onclick=()=>{PB.sp=+b.dataset.v;if(PB.tm){pbStop();pbPlay()}hRender()});
 $('#pb-p').onclick=pbPlay;$('#pb-x').onclick=pbClose;$('#pb-o').onclick=pbOpen;$('#pb-s').oninput=e=>{PB.i=+e.target.value;PB.on=true;pbStop();hMap(hfilt())};
 $('#h-fit').onclick=hFit;
-$('#h-csv').onclick=()=>{const F=hfilt(),q=v=>'"'+String(v).replace(/"/g,'""')+'"',hh=['ปีงบประมาณ','ว/ด/ป','เวลา','LAT','LONG','ตำบล','อำเภอ','จังหวัด','ประเภทป่าอนุรักษ์','ประเภทป่าในพื้นที่อนุรักษ์','การจัดการเชื้อเพลิง','สถานีควบคุมไฟป่าที่รับผิดชอบ','สำนักบริหารพื้นที่อนุรักษ์ที่รับผิดชอบ','Link Google Map'];
+/* --- ตารางรายละเอียด · CSV · รายงาน PDF ของสถิติย้อนหลัง (ตามตัวกรองปัจจุบัน hfilt) --- */
+const HFN={fy:'ปีงบ',mo:'เดือน',sb:'สบอ.',ar:'พื้นที่อนุรักษ์',st:'สถานีฯ',pv:'จังหวัด',am:'อำเภอ',tm:'ตำบล',ld:'ประเภทพื้นที่',hg:'ช่วงเวลา',fu:'การจัดการเชื้อเพลิง'};
+const hfv=(k,v)=>k==='fy'?v:k==='mo'?MON[v]:k==='hg'?(v?'กลางวัน':'กลางคืน'):k==='tm'?tmName(v):k==='sb'?shortSb(DIC.sb[v]):k==='ar'?shortAr(DIC.ar[v]):k==='st'?shortSt(DIC.st[v]).trim():DIC[k][v];
+const hLabel=()=>{const a=Object.keys(HFN).filter(k=>HF[k].size).map(k=>HFN[k]+' '+[...HF[k]].sort((x,y)=>x-y).map(v=>hfv(k,v)).join(', '));if(S.xdy)a.push('ไม่รวม ขสป.ดงใหญ่');return a.join(' · ')||'ทุกจุด'};
+const hRows=()=>hfilt().sort((a,b)=>b.d-a.d||b.t-a.t),hLoc=r=>{const[tb,am]=String(DIC.tm[r.tm]||'').split('|');return[tb,am||DIC.am[r.am],DIC.pv[r.pv]].filter(Boolean).join(' / ')};
+function openHTable(){const R=hRows(),M=300;
+ openModal('ตารางรายละเอียดจุดความร้อนย้อนหลัง',`<div class="sm" style="margin-bottom:8px"><b>${nf(R.length)}</b> จุด · ${esc(hLabel())} · ข้อมูลกรมอุทยานฯ (Suomi NPP)</div>
+ <div class="dtw">${R.length?`<table class="dt"><thead><tr><th>#</th><th>วันที่ เวลา</th><th>ปีงบ</th><th>ตำบล / อำเภอ / จังหวัด</th><th>พื้นที่อนุรักษ์</th><th>สถานีฯ ไฟป่า</th><th>ประเภทพื้นที่</th><th>การจัดการเชื้อเพลิง</th><th>พิกัด</th></tr></thead><tbody>${R.slice(0,M).map((r,i)=>`<tr data-i="${i}"><td class="n">${i+1}</td><td class="n">${dShort(r.d)} ${hhmmTh(r.t)}</td><td class="n">${r.fy}</td><td>${esc(hLoc(r))}</td><td>${esc(paShort(DIC.ar[r.ar]))}</td><td>${esc(shortSt(DIC.st[r.st]).trim())}</td><td>${esc(DIC.ld[r.ld])}</td><td>${esc(DIC.fu[r.fu])}</td><td class="n">${r.la.toFixed(4)}, ${r.lo.toFixed(4)}</td></tr>`).join('')}</tbody></table>${R.length>M?`<div class="sm" style="padding:6px 8px">แสดง ${M} จาก ${nf(R.length)} จุด · ดาวน์โหลด CSV เพื่อดูทั้งหมด</div>`:''}`:'<div class="sm" style="padding:12px">ไม่มีจุดความร้อนตรงกับตัวกรองนี้</div>'}</div>
+ <div class="sm">คลิกแถวเพื่อซูมไปยังจุด · เวลาเป็นเวลาไทยที่ดาวเทียมสแกน · เปลี่ยนตัวกรองได้ที่การ์ดสถิติ</div>
+ <div class="pbt"><button id="ht-csv">ดาวน์โหลด CSV (เปิดด้วย Excel)</button><button id="ht-pdf">พิมพ์รายงาน / บันทึก PDF</button></div>`,true);
+ $$('.dtw tbody tr').forEach(tr=>tr.onclick=()=>{const r=R[tr.dataset.i];closeModal();MOVED=true;map.flyTo({center:[r.lo,r.la],zoom:13,duration:dur(1400)})});
+ $('#ht-csv').onclick=hCSV;$('#ht-pdf').onclick=printHReport}
+// กราฟแท่งแนวตั้ง SVG สำหรับรายงาน
+const rBars=(E,lab,c)=>{const W=340,H=150,bw=W/Math.max(1,E.length),mx=Math.max(1,...E.map(e=>e[1]));
+ return`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-height:55mm">${E.map(([k,v],i)=>{const h=Math.round((H-34)*v/mx),x=i*bw,w=Math.min(bw*.7,36);return`<rect x="${(x+(bw-w)/2).toFixed(1)}" y="${H-18-h}" width="${w.toFixed(1)}" height="${h}" fill="${c}"/><text x="${(x+bw/2).toFixed(1)}" y="${H-21-h}" font-size="8" text-anchor="middle">${v?nf(v):''}</text><text x="${(x+bw/2).toFixed(1)}" y="${H-6}" font-size="8" text-anchor="middle" fill="#555">${esc(lab(k))}</text>`}).join('')}<line x1="0" x2="${W}" y1="${H-18}" y2="${H-18}" stroke="#999"/></svg>`};
+async function buildHReport(){const F=hRows(),RL=500,img=await mapSnap(),cnt=f=>{const m=new Map();F.forEach(r=>{const v=f(r)||'ไม่ระบุ';m.set(v,(m.get(v)||0)+1)});return[...m].sort((a,b)=>b[1]-a[1])};
+ const tb=(h,E)=>`<table><thead><tr><th>${h}</th><th>จุด</th></tr></thead><tbody>${E.map(([k,v])=>`<tr><td>${esc(k)}</td><td class="n">${nf(v)}</td></tr>`).join('')||'<tr><td colspan="2">–</td></tr>'}</tbody></table>`;
+ const fys=(HF.fy.size?[...HF.fy]:fyList()).sort((a,b)=>a-b),fc=new Map(),mc=Array(12).fill(0);F.forEach(r=>{fc.set(r.fy,(fc.get(r.fy)||0)+1);mc[r.mo]++});
+ $('#rpt').innerHTML=`<h1>รายงานสถิติจุดความร้อนย้อนหลัง กลุ่มป่าดงพญาเย็น-เขาใหญ่</h1><div>สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี) · ตัวกรอง: ${esc(hLabel())} · ออกรายงาน ${new Date().toLocaleString('th-TH',{dateStyle:'long',timeStyle:'short',timeZone:'Asia/Bangkok'})} น.</div>
+ <h2>1. ภาพรวม (${nf(F.length)} จุด)</h2><div class="kp">${$('#h-kp').innerHTML}</div>
+ <div class="rg"><div><b>จุดความร้อนรายปีงบประมาณ</b>${rBars(fys.map(y=>[y,fc.get(y)||0]),y=>y,'#D93A1F')}</div><div><b>จุดความร้อนรายเดือน (ต.ค.–ก.ย.)</b>${rBars(mc.map((v,i)=>[i,v]),i=>MON[i],'#3E6FD8')}</div></div>
+ ${img?`<h2>2. แผนที่จุดความร้อนตามตัวกรอง</h2><img class="mp" src="${img}" alt="แผนที่">`:''}
+ <h2>${img?3:2}. สรุปตามพื้นที่</h2><div class="r3">${tb('จังหวัด',cnt(r=>DIC.pv[r.pv]))}${tb('สบอ.',cnt(r=>shortSb(DIC.sb[r.sb]||'')))}${tb('พื้นที่อนุรักษ์',cnt(r=>paShort(DIC.ar[r.ar])))}${tb('สถานีควบคุมไฟป่า',cnt(r=>shortSt(DIC.st[r.st]||'').trim()))}</div>
+ <div class="r3" style="margin-top:8px">${tb('ประเภทพื้นที่',cnt(r=>DIC.ld[r.ld]))}${tb('การจัดการเชื้อเพลิง / สถานะ',cnt(r=>DIC.fu[r.fu]))}${tb('ช่วงเวลา',cnt(r=>r.hg?'กลางวัน (06-18 น.)':'กลางคืน (00-05 น.)'))}${tb('อำเภอ (10 อันดับแรก)',cnt(r=>DIC.am[r.am]+' ('+DIC.pv[r.pv]+')').slice(0,10))}</div>
+ <h2>${img?4:3}. ข้อสังเกตจากข้อมูล</h2><ul>${insights(F).map(t=>`<li>${esc(t)}</li>`).join('')}</ul>
+ <h2>${img?5:4}. รายละเอียดจุดความร้อน</h2>${F.length>RL?`<div>มี ${nf(F.length)} จุด มากกว่า ${RL} จุด จึงไม่แสดงรายการในรายงาน — ดาวน์โหลด CSV จากการ์ดสถิติเพื่อดูทั้งหมด หรือกรองให้แคบลง</div>`:`<table class="dl"><thead><tr><th>#</th><th>วันที่ เวลา</th><th>ปีงบ</th><th>ตำบล / อำเภอ / จังหวัด</th><th>พื้นที่อนุรักษ์</th><th>สถานีฯ</th><th>ประเภทพื้นที่</th><th>เชื้อเพลิง/สถานะ</th><th>ละติจูด, ลองจิจูด</th></tr></thead><tbody>${F.map((r,i)=>`<tr><td class="n">${i+1}</td><td>${dShort(r.d)} ${hhmmTh(r.t)}</td><td>${r.fy}</td><td>${esc(hLoc(r))}</td><td>${esc(paShort(DIC.ar[r.ar]))}</td><td>${esc(shortSt(DIC.st[r.st]).trim())}</td><td>${esc(DIC.ld[r.ld])}</td><td>${esc(DIC.fu[r.fu])}</td><td>${r.la.toFixed(5)}, ${r.lo.toFixed(5)}</td></tr>`).join('')||'<tr><td colspan="9">ไม่มีจุดความร้อนตรงกับตัวกรองนี้</td></tr>'}</tbody></table>`}
+ <div class="ft">แหล่งข้อมูล: จุดความร้อนย้อนหลังจากกรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช (ดาวเทียม Suomi NPP ระบบ VIIRS) ปีงบ ${fyList()[0]}–${fyList().at(-1)} · แนวเขตจากไฟล์ KMZ ของ สบอ.1</div>`;
+ await Promise.all([...$('#rpt').querySelectorAll('img')].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})));return F.length}
+async function printHReport(){toast('กำลังสร้างรายงาน…');await buildHReport();window.print()}
+$('#h-tbl').onclick=openHTable;$('#h-pdf').onclick=printHReport;
+$('#h-csv').onclick=()=>hCSV();
+function hCSV(){const F=hfilt(),q=v=>'"'+String(v).replace(/"/g,'""')+'"',hh=['ปีงบประมาณ','ว/ด/ป','เวลา','LAT','LONG','ตำบล','อำเภอ','จังหวัด','ประเภทป่าอนุรักษ์','ประเภทป่าในพื้นที่อนุรักษ์','การจัดการเชื้อเพลิง','สถานีควบคุมไฟป่าที่รับผิดชอบ','สำนักบริหารพื้นที่อนุรักษ์ที่รับผิดชอบ','Link Google Map'];
  const t=[hh.join(',')].concat(F.map(r=>{const[y,m,d]=ymd(r.d),[tb,am]=DIC.tm[r.tm].split('|');return[r.fy,`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`,String(Math.floor(r.t/100)).padStart(2,'0')+':'+String(r.t%100).padStart(2,'0'),r.la,r.lo,q(tb),q(am),q(DIC.pv[r.pv]),q(DIC.ar[r.ar]),q(DIC.ld[r.ld]),q(DIC.fu[r.fu]),q(DIC.st[r.st]),q(DIC.sb[r.sb]),q('https://www.google.com/maps?q='+r.la+','+r.lo)].join(',')})).join('\r\n');
- const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+t],{type:'text/csv;charset=utf-8'}));a.download='hotspots_filtered.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);toast('ส่งออก '+nf(F.length)+' จุดแล้ว')};
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+t],{type:'text/csv;charset=utf-8'}));a.download='hotspots_filtered.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);toast('ส่งออก '+nf(F.length)+' จุดแล้ว')}
 /* ---------- นำเข้าข้อมูล (modal) ---------- */
 function openModal(title,html,wide){$('#md .mc').classList.toggle('wide',!!wide);tx('md-t',title);tx('md-b',html);$('#md').hidden=false;$('#md-x').focus()}
 function closeModal(){$('#md').hidden=true}
