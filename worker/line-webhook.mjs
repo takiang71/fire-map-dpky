@@ -67,7 +67,8 @@ export function carousel(o) {
   for (const per of [4, 2, 1, 0]) { m = build({ ...o, per }); if (bytes(m) < 48000) break }
   return m;
 }
-function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaLeft = null, per = 4, test = false }) {
+// daily = สรุปประจำวันที่ line_notify.js push เข้ากลุ่ม (เปลี่ยนแค่หัวการ์ดและ altText)
+function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaLeft = null, per = 4, test = false, daily = false }) {
   const alert = !!fresh;
   const pts = (live && live.features || []).filter(f => f.properties && !excluded(f.properties)), h24 = pts.filter(f => now - thMs(f.properties.full_date) < 24 * 36e5);
   const nw = (fresh || []).filter(f => !excluded(f.properties)), list = alert ? nw : h24;
@@ -91,7 +92,7 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
   const nwBy = AREAS.map(a => [a.s, inA(nw, a.k).length]).filter(x => x[1]).map(x => `${x[0]} ${x[1]}`).concat(inA(nw, OUT).length ? [`นอกเขตฯ ${inA(nw, OUT).length}`] : []).join(' · ');
   const overview = {
     type: 'bubble', size: 'mega',
-    header: head(`🔥 สถานการณ์ไฟป่า ปีงบ ${fy}`, '#B3261E'),
+    header: head(`🔥 ${daily ? 'สรุปประจำวัน' : 'สถานการณ์ไฟป่า'} ปีงบ ${fy}`, '#B3261E'),
     body: B('vertical', [
       ...(alert ? [banner(`${test ? '🧪 ทดสอบ · ' : ''}พบจุดใหม่ ${nw.length} จุด${nwBy ? ': ' + nwBy : ''}`)] : []),
       B('baseline', [T('สะสมปีงบ', { size: 'xs', color: MUT, flex: 0 }), T(String(all.fy), { size: 'xxl', weight: 'bold', color: RED, flex: 0, margin: 'sm' }), T('จุด', { size: 'xs', color: MUT, flex: 0, margin: 'sm' }),
@@ -138,7 +139,7 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
 
   const altText = ((test ? '[ทดสอบ] ' : '') + (alert
     ? `🔥 พบจุดความร้อนใหม่ ${nw.length} จุด ` + AREAS.map(a => [a.s, inA(nw, a.k).length]).filter(x => x[1]).map(x => `${x[0]} ${x[1]}`).join(', ')
-    : `สรุปจุดความร้อน ปีงบ ${fy}: สะสม ${all.fy} จุด · 24 ชม. ${h24.length} จุด`)).slice(0, 390);
+    : `${daily ? '📋 สรุปประจำวัน ' + dateTh(now) + ' · ' : ''}สรุปจุดความร้อน ปีงบ ${fy}: สะสม ${all.fy} จุด · 24 ชม. ${h24.length} จุด`)).slice(0, 390);
   return { type: 'flex', altText, contents: { type: 'carousel', contents: [overview, ...cards] } };
 }
 
