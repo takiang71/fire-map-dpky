@@ -335,6 +335,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div id="bnbox" hidden><select id="bn-s" aria-label="ช่วงเวลาพื้นที่เผาไหม้"></select>
    <div class="lgd" id="bn-lg" style="display:flex;flex-wrap:wrap;column-gap:12px"></div>
    <div id="bn-a"></div>
+   <div class="pbt" style="margin:8px 0 6px"><button id="bn-csv" title="ตารางไร่แยกรอบ × พื้นที่อนุรักษ์ × สถานีฯ ของช่วงที่เลือก (สะสมปีงบ = ทุกรอบในปีงบ แยกรอบ — ผลรวมทุกแถวอาจมากกว่ายอดสะสมเพราะพื้นที่ที่ไหม้ซ้ำนับทุกรอบ)"><svg class="i" viewBox="0 0 24 24"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 20h14"/></svg>ดาวน์โหลด CSV</button><button id="bn-pdf"><svg class="i" viewBox="0 0 24 24"><path d="M7 8V3h10v5M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg>รายงาน PDF</button></div>
    <p class="note" style="margin-left:0">รอยเผาไหม้จากภาพดาวเทียมความละเอียด 20 ม. ระบบ<a href="https://tamroypao.hii.or.th/" target="_blank" rel="noopener">ตามรอยเผา</a> (สสน.) แสดงเฉพาะในพื้นที่อนุรักษ์และพื้นที่รับผิดชอบสถานีฯ · <b>ราย 7 วัน</b> (B4) สี = จำนวนครั้งที่ตรวจพบ ออกหลังสิ้นรอบ ~9 วัน มีตั้งแต่ 1 ม.ค. 2568 · <b>แยกป่า/เกษตร</b> (B2/B3 รายเดือนและรายฤดูฝุ่น ธ.ค.–เม.ย.) ป่าไม้ = เขตป่าไม้ตามกฎหมาย, ข้าว/อ้อย/ข้าวโพด/พืชผสม = รอยเผาในแปลงเกษตร (ส่วนใหญ่อยู่ในพื้นที่รับผิดชอบสถานีฯ นอกเขตอนุรักษ์) มีตั้งแต่ ธ.ค. 2566 บางเดือนช่วงฤดูฝนต้นทางไม่ได้ผลิต · ปุ่ม "ไม่รวม ขสป.ดงใหญ่" มีผลด้วย · แตะรอยเผาไหม้บนแผนที่เพื่อดูช่วงเวลา · เทียบจุดความร้อน = มีจุดความร้อน (VIIRS) ห่างไม่เกิน 1 กม. ในช่วงเวลาของรอยเผา (เผื่อก่อนหน้า 10 วัน) รอยที่ไม่พบจุดอาจเป็นไฟขนาดเล็ก/ไฟใต้เรือนยอด หรือเกิดตอนดาวเทียมไม่ผ่าน</p></div>
   <div class="row"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="6" width="5" height="12" style="fill:#e10000;stroke:none"/><rect x="8" y="6" width="4" height="12" style="fill:#ffe100;stroke:none"/><rect x="12" y="6" width="5" height="12" style="fill:#00e100;stroke:none"/><rect x="17" y="6" width="4" height="12" style="fill:#005000;stroke:none"/></svg><b>แหล่งเชื้อเพลิง (SAVI)</b><span class="tag" id="fu-t">–</span><button class="sw" data-k="fuel" role="switch" aria-label="แหล่งเชื้อเพลิง"></button></div>
   <div id="fubox" hidden><select id="fu-s" aria-label="เดือนของข้อมูลแหล่งเชื้อเพลิง" hidden></select>
@@ -899,7 +900,7 @@ const mapSnap=async()=>{try{const c={center:map.getCenter(),zoom:map.getZoom(),b
  map.jumpTo({padding:{top:0,bottom:0,left:0,right:0}});map.fitBounds(b,{padding:0,bearing:0,pitch:0,duration:0});map.triggerRepaint();
  await new Promise(r=>{const t=setTimeout(r,8000);map.once('idle',()=>{clearTimeout(t);r()})});
  const u=map.getCanvas().toDataURL('image/jpeg',.88);map.jumpTo(c);return u}catch(e){return null}};
-async function buildReport(){const R=dtRows(),img=await mapSnap(),now=Date.now(),cnt=k=>{const m={};R.forEach(r=>{const v=k(r)||'ไม่ระบุ';m[v]=(m[v]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])};
+async function buildReport(){const R=dtRows(),img=await mapSnap(),now=Date.now(),bn=await bnReport('#'),cnt=k=>{const m={};R.forEach(r=>{const v=k(r)||'ไม่ระบุ';m[v]=(m[v]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])};
  const tb=(h,E)=>`<table><thead><tr><th>${h}</th><th>จุด</th></tr></thead><tbody>${E.map(([k,v])=>`<tr><td>${esc(k)}</td><td class="n">${nf(v)}</td></tr>`).join('')||'<tr><td colspan="2">–</td></tr>'}</tbody></table>`;
  const sv=$('#p-ch svg'),chart=sv?sv.outerHTML.replace(/<line id="p-x"[^>]*\/?>(<\/line>)?/,''):'',demo=R.some(r=>r.demo)||!$('#p-smp').hidden||HS.some(h=>h.demo&&ageH(h)<24);
  $('#rpt').innerHTML=`<h1>รายงานสถานการณ์จุดความร้อน กลุ่มป่าดงพญาเย็น-เขาใหญ่</h1><div>สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี) · ช่วงข้อมูลในตาราง: ${esc(dtLabel())} · ออกรายงาน ${new Date(now).toLocaleString('th-TH',{dateStyle:'long',timeStyle:'short',timeZone:'Asia/Bangkok'})} น.</div>
@@ -908,8 +909,9 @@ async function buildReport(){const R=dtRows(),img=await mapSnap(),now=Date.now()
  <div class="rg"><div><b>${esc($('#p-cq').textContent)}</b> <span>(${esc($('#p-asof').textContent)})</span>${$('#p-cmp').innerHTML}<div style="margin-top:6px">${$('#p-yr').innerHTML}</div></div><div><div class="plg">${$('#p-lg').innerHTML}</div>${chart}</div></div>
  ${img?`<h2>2. แผนที่ ณ เวลาออกรายงาน</h2><img class="mp" src="${img}" alt="แผนที่">`:''}
  <h2>${img?3:2}. สรุปตามพื้นที่ (${esc(dtLabel())} · ${nf(R.length)} จุด)</h2><div class="r3">${tb('จังหวัด',cnt(r=>r.pv))}${tb('สบอ.',cnt(r=>r.sb&&sbShort(r.sb)))}${tb('พื้นที่อนุรักษ์',cnt(r=>paShort(r.ar)))}${tb('สถานีควบคุมไฟป่า',cnt(r=>r.st==='ไม่มี'?NOST:r.st.replace(/^สถานีควบคุมไฟป่า\s*/,'')))}</div>
- <h2>${img?4:3}. รายละเอียดจุดความร้อน</h2><table class="dl"><thead><tr><th>#</th><th>วันที่ เวลา</th><th>ดาวเทียม</th><th>ความเชื่อมั่น</th><th>ตำบล / อำเภอ / จังหวัด</th><th>พื้นที่อนุรักษ์</th><th>สถานีฯ</th><th>ละติจูด, ลองจิจูด</th></tr></thead><tbody>${R.map((r,i)=>`<tr><td class="n">${i+1}</td><td>${dShort(r.d)} ${hhmmTh(r.t)}</td><td>${SATN[r.sat]||esc(r.sat)}${r.demo?' (ตัวอย่าง)':''}</td><td>${esc(r.cf)}</td><td>${esc([r.tm,r.am,r.pv].filter(v=>v&&v!=='ไม่ระบุ').join(' / ')||'ไม่ระบุ')}</td><td>${esc(paShort(r.ar))}</td><td>${esc(r.st.replace(/^สถานีควบคุมไฟป่า\s*/,''))}</td><td>${r.la.toFixed(5)}, ${r.lo.toFixed(5)}</td></tr>`).join('')||'<tr><td colspan="8">ไม่พบจุดความร้อนในช่วงนี้</td></tr>'}</tbody></table>
- <div class="ft">แหล่งข้อมูล: Land Fire Alerts Thailand (WFSRU/ThaiREN) ระบบ VIIRS · ข้อมูลย้อนหลังกรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช · แนวเขตจากไฟล์ KMZ ของ สบอ.1 · ตัวชี้วัด: Suomi NPP (ตั้งแต่ ${dShort(IND_SW)} ใช้ NOAA-20)</div>`;
+ ${bn.replace('<h2>#.','<h2>'+(img?4:3)+'.')}
+ <h2>${(img?4:3)+(bn?1:0)}. รายละเอียดจุดความร้อน</h2><table class="dl"><thead><tr><th>#</th><th>วันที่ เวลา</th><th>ดาวเทียม</th><th>ความเชื่อมั่น</th><th>ตำบล / อำเภอ / จังหวัด</th><th>พื้นที่อนุรักษ์</th><th>สถานีฯ</th><th>ละติจูด, ลองจิจูด</th></tr></thead><tbody>${R.map((r,i)=>`<tr><td class="n">${i+1}</td><td>${dShort(r.d)} ${hhmmTh(r.t)}</td><td>${SATN[r.sat]||esc(r.sat)}${r.demo?' (ตัวอย่าง)':''}</td><td>${esc(r.cf)}</td><td>${esc([r.tm,r.am,r.pv].filter(v=>v&&v!=='ไม่ระบุ').join(' / ')||'ไม่ระบุ')}</td><td>${esc(paShort(r.ar))}</td><td>${esc(r.st.replace(/^สถานีควบคุมไฟป่า\s*/,''))}</td><td>${r.la.toFixed(5)}, ${r.lo.toFixed(5)}</td></tr>`).join('')||'<tr><td colspan="8">ไม่พบจุดความร้อนในช่วงนี้</td></tr>'}</tbody></table>
+ <div class="ft">แหล่งข้อมูล: Land Fire Alerts Thailand (WFSRU/ThaiREN) ระบบ VIIRS ·${bn?' พื้นที่เผาไหม้: ระบบตามรอยเผา (สสน.) ·':''} ข้อมูลย้อนหลังกรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช · แนวเขตจากไฟล์ KMZ ของ สบอ.1 · ตัวชี้วัด: Suomi NPP (ตั้งแต่ ${dShort(IND_SW)} ใช้ NOAA-20)</div>`;
  await Promise.all([...$('#rpt').querySelectorAll('img')].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})));return R.length}
 async function printReport(){toast('กำลังสร้างรายงาน…');await buildReport();window.print()}
 
@@ -1235,6 +1237,10 @@ const bnDay=s=>Date.UTC(+s.slice(0,4),+s.slice(4,6)-1,+s.slice(6,8))/864e5,
  bnHash=s=>[...s].reduce((h,c)=>(h*31+c.charCodeAt(0))>>>0,7).toString(36),
  bnPer=(I,k)=>k==='none'?[]:/^cfy/.test(k)?I.cls.filter(p=>p.p.length===6&&bnFY(p)===+k.slice(3)):bnIsC(k)?I.cls.filter(p=>p.p===k.slice(1))
   :/^fy/.test(k)?I.periods.filter(p=>bnFY(p)===+k.slice(2)):I.periods.filter(p=>p.p===k);
+// คีย์ที่ใช้ (ที่ผู้ใช้เลือก หรือค่าเริ่มต้น = ปีงบปัจจุบัน ถ้ายัง 0 ไร่ใช้ปีงบก่อน) · ปีงบของคีย์ · ชื่อช่วงสำหรับหัวข้อ
+const bnDefault=I=>{if(BNK&&(/^fy/.test(BNK)||bnPer(I,BNK).length))return BNK;const F=fyOfDay(thDay()),sum=f=>I.periods.filter(p=>bnFY(p)===f).reduce((s,p)=>s+p.rai,0);return'fy'+(sum(F)>0||!sum(F-1)?F:F-1)},
+ bnFYk=(I,k)=>/^fy/.test(k)?+k.slice(2):bnFY(bnPer(I,k)[0]||I.periods[I.periods.length-1]),
+ bnTtl=(D,F)=>{const p0=D.ps[0];return/^fy/.test(D.k)?'ปีงบ '+F+' สะสม (ราย 7 วัน)':D.C?(p0.p.length===6?'เดือน '+bnLab(p0):bnLab(p0))+' (แยกป่า/เกษตร)':'รอบ '+bnLab(p0)};
 async function bnIndex(){if(BNI&&!BNI.err)return BNI;
  try{const r=await fetch(BN_BASE+'index.json?h='+Math.floor(Date.now()/36e5));if(!r.ok)throw new Error('HTTP '+r.status);BNI=await r.json();BNI.cls=BNI.cls||[];BNI.cn=BNI.cn||[];
   BNI.periods.forEach(p=>p.dir='b4');BNI.cls.forEach(p=>p.dir='c')}catch(e){BNI={periods:[],cls:[],cn:[],ar:[],st:[],err:e.message}}return BNI}
@@ -1295,11 +1301,11 @@ async function LB(){ // เรียกจาก apply() และเมื่�
  const I=await bnIndex();
  if(!I.periods.length){$('#bn-a').innerHTML='<span class="sm">ดึงข้อมูลพื้นที่เผาไหม้ไม่สำเร็จ'+(I.err?' ('+esc(I.err)+')':'')+'</span>';vis(false);return}
  const last=I.periods[I.periods.length-1];$('#bn-t').textContent='ล่าสุด '+bnLab(last);
- if(!BNK||(!/^fy/.test(BNK)&&!bnPer(I,BNK).length)){const F=fyOfDay(thDay()),sum=f=>I.periods.filter(p=>bnFY(p)===f).reduce((s,p)=>s+p.rai,0);BNK='fy'+(sum(F)>0||!sum(F-1)?F:F-1)}
+ BNK=bnDefault(I);
  bnSel(I);
  const C=bnIsC(BNK);$('#bn-lg').innerHTML=(C?I.cn.map((n,i)=>`<div><i style="background:${BCC[i]}"></i>${esc(n)}</div>`).join(''):'<div><i style="background:#f5a623"></i>พบ 1 ครั้ง</div><div><i style="background:#e8541c"></i>2 ครั้ง</div><div><i style="background:#a3171b"></i>3 ครั้งขึ้นไป</div>')+(BNH?'<div><i style="background:'+BNV+'"></i>ไม่พบจุดความร้อน</div>':'');
  const s=map.getSource('burn'),u=bnURL();if(s&&s.tiles&&s.tiles[0]!==u)s.setTiles([u]);vis(true);
- const k=BNK,F=/^fy/.test(k)?+k.slice(2):bnFY(bnPer(I,k)[0]||last);$('#bn-a').innerHTML='<span class="sm">กำลังโหลด…</span>';
+ const k=BNK,F=bnFYk(I,k);$('#bn-a').innerHTML='<span class="sm">กำลังโหลด…</span>';
  try{const [D,DF]=await Promise.all([bnData(k),bnData((C?'cfy':'fy')+F)]);if(k!==BNK)return;BNCUR=D;bnStats(D,DF,F)}
  catch(e){$('#bn-a').innerHTML='<span class="sm">โหลดข้อมูลไม่สำเร็จ ('+esc(e.message)+')</span>'}}
 function bnSel(I){const sel=$('#bn-s'),fys=[...new Set(I.periods.map(bnFY))].sort((a,b)=>b-a),opt=(v,t)=>`<option value="${v}">${esc(t)}</option>`,
@@ -1314,7 +1320,7 @@ function bnStats(D,DF,F){
  for(const o of D.R)if(keep(o)){const r=o.n*BNPX;t+=r;if(o.hs)th+=r;ar[o.a]=(ar[o.a]||0)+r;st[o.s]=(st[o.s]||0)+r;cl[o.v]=(cl[o.v]||0)+r}
  const I=D.I,rf=v=>v>0&&v<1?'<1':nf(v),
   rows=(m,lab,col)=>{const e=Object.entries(m).sort((a,b)=>b[1]-a[1]),mx=e.length?e[0][1]:1;return e.map(([i,v])=>`<div><span>${esc(lab(i))}</span><i style="width:${Math.max(3,Math.round(v/mx*60))}px${col?';background:'+col(i):''}"></i><b>${rf(v)}</b></div>`).join('')};
- const p0=D.ps[0],ttl=/^fy/.test(D.k)?'ปีงบ '+F+' สะสม':D.C?(p0.p.length===6?'เดือน ':'')+bnLab(p0):'รอบ '+bnLab(p0);
+ const p0=D.ps[0],ttl=bnTtl(D,F);
  const miss=D.ps.length>1?D.ps.filter(p=>BNG.some(g=>!p.grids.includes(g))).length:p0?BNG.filter(g=>!p0.grids.includes(g)).length:0;
  // กราฟแท่ง: B4 = ไร่รายรอบของปีงบ · แยกประเภท = ไร่รายเดือนของปีงบ ซ้อนสีป่า (ล่าง) กับเกษตร (บน)
  const bars=DF.pr,val=b=>S.xdy?b.x:b.all,mx=Math.max(1,...bars.map(val)),sea=I.cls.find(p=>p.p.length>6&&bnFY(p)===F);
@@ -1331,6 +1337,48 @@ function bnAt(ll){const D=BNCUR;if(!S.burn||!D||D.k!==BNK)return'';const [x,y]=b
  const o=D.R.find(o=>!(S.xdy&&o.dy)&&x>=o.bb[0]-tol&&x<=o.bb[2]+tol&&y>=o.bb[1]-tol&&y<=o.bb[3]+tol);if(!o)return'';
  const nh=o.hs===false?' · <span style="color:'+BNV+'">ไม่พบจุดความร้อนใกล้</span>':'',a=D.ps[o.f],b=D.ps[o.l],when=o.f===o.l?esc(bnLab(a)):'ครั้งแรก '+esc(bnLab(a))+' · ล่าสุด '+esc(bnLab(b));
  return D.C?`<b style="color:#a3171b">รอยเผาไหม้ (${esc(D.I.cn[o.v-1]||'')})</b> ${when}${nh}<br>`:`<b style="color:#a3171b">รอยเผาไหม้</b> ${when} · ตรวจพบ ${o.v>=9?'≥9':o.v} ครั้ง${nh}<br>`}
+// ---- พื้นที่เผาไหม้ในรายงาน PDF / CSV (ตัดดงใหญ่ตามปุ่ม) ----
+// สรุปของช่วง: ไร่ [รวม, มีจุดความร้อนใกล้] แยกพื้นที่อนุรักษ์/สถานีฯ/ประเภท
+function bnSum(D){bnHot(D);const add=(m,k,r,h)=>{const e=m[k]=m[k]||[0,0];e[0]+=r;if(h)e[1]+=r},ar={},st={},cl={};let t=0,th=0;
+ for(const o of D.R){if(S.xdy&&o.dy)continue;const r=o.n*BNPX;t+=r;if(o.hs)th+=r;add(ar,o.a,r,o.hs);add(st,o.s,r,o.hs);add(cl,o.v,r,o.hs)}return{t,th,ar,st,cl}}
+// ไร่รายเดือนของปีงบ (ต.ค.–ก.ย.) จากผลรวมรายรอบ — รอยที่ไหม้ซ้ำหลายรอบนับทุกรอบ
+const bnMonths=DF=>{const m=Array(12).fill(0);DF.pr.forEach(b=>{const d=Math.floor((bnDay(b.p.d0)+bnDay(b.p.d1))/2);m[(ymd(d)[1]+2)%12]+=S.xdy?b.x:b.all});return m};
+const bnRai=v=>v>0&&v<1?'<1':nf(v),bnStLab=n=>n==='ไม่มี'?NOST:n.replace(/^สถานีควบคุมไฟป่า\s*/,''),bnArLab=n=>n==='นอกพื้นที่อนุรักษ์'?n:paShort(n);
+// หัวข้อพื้นที่เผาไหม้ในรายงาน (n = เลขหัวข้อ) · คืน '' ถ้าโหลดข้อมูลไม่ได้
+async function bnReport(n){try{const I=await bnIndex();if(!I.periods.length)return'';const k=bnDefault(I),F=bnFYk(I,k),C=bnIsC(k);
+ const [D,DF]=await Promise.all([bnData(k),bnData((C?'cfy':'fy')+F)]),s=bnSum(D),pc=v=>s.t?Math.round(v/s.t*100):0;
+ const tb=(h,m,lab,byKey)=>`<table><thead><tr><th>${h}</th><th>ไร่</th><th>มีจุดความร้อน</th></tr></thead><tbody>${Object.entries(m).sort((a,b)=>byKey?a[0]-b[0]:b[1][0]-a[1][0]).map(([i,[r,x]])=>`<tr><td>${esc(lab(i))}</td><td class="n">${bnRai(r)}</td><td class="n">${r?Math.round(x/r*100):0}%</td></tr>`).join('')||'<tr><td colspan="3">–</td></tr>'}</tbody></table>`;
+ const miss=D.ps.filter(p=>BNG.some(g=>!p.grids.includes(g))).length;
+ return`<h2>${n}. พื้นที่เผาไหม้ (ระบบตามรอยเผา) — ${esc(bnTtl(D,F))}</h2>
+ <div>รวม <b>${nf(s.t)} ไร่</b> (${nf(s.t/625,1)} ตร.กม.)${S.xdy?' · ไม่รวม ขสป.ดงใหญ่':''} · มีจุดความร้อน (VIIRS) ในรัศมี ${BNR/1000} กม. <b>${nf(s.th)} ไร่</b> (${pc(s.th)}%) · ไม่พบจุดความร้อน <b>${nf(s.t-s.th)} ไร่</b> (${pc(s.t-s.th)}%)</div>
+ ${miss?`<div class="warn">${D.ps.length>1?miss+' รอบในช่วงนี้':'รอบนี้'}ต้นทางไม่มีภาพบางส่วนของพื้นที่ (เมฆมาก/ไม่มีภาพ) ตัวเลขจริงอาจมากกว่านี้</div>`:''}
+ <div class="rg"><div><b>ปีงบ ${F} รายเดือน (ไร่${C?'':' · รวมรายรอบ'})</b>${rBars(bnMonths(DF).map((v,i)=>[i,Math.round(v)]),i=>MON[i],'#a3171b')}</div><div>${C?tb('ประเภทพื้นที่',s.cl,i=>I.cn[i-1]):tb('จำนวนครั้งที่ตรวจพบ',s.cl,i=>i>=9?'≥9 ครั้ง':i+' ครั้ง',1)}</div></div>
+ <div class="rg" style="margin-top:8px">${tb('พื้นที่อนุรักษ์',s.ar,i=>bnArLab(I.ar[i]))}${tb('สถานีควบคุมไฟป่า',s.st,i=>bnStLab(I.st[i]))}</div>
+ <div class="ft">รอยเผาไหม้ความละเอียด 20 ม. จากระบบตามรอยเผา (tamroypao.hii.or.th, สสน.) ${C?'ผลิตภัณฑ์ B2/B3 แยกป่าไม้ตามกฎหมาย/แปลงเกษตร':'ผลิตภัณฑ์ B4 ราย 7 วัน (ปี 2568 รอบละ 15 วัน)'} · เฉพาะในพื้นที่อนุรักษ์และพื้นที่รับผิดชอบสถานีฯ · พื้นที่ที่ไหม้ซ้ำหลายรอบนับครั้งเดียวในยอดรวม · "มีจุดความร้อน" = มีจุด VIIRS ห่างไม่เกิน ${BNR/1000} กม. ในช่วงเวลาของรอยเผา (เผื่อก่อนหน้า 10 วัน)${D.hsPre?' · ก่อน 1 ต.ค. 68 เทียบกับจุดของกรมอุทยานฯ (Suomi NPP อย่างเดียว)':''}</div>`}catch(e){return''}}
+// หัวข้อแหล่งเชื้อเพลิง (เดือนที่เลือก หรือเดือนล่าสุด)
+async function fuReport(n){try{const I=await fuIndex();if(!I.months.length)return'';const M=I.months.find(x=>x.m===FUM)||I.months[I.months.length-1],ar={},tot=[0,0,0,0,0];
+ for(const k in M.s){const [a,st]=k.split('|').map(Number);if(S.xdy&&dyAS(I.ar[a],I.st[st]))continue;const g=ar[a]=ar[a]||[0,0,0,0,0];M.s[k].forEach((v,i)=>{g[i>>1]+=v;tot[i>>1]+=v})}
+ const row=(lab,g)=>{const T=g.reduce((x,y)=>x+y,0);return`<tr><td>${esc(lab)}</td><td class="n">${nf(T)}</td>${g.map(v=>`<td class="n">${T?Math.round(v/T*100):0}%</td>`).join('')}<td class="n"><b>${nf(g[0]+g[1])}</b></td></tr>`};
+ return`<h2>${n}. แหล่งเชื้อเพลิง (SAVI) — เดือน ${esc(bnMon(M.m+'01'))}</h2><table><thead><tr><th>พื้นที่</th><th>ไร่ที่มีข้อมูล</th>${FUG.map(([l,c])=>`<th><span style="color:${c}">■</span> ${l}</th>`).join('')}<th>สูง–สูงมาก (ไร่)</th></tr></thead><tbody>
+ ${Object.entries(ar).sort((x,y)=>(y[1][0]+y[1][1])-(x[1][0]+x[1][1])).map(([a,g])=>row(bnArLab(I.ar[a]),g)).join('')}${row('รวม',tot)}</tbody></table>
+ <div class="ft">ดัชนีพืชพรรณปรับค่าดิน (SAVI) ความละเอียด 20 ม. จากระบบตามรอยเผา จัดระดับตามต้นทาง: ค่า SAVI ต่ำ (พืชพรรณโปร่ง แห้ง หรือดินโล่ง) = ระดับสูง · ค่าสูง (พืชพรรณเขียวหนาแน่น) = ระดับต่ำ${S.xdy?' · ไม่รวม ขสป.ดงใหญ่':''}</div>`}catch(e){return''}}
+// รายงานเฉพาะพื้นที่เผาไหม้ (ปุ่มในแผง) — ภาพแผนที่ตามชั้นที่เปิดอยู่
+async function buildBReport(){const img=await mapSnap(),I=await bnIndex(),k=bnDefault(I);
+ $('#rpt').innerHTML=`<h1>รายงานพื้นที่เผาไหม้ กลุ่มป่าดงพญาเย็น-เขาใหญ่</h1><div>สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)${S.xdy?' · ไม่รวม ขสป.ดงใหญ่ (สบอ.7)':''} · ออกรายงาน ${new Date().toLocaleString('th-TH',{dateStyle:'long',timeStyle:'short',timeZone:'Asia/Bangkok'})} น.</div>
+ ${img?`<h2>1. แผนที่</h2><img class="mp" src="${img}" alt="แผนที่">`:''}${await bnReport(img?2:1)}${await fuReport(img?3:2)}
+ <div class="ft">แผนที่แสดงตามชั้นข้อมูลที่เปิดอยู่ขณะออกรายงาน · แนวเขตจากไฟล์ KMZ ของ สบอ.1</div>`;
+ await Promise.all([...$('#rpt').querySelectorAll('img')].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})));return k}
+async function printBReport(){toast('กำลังสร้างรายงาน…');await buildBReport();window.print()}
+// CSV: แถวละ รอบ × พื้นที่อนุรักษ์ × สถานีฯ × ประเภท ของช่วงที่เลือก (ปีงบ = ทุกรอบในปีงบ แยกรอบ)
+async function bnCSVText(){const I=await bnIndex(),k=bnDefault(I),C=bnIsC(k),ps=bnPer(I,k),iso=d=>d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8),q=v=>/[",\n]/.test(v=String(v))?'"'+v.replace(/"/g,'""')+'"':v,rows=[];
+ for(const p of ps){const D=await bnData(C?'c'+p.p:p.p),m={};bnHot(D);
+  for(const o of D.R){if(S.xdy&&o.dy)continue;const key=o.a+'|'+o.s+'|'+o.v,e=m[key]=m[key]||[0,0];e[0]+=o.n*BNPX;if(o.hs)e[1]+=o.n*BNPX}
+  for(const key of Object.keys(m).sort()){const [a,st,v]=key.split('|').map(Number);
+   rows.push([iso(p.d0),iso(p.d1),C?(p.p.length===6?'B2 รายเดือน':'B3 รายฤดูฝุ่น'):'B4 รายรอบ',C?I.cn[v-1]:'',C?'':v,I.ar[a],bnStLab(I.st[st]),m[key][0].toFixed(2),m[key][1].toFixed(2)].map(q).join(','))}}
+ return{k,n:rows.length,t:['เริ่ม,สิ้นสุด,ผลิตภัณฑ์,ประเภทพื้นที่,จำนวนครั้งที่ตรวจพบ,พื้นที่อนุรักษ์,สถานีควบคุมไฟป่า,พื้นที่เผาไหม้ (ไร่),มีจุดความร้อนในรัศมี '+BNR/1000+' กม. (ไร่)'].concat(rows).join('\r\n')}}
+async function bnCSV(){toast('กำลังเตรียม CSV…');const{k,n,t}=await bnCSVText(),a=document.createElement('a');
+ a.href=URL.createObjectURL(new Blob(['\ufeff'+t],{type:'text/csv;charset=utf-8'}));a.download=`burnscar_DPKY_${k}${S.xdy?'_ไม่รวมดงใหญ่':''}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);toast('ดาวน์โหลด '+nf(n)+' แถวแล้ว')}
+$('#bn-csv').onclick=bnCSV;$('#bn-pdf').onclick=printBReport;
 $('#bn-s').onchange=e=>{BNK=e.target.value;LB()};
 $('#bn-a').onclick=e=>{if(e.target.closest('#bn-h')){BNH=!BNH;LB();return}const b=e.target.closest('[data-p]');if(b){BNK=b.dataset.p;LB()}};
 $('#bn-a').onkeydown=e=>{if(e.key==='Enter'){const b=e.target.closest('a[data-p]');if(b){BNK=b.dataset.p;LB()}}};
