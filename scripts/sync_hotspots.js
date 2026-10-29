@@ -86,7 +86,7 @@ if (fs.existsSync(OUT)) store = JSON.parse(fs.readFileSync(OUT, 'utf8')).raw || 
   store.recs = [...byId.values()].sort((a, b) => a.d - b.d || a.t - b.t || a.la - b.la);
   for (const r of store.recs) if (r.d in store.days && fetched.has(r.d)) store.days[r.d]++;
 
-  // จับคู่กับข้อมูลกรมอุทยานฯ (Excel): วันเดียวกัน เวลาต่างไม่เกิน 10 นาที ห่างไม่เกิน ~400 ม.
+  // จับคู่กับข้อมูลกรมอุทยานฯ (Excel → hdata ด้วย excel_to_hdata.js): วันเดียวกัน เวลาต่างไม่เกิน 10 นาที ห่างไม่เกิน ~400 ม.
   const hd = HDATA.r.filter(a => a[0] >= dayOf(FROM));
   const mins = t => Math.floor(t / 100) * 60 + t % 100;
   // จับคู่แบบหนึ่งต่อหนึ่ง (จุดใกล้สุดก่อน) เฉพาะ Suomi NPP — พิกเซล VIIRS ห่างกันแค่ ~375 ม. จึงห้ามจุดเดียวจับหลายจุด
@@ -114,7 +114,7 @@ if (fs.existsSync(OUT)) store = JSON.parse(fs.readFileSync(OUT, 'utf8')).raw || 
   // CSV ปีงบ 2569 เฉพาะ Suomi NPP (ทั้งพื้นที่กลุ่มป่า)
   const f69 = store.recs.filter(r => r.d >= dayOf('2025-10-01') && r.d <= dayOf('2026-09-30') && r.sat === 'SNPP');
   const q = v => /[",\n]/.test(v) ? `"${String(v).replace(/"/g, '""')}"` : v;
-  const csv = ['วันที่,เวลา,ดาวเทียม,ความเชื่อมั่น,ละติจูด,ลองจิจูด,ตำบล,อำเภอ,จังหวัด,พื้นที่อนุรักษ์,สถานีควบคุมไฟป่า,สำนักบริหารพื้นที่อนุรักษ์,อยู่ในข้อมูลกรมอุทยานฯ (ป่าคงสภาพ)']
+  const csv = ['วันที่,เวลา,ดาวเทียม,ความเชื่อมั่น,ละติจูด,ลองจิจูด,ตำบล,อำเภอ,จังหวัด,พื้นที่อนุรักษ์,สถานีควบคุมไฟป่า,สำนักบริหารพื้นที่อนุรักษ์,อยู่ในข้อมูลกรมอุทยานฯ']
     .concat(f69.map(r => [isoOf(r.d), String(r.t).padStart(4, '0').replace(/(..)$/, ':$1'), 'Suomi NPP', r.cf, (r.la / 1e5).toFixed(5), (r.lo / 1e5).toFixed(5), r.tm, r.am, r.pv, r.ar, r.st, SBP[r.pv] || r.sb, r.dnp ? 'ใช่' : 'ไม่ใช่'].map(q).join(',')));
   fs.writeFileSync(path.join(ROOT, 'data', 'FY2569_SNPP_ทั้งกลุ่มป่า.csv'), '﻿' + csv.join('\r\n'));
 

@@ -7,3 +7,5 @@ data/.sync.lock
 # ค่าตั้งเฉพาะเครื่อง
 .claude/settings.local.json
 node_modules/
+# ไฟล์ล็อกของ Excel ขณะเปิดไฟล์
+~$*
