@@ -19,20 +19,27 @@ concurrency:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - run: node scripts/sync_hotspots.js
-      # พื้นที่เผาไหม้ราย 7 วันจากระบบตามรอยเผา (ออกสัปดาห์ละครั้ง ส่วนใหญ่ไม่มีอะไรใหม่) — พลาดก็ไม่ให้กระทบจุดความร้อน
-      - run: node scripts/sync_burn.js || true
+      # ข้อมูลจากระบบตามรอยเผา (ออกสัปดาห์ละครั้ง/เดือนละครั้ง ส่วนใหญ่ไม่มีอะไรใหม่) — ช้าหรือพลาดก็ไม่ให้กระทบการ commit จุดความร้อน
+      # พื้นที่เผาไหม้ราย 7 วัน + รายเดือน/รายฤดูแยกป่า-เกษตร
+      - run: node scripts/sync_burn.js
+        timeout-minutes: 30
+        continue-on-error: true
+      # แหล่งเชื้อเพลิง SAVI รายเดือน (ต้นทาง ~68 MB/กริด บางช่วงดาวน์โหลดได้แค่ ~200 KB/วิ) → ไทล์ PNG ใน data/fuel
+      - run: node scripts/sync_fuel.js
+        timeout-minutes: 45
+        continue-on-error: true
       - name: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html data/hotspots_api.json data/burn "data/FY2569_SNPP_ทั้งกลุ่มป่า.csv"
+          git add index.html data/hotspots_api.json data/burn data/fuel "data/FY2569_SNPP_ทั้งกลุ่มป่า.csv"
           if git diff --cached --quiet; then echo "ไม่มีข้อมูลใหม่"; exit 0; fi
           git commit -m "sync: จุดความร้อนสะสม $(TZ=Asia/Bangkok date '+%Y-%m-%d %H:%M')"
           git pull --rebase

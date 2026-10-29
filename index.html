@@ -107,7 +107,9 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .seg button:first-child{border-radius:10px 0 0 10px;margin:0}.seg button:last-child{border-radius:0 10px 10px 0}
 #imgdate{position:fixed;top:calc(12px + env(safe-area-inset-top));left:calc(50% + 210px);transform:translateX(-50%);z-index:4;background:rgba(27,42,94,.9);color:#fff;font-size:12.5px;line-height:1.3;padding:6px 14px;border-radius:999px;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis;pointer-events:none;box-shadow:var(--sh)}#imgdate[hidden]{display:none}@media(max-width:767px){#imgdate{left:50%}} /* เดสก์ท็อป: กึ่งกลางพื้นที่แผนที่ขวาของแผงซ้าย 420 px */
 #imgtime{margin:0 0 10px}
-#bnbox{margin:0 0 10px}#bn-s{width:100%;font:inherit;font-size:13px;padding:5px 6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--navy)}
+#bnbox,#fubox{margin:0 0 10px}#fu-s{width:100%;font:inherit;font-size:13px;padding:5px 6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--navy);margin-bottom:4px}
+.bnhs{font-size:12px;margin:2px 0 6px;line-height:1.6}#bn-h{display:block;margin-top:4px;font:inherit;font-size:12px;padding:3px 9px;border:1px solid #c4b5fd;border-radius:999px;background:var(--bg);color:#5b21b6;cursor:pointer}#bn-h[aria-pressed=true]{background:#ede9fe}
+.fub{display:flex;flex:1;height:8px;border-radius:4px;overflow:hidden;margin:3px 0;min-width:60px}.fub i{display:block}.fua{font-size:12px}.fua>div{display:flex;gap:8px;align-items:center;min-height:20px}.fua span{width:44%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fua b{min-width:36px;text-align:right;font-weight:600}#bn-s{width:100%;font:inherit;font-size:13px;padding:5px 6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--navy)}
 .bnh{font-size:13px;margin:6px 0 4px}.bna{font-size:12px}.bna>div{display:flex;gap:6px;align-items:center;min-height:20px}.bna span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bna i{display:block;height:6px;border-radius:3px;background:#e8541c;flex:none}.bna b{min-width:44px;text-align:right;font-weight:600}
 .bnc{display:flex;align-items:flex-end;gap:1px;height:46px;margin:4px 0 2px;border-bottom:1px solid var(--line)}.bnc button{flex:1;min-width:2px;padding:0;border:0;border-radius:2px 2px 0 0;background:#eba27c;cursor:pointer}.bnc button.on{background:#a3171b}.bnc button.z{background:var(--line)}.bnx{display:flex;justify-content:space-between;font-size:11px;color:var(--mut)}.bnx a{cursor:pointer;color:var(--navy);text-decoration:underline}#imgtime[hidden],#it-d[hidden]{display:none}
 #imgtime .itr{display:flex;align-items:center;gap:6px}#it-r{flex:1;min-width:0;accent-color:var(--navy)}
@@ -333,7 +335,12 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div id="bnbox" hidden><select id="bn-s" aria-label="ช่วงเวลาพื้นที่เผาไหม้"></select>
    <div class="lgd" id="bn-lg" style="display:flex;flex-wrap:wrap;column-gap:12px"></div>
    <div id="bn-a"></div>
-   <p class="note" style="margin-left:0">รอยเผาไหม้จากภาพดาวเทียมความละเอียด 20 ม. ระบบ<a href="https://tamroypao.hii.or.th/" target="_blank" rel="noopener">ตามรอยเผา</a> (สสน.) แสดงเฉพาะในพื้นที่อนุรักษ์และพื้นที่รับผิดชอบสถานีฯ · <b>ราย 7 วัน</b> (B4) สี = จำนวนครั้งที่ตรวจพบ ออกหลังสิ้นรอบ ~9 วัน มีตั้งแต่ 1 ม.ค. 2568 · <b>แยกป่า/เกษตร</b> (B2/B3 รายเดือนและรายฤดูฝุ่น ธ.ค.–เม.ย.) ป่าไม้ = เขตป่าไม้ตามกฎหมาย, ข้าว/อ้อย/ข้าวโพด/พืชผสม = รอยเผาในแปลงเกษตร (ส่วนใหญ่อยู่ในพื้นที่รับผิดชอบสถานีฯ นอกเขตอนุรักษ์) มีตั้งแต่ ธ.ค. 2566 บางเดือนช่วงฤดูฝนต้นทางไม่ได้ผลิต · ปุ่ม "ไม่รวม ขสป.ดงใหญ่" มีผลด้วย · แตะรอยเผาไหม้บนแผนที่เพื่อดูช่วงเวลา</p></div>
+   <p class="note" style="margin-left:0">รอยเผาไหม้จากภาพดาวเทียมความละเอียด 20 ม. ระบบ<a href="https://tamroypao.hii.or.th/" target="_blank" rel="noopener">ตามรอยเผา</a> (สสน.) แสดงเฉพาะในพื้นที่อนุรักษ์และพื้นที่รับผิดชอบสถานีฯ · <b>ราย 7 วัน</b> (B4) สี = จำนวนครั้งที่ตรวจพบ ออกหลังสิ้นรอบ ~9 วัน มีตั้งแต่ 1 ม.ค. 2568 · <b>แยกป่า/เกษตร</b> (B2/B3 รายเดือนและรายฤดูฝุ่น ธ.ค.–เม.ย.) ป่าไม้ = เขตป่าไม้ตามกฎหมาย, ข้าว/อ้อย/ข้าวโพด/พืชผสม = รอยเผาในแปลงเกษตร (ส่วนใหญ่อยู่ในพื้นที่รับผิดชอบสถานีฯ นอกเขตอนุรักษ์) มีตั้งแต่ ธ.ค. 2566 บางเดือนช่วงฤดูฝนต้นทางไม่ได้ผลิต · ปุ่ม "ไม่รวม ขสป.ดงใหญ่" มีผลด้วย · แตะรอยเผาไหม้บนแผนที่เพื่อดูช่วงเวลา · เทียบจุดความร้อน = มีจุดความร้อน (VIIRS) ห่างไม่เกิน 1 กม. ในช่วงเวลาของรอยเผา (เผื่อก่อนหน้า 10 วัน) รอยที่ไม่พบจุดอาจเป็นไฟขนาดเล็ก/ไฟใต้เรือนยอด หรือเกิดตอนดาวเทียมไม่ผ่าน</p></div>
+  <div class="row"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="6" width="5" height="12" style="fill:#e10000;stroke:none"/><rect x="8" y="6" width="4" height="12" style="fill:#ffe100;stroke:none"/><rect x="12" y="6" width="5" height="12" style="fill:#00e100;stroke:none"/><rect x="17" y="6" width="4" height="12" style="fill:#005000;stroke:none"/></svg><b>แหล่งเชื้อเพลิง (SAVI)</b><span class="tag" id="fu-t">–</span><button class="sw" data-k="fuel" role="switch" aria-label="แหล่งเชื้อเพลิง"></button></div>
+  <div id="fubox" hidden><select id="fu-s" aria-label="เดือนของข้อมูลแหล่งเชื้อเพลิง" hidden></select>
+   <div class="lgd" style="display:flex;flex-wrap:wrap;column-gap:12px"><div><i style="background:#e10000"></i>สูงมาก</div><div><i style="background:#e17d00"></i>สูง</div><div><i style="background:#ffe100"></i>ปานกลาง</div><div><i style="background:#00e100"></i>ต่ำ</div><div><i style="background:#005000"></i>ต่ำมาก</div></div>
+   <div id="fu-a"></div>
+   <p class="note" style="margin-left:0">ดัชนีพืชพรรณปรับค่าดิน (SAVI) รายเดือน ความละเอียด 20 ม. จากระบบ<a href="https://tamroypao.hii.or.th/" target="_blank" rel="noopener">ตามรอยเผา</a> (สสน.) จัดระดับตามต้นทาง: ค่า SAVI ต่ำ (พืชพรรณโปร่ง แห้ง หรือดินโล่ง) = ระดับสูง · ค่าสูง (พืชพรรณเขียวหนาแน่น) = ระดับต่ำ · ใช้ดูความต่อเนื่องของเชื้อเพลิงและวางแผนแนวกันไฟ · บริเวณไม่มีสีในแนวเขต = ไม่มีข้อมูล (เช่น เมฆ) · แผนที่แสดงทุกพื้นที่ ตัวเลขเป็นไปตามปุ่ม "ไม่รวม ขสป.ดงใหญ่" · ต้นทางมีเฉพาะบางเดือน</p></div>
   <h3>แนวเขต</h3>
   <div class="row"><svg class="i" viewBox="0 0 24 24"><path d="M3 12h18"/></svg><b>จังหวัด</b><button class="sw" data-k="prov" role="switch" aria-label="เส้นแนวเขตจังหวัด"></button></div>
   <p class="note">แนวเขตจากแผนที่ฐาน (แบบธรรมชาติ/ดาวเทียมไม่มีเส้นนี้) · แนวเขตทางการ 77 จังหวัดมาเฟสถัดไป</p>
@@ -552,7 +559,7 @@ const areaHtml=g=>{let s='';if(g.cons)s+=`<b>${esc(g.cons.properties.name)}</b><
  return s||'<span class="sm">อยู่นอกพื้นที่อนุรักษ์และพื้นที่รับผิดชอบไฟป่าตามไฟล์แนวเขต</span><br>'};
 
 /* ---------- สถานะ + จำค่าที่ผู้ใช้เลือก ---------- */
-let S={base:'natural',img:'google',d3:false,hot:true,prov:true,cons:true,resp:false,stn:false,wpt:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,demo:false,water:true,road:true,wind:false,pm:false,dry:false,hist:false,burn:false};
+let S={base:'natural',img:'google',d3:false,hot:true,prov:true,cons:true,resp:false,stn:false,wpt:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,demo:false,water:true,road:true,wind:false,pm:false,dry:false,hist:false,burn:false,fuel:false};
 try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;if(S.base==='road')S.base='detail';
 const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2200)};
 const thTime=d=>new Date(d).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'});
@@ -654,7 +661,7 @@ function setup(){ // เรียกทุกครั้งที่สลั�
  map.addSource('resp',{type:'geojson',data:GEO.resp});
  map.addLayer({id:'resp-f',type:'fill',source:'resp',paint:{'fill-color':['get','sc'],'fill-opacity':.07}});
  map.addLayer({id:'resp-l',type:'line',source:'resp',paint:{'line-color':['get','sc'],'line-width':2.6,'line-dasharray':[3,1.6]}});
- setupBN();setup3();setup4();
+ setupBN();setupFU();setup3();setup4();
  map.addSource('fx',{type:'geojson',data:FXD});
  map.addLayer({id:'fx-cf',type:'fill',source:'fx',filter:['==',['get','k'],'cone'],paint:{'fill-color':'#6b7280','fill-opacity':.16}});
  map.addLayer({id:'fx-cl',type:'line',source:'fx',filter:['==',['get','k'],'cone'],paint:{'line-color':'#4b5563','line-width':1.6,'line-dasharray':[3,2]}});
@@ -685,7 +692,7 @@ function apply(){
   if(/^park$|protected|national_park/.test(s)){set(l.id,false);return}
   if(/boundary/.test(s))set(l.id,S.prov);else if(/water/.test(s))set(l.id,S.water);else if(/transportation|aeroway/.test(s))set(l.id,S.road)});
  try{map.setTerrain(S.d3?{source:'dem',exaggeration:1.4}:null)}catch(e){} // ก่อนสไตล์โหลดเสร็จจะ throw — setup() เรียก apply() อีกครั้งหลังโหลด
- L3();L4();LB();sync();
+ L3();L4();LB();LF();sync();
 }
 function sync(){
  $$('.sw[data-k]').forEach(b=>b.setAttribute('aria-checked',!!S[b.dataset.k]));
@@ -732,7 +739,7 @@ function renderLeft(){
 function satBtns(){xdyBtns();const A=[...LIVE,...(S.demo&&DEMO?DEMO:[])].filter(h=>(loadedAt-h.t)/H<24&&xLive(h)),n=k=>A.filter(h=>satKey(h.sat)===k).length;
  $$('[data-sats]').forEach(e=>e.innerHTML=['SNPP','NOAA20','NOAA21'].map(k=>`<button data-sat="${k}" aria-pressed="${S.sats[k]!==false}" title="${k==='SNPP'?'Suomi NPP หยุดส่งข้อมูล 2 พ.ย. 69 · ':''}จุดใน 24 ชม."><i></i>${SATN[k]} <em>${n(k)}</em></button>`).join(''))}
 function xdyBtns(){$$('[data-xdy]').forEach(e=>e.innerHTML=`<button aria-pressed="${!!S.xdy}" title="ขสป.ดงใหญ่สังกัด สบอ.7 (นครราชสีมา) · กดเพื่อดูเฉพาะพื้นที่อนุรักษ์ในสังกัด สบอ.1 (ปราจีนบุรี) · มีผลกับแผนที่ การ์ด ตาราง และสถิติย้อนหลัง"><i></i>ไม่รวม ขสป.ดงใหญ่ (สบอ.7)</button>`)}
-document.addEventListener('click',e=>{if(!e.target.closest('[data-xdy] button'))return;S.xdy=!S.xdy;refreshHS();if(HOPEN)hRender();if($('#dt-w'))dtRender();LB()});
+document.addEventListener('click',e=>{if(!e.target.closest('[data-xdy] button'))return;S.xdy=!S.xdy;refreshHS();if(HOPEN)hRender();if($('#dt-w'))dtRender();LB();LF()});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-sat]');if(!b)return;const k=b.dataset.sat,on=S.sats[k]!==false;
  if(on&&Object.values(S.sats).filter(v=>v!==false).length<=1)return toast('ต้องเลือกอย่างน้อย 1 ดวง');S.sats={...S.sats,[k]:!on};refreshHS()});
 /* ---------- การ์ดสรุปจุดความร้อน: ตัวเลขหลัก · เทียบปีงบก่อน (ประวัติจริงจาก hdata) · รายการแยกพื้นที่ ---------- */
@@ -1218,7 +1225,7 @@ const BN_BASE=/^https?:$/.test(location.protocol)?'data/burn/':'https://takiang7
  BNC=['#f5a623','#e8541c','#a3171b'],bnCol=v=>BNC[Math.min(v,3)-1],BNPX=.25, // 20×20 ม. = 0.25 ไร่
  BCC=['#ef0707','#ffe600','#ff72df','#a8e05a','#ffaa01'], // ป่าไม้/ข้าว/อ้อย/ข้าวโพด/พืชผสม — สีเดียวกับระบบตามรอยเผา
  BNB=[101.05,13.6,103.3,14.66],BNG=['47PQR','47PQS','47PRR','47PRS','48PTA','48PUA']; // กริด Sentinel-2 ที่ครอบแนวเขต (48PTB แตะแค่ขอบ ไม่นับ)
-let BNI=null,BNK=null,BNCUR=null;const BNF={},BND={};
+let BNI=null,BNK=null,BNCUR=null,BNH=false;const BNF={},BND={};
 const bnDay=s=>Date.UTC(+s.slice(0,4),+s.slice(4,6)-1,+s.slice(6,8))/864e5,
  bnIsC=k=>/^c/.test(k||''),
  bnFY=p=>fyOfDay(Math.floor((bnDay(p.d0)+bnDay(p.d1))/2)), // รอบคร่อมต้นปีงบ นับตามวันกลางรอบ
@@ -1255,17 +1262,31 @@ function bnData(k){if(BND[k])return BND[k];
   for(const o of R){const P=o.P,e0=P.x0+o.x*P.px,e1=e0+o.n*P.px,n0=P.y0-o.y*P.px,n1=n0-P.px,q=[[e0,n0],[e1,n0],[e1,n1],[e0,n1]].flatMap(([E,N])=>bnM(bnLL(E,N,P.z)));
    o.q=q;o.bb=[Math.min(q[0],q[6]),Math.min(q[1],q[3]),Math.max(q[2],q[4]),Math.max(q[5],q[7])];o.dy=dy[o.a][o.s]}
   return{k,C,I,ps,pr,R}})().catch(e=>{delete BND[k];throw e})}
+// จุดความร้อนใกล้รอยเผา (o.hs): ห่างจากแถวพิกเซลไม่เกิน BNR และวันที่อยู่ในช่วง [วันแรกของรอบแรกที่พบ − 10 วัน, วันสุดท้ายของรอบล่าสุดที่พบ]
+// ตั้งแต่ 1 ต.ค. 68 ใช้จุดจาก API ทุกดาวเทียม (AD) · ก่อนนั้นใช้จุดกรมอุทยานฯ (HD = Suomi NPP อย่างเดียว) จึงพบน้อยกว่า
+let BNHS=null;const BNV='#7c3aed',BNR=1000; // VIIRS 375 ม. + ตำแหน่งคลาดเคลื่อน — ตรวจ 29 ต.ค. 69 จุดส่วนใหญ่ห่างรอยเผา 0.5–1.5 กม.
+function bnHot(D){if(D.hsDone)return;D.hsDone=1;
+ if(!BNHS){const a0=AD.length?AD.reduce((m,r)=>Math.min(m,r.d),1e9):1e9,G=new Map(),add=r=>{const k=Math.floor(r.lo*100)+'|'+Math.floor(r.la*100);(G.get(k)||G.set(k,[]).get(k)).push([r.d,...bnM([r.lo,r.la]),Math.cos(r.la*Math.PI/180)])};
+  AD.forEach(add);HD.forEach(r=>{if(r.d<a0)add(r)});BNHS={G,a0}}
+ const G=BNHS.G,lat=y=>Math.atan(Math.sinh(Math.PI*(1-2*y)))*180/Math.PI,pad=.011;
+ D.hsPre=D.ps.some(p=>bnDay(p.d0)-10<BNHS.a0);
+ for(const o of D.R){const b=o.bb,d0=bnDay(D.ps[o.f].d0)-10,d1=bnDay(D.ps[o.l].d1);o.hs=false;
+  const i0=Math.floor((b[0]*360-180-pad)*100),i1=Math.floor((b[2]*360-180+pad)*100),j0=Math.floor((lat(b[3])-pad)*100),j1=Math.floor((lat(b[1])+pad)*100);
+  for(let i=i0;i<=i1&&!o.hs;i++)for(let j=j0;j<=j1&&!o.hs;j++){const L=G.get(i+'|'+j);if(!L)continue;
+   for(const [d,x,y,c] of L){if(d<d0||d>d1)continue;const dx=Math.max(b[0]-x,0,x-b[2]),dy=Math.max(b[1]-y,0,y-b[3]);if(Math.hypot(dx,dy)*40075017*c<=BNR){o.hs=true;break}}}}}
+const bnHsLine=(D,t,th)=>`<div class="bnhs">มีจุดความร้อนในรัศมี ${BNR>=1000?BNR/1000+' กม.':BNR+' ม.'} <b>${nf(th)}</b> ไร่ (${Math.round(th/t*100)}%) · <span style="color:${BNV}">ไม่พบจุดความร้อน <b>${nf(t-th)}</b> ไร่</span>
+ <button id="bn-h" aria-pressed="${BNH}">${BNH?'✓ ':''}เน้นสีรอยเผาที่ไม่พบจุดความร้อน</button>${D.hsPre?'<div class="sm">ก่อน 1 ต.ค. 68 เทียบกับจุดของกรมอุทยานฯ (Suomi NPP อย่างเดียว) จึงพบจุดน้อยกว่าช่วงหลัง</div>':''}</div>`;
 const bnCanvas=()=>typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(256,256):Object.assign(document.createElement('canvas'),{width:256,height:256}),
  bnBlob=c=>c.convertToBlob?c.convertToBlob({type:'image/png'}):new Promise(r=>c.toBlob(r,'image/png'));
 maplibregl.addProtocol('burn',async p=>{
- const m=p.url.match(/^burn:\/\/(\d+)\/(\d+)\/(\d+)\?k=([^&]+)&x=(\d)/),z=+m[1],tx=+m[2],ty=+m[3],xd=m[5]==='1',D=await bnData(m[4]),W=256*2**z,ox=tx*256,oy=ty*256,
-  x0=ox/W,x1=(ox+256)/W,y0=oy/W,y1=(oy+256)/W,c=bnCanvas(),g=c.getContext('2d');g.lineWidth=.6;
+ const m=p.url.match(/^burn:\/\/(\d+)\/(\d+)\/(\d+)\?k=([^&]+)&x=(\d)(?:&h=(\d))?/),z=+m[1],tx=+m[2],ty=+m[3],xd=m[5]==='1',xh=m[6]==='1',D=await bnData(m[4]),W=256*2**z,ox=tx*256,oy=ty*256,
+  x0=ox/W,x1=(ox+256)/W,y0=oy/W,y1=(oy+256)/W,c=bnCanvas(),g=c.getContext('2d');g.lineWidth=.6;if(xh)bnHot(D);
  for(const o of D.R){if(xd&&o.dy)continue;const b=o.bb;if(b[2]<x0||b[0]>x1||b[3]<y0||b[1]>y1)continue;
-  const q=o.q,bw=(b[2]-b[0])*W,bh=(b[3]-b[1])*W;g.fillStyle=g.strokeStyle=D.C?BCC[o.v-1]:bnCol(o.v);
+  const q=o.q,bw=(b[2]-b[0])*W,bh=(b[3]-b[1])*W;g.fillStyle=g.strokeStyle=xh&&!o.hs?BNV:D.C?BCC[o.v-1]:bnCol(o.v);
   if(bh<1.5)g.fillRect(b[0]*W-ox,b[1]*W-oy,Math.max(bw,1),Math.max(bh,1)); // ซูมไกล: อย่างน้อย 1 px ให้รอยเล็กยังมองเห็น
   else{g.beginPath();for(let i=0;i<8;i+=2)g.lineTo(q[i]*W-ox,q[i+1]*W-oy);g.closePath();g.fill();g.stroke()}} // stroke บางๆ กันรอยต่อระหว่างแถวจาง
  return{data:await (await bnBlob(c)).arrayBuffer()}});
-const bnURL=()=>'burn://{z}/{x}/{y}?k='+(BNK||'none')+'&x='+(S.xdy?1:0);
+const bnURL=()=>'burn://{z}/{x}/{y}?k='+(BNK||'none')+'&x='+(S.xdy?1:0)+'&h='+(BNH?1:0);
 function setupBN(){map.addSource('burn',{type:'raster',tiles:[bnURL()],tileSize:256,minzoom:5,maxzoom:16,bounds:BNB});
  map.addLayer({id:'burn',type:'raster',source:'burn',layout:{visibility:'none'},paint:{'raster-opacity':.92,'raster-fade-duration':0}},'cons-l')}
 async function LB(){ // เรียกจาก apply() และเมื่อเปลี่ยนช่วงเวลา/ปุ่มดงใหญ่
@@ -1276,7 +1297,7 @@ async function LB(){ // เรียกจาก apply() และเมื่�
  const last=I.periods[I.periods.length-1];$('#bn-t').textContent='ล่าสุด '+bnLab(last);
  if(!BNK||(!/^fy/.test(BNK)&&!bnPer(I,BNK).length)){const F=fyOfDay(thDay()),sum=f=>I.periods.filter(p=>bnFY(p)===f).reduce((s,p)=>s+p.rai,0);BNK='fy'+(sum(F)>0||!sum(F-1)?F:F-1)}
  bnSel(I);
- const C=bnIsC(BNK);$('#bn-lg').innerHTML=C?I.cn.map((n,i)=>`<div><i style="background:${BCC[i]}"></i>${esc(n)}</div>`).join(''):'<div><i style="background:#f5a623"></i>พบ 1 ครั้ง</div><div><i style="background:#e8541c"></i>2 ครั้ง</div><div><i style="background:#a3171b"></i>3 ครั้งขึ้นไป</div>';
+ const C=bnIsC(BNK);$('#bn-lg').innerHTML=(C?I.cn.map((n,i)=>`<div><i style="background:${BCC[i]}"></i>${esc(n)}</div>`).join(''):'<div><i style="background:#f5a623"></i>พบ 1 ครั้ง</div><div><i style="background:#e8541c"></i>2 ครั้ง</div><div><i style="background:#a3171b"></i>3 ครั้งขึ้นไป</div>')+(BNH?'<div><i style="background:'+BNV+'"></i>ไม่พบจุดความร้อน</div>':'');
  const s=map.getSource('burn'),u=bnURL();if(s&&s.tiles&&s.tiles[0]!==u)s.setTiles([u]);vis(true);
  const k=BNK,F=/^fy/.test(k)?+k.slice(2):bnFY(bnPer(I,k)[0]||last);$('#bn-a').innerHTML='<span class="sm">กำลังโหลด…</span>';
  try{const [D,DF]=await Promise.all([bnData(k),bnData((C?'cfy':'fy')+F)]);if(k!==BNK)return;BNCUR=D;bnStats(D,DF,F)}
@@ -1289,8 +1310,8 @@ function bnSel(I){const sel=$('#bn-s'),fys=[...new Set(I.periods.map(bnFY))].sor
   `<optgroup label="ราย 7 วัน · รายรอบ (ปี 2568 รอบละ 15 วัน)">${I.periods.slice().reverse().map(p=>opt(p.p,bnLab(p))).join('')}</optgroup>`;
  if(sel.dataset.h!==h){sel.innerHTML=h;sel.dataset.h=h}sel.value=BNK}
 function bnStats(D,DF,F){
- const keep=o=>!(S.xdy&&o.dy),ar={},st={},cl={};let t=0;
- for(const o of D.R)if(keep(o)){const r=o.n*BNPX;t+=r;ar[o.a]=(ar[o.a]||0)+r;st[o.s]=(st[o.s]||0)+r;cl[o.v]=(cl[o.v]||0)+r}
+ const keep=o=>!(S.xdy&&o.dy),ar={},st={},cl={};let t=0,th=0;bnHot(D);
+ for(const o of D.R)if(keep(o)){const r=o.n*BNPX;t+=r;if(o.hs)th+=r;ar[o.a]=(ar[o.a]||0)+r;st[o.s]=(st[o.s]||0)+r;cl[o.v]=(cl[o.v]||0)+r}
  const I=D.I,rf=v=>v>0&&v<1?'<1':nf(v),
   rows=(m,lab,col)=>{const e=Object.entries(m).sort((a,b)=>b[1]-a[1]),mx=e.length?e[0][1]:1;return e.map(([i,v])=>`<div><span>${esc(lab(i))}</span><i style="width:${Math.max(3,Math.round(v/mx*60))}px${col?';background:'+col(i):''}"></i><b>${rf(v)}</b></div>`).join('')};
  const p0=D.ps[0],ttl=/^fy/.test(D.k)?'ปีงบ '+F+' สะสม':D.C?(p0.p.length===6?'เดือน ':'')+bnLab(p0):'รอบ '+bnLab(p0);
@@ -1299,7 +1320,7 @@ function bnStats(D,DF,F){
  const bars=DF.pr,val=b=>S.xdy?b.x:b.all,mx=Math.max(1,...bars.map(val)),sea=I.cls.find(p=>p.p.length>6&&bnFY(p)===F);
  const bar=b=>{const v=val(b),k=(D.C?'c':'')+b.p.p,f=D.C?(S.xdy?b.cx:b.ca)[1]:0,pf=v?Math.round(f/v*100):0;
   return`<button data-p="${k}" class="${k===BNK?'on':''}${v?'':' z'}" style="height:${Math.max(2,Math.round(v/mx*44))}px${D.C&&v?`;background:linear-gradient(to top,${BCC[0]} ${pf}%,#f2b84b ${pf}%)`:''}" title="${esc(bnLab(b.p))} · ${nf(v)} ไร่${D.C?' (ป่าไม้ '+nf(f)+')':''}" aria-label="${esc(bnLab(b.p))} ${nf(v)} ไร่"></button>`};
- $('#bn-a').innerHTML=`<div class="bnh">${esc(ttl)}: <b>${nf(t)} ไร่</b> <span class="sm">(${nf(t/625,1)} ตร.กม.)</span></div>`+(miss?`<div class="sm" style="color:#b45309">${D.ps.length>1?miss+' รอบในช่วงนี้':'รอบนี้'}ต้นทางไม่มีภาพบางส่วนของพื้นที่ (เมฆมาก/ไม่มีภาพ) ตัวเลขจริงอาจมากกว่านี้</div>`:'')+
+ $('#bn-a').innerHTML=`<div class="bnh">${esc(ttl)}: <b>${nf(t)} ไร่</b> <span class="sm">(${nf(t/625,1)} ตร.กม.)</span></div>`+(miss?`<div class="sm" style="color:#b45309">${D.ps.length>1?miss+' รอบในช่วงนี้':'รอบนี้'}ต้นทางไม่มีภาพบางส่วนของพื้นที่ (เมฆมาก/ไม่มีภาพ) ตัวเลขจริงอาจมากกว่านี้</div>`:'')+(t?bnHsLine(D,t,th):'')+
   (t?(D.C?`<div class="bna">${rows(cl,i=>I.cn[i-1],i=>BCC[i-1])}</div><div class="sm" style="margin-top:6px">ตามพื้นที่อนุรักษ์ (ไร่)</div>`:'')+
    `<div class="bna">${rows(ar,i=>I.ar[i]==='นอกพื้นที่อนุรักษ์'?I.ar[i]:paShort(I.ar[i]))}</div><div class="sm" style="margin-top:6px">ตามพื้นที่รับผิดชอบสถานีฯ (ไร่)</div><div class="bna">${rows(st,i=>I.st[i]==='ไม่มี'?NOST:I.st[i].replace('สถานีควบคุมไฟป่า','สถานีฯ '))}</div>`
    :'<div class="sm">ไม่พบรอยเผาไหม้ในแนวเขต'+(S.xdy?' (ไม่รวม ขสป.ดงใหญ่)':'')+'</div>')+
@@ -1308,11 +1329,41 @@ function bnStats(D,DF,F){
 // ข้อความในป๊อปอัปเมื่อแตะแผนที่ตรงรอยเผาไหม้ (ยอมคลาด ~3 px เพราะพิกเซล 20 ม. เล็กมากเมื่อซูมไกล)
 function bnAt(ll){const D=BNCUR;if(!S.burn||!D||D.k!==BNK)return'';const [x,y]=bnM([ll.lng,ll.lat]),tol=3/(256*2**map.getZoom());
  const o=D.R.find(o=>!(S.xdy&&o.dy)&&x>=o.bb[0]-tol&&x<=o.bb[2]+tol&&y>=o.bb[1]-tol&&y<=o.bb[3]+tol);if(!o)return'';
- const a=D.ps[o.f],b=D.ps[o.l],when=o.f===o.l?esc(bnLab(a)):'ครั้งแรก '+esc(bnLab(a))+' · ล่าสุด '+esc(bnLab(b));
- return D.C?`<b style="color:#a3171b">รอยเผาไหม้ (${esc(D.I.cn[o.v-1]||'')})</b> ${when}<br>`:`<b style="color:#a3171b">รอยเผาไหม้</b> ${when} · ตรวจพบ ${o.v>=9?'≥9':o.v} ครั้ง<br>`}
+ const nh=o.hs===false?' · <span style="color:'+BNV+'">ไม่พบจุดความร้อนใกล้</span>':'',a=D.ps[o.f],b=D.ps[o.l],when=o.f===o.l?esc(bnLab(a)):'ครั้งแรก '+esc(bnLab(a))+' · ล่าสุด '+esc(bnLab(b));
+ return D.C?`<b style="color:#a3171b">รอยเผาไหม้ (${esc(D.I.cn[o.v-1]||'')})</b> ${when}${nh}<br>`:`<b style="color:#a3171b">รอยเผาไหม้</b> ${when} · ตรวจพบ ${o.v>=9?'≥9':o.v} ครั้ง${nh}<br>`}
 $('#bn-s').onchange=e=>{BNK=e.target.value;LB()};
-$('#bn-a').onclick=e=>{const b=e.target.closest('[data-p]');if(b){BNK=b.dataset.p;LB()}};
+$('#bn-a').onclick=e=>{if(e.target.closest('#bn-h')){BNH=!BNH;LB();return}const b=e.target.closest('[data-p]');if(b){BNK=b.dataset.p;LB()}};
 $('#bn-a').onkeydown=e=>{if(e.key==='Enter'){const b=e.target.closest('a[data-p]');if(b){BNK=b.dataset.p;LB()}}};
+/* ---------- แหล่งเชื้อเพลิง (SAVI รายเดือน ระบบตามรอยเผา 20 ม.) ----------
+   scripts/sync_fuel.js ทำไทล์ PNG ตัดแนวเขตแล้ว (data/fuel/<YYYYMM>/{z}/{x}/{y}.png ซูม 8–12) + สถิติไร่ต่อระดับใน index.json
+   ไทล์ที่ไม่มี (นอกแนวเขต) ไม่ขอจากเซิร์ฟเวอร์ — addProtocol('fuel') ตอบภาพว่างแทน 404 */
+const FU_BASE=BN_BASE.replace(/burn\/$/,'fuel/'),FUG=[['สูงมาก','#e10000'],['สูง','#e17d00'],['ปานกลาง','#ffe100'],['ต่ำ','#00e100'],['ต่ำมาก','#005000']];
+let FUI=null,FUM=null,FUBL=null;
+async function fuIndex(){if(FUI&&!FUI.err)return FUI;
+ try{const r=await fetch(FU_BASE+'index.json?h='+Math.floor(Date.now()/36e5));if(!r.ok)throw new Error('HTTP '+r.status);FUI=await r.json();
+  FUI.months.forEach(x=>x.set=new Set(Object.entries(x.tiles).flatMap(([z,l])=>l.map(t=>z+'_'+t))))}catch(e){FUI={months:[],err:e.message}}return FUI}
+maplibregl.addProtocol('fuel',async p=>{const m=p.url.match(/^fuel:\/\/(\d+)\/(\d+)\/(\d+)\?m=(\w+)/),I=await fuIndex(),M=I.months.find(x=>x.m===m[4]);
+ if(M&&M.set.has(m[1]+'_'+m[2]+'_'+m[3])){const r=await fetch(FU_BASE+m[4]+'/'+m[1]+'/'+m[2]+'/'+m[3]+'.png');if(r.ok)return{data:await r.arrayBuffer()}}
+ if(!FUBL)FUBL=await (await bnBlob(bnCanvas())).arrayBuffer();return{data:FUBL.slice(0)}});
+function setupFU(){map.addSource('fuel',{type:'raster',tiles:['fuel://{z}/{x}/{y}?m='+(FUM||'none')],tileSize:256,minzoom:8,maxzoom:12,bounds:BNB});
+ map.addLayer({id:'fuel',type:'raster',source:'fuel',layout:{visibility:'none'},paint:{'raster-opacity':.72,'raster-resampling':'nearest','raster-fade-duration':0}},map.getLayer('burn')?'burn':'cons-l')}
+async function LF(){ // เรียกจาก apply() และปุ่มดงใหญ่
+ const on=!!S.fuel,vis=b=>map.getLayer('fuel')&&map.setLayoutProperty('fuel','visibility',b?'visible':'none');$('#fubox').hidden=!on;
+ if(!on){vis(false);return}
+ const I=await fuIndex();
+ if(!I.months.length){$('#fu-a').innerHTML='<span class="sm">ดึงข้อมูลแหล่งเชื้อเพลิงไม่สำเร็จ'+(I.err?' ('+esc(I.err)+')':'')+'</span>';vis(false);return}
+ if(!FUM||!I.months.some(x=>x.m===FUM))FUM=I.months[I.months.length-1].m;
+ const ml=m=>bnMon(m+'01'),sel=$('#fu-s'),h=I.months.slice().reverse().map(x=>`<option value="${x.m}">${esc(ml(x.m))}</option>`).join('');
+ if(sel.dataset.h!==h){sel.innerHTML=h;sel.dataset.h=h}sel.value=FUM;sel.hidden=I.months.length<2;$('#fu-t').textContent=ml(I.months[I.months.length-1].m);
+ const s=map.getSource('fuel'),u='fuel://{z}/{x}/{y}?m='+FUM;if(s&&s.tiles&&s.tiles[0]!==u)s.setTiles([u]);vis(true);
+ // ไร่ต่อระดับ (10 ระดับ → 5 กลุ่ม) รวม และแยกพื้นที่อนุรักษ์ · ตัดดงใหญ่ตามปุ่ม
+ const M=I.months.find(x=>x.m===FUM),tot=[0,0,0,0,0],ar={};
+ for(const k in M.s){const [a,st]=k.split('|').map(Number);if(S.xdy&&dyAS(I.ar[a],I.st[st]))continue;const g=ar[a]=ar[a]||[0,0,0,0,0];M.s[k].forEach((v,i)=>{g[i>>1]+=v;tot[i>>1]+=v})}
+ const sum=a=>a.reduce((x,y)=>x+y,0),bar=a=>`<div class="fub">${a.map((v,i)=>v?`<i style="flex:${v};background:${FUG[i][1]}"></i>`:'').join('')}</div>`,T=sum(tot),hi=tot[0]+tot[1];
+ $('#fu-a').innerHTML=`<div class="bnh">เดือน ${esc(ml(FUM))}: ระดับสูง–สูงมาก <b>${nf(hi)} ไร่</b> <span class="sm">(${T?Math.round(hi/T*100):0}% ของ ${nf(T)} ไร่ที่มีข้อมูล)</span></div>${bar(tot)}`+
+  `<div class="sm" style="margin-top:6px">ตามพื้นที่อนุรักษ์ (% ระดับสูง–สูงมาก)</div><div class="fua">${Object.entries(ar).sort((x,y)=>(y[1][0]+y[1][1])/sum(y[1])-(x[1][0]+x[1][1])/sum(x[1])).map(([a,g])=>
+   `<div><span>${esc(I.ar[a]==='นอกพื้นที่อนุรักษ์'?I.ar[a]:paShort(I.ar[a]))}</span>${bar(g)}<b>${Math.round((g[0]+g[1])/sum(g)*100)}%</b></div>`).join('')}</div>`}
+$('#fu-s').onchange=e=>{FUM=e.target.value;LF()};
 addEventListener('resize',()=>{if(S.wind){wsz();WP.forEach(wseed)}});
 map.on('movestart',()=>{if(S.wind)wx2.clearRect(0,0,wc.width,wc.height)});
 let wt=0;map.on('moveend',()=>{if(!S.wind)return;WP.forEach(wseed);clearTimeout(wt);wt=setTimeout(loadWind,500);if(RM)wstatic()});
