@@ -62,6 +62,8 @@ function summary(L) {
   fs.mkdirSync(OUT, { recursive: true });
   fs.copyFileSync(H, path.join(OUT, 'index.html'));
   fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
+  // พื้นที่เผาไหม้ (scripts/sync_burn.js) — หน้าเว็บอ่านจาก data/burn/ ทางเดียวกับตอนเปิดผ่าน serve.js
+  if (fs.existsSync(path.join(ROOT, 'data', 'burn'))) fs.cpSync(path.join(ROOT, 'data', 'burn'), path.join(OUT, 'data', 'burn'), { recursive: true });
   let ok = true, L = null;
   try {
     L = await live();
