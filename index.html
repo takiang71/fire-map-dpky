@@ -874,9 +874,14 @@ function dtCSV(){const R=dtRows(),q=v=>/[",\n]/.test(v=String(v==null?'':v))?'"'
  const t=['ลำดับ,วันที่,เวลา,ดาวเทียม,ความเชื่อมั่น,ละติจูด,ลองจิจูด,ตำบล,อำเภอ,จังหวัด,พื้นที่อนุรักษ์,สถานีควบคุมไฟป่า,สำนักบริหารพื้นที่อนุรักษ์,ข้อมูลตัวอย่าง,Google Maps'].concat(R.map((r,i)=>[i+1,iso(r.d),hhmmTh(r.t),SATN[r.sat]||r.sat,r.cf,r.la.toFixed(5),r.lo.toFixed(5),r.tm,r.am,r.pv,r.ar,r.st,r.sb||'',r.demo?'ใช่':'',`https://www.google.com/maps?q=${r.la.toFixed(5)},${r.lo.toFixed(5)}`].map(q).join(',')));
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+t.join('\r\n')],{type:'text/csv;charset=utf-8'}));a.download=`hotspots_DPKY_${DT.rg}${AF?'_'+AF.full.replace(/^สถานีควบคุมไฟป่า|\s|[()]/g,''):''}_${iso(thDay()).replace(/-/g,'')}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);toast('ดาวน์โหลด '+nf(R.length)+' จุดแล้ว')}
 // ภาพแผนที่ปัจจุบัน (เฉพาะชั้น WebGL: แผนที่ฐาน แนวเขต จุดความร้อน — ไม่รวมป้าย DOM)
-// จัดแผนที่ให้กลุ่มป่าอยู่กลางภาพ (ไม่เว้นที่ให้แผงซ้าย/ล่าง ผู้ใช้ขอ 29 ต.ค. 69) แล้วคืนมุมมองเดิม
+// ภาพแผนที่ในรายงาน = สิ่งที่ผู้ใช้เห็นในช่องว่างระหว่างแผงต่างๆ (ตามการซูม/กรองของผู้ใช้) จัดให้อยู่กลางภาพเต็มกรอบ
+// ไม่เว้นที่ให้แผงซ้าย/ล่าง (ผู้ใช้ขอ 29 ต.ค. 69) แล้วคืนมุมมองเดิม · ช่องว่างใช้ homePad ชุดเดียวกับปุ่มบ้าน/ซูม (มือถือใช้ขอบบนของแผ่นล่างจริง)
 const mapSnap=async()=>{try{const c={center:map.getCenter(),zoom:map.getZoom(),bearing:map.getBearing(),pitch:map.getPitch(),padding:map.getPadding()};
- map.jumpTo({padding:{top:0,bottom:0,left:0,right:0}});map.fitBounds(HOME,{padding:24,bearing:0,pitch:0,duration:0});map.triggerRepaint();
+ const cv=map.getCanvas().getBoundingClientRect(),p=homePad(),W=cv.width,H=cv.height;let L=p.left,T=p.top,R=W-p.right,B=H-p.bottom;
+ if(innerWidth<=767){const s=$('#left').getBoundingClientRect();if(s.height&&s.top-cv.top>H*.3)B=Math.min(B,s.top-cv.top)}
+ if(R-L<100||B-T<100){L=0;T=0;R=W;B=H}
+ const b=new maplibregl.LngLatBounds();[[L,T],[R,T],[R,B],[L,B]].forEach(q=>b.extend(map.unproject(q)));
+ map.jumpTo({padding:{top:0,bottom:0,left:0,right:0}});map.fitBounds(b,{padding:0,bearing:0,pitch:0,duration:0});map.triggerRepaint();
  await new Promise(r=>{const t=setTimeout(r,8000);map.once('idle',()=>{clearTimeout(t);r()})});
  const u=map.getCanvas().toDataURL('image/jpeg',.88);map.jumpTo(c);return u}catch(e){return null}};
 async function buildReport(){const R=dtRows(),img=await mapSnap(),now=Date.now(),cnt=k=>{const m={};R.forEach(r=>{const v=k(r)||'ไม่ระบุ';m[v]=(m[v]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])};
