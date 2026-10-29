@@ -123,14 +123,61 @@ LINE_TOKEN=<token> node scripts/line_notify.js --validate
 workflow `sync` (เก็บจุดความร้อนสะสม + พื้นที่เผาไหม้ + แหล่งเชื้อเพลิง) ตั้งไว้วันละ 4 รอบ แต่ GitHub รันจริงแค่วันละ 1–2 รอบและช้าหลายชั่วโมง
 (เช่น รอบ 06:17 น. ของ 29 ต.ค. 69 รันจริง 09:28 น., 30 ต.ค. 69 ถึง ~07:00 น. ยังไม่รัน) แก้แบบเดียวกับข้อ 6:
 
-1. ใช้ token เดิมจากข้อ 6 ได้เลย (สิทธิ์ Actions: Read and write ของ repo นี้ครอบทุก workflow)
-2. cron-job.org → **Create cronjob** อีกงานหนึ่ง (เช่นชื่อ "fire-map sync")
-   - URL: `https://api.github.com/repos/takiang71/fire-map-dpky/actions/workflows/sync.yml/dispatches`
-   - Schedule: แบบกำหนดเอง เวลา **06:17, 09:17, 15:17, 18:17** · Time zone **Asia/Bangkok**
-   - แท็บ Advanced: ตั้งเหมือนข้อ 6 ทุกอย่าง (POST, body `{"ref":"main"}`, header 4 บรรทัด)
-3. **กด Test run** ต้องได้ HTTP **204** และหน้า Actions มีรอบ `sync` ใหม่ (ปกติใช้ 20–60 วินาที ถ้ามีข้อมูลตามรอยเผาเดือนใหม่อาจนานถึง ~45 นาที)
+### 7.1 ทดสอบด้วยมือก่อน (บน GitHub)
 
-รอบที่ GitHub รันเองตามตารางยังทำงานได้ตามปกติ ถ้ารันซ้อนกันจะต่อคิวกัน ไม่ชนกัน
+1. เปิด https://github.com/takiang71/fire-map-dpky/actions/workflows/sync.yml
+2. ทางขวามีแถบสีฟ้าเขียนว่า "This workflow has a workflow_dispatch event trigger" → กดปุ่ม **Run workflow** (ปุ่มเล็กมีลูกศรลง)
+3. กล่องเล็กเด้งขึ้นมา ช่อง "Use workflow from" ให้เป็น **Branch: main** → กดปุ่มเขียว **Run workflow** ในกล่อง
+4. รอ 2–3 วินาที แล้วกดรีเฟรชหน้า จะมีแถวใหม่ "sync" ขึ้นบนสุด (วงกลมเหลืองหมุน = กำลังรัน)
+5. รอจนเป็น ✓ สีเขียว (ปกติ 30 วินาที – 2 นาที) แล้วคลิกที่แถวนั้น → คลิกกล่อง **sync** ทางซ้าย
+6. คลิกขั้น **Run node scripts/sync_fuel.js** เพื่อกางดูข้อความ ควรเห็น
+   `ตามรอยเผา SAVI: 1 เดือน · เก็บ 1 · ต้องประมวลผล 0` (= ทำงานได้ ไม่มีเดือนใหม่)
+   และขั้น **Run node scripts/sync_burn.js** ควรเห็น `ตามรอยเผา b4: … รอบ · ต้องประมวลผล 0 รอบ` (หรือมีรอบใหม่ก็ได้)
+   - ถ้าขั้นไหนมีไอคอนสีส้ม/แดง ให้คัดลอกข้อความในขั้นนั้นมาให้ดู
+
+### 7.2 ตั้ง cron-job.org ให้สั่งรันตามเวลา
+
+**ก. หา token เดิม** (ไม่ต้องสร้างใหม่ — token ของข้อ 6 ใช้ได้กับทุก workflow ใน repo นี้)
+1. เข้า https://console.cron-job.org → เมนู **Cronjobs**
+2. คลิกงานเดิม **fire-map site** → แท็บ **ADVANCED**
+3. ในส่วน Headers แถว `Authorization` คัดลอกค่าทั้งหมด (ขึ้นต้นด้วย `Bearer github_pat_…`) เก็บไว้ก่อน
+4. กดออกโดย **ไม่ต้องกด Save** (ไม่ได้แก้อะไร)
+
+**ข. สร้างงานใหม่**
+1. หน้า Cronjobs กดปุ่ม **CREATE CRONJOB**
+2. แท็บ **COMMON**
+   - **Title:** `fire-map sync`
+   - **URL:** `https://api.github.com/repos/takiang71/fire-map-dpky/actions/workflows/sync.yml/dispatches`
+     (ต่างจากงานเดิมแค่ `site.yml` → `sync.yml`)
+   - **Enable job:** เปิด
+   - **Execution schedule:** เลือก **Custom**
+     - Days of month: **Every day of month** (ทุกวัน) · Days of week: **Every day of week** · Months: **Every month**
+     - Hours: เลือก **6, 9, 15, 18** (กด Ctrl ค้างแล้วคลิกทีละตัว)
+     - Minutes: เลือก **17** ตัวเดียว
+     - ด้านล่างจะแสดงเวลารันครั้งถัดไป ให้ตรวจว่าเป็น 06:17 / 09:17 / 15:17 / 18:17
+3. แท็บ **ADVANCED**
+   - **Time zone:** `Asia/Bangkok` (ถ้าไม่มีช่องนี้ ให้ตั้งที่เมนู Settings ของบัญชี · หรือถ้าต้องใช้ UTC ให้เลือก Hours = **23, 2, 8, 11** แทน)
+   - **Request method:** `POST`
+   - **Request body:** `{"ref":"main"}`
+   - **Headers:** กด **ADD** ทีละแถว 4 แถว (Key / Value)
+     | Key | Value |
+     |---|---|
+     | `Authorization` | ค่าที่คัดลอกจากข้อ ก. (`Bearer github_pat_…`) |
+     | `Accept` | `application/vnd.github+json` |
+     | `X-GitHub-Api-Version` | `2022-11-28` |
+     | `User-Agent` | `cron-job` |
+   - **Treat redirects with HTTP 3xx as success:** ไม่ต้องเปิด
+4. (ถ้าอยากได้อีเมลเมื่อพลาด) แท็บ **NOTIFICATIONS** เปิด "Notify me when execution fails"
+5. กดปุ่ม **TEST RUN** ด้านล่าง → กด **START TEST RUN**
+   - ต้องได้ **Status 204 No Content** = สั่งรันสำเร็จ (ไปดูหน้า Actions จะมีรอบ `sync` ใหม่ ประเภท "Manually run by takiang71")
+   - ได้ **401** = token ผิด/หมดอายุ · **404** = URL ผิด หรือ token ไม่มีสิทธิ์ repo นี้ · **422** = body ผิด (ต้องเป็น `{"ref":"main"}` เป๊ะ)
+6. กด **CREATE** (หรือ SAVE) บันทึกงาน
+
+**ค. ตรวจหลังตั้ง**
+- หน้า Cronjobs จะมี 2 งาน: `fire-map site` (ทุก 10 นาที) และ `fire-map sync` (วันละ 4 ครั้ง)
+- วันถัดไปเปิดงาน `fire-map sync` → **HISTORY** ควรมี 204 ทุกรอบ และหน้า Actions ของ sync มีรอบตามเวลา
+- หน้า Actions อาจมีรอบที่ GitHub รันเองตามตาราง (Scheduled) ปนอยู่ด้วย เป็นเรื่องปกติ ถ้ารันซ้อนกันจะต่อคิว ไม่ชนกัน และไม่ทำให้ข้อมูลซ้ำ
+- งานรันนานได้ถึง ~45 นาทีเฉพาะตอนที่ระบบตามรอยเผาออกข้อมูลเชื้อเพลิงเดือนใหม่ (ไฟล์ใหญ่ ต้นทางช้า) รอบปกติไม่ถึง 2 นาที
 
 ## ตรวจปัญหา
 
