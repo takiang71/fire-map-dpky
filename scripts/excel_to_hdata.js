@@ -1,6 +1,6 @@
 // อ่าน Excel จุดความร้อนย้อนหลัง (ชีตแรก, คอลัมน์ตามไฟล์ DPKY61-69) แล้วเข้ารหัสแบบ dictionary ฝังลง index.html (id="hdata")
 // ใช้ dictionary เดิมเป็นฐานเพื่อให้ลำดับเดิมคงที่ · รัน: node scripts/excel_to_hdata.js [ไฟล์.xlsx]
-// หลังรันแล้วให้รัน node scripts/sync_hotspots.js เพื่อจับคู่ dnp ของ adata กับข้อมูลใหม่ (ไม่งั้นจุดที่เพิ่มจะถูกนับซ้ำใน HD)
+// หลังรันแล้วให้รัน node scripts/sync_hotspots.js เพื่อจับคู่ dnp ของ adata และสร้าง CSV เทียบกับ API ใหม่
 const fs = require('fs'), path = require('path');
 const { readXlsx } = require('./lib/xlsx');
 
