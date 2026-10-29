@@ -118,6 +118,20 @@ LINE_TOKEN=<token> node scripts/line_notify.js --validate
 
 ผลพลอยได้: ไฟล์ `live.json` บนเว็บจะสดขึ้น หน้าเว็บจึงไม่ต้องดึง API ตรงบ่อย
 
+## 7. (แนะนำ) ให้ sync เก็บข้อมูลตรงเวลา
+
+workflow `sync` (เก็บจุดความร้อนสะสม + พื้นที่เผาไหม้ + แหล่งเชื้อเพลิง) ตั้งไว้วันละ 4 รอบ แต่ GitHub รันจริงแค่วันละ 1–2 รอบและช้าหลายชั่วโมง
+(เช่น รอบ 06:17 น. ของ 29 ต.ค. 69 รันจริง 09:28 น., 30 ต.ค. 69 ถึง ~07:00 น. ยังไม่รัน) แก้แบบเดียวกับข้อ 6:
+
+1. ใช้ token เดิมจากข้อ 6 ได้เลย (สิทธิ์ Actions: Read and write ของ repo นี้ครอบทุก workflow)
+2. cron-job.org → **Create cronjob** อีกงานหนึ่ง (เช่นชื่อ "fire-map sync")
+   - URL: `https://api.github.com/repos/takiang71/fire-map-dpky/actions/workflows/sync.yml/dispatches`
+   - Schedule: แบบกำหนดเอง เวลา **06:17, 09:17, 15:17, 18:17** · Time zone **Asia/Bangkok**
+   - แท็บ Advanced: ตั้งเหมือนข้อ 6 ทุกอย่าง (POST, body `{"ref":"main"}`, header 4 บรรทัด)
+3. **กด Test run** ต้องได้ HTTP **204** และหน้า Actions มีรอบ `sync` ใหม่ (ปกติใช้ 20–60 วินาที ถ้ามีข้อมูลตามรอยเผาเดือนใหม่อาจนานถึง ~45 นาที)
+
+รอบที่ GitHub รันเองตามตารางยังทำงานได้ตามปกติ ถ้ารันซ้อนกันจะต่อคิวกัน ไม่ชนกัน
+
 ## ตรวจปัญหา
 
 - **บอทไม่ตอบ:** ใน Cloudflare เปิด Worker → **Logs** ตรวจว่า secret ถูกต้อง
