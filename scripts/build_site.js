@@ -40,7 +40,7 @@ const IND_SW = Date.UTC(2026, 10, 2) / 864e5, indSat = d => d < IND_SW ? 'SNPP' 
 const satKey = s => { s = String(s == null ? '' : s); return /21/.test(s) ? 'NOAA21' : /20/.test(s) ? 'NOAA20' : /npp|suomi/i.test(s) ? 'SNPP' : s };
 const hKey = (d, t, la, lo) => d + '|' + t + '|' + Math.round(la * 1e3) + '|' + Math.round(lo * 1e3);
 // areas: แยกตามพื้นที่อนุรักษ์ (จุดนอกพื้นที่อนุรักษ์ใช้คีย์ "นอกพื้นที่อนุรักษ์|สถานีฯ") → fy = สะสมปีงบนี้, prv = ปีงบก่อนช่วงเดียวกัน, pfull = ปีงบก่อนทั้งปี,
-//   m/pm = รายเดือน ต.ค.–ก.ย. ของปีนี้/ปีก่อน · pv/am/tm = นับสะสมปีงบนี้ตามจังหวัด / "อำเภอ|จังหวัด" / "ตำบล|อำเภอ|จังหวัด" (การ์ดสูงสุดใน LINE) · ปีงบก่อนใช้ hdata (จุดกรมอุทยานฯ) เหมือนแท็บ "เทียบปีงบก่อน" ในหน้าเว็บ
+//   m/pm = รายเดือน ต.ค.–ก.ย. ของปีนี้/ปีก่อน · pv/am/tm = นับสะสมปีงบนี้ตามจังหวัด / "อำเภอ|จังหวัด" / "ตำบล|อำเภอ|จังหวัด" (การ์ดสูงสุดใน LINE) · ปีงบก่อนใช้ hdata (จุดกรมอุทยานฯ) ไม่รวมจุดที่จัดการเชื้อเพลิง/ตรวจสอบแล้วไม่พบไฟ เหมือนแท็บ "เทียบปีงบก่อน" ในหน้าเว็บ (fuOK)
 function summary(L) {
   const m = block('adata'); if (!m) return null;
   const j = JSON.parse(m[1]), to = j.to ? Date.UTC(+j.to.slice(0, 4), +j.to.slice(5, 7) - 1, +j.to.slice(8, 10)) / 864e5 : -1;
@@ -54,7 +54,7 @@ function summary(L) {
     if (d > to && d >= s && d <= T && satKey(p.satellite_name) === indSat(d) && !seen.has(k)) { seen.add(k); add(d, p._ar, p._st, p.province_name_th, p.district_name_th, p.subdistrict_name_th) }
   }
   const h = JSON.parse(block('hdata')[1]);
-  for (const r of h.r) { const d = r[0]; if (d >= sp && d < s) { const o = A(key(h.ar[r[7]], h.st[r[10]])); o.pfull++; o.pm[mi(d)]++; if (d - sp <= T - s) o.prv++ } }
+  for (const r of h.r) { const d = r[0]; if (d >= sp && d < s && h.fu[r[9]] === 'ไม่มี') { const o = A(key(h.ar[r[7]], h.st[r[10]])); o.pfull++; o.pm[mi(d)]++; if (d - sp <= T - s) o.prv++ } }
   return { generated: new Date().toISOString(), fy: F, ind: SATN[indSat(T)], adata_to: j.to, day: T - s, total: seen.size, ar, st, areas };
 }
 

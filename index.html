@@ -708,8 +708,9 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-sat]');if(
 const TMO=['ต.ค.','พ.ย.','ธ.ค.','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.'];
 const thDay=()=>Math.floor((Date.now()+7*36e5)/864e5), fy0=F=>Date.UTC(F-544,9,1)/864e5, fyOfDay=d=>{const[y,m]=ymd(d);return y+543+(m>=10?1:0)};
 const dShort=d=>new Date(d*864e5).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit',timeZone:'UTC'});
-// ประวัติในการ์ดใช้จุดกรมอุทยานฯ ตามตัวชี้วัด (HD = Excel อย่างเดียว) — ปีงบ 2569 = 133 จุด ตาม Excel ฉบับ 29 ต.ค. 69 (ผู้ใช้กำหนด)
-function fyCum(F){const a=new Array(366).fill(0),s=fy0(F);HD.forEach(r=>{if(r.fy===F){const i=r.d-s;if(i>=0&&i<366)a[i]++}});for(let i=1;i<366;i++)a[i]+=a[i-1];return a}
+// ประวัติในการ์ดใช้จุดกรมอุทยานฯ ตามตัวชี้วัด (HD = Excel อย่างเดียว) ไม่รวมจุดที่จัดการเชื้อเพลิง/ตรวจสอบแล้วไม่พบไฟ (fuOK) — ปีงบ 2569 = 120 จาก 133 จุด (ผู้ใช้กำหนด 29 ต.ค. 69)
+const fuOK=r=>DIC.fu[r.fu]==='ไม่มี';
+function fyCum(F){const a=new Array(366).fill(0),s=fy0(F);HD.forEach(r=>{if(r.fy===F&&fuOK(r)){const i=r.d-s;if(i>=0&&i<366)a[i]++}});for(let i=1;i<366;i++)a[i]+=a[i-1];return a}
 // ยอดสะสมปีงบปัจจุบัน — ตัวอย่าง: API ให้ย้อนหลังแค่ 48 ชม. จึงสุ่มแบบคงที่ก่อน 2 วันล่าสุด แล้วต่อด้วยจุดใน HS (TODO: เก็บสะสมจุดจริงรายวัน)
 // ยอดสะสมจริงตามดาวเทียมตัวชี้วัด: จุดที่เก็บสะสม (AD) + จุดสดที่ยังไม่อยู่ใน AD (ไม่นับจุดตัวอย่าง) · null = ยังไม่เคยรัน sync
 const hKey=(d,t,la,lo)=>d+'|'+t+'|'+Math.round(la*1e3)+'|'+Math.round(lo*1e3);
@@ -722,7 +723,7 @@ function fyNowSample(F,T){const s=fy0(F),a=new Array(366).fill(0);let sd=F;const
  HS.forEach(h=>{const i=Math.floor((h.t+7*36e5)/864e5)-s;if(i>=Math.max(0,T-1)&&i<=T)a[i]++});for(let i=1;i<366;i++)a[i]+=a[i-1];return a}
 let PCH=null; // ประวัติ (คำนวณครั้งเดียว)
 function pHist(F){if(PCH&&PCH.F===F)return PCH;const P=F-1,yrs=[...new Set(HD.map(r=>r.fy))].filter(y=>y<=P).sort(),cp=fyCum(P),cs=yrs.map(y=>y===P?cp:fyCum(y)), /* เฉลี่ยทุกปีงบที่จบแล้ว รวมปีงบก่อน (ผู้ใช้กำหนด) */
- avg=cp.map((_,i)=>cs.reduce((s,a)=>s+a[i],0)/(cs.length||1)),R=HD.filter(r=>r.fy===P),mo=new Array(12).fill(0),dd={};R.forEach(r=>{mo[r.mo]++;dd[r.d]=(dd[r.d]||0)+1});
+ avg=cp.map((_,i)=>cs.reduce((s,a)=>s+a[i],0)/(cs.length||1)),R=HD.filter(r=>r.fy===P&&fuOK(r)),mo=new Array(12).fill(0),dd={};R.forEach(r=>{mo[r.mo]++;dd[r.d]=(dd[r.d]||0)+1});
  const pm=mo.indexOf(Math.max(...mo)),pd=Object.entries(dd).sort((a,b)=>b[1]-a[1])[0];
  const an=n=>{const Y=[...new Set(HD.map(r=>r.fy))].filter(y=>y<=P&&y>P-n).sort(),A=Y.map(y=>y===P?cp:fyCum(y));return{n,ys:Y,lab:Y.length?Y[0]+'–'+String(Y.at(-1)).slice(2):'',a:cp.map((_,i)=>A.reduce((s,a)=>s+a[i],0)/(A.length||1))}};
  return PCH={F,P,yrs,cp,avg,av:[an(3),an(5)],tot:R.length,pm,pmN:mo[pm],pd:pd?[+pd[0],pd[1]]:null}}
@@ -742,9 +743,9 @@ function fyPts(){if(!ADI)return[];const T0=thDay(),s=fy0(fyOfDay(T0)),k=s+'|'+lo
 function fyFC(){return{type:'FeatureCollection',features:PM!=='24'?fyPts().map(h=>{let d=h.d,t=h.t;if(d==null){const x=new Date(h.t+7*36e5);d=Math.floor(x/864e5);t=x.getUTCHours()*100+x.getUTCMinutes()}
  return{type:'Feature',geometry:{type:'Point',coordinates:[h.lon,h.lat]},properties:{d,t,sat:satKey(h.sat),tam:h.tam||'',amp:h.amp||'',prov:h.prov||''}}}):[]}}
 function fyMap(){const p=map.getSource('fypt');if(p)p.setData(fyFC());if(map.getLayer('fypt'))map.setLayoutProperty('fypt','visibility',PM!=='24'?'visible':'none')}
-// ปีงบก่อน จาก HD (จุดของกรมอุทยานฯ ตาม Excel) — ปีงบ 2569 = 133 จุดตามตัวชี้วัด (ผู้ใช้กำหนด)
+// ปีงบก่อน จาก HD (จุดของกรมอุทยานฯ ตาม Excel) ไม่รวมจุดที่จัดการเชื้อเพลิง/ตรวจสอบแล้วไม่พบไฟ — ปีงบ 2569 = 120 จุด (ผู้ใช้กำหนด)
 let CM='same'; // ช่วงปีงบก่อนที่ใช้เทียบ: same = 1 ต.ค. – วันที่เดียวกัน · full = ทั้งปีงบ
-function prvPts(){const T0=thDay(),F=fyOfDay(T0),T=T0-fy0(F),s=fy0(F-1);return HD.filter(r=>r.fy===F-1&&(CM==='full'||r.d-s<=T)).map(r=>r._h2||(r._h2={lat:r.la,lon:r.lo,prov:DIC.pv[r.pv],amp:DIC.am[r.am],tam:String(DIC.tm[r.tm]||'').split('|')[0]}))}
+function prvPts(){const T0=thDay(),F=fyOfDay(T0),T=T0-fy0(F),s=fy0(F-1);return HD.filter(r=>r.fy===F-1&&fuOK(r)&&(CM==='full'||r.d-s<=T)).map(r=>r._h2||(r._h2={lat:r.la,lon:r.lo,prov:DIC.pv[r.pv],amp:DIC.am[r.am],tam:String(DIC.tm[r.tm]||'').split('|')[0]}))}
 function cmpRows(){const A=areaRows(fyPts()),B=areaRows(prvPts()),m=new Map(),key=r=>r.full||r.name;
  A.forEach(r=>m.set(key(r),{...r,p:0}));B.forEach(r=>{const k=key(r),a=m.get(k);if(a)a.p=r.n;else m.set(k,{...r,p:r.n,n:0})});
  return[...m.values()].sort((a,b)=>(a.out||0)-(b.out||0)||b.n-a.n||b.p-a.p)}
