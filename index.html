@@ -188,8 +188,16 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 .hb em{font-style:normal;color:var(--mut);text-align:right}.hb.off{opacity:.45}.hb.on span{font-weight:800;color:var(--fire)}
 .chs{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}.ch{border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:3px 10px;min-height:30px;font-size:12px}.ch em{font-style:normal;color:var(--mut)}
 .ch.on{background:var(--sel);border-color:var(--navy);font-weight:800;color:var(--navy)}.ch.off{opacity:.55}
+/* ตัวเลือกประเภทพื้นที่/ช่วงเวลา/การจัดการเชื้อเพลิง: แถวเดียว ปุ่มกว้างเท่ากัน ชื่อบน ตัวเลขล่าง (ผู้ใช้ขอให้กระชับ) */
+.chs.r1{flex-wrap:nowrap;gap:4px}.chs.r1 .ch{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3px 2px;border-radius:12px;line-height:1.3;text-align:center}@media(max-width:767px){.chs.r1 .ch{font-size:11.5px}}
+.chs.r1 .ch span{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chs.r1 em{font-size:11px}
 #h-ins{margin:4px 0;padding-left:18px;font-size:12.5px}#h-ins li{margin:4px 0}
-.pbr{display:flex;align-items:center;gap:8px}.pbr .btn{min-height:34px;padding:0 10px;box-shadow:none;border:1px solid var(--line)}
+.pbr{display:flex;align-items:center;gap:8px}
+#pbf{position:fixed;z-index:6;left:16px;right:16px;bottom:calc(36px + env(safe-area-inset-bottom));width:auto;max-width:640px;margin:0 auto;padding:8px 12px 10px;border-radius:16px}
+#pbf[hidden]{display:none}
+.pbh{display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:13px}.pbh b{flex:none;color:var(--navy)}.pbh .sm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pbh .cb{flex:none}.pbo{display:flex;align-items:center;gap:6px;margin-top:6px}.pbo .sm{flex:none}.pbo .seg{margin:0;flex:4}.pbo .seg+.sm+.seg{flex:3}.pbo .seg button{min-height:30px;font-size:12px}
+@media(max-width:767px){#pbf{bottom:calc(34vh + 8px);padding:6px 10px 8px}.pbo{flex-wrap:wrap;row-gap:4px}.pbo .seg{flex:1 1 calc(100% - 60px)}}.pbr .btn{min-height:34px;padding:0 10px;box-shadow:none;border:1px solid var(--line)}
 .md{position:fixed;inset:0;background:rgba(10,20,50,.45);z-index:40;display:grid;place-items:center;padding:12px}
 .mc{background:var(--bg);color:var(--ink);border-radius:22px;width:min(520px,100%);max-height:88vh;overflow:auto;box-shadow:var(--sh)}
 .mh{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg)}.mh b{flex:1;font-size:17px;color:var(--navy)}.mb{padding:14px 16px}
@@ -269,17 +277,13 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div class="hq"><b>จังหวัด</b></div><div id="c-pv"></div>
   <div class="hq"><b>อำเภอที่พบมาก</b><span class="sm">8 อันดับแรก</span></div><div id="c-am"></div>
   <div class="hq"><b>ตำบลที่พบมาก</b><span class="sm">8 อันดับแรก</span></div><div id="c-tm"></div>
-  <div class="hq"><b>ประเภทพื้นที่</b></div><div class="chs" id="c-ld"></div>
-  <div class="hq"><b>ช่วงเวลาที่ดาวเทียมตรวจพบ</b></div><div class="chs" id="c-hg"></div>
-  <div class="hq"><b>การจัดการเชื้อเพลิง / สถานะ</b></div><div class="chs" id="c-fu"></div>
+  <div class="hq"><b>ประเภทพื้นที่</b></div><div class="chs r1" id="c-ld"></div>
+  <div class="hq"><b>ช่วงเวลาที่ดาวเทียมตรวจพบ</b></div><div class="chs r1" id="c-hg"></div>
+  <div class="hq"><b>การจัดการเชื้อเพลิง / สถานะ</b></div><div class="chs r1" id="c-fu"></div>
   <div class="hq"><b>แสดงบนแผนที่</b></div>
   <div class="seg" id="h-md"><button data-v="pt">จุด</button><button data-v="cl">Cluster</button><button data-v="heat">ความหนาแน่น</button></div>
   <div class="seg" id="h-co"><button data-v="fy">สีตามปีงบ</button><button data-v="ld">ประเภทพื้นที่</button><button data-v="fu">การจัดการเชื้อเพลิง</button></div><div class="sm" id="h-lg" style="margin-top:4px"></div>
-  <div class="hq" id="pb"><b>เล่นย้อนตามวัน</b><a class="lnk" id="pb-x" role="button" tabindex="0">ออกจากโหมดเล่น</a></div>
-  <div class="pbr"><button class="btn" id="pb-p">▶ เล่น</button><input type="range" id="pb-s" min="0" max="0" value="0" step="1" style="flex:1" aria-label="เลื่อนดูตามวัน"></div>
-  <div class="sm" id="pb-d" style="margin:4px 0"></div>
-  <div class="sm">แสดงย้อนหลัง</div><div class="seg" id="pb-w"><button data-v="1">1 วัน</button><button data-v="3">3 วัน</button><button data-v="7">7 วัน</button><button data-v="30">30 วัน</button></div>
-  <div class="sm">ความเร็วเล่น</div><div class="seg" id="pb-sp"><button data-v="1">×1</button><button data-v="2">×2</button><button data-v="4">×4</button></div>
+  <div class="hq"><b>เล่นย้อนตามวัน</b></div><button class="btn" id="pb-o" style="width:100%;box-shadow:none;border:1px solid var(--line)">▶ ย้อนดูการลามของไฟ</button>
   <div class="hq"><b>ข้อสังเกตจากข้อมูลที่กรอง</b></div><ul id="h-ins"></ul>
   <div class="sm" id="h-dq" style="margin-top:8px"></div>
   <div class="btns" style="margin:12px 0 0"><button class="btn" id="h-csv" style="box-shadow:none;border:1px solid var(--line)">ส่งออก CSV ที่กรอง</button></div>
@@ -393,6 +397,12 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div style="display:none"></div></div>
 </section>
 <div id="hint">คลิกจุดความร้อนหรือตำแหน่งใดบนแผนที่ เพื่อดูสภาพอากาศ พิกัด และเส้นทางนำทาง</div>
+<!-- แผงเล่นย้อนตามวัน ลอยด้านล่างแผนที่ (เปิดจากปุ่ม "ย้อนดูการลามของไฟ") ตำแหน่งจัดโดย pbPos() -->
+<div class="card" id="pbf" hidden role="region" aria-label="ย้อนดูการลามของไฟ">
+ <div class="pbh"><b>ย้อนดูการลามของไฟ</b><span class="sm" id="pb-d"></span><button class="cb ib" id="pb-x" aria-label="ออกจากโหมดเล่น" title="ออกจากโหมดเล่น"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+ <div class="pbr"><button class="btn" id="pb-p">▶ เล่น</button><input type="range" id="pb-s" min="0" max="0" value="0" step="1" style="flex:1" aria-label="เลื่อนดูตามวัน"></div>
+ <div class="pbo"><span class="sm">ย้อนหลัง</span><div class="seg" id="pb-w"><button data-v="1">1 วัน</button><button data-v="3">3 วัน</button><button data-v="7">7 วัน</button><button data-v="30">30 วัน</button></div><span class="sm">ความเร็ว</span><div class="seg" id="pb-sp"><button data-v="1">×1</button><button data-v="2">×2</button><button data-v="4">×4</button></div></div>
+</div>
 <nav id="ctl" aria-label="ปุ่มควบคุมแผนที่">
  <button class="cb" id="bLoc" aria-label="ตำแหน่งของฉัน"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
  <button class="cb" id="bAqi" aria-label="สลับการแสดงสถานีวัดฝุ่น"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="9" cy="10" r="1"/><circle cx="14" cy="9" r="1"/><circle cx="12" cy="14" r="1"/></svg></button>
@@ -531,7 +541,7 @@ const areaHtml=g=>{let s='';if(g.cons)s+=`<b>${esc(g.cons.properties.name)}</b><
  return s||'<span class="sm">อยู่นอกพื้นที่อนุรักษ์และพื้นที่รับผิดชอบไฟป่าตามไฟล์แนวเขต</span><br>'};
 
 /* ---------- สถานะ + จำค่าที่ผู้ใช้เลือก ---------- */
-let S={base:'natural',img:'google',d3:false,hot:true,prov:true,cons:true,resp:false,stn:false,wpt:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:false,demo:false,water:true,road:true,wind:false,pm:false,dry:false,hist:false};
+let S={base:'natural',img:'google',d3:false,hot:true,prov:true,cons:true,resp:false,stn:false,wpt:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,demo:false,water:true,road:true,wind:false,pm:false,dry:false,hist:false};
 try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;if(S.base==='road')S.base='detail';
 const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2200)};
 const thTime=d=>new Date(d).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'});
@@ -1285,7 +1295,9 @@ function vbars(id,k,vals,lab){const m=hcount(k),mx=Math.max(1,...vals.map(v=>m.g
  tx(id,vals.map(v=>{const n=m.get(v)||0;return`<button class="vb${cls2(k,v)}" data-k="${k}" data-v="${v}" title="${esc(lab(v))}: ${nf(n)} จุด (${pctOf(n,T)}%)"><em>${n?nf(n)+'<br>('+pctOf(n,T)+'%)':''}</em><i style="height:${n?`max(3px,calc((100% - 40px)*${(n/mx).toFixed(3)}))`:'0'};${k==='fy'?'background:'+fyColor(v):''}"></i><span>${esc(lab(v))}</span></button>`}).join('')+(k==='fy'&&vals.length?(a=>`<div class="avl" style="bottom:calc(14px + (100% - 40px)*${Math.min(1,a.v/mx).toFixed(3)})" title="ค่าเฉลี่ยต่อปีงบ ${a.ys.length} ปี"><span>เฉลี่ย ${nf(a.v)}</span></div>`)(hAvg(m)):''))}
 function hbars(id,k,lab,limit){const m=hcount(k),T=tot(m);let vals=[...new Set([...m.keys(),...HF[k]])].sort((a,b)=>(m.get(b)||0)-(m.get(a)||0));if(limit)vals=vals.filter((v,i)=>i<limit||HF[k].has(v));const mx=Math.max(1,...vals.map(v=>m.get(v)||0));
  tx(id,vals.map(v=>{const n=m.get(v)||0;return`<button class="hb${cls2(k,v)}" data-k="${k}" data-v="${v}" title="${esc(lab(v))}"><span>${esc(lab(v))}</span><b><i style="width:${n/mx*100}%"></i></b><em>${nf(n)} (${pctOf(n,T)}%)</em></button>`}).join('')||'<div class="sm">ไม่มีข้อมูล</div>')}
-function chips(id,k,vals,lab){const m=hcount(k),T=tot(m);tx(id,vals.map(v=>`<button class="ch${cls2(k,v)}" data-k="${k}" data-v="${v}">${esc(lab(v))} <em>${nf(m.get(v)||0)} (${pctOf(m.get(v)||0,T)}%)</em></button>`).join(''))}
+// ชื่อย่อบนปุ่ม (ชื่อเต็มอยู่ใน title)
+const CHS={'การจัดการเชื้อเพลิง':'จัดการเชื้อเพลิง','ตรวจสอบแล้วไม่พบไฟ':'ตรวจสอบไม่พบไฟ'};
+function chips(id,k,vals,lab){const m=hcount(k),T=tot(m);tx(id,vals.map(v=>`<button class="ch${cls2(k,v)}" data-k="${k}" data-v="${v}" title="${esc(lab(v))}"><span>${esc(CHS[lab(v)]||lab(v))}</span><em>${nf(m.get(v)||0)} (${pctOf(m.get(v)||0,T)}%)</em></button>`).join(''))}
 const by=(F,f)=>{const m=new Map();F.forEach(r=>{const v=f(r);m.set(v,(m.get(v)||0)+1)});return[...m].sort((a,b)=>b[1]-a[1])};
 function insights(F){const n=F.length,N=HB().length,o=[];if(!n)return['ไม่มีจุดความร้อนตรงกับตัวกรองนี้'];const pc=x=>Math.round(100*x/n),pp=c=>`${nf(c)} จุด (${pc(c)}%)`;
  const fy=by(F,r=>r.fy);o.push(`ปีงบ ${fy[0][0]} พบมากสุด ${pp(fy[0][1])}`+(fy.length>1?` · น้อยสุดปีงบ ${fy.at(-1)[0]} ${pp(fy.at(-1)[1])}`:''));
@@ -1367,10 +1379,18 @@ function pbStop(){clearInterval(PB.tm);PB.tm=0;$('#pb-p').textContent='▶ เ�
 function pbPlay(){if(PB.tm)return pbStop();if(!PB.days.length)return toast('ไม่มีข้อมูลตามตัวกรอง');PB.on=true;if(PB.i>=PB.days.length-1)PB.i=0;$('#pb-p').textContent='⏸ หยุด';
  PB.tm=setInterval(()=>{if(PB.i>=PB.days.length-1){pbStop();return}PB.i++;$('#pb-s').value=PB.i;hMap(hfilt())},Math.round(450/PB.sp))}
 function pbExit(){pbStop();PB.on=false;hMap(hfilt())}
+// แผงลอยวางระหว่างการ์ดซ้ายกับปุ่มควบคุมแผนที่ ถ้าที่ไม่พอวางเหนือปุ่มควบคุมแทน
+function pbPos(){const f=$('#pbf');if(f.hidden)return;const W=innerWidth,mob=W<768,c=$('#ctl').getBoundingClientRect(),hc=$('#hcard');
+ let l=mob||!HOPEN||hc.hidden?12:hc.getBoundingClientRect().right+12,r=W-c.left+12,b='';
+ if(W-l-r<(mob?220:420)){r=12;if(!mob)b=(innerHeight-c.top+10)+'px';else l=12}
+ Object.assign(f.style,{left:l+'px',right:r+'px',bottom:b})}
+function pbOpen(){$('#pbf').hidden=false;pbPos();hRender()}
+function pbClose(){pbExit();$('#pbf').hidden=true}
+addEventListener('resize',pbPos);
 /* --- เปิด/ปิดการ์ด --- */
 function hOpen(play){HOPEN=true;$('#left').classList.add('hm');$('#pcard').hidden=true;$('#hcard').hidden=false;S.hist=true;apply();if(!hOpen.done)hDef();hRender();if(!hOpen.done){hOpen.done=1;hFit()}
- if(play)setTimeout(()=>$('#pb').scrollIntoView({block:'nearest',behavior:RM?'auto':'smooth'}),50)}
-function hClose(){HOPEN=false;pbExit();$('#left').classList.remove('hm');$('#hcard').hidden=true;$('#pcard').hidden=false;$('#bHide span').textContent='ซ่อนรายการ';S.hist=false;apply()} // ปิดการ์ด = ซ่อนจุดความร้อนย้อนหลังด้วย
+ if(play)pbOpen()}
+function hClose(){HOPEN=false;pbClose();$('#left').classList.remove('hm');$('#hcard').hidden=true;$('#pcard').hidden=false;$('#bHide span').textContent='ซ่อนรายการ';S.hist=false;apply()} // ปิดการ์ด = ซ่อนจุดความร้อนย้อนหลังด้วย
 
 /* ---------- ประวัติบริเวณจุดไฟ จากข้อมูลย้อนหลัง (ใช้ในแผงรายละเอียด) ---------- */
 function kmTo(la,lo,r){const k=Math.cos(la*Math.PI/180);return Math.hypot((r.lo-lo)*111.32*k,(r.la-la)*110.57)}
@@ -1388,13 +1408,13 @@ function fillHist(h){const nr=nearestHist(h.lat,h.lon),near=[];for(const r of HD
  tx('hx-n',n2?'ประมาณจากจุดย้อนหลังในไฟล์ Excel (ไม่ใช่การหาตำแหน่งในแนวเขตจริง)':'ไม่เคยพบจุดย้อนหลังในรัศมี 2 กม. ซึ่งไม่ได้แปลว่าไม่มีความเสี่ยง (ข้อมูลย้อนหลังเป็นจุดจากดาวเทียมเท่านั้น)')}
 $('#hx-m').onclick=()=>{S.hist=true;apply();hRender();toast('เปิดชั้นจุดความร้อนย้อนหลังแล้ว')};
 $('#bStat').onclick=()=>HOPEN?hClose():hOpen();$('#bPlay').onclick=()=>hOpen(true);$('#hs-o').onclick=()=>hOpen();$('#h-x').onclick=hClose;
-$('#bHide').onclick=()=>{const t=HOPEN?$('#hcard'):$('#pcard'),h=t.hidden=!t.hidden;$('#bHide span').textContent=h?'แสดงรายการ':'ซ่อนรายการ'};
+$('#bHide').onclick=()=>{const t=HOPEN?$('#hcard'):$('#pcard'),h=t.hidden=!t.hidden;$('#bHide span').textContent=h?'แสดงรายการ':'ซ่อนรายการ';pbPos()};
 $('#hcard').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;const k=b.dataset.k,v=Number(b.dataset.v);HF[k].has(v)?HF[k].delete(v):HF[k].add(v);if(PB.on)PB.i=0;hRender()});
 $('#h-rs').onclick=()=>{hDef();hRender()};
 $('#h-per').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;HF.fy.clear();hPerYs(+b.dataset.v).forEach(y=>HF.fy.add(y));if(PB.on)PB.i=0;hRender()};
 $$('#h-md button').forEach(b=>b.onclick=()=>{HM.mode=b.dataset.v;hRender()});$$('#h-co button').forEach(b=>b.onclick=()=>{HM.color=b.dataset.v;hRender()});
 $$('#pb-w button').forEach(b=>b.onclick=()=>{PB.w=+b.dataset.v;hRender()});$$('#pb-sp button').forEach(b=>b.onclick=()=>{PB.sp=+b.dataset.v;if(PB.tm){pbStop();pbPlay()}hRender()});
-$('#pb-p').onclick=pbPlay;$('#pb-x').onclick=pbExit;$('#pb-s').oninput=e=>{PB.i=+e.target.value;PB.on=true;pbStop();hMap(hfilt())};
+$('#pb-p').onclick=pbPlay;$('#pb-x').onclick=pbClose;$('#pb-o').onclick=pbOpen;$('#pb-s').oninput=e=>{PB.i=+e.target.value;PB.on=true;pbStop();hMap(hfilt())};
 $('#h-fit').onclick=hFit;
 $('#h-csv').onclick=()=>{const F=hfilt(),q=v=>'"'+String(v).replace(/"/g,'""')+'"',hh=['ปีงบประมาณ','ว/ด/ป','เวลา','LAT','LONG','ตำบล','อำเภอ','จังหวัด','ประเภทป่าอนุรักษ์','ประเภทป่าในพื้นที่อนุรักษ์','การจัดการเชื้อเพลิง','สถานีควบคุมไฟป่าที่รับผิดชอบ','สำนักบริหารพื้นที่อนุรักษ์ที่รับผิดชอบ','Link Google Map'];
  const t=[hh.join(',')].concat(F.map(r=>{const[y,m,d]=ymd(r.d),[tb,am]=DIC.tm[r.tm].split('|');return[r.fy,`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`,String(Math.floor(r.t/100)).padStart(2,'0')+':'+String(r.t%100).padStart(2,'0'),r.la,r.lo,q(tb),q(am),q(DIC.pv[r.pv]),q(DIC.ar[r.ar]),q(DIC.ld[r.ld]),q(DIC.fu[r.fu]),q(DIC.st[r.st]),q(DIC.sb[r.sb]),'http://maps.google.com/maps?q='+r.la+','+r.lo].join(',')})).join('\r\n');
