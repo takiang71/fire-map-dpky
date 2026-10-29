@@ -257,7 +257,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div class="hh"><b class="ht">สถิติจุดความร้อนย้อนหลัง</b><button class="hp" id="h-fit" aria-label="ซูมไปที่ข้อมูลที่กรอง" title="ซูมไปที่ข้อมูลที่กรอง"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4M11 8v6M8 11h6"/></svg>ซูม</button><button class="hp" id="h-rs" hidden aria-label="รีเซ็ตตัวกรอง">รีเซ็ต</button><button class="cb ib" id="h-x" aria-label="ปิดการ์ดสถิติ"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="sm hsub">ข้อมูลจากดาวเทียม ตัวชี้วัดกรมอุทยานฯ Suomi NPP (ตั้งแต่ 2 พ.ย. 69 ใช้ NOAA-20) ระบบ VIIRS · <span id="h-rng"></span></div></div>
   <div class="seg" id="h-per" role="group" aria-label="ช่วงปีงบที่แสดง"><button data-v="3">3 ปีย้อนหลัง</button><button data-v="5">5 ปีย้อนหลัง</button><button data-v="0">ทุกปี</button></div><div class="sm" id="h-pern"></div>
   <div class="kp" id="h-kp"></div>
-  <div class="sm" style="margin-top:6px">คลิกแท่งหรือป้ายในกราฟเพื่อกรอง (เลือกได้หลายค่า) แผนที่อัปเดตทันที · กดปุ่ม "ซูม" ด้านบนเพื่อซูมไปที่ข้อมูลที่กรอง</div>
+  <div class="sm" style="margin-top:6px">คลิกแท่งหรือป้ายในกราฟเพื่อกรอง (เลือกได้หลายค่า) แผนที่อัปเดตทันที · กดปุ่ม "ซูม" ด้านบนเพื่อซูมไปที่ข้อมูลที่กรอง · ค่าเริ่มต้นไม่รวมจุดที่มีการจัดการเชื้อเพลิงและตรวจสอบแล้วไม่พบไฟ (คลิกป้ายในหมวด "การจัดการเชื้อเพลิง / สถานะ" เพื่อดูทั้งหมด)</div>
   <div class="hq"><b>ปีงบประมาณ</b></div><div class="vc" id="c-fy"></div>
   <div class="hq"><b>เดือน</b><span class="sm">เรียงตามปีงบประมาณ ต.ค.→ก.ย.</span></div><div class="vc" id="c-mo"></div>
   <div class="hq"><b>สำนักบริหารพื้นที่อนุรักษ์ที่รับผิดชอบ</b></div><div id="c-sb"></div>
@@ -1260,11 +1260,12 @@ const hfilt=()=>HD.filter(r=>pass(r));
 const cls2=(k,v,m)=>`${HF[k].has(v)?' on':HF[k].size?' off':''}`;
 const FYP=['#e6194b','#4363d8','#f58231','#911eb4','#00a6a6','#f032e6','#8b5a2b','#111827','#808000','#ff1493','#1e90ff','#b8860b']; // สีต่างกันชัดเจนในแต่ละปีงบ
 const fyList=()=>[...new Set(HD.map(r=>r.fy))].sort((a,b)=>a-b),fyColor=y=>FYP[Math.max(0,fyList().indexOf(y))%FYP.length];
-/* ค่าเริ่มต้นตัวกรอง: ไม่กรอง (ข้อมูล Excel มีแค่ราษฎรทำกิน + ป่าคงสภาพ) · แท็บช่วงปี = ปีงบที่ครบแล้ว N ปีล่าสุด (ไม่รวมปีงบปัจจุบัน) */
+/* ค่าเริ่มต้นตัวกรอง: การจัดการเชื้อเพลิง/สถานะ = "ไม่มี" (ไม่รวมจุดที่จัดการเชื้อเพลิงและตรวจสอบแล้วไม่พบไฟ — ผู้ใช้กำหนด 29 ต.ค. 69) · แท็บช่วงปี = ปีงบที่ครบแล้ว N ปีล่าสุด (ไม่รวมปีงบปัจจุบัน) */
 const hPerYs=n=>{const c=fyOfDay(thDay()),L=fyList().filter(y=>y<c);return n?L.slice(-n):[]};
 const sameSet=(a,b)=>a.size===b.length&&b.every(v=>a.has(v));
-function hDef(){Object.values(HF).forEach(s=>s.clear())}
-const hIsDef=()=>Object.values(HF).every(s=>!s.size);
+const hFuDef=()=>[DIC.fu.indexOf('ไม่มี')].filter(i=>i>=0);
+function hDef(){Object.values(HF).forEach(s=>s.clear());hFuDef().forEach(i=>HF.fu.add(i))}
+const hIsDef=()=>Object.entries(HF).every(([k,s])=>k==='fu'?sameSet(s,hFuDef()):!s.size);
 const tot=m=>[...m.values()].reduce((a,b)=>a+b,0)||1,pctOf=(n,t)=>Math.round(100*n/t);
 // ปีงบที่ใช้หาค่าเฉลี่ย: ปีที่เลือกไว้ ถ้าไม่เลือก = ทุกปีงบที่จบแล้ว (ไม่รวมปีงบปัจจุบันที่ยังไม่ครบปี)
 const hAvgYs=()=>{if(HF.fy.size)return[...HF.fy];const c=fyOfDay(thDay()),L=fyList(),d=L.filter(y=>y<c);return d.length?d:L},
