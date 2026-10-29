@@ -874,7 +874,11 @@ function dtCSV(){const R=dtRows(),q=v=>/[",\n]/.test(v=String(v==null?'':v))?'"'
  const t=['ลำดับ,วันที่,เวลา,ดาวเทียม,ความเชื่อมั่น,ละติจูด,ลองจิจูด,ตำบล,อำเภอ,จังหวัด,พื้นที่อนุรักษ์,สถานีควบคุมไฟป่า,สำนักบริหารพื้นที่อนุรักษ์,ข้อมูลตัวอย่าง,Google Maps'].concat(R.map((r,i)=>[i+1,iso(r.d),hhmmTh(r.t),SATN[r.sat]||r.sat,r.cf,r.la.toFixed(5),r.lo.toFixed(5),r.tm,r.am,r.pv,r.ar,r.st,r.sb||'',r.demo?'ใช่':'',`https://www.google.com/maps?q=${r.la.toFixed(5)},${r.lo.toFixed(5)}`].map(q).join(',')));
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+t.join('\r\n')],{type:'text/csv;charset=utf-8'}));a.download=`hotspots_DPKY_${DT.rg}${AF?'_'+AF.full.replace(/^สถานีควบคุมไฟป่า|\s|[()]/g,''):''}_${iso(thDay()).replace(/-/g,'')}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);toast('ดาวน์โหลด '+nf(R.length)+' จุดแล้ว')}
 // ภาพแผนที่ปัจจุบัน (เฉพาะชั้น WebGL: แผนที่ฐาน แนวเขต จุดความร้อน — ไม่รวมป้าย DOM)
-const mapSnap=async()=>{try{return map.getCanvas().toDataURL('image/jpeg',.88)}catch(e){return null}};
+// จัดแผนที่ให้กลุ่มป่าอยู่กลางภาพ (ไม่เว้นที่ให้แผงซ้าย/ล่าง ผู้ใช้ขอ 29 ต.ค. 69) แล้วคืนมุมมองเดิม
+const mapSnap=async()=>{try{const c={center:map.getCenter(),zoom:map.getZoom(),bearing:map.getBearing(),pitch:map.getPitch(),padding:map.getPadding()};
+ map.jumpTo({padding:{top:0,bottom:0,left:0,right:0}});map.fitBounds(HOME,{padding:24,bearing:0,pitch:0,duration:0});map.triggerRepaint();
+ await new Promise(r=>{const t=setTimeout(r,8000);map.once('idle',()=>{clearTimeout(t);r()})});
+ const u=map.getCanvas().toDataURL('image/jpeg',.88);map.jumpTo(c);return u}catch(e){return null}};
 async function buildReport(){const R=dtRows(),img=await mapSnap(),now=Date.now(),cnt=k=>{const m={};R.forEach(r=>{const v=k(r)||'ไม่ระบุ';m[v]=(m[v]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])};
  const tb=(h,E)=>`<table><thead><tr><th>${h}</th><th>จุด</th></tr></thead><tbody>${E.map(([k,v])=>`<tr><td>${esc(k)}</td><td class="n">${nf(v)}</td></tr>`).join('')||'<tr><td colspan="2">–</td></tr>'}</tbody></table>`;
  const sv=$('#p-ch svg'),chart=sv?sv.outerHTML.replace(/<line id="p-x"[^>]*\/?>(<\/line>)?/,''):'',demo=R.some(r=>r.demo)||!$('#p-smp').hidden||HS.some(h=>h.demo&&ageH(h)<24);
@@ -883,7 +887,7 @@ async function buildReport(){const R=dtRows(),img=await mapSnap(),now=Date.now()
  <h2>1. ภาพรวม</h2><div class="pk">${$('#p-kp').innerHTML}</div>
  <div class="rg"><div><b>${esc($('#p-cq').textContent)}</b> <span>(${esc($('#p-asof').textContent)})</span>${$('#p-cmp').innerHTML}<div style="margin-top:6px">${$('#p-yr').innerHTML}</div></div><div><div class="plg">${$('#p-lg').innerHTML}</div>${chart}</div></div>
  ${img?`<h2>2. แผนที่ ณ เวลาออกรายงาน</h2><img class="mp" src="${img}" alt="แผนที่">`:''}
- <h2>${img?3:2}. สรุปตามพื้นที่ (${esc(dtLabel())} · ${nf(R.length)} จุด)</h2><div class="r3">${tb('จังหวัด',cnt(r=>r.pv))}${tb('สบอ.',cnt(r=>r.sb&&sbShort(r.sb)))}${tb('พื้นที่อนุรักษ์',cnt(r=>paShort(r.ar)))}${tb('สถานีควบคุมไฟป่า',cnt(r=>r.st.replace(/^สถานีควบคุมไฟป่า\s*/,'')))}</div>
+ <h2>${img?3:2}. สรุปตามพื้นที่ (${esc(dtLabel())} · ${nf(R.length)} จุด)</h2><div class="r3">${tb('จังหวัด',cnt(r=>r.pv))}${tb('สบอ.',cnt(r=>r.sb&&sbShort(r.sb)))}${tb('พื้นที่อนุรักษ์',cnt(r=>paShort(r.ar)))}${tb('สถานีควบคุมไฟป่า',cnt(r=>r.st==='ไม่มี'?NOST:r.st.replace(/^สถานีควบคุมไฟป่า\s*/,'')))}</div>
  <h2>${img?4:3}. รายละเอียดจุดความร้อน</h2><table class="dl"><thead><tr><th>#</th><th>วันที่ เวลา</th><th>ดาวเทียม</th><th>ความเชื่อมั่น</th><th>ตำบล / อำเภอ / จังหวัด</th><th>พื้นที่อนุรักษ์</th><th>สถานีฯ</th><th>ละติจูด, ลองจิจูด</th></tr></thead><tbody>${R.map((r,i)=>`<tr><td class="n">${i+1}</td><td>${dShort(r.d)} ${hhmmTh(r.t)}</td><td>${SATN[r.sat]||esc(r.sat)}${r.demo?' (ตัวอย่าง)':''}</td><td>${esc(r.cf)}</td><td>${esc([r.tm,r.am,r.pv].filter(v=>v&&v!=='ไม่ระบุ').join(' / ')||'ไม่ระบุ')}</td><td>${esc(paShort(r.ar))}</td><td>${esc(r.st.replace(/^สถานีควบคุมไฟป่า\s*/,''))}</td><td>${r.la.toFixed(5)}, ${r.lo.toFixed(5)}</td></tr>`).join('')||'<tr><td colspan="8">ไม่พบจุดความร้อนในช่วงนี้</td></tr>'}</tbody></table>
  <div class="ft">แหล่งข้อมูล: Land Fire Alerts Thailand (WFSRU/ThaiREN) ระบบ VIIRS · ข้อมูลย้อนหลังกรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช · แนวเขตจากไฟล์ KMZ ของ สบอ.1 · ตัวชี้วัด: Suomi NPP (ตั้งแต่ ${dShort(IND_SW)} ใช้ NOAA-20)</div>`;
  await Promise.all([...$('#rpt').querySelectorAll('img')].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})));return R.length}
@@ -1276,6 +1280,7 @@ let AD=[],ADI=null;
 // สบอ. ของฐานข้อมูลย้อนหลัง (Excel กรมอุทยานฯ) แยกตามจังหวัดที่เกิดจุด (ผู้ใช้กำหนด) — hdata ต้นฉบับไม่แก้
 HD.forEach(r=>{const s=SBP[DIC.pv[r.pv]];if(s)r.sb=hid('sb',s)});
 const shortSb=n=>n.replace('สำนักบริหารพื้นที่อนุรักษ์ที่ ','สบอ.'),shortSt=n=>n.replace('สถานีควบคุมไฟป่า','สถานีฯ ');
+const NOST='พื้นที่ไม่มีสถานีฯไฟป่ารับผิดชอบ',stLab=n=>n==='ไม่มี'?NOST:shortSt(n).trim(); // จุดนอกแปลงรับผิดชอบสถานีฯ (ผู้ใช้กำหนดคำ 29 ต.ค. 69)
 const shortAr=n=>n.replace('อุทยานแห่งชาติ','อช.').replace('เขตรักษาพันธุ์สัตว์ป่า','ขสป.').replace('เขตห้ามล่าสัตว์ป่า','ขหล.').replace(' (เตรียมการ)','*');
 const tmName=i=>{const[a,b]=DIC.tm[i].split('|');return a+(b?' ('+b+')':'')};
 /* --- ตัวกรอง: เซตว่าง = ไม่กรอง · นับแต่ละกราฟโดยไม่รวมตัวกรองของมันเอง (cross-filter) --- */
@@ -1309,7 +1314,9 @@ function insights(F){const n=F.length,N=HB().length,o=[];if(!n)return['ไม่
  const mo=by(F,r=>r.mo);o.push(`เดือนที่พบมากสุดคือ ${MON[mo[0][0]]} ${pp(mo[0][1])} · 3 เดือนสูงสุด (${mo.slice(0,3).map(x=>MON[x[0]]).join(' ')}) รวม ${pp(mo.slice(0,3).reduce((a,x)=>a+x[1],0))}`);
  const ar=by(F,r=>r.ar);o.push(`พื้นที่อนุรักษ์ที่พบมากสุด: ${shortAr(DIC.ar[ar[0][0]])} ${pp(ar[0][1])}`+(ar[1]?` · รองลงมา ${shortAr(DIC.ar[ar[1][0]])} ${pp(ar[1][1])}`:''));
  const pv=by(F,r=>r.pv),am=by(F,r=>r.am),tm=by(F,r=>r.tm);o.push(`จังหวัด${DIC.pv[pv[0][0]]} ${pp(pv[0][1])} · อำเภอ${DIC.am[am[0][0]]} ${pp(am[0][1])} · ตำบล${tmName(tm[0][0])} ${pp(tm[0][1])}`);
- const st=by(F,r=>r.st),no=DIC.st.indexOf('ไม่มี'),ns=F.filter(r=>r.st===no).length,st1=st.find(x=>x[0]!==no);if(st1)o.push(`สถานีควบคุมไฟป่าที่รับผิดชอบพื้นที่ที่พบมากสุด: ${shortSt(DIC.st[st1[0]])} ${pp(st1[1])}`+(ns?` · พื้นที่ที่ไม่มีสถานีรับผิดชอบ ${pp(ns)}`:''));
+ const st=by(F,r=>r.st),no=DIC.st.indexOf('ไม่มี'),ns=F.filter(r=>r.st===no).length,st1=st.find(x=>x[0]!==no);
+ if(ns&&st[0][0]===no)o.push(`พบมากสุดใน${NOST} ${pp(ns)}`+(st1?` · รองลงมา ${shortSt(DIC.st[st1[0]]).trim()} ${pp(st1[1])}`:''));
+ else if(st1)o.push(`สถานีควบคุมไฟป่าที่รับผิดชอบพื้นที่ที่พบมากสุด: ${shortSt(DIC.st[st1[0]]).trim()} ${pp(st1[1])}`+(ns?` · ${NOST} ${pp(ns)}`:''));
  const ri=DIC.ld.indexOf('พื้นที่ราษฎรทำกิน');if(ri>=0){const a=F.filter(r=>r.ld===ri).length,b=HB().filter(r=>r.ld===ri).length;o.push(`อยู่ในพื้นที่ราษฎรทำกิน ${pp(a)} · ภาพรวมทั้งชุดข้อมูล (${Math.round(100*b/N)}%)`)}
  const nt=F.filter(r=>!r.hg).length;o.push(`ตรวจพบรอบกลางคืน (00-05 น.) ${pp(nt)} · กลางวัน ${pp(n-nt)}`);
  const ys=fy.map(x=>x[0]).sort((a,b)=>a-b);if(ys.length>=2){const a=ys.at(-2),b=ys.at(-1),ca=fy.find(x=>x[0]===a)[1],cb=fy.find(x=>x[0]===b)[1];o.push(`เทียบปีงบ ${a}→${b}: ${cb>=ca?'เพิ่มขึ้น':'ลดลง'} ${nf(Math.abs(cb-ca))} จุด (${Math.round(Math.abs(cb-ca)/ca*100)}%) จาก ${nf(ca)} เป็น ${nf(cb)} จุด`)}
@@ -1329,7 +1336,7 @@ function kpiCards(F){const n=F.length,N=HB().length,ix=(k,v)=>DIC[k].indexOf(v),
  return`<div><b>${nf(n)}</b><span>จุด (${N?Math.round(100*n/N):0}% ของ ${nf(N)})</span></div><div title="ปีงบ ${ys.join(', ')}"><b>${nf(av.v)}</b><span>จุดเฉลี่ยต่อปีงบ (${ys.length>1?ys.length+' ปี':'ปีงบ '+ys[0]})</span></div><div${n?` data-k="mo" data-v="${mo[0]}" class="${HF.mo.has(mo[0])?'on':''}" title="คลิกเพื่อกรองแผนที่เฉพาะเดือนนี้ · คลิกซ้ำเพื่อยกเลิก"`:''}><b>${n?MON[mo[0]]:'–'}</b><span>เดือนสูงสุด${n?' ('+Math.round(100*mo[1]/n)+'%)':''}</span></div>`
  +six('พื้นที่รับผิดชอบ สบอ. (รายจังหวัด)',top(F,r=>r.sb),v=>shortSb(DIC.sb[v]),'sb')
  +six('พื้นที่อนุรักษ์พบสูงสุด',top(F,r=>r.ar),v=>DIC.ar[v],'ar')
- +six('สถานีฯไฟป่าพบสูงสุด',top(F.filter(r=>r.st!==ns),r=>r.st),v=>shortSt(DIC.st[v]).trim(),'st')
+ +(t=>t&&t[0]===ns?six('พบสูงสุด (จำแนกตามสถานีฯ)',t,()=>NOST,'st'):six('สถานีฯไฟป่าพบสูงสุด',t,v=>shortSt(DIC.st[v]).trim(),'st'))(top(F,r=>r.st))
  +six('จังหวัดพบสูงสุด',top(F,r=>r.pv),v=>'จ.'+DIC.pv[v],'pv')
  +six('อำเภอพบสูงสุด',top(F,r=>r.am),v=>'อ.'+DIC.am[v],'am')
  +six('ตำบลพบสูงสุด',top(F,r=>r.tm),v=>'ต.'+DIC.tm[v].split('|')[0],'tm')}
@@ -1337,7 +1344,7 @@ function hRender(){const F=hfilt(),N=HB().length,fys=fyList();xdyBtns();
  tx('h-kp',kpiCards(F));
  tx('h-rng',HD.length?`ปีงบ ${fys[0]}–${fys.at(-1)}`:'');
  vbars('c-fy','fy',fys,v=>String(v).slice(2));vbars('c-mo','mo',[...Array(12).keys()],v=>MON[v]);
- hbars('c-sb','sb',v=>shortSb(DIC.sb[v]));hbars('c-ar','ar',v=>shortAr(DIC.ar[v]));hbars('c-st','st',v=>shortSt(DIC.st[v]));hbars('c-pv','pv',v=>DIC.pv[v]);hbars('c-am','am',v=>DIC.am[v],8);hbars('c-tm','tm',tmName,8);
+ hbars('c-sb','sb',v=>shortSb(DIC.sb[v]));hbars('c-ar','ar',v=>shortAr(DIC.ar[v]));hbars('c-st','st',v=>stLab(DIC.st[v]));hbars('c-pv','pv',v=>DIC.pv[v]);hbars('c-am','am',v=>DIC.am[v],8);hbars('c-tm','tm',tmName,8);
  chips('c-ld','ld',[...DIC.ld.keys()],v=>DIC.ld[v]);chips('c-hg','hg',[0,1],v=>v?'กลางวัน (06-18 น.)':'กลางคืน (00-05 น.)');chips('c-fu','fu',[...DIC.fu.keys()],v=>DIC.fu[v]);
  tx('h-lg',HM.color==='fy'?'สีจุดตามปีงบ: '+fys.map(y=>`<span class="yd"><i style="background:${fyColor(y)}"></i>${y}</span>`).join(''):'สีจุด: '+DIC[HM.color].map((v,i)=>`<span class="yd"><i style="background:${(HM.color==='ld'?ldColor:fuColor)(i)}"></i>${esc(v)}</span>`).join(''));tx('h-ins',insights(F).map(t=>`<li>${esc(t)}</li>`).join(''));tx('h-dq',dq());tx('hs-t',nf(N)+' จุด');
  $('#h-rs').hidden=hIsDef();
@@ -1423,7 +1430,7 @@ $('#pb-p').onclick=pbPlay;$('#pb-x').onclick=pbClose;$('#pb-o').onclick=pbOpen;$
 $('#h-fit').onclick=hFit;
 /* --- ตารางรายละเอียด · CSV · รายงาน PDF ของสถิติย้อนหลัง (ตามตัวกรองปัจจุบัน hfilt) --- */
 const HFN={fy:'ปีงบ',mo:'เดือน',sb:'สบอ.',ar:'พื้นที่อนุรักษ์',st:'สถานีฯ',pv:'จังหวัด',am:'อำเภอ',tm:'ตำบล',ld:'ประเภทพื้นที่',hg:'ช่วงเวลา',fu:'การจัดการเชื้อเพลิง'};
-const hfv=(k,v)=>k==='fy'?v:k==='mo'?MON[v]:k==='hg'?(v?'กลางวัน':'กลางคืน'):k==='tm'?tmName(v):k==='sb'?shortSb(DIC.sb[v]):k==='ar'?shortAr(DIC.ar[v]):k==='st'?shortSt(DIC.st[v]).trim():DIC[k][v];
+const hfv=(k,v)=>k==='fy'?v:k==='mo'?MON[v]:k==='hg'?(v?'กลางวัน':'กลางคืน'):k==='tm'?tmName(v):k==='sb'?shortSb(DIC.sb[v]):k==='ar'?shortAr(DIC.ar[v]):k==='st'?stLab(DIC.st[v]):DIC[k][v];
 const hLabel=()=>{const a=Object.keys(HFN).filter(k=>HF[k].size).map(k=>HFN[k]+' '+[...HF[k]].sort((x,y)=>x-y).map(v=>hfv(k,v)).join(', '));if(S.xdy)a.push('ไม่รวม ขสป.ดงใหญ่');return a.join(' · ')||'ทุกจุด'};
 const hRows=()=>hfilt().sort((a,b)=>b.d-a.d||b.t-a.t),hLoc=r=>{const[tb,am]=String(DIC.tm[r.tm]||'').split('|');return[tb,am||DIC.am[r.am],DIC.pv[r.pv]].filter(Boolean).join(' / ')};
 function openHTable(){const R=hRows(),M=300;
@@ -1443,7 +1450,7 @@ async function buildHReport(){const F=hRows(),RL=500,img=await mapSnap(),cnt=f=>
  <h2>1. ภาพรวม (${nf(F.length)} จุด)</h2><div class="kp">${$('#h-kp').innerHTML}</div>
  <div class="rg"><div><b>จุดความร้อนรายปีงบประมาณ</b>${rBars(fys.map(y=>[y,fc.get(y)||0]),y=>y,'#D93A1F')}</div><div><b>จุดความร้อนรายเดือน (ต.ค.–ก.ย.)</b>${rBars(mc.map((v,i)=>[i,v]),i=>MON[i],'#3E6FD8')}</div></div>
  ${img?`<h2>2. แผนที่จุดความร้อนตามตัวกรอง</h2><img class="mp" src="${img}" alt="แผนที่">`:''}
- <h2>${img?3:2}. สรุปตามพื้นที่</h2><div class="r3">${tb('จังหวัด',cnt(r=>DIC.pv[r.pv]))}${tb('สบอ.',cnt(r=>shortSb(DIC.sb[r.sb]||'')))}${tb('พื้นที่อนุรักษ์',cnt(r=>paShort(DIC.ar[r.ar])))}${tb('สถานีควบคุมไฟป่า',cnt(r=>shortSt(DIC.st[r.st]||'').trim()))}</div>
+ <h2>${img?3:2}. สรุปตามพื้นที่</h2><div class="r3">${tb('จังหวัด',cnt(r=>DIC.pv[r.pv]))}${tb('สบอ.',cnt(r=>shortSb(DIC.sb[r.sb]||'')))}${tb('พื้นที่อนุรักษ์',cnt(r=>paShort(DIC.ar[r.ar])))}${tb('สถานีควบคุมไฟป่า',cnt(r=>stLab(DIC.st[r.st]||'')))}</div>
  <div class="r3" style="margin-top:8px">${tb('ประเภทพื้นที่',cnt(r=>DIC.ld[r.ld]))}${tb('การจัดการเชื้อเพลิง / สถานะ',cnt(r=>DIC.fu[r.fu]))}${tb('ช่วงเวลา',cnt(r=>r.hg?'กลางวัน (06-18 น.)':'กลางคืน (00-05 น.)'))}${tb('อำเภอ (10 อันดับแรก)',cnt(r=>DIC.am[r.am]+' ('+DIC.pv[r.pv]+')').slice(0,10))}</div>
  <h2>${img?4:3}. ข้อสังเกตจากข้อมูล</h2><ul>${insights(F).map(t=>`<li>${esc(t)}</li>`).join('')}</ul>
  <h2>${img?5:4}. รายละเอียดจุดความร้อน</h2>${F.length>RL?`<div>มี ${nf(F.length)} จุด มากกว่า ${RL} จุด จึงไม่แสดงรายการในรายงาน — ดาวน์โหลด CSV จากการ์ดสถิติเพื่อดูทั้งหมด หรือกรองให้แคบลง</div>`:`<table class="dl"><thead><tr><th>#</th><th>วันที่ เวลา</th><th>ปีงบ</th><th>ตำบล / อำเภอ / จังหวัด</th><th>พื้นที่อนุรักษ์</th><th>สถานีฯ</th><th>ประเภทพื้นที่</th><th>เชื้อเพลิง/สถานะ</th><th>ละติจูด, ลองจิจูด</th></tr></thead><tbody>${F.map((r,i)=>`<tr><td class="n">${i+1}</td><td>${dShort(r.d)} ${hhmmTh(r.t)}</td><td>${r.fy}</td><td>${esc(hLoc(r))}</td><td>${esc(paShort(DIC.ar[r.ar]))}</td><td>${esc(shortSt(DIC.st[r.st]).trim())}</td><td>${esc(DIC.ld[r.ld])}</td><td>${esc(DIC.fu[r.fu])}</td><td>${r.la.toFixed(5)}, ${r.lo.toFixed(5)}</td></tr>`).join('')||'<tr><td colspan="9">ไม่มีจุดความร้อนตรงกับตัวกรองนี้</td></tr>'}</tbody></table>`}
