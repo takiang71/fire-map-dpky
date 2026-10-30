@@ -11,3 +11,5 @@ node_modules/
 ~$*
 # ไฟล์ต้นฉบับขนาดใหญ่จากกรมป่าไม้ (shapefile ป่าไม้ .rar ~350 MB + รายงาน PDF) — scripts/build_ftype.js อ่านจากที่นี่ ผลอยู่ใน data/ftype/
 data/ข้อมูลโครงการ*/
+# MAP_KEY ของ NASA FIRMS (scripts/lib/firms.js) — ห้าม commit
+.firms_key

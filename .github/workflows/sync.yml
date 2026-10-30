@@ -25,7 +25,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      # API ไทยขัดข้อง → เติมจาก NASA FIRMS (7 วันล่าสุดไม่ต้องใช้ key · เก่ากว่านั้นใช้ secret FIRMS_KEY ถ้าตั้งไว้)
       - run: node scripts/sync_hotspots.js
+        env:
+          FIRMS_KEY: ${{ secrets.FIRMS_KEY }}
       # ข้อมูลจากระบบตามรอยเผา (ออกสัปดาห์ละครั้ง/เดือนละครั้ง ส่วนใหญ่ไม่มีอะไรใหม่) — ช้าหรือพลาดก็ไม่ให้กระทบการ commit จุดความร้อน
       # พื้นที่เผาไหม้ราย 7 วัน + รายเดือน/รายฤดูแยกป่า-เกษตร
       - run: node scripts/sync_burn.js
