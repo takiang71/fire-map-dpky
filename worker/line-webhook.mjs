@@ -150,7 +150,13 @@ const BURN = '#A3171B', VIO = '#7C3AED', nf = v => Math.round(v).toLocaleString(
 const dYMD = s => Date.UTC(+s.slice(0, 4), +s.slice(4, 6) - 1, +s.slice(6, 8));
 const stShort = n => n === 'ไม่มี' ? 'ไม่มีสถานีฯ รับผิดชอบ' : n.replace('สถานีควบคุมไฟป่า', 'สถานีฯ ');
 export const burnLab = bs => { const a = dateTh(dYMD(bs.d0)), b = dateTh(dYMD(bs.d1)); return bs.d0.slice(0, 6) === bs.d1.slice(0, 6) ? a.replace(/ \S+ \S+$/, '') + '–' + b : a.replace(/ \S+$/, '') + ' – ' + b };
-export function burnCard(bs, { site = SITE0, test = false } = {}) {
+// เพดาน 50 KB: ถ้าเกิน 48,000 ไบต์ ลดบรรทัดที่ไหม้มากสุดในการ์ดรายพื้นที่ 3 → 1 (ตำบล) → 0 (กรณีหนักสุดสมมติแบบ 3 บรรทัด = 49.7 KB)
+export function burnCard(bs, o = {}) {
+  let m;
+  for (const lv of [3, 1, 0]) { m = burnBuild(bs, { ...o, lv }); if (bytes(m) < 48000) break }
+  return m;
+}
+function burnBuild(bs, { site = SITE0, test = false, lv = 3 } = {}) {
   const lab = burnLab(bs), pct = (r, h) => r ? Math.round(h / r * 100) : 0, P = pct(bs.rai, bs.hs), Z = { rai: 0, hs: 0, fy: 0, m: Array(12).fill(0), st: {}, tm: {} };
   const rows = [...AREAS.map(a => [a.s, bs.ar[a.k] || 0, a.c]), ['นอกเขตอนุรักษ์', bs.ar[OUT] || 0, '#9E9E9E']].filter(r => r[1] > 0), mx = Math.max(1, ...rows.map(r => r[1]));
   const row = (n, v, c, m) => B('horizontal', [T(n, { size: 'xxs', color: '#333333', flex: 5 }), B('vertical', [hbar(v, m, c)], { flex: 6 }), T(rai(v), { size: 'xxs', weight: 'bold', align: 'end', flex: 3 })], { alignItems: 'center', margin: 'xs', spacing: 'sm' });
@@ -177,13 +183,15 @@ export function burnCard(bs, { site = SITE0, test = false } = {}) {
   // ใบ 2–7: รายพื้นที่อนุรักษ์ (ไม่รวม ขสป.ดงใหญ่) — พื้นที่ที่มีรอยเผารอบนี้มากกว่าขึ้นก่อน
   const order = AREAS.map((a, i) => ({ a, i, X: (bs.areas || {})[a.k] || Z })).sort((x, y) => y.X.rai - x.X.rai || x.i - y.i);
   const cards = order.map(({ a, X }) => {
-    const p = pct(X.rai, X.hs), sts = Object.entries(X.st || {}).sort((x, y) => y[1] - x[1]).slice(0, 3), smx = Math.max(1, ...sts.map(s => s[1])), [t1] = Object.entries(X.tm || {}).sort((x, y) => y[1] - x[1]);
+    const p = pct(X.rai, X.hs), sts = Object.entries(X.st || {}).sort((x, y) => y[1] - x[1]).slice(0, 3), smx = Math.max(1, ...sts.map(s => s[1]));
+    // จังหวัด/อำเภอ/ตำบลที่ไหม้มากสุดในพื้นที่ — บรรทัดข้อความละชิ้น (ไม่ใช้ \n ใน span ที่ไม่แน่ใจว่า LINE ขึ้นบรรทัดให้) (ผู้ใช้เลือก 30 ต.ค. 69 แทนไทล์ที่ทำให้กรณีหนักสุดเกิน 50 KB)
+    const t1 = o => Object.entries(o || {}).sort((x, y) => y[1] - x[1])[0], tops = [['จังหวัด', t1(X.pv), ([p]) => 'จ.' + p], ['อำเภอ', t1(X.am), ([a, p]) => `อ.${a} จ.${p}`], ['ตำบล', t1(X.tm), ([t, a, p]) => `ต.${t} อ.${a} จ.${p}`]].slice(3 - lv).filter(x => x[1]);
     return {
       type: 'bubble', size: 'mega',
       header: head(a.s, (a.n || a.k) + ` · รอยเผาไหม้ รอบ ${lab}`, a.c),
       body: B('vertical', [
         B('horizontal', [tile(rai(X.rai), 'ไร่ รอบนี้', X.rai ? BURN : '#222222'), tile(X.rai ? p + '%' : '–', 'มีจุดความร้อนใกล้'), tile(nf(X.fy), `ไร่ สะสมปีงบ ${bs.fy}`)], { spacing: 'sm' }),
-        ...(t1 ? [T('x', { size: 'xxs', margin: 'sm', wrap: true, contents: [{ type: 'span', text: 'ตำบลที่ไหม้มากสุด ', weight: 'bold', color: '#444444' }, { type: 'span', text: (([tb, am, pv]) => `ต.${tb} อ.${am} จ.${pv}`)(t1[0].split('|')) + ` (${rai(t1[1])} ไร่)`, color: MUT }] })] : []),
+        ...tops.map(([l, [k, v], f], i) => T('x', { size: 'xxs', wrap: true, ...(i ? {} : { margin: 'sm' }), contents: [{ type: 'span', text: l + 'ที่ไหม้มากสุด ', weight: 'bold', color: '#444444' }, { type: 'span', text: `${f(k.split('|'))} (${rai(v)} ไร่)`, color: MUT }] })),
         sub('รายเดือน (ไร่ · รวมรายรอบ)', [[a.c, `ปีงบ ${bs.fy}`]]),
         ...months(X.m || Z.m, null, a.c, 24),
         sub('ตามพื้นที่รับผิดชอบสถานีฯ รอบนี้ (ไร่)'),

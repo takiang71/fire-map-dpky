@@ -2,7 +2,7 @@
 // ตัดดงใหญ่ด้วยกติกาเดียวกับการแจ้งเตือน LINE (ชื่อพื้นที่อนุรักษ์หรือสถานีฯ มีคำว่า "ดงใหญ่")
 // "มีจุดความร้อนใกล้" = จุดใน adata (ทุกดาวเทียม) ห่างแถวพิกเซลไม่เกิน 1 กม. วันที่ใน [วันแรกของรอบ − 10, วันสุดท้ายของรอบ] — ตรรกะเดียวกับ bnHot ในหน้าเว็บ
 // ชื่อ จังหวัด/อำเภอ/ตำบล จากกลางแถวพิกเซลใน data/admin.json (scripts/build_admin.js) · ไม่มีไฟล์ = ไม่มีส่วนนี้
-// areas[ชื่อพื้นที่อนุรักษ์] = { rai, hs, fy (สะสมปีงบไม่นับซ้ำ), m[12] (ไร่รายเดือน ต.ค.–ก.ย. รวมรายรอบ), st {สถานีฯ: ไร่}, tm {"ตำบล|อำเภอ|จังหวัด": ไร่} }
+// areas[ชื่อพื้นที่อนุรักษ์] = { rai, hs, fy (สะสมปีงบไม่นับซ้ำ), m[12] (ไร่รายเดือน ต.ค.–ก.ย. รวมรายรอบ), st {สถานีฯ: ไร่}, pv/am/tm {ชื่อ: ไร่} (อันดับ 1 เท่านั้น) }
 const fs = require('fs'), path = require('path');
 const { utmToLL } = require('./tiff');
 const { ROOT, block } = require('./area');
@@ -12,6 +12,7 @@ const day = s => Date.UTC(+s.slice(0, 4), +s.slice(4, 6) - 1, +s.slice(6, 8)) / 
 const fyOf = d => { const t = new Date(d * 864e5); return t.getUTCFullYear() + 543 + (t.getUTCMonth() >= 9 ? 1 : 0) };
 const mid = p => Math.floor((day(p.d0) + day(p.d1)) / 2), moOf = d => (new Date(d * 864e5).getUTCMonth() + 3) % 12; // ต.ค. = 0
 const r2 = v => Math.round(v * 100) / 100, add = (o, k, v) => { o[k] = (o[k] || 0) + v };
+const top1 = o => { const [x] = Object.entries(o).sort((a, b) => b[1] - a[1]); return x ? { [x[0]]: r2(x[1]) } : {} };
 const sortObj = o => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, r2(v)]).sort((a, b) => b[1] - a[1]));
 
 // แถวพิกเซลของไฟล์รอบหนึ่ง → [{G, g, y, x, n, v, a, s}]
@@ -49,7 +50,7 @@ function burnSummary(dir = path.join(ROOT, 'data', 'burn')) {
   // จุดความร้อนในช่วงเวลาของรอบ
   let hot = [];
   try { const j = JSON.parse(block('adata')[1]); hot = j.r.filter(r => r[0] >= d0 && r[0] <= d1).map(r => [r[3] / 1e5, r[2] / 1e5]) } catch (e) {}
-  const A = {}, area = n => A[n] = A[n] || { rai: 0, hs: 0, fy: 0, m: Array(12).fill(0), st: {}, tm: {} };
+  const A = {}, area = n => A[n] = A[n] || { rai: 0, hs: 0, fy: 0, m: Array(12).fill(0), st: {}, pv: {}, am: {}, tm: {} };
   const ar = {}, st = {}, pv = {}, am = {}, tm = {}; let t = 0, th = 0;
   for (const o of runs(file(L))) {
     if (ex(o.a, o.s)) continue;
@@ -59,7 +60,7 @@ function burnSummary(dir = path.join(ROOT, 'data', 'burn')) {
     t += r; if (near) th += r; add(ar, an, r); add(st, sn, r);
     X.rai += r; if (near) X.hs += r; add(X.st, sn, r);
     const a = adm && adm((lo0 + lo1) / 2, (la0 + la1) / 2);
-    if (a) { add(pv, a.p, r); add(am, a.a + '|' + a.p, r); add(tm, a.t + '|' + a.a + '|' + a.p, r); add(X.tm, a.t + '|' + a.a + '|' + a.p, r) }
+    if (a) { add(pv, a.p, r); add(am, a.a + '|' + a.p, r); add(tm, a.t + '|' + a.a + '|' + a.p, r); add(X.pv, a.p, r); add(X.am, a.a + '|' + a.p, r); add(X.tm, a.t + '|' + a.a + '|' + a.p, r) }
   }
   // สะสมทั้งปีงบ (ไม่นับซ้ำพิกเซลที่ไหม้หลายรอบ) + รายเดือนต่อพื้นที่อนุรักษ์ (ผลรวมรายรอบ)
   const F = fyOf(mid(L)), FP = P.filter(p => fyOf(mid(p)) === F), seen = new Set(), M = Array(12).fill(0); let n = 0;
@@ -71,7 +72,7 @@ function burnSummary(dir = path.join(ROOT, 'data', 'burn')) {
       for (let j = 0; j < o.n; j++) { const k = o.g + '|' + (o.y * 8192 + o.x + j); if (!seen.has(k)) { seen.add(k); n++; X.fy += RAI } }
     }
   }
-  const areas = Object.fromEntries(Object.entries(A).map(([k, X]) => [k, { rai: r2(X.rai), hs: r2(X.hs), fy: r2(X.fy), m: X.m.map(Math.round), st: sortObj(X.st), tm: Object.fromEntries(Object.entries(sortObj(X.tm)).slice(0, 5)) }]));
+  const areas = Object.fromEntries(Object.entries(A).map(([k, X]) => [k, { rai: r2(X.rai), hs: r2(X.hs), fy: r2(X.fy), m: X.m.map(Math.round), st: sortObj(X.st), pv: top1(X.pv), am: top1(X.am), tm: top1(X.tm) }]));
   const top = o => Object.fromEntries(Object.entries(sortObj(o)).slice(0, 10));
   const BNG = ['47PQR', '47PQS', '47PRR', '47PRS', '48PTA', '48PUA'];
   return { generated: new Date().toISOString(), p: L.p, d0: L.d0, d1: L.d1, rai: r2(t), hs: r2(th), radius_m: R_M,
