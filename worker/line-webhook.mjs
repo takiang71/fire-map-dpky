@@ -111,7 +111,7 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
       B('horizontal', [T('รวม', { flex: 9, weight: 'bold' }), T(String(all.fy), { flex: 2, align: 'end', weight: 'bold', color: RED }), T(String(all.prv), { flex: 2, align: 'end', weight: 'bold', color: BLUE }), T(dt, { flex: 3, align: 'end', weight: 'bold', color: dc })].map(x => ({ ...x, size: 'xxs' })), { margin: 'sm', spacing: 'sm' }),
       sub('รายเดือน', [[RED, String(fy)], [BLUE, String(fy - 1)]]),
       ...months(all.m, all.pm),
-      T(`ไม่รวม ขสป.ดงใหญ่ · ปีก่อนไม่รวมจุดจัดการเชื้อเพลิง/ไม่พบไฟ${quotaLeft != null ? ` · แจ้งเตือนได้อีก ~${quotaLeft} ครั้ง` : ''}`, { size: 'xxs', color: MUT, margin: 'sm', wrap: true }),
+      T(`ไม่รวม ขสป.ดงใหญ่ · ปีก่อนไม่รวมจุดจัดการเชื้อเพลิง/ไม่พบไฟ${fy === 2570 ? ' · ตั้งแต่ 2 พ.ย. 69 ตัวชี้วัดใช้ NOAA-20 แทน SNPP (ปีก่อน = SNPP)' : ''}${quotaLeft != null ? ` · แจ้งเตือนได้อีก ~${quotaLeft} ครั้ง` : ''}`, { size: 'xxs', color: MUT, margin: 'sm', wrap: true }),
     ], { paddingAll: '10px' }),
     footer: footer(site),
   };
