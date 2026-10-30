@@ -342,6 +342,9 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
    <div class="lgd" style="display:flex;flex-wrap:wrap;column-gap:12px"><div><i style="background:#e10000"></i>สูงมาก</div><div><i style="background:#e17d00"></i>สูง</div><div><i style="background:#ffe100"></i>ปานกลาง</div><div><i style="background:#00e100"></i>ต่ำ</div><div><i style="background:#005000"></i>ต่ำมาก</div></div>
    <div id="fu-a"></div>
    <p class="note" style="margin-left:0">ดัชนีพืชพรรณปรับค่าดิน (SAVI) รายเดือน ความละเอียด 20 ม. จากระบบ<a href="https://tamroypao.hii.or.th/" target="_blank" rel="noopener">ตามรอยเผา</a> (สสน.) จัดระดับตามต้นทาง: ค่า SAVI ต่ำ (พืชพรรณโปร่ง แห้ง หรือดินโล่ง) = ระดับสูง · ค่าสูง (พืชพรรณเขียวหนาแน่น) = ระดับต่ำ · ใช้ดูความต่อเนื่องของเชื้อเพลิงและวางแผนแนวกันไฟ · บริเวณไม่มีสีในแนวเขต = ไม่มีข้อมูล (เช่น เมฆ) · แผนที่แสดงทุกพื้นที่ ตัวเลขเป็นไปตามปุ่ม "ไม่รวม ขสป.ดงใหญ่" · ต้นทางมีเฉพาะบางเดือน</p></div>
+  <div class="row"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="9" height="14" style="fill:#38a800;stroke:none"/><rect x="12" y="5" width="9" height="7" style="fill:#a87000;stroke:none"/><rect x="12" y="12" width="9" height="7" style="fill:#e69800;stroke:none"/></svg><b>ชนิดป่า</b><span class="tag">2568</span><button class="sw" data-k="ftype" role="switch" aria-label="ชนิดป่า"></button></div>
+  <div id="ftbox" hidden><div id="ft-a"></div>
+   <p class="note" style="margin-left:0">ชนิดป่าจากภาพแผนที่รายจังหวัดใน<a href="https://forestinfo.forest.go.th/" target="_blank" rel="noopener">โครงการจัดทำข้อมูลสภาพพื้นที่ป่าไม้และชนิดป่า ปี พ.ศ. 2568</a> (กรมป่าไม้) ตั้งพิกัดจากเส้นกริด UTM ในภาพแล้วตัดตามขอบเขตพื้นที่ป่าไม้ 2568 (shapefile) · ความละเอียด 100 ม. แต่เส้นแบ่งระหว่างชนิดป่าหยาบตามภาพต้นทาง 90–290 ม. · ส่วนที่ภาพบอกไม่ได้ (ใต้ป้ายชื่อ ขอบภาพ) ใช้ชนิดที่ใกล้สุดในผืนป่าเดียวกัน — แตะแผนที่เพื่อดูว่าเป็นค่าประมาณหรือไม่ · ใช้จำแนกพื้นที่และเลือกเชื้อเพลิงให้โมเดลไฟ ไม่ใช่ตัวเลขพื้นที่ทางการ · ตัวเลขเป็นไปตามปุ่ม "ไม่รวม ขสป.ดงใหญ่"</p></div>
   <h3>แนวเขต</h3>
   <div class="row"><svg class="i" viewBox="0 0 24 24"><path d="M3 12h18"/></svg><b>จังหวัด</b><button class="sw" data-k="prov" role="switch" aria-label="เส้นแนวเขตจังหวัด"></button></div>
   <p class="note">แนวเขตจากแผนที่ฐาน (แบบธรรมชาติ/ดาวเทียมไม่มีเส้นนี้) · แนวเขตทางการ 77 จังหวัดมาเฟสถัดไป</p>
@@ -556,7 +559,7 @@ const areaHtml=g=>{let s='';if(g.cons)s+=`<b>${esc(g.cons.properties.name)}</b><
  return s||'<span class="sm">อยู่นอกพื้นที่อนุรักษ์และพื้นที่รับผิดชอบไฟป่าตามไฟล์แนวเขต</span><br>'};
 
 /* ---------- สถานะ + จำค่าที่ผู้ใช้เลือก ---------- */
-let S={base:'natural',img:'google',d3:false,hot:true,prov:true,cons:true,resp:false,stn:false,wpt:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,demo:false,water:true,road:true,wind:false,pm:false,dry:false,hist:false,burn:false,fuel:false,amp:false,tam:false};
+let S={base:'natural',img:'google',d3:false,hot:true,prov:true,cons:true,resp:false,stn:false,wpt:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,demo:false,water:true,road:true,wind:false,pm:false,dry:false,hist:false,burn:false,fuel:false,ftype:false,amp:false,tam:false};
 try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;if(S.base==='road')S.base='detail';
 const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2200)};
 const thTime=d=>new Date(d).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'});
@@ -658,7 +661,7 @@ function setup(){ // เรียกทุกครั้งที่สลั�
  map.addSource('resp',{type:'geojson',data:GEO.resp});
  map.addLayer({id:'resp-f',type:'fill',source:'resp',paint:{'fill-color':['get','sc'],'fill-opacity':.07}});
  map.addLayer({id:'resp-l',type:'line',source:'resp',paint:{'line-color':['get','sc'],'line-width':2.6,'line-dasharray':[3,1.6]}});
- setupBN();setupFU();setupAD();setup3();setup4();
+ setupBN();setupFU();setupFT();setupAD();setup3();setup4();
  map.addSource('fx',{type:'geojson',data:FXD});
  map.addLayer({id:'fx-cf',type:'fill',source:'fx',filter:['==',['get','k'],'cone'],paint:{'fill-color':'#6b7280','fill-opacity':.16}});
  map.addLayer({id:'fx-cl',type:'line',source:'fx',filter:['==',['get','k'],'cone'],paint:{'line-color':'#4b5563','line-width':1.6,'line-dasharray':[3,2]}});
@@ -689,7 +692,7 @@ function apply(){
   if(/^park$|protected|national_park/.test(s)){set(l.id,false);return}
   if(/boundary/.test(s))set(l.id,S.prov);else if(/water/.test(s))set(l.id,S.water);else if(/transportation|aeroway/.test(s))set(l.id,S.road)});
  try{map.setTerrain(S.d3?{source:'dem',exaggeration:1.4}:null)}catch(e){} // ก่อนสไตล์โหลดเสร็จจะ throw — setup() เรียก apply() อีกครั้งหลังโหลด
- L3();L4();LB();LF();LA();sync();
+ L3();L4();LB();LF();LFT();LA();sync();
 }
 function sync(){
  $$('.sw[data-k]').forEach(b=>b.setAttribute('aria-checked',!!S[b.dataset.k]));
@@ -736,7 +739,7 @@ function renderLeft(){
 function satBtns(){xdyBtns();const A=[...LIVE,...(S.demo&&DEMO?DEMO:[])].filter(h=>(loadedAt-h.t)/H<24&&xLive(h)),n=k=>A.filter(h=>satKey(h.sat)===k).length;
  $$('[data-sats]').forEach(e=>e.innerHTML=['SNPP','NOAA20','NOAA21'].map(k=>`<button data-sat="${k}" aria-pressed="${S.sats[k]!==false}" title="${k==='SNPP'?'Suomi NPP หยุดส่งข้อมูล 2 พ.ย. 69 · ':''}จุดใน 24 ชม."><i></i>${SATN[k]} <em>${n(k)}</em></button>`).join(''))}
 function xdyBtns(){$$('[data-xdy]').forEach(e=>e.innerHTML=`<button aria-pressed="${!!S.xdy}" title="ขสป.ดงใหญ่สังกัด สบอ.7 (นครราชสีมา) · กดเพื่อดูเฉพาะพื้นที่อนุรักษ์ในสังกัด สบอ.1 (ปราจีนบุรี) · มีผลกับแผนที่ การ์ด ตาราง และสถิติย้อนหลัง"><i></i>ไม่รวม ขสป.ดงใหญ่ (สบอ.7)</button>`)}
-document.addEventListener('click',e=>{if(!e.target.closest('[data-xdy] button'))return;S.xdy=!S.xdy;refreshHS();if(HOPEN)hRender();if($('#dt-w'))dtRender();LB();LF()});
+document.addEventListener('click',e=>{if(!e.target.closest('[data-xdy] button'))return;S.xdy=!S.xdy;refreshHS();if(HOPEN)hRender();if($('#dt-w'))dtRender();LB();LF();LFT()});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-sat]');if(!b)return;const k=b.dataset.sat,on=S.sats[k]!==false;
  if(on&&Object.values(S.sats).filter(v=>v!==false).length<=1)return toast('ต้องเลือกอย่างน้อย 1 ดวง');S.sats={...S.sats,[k]:!on};refreshHS()});
 /* ---------- การ์ดสรุปจุดความร้อน: ตัวเลขหลัก · เทียบปีงบก่อน (ประวัติจริงจาก hdata) · รายการแยกพื้นที่ ---------- */
@@ -961,7 +964,8 @@ map.on('click',e=>{
  const hf=S.hist&&map.queryRenderedFeatures(e.point,{layers:['hist-c','histc-p'].filter(id=>map.getLayer(id))})[0];if(hf){histPopup(hf);return}
  const g0=geoAt(e.lngLat.lng,e.lngLat.lat);
  const{lat,lng}=e.lngLat,ll=lat.toFixed(5)+', '+lng.toFixed(5);
- const pop=new maplibregl.Popup({maxWidth:'270px'}).setLngLat(e.lngLat).setHTML(`${areaHtml(g0)}${bnAt(e.lngLat)}<b>พิกัด</b> ${ll}<br><div class="sm pw" style="margin:4px 0">กำลังดึงสภาพอากาศ…</div><span class="sm pt0">กำลังหาชื่อตำบล…</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}">นำทางด้วย Google Maps</a>`).addTo(map);
+ const pop=new maplibregl.Popup({maxWidth:'270px'}).setLngLat(e.lngLat).setHTML(`${areaHtml(g0)}${bnAt(e.lngLat)}<span class="pft"></span><b>พิกัด</b> ${ll}<br><div class="sm pw" style="margin:4px 0">กำลังดึงสภาพอากาศ…</div><span class="sm pt0">กำลังหาชื่อตำบล…</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}">นำทางด้วย Google Maps</a>`).addTo(map);
+ ftLoad().then(()=>{const f=ftAt(lng,lat),el=pop.getElement()&&pop.getElement().querySelector('.pft');if(el&&f)el.innerHTML='<b>ชนิดป่า</b> '+ftTxt(f)+'<br>'}).catch(()=>{});
  admLoad().then(()=>{const a=admAt(lng,lat),el=pop.getElement()&&pop.getElement().querySelector('.pt0');if(el)el.innerHTML=a?'<b>'+esc(admTxt(a,1))+'</b>':'นอกขอบเขตข้อมูลตำบล'}).catch(()=>{const el=pop.getElement()&&pop.getElement().querySelector('.pt0');if(el)el.textContent='โหลดชื่อตำบลไม่ได้'});
  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,precipitation&wind_speed_unit=kmh`).then(r=>r.json()).then(j=>{const c=j.current,f=cbi(c.temperature_2m,c.relative_humidity_2m,c.wind_speed_10m,c.precipitation||0),l=fwiLv(f),el=pop.getElement().querySelector('.pw');
   if(el)el.innerHTML=`${nf(c.temperature_2m,1)} °C · ความชื้น ${Math.round(c.relative_humidity_2m)}%<br>ลมจากทิศ${DIRN[Math.round(c.wind_direction_10m/45)%8]} ${Math.round(c.wind_speed_10m)} กม./ชม.<br>สูง ${Math.round(j.elevation)} ม. · ไฟป่า FWI <b style="color:${DK[l]}">${nf(f,1)} ${DN[l]}</b>`}).catch(()=>{const el=pop.getElement()&&pop.getElement().querySelector('.pw');if(el)el.textContent='ดึงสภาพอากาศไม่ได้'})});
@@ -1063,14 +1067,16 @@ $('#fuel').innerHTML=FUEL.map((f,i)=>`<option value="${i}">${f.n} (${f.w} ตั
 const fuelByElev=z=>z>1000?3:z<250?1:0;
 // เลือกเชื้อเพลิงอัตโนมัติจากชนิดป่าของแปลงพื้นที่รับผิดชอบ (resp.ftype) ที่จุดอยู่ · แปลงที่มีหลายชนิด (เช่น "ป่าเบญจพรรณ/เต็งรัง") ใช้ชนิดแรก
 // เว้นแต่ความสูงชี้ชนิดอื่นในรายการ (ต่ำกว่า 250 ม. → เต็งรัง, ตั้งแต่ 500 ม. → ดิบแล้ง) · สูงกว่า 1,000 ม. = ดิบเขาเสมอ · ไม่อยู่ในแปลงใด → ตามความสูง
-const FTI={เบญจพรรณ:0,เต็งรัง:1,ดิบแล้ง:2,ดิบเขา:3,ไผ่:4};
-function fuelAt(g,z){const r=g&&(g.resp.find(f=>f.properties.ftype&&!/พื้นที่รอง/.test(f.properties.station))||g.resp.find(f=>f.properties.ftype)),ft=r?r.properties.ftype:'',
+// มีชั้นชนิดป่ากรมป่าไม้ 2568 (ftAt) → ใช้ก่อน: ดิบชื้น/บึงน้ำจืด ใช้ค่าดิบแล้ง · สวนป่า/ป่าที่ฟื้นฟูตามธรรมชาติ ใช้ค่าเบญจพรรณ · ป่าทุ่ง/ลานหิน ใช้ค่าเต็งรัง (ไฟลามตามหญ้า)
+const FTI={เบญจพรรณ:0,เต็งรัง:1,ดิบแล้ง:2,ดิบเขา:3,ไผ่:4},FTF={2:2,3:2,4:3,5:2,6:0,7:1,8:4,9:0,10:0,11:0,12:1,13:1};
+function fuelAt(g,z,f){if(f&&FTF[f.k]!=null){const i=FTF[f.k];return{i,why:'ชนิดป่า (กรมป่าไม้ 2568): '+f.n+(f.e?' (ประมาณจากป่าข้างเคียง)':'')+(FUEL[i].n.indexOf(f.n)<0?' → ใช้ค่า'+FUEL[i].n:'')}}
+ const r=g&&(g.resp.find(f=>f.properties.ftype&&!/พื้นที่รอง/.test(f.properties.station))||g.resp.find(f=>f.properties.ftype)),ft=r?r.properties.ftype:'',
  c=[...ft.matchAll(/เบญจพรรณ|เต็งรัง|ดิบแล้ง|ดิบเขา|ไผ่/g)].map(m=>FTI[m[0]]),zt=z==null?'':' · สูง '+nf(Math.round(z))+' ม.';
  if(z!=null&&z>1000)return{i:3,why:'ความสูงเกิน 1,000 ม.'+(ft?' (แปลง: '+ft+')':'')};
  if(!c.length)return z==null?{i:0,why:'ค่าเริ่มต้น (รอข้อมูลความสูง)'}:{i:fuelByElev(z),why:'ตามความสูง'+zt};
  let i=c[0];if(c.length>1&&z!=null){if(c.includes(1)&&z<250)i=1;else if(c.includes(2)&&z>=500)i=2}
  return{i,why:'ชนิดป่าของแปลง: '+ft+(c.length>1?zt:'')}}
-function fuelAuto1(z){const f=fuelAt(CUR&&CUR.geo,z);P.fuel=f.i;tx('fuel-why','เลือกอัตโนมัติ: '+f.why)}
+function fuelAuto1(z){const f=fuelAt(CUR&&CUR.geo,z,CUR&&ftAt(CUR.lon,CUR.lat));P.fuel=f.i;tx('fuel-why','เลือกอัตโนมัติ: '+f.why)}
 function syncSl(){const v=(i,val,u)=>{$('#s-'+i).value=val;tx('v-'+i,Math.round(val)+u)};v('u',P.u,' กม./ชม.');v('f',P.from,'°');v('r',P.rh,'%');v('s',P.sl,'°');$('#fuel').value=P.fuel;$$('#dur button').forEach(b=>b.classList.toggle('on',+b.dataset.h===P.hr));$$('#sm button').forEach(b=>b.classList.toggle('on',b.dataset.m===P.sm))}
 function upd(){
  if(!CUR)return;if(!ADM)admLoad().then(()=>CUR&&upd()).catch(()=>{});const an=(lo,la)=>{const a=admAt(lo,la);return a?' <span style="font-weight:400">· '+esc(admTxt(a))+'</span>':''};
@@ -1111,10 +1117,11 @@ function openDetail(h){
  map.getSource('ring').setData({type:'FeatureCollection',features:[{type:'Feature',properties:{},geometry:{type:'Point',coordinates:[h.lon,h.lat]}}]});
  map.flyTo({center:[h.lon,h.lat],zoom:11.2,duration:dur(1600),padding:{right:innerWidth>767?380:0,bottom:innerWidth>767?0:innerHeight*.35}});
  syncSl();upd();fillAq(h);
+ ftLoad().then(()=>{if(CUR===h&&fuelAuto){fuelAuto1(h.el);syncSl();upd()}}).catch(()=>{});
  if(h.ns!=='api')admLoad().then(()=>{const a=CUR===h&&admAt(h.lon,h.lat);if(!a)return;tx('d-name','ตำบล'+esc(a.t)+' อำเภอ'+esc(a.a)+' จังหวัด'+esc(a.p));tx('d-nmn',(h.demo?'จุดตัวอย่างเพื่อดูการแสดงผล · ':'')+'ชื่อพื้นที่จากแนวเขตตำบล (กรมการปกครอง ผ่าน OCHA HDX)')}).catch(()=>{});
  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${h.lat}&longitude=${h.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation&hourly=wind_speed_10m,wind_direction_10m&forecast_hours=26&wind_speed_unit=kmh`).then(r=>r.json()).then(j=>{
   if(CUR!==h||!j.current)return;const c=j.current;if(j.hourly&&j.hourly.wind_speed_10m)WS={u:j.hourly.wind_speed_10m,d:j.hourly.wind_direction_10m};Object.assign(P,{T:c.temperature_2m,rh:c.relative_humidity_2m,u:c.wind_speed_10m,from:c.wind_direction_10m});
-  if(fuelAuto)fuelAuto1(j.elevation);tx('d-el',Math.round(j.elevation)+' ม. รทก.');tx('d-wx','Open-Meteo ขณะนี้ · '+nf(c.temperature_2m,1)+' °C');syncSl();upd();fillWx(h,c)
+  h.el=j.elevation;if(fuelAuto)fuelAuto1(j.elevation);tx('d-el',Math.round(j.elevation)+' ม. รทก.');tx('d-wx','Open-Meteo ขณะนี้ · '+nf(c.temperature_2m,1)+' °C');syncSl();upd();fillWx(h,c)
  }).catch(()=>tx('d-wx','ใช้ค่าตัวอย่าง (ดึงสภาพอากาศไม่ได้)'))}
 function closeDetail(){if(!$('#dp').classList.contains('open'))return;$('#dp').classList.remove('open');CUR=null;FXD={type:'FeatureCollection',features:[]};
  const f=map.getSource('fx');f&&f.setData(FXD);PLU=BLANK;PLC=CO;const pis=map.getSource('plimg');pis&&pis.updateImage({url:PLU,coordinates:PLC});map.getLayer('fx-pi')&&map.setLayoutProperty('fx-pi','visibility','none');const r=map.getSource('ring');r&&r.setData({type:'FeatureCollection',features:[]})}
@@ -1451,6 +1458,48 @@ async function LF(){ // เรียกจาก apply() และปุ่ม�
   `<div class="sm" style="margin-top:6px">ตามพื้นที่อนุรักษ์ (% ระดับสูง–สูงมาก)</div><div class="fua">${Object.entries(ar).sort((x,y)=>(y[1][0]+y[1][1])/sum(y[1])-(x[1][0]+x[1][1])/sum(x[1])).map(([a,g])=>
    `<div><span>${esc(I.ar[a]==='นอกพื้นที่อนุรักษ์'?I.ar[a]:paShort(I.ar[a]))}</span>${bar(g)}<b>${Math.round((g[0]+g[1])/sum(g)*100)}%</b></div>`).join('')}</div>`}
 $('#fu-s').onchange=e=>{FUM=e.target.value;LF()};
+/* ---------- ชนิดป่า (กรมป่าไม้ 2568) ----------
+   scripts/build_ftype.js ประกอบภาพแผนที่ชนิดป่ารายจังหวัดในรายงาน + shapefile ป่าไม้ 2568 → data/ftype/ftype.json (กริด UTM 47N 100 ม. run-length)
+   ค่าในกริด: ชนิด (index ของ cn) | ระดับการเติม<<4 (1 = ผืนป่าเดียวกัน, 2 = ข้ามผืน) | 128 = อยู่ในแนวเขต · โหลดครั้งแรกที่ใช้ (ชั้นแผนที่ ป๊อปอัป โมเดลไฟ) */
+const FT_URL=BN_BASE.replace(/burn\/$/,'ftype/ftype.json');
+let FT=null,FTP=null;
+const ftLoad=()=>FTP||(FTP=fetch(FT_URL).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{
+ const g=new Uint8Array(j.w*j.h);j.r.forEach((row,y)=>{let x=y*j.w;for(let i=0;i<row.length;i+=2){g.fill(row[i+1],x,x+row[i]);x+=row[i]}});j.g=g;
+ const c=[[j.x0,j.y0],[j.x0+j.w*j.px,j.y0],[j.x0,j.y0-j.h*j.px],[j.x0+j.w*j.px,j.y0-j.h*j.px]].map(([E,N])=>bnLL(E,N,j.z));
+ j.bb=[Math.min(...c.map(p=>p[0])),Math.min(...c.map(p=>p[1])),Math.max(...c.map(p=>p[0])),Math.max(...c.map(p=>p[1]))];FT=j;return j}).catch(e=>{FTP=null;throw e}));
+// ลองจิจูด/ละติจูด → UTM (สูตรเดียวกับ llToUTM ใน scripts/lib/tiff.js)
+function ftUTM(lon,lat,zone){const A=6378137,F=1/298.257223563,K0=.9996,E2=F*(2-F),EP2=E2/(1-E2),R=Math.PI/180,la=lat*R,s=Math.sin(la),c=Math.cos(la),t=Math.tan(la),n=A/Math.sqrt(1-E2*s*s),T2=t*t,C=EP2*c*c,a=c*(lon-(zone*6-183))*R,
+ M=A*((1-E2/4-3*E2*E2/64-5*E2**3/256)*la-(3*E2/8+3*E2*E2/32+45*E2**3/1024)*Math.sin(2*la)+(15*E2*E2/256+45*E2**3/1024)*Math.sin(4*la)-(35*E2**3/3072)*Math.sin(6*la));
+ return[K0*n*(a+(1-T2+C)*a**3/6+(5-18*T2+T2*T2+72*C-58*EP2)*a**5/120)+5e5,K0*(M+n*t*(a*a/2+(5-T2+9*C+4*C*C)*a**4/24+(61-58*T2+T2*T2+600*C-330*EP2)*a**6/720))]}
+const ftRaw=(lon,lat)=>{const j=FT;if(!j)return 0;const [E,N]=ftUTM(lon,lat,j.z),x=Math.floor((E-j.x0)/j.px),y=Math.floor((j.y0-N)/j.px);return x<0||y<0||x>=j.w||y>=j.h?0:j.g[y*j.w+x]};
+// ชนิดป่าที่จุด → {k ชนิด, n ชื่อ, e ระดับการเติม, inb อยู่ในแนวเขต} หรือ null (ไม่ใช่ป่า/ยังไม่โหลด)
+const ftAt=(lon,lat)=>{const v=ftRaw(lon,lat),k=v&15;return k?{k,n:FT.cn[k],e:v>>4&3,inb:v>=128}:null};
+const ftTxt=f=>f?`<b style="color:${FT.col[f.k]}">■</b> ${esc(f.n)}${f.e?' <span class="sm">(ประมาณจาก'+(f.e===1?'ผืนป่าเดียวกัน':'ป่าใกล้สุด')+')</span>':''}`:'';
+// ไทล์วาดเองต่อพิกเซล (เมอร์เคเตอร์ → UTM → กริด) เฉพาะเซลล์ในแนวเขต
+maplibregl.addProtocol('ftype',async p=>{const m=p.url.match(/^ftype:\/\/(\d+)\/(\d+)\/(\d+)/),z=+m[1],tx=+m[2],ty=+m[3],j=await ftLoad(),c=bnCanvas(),g=c.getContext('2d'),W=256*2**z;
+ const lon0=tx*256/W*360-180,lon1=(tx+1)*256/W*360-180,lat=y=>Math.atan(Math.sinh(Math.PI*(1-2*y/W)))*180/Math.PI;
+ if(!(lon1<j.bb[0]||lon0>j.bb[2]||lat(ty*256)<j.bb[1]||lat(ty*256+256)>j.bb[3])){
+  const im=g.createImageData(256,256),d=im.data,rgb=j.col.map(h=>h?[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]:null);
+  for(let py=0;py<256;py++){const la=lat(ty*256+py+.5);for(let px=0;px<256;px++){const v=ftRaw(lon0+(px+.5)/256*(lon1-lon0),la);if(v<128)continue;const q=rgb[v&15],o=(py*256+px)*4;d[o]=q[0];d[o+1]=q[1];d[o+2]=q[2];d[o+3]=255}}
+  g.putImageData(im,0,0)}
+ return{data:await (await bnBlob(c)).arrayBuffer()}});
+function setupFT(){map.addSource('ftype',{type:'raster',tiles:['ftype://{z}/{x}/{y}'],tileSize:256,minzoom:6,maxzoom:13,bounds:BNB});
+ map.addLayer({id:'ftype',type:'raster',source:'ftype',layout:{visibility:'none'},paint:{'raster-opacity':.7,'raster-resampling':'nearest','raster-fade-duration':0}},map.getLayer('fuel')?'fuel':map.getLayer('burn')?'burn':'cons-l')}
+async function LFT(){ // เรียกจาก apply() และปุ่มดงใหญ่
+ const on=!!S.ftype,vis=b=>map.getLayer('ftype')&&map.setLayoutProperty('ftype','visibility',b?'visible':'none');$('#ftbox').hidden=!on;
+ if(!on){vis(false);return}
+ let j;try{j=await ftLoad()}catch(e){$('#ft-a').innerHTML='<span class="sm">โหลดข้อมูลชนิดป่าไม่สำเร็จ ('+esc(e.message)+')</span>';vis(false);return}vis(true);
+ // ไร่ต่อชนิด รวม และแยกพื้นที่อนุรักษ์ · ตัดดงใหญ่ตามปุ่ม
+ const n=j.cn.length,tot=Array(n).fill(0),ar={};
+ for(const k in j.s){const [a,st]=k.split('|').map(Number);if(S.xdy&&dyAS(j.ar[a],j.st[st]))continue;const g=ar[a]=ar[a]||Array(n).fill(0);j.s[k].forEach((v,i)=>{g[i]+=v;tot[i]+=v})}
+ const T=tot.reduce((x,y)=>x+y,0),ord=tot.map((v,i)=>[v,i]).filter(x=>x[0]).sort((a,b)=>b[0]-a[0]).map(x=>x[1]),
+  bar=g=>`<div class="fub">${ord.map(i=>g[i]?`<i style="flex:${g[i]};background:${j.col[i]}" title="${esc(j.cn[i])} ${nf(g[i])} ไร่"></i>`:'').join('')}</div>`,
+  top=g=>{const s=g.reduce((x,y)=>x+y,0),i=g.indexOf(Math.max(...g));return s?Math.round(g[i]/s*100)+'% '+j.cn[i].replace(/^ป่า/,''):''};
+ $('#ft-a').innerHTML=`<div class="bnh">พื้นที่ป่าในแนวเขต <b>${nf(T)} ไร่</b>${S.xdy?' <span class="sm">(ไม่รวม ขสป.ดงใหญ่)</span>':''}</div>${bar(tot)}`+
+  `<div class="lgd" style="display:flex;flex-wrap:wrap;column-gap:12px">${ord.map(i=>`<div><i style="background:${j.col[i]}"></i>${esc(j.cn[i])} <span class="sm">${tot[i]/T<.01?'<1':Math.round(tot[i]/T*100)}%</span></div>`).join('')}</div>`+
+  `<div class="sm" style="margin-top:6px">ตามพื้นที่อนุรักษ์ (ชนิดที่มากสุด)</div><div class="fua">${Object.entries(ar).sort((x,y)=>y[1].reduce((a,b)=>a+b,0)-x[1].reduce((a,b)=>a+b,0)).map(([a,g])=>
+   `<div><span>${esc(j.ar[a]==='นอกพื้นที่อนุรักษ์'?j.ar[a]:paShort(j.ar[a]))}</span>${bar(g)}<b style="white-space:nowrap">${esc(top(g))}</b></div>`).join('')}</div>`+
+  (j.e[0]+j.e[1]?`<div class="sm" style="margin-top:6px">ทั้งกริด (รวมป่านอกแนวเขต) เติมจากผืนป่าเดียวกัน ${nf(j.e[0])} ไร่ · จากป่าใกล้สุด ${nf(j.e[1])} ไร่</div>`:'')}
 addEventListener('resize',()=>{if(S.wind){wsz();WP.forEach(wseed)}});
 map.on('movestart',()=>{if(S.wind)wx2.clearRect(0,0,wc.width,wc.height)});
 let wt=0;map.on('moveend',()=>{if(!S.wind)return;WP.forEach(wseed);clearTimeout(wt);wt=setTimeout(loadWind,500);if(RM)wstatic()});
