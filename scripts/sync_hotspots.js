@@ -105,6 +105,22 @@ if (fs.existsSync(OUT)) store = JSON.parse(fs.readFileSync(OUT, 'utf8')).raw || 
     }
     console.log('API ขาดข้อมูล', need.length, 'วัน (' + need.slice(0, 8).map(([d, m]) => isoOf(d) + ' ' + m.join('/')).join(', ') + (need.length > 8 ? ', …' : '') + ') → เติมจาก NASA FIRMS', F.reduce((a, b) => a + b, 0), 'จุด' + (skip.length ? ' · ' + skip.join(', ') : ''));
   }
+  // --- ตัดจุดซ้ำของ API ไทย (ผู้ใช้สั่ง 30 ต.ค. 69) ---
+  // API มีจุดเดียวกัน 2 ระเบียน (unique_id ต่างกัน) เวลาต่าง 1–3 นาที ห่าง <150 หน่วย (~165 ม.) เช่น 12:39/12:40 — พบ ธ.ค. 68–มี.ค. 69 ราว 82 คู่
+  // FIRMS ไม่มีซ้ำแบบนี้ (จุดใกล้กันจริงใน FIRMS เวลาเดียวกันเสมอ) · จับคู่ใกล้สุดก่อนแบบหนึ่งต่อหนึ่ง เก็บระเบียนเวลาช้ากว่า (ตรงกับ FIRMS 62 จาก 81 คู่)
+  // ทำกับที่เก็บทั้งหมดทุกรอบ (ดึงซ้ำ 7 วันจะได้ระเบียนซ้ำกลับมา แล้วถูกตัดอีก) · ไม่แตะ hdata (Excel กรมอุทยานฯ)
+  {
+    const mn = t => Math.floor(t / 100) * 60 + t % 100, G = new Map(), P = [], drop = new Set();
+    for (const [k, r] of byId) if (r.src !== 'firms') { const g = r.d + '|' + r.sat; if (!G.has(g)) G.set(g, []); G.get(g).push([k, r]) }
+    for (const L of G.values()) for (let i = 0; i < L.length; i++) for (let j = 0; j < L.length; j++) {
+      const a = L[i][1], b = L[j][1], dt = mn(b.t) - mn(a.t);
+      if (dt >= 1 && dt <= 3) { const dd = Math.hypot(a.la - b.la, a.lo - b.lo); if (dd < 150) P.push([dd, L[i][0], L[j][0]]) } // a = เวลาเร็วกว่า
+    }
+    const used = new Set();
+    for (const [, ka, kb] of P.sort((x, y) => x[0] - y[0])) if (!used.has(ka) && !used.has(kb)) { used.add(ka); used.add(kb); drop.add(ka) }
+    for (const k of drop) byId.delete(k);
+    if (drop.size) console.log('ตัดจุดซ้ำของ API', drop.size, 'จุด');
+  }
   store.recs = [...byId.values()].sort((a, b) => a.d - b.d || a.t - b.t || a.la - b.la);
   for (const r of store.recs) if (r.d in store.days && fetched.has(r.d)) store.days[r.d]++;
 

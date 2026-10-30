@@ -13,3 +13,5 @@ node_modules/
 data/ข้อมูลโครงการ*/
 # MAP_KEY ของ NASA FIRMS (scripts/lib/firms.js) — ห้าม commit
 .firms_key
+# รายงานของ firms_audit.js (สร้างใหม่ได้)
+data/firms_audit.csv
