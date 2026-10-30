@@ -40,6 +40,8 @@ jobs:
           LINE_RESERVE: ${{ vars.LINE_RESERVE }}
           # สรุปประจำวัน เวลาไทย HH:MM (ไม่ตั้ง = 07:30, "off" = ปิด)
           LINE_DAILY: ${{ vars.LINE_DAILY }}
+          # การ์ดพื้นที่เผาไหม้เมื่อมีรอบใหม่ ("off" = ปิด)
+          LINE_BURN: ${{ vars.LINE_BURN }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

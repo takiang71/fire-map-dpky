@@ -10,6 +10,10 @@
 //  - สรุปประจำวัน: รอบแรกที่ถึงเวลา LINE_DAILY (ค่าเริ่มต้น 07:30 น. ไทย, "off" = ปิด) push การ์ดสรุปแบบเดียวกับคำตอบ "สรุป" วันละครั้ง (st.daily = วันที่ส่งแล้ว)
 //    ส่งได้ภายใน 4 ชม. หลังเวลาที่ตั้ง (เลยนั้นข้ามวันนี้) · รอบที่เพิ่งส่งแจ้งเตือนไปจะรอรอบถัดไป (ครั้งละ 1 ข้อความ) · ไม่นับใน LINE_MAX_DAY
 //    --daily = ส่งสรุปประจำวันเข้ากลุ่มทันที 1 ครั้ง (ทดสอบ · ไม่แตะ notify.json)
+//  - พื้นที่เผาไหม้: เมื่อ _site/burn_summary.json (build_site.js) เป็นรอบใหม่กว่าที่เคยส่ง (st.burn) และมีรอยเผา ≥ 1 ไร่ → push การ์ด burnCard() 1 ใบ
+//    รอบแรก = จำรอบปัจจุบันโดยไม่ส่ง · รอบที่ไม่มีรอยเผา/เก่ากว่า 30 วัน = จำไว้โดยไม่ส่ง · รอบที่เพิ่งส่งแจ้งเตือน/สรุปประจำวันไปจะรอรอบถัดไป · ไม่นับใน LINE_MAX_DAY
+//    LINE_BURN=off = ปิด · --burn = ส่งการ์ดพื้นที่เผาไหม้รอบล่าสุดเข้ากลุ่มทันที 1 ครั้ง (ทดสอบ · ไม่แตะ notify.json)
+//  - LINE_API = เปลี่ยนปลายทาง API (ใช้ทดสอบกับเซิร์ฟเวอร์จำลอง) ค่าเริ่มต้น https://api.line.me
 const fs = require('fs'), path = require('path'), { pathToFileURL } = require('url');
 
 const ROOT = path.join(__dirname, '..'), OUT = path.join(ROOT, '_site');
@@ -19,6 +23,7 @@ const MAX_DAY = +(process.env.LINE_MAX_DAY || 4);      // ส่งได้ไ�
 const RESERVE = +(process.env.LINE_RESERVE || 0);      // เก็บโควตาไว้ไม่ใช้ (ข้อความ)
 const DAILY = /^\d{1,2}:\d{2}$/.test(process.env.LINE_DAILY || '') ? process.env.LINE_DAILY : /^(off|0|no)$/i.test(process.env.LINE_DAILY || '') ? null : '07:30';
 const DAILY_WIN_H = 4;
+const BURN = !/^(off|0|no)$/i.test(process.env.LINE_BURN || ''), API = process.env.LINE_API || 'https://api.line.me';
 const MAX_AGE_H = 12;                                 // ไม่แจ้งจุดที่สแกนนานกว่านี้ (API เติมข้อมูลย้อนหลังได้ เช่น 24–27 ต.ค. 69)
 const KEEP_H = 72;
 const satKey = s => { s = String(s == null ? '' : s); return /21/.test(s) ? 'NOAA21' : /20/.test(s) ? 'NOAA20' : /npp|suomi/i.test(s) ? 'SNPP' : s };
@@ -27,7 +32,7 @@ const idOf = f => { const p = f.properties, [lo, la] = f.geometry.coordinates; r
 const thDate = ms => new Date(ms + 7 * 36e5).toISOString().slice(0, 10);
 
 async function line(p, body) {
-  const r = await fetch('https://api.line.me' + p, {
+  const r = await fetch(API + p, {
     method: body ? 'POST' : 'GET', signal: AbortSignal.timeout(20e3),
     headers: { Authorization: 'Bearer ' + TOKEN, ...(body ? { 'Content-Type': 'application/json' } : {}) }, body: body && JSON.stringify(body),
   });
@@ -47,14 +52,16 @@ async function quotaOk() {
 
 (async () => {
   const now = Date.now(), today = thDate(now);
-  const { carousel, excluded } = await import(pathToFileURL(path.join(ROOT, 'worker', 'line-webhook.mjs')).href);
+  const { carousel, excluded, burnCard } = await import(pathToFileURL(path.join(ROOT, 'worker', 'line-webhook.mjs')).href);
   let live, sum = null;
   try { live = JSON.parse(fs.readFileSync(path.join(OUT, 'live.json'), 'utf8')) } catch (e) { console.log('ไม่มี live.json — ข้าม'); return }
   try { sum = JSON.parse(fs.readFileSync(path.join(OUT, 'summary.json'), 'utf8')) } catch (e) { }
+  let bsum = null;
+  try { bsum = JSON.parse(fs.readFileSync(path.join(OUT, 'burn_summary.json'), 'utf8')) } catch (e) { }
   const msg = (fresh, q, daily = false) => carousel({ live, sum, fresh, site: SITE, now, daily, quotaLeft: q && isFinite(q.left) ? Math.max(0, Math.floor((q.left - q.members) / q.members)) : null });
   if (process.argv.includes('--validate')) {
     const ex = live.features.slice(0, 3);
-    for (const [n, m] of [['แจ้งเตือน', msg(ex, null)], ['สรุป', msg(null, null)], ['สรุปประจำวัน', msg(null, null, true)]]) {
+    for (const [n, m] of [['แจ้งเตือน', msg(ex, null)], ['สรุป', msg(null, null)], ['สรุปประจำวัน', msg(null, null, true)], ...(bsum ? [['พื้นที่เผาไหม้', burnCard(bsum, { site: SITE })]] : [])]) {
       try { await line('/v2/bot/message/validate/push', { messages: [m] }); console.log(n, ': รูปแบบถูกต้อง', JSON.stringify(m).length, 'ไบต์') } catch (e) { console.log(n, ': ไม่ผ่าน', e.message); process.exitCode = 1 }
     }
     return;
@@ -69,6 +76,15 @@ async function quotaOk() {
     if (!q.ok) { console.log('โควตาไม่พอ:', JSON.stringify(q)); process.exitCode = 1; return }
     await line('/v2/bot/message/push', { to: GROUP, messages: [carousel({ live, sum, fresh: ex, site: SITE, now, test: true, quotaLeft: Math.max(0, Math.floor((q.left - q.members) / q.members)) })] });
     console.log(`ส่งการ์ดทดสอบแล้ว (${ex.length} จุดตัวอย่าง · สมาชิก ${q.members} คน · โควตาเหลือ ${q.left - q.members})`);
+    return;
+  }
+  if (process.argv.includes('--burn')) {
+    if (!TOKEN || !GROUP) { console.log('ต้องตั้ง LINE_TOKEN และ LINE_GROUP_ID'); process.exitCode = 1; return }
+    if (!bsum) { console.log('ไม่มี _site/burn_summary.json — รัน node scripts/build_site.js ก่อน'); process.exitCode = 1; return }
+    const q = await quotaOk();
+    if (!q.ok) { console.log('โควตาไม่พอ:', JSON.stringify(q)); process.exitCode = 1; return }
+    await line('/v2/bot/message/push', { to: GROUP, messages: [burnCard(bsum, { site: SITE, test: true })] });
+    console.log(`ส่งการ์ดพื้นที่เผาไหม้ทดสอบแล้ว (รอบ ${bsum.p} · สมาชิก ${q.members} คน · โควตาเหลือ ${q.left - q.members})`);
     return;
   }
   if (process.argv.includes('--daily')) {
@@ -123,6 +139,22 @@ async function quotaOk() {
     }
   } catch (e) { drec = { daily: 1, why: 'ส่งไม่สำเร็จ: ' + e.message } }
 
+  // พื้นที่เผาไหม้รอบใหม่ (ข้อมูลออกสัปดาห์ละครั้ง) — ครั้งแรกจำรอบไว้เฉยๆ · ส่งไม่สำเร็จ = ลองรอบถัดไป
+  let brec = null;
+  if (BURN && bsum && bsum.p) {
+    const fresh = !st.burn || bsum.p > st.burn, old = now - (Date.UTC(+bsum.d1.slice(0, 4), +bsum.d1.slice(4, 6) - 1, +bsum.d1.slice(6, 8)) + 864e5) > 30 * 864e5;
+    if (seed || !st.burn) st.burn = bsum.p;
+    else if (!fresh) { }
+    else if (bsum.rai < 1 || old) { st.burn = bsum.p; brec = { burn: bsum.p, why: bsum.rai < 1 ? 'รอบใหม่ไม่มีรอยเผาไหม้ (ไม่ส่ง)' : 'รอบเก่ากว่า 30 วัน (ไม่ส่ง)' } }
+    else if (!TOKEN || !GROUP) { st.burn = bsum.p; brec = { burn: bsum.p, why: 'ยังไม่ตั้ง LINE_TOKEN/LINE_GROUP_ID' } }
+    else if ((rec && rec.ok) || (drec && drec.ok)) { }
+    else try {
+      const q = await quotaOk();
+      if (!q.ok) { st.burn = bsum.p; brec = { burn: bsum.p, why: `โควตาไม่พอ (เหลือ ${q.left} ต้องใช้ ${q.members})` } }
+      else { await line('/v2/bot/message/push', { to: GROUP, messages: [burnCard(bsum, { site: SITE })] }); st.burn = bsum.p; brec = { burn: bsum.p, ok: 1, rai: bsum.rai, members: q.members, left: q.left } }
+    } catch (e) { brec = { burn: bsum.p, why: 'ส่งไม่สำเร็จ: ' + e.message } }
+  }
+
   // ตรวจการตั้งค่าทุกชั่วโมง (ไม่ส่งข้อความ ไม่เสียโควตา): token ใช้ได้ไหม บอทอยู่ในกลุ่มไหม โควตาเหลือเท่าไร → ดูได้ที่ notify.json ช่อง line
   if (!TOKEN || !GROUP) st.line = { ok: 0, why: `ยังไม่ตั้ง ${!TOKEN ? 'LINE_TOKEN ' : ''}${!GROUP ? 'LINE_GROUP_ID' : ''}`.trim(), at: new Date(now).toISOString() };
   else if (!st.line || !st.line.ok || now - Date.parse(st.line.at) > 36e5) {
@@ -132,6 +164,7 @@ async function quotaOk() {
   if (rec) { st.log = [{ t: new Date(now).toISOString(), ...rec }, ...(st.log || [])].slice(0, 50); console.log('LINE:', JSON.stringify(rec)) }
   else console.log('LINE: ไม่มีจุดใหม่');
   if (drec) { st.log = [{ t: new Date(now).toISOString(), ...drec }, ...(st.log || [])].slice(0, 50); console.log('LINE สรุปประจำวัน:', JSON.stringify(drec)) }
+  if (brec) { st.log = [{ t: new Date(now).toISOString(), ...brec }, ...(st.log || [])].slice(0, 50); console.log('LINE พื้นที่เผาไหม้:', JSON.stringify(brec)) }
   for (const k in st.sent) if (now - st.sent[k] > KEEP_H * 36e5) delete st.sent[k];
   for (const d in st.days) if (d < thDate(now - 7 * 864e5)) delete st.days[d];
   st.updated = new Date(now).toISOString();

@@ -64,6 +64,11 @@ function summary(L) {
   fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
   // พื้นที่เผาไหม้ (scripts/sync_burn.js) และแหล่งเชื้อเพลิง (scripts/sync_fuel.js) — หน้าเว็บอ่านจาก data/ ทางเดียวกับตอนเปิดผ่าน serve.js
   for (const d of ['burn', 'fuel']) if (fs.existsSync(path.join(ROOT, 'data', d))) fs.cpSync(path.join(ROOT, 'data', d), path.join(OUT, 'data', d), { recursive: true });
+  // แนวเขตอำเภอ/ตำบล (scripts/build_admin.js) — หน้าเว็บโหลดเมื่อใช้
+  if (fs.existsSync(path.join(ROOT, 'data', 'admin.json'))) fs.copyFileSync(path.join(ROOT, 'data', 'admin.json'), path.join(OUT, 'data', 'admin.json'));
+  // สรุปพื้นที่เผาไหม้รอบล่าสุดสำหรับการ์ด LINE (line_notify.js และคำสั่ง "เผาไหม้" ของ Worker)
+  try { const B = require('./lib/burnsum').burnSummary(); if (B) { fs.writeFileSync(path.join(OUT, 'burn_summary.json'), JSON.stringify(B)); console.log(`burn_summary.json: รอบ ${B.p} ${B.rai} ไร่ · มีจุดความร้อนใกล้ ${B.hs} ไร่`) } }
+  catch (e) { console.log('burn_summary.json ไม่สำเร็จ:', e.message) }
   let ok = true, L = null;
   try {
     L = await live();

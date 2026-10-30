@@ -143,6 +143,35 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
   return { type: 'flex', altText, contents: { type: 'carousel', contents: [overview, ...cards] } };
 }
 
+// การ์ดพื้นที่เผาไหม้รอบล่าสุด (bs = burn_summary.json จาก scripts/lib/burnsum.js) — line_notify.js push เมื่อมีรอบใหม่ · คำสั่ง "เผาไหม้" ตอบด้วยการ์ดนี้
+// ใบเดียว สั้นพอดีจอมือถือ (ผู้ใช้ขอการ์ดสั้น) · ไม่รวมดงใหญ่ (คำนวณตัดมาแล้วใน burnsum.js)
+const BURN = '#A3171B', VIO = '#7C3AED', nf = v => Math.round(v).toLocaleString('en-US');
+const dYMD = s => Date.UTC(+s.slice(0, 4), +s.slice(4, 6) - 1, +s.slice(6, 8));
+export const burnLab = bs => { const a = dateTh(dYMD(bs.d0)), b = dateTh(dYMD(bs.d1)); return bs.d0.slice(0, 6) === bs.d1.slice(0, 6) ? a.replace(/ \S+ \S+$/, '') + '–' + b : a.replace(/ \S+$/, '') + ' – ' + b };
+export function burnCard(bs, { site = SITE0, test = false } = {}) {
+  const lab = burnLab(bs), pct = bs.rai ? Math.round(bs.hs / bs.rai * 100) : 0;
+  const rows = [...AREAS.map(a => [a.s, bs.ar[a.k] || 0, a.c]), ['นอกเขตอนุรักษ์', bs.ar[OUT] || 0, '#9E9E9E']].filter(r => r[1] > 0), mx = Math.max(1, ...rows.map(r => r[1]));
+  const bubble = {
+    type: 'bubble', size: 'mega',
+    header: B('vertical', [
+      T(`${test ? '🧪 ทดสอบ · ' : ''}🔥 พื้นที่เผาไหม้ รอบ ${lab}`, { color: '#FFFFFF', size: 'md', weight: 'bold', wrap: true }),
+      T('สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี) · ระบบตามรอยเผา', { color: '#FFFFFFDD', size: 'xxs', wrap: true }),
+    ], { backgroundColor: BURN, paddingAll: '10px' }),
+    body: B('vertical', [
+      B('baseline', [T('รอบนี้', { size: 'xs', color: MUT, flex: 0 }), T(nf(bs.rai), { size: 'xxl', weight: 'bold', color: BURN, flex: 0, margin: 'sm' }), T('ไร่', { size: 'xs', color: MUT, flex: 0, margin: 'sm' }),
+        T(`(${(bs.rai / 625).toFixed(1)} ตร.กม.)`, { size: 'xxs', color: MUT, margin: 'sm' })]),
+      B('horizontal', [tile(pct + '%', `มีจุดความร้อนใกล้ (≤${bs.radius_m / 1000} กม.)`, pct ? RED : '#222222'), tile(nf(bs.rai - bs.hs), 'ไร่ ไม่พบจุดความร้อน', VIO), tile(nf(bs.fy_rai), `ไร่ สะสมปีงบ ${bs.fy}`)], { spacing: 'sm', margin: 'sm' }),
+      sub('รายพื้นที่ (ไร่)'),
+      ...(rows.length ? rows.map(([n, v, c]) => B('horizontal', [T(n, { size: 'xxs', color: '#333333', flex: 5 }), B('vertical', [hbar(v, mx, c)], { flex: 6 }), T(nf(v), { size: 'xxs', weight: 'bold', align: 'end', flex: 3 })], { alignItems: 'center', margin: 'xs', spacing: 'sm' }))
+        : [T('ไม่พบรอยเผาไหม้ในพื้นที่อนุรักษ์รอบนี้', { size: 'xxs', color: '#2E7D32', margin: 'sm' })]),
+      ...(bs.miss ? [T('⚠ รอบนี้ต้นทางไม่มีภาพบางส่วนของพื้นที่ (เมฆมาก) ตัวเลขจริงอาจมากกว่านี้', { size: 'xxs', color: '#B45309', margin: 'sm', wrap: true })] : []),
+      T('ภาพดาวเทียม 20 ม. จากระบบตามรอยเผา (สสน.) ออกหลังสิ้นรอบ ~9 วัน · ไม่รวม ขสป.ดงใหญ่ · ไม่พบจุดความร้อน = ไฟที่ดาวเทียม VIIRS ไม่เห็น', { size: 'xxs', color: MUT, margin: 'sm', wrap: true }),
+    ], { paddingAll: '10px' }),
+    footer: footer(site),
+  };
+  return { type: 'flex', altText: `${test ? '[ทดสอบ] ' : ''}🔥 พื้นที่เผาไหม้รอบ ${lab}: ${nf(bs.rai)} ไร่ · มีจุดความร้อนใกล้ ${pct}% · สะสมปีงบ ${bs.fy} ${nf(bs.fy_rai)} ไร่`.slice(0, 390), contents: bubble };
+}
+
 async function verify(secret, body, sig) {
   const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
   const mac = new Uint8Array(await crypto.subtle.sign('HMAC', k, new TextEncoder().encode(body)));
@@ -153,6 +182,7 @@ const getJ = async (site, f) => { try { const r = await fetch(site + f + '?t=' +
 const HELP = ['🤖 บอทแจ้งเตือนจุดความร้อน กลุ่มป่าดงพญาเย็น-เขาใหญ่', '',
   '• แจ้งเตือนอัตโนมัติเมื่อพบจุดความร้อนใหม่ใน 6 พื้นที่อนุรักษ์ (ไม่รวม ขสป.ดงใหญ่) ทุกดาวเทียม VIIRS',
   '• พิมพ์ "สรุป" — การ์ดสรุปทั้งปี + รายพื้นที่',
+  '• พิมพ์ "เผาไหม้" — พื้นที่เผาไหม้รอบล่าสุด (ระบบตามรอยเผา ราย 7 วัน) · บอทส่งให้เองเมื่อมีรอบใหม่ที่มีรอยเผา',
   '• พิมพ์ "ช่วยเหลือ" — ข้อความนี้',
   '', 'การแจ้งเตือนอัตโนมัติใช้โควตาข้อความฟรีของ LINE ตามจำนวนสมาชิกกลุ่ม ถ้าโควตาเดือนนี้หมด บอทจะหยุดแจ้งเตือนเอง แต่ยังตอบ "สรุป" ได้ตลอด'].join('\n');
 
@@ -172,6 +202,10 @@ export async function handle(env, ev) {
   if (/^(สรุป|summary)/i.test(t)) {
     const [live, sum] = await Promise.all([getJ(site, 'live.json'), getJ(site, 'summary.json')]);
     return reply(env, ev.replyToken, sum ? carousel({ live, sum, site }) : `อ่านข้อมูลสรุปไม่ได้ในขณะนี้ — เปิดแผนที่: ${site}`);
+  }
+  if (/^(เผาไหม้|รอยเผา|burn)/i.test(t)) {
+    const bs = await getJ(site, 'burn_summary.json');
+    return reply(env, ev.replyToken, bs ? burnCard(bs, { site }) : `อ่านข้อมูลพื้นที่เผาไหม้ไม่ได้ในขณะนี้ — เปิดแผนที่: ${site}`);
   }
   if (/^(ช่วยเหลือ|วิธีใช้|help)/i.test(t)) return reply(env, ev.replyToken, HELP);
   if (/^(รหัสกลุ่ม|groupid)/i.test(t)) return reply(env, ev.replyToken, src.groupId ? `รหัสกลุ่มนี้:\n${src.groupId}` : `ไม่ใช่กลุ่ม (${src.type}) — เชิญบอทเข้ากลุ่มแล้วพิมพ์ใหม่`);
