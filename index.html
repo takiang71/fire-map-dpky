@@ -904,7 +904,20 @@ const mapSnap=async()=>{try{const c={center:map.getCenter(),zoom:map.getZoom(),b
  const b=new maplibregl.LngLatBounds();[[L,T],[R,T],[R,B],[L,B]].forEach(q=>b.extend(map.unproject(q)));
  map.jumpTo({padding:{top:0,bottom:0,left:0,right:0}});map.fitBounds(b,{padding:0,bearing:0,pitch:0,duration:0});map.triggerRepaint();
  await new Promise(r=>{const t=setTimeout(r,8000);map.once('idle',()=>{clearTimeout(t);r()})});
- const u=map.getCanvas().toDataURL('image/jpeg',.88);map.jumpTo(c);return u}catch(e){return null}};
+ try{map.redraw()}catch(e){} // วาดเฟรมปัจจุบันทันที ให้ภาพแผนที่ตรงกับตำแหน่ง marker (แท็บพื้นหลังอาจยังไม่วาดเฟรมใหม่)
+ const u=await snapMarkers();map.jumpTo(c);return u}catch(e){return null}};
+// สถานีควบคุมไฟป่า/จุดเฝ้าระวังเป็น DOM marker ไม่อยู่ในภาพของ canvas แผนที่ → วาดไอคอน SVG และป้ายชื่อทับลงไปตามตำแหน่งที่เห็นบนจอ
+async function snapMarkers(){const mc=map.getCanvas(),cr=mc.getBoundingClientRect(),k=mc.width/cr.width,o=document.createElement('canvas');o.width=mc.width;o.height=mc.height;
+ const x=o.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,o.width,o.height);x.drawImage(mc,0,0);
+ const els=[...(window.WPM||[]),...(window.FSM||[])].map(m=>m.getElement()).filter(e=>e.style.display!=='none');
+ const img=s=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s)});
+ for(const e of els){const sv=e.querySelector('svg'),b=sv.getBoundingClientRect();if(b.right<cr.left||b.left>cr.right||b.bottom<cr.top||b.top>cr.bottom)continue;
+  const s=sv.outerHTML.replace('<svg','<svg xmlns="http://www.w3.org/2000/svg" width="'+b.width+'" height="'+b.height+'"'),i=await img(s);
+  if(i){x.save();x.shadowColor='rgba(0,0,0,.45)';x.shadowBlur=2*k;x.shadowOffsetY=k;x.drawImage(i,(b.left-cr.left)*k,(b.top-cr.top)*k,b.width*k,b.height*k);x.restore()}
+  const sp=e.querySelector('span'),cs=sp&&getComputedStyle(sp);if(!sp||cs.display==='none')continue;
+  const t=sp.getBoundingClientRect();x.font=`${cs.fontWeight} ${parseFloat(cs.fontSize)*k}px ${cs.fontFamily}`;x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';
+  const tx=(t.left+t.width/2-cr.left)*k,ty=(t.top+t.height/2-cr.top)*k;x.strokeStyle='#fff';x.lineWidth=3*k;x.strokeText(sp.textContent,tx,ty);x.fillStyle=cs.color;x.fillText(sp.textContent,tx,ty)}
+ return o.toDataURL('image/jpeg',.88)}
 async function buildReport(){const R=dtRows(),img=await mapSnap(),now=Date.now(),bn=await bnReport('#'),cnt=k=>{const m={};R.forEach(r=>{const v=k(r)||'ไม่ระบุ';m[v]=(m[v]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])};
  const tb=(h,E)=>`<table><thead><tr><th>${h}</th><th>จุด</th></tr></thead><tbody>${E.map(([k,v])=>`<tr><td>${esc(k)}</td><td class="n">${nf(v)}</td></tr>`).join('')||'<tr><td colspan="2">–</td></tr>'}</tbody></table>`;
  const sv=$('#p-ch svg'),chart=sv?sv.outerHTML.replace(/<line id="p-x"[^>]*\/?>(<\/line>)?/,''):'',demo=R.some(r=>r.demo)||!$('#p-smp').hidden||HS.some(h=>h.demo&&ageH(h)<24);
