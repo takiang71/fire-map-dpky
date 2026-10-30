@@ -993,14 +993,21 @@ const phiS=d=>5.275*Math.pow(.01,-.3)*Math.tan(d*Math.PI/180)**2;
 const RMT=emc(32.3,61)/MX, eta=E=>1.43*damp(Math.min(1,E/MX))/damp(RMT);
 const raw=(u,E,sl)=>eta(E)*(1+phiW(u/3.6*WAF*196.85)+phiS(sl));
 const R0=4.7/raw(11,emc(32.3,61),4); // สอบเทียบให้ตรงค่าทดสอบ 7.3 (หัวไฟ 4.7 ม./นาที)
+// ลมกับความลาดชันรวมแบบเวกเตอร์ (Rothermel 1972 / BEHAVE): φ_W ชี้ไปทางที่ลมพัดไป, φ_S ชี้ไปทางลาดขึ้น (= ทิศลาดลง p.asp + 180°)
+// ทิศหัวไฟ = ทิศเวกเตอร์รวม · ความเร็วลมประสิทธิผล (ใช้หารูปวงรี L/B) = ลมที่ให้ φ_W เท่ากับ |φ_W + φ_S|
+// ไม่รู้ทิศลาด (p.asp == null เช่น ค่าทดสอบ) = ถือว่าลาดขึ้นไปทางเดียวกับลมแบบเดิม (สูตร 1 + φ_W + φ_S ที่ใช้สอบเทียบ)
+const PWC=7.47*Math.exp(-.133*1500**.55),PWB=.02526*1500**.54; // φ_W = PWC · U(ฟุต/นาที)^PWB
+function spreadVec(p){const wt=(p.from+180)%360,fw=phiW(p.u/3.6*WAF*196.85),fs=phiS(p.sl);if(p.asp==null)return{fe:fw+fs,dir:wt,wt,Ue:p.u/3.6*WAF};
+ const up=(p.asp+180)%360,d=Math.PI/180,x=fw*Math.sin(wt*d)+fs*Math.sin(up*d),y=fw*Math.cos(wt*d)+fs*Math.cos(up*d),fe=Math.hypot(x,y);
+ return{fe,dir:fe<1e-9?wt:(Math.atan2(x,y)/d+360)%360,wt,up,Ue:fe>0?Math.pow(fe/PWC,1/PWB)/196.85:0}}
 function calc(p){
- const f=FUEL[p.fuel],E=emc(p.T,p.rh),Um=p.u/3.6*WAF,Rh=Math.max(.05,R0*f.k*raw(p.u,E,p.sl));
+ const f=FUEL[p.fuel],E=emc(p.T,p.rh),V=spreadVec(p),Um=V.Ue,Rh=Math.max(.05,R0*f.k*eta(E)*(1+V.fe));
  const LB=.936*Math.exp(.2566*Um)+.461*Math.exp(-.1548*Um)-.397,s=Math.sqrt(Math.max(0,LB*LB-1)),Rb=Rh*(LB-s)/(LB+s),Rf=(Rh+Rb)/(2*LB);
  const t=p.hr*60,a=(Rh+Rb)/2*t,b=Rf*t,off=(Rh-Rb)/2*t,ha=Math.PI*a*b/1e4,rai=ha*EH,per=Math.PI*(3*(a+b)-Math.sqrt((3*a+b)*(a+3*b)));
  const w=f.w*1000/1600,bio=rai*f.w*f.cf,I=HC*w*FRAC*Rh/60,Lf=.0775*Math.pow(I,.46),pm=bio*f.pm/1000,co=bio*f.co/1000;
  const lvl=Lf<1.2?0:Lf<2.4?1:Lf<3.4?2:3,crew=Math.max(1,Math.floor(per/1000/.5)),reach=Math.max(3,p.u)*2.18*Math.pow(Math.max(pm,.01)/14.42,.25);
  const Q=pm*1e12/(p.hr*3600),sy=.08*5e3/Math.sqrt(1.5),sz=.06*5e3/Math.sqrt(1+1.5e-3*5e3),conc=.46*Q/(Math.PI*sy*sz*Math.max(1,p.u/3.6));
- return{f,E,eta:eta(E),Um,Rh,Rb,Rf,LB,a,b,off,ha,rai,per,bio,I,Lf,pm,co,lvl,crew,reach,conc,head:Rh*t,toDir:(p.from+180)%360}}
+ return{f,E,eta:eta(E),Um,Rh,Rb,Rf,LB,a,b,off,ha,rai,per,bio,I,Lf,pm,co,lvl,crew,reach,conc,head:Rh*t,toDir:V.dir,windTo:V.wt,upDir:V.up}}
 const dest=(h,br,d)=>{const q=br*Math.PI/180;return[h.lon+d*Math.sin(q)/(111320*Math.cos(h.lat*Math.PI/180)),h.lat+d*Math.cos(q)/110574]};
 function ell(h,r,k){const th=r.toDir*Math.PI/180,pts=[];for(let i=0;i<=64;i++){const q=i/64*2*Math.PI,x=r.off*k+r.a*k*Math.cos(q),y=r.b*k*Math.sin(q);
  pts.push([h.lon+(x*Math.sin(th)+y*Math.cos(th))/(111320*Math.cos(h.lat*Math.PI/180)),h.lat+(x*Math.cos(th)-y*Math.sin(th))/110574])}return pts}
@@ -1081,18 +1088,18 @@ function upd(){
  const q=r.E/MX,lab=q<.3?'แห้งมาก':q<.6?'แห้งปานกลาง':'ค่อนข้างชื้น',bc=q<.3?'#d93a1f':q<.6?'#e0a010':'#3b9a4c';
  tx('e-v',nf(r.E,1)+'% / จุดไฟดับเอง '+MX+'%');$('#e-b').style.cssText=`width:${Math.min(100,q*100)}%;background:${bc}`;tx('e-t',`เชื้อเพลิง${lab} ไฟลุกลามต่อเนื่องตามทิศลม · รูปทรงวงรีไฟป่า L/B = ${nf(r.LB,1)} : 1`);
  $('#lv').style.borderLeftColor=L[0];tx('lv-h',L[1]);tx('lv-b',L[2]);tx('lv-c',`กำลังพลที่แนะนำ: <b>อย่างน้อย ${r.crew} ชุดปฏิบัติการ</b> (สำหรับสกัดแนวขอบไฟ ${nf(r.per/1000,1)} กม.)`);
- tx('tb',`<span>ทิศไฟและควันพัดไป:</span><b>${dn(r.toDir)}</b><span>มวลชีวมวลที่ถูกเผา:</span><b>${nf(r.bio,1)} ตัน (เชื้อเพลิง ${r.f.w} ตัน/ไร่ · ไหม้จริง ${Math.round(r.f.cf*100)}%)</b>
+ tx('tb',`${Math.abs(((r.toDir-r.windTo)%360+540)%360-180)<10?`<span>ทิศไฟและควันพัดไป:</span><b>${dn(r.toDir)}</b>`:`<span>หัวไฟลามไป:</span><b>${dn(r.toDir)} <span style="font-weight:400">(ลมพัดไป${dn(r.windTo).replace(/^ทิศ/,'ทิศ')} + ลาดชันขึ้นไป${dn(r.upDir)})</span></b><span>ควันพัดไป:</span><b>${dn(r.windTo)}</b>`}<span>มวลชีวมวลที่ถูกเผา:</span><b>${nf(r.bio,1)} ตัน (เชื้อเพลิง ${r.f.w} ตัน/ไร่ · ไหม้จริง ${Math.round(r.f.cf*100)}%)</b>
   <span>${LG?'ฝุ่นในกลุ่มควัน:':'ผลกระทบฝุ่นใต้ลม 5 กม.:'}</span><b>${LG?'PM2.5 สูงสุดราว '+nf(Math.round(LG.max/10)*10)+' µg/m³ (เฉลี่ยในชั้นผสม 1,000 ม. ของช่อง 1 กม.)':'PM2.5 เพิ่มขึ้นราว +'+nf(Math.round(r.conc/10)*10)+' µg/m³ ในแกนกรวยควัน'}</b>
   <span>ความเสียหายของต้นไม้:</span><b>อัตราตายของไม้หนุ่ม/ไม้พื้นล่าง ${MORT[r.lvl]}</b><span>เวลาฟื้นตัวของป่า:</span><b>${REC[r.lvl]}</b>
   <span>หมายเหตุตามชนิดป่า:</span><b style="font-weight:400">${r.f.t}</b>`);
- const pt=d=>{const c=dest(h,r.toDir,d);return c[1].toFixed(4)+', '+c[0].toFixed(4)+an(c[0],c[1])};
- tx('dw',`<span>หน้าไฟ (${nf((LG?LG.hLen:r.head)/1000,1)} กม.):</span><b>${LG?fm(LG.hEnd):pt(r.head)}</b><span>ใต้ลม 7 กม.:</span><b>${LG?fm(LG.p7):pt(7000)}</b><span>ปลาย${LG?'กลุ่ม':'กรวย'}ควัน (~${nf(rch)} กม.):</span><b>${LG?fm(LG.far):pt(r.reach*1000)}</b>`);
+ const pt=(d,b=r.windTo)=>{const c=dest(h,b,d);return c[1].toFixed(4)+', '+c[0].toFixed(4)+an(c[0],c[1])};
+ tx('dw',`<span>หน้าไฟ (${nf((LG?LG.hLen:r.head)/1000,1)} กม.):</span><b>${LG?fm(LG.hEnd):pt(r.head,r.toDir)}</b><span>ใต้ลม 7 กม.:</span><b>${LG?fm(LG.p7):pt(7000)}</b><span>ปลาย${LG?'กลุ่ม':'กรวย'}ควัน (~${nf(rch)} กม.):</span><b>${LG?fm(LG.far):pt(r.reach*1000)}</b>`);
  tx('eq',`<p><b>1. ความชื้นสมดุลเชื้อเพลิง (Simard 1968 EMC):</b> จากอุณหภูมิ (${nf(P.T,1)} °C) และความชื้นสัมพัทธ์ (${Math.round(P.rh)}%) ได้ <code>EMC = ${nf(r.E,1)}%</code> และตัวคูณลดทอนความชื้น <code>η_M = ${nf(r.eta,2)}</code></p>
- <p><b>2. อัตราการลุกลามไฟผิวดิน (Rothermel 1972):</b> <code>R = R₀ · η_M · (1 + φ_W + φ_S)</code> ปรับความเร็วลมด้วยค่าบังลมของป่า (WAF = ${WAF}) และความชัน ${P.sl}° ได้หัวไฟ ${nf(r.Rh,1)} ข้างไฟ ${nf(r.Rf,1)} ท้ายไฟ ${nf(r.Rb,1)} ม./นาที</p>
- <p><b>3. เรขาคณิตวงรีไฟป่า (Anderson 1983):</b> <code>L/B = 0.936·e^(0.2566·U) + 0.461·e^(-0.1548·U) - 0.397 = ${nf(r.LB,2)}</code> (U = ${nf(r.Um,2)} ม./วินาที = ลมที่ 10 ม. x WAF)${HY?' · โหมด Lagrangian: ขอบไฟโตแบบ Huygens (คลื่นวงรีจากทุกจุดบนขอบไฟ) ตามลมรายชั่วโมง พื้นที่และเส้นรอบวงมาจากรูปขอบไฟนี้':''}</p>
+ <p><b>2. อัตราการลุกลามไฟผิวดิน (Rothermel 1972):</b> <code>R = R₀ · η_M · (1 + |φ_W + φ_S|)</code> รวมผลของลม (ปรับด้วยค่าบังลมของป่า WAF = ${WAF}) กับความชัน ${P.sl}° แบบเวกเตอร์${P.asp==null?' (ไม่ทราบทิศลาด: ถือว่าลาดขึ้นไปทางเดียวกับลม)':` (ลาดขึ้นไป${dn((P.asp+180)%360)} · หัวไฟลามไป${dn(r.toDir)})`} ได้หัวไฟ ${nf(r.Rh,1)} ข้างไฟ ${nf(r.Rf,1)} ท้ายไฟ ${nf(r.Rb,1)} ม./นาที</p>
+ <p><b>3. เรขาคณิตวงรีไฟป่า (Anderson 1983):</b> <code>L/B = 0.936·e^(0.2566·U) + 0.461·e^(-0.1548·U) - 0.397 = ${nf(r.LB,2)}</code> (U = ${nf(r.Um,2)} ม./วินาที = ${P.asp==null?'ลมที่ 10 ม. x WAF':'ลมประสิทธิผลที่รวมผลความชันแล้ว'})${HY?' · โหมด Lagrangian: ขอบไฟโตแบบ Huygens (คลื่นวงรีจากทุกจุดบนขอบไฟ) ตามลมรายชั่วโมง พื้นที่และเส้นรอบวงมาจากรูปขอบไฟนี้':''}</p>
  <p><b>4. ความรุนแรงหน้าไฟและเปลวไฟ (Byram 1959):</b> <code>I_B = H · w · r = ${nf(r.I)} kW/m</code> (H = ${nf(HC)} kJ/kg) และ <code>L_f = 0.0775 · I_B^0.46 = ${nf(r.Lf,1)} ม.</code></p>
  <p style="margin:0"><b>5. การปลดปล่อยมลพิษและกรวยควัน (Seiler & Crutzen 1980 / Gaussian Plume):</b> จากมวลชีวมวลที่เผาไหม้จริง (x Cf ${r.f.cf}) x สัมประสิทธิ์ของ${r.f.n} (<code>EF_PM2.5 = ${r.f.pm} g/kg</code>, <code>EF_CO₂ = ${r.f.co} g/kg</code>) ${LG?'· ควันใช้ Lagrangian: <code>X(t+Δt) = X(t) + V·Δt</code>, <code>V = u_mean + u′</code> (random walk, K = 50 m²/s) ลม 10 ม. x 1.25 ('+(WS&&!manualWind?'พยากรณ์รายชั่วโมง':'ลมคงที่ตามสไลเดอร์')+') ชั้นผสม 1,000 ม. อนุภาค 2,000 ตัว':'· ค่าคงที่ R₀ ระยะควัน และตัวคูณฝุ่นใต้ลม สอบเทียบกับค่าทดสอบ 7.3'}</p>`);
- FXD={type:'FeatureCollection',features:[...(LG?LG.feats:[{type:'Feature',properties:{k:'cone'},geometry:{type:'Polygon',coordinates:[[[h.lon,h.lat],...[-18,-9,0,9,18].map(o=>dest(h,r.toDir+o,r.reach*1000)),[h.lon,h.lat]]]}}]),
+ FXD={type:'FeatureCollection',features:[...(LG?LG.feats:[{type:'Feature',properties:{k:'cone'},geometry:{type:'Polygon',coordinates:[[[h.lon,h.lat],...[-18,-9,0,9,18].map(o=>dest(h,r.windTo+o,r.reach*1000)),[h.lon,h.lat]]]}}]),
   ...[[3,'#e8b020'],[2,'#f08a1c'],[1,'#e0301e']].map(([i,c])=>({type:'Feature',properties:{k:'ell',c},geometry:{type:'Polygon',coordinates:[HY?hyPoly(h,HY,i):ell(h,r,i/3)]}}))]};
  const src=map.getSource('fx');src&&src.setData(FXD);
  PLU=LG?LG.url:BLANK;PLC=LG?LG.co:CO;const pis=map.getSource('plimg');pis&&pis.updateImage({url:PLU,coordinates:PLC});map.getLayer('fx-pi')&&map.setLayoutProperty('fx-pi','visibility',LG?'visible':'none');
@@ -1105,7 +1112,7 @@ function openDetail(h){
  +(g.resp.length?'<br>'+g.resp.map(r=>`สถานีฯ ที่รับผิดชอบ: <b>${esc(r.properties.station.replace(/^สถานีควบคุมไฟป่า/,''))}</b> · ${esc(r.properties.paro)}${r.properties.ftype?' · ชนิดป่า '+esc(r.properties.ftype):''}`).join('<br>'):'<br>สถานีฯ ที่รับผิดชอบ: <b>ไม่อยู่ในพื้นที่รับผิดชอบตามไฟล์</b>')}}fuelAuto1(null);tx('d-age',nf(a,1));tx('d-frp',h.frp==null?'–':nf(h.frp,1));
  tx('d-tl',h.live?'เวลาที่ดาวเทียมสแกน':'เวลาที่ตรวจพบ');tx('d-t',new Date(h.t).toLocaleString('th-TH',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'})+' น.');tx('d-cf',h.conf==='h'?'สูง':h.conf==='l'?'ต่ำ':'ปกติ');
  tx('d-ll',h.lat.toFixed(5)+', '+h.lon.toFixed(5));tx('d-utm','UTM '+u.z+'N · E '+nf(u.E)+' N '+nf(u.N));tx('d-el','–');tx('d-sl','กำลังคำนวณ…');tx('d-wx','ค่าตัวอย่าง (กำลังดึง…)');
- slopeAt(h.lon,h.lat).then(r=>{if(CUR!==h)return;tx('d-sl',nf(r.s,1)+'° · ลาดลงไป'+dn(r.asp).replace(/ \(.*$/,''));if(!slManual){P.sl=Math.min(40,Math.round(r.s));syncSl();upd()}}).catch(()=>{if(CUR===h)tx('d-sl','– (ใช้ค่าเริ่มต้น 4°)')});
+ slopeAt(h.lon,h.lat).then(r=>{if(CUR!==h)return;tx('d-sl',nf(r.s,1)+'° · ลาดลงไป'+dn(r.asp).replace(/ \(.*$/,''));P.asp=r.s>=1?r.asp:null;if(!slManual)P.sl=Math.min(40,Math.round(r.s));syncSl();upd()}).catch(()=>{if(CUR===h)tx('d-sl','– (ใช้ค่าเริ่มต้น 4°)')});
  map.getSource('ring').setData({type:'FeatureCollection',features:[{type:'Feature',properties:{},geometry:{type:'Point',coordinates:[h.lon,h.lat]}}]});
  map.flyTo({center:[h.lon,h.lat],zoom:11.2,duration:dur(1600),padding:{right:innerWidth>767?380:0,bottom:innerWidth>767?0:innerHeight*.35}});
  syncSl();upd();fillAq(h);
@@ -1124,7 +1131,7 @@ $$('#dur button').forEach(b=>b.onclick=()=>{P.hr=+b.dataset.h;syncSl();upd()});
 $('#fuel').onchange=e=>{P.fuel=+e.target.value;fuelAuto=false;tx('fuel-why','เลือกเอง');upd()};
 $('#d-adj').onclick=()=>{$('#sl').hidden=!$('#sl').hidden};$('#d-eq').onclick=()=>{$('#eq').hidden=!$('#eq').hidden};
 [['u','u'],['f','from'],['r','rh'],['s','sl']].forEach(([i,k])=>$('#s-'+i).oninput=e=>{P[k]=+e.target.value;if(k==='u'||k==='from')manualWind=true;if(k==='sl')slManual=true;syncSl();upd()});
-$('#d-test').onclick=()=>{Object.assign(P,{hr:6,fuel:0,u:11,from:90,rh:61,T:32.3,sl:4});fuelAuto=false;manualWind=true;slManual=true;tx('fuel-why','ค่าทดสอบ');syncSl();upd()};
+$('#d-test').onclick=()=>{Object.assign(P,{hr:6,fuel:0,u:11,from:90,rh:61,T:32.3,sl:4,asp:null});fuelAuto=false;manualWind=true;slManual=true;tx('fuel-why','ค่าทดสอบ');syncSl();upd()};
 $('#d-zm').onclick=()=>{if(!CUR||!LASTR)return;const pts=FXD.features.flatMap(f=>f.geometry.coordinates[0]),b=new maplibregl.LngLatBounds(pts[0],pts[0]);pts.forEach(q=>b.extend(q));
  map.fitBounds(b,{padding:{top:70,bottom:90,left:60,right:innerWidth>767?420:60},duration:dur(1200)})};
 
@@ -1490,7 +1497,7 @@ function hull(pts){pts.sort((a,b)=>a[0]-b[0]||a[1]-b[1]);const cr=(o,a,b)=>(a[0]
  for(let i=pts.length-1;i>=0;i--){const p=pts[i];while(up.length>=2&&cr(up[up.length-2],up[up.length-1],p)<=0)up.pop();up.push(p)}up.pop();lo.pop();return lo.concat(up)}
 function huy(r){const T=P.hr*3600,n=Math.max(1,Math.round(T/(P.hr>12?1800:900))),step=T/n,m=step/60;let v=Array.from({length:8},(_,i)=>[2*Math.cos(i*Math.PI/4),2*Math.sin(i*Math.PI/4)]);const snap=[v];
  for(let s=0;s<n;s++){const w=windAt((s+.5)*step/3600),sp=Math.hypot(w[0],w[1]),to=sp<.03?0:Math.atan2(w[0],w[1])*180/Math.PI,c=calc({...P,u:sp*3.6,from:(to+540)%360}),
-  a=(c.Rh+c.Rb)/2*m,b=c.Rf*m,off=(c.Rh-c.Rb)/2*m,th=to*Math.PI/180,pts=[];
+  a=(c.Rh+c.Rb)/2*m,b=c.Rf*m,off=(c.Rh-c.Rb)/2*m,th=c.toDir*Math.PI/180,pts=[];
   for(const p of v)for(let i=0;i<24;i++){const q=i/24*2*Math.PI,x=off+a*Math.cos(q),y=b*Math.sin(q);pts.push([p[0]+x*Math.sin(th)+y*Math.cos(th),p[1]+x*Math.cos(th)-y*Math.sin(th)])}
   v=hull(pts);snap.push(v)}
  const L=snap[n],area=pl=>{let a=0;pl.forEach((p,i)=>{const q=pl[(i+1)%pl.length];a+=p[0]*q[1]-q[0]*p[1]});return Math.abs(a)/2};
