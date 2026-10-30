@@ -38,4 +38,4 @@ function readXlsx(file) {
     return { name: ent(name), rows };
   });
 }
-module.exports = { readXlsx };
+module.exports = { readXlsx, unzip };
