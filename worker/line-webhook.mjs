@@ -144,32 +144,55 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
 }
 
 // การ์ดพื้นที่เผาไหม้รอบล่าสุด (bs = burn_summary.json จาก scripts/lib/burnsum.js) — line_notify.js push เมื่อมีรอบใหม่ · คำสั่ง "เผาไหม้" ตอบด้วยการ์ดนี้
-// ใบเดียว สั้นพอดีจอมือถือ (ผู้ใช้ขอการ์ดสั้น) · ไม่รวมดงใหญ่ (คำนวณตัดมาแล้วใน burnsum.js)
-const BURN = '#A3171B', VIO = '#7C3AED', nf = v => Math.round(v).toLocaleString('en-US');
+// carousel 7 ใบ แบบเดียวกับการ์ดจุดความร้อน: ใบ 1 ภาพรวม (ไทล์ จังหวัด/อำเภอ/ตำบลที่ไหม้มากสุด — ผู้ใช้ขอ 30 ต.ค. 69) · ใบ 2–7 รายพื้นที่อนุรักษ์ (ที่มีรอยเผารอบนี้ขึ้นก่อน)
+// ไม่รวมดงใหญ่ (ตัดมาแล้วใน burnsum.js) · ทุกใบต้องสั้นพอดีจอมือถือ
+const BURN = '#A3171B', VIO = '#7C3AED', nf = v => Math.round(v).toLocaleString('en-US'), rai = v => v > 0 && v < 1 ? '<1' : nf(v);
 const dYMD = s => Date.UTC(+s.slice(0, 4), +s.slice(4, 6) - 1, +s.slice(6, 8));
+const stShort = n => n === 'ไม่มี' ? 'ไม่มีสถานีฯ รับผิดชอบ' : n.replace('สถานีควบคุมไฟป่า', 'สถานีฯ ');
 export const burnLab = bs => { const a = dateTh(dYMD(bs.d0)), b = dateTh(dYMD(bs.d1)); return bs.d0.slice(0, 6) === bs.d1.slice(0, 6) ? a.replace(/ \S+ \S+$/, '') + '–' + b : a.replace(/ \S+$/, '') + ' – ' + b };
 export function burnCard(bs, { site = SITE0, test = false } = {}) {
-  const lab = burnLab(bs), pct = bs.rai ? Math.round(bs.hs / bs.rai * 100) : 0;
+  const lab = burnLab(bs), pct = (r, h) => r ? Math.round(h / r * 100) : 0, P = pct(bs.rai, bs.hs), Z = { rai: 0, hs: 0, fy: 0, m: Array(12).fill(0), st: {}, tm: {} };
   const rows = [...AREAS.map(a => [a.s, bs.ar[a.k] || 0, a.c]), ['นอกเขตอนุรักษ์', bs.ar[OUT] || 0, '#9E9E9E']].filter(r => r[1] > 0), mx = Math.max(1, ...rows.map(r => r[1]));
-  const bubble = {
+  const row = (n, v, c, m) => B('horizontal', [T(n, { size: 'xxs', color: '#333333', flex: 5 }), B('vertical', [hbar(v, m, c)], { flex: 6 }), T(rai(v), { size: 'xxs', weight: 'bold', align: 'end', flex: 3 })], { alignItems: 'center', margin: 'xs', spacing: 'sm' });
+  // ไทล์ชื่อพื้นที่ที่ไหม้มากสุด (รูปแบบเดียวกับ topTile ของการ์ดจุดความร้อน)
+  const topT = (o, l) => { const [x] = Object.entries(o || {}).sort((a, b) => b[1] - a[1]);
+    return B('vertical', [T(x ? x[0].split('|')[0] : '–', { size: 'sm', weight: 'bold', align: 'center', color: x ? BURN : MUT, wrap: true }), T(l + 'สูงสุด' + (x ? ` ${rai(x[1])} ไร่` : ''), { size: 'xxs', align: 'center', color: MUT, wrap: true })],
+      { flex: 1, backgroundColor: '#F5F6F8', cornerRadius: 'md', paddingAll: '4px', justifyContent: 'center' }) };
+  const head = (t, s, c) => B('vertical', [T(t, { color: '#FFFFFF', size: 'md', weight: 'bold', wrap: true }), T(s, { color: '#FFFFFFDD', size: 'xxs', wrap: true })], { backgroundColor: c, paddingAll: '10px' });
+  const overview = {
     type: 'bubble', size: 'mega',
-    header: B('vertical', [
-      T(`${test ? '🧪 ทดสอบ · ' : ''}🔥 พื้นที่เผาไหม้ รอบ ${lab}`, { color: '#FFFFFF', size: 'md', weight: 'bold', wrap: true }),
-      T('สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี) · ระบบตามรอยเผา', { color: '#FFFFFFDD', size: 'xxs', wrap: true }),
-    ], { backgroundColor: BURN, paddingAll: '10px' }),
+    header: head(`${test ? '🧪 ทดสอบ · ' : ''}🔥 พื้นที่เผาไหม้ รอบ ${lab}`, 'สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี) · ระบบตามรอยเผา', BURN),
     body: B('vertical', [
       B('baseline', [T('รอบนี้', { size: 'xs', color: MUT, flex: 0 }), T(nf(bs.rai), { size: 'xxl', weight: 'bold', color: BURN, flex: 0, margin: 'sm' }), T('ไร่', { size: 'xs', color: MUT, flex: 0, margin: 'sm' }),
         T(`(${(bs.rai / 625).toFixed(1)} ตร.กม.)`, { size: 'xxs', color: MUT, margin: 'sm' })]),
-      B('horizontal', [tile(pct + '%', `มีจุดความร้อนใกล้ (≤${bs.radius_m / 1000} กม.)`, pct ? RED : '#222222'), tile(nf(bs.rai - bs.hs), 'ไร่ ไม่พบจุดความร้อน', VIO), tile(nf(bs.fy_rai), `ไร่ สะสมปีงบ ${bs.fy}`)], { spacing: 'sm', margin: 'sm' }),
+      B('horizontal', [tile(P + '%', `มีจุดความร้อนใกล้ (≤${bs.radius_m / 1000} กม.)`, P ? RED : '#222222'), tile(nf(bs.rai - bs.hs), 'ไร่ ไม่พบจุดความร้อน', VIO), tile(nf(bs.fy_rai), `ไร่ สะสมปีงบ ${bs.fy}`)], { spacing: 'sm', margin: 'sm' }),
+      ...(bs.pv ? [B('horizontal', [topT(bs.pv, 'จังหวัด'), topT(bs.am, 'อำเภอ'), topT(bs.tm, 'ตำบล')], { spacing: 'sm', margin: 'sm' })] : []),
       sub('รายพื้นที่ (ไร่)'),
-      ...(rows.length ? rows.map(([n, v, c]) => B('horizontal', [T(n, { size: 'xxs', color: '#333333', flex: 5 }), B('vertical', [hbar(v, mx, c)], { flex: 6 }), T(nf(v), { size: 'xxs', weight: 'bold', align: 'end', flex: 3 })], { alignItems: 'center', margin: 'xs', spacing: 'sm' }))
-        : [T('ไม่พบรอยเผาไหม้ในพื้นที่อนุรักษ์รอบนี้', { size: 'xxs', color: '#2E7D32', margin: 'sm' })]),
+      ...(rows.length ? rows.map(([n, v, c]) => row(n, v, c, mx)) : [T('ไม่พบรอยเผาไหม้ในพื้นที่อนุรักษ์รอบนี้', { size: 'xxs', color: '#2E7D32', margin: 'sm' })]),
       ...(bs.miss ? [T('⚠ รอบนี้ต้นทางไม่มีภาพบางส่วนของพื้นที่ (เมฆมาก) ตัวเลขจริงอาจมากกว่านี้', { size: 'xxs', color: '#B45309', margin: 'sm', wrap: true })] : []),
       T('ภาพดาวเทียม 20 ม. จากระบบตามรอยเผา (สสน.) ออกหลังสิ้นรอบ ~9 วัน · ไม่รวม ขสป.ดงใหญ่ · ไม่พบจุดความร้อน = ไฟที่ดาวเทียม VIIRS ไม่เห็น', { size: 'xxs', color: MUT, margin: 'sm', wrap: true }),
     ], { paddingAll: '10px' }),
     footer: footer(site),
   };
-  return { type: 'flex', altText: `${test ? '[ทดสอบ] ' : ''}🔥 พื้นที่เผาไหม้รอบ ${lab}: ${nf(bs.rai)} ไร่ · มีจุดความร้อนใกล้ ${pct}% · สะสมปีงบ ${bs.fy} ${nf(bs.fy_rai)} ไร่`.slice(0, 390), contents: bubble };
+  // ใบ 2–7: รายพื้นที่อนุรักษ์ (ไม่รวม ขสป.ดงใหญ่) — พื้นที่ที่มีรอยเผารอบนี้มากกว่าขึ้นก่อน
+  const order = AREAS.map((a, i) => ({ a, i, X: (bs.areas || {})[a.k] || Z })).sort((x, y) => y.X.rai - x.X.rai || x.i - y.i);
+  const cards = order.map(({ a, X }) => {
+    const p = pct(X.rai, X.hs), sts = Object.entries(X.st || {}).sort((x, y) => y[1] - x[1]).slice(0, 3), smx = Math.max(1, ...sts.map(s => s[1])), [t1] = Object.entries(X.tm || {}).sort((x, y) => y[1] - x[1]);
+    return {
+      type: 'bubble', size: 'mega',
+      header: head(a.s, (a.n || a.k) + ` · รอยเผาไหม้ รอบ ${lab}`, a.c),
+      body: B('vertical', [
+        B('horizontal', [tile(rai(X.rai), 'ไร่ รอบนี้', X.rai ? BURN : '#222222'), tile(X.rai ? p + '%' : '–', 'มีจุดความร้อนใกล้'), tile(nf(X.fy), `ไร่ สะสมปีงบ ${bs.fy}`)], { spacing: 'sm' }),
+        ...(t1 ? [T('x', { size: 'xxs', margin: 'sm', wrap: true, contents: [{ type: 'span', text: 'ตำบลที่ไหม้มากสุด ', weight: 'bold', color: '#444444' }, { type: 'span', text: (([tb, am, pv]) => `ต.${tb} อ.${am} จ.${pv}`)(t1[0].split('|')) + ` (${rai(t1[1])} ไร่)`, color: MUT }] })] : []),
+        sub('รายเดือน (ไร่ · รวมรายรอบ)', [[a.c, `ปีงบ ${bs.fy}`]]),
+        ...months(X.m || Z.m, null, a.c, 24),
+        sub('ตามพื้นที่รับผิดชอบสถานีฯ รอบนี้ (ไร่)'),
+        ...(sts.length ? sts.map(([n, v]) => row(stShort(n), v, a.c, smx)) : [T('ไม่พบรอยเผาไหม้ในพื้นที่นี้รอบนี้', { size: 'xxs', color: '#2E7D32', margin: 'sm' })]),
+      ], { paddingAll: '10px' }),
+      footer: footer(site),
+    };
+  });
+  return { type: 'flex', altText: `${test ? '[ทดสอบ] ' : ''}🔥 พื้นที่เผาไหม้รอบ ${lab}: ${nf(bs.rai)} ไร่ · มีจุดความร้อนใกล้ ${P}% · สะสมปีงบ ${bs.fy} ${nf(bs.fy_rai)} ไร่`.slice(0, 390), contents: { type: 'carousel', contents: [overview, ...cards] } };
 }
 
 async function verify(secret, body, sig) {
