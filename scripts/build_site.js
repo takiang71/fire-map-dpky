@@ -2,7 +2,7 @@
 // ใช้: node scripts/build_site.js
 //  - index.html (คัดลอก)
 //  - live.json      จุดความร้อน 48 ชม. ล่าสุด เฉพาะในแนวเขตกลุ่มป่า (API ส่งทั้งประเทศ ~2 MB ช่วงพีค → เหลือไม่กี่ KB)
-//                   รูปแบบ GeoJSON เดียวกับ API + meta {generated, nation_total, nation_last} ให้หน้าเว็บใช้ liveList เดิมได้
+//                   รูปแบบ GeoJSON เดียวกับ API + meta {generated, nation_total, nation_last, sys_update} ให้หน้าเว็บใช้ liveList เดิมได้
 //                   + properties._ar (พื้นที่อนุรักษ์) / _st (สถานีฯ) จากแนวเขต KMZ ให้ LINE bot ใช้
 //  - summary.json   ยอดสะสมปีงบตามดาวเทียมตัวชี้วัด (adata + live.json ตรรกะเดียวกับ fyNow ในหน้าเว็บ) แยกตามพื้นที่/สถานีฯ — ให้ LINE bot ตอบ "สรุป"
 //  - notify.json    สถานะการแจ้งเตือน LINE (สร้างโดย scripts/line_notify.js ขั้นถัดไปใน workflow)
@@ -14,6 +14,11 @@ const { air4thai } = require('./lib/air4thai');
 
 const OUT = path.join(ROOT, '_site');
 const API = 'https://wildlandfire.thairen.net.th/landfirealertsmap_thailand/api/alerts';
+// เวลา "Last update" ของระบบต้นทาง อยู่ในหน้าแรก (HTML) เป็นเวลาไทย เช่น "Last update : 30/10/2026 - 13h47" → meta.sys_update (ISO) ใน live.json
+async function sysUpdate() {
+  try { const h = await (await fetch(API.replace(/api\/alerts$/, ''), { signal: AbortSignal.timeout(30e3) })).text(), m = /Last update\s*:\s*(\d{1,2})\/(\d{1,2})\/(\d{4})\s*-\s*(\d{1,2})h(\d{2})/i.exec(h);
+    return m ? new Date(Date.UTC(+m[3], +m[2] - 1, +m[1], +m[4] - 7, +m[5])).toISOString() : null } catch (e) { return null }
+}
 const th = ms => new Date(ms + 7 * 36e5).toISOString().slice(0, 19); // เวลาไทยรูปแบบที่ API รับ
 
 async function live() {
@@ -28,7 +33,7 @@ async function live() {
       return !!w;
     });
     const last = all.reduce((m, f) => (f.properties && f.properties.full_date > m ? f.properties.full_date : m), '');
-    return { type: 'FeatureCollection', meta: { generated: new Date().toISOString(), nation_total: all.length, nation_last: last || null }, features: keep };
+    return { type: 'FeatureCollection', meta: { generated: new Date().toISOString(), nation_total: all.length, nation_last: last || null, sys_update: await sysUpdate() }, features: keep };
   } catch (e) {
     if (k >= 3) throw e;
     await new Promise(r => setTimeout(r, 5000 * k));

@@ -499,39 +499,34 @@ function liveList(j){const rows=alertRows(j);
  const now=Date.now(),lastAll=Math.max(...all.filter(h=>h.t-now<6*H).map(h=>h.t),0),inA=all.filter(h=>h.lat>=BB.la0&&h.lat<=BB.la1&&h.lon>=BB.lo0&&h.lon<=BB.lo1&&now-h.t<=48*H&&h.t-now<6*H&&(()=>{const g=geoAt(h.lon,h.lat);h.geo=g;return!!(g.cons||g.resp.length)})()); // เฉพาะจุดในแนวเขตพื้นที่อนุรักษ์/พื้นที่รับผิดชอบของสถานีฯ
  inA.sort((a,b)=>b.t-a.t);inA.forEach((h,i)=>{h.id=i;if(h.ns==='unk'&&nameFromHist(h))h.ns='hist'});
  HSRC={live:true,msg:'',sats:[...new Set(inA.map(h=>h.sat))],last:inA.length?Math.max(...inA.map(h=>h.t)):0,lastAll,total:all.length,inArea:inA.length};return inA}
-// เวลา "Last update" ของระบบต้นทาง (เวลาประมวลผล/นำเข้า ไม่ใช่เวลาที่ดาวเทียมสแกน): ลองอ่านจาก Last-Modified ของ alerts และ endpoint status
-const HOTSPOT_STATUS=HOTSPOT_API.replace(/alerts$/,'status');
-function sysCand(j,out,d=0){if(j==null||d>4)return;if(typeof j==='string'||typeof j==='number'){return}
- if(Array.isArray(j)){j.slice(0,5).forEach(x=>sysCand(x,out,d+1));return}
- for(const k in j){const v=j[k];if(v&&typeof v==='object'){sysCand(v,out,d+1);continue}
-  if(!/update|last|time|date|stamp|modified|refresh|sync/i.test(k)||v==null)continue;
-  let t=NaN;const m=/^(\d{1,2})h(\d{2})$/.exec(String(v).trim());
-  if(m){const th=new Date(Date.now()+7*H),y=th.getUTCFullYear(),mo=th.getUTCMonth(),dd=th.getUTCDate();t=Date.UTC(y,mo,dd,+m[1]-7,+m[2])}else t=ptime(v);
-  if(isFinite(t))out.push(t)}}
-async function sysTime(r){const c=[];try{const lm=r.headers.get('Last-Modified');if(lm){const t=Date.parse(lm);if(isFinite(t))c.push(t)}}catch(_){}
- try{const ac=new AbortController(),to=setTimeout(()=>ac.abort(),6000);
-  const u=HOTSPOT_PROXY?HOTSPOT_PROXY+encodeURIComponent(HOTSPOT_STATUS):HOTSPOT_STATUS,s=await fetch(u,{headers:{Accept:'application/json'},signal:ac.signal});clearTimeout(to);
-  if(s.ok)sysCand(await s.json(),c)}catch(_){}
- const now=Date.now(),ok=c.filter(t=>now-t<72*H&&t-now<6*H);return ok.length?Math.max(...ok):0}
+// เวลา "Last update" ของระบบต้นทาง (เวลาประมวลผล ไม่ใช่เวลาดาวเทียมสแกน) — อยู่ในหน้าแรกของเว็บต้นทาง (HTML ฝั่งเซิร์ฟเวอร์)
+// "<p …>Last update : 30/10/2026 - 13h47</p>" เป็นเวลาไทย · ไม่อยู่ใน API alerts · เซิร์ฟเวอร์ตอบ CORS ตาม Origin ที่ขอ (รวม null ของ file://) จึงดึงตรงได้
+// ผู้ใช้ให้ไล่หาเอง 30 ต.ค. 69 (เคยเดา Last-Modified / /api/status ไม่เจอ ลบออกแล้ว) · แคช 4 นาที
+const HOTSPOT_HOME=HOTSPOT_API.replace(/api\/alerts$/,'');let LFAU={t:0,at:0};
+const lfaParse=html=>{const m=/Last update\s*:\s*(\d{1,2})\/(\d{1,2})\/(\d{4})\s*-\s*(\d{1,2})h(\d{2})/i.exec(html||'');return m?Date.UTC(+m[3],+m[2]-1,+m[1],+m[4]-7,+m[5]):0};
+async function sysTime(){if(Date.now()-LFAU.at<4*60e3)return LFAU.t;
+ try{const u=HOTSPOT_PROXY?HOTSPOT_PROXY+encodeURIComponent(HOTSPOT_HOME):HOTSPOT_HOME,r=await fetch(u,{signal:AbortSignal.timeout(8000)});if(r.ok){const t=lfaParse(await r.text());if(t)LFAU={t,at:Date.now()}}}catch(_){}
+ return LFAU.t}
 // ดึงอัตโนมัติ: เฉพาะ POLL.part ชม. ล่าสุดทุก POLL.every (เบา) และเต็ม 48 ชม. ทุก POLL.full (ล้างจุดเก่า/รับข้อมูลที่ต้นทางแก้ย้อนหลัง)
 const POLL={every:5*60e3,full:30*60e3,part:3,last:0,lastFull:0};
 const liveKey=x=>x.t+'|'+x.lat.toFixed(4)+'|'+x.lon.toFixed(4)+'|'+x.sat;
 const LIVE_FILE='live.json',LIVE_MAXAGE=40*60e3;
 async function liveFile(){if(!/^https?:$/.test(location.protocol))return null;try{const r=await fetch(LIVE_FILE+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)return null;const j=await r.json(),m=j.meta||{};
- if(!(Date.now()-Date.parse(m.generated)<LIVE_MAXAGE))return null;const L=liveList(j);HSRC.total=m.nation_total;const t=ptime(m.nation_last);if(isFinite(t))HSRC.lastAll=t;HSRC.via=LIVE_FILE;return L}catch(e){return null}}
+ if(!(Date.now()-Date.parse(m.generated)<LIVE_MAXAGE))return null;const L=liveList(j);HSRC.total=m.nation_total;const t=ptime(m.nation_last);if(isFinite(t))HSRC.lastAll=t;HSRC.via=LIVE_FILE;
+ HSRC.sys=m.sys_update?Date.parse(m.sys_update):await sysTime();return L}catch(e){return null}}
 async function getHotspots(hr=48){
  {const L=await liveFile();if(L){POLL.last=POLL.lastFull=Date.now();LASTLIVE=L;hsrcShow();return L}}
  try{const api=HOTSPOT_API+hsQS(hr),url=HOTSPOT_PROXY?HOTSPOT_PROXY+encodeURIComponent(api):api,r=await fetch(url,{headers:{Accept:'application/json'}});if(!r.ok){let b='';try{b=(await r.text()).replace(/\s+/g,' ').slice(0,160)}catch(_){}throw new Error('HTTP '+r.status+(b?' · เซิร์ฟเวอร์ตอบ: '+b:''))}
   const prev=HSRC;let L=liveList(await r.json());POLL.last=Date.now();
   if(hr<48&&LASTLIVE){const seen=new Set(L.map(liveKey));L=L.concat(LASTLIVE.filter(x=>!seen.has(liveKey(x))&&Date.now()-x.t<=48*H)).sort((a,b)=>b.t-a.t);
    HSRC=Object.assign({},prev,{msg:'',sats:[...new Set(L.map(x=>x.sat))],last:L.length?L[0].t:0,lastAll:Math.max(prev.lastAll||0,HSRC.lastAll||0),inArea:L.length})}
-  else{HSRC.sys=await sysTime(r);POLL.lastFull=POLL.last}
+  else{HSRC.sys=await sysTime();POLL.lastFull=POLL.last}
   LASTLIVE=L;hsrcShow();return L}
  catch(e){const msg=/Failed to fetch|NetworkError|Load failed/i.test(e.message)?'เบราว์เซอร์เชื่อมต่อ API ไม่ได้ (อาจติด CORS หรือไม่ได้ต่ออินเทอร์เน็ต)':e.message;
   if(LASTLIVE){LASTLIVE=LASTLIVE.filter(x=>Date.now()-x.t<=48*H);HSRC.msg='ดึงรอบล่าสุดไม่สำเร็จ ('+msg+') ใช้ข้อมูลรอบก่อน';hsrcShow();return LASTLIVE}
   HSRC={live:false,msg,sats:[],last:0};hsrcShow();return[]}}
 function hsrcShow(){const e=document.getElementById('hsrc');if(!e)return;const f=HSRC,fm=t=>new Date(t).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'})+' น.';
- e.innerHTML=f.live?`Land Fire Alerts Thailand (WFSRU/ThaiREN) · VIIRS 375 ม. · ${f.sats.join(', ')||'–'} · ${f.sys?`ข้อมูลล่าสุด ${fm(f.sys)}`:`สแกนล่าสุดทั้งประเทศ ${f.lastAll?fm(f.lastAll):'–'} <span title="ไม่พบเวลาอัปเดตของระบบต้นทาง จึงแสดงเวลาที่ดาวเทียมสแกนล่าสุดแทน">(ไม่พบเวลาอัปเดตของระบบ)</span>`} · ในกลุ่มป่าฯ ${f.inArea??0} จุด${f.msg?`<br><b style="color:#c0392b">⚠ ${esc(f.msg)}</b>`:''}`
+ e.innerHTML=f.live?`Land Fire Alerts Thailand (WFSRU/ThaiREN) · VIIRS 375 ม. · ${f.sats.join(', ')||'–'} · ${f.sys?`<span title="เวลาที่ระบบต้นทางประมวลผลข้อมูลล่าสุด (Last update ในหน้าแรกของ Land Fire Alerts Thailand) — เวลาที่ดาวเทียมสแกนดูได้ในแผงรายละเอียดจุด">ระบบต้นทางอัปเดต ${fm(f.sys)}</span>`:`สแกนล่าสุดทั้งประเทศ ${f.lastAll?fm(f.lastAll):'–'} <span title="ไม่พบเวลาอัปเดตของระบบต้นทาง จึงแสดงเวลาที่ดาวเทียมสแกนล่าสุดแทน">(ไม่พบเวลาอัปเดตของระบบ)</span>`} · ในกลุ่มป่าฯ ${f.inArea??0} จุด${f.msg?`<br><b style="color:#c0392b">⚠ ${esc(f.msg)}</b>`:''}`
   :`<b style="color:#c0392b">⚠ ดึงข้อมูลจริงไม่สำเร็จ</b>: ${esc(f.msg||'กำลังดึงข้อมูล…')}`;
  const nd=HS.filter(x=>x.demo).length;if(S.demo&&nd)e.innerHTML+=` · <b style="color:#b45309">+ จุดตัวอย่าง ${nd} จุด (ไม่ใช่ข้อมูลจริง)</b>`}
 const ageH=h=>(loadedAt-h.t)/H, grp=h=>ageH(h)<6?'r':ageH(h)<24?'o':'b';
