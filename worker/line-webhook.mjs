@@ -148,7 +148,8 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
 // ไม่รวมดงใหญ่ (ตัดมาแล้วใน burnsum.js) · ทุกใบต้องสั้นพอดีจอมือถือ
 const BURN = '#A3171B', VIO = '#7C3AED', nf = v => Math.round(v).toLocaleString('en-US'), rai = v => v > 0 && v < 1 ? '<1' : nf(v);
 const dYMD = s => Date.UTC(+s.slice(0, 4), +s.slice(4, 6) - 1, +s.slice(6, 8));
-const stShort = n => n === 'ไม่มี' ? 'ไม่มีสถานีฯ รับผิดชอบ' : n.replace('สถานีควบคุมไฟป่า', 'สถานีฯ ');
+// ชื่อสถานีฯ แบบสั้นพอดีช่องในการ์ด (ผู้ใช้เห็น "สถานีฯ ทับลาน (ด้าน…" ถูกตัด 30 ต.ค. 69)
+const stShort = n => n === 'ไม่มี' ? 'ไม่มีสถานีฯ ดูแล' : n.replace('สถานีควบคุมไฟป่า', 'สถานีฯ ').replace(' (ด้านทิศใต้)', ' (ใต้)').replace(' - ', '-');
 export const burnLab = bs => { const a = dateTh(dYMD(bs.d0)), b = dateTh(dYMD(bs.d1)); return bs.d0.slice(0, 6) === bs.d1.slice(0, 6) ? a.replace(/ \S+ \S+$/, '') + '–' + b : a.replace(/ \S+$/, '') + ' – ' + b };
 // เพดาน 50 KB: ถ้าเกิน 48,000 ไบต์ ลดบรรทัดที่ไหม้มากสุดในการ์ดรายพื้นที่ 3 → 1 (ตำบล) → 0 (กรณีหนักสุดสมมติแบบ 3 บรรทัด = 49.7 KB)
 export function burnCard(bs, o = {}) {
@@ -159,7 +160,7 @@ export function burnCard(bs, o = {}) {
 function burnBuild(bs, { site = SITE0, test = false, lv = 3 } = {}) {
   const lab = burnLab(bs), pct = (r, h) => r ? Math.round(h / r * 100) : 0, P = pct(bs.rai, bs.hs), Z = { rai: 0, hs: 0, fy: 0, m: Array(12).fill(0), st: {}, tm: {} };
   const rows = [...AREAS.map(a => [a.s, bs.ar[a.k] || 0, a.c]), ['นอกเขตอนุรักษ์', bs.ar[OUT] || 0, '#9E9E9E']].filter(r => r[1] > 0), mx = Math.max(1, ...rows.map(r => r[1]));
-  const row = (n, v, c, m) => B('horizontal', [T(n, { size: 'xxs', color: '#333333', flex: 5 }), B('vertical', [hbar(v, m, c)], { flex: 6 }), T(rai(v), { size: 'xxs', weight: 'bold', align: 'end', flex: 3 })], { alignItems: 'center', margin: 'xs', spacing: 'sm' });
+  const row = (n, v, c, m) => B('horizontal', [T(n, { size: 'xxs', color: '#333333', flex: 7 }), B('vertical', [hbar(v, m, c)], { flex: 4 }), T(rai(v), { size: 'xxs', weight: 'bold', align: 'end', flex: 3 })], { alignItems: 'center', margin: 'xs', spacing: 'sm' });
   // ไทล์ชื่อพื้นที่ที่ไหม้มากสุด (รูปแบบเดียวกับ topTile ของการ์ดจุดความร้อน)
   const topT = (o, l) => { const [x] = Object.entries(o || {}).sort((a, b) => b[1] - a[1]);
     return B('vertical', [T(x ? x[0].split('|')[0] : '–', { size: 'sm', weight: 'bold', align: 'center', color: x ? BURN : MUT, wrap: true }), T(l + 'สูงสุด' + (x ? ` ${rai(x[1])} ไร่` : ''), { size: 'xxs', align: 'center', color: MUT, wrap: true })],
