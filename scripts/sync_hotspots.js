@@ -3,6 +3,8 @@
 //  - ครั้งแรกดึงตั้งแต่ 1 ต.ค. 2568 (ต้นปีงบ 2569) ทีละวัน · ครั้งต่อไปดึงเฉพาะวันที่ยังไม่มี + ดึงซ้ำ N วันล่าสุด (ค่าเริ่มต้น 7)
 //    API ต้นทางเคยตอบว่าง/ไม่ครบย้อนหลังหลายวันแล้วค่อยเติมทีหลัง (24–27 ต.ค. 69) จึงดึงซ้ำเป็นสัปดาห์ และรวมจุดเดิมกับจุดใหม่ (ไม่ลบจุดเดิม)
 //  - API ส่งทั้งประเทศ (ช่วงพีค ~1 MB/วัน) สคริปต์กรองเหลือเฉพาะจุดในพื้นที่อนุรักษ์/พื้นที่รับผิดชอบ (GEO ใน index.html)
+//  - API ขัดข้อง (ทั้งประเทศ 0 จุด / ขาดบางดาวเทียม / ดึงไม่สำเร็จ) ในช่วง 7 วันล่าสุด → เติมจาก NASA FIRMS (ไฟล์ 7 วันสาธารณะ ไม่ต้องใช้ key)
+//    ติดป้าย src='firms' และลบทิ้งเมื่อ API กลับมามีดาวเทียมนั้นในวันนั้น · ตรวจ 30 ต.ค. 69: 28–29 ต.ค. ตรงกับ API 197/197 จุด (ห่าง ~70 ม., เวลา ±3 นาที, ความเชื่อมั่นและตำบลตรง)
 //  - ผลลัพธ์: data/hotspots_api.json + ฝังลง index.html (<script type="application/json" id="adata">)
 //    + data/FY2569_SNPP_ทั้งกลุ่มป่า.csv (จุด Suomi NPP ปีงบ 2569 ทั้งหมด พร้อมคอลัมน์ว่าอยู่ในข้อมูลกรมอุทยานฯ หรือไม่)
 const fs = require('fs'), path = require('path');
@@ -30,6 +32,7 @@ const writeSafe = (f, s) => { fs.writeFileSync(f + '.tmp', s); fs.renameSync(f +
 
 const { html, block, GEO, where, SBP } = require('./lib/area');
 const HDATA = JSON.parse(block('hdata')[1]);
+const { admIndex } = require('./lib/burnsum');
 
 // --- วันที่ (วันตามเวลาไทย นับจาก 1970-01-01 แบบเดียวกับ hdata) ---
 const dayOf = s => Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10)) / 864e5;
@@ -51,11 +54,32 @@ async function fetchDay(d) {
         pv: (p.province_name_th || 'ไม่ระบุ').trim(), am: (p.district_name_th || 'ไม่ระบุ').trim(), tm: (p.subdistrict_name_th || 'ไม่ระบุ').trim(),
         ...w, uid: String(p.unique_id || '') });
     }
-    return { n: (j.features || []).length, out };
+    return { n: (j.features || []).length, out, sats: new Set((j.features || []).map(f => String((f.properties || {}).satellite_name || '').trim())) };
   } catch (e) {
     if (k >= 3) throw new Error(`${s}: ${e.message}`);
     await new Promise(r => setTimeout(r, 3000 * k));
   }
+}
+
+// --- NASA FIRMS: ไฟล์ CSV 7 วันล่าสุด ภูมิภาคเอเชียตะวันออกเฉียงใต้ (VIIRS 375 ม. NRT ชุดเดียวกับ API ไทย) ---
+const SATS = ['SNPP', 'NOAA20', 'NOAA21'], SNPP_END = Date.UTC(2026, 10, 2) / 864e5; // Suomi NPP หยุดส่งข้อมูล 2 พ.ย. 69 20:00 น.
+const FIRMS = { SNPP: 'suomi-npp-viirs-c2/csv/SUOMI_VIIRS_C2', NOAA20: 'noaa-20-viirs-c2/csv/J1_VIIRS_C2', NOAA21: 'noaa-21-viirs-c2/csv/J2_VIIRS_C2' };
+async function firms() {
+  const adm = admIndex(), out = [];
+  for (const [sat, p] of Object.entries(FIRMS)) {
+    const r = await fetch(`https://firms.modaps.eosdis.nasa.gov/data/active_fire/${p}_SouthEast_Asia_7d.csv`, { signal: AbortSignal.timeout(180e3) });
+    if (!r.ok) throw new Error(sat + ' HTTP ' + r.status);
+    for (const l of (await r.text()).split('\n').slice(1)) {
+      const c = l.split(','); if (c.length < 9) continue;
+      const la = +c[0], lo = +c[1]; if (!(lo > 100.5 && lo < 103.9 && la > 13 && la < 15.2)) continue;
+      const w = where(lo, la); if (!w) continue;
+      const x = new Date(Date.parse(`${c[5]}T${c[6].slice(0, 2)}:${c[6].slice(2, 4)}:00Z`) + 7 * 36e5), a = adm && adm(lo, la);
+      const rec = { d: Math.floor(x / 864e5), t: x.getUTCHours() * 100 + x.getUTCMinutes(), la: Math.round(la * 1e5), lo: Math.round(lo * 1e5), sat, cf: c[8].trim(),
+        pv: a ? a.p : 'ไม่ระบุ', am: a ? a.a : 'ไม่ระบุ', tm: a ? a.t : 'ไม่ระบุ', ...w, src: 'firms' };
+      rec.uid = `firms|${rec.d}|${rec.t}|${rec.la}|${rec.lo}|${sat}`; out.push(rec);
+    }
+  }
+  return out;
 }
 
 // --- ข้อมูลเดิม ---
@@ -66,13 +90,13 @@ if (fs.existsSync(OUT)) store = JSON.parse(fs.readFileSync(OUT, 'utf8')).raw || 
   const todo = [];
   for (let d = dayOf(FROM); d <= today; d++) if (!(d in store.days) || d > today - REFETCH) todo.push(d);
   console.log(`ดึง ${todo.length} วัน (${todo.length ? isoOf(todo[0]) + ' → ' + isoOf(todo[todo.length - 1]) : '-'})`);
-  const got = {}, fail = [], empty = [];
+  const got = {}, fail = [], empty = [], apiSats = {};
   let i = 0, done = 0, nat = 0;
   await Promise.all(Array.from({ length: CONC }, async () => {
     while (i < todo.length) {
       const d = todo[i++];
       // ทั้งประเทศ 0 จุด = API ขัดข้องบ่อยกว่าไม่มีไฟจริง (เคยตอบว่างย้อนหลังหลายวัน 27 ต.ค. 69) → คงข้อมูลเดิมไว้ ไม่บันทึกว่าเสร็จ รอบหน้าดึงใหม่
-      try { const r = await fetchDay(d); if (r.n) got[d] = r.out; else empty.push(isoOf(d)); nat += r.n } catch (e) { fail.push(e.message) }
+      try { const r = await fetchDay(d); apiSats[d] = r.sats; if (r.n) got[d] = r.out; else empty.push(isoOf(d)); nat += r.n } catch (e) { fail.push(e.message) }
       if (++done % 20 === 0 || done === todo.length) console.log(`  ${done}/${todo.length} วัน · ทั้งประเทศ ${nat} จุด`);
     }
   }));
@@ -83,6 +107,25 @@ if (fs.existsSync(OUT)) store = JSON.parse(fs.readFileSync(OUT, 'utf8')).raw || 
     for (const r of got[d]) byId.set(r.uid || `${r.d}|${r.t}|${r.la}|${r.lo}|${r.sat}`, r);
     if (d < today) store.days[d] = 0; // วันนี้ยังไม่ครบ ไม่บันทึกว่าเสร็จ
   }
+  // --- เติมจาก NASA FIRMS เฉพาะวัน/ดาวเทียมที่ API ไม่มี (ช่วงที่ไฟล์ 7 วันครอบ) ---
+  for (const [k, r] of byId) if (r.src === 'firms' && apiSats[r.d] && apiSats[r.d].has(r.sat)) byId.delete(k); // API กลับมาแล้ว ใช้ของ API
+  const need = [];
+  for (let d = today - 6; d < today; d++) {
+    if (!todo.includes(d)) continue;
+    const S = apiSats[d] || new Set(), miss = SATS.filter(s => (s !== 'SNPP' || d <= SNPP_END) && !S.has(s));
+    if (miss.length) need.push([d, miss]);
+  }
+  let nF = 0;
+  if (need.length) try {
+    const F = await firms(), mins = t => Math.floor(t / 100) * 60 + t % 100, old = [...byId.values()].filter(r => r.src !== 'firms');
+    for (const [d, miss] of need) for (const r of F) {
+      if (r.d !== d || !miss.includes(r.sat)) continue;
+      // จุดเดิมจาก API (ก่อนขัดข้อง) ที่เป็นพิกเซลเดียวกัน → ไม่เติมซ้ำ
+      if (old.some(o => o.d === d && o.sat === r.sat && Math.abs(mins(o.t) - mins(r.t)) <= 10 && Math.hypot(o.la - r.la, o.lo - r.lo) < 400)) continue;
+      byId.set(r.uid, r); nF++;
+    }
+    console.log('API ขาดข้อมูล', need.map(([d, m]) => isoOf(d) + ' ' + m.join('/')).join(', '), '→ เติมจาก NASA FIRMS', nF, 'จุด');
+  } catch (e) { console.log('ดึง NASA FIRMS ไม่สำเร็จ:', e.message) }
   store.recs = [...byId.values()].sort((a, b) => a.d - b.d || a.t - b.t || a.la - b.la);
   for (const r of store.recs) if (r.d in store.days && fetched.has(r.d)) store.days[r.d]++;
 
@@ -102,7 +145,7 @@ if (fs.existsSync(OUT)) store = JSON.parse(fs.readFileSync(OUT, 'utf8')).raw || 
   const last = Math.max(-1, ...Object.keys(store.days).map(Number));
   const enc = {
     v: 1, upd: new Date().toISOString(), from: FROM, to: last >= 0 ? isoOf(last) : null, ...D,
-    r: store.recs.map(r => [r.d, r.t, r.la, r.lo, ix('sat', r.sat), ix('cf', r.cf), ix('pv', r.pv), ix('am', r.am), ix('tm', r.tm + '|' + r.am), ix('ar', r.ar), ix('st', r.st), ix('sb', SBP[r.pv] || r.sb), r.dnp]),
+    r: store.recs.map(r => [r.d, r.t, r.la, r.lo, ix('sat', r.sat), ix('cf', r.cf), ix('pv', r.pv), ix('am', r.am), ix('tm', r.tm + '|' + r.am), ix('ar', r.ar), ix('st', r.st), ix('sb', SBP[r.pv] || r.sb), r.dnp].concat(r.src === 'firms' ? [1] : [])),
   };
   writeSafe(OUT, JSON.stringify({ enc, raw: store }));
   const s = JSON.stringify(enc);

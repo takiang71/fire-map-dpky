@@ -80,4 +80,4 @@ function burnSummary(dir = path.join(ROOT, 'data', 'burn')) {
     miss: BNG.filter(g => !L.grids.includes(g)).length, fy: F, fy_rai: n * RAI, fy_periods: FP.length, hotspots: hot.length };
 }
 
-module.exports = { burnSummary };
+module.exports = { burnSummary, admIndex };
