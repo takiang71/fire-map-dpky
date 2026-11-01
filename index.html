@@ -224,12 +224,101 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 .hh{flex-wrap:wrap;gap:6px 6px}.ht{flex:1;font-size:15px;font-weight:800;color:var(--navy)}.hh>.hsub{flex:0 0 100%;margin-top:-2px}
 .hp{min-height:32px;padding:0 10px;border:1px solid var(--line);background:var(--bg);border-radius:99px;font-size:12.5px;display:inline-flex;align-items:center;gap:5px;color:var(--navy);font-weight:600}.hp svg{width:15px;height:15px}
 .kp .nm{font-size:13px;line-height:1.3;font-weight:800;margin:0 0 2px}.kp .lb{font-weight:600;color:var(--mut);font-size:10.5px;line-height:1.25}.kp .six{display:flex;flex-direction:column}
+/* หน้ากระดาน "ความสำคัญ" (#kb) — ความรู้รายพื้นที่อนุรักษ์ + แผนที่ประกอบ */
+#kb{position:fixed;inset:0;z-index:45;display:flex;flex-direction:column;background:#f3f5f2;color:var(--ink);--kg:#0d3b2c;--ka:#1f8a5b}
+#kb[hidden]{display:none}
+.kb-top{display:flex;align-items:center;gap:12px;padding:10px max(16px,env(safe-area-inset-right)) 10px max(16px,env(safe-area-inset-left));padding-top:calc(10px + env(safe-area-inset-top));background:#fff}
+.kb-top>div{flex:1;min-width:0}.kb-top b{display:block;font-size:17px;font-weight:800;color:var(--kg);line-height:1.25}.kb-top small{display:block;font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kb-lg{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#2fae6f,#0d3b2c);display:grid;place-items:center;color:#fff;flex:none}
+.kb-nav{display:flex;gap:6px;overflow-x:auto;padding:8px max(16px,env(safe-area-inset-left)) 10px;background:#fff;border-bottom:1px solid var(--line);scrollbar-width:none}.kb-nav::-webkit-scrollbar{display:none}
+.kb-nav button{flex:none;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 14px;font-size:13px;white-space:nowrap;transition:background .15s,color .15s}
+.kb-nav button i{width:9px;height:9px;border-radius:50%;flex:none}.kb-nav button:hover{background:#eef4f0}
+.kb-nav button[aria-selected=true]{background:var(--kg);border-color:var(--kg);color:#fff;font-weight:600}
+.kb-body{flex:1;overflow:auto;overscroll-behavior:contain}
+.kb-in{max-width:1280px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-right)) 28px max(16px,env(safe-area-inset-left))}
+.kb-hero{position:relative;overflow:hidden;border-radius:28px;color:#fff;padding:26px 28px 24px;background:radial-gradient(120% 140% at 100% 0,rgba(255,255,255,.18),transparent 55%),linear-gradient(135deg,var(--h1),var(--h2))}
+.kb-hero>svg{position:absolute;left:0;bottom:0;width:100%;height:46%;pointer-events:none}.kb-hero>*:not(svg){position:relative}
+.kb-tags{display:flex;flex-wrap:wrap;gap:6px}
+.kb-tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:3px 11px;border-radius:99px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.28)}
+.kb-tag.au{background:rgba(240,190,80,.24);border-color:rgba(255,214,128,.7);color:#ffe9b8}
+.kb-hero h2{margin:12px 0 2px;font-size:clamp(26px,4.2vw,44px);line-height:1.15;font-weight:800;letter-spacing:-.3px}
+.kb-en{font-size:14px;opacity:.85}
+.kb-hero p{max-width:760px;margin:10px 0 0;font-size:14.5px;line-height:1.7;opacity:.95}
+.kb-kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.kb-kpi div{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);border-radius:18px;padding:10px 14px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.kb-kpi b{display:block;font-size:24px;font-weight:800;line-height:1.2}.kb-kpi span{display:block;font-size:12px;opacity:.85;line-height:1.35}
+.kb-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:16px;margin-top:16px;align-items:start}
+.kb-mapw{position:sticky;top:12px;order:2;background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.05),0 10px 30px rgba(13,59,44,.09)}
+#kb-map{height:min(calc(100vh - 200px),660px);min-height:320px}
+.kb-mt{position:absolute;top:10px;left:10px;z-index:2;display:flex;gap:4px;flex-wrap:wrap}
+.kb-mt button{border:0;background:rgba(255,255,255,.94);border-radius:10px;padding:5px 10px;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.kb-mt button[aria-pressed=true]{background:var(--kg);color:#fff}
+.kb-ml{display:flex;flex-wrap:wrap;gap:4px 12px;padding:9px 14px;font-size:11.5px;color:var(--mut);border-top:1px solid var(--line)}
+.kb-ml span{display:inline-flex;align-items:center;gap:5px}.kb-ml i{width:11px;height:11px;border-radius:50%;flex:none}.kb-ml i.sq{border-radius:3px}
+.kb-cards{display:grid;gap:14px;order:1;min-width:0}
+.kb-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.kb-card{background:#fff;border-radius:24px;padding:18px 18px 16px;box-shadow:0 1px 2px rgba(0,0,0,.05),0 10px 30px rgba(13,59,44,.06);min-width:0}
+.kb-card h3{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-size:16px;font-weight:800;color:var(--kg)}
+.kb-card h3 i{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--ic,#e6f4ec);color:var(--icc,#1f8a5b);flex:none}.kb-card h3 svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.kb-card h3 small{margin-left:auto;font-size:11.5px;font-weight:400;color:var(--mut)}
+.kb-card p{margin:0 0 10px;font-size:14px;line-height:1.75}
+.kb-li{list-style:none;padding:0;margin:0;display:grid;gap:9px}
+.kb-li li{position:relative;padding-left:28px;font-size:14px;line-height:1.7}
+.kb-li li::before{content:'';position:absolute;left:2px;top:4px;width:18px;height:18px;border-radius:6px;background:#e6f4ec url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' fill='none' stroke='%231f8a5b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/12px no-repeat}
+.kb-tl{position:relative;margin:2px 0 0 7px;padding-left:20px;display:grid;gap:12px}
+.kb-tl::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:2px;background:linear-gradient(#bfe3cd,#e6efe9)}
+.kb-tl div{position:relative;font-size:14px;line-height:1.65}.kb-tl div::before{content:'';position:absolute;left:-26px;top:5px;width:10px;height:10px;border-radius:50%;background:#fff;border:3px solid var(--ka)}
+.kb-tl b{display:block;font-size:12.5px;color:var(--ka);font-weight:700}
+.kb-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.kb-chip{font-size:12.5px;padding:4px 11px;border-radius:99px;background:#f2f6f3;border:1px solid #e1eae4}
+.kb-fa{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.kb-fa div{border:1px solid #e6ece8;border-radius:16px;padding:9px 12px;background:linear-gradient(180deg,#fff,#fafcfa)}
+.kb-fa b{display:flex;align-items:center;gap:6px;font-size:13.5px}.kb-fa small{display:block;font-size:12px;color:var(--mut);line-height:1.45;margin-top:2px}
+.kb-iu{font-size:10px;font-weight:700;padding:1px 6px;border-radius:6px;color:#fff;flex:none;cursor:help}
+.kb-sb{display:flex;height:16px;border-radius:99px;overflow:hidden;margin:4px 0 10px;background:#eef2ef}
+.kb-sb i{display:block;height:100%}
+.kb-lgd{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:4px 12px;font-size:12.5px}
+.kb-lgd span{display:flex;align-items:center;gap:6px}.kb-lgd i{width:10px;height:10px;border-radius:3px;flex:none}.kb-lgd em{margin-left:auto;font-style:normal;color:var(--mut)}
+.kb-tr{display:grid;gap:4px}
+.kb-tr button{display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;border:0;background:none;border-radius:14px;padding:8px}
+.kb-tr button:hover{background:#f1f6f2}.kb-tr button.on{background:#e6f4ec}
+.kb-tr .n{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff;flex:none;box-shadow:0 0 0 2px #fff,0 1px 4px rgba(0,0,0,.25)}
+.kb-tr .n.x{background:#c9d1cc;box-shadow:none}
+.kb-tr button:disabled{cursor:default;color:inherit;opacity:1}.kb-tr button:disabled:hover{background:none}
+.kb-tr b{display:block;font-size:14px}.kb-tr small{display:block;font-size:12px;color:var(--mut);line-height:1.5}
+.kb-st{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.kb-st div{border:1px solid #eee3df;border-radius:14px;padding:7px 10px;background:#fffaf8}.kb-st b{display:block;font-size:19px;font-weight:800;color:#c0301c;line-height:1.25}.kb-st span{display:block;font-size:11px;color:var(--mut);line-height:1.3}
+.kb-ch{margin:2px 0 10px}.kb-ch svg{display:block;width:100%;height:auto}.kb-ch .t{font-size:12.5px;font-weight:600;color:var(--kg);margin-bottom:2px}
+.kb-ar{display:grid;gap:2px}
+.kb-ar button{display:grid;grid-template-columns:12px minmax(0,1fr) auto;align-items:center;gap:4px 10px;border:0;background:none;text-align:left;border-radius:12px;padding:7px 8px;font-size:13.5px}
+.kb-ar button:hover{background:#f1f6f2}.kb-ar i{width:12px;height:12px;border-radius:4px}.kb-ar em{font-style:normal;font-size:12px;color:var(--mut);text-align:right}
+.kb-ar u{grid-column:2/4;display:block;height:5px;border-radius:9px;background:#edf1ee;text-decoration:none;overflow:hidden}.kb-ar u s{display:block;height:100%;border-radius:9px;text-decoration:none}
+.kb-big{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.kb-big div{border-radius:16px;padding:10px 12px;background:#f2f7f4}.kb-big b{display:block;font-size:24px;font-weight:800;color:var(--kg);line-height:1.2}.kb-big span{font-size:12px;color:var(--mut);line-height:1.35;display:block}
+.kb-ft{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.kb-ft .kb-card{border-top:5px solid var(--c);padding-top:14px}
+.kb-ft h4{margin:0;font-size:15px;color:var(--kg);display:flex;align-items:center;gap:8px}.kb-ft h4 em{margin-left:auto;font-style:normal;font-size:12px;font-weight:400;color:var(--mut)}
+.kb-ft p{font-size:13.5px;margin:8px 0 0}.kb-ft .fi{margin-top:8px;padding:8px 10px;border-radius:12px;background:#fff6f2;font-size:13px;line-height:1.6;color:#6b2a17}
+.kb-hot{display:flex;gap:10px;align-items:center;border-radius:18px;padding:12px 14px;background:linear-gradient(135deg,#fff3ee,#ffe6dc);margin-top:10px}.kb-hot b{font-size:26px;font-weight:800;color:#c0301c}.kb-hot span{font-size:13px;line-height:1.5}
+.kb-go{display:inline-flex;align-items:center;gap:6px;margin-top:8px;border:1px solid var(--line);background:#fff;border-radius:12px;padding:7px 12px;font-size:13px}
+.kb-go:hover{background:#f1f6f2}
+.kb-src{margin-top:18px;font-size:11.5px;line-height:1.7;color:var(--mut)}
+.kb-pin{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:#fff;font:700 12px 'Noto Sans Thai',system-ui,sans-serif;box-shadow:0 0 0 2.5px #fff,0 2px 8px rgba(0,0,0,.35);cursor:pointer;transition:transform .15s}
+.kb-pin.on{transform:scale(1.3);z-index:3}
+.kb-sn{width:22px;height:22px;border-radius:7px;background:#1B2A5E;display:grid;place-items:center;box-shadow:0 0 0 2px #fff,0 2px 6px rgba(0,0,0,.3);cursor:pointer}
+.kb-sn svg{width:13px;height:13px;fill:#ffb08c}
+.kb-lb{padding:3px 10px;border-radius:99px;background:rgba(255,255,255,.93);font:700 12px 'Noto Sans Thai',system-ui,sans-serif;color:var(--kg);box-shadow:0 2px 8px rgba(0,0,0,.2);white-space:nowrap;cursor:pointer;border-left:4px solid var(--c)}
+.kb-pp b{display:block;font-size:14px}.kb-pp span{display:block;font-size:12px;color:var(--mut);line-height:1.5}.kb-pp a{font-size:12px}
+@media(max-width:900px){.kb-grid{grid-template-columns:minmax(0,1fr)}.kb-mapw{position:relative;top:0;order:0}#kb-map{height:330px;min-height:0}.kb-two{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){.kb-hero{padding:20px 18px 18px;border-radius:22px}.kb-kpi{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.kb-kpi b{font-size:20px}.kb-big{grid-template-columns:repeat(2,minmax(0,1fr))}.kb-st{grid-template-columns:repeat(2,minmax(0,1fr))}.kb-card{padding:16px 14px 14px;border-radius:20px}.kb-top small{white-space:normal}}
+@media print{#kb{display:none!important}}
 </style>
 </head>
 <body>
 <div id="ld" role="status">กำลังโหลดแผนที่…</div>
 <div id="map"></div>
 <canvas id="wc" aria-hidden="true"></canvas><div id="tip"></div>
+<div id="kb" hidden role="dialog" aria-modal="true" aria-labelledby="kb-t"><div class="kb-top"><span class="kb-lg"><svg class="i" viewBox="0 0 24 24"><path d="M5 19c9 0 14-6 14-14-8 0-14 5-14 14zM5 19l6-6"/></svg></span><div><b id="kb-t">ความสำคัญของผืนป่า</b><small>กลุ่มป่าดงพญาเย็น-เขาใหญ่ · มรดกโลกทางธรรมชาติ · ความรู้รายพื้นที่อนุรักษ์</small></div><button class="cb ib" id="kb-x" aria-label="ปิดหน้าความสำคัญ"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><nav class="kb-nav" id="kb-nav" role="tablist" aria-label="เลือกพื้นที่"></nav><div class="kb-body" id="kb-body"><div class="kb-in"><section class="kb-hero" id="kb-hero"></section><div class="kb-grid"><div class="kb-mapw"><div id="kb-map" role="region" aria-label="แผนที่ประกอบ"></div><div class="kb-mt" id="kb-mt"><button data-b="topo" aria-pressed="true">ภูมิประเทศ</button><button data-b="img" aria-pressed="false">ดาวเทียม</button><button data-b="ft" aria-pressed="false">ชนิดป่า</button></div><div class="kb-ml" id="kb-ml"></div></div><div class="kb-cards" id="kb-c"></div></div><div class="kb-src" id="kb-src"></div></div></div></div>
 <div class="md" id="md" hidden role="dialog" aria-modal="true" aria-labelledby="md-t"><div class="mc"><div class="mh"><b id="md-t"></b><button class="cb ib" id="md-x" aria-label="ปิด"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="mb" id="md-b"></div></div></div>
 <div id="toast" role="status"></div>
 <div id="rpt" aria-hidden="true"></div>
@@ -245,7 +334,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
  <div class="dmr"><button class="sw" id="bDemo" role="switch" aria-label="แสดงจุดความร้อนตัวอย่าง"></button><span>แสดง<b>จุดความร้อนตัวอย่าง</b>ในผืนป่า (ชั่วคราว เพื่อดูการแสดงผลระหว่างยังไม่ถึงฤดูไฟป่า)</span></div>
  <div class="btns">
   <button class="btn" id="bHide"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg><span>ซ่อนรายการ</span></button>
-  <button class="btn" data-soon="เรียนรู้ชนิดป่า|4">เรียนรู้ชนิดป่า</button>
+  <button class="btn" id="bKnow" title="ความสำคัญ ประวัติ ทรัพยากร สัตว์ป่า แหล่งท่องเที่ยว รายพื้นที่อนุรักษ์"><svg class="i" viewBox="0 0 24 24"><path d="M5 19c9 0 14-6 14-14-8 0-14 5-14 14zM5 19l6-6"/></svg>ความสำคัญ</button>
   <button class="btn" id="bStat">วิเคราะห์สถิติย้อนหลัง</button>
   <button class="btn" id="bPlay">ย้อนดูการลามของไฟ</button>
   <button class="btn" data-soon="คู่มือการใช้งาน|4"><svg class="i" viewBox="0 0 24 24"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 21V5M9 7h6"/></svg>คู่มือการใช้งาน</button>
@@ -1870,6 +1959,215 @@ map.on('zoom',()=>{const z=map.getZoom(),c=$('#map').classList;c.toggle('z9',z>=
 let POLLING=false;
 async function pollTick(){if(document.hidden||POLLING)return;const n=Date.now(),full=n-POLL.lastFull>=POLL.full;if(!full&&n-POLL.last<POLL.every)return;POLLING=true;try{await load(false,full?48:POLL.part)}finally{POLLING=false}}
 setInterval(pollTick,60e3);document.addEventListener('visibilitychange',pollTick);
+</script>
+<script>
+/* ===== หน้ากระดาน "ความสำคัญ" (#kb) — ความสำคัญ ประวัติ ทรัพยากร สัตว์ป่า แหล่งท่องเที่ยว ไฟป่า รายพื้นที่อนุรักษ์ + แผนที่ประกอบ (ผู้ใช้ขอ 1 พ.ย. 69 แทนเมนู "เรียนรู้ชนิดป่า")
+   เนื้อหา: UNESCO WHC / กรมอุทยานฯ / วิกิพีเดีย · พิกัดแหล่งท่องเที่ยว: OpenStreetMap (โดยประมาณ, null = ไม่มีพิกัด ไม่ปักหมุด) · ตัวเลขพื้นที่: แนวเขต KMZ (GEO) · ชนิดป่า: ftype.json · จุดความร้อน: HD ตามกติกา fuOK */
+(function(){
+const KBT={wf:['น้ำตก','#2a7fc0'],vp:['จุดชมวิว','#e07b24'],tw:['จุดดูสัตว์','#2f9e5b'],cp:['ลานกางเต็นท์','#159a8c'],pk:['ยอดเขา','#6b7280'],hs:['โบราณสถาน','#9a5b34'],nt:['ธรรมชาติ','#7b5bb6'],of:['ที่ทำการ','#1B2A5E']},
+ IUCN={CR:['#c0301c','ใกล้สูญพันธุ์อย่างยิ่ง (CR)'],EN:['#e0662a','ใกล้สูญพันธุ์ (EN)'],VU:['#d9a21b','มีแนวโน้มใกล้สูญพันธุ์ (VU)']},
+ WHS='มรดกโลก 2548',
+ IC={star:'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z',clock:'M12 7v5l3 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z',tree:'M12 2l5 7h-3l4 6h-5v7h-2v-7H6l4-6H7z',
+  paw:'M7.5 9.5a1.5 2 0 103 0 1.5 2 0 10-3 0M13.5 9.5a1.5 2 0 103 0 1.5 2 0 10-3 0M4.5 13a1.3 1.7 0 102.6 0 1.3 1.7 0 10-2.6 0M17 13a1.3 1.7 0 102.6 0 1.3 1.7 0 10-2.6 0M12 14c-3 0-5 3-5 5 0 1.5 1.5 2 2.5 1.6S11 20 12 20s1.5.2 2.5.6S17 20.5 17 19c0-2-2-5-5-5z',
+  pin:'M12 21s-7-6.2-7-11a7 7 0 0114 0c0 4.8-7 11-7 11zM12 8.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3z',fire:'M12 3s5 4.5 5 10a5 5 0 01-10 0c0-2.5 1.5-4 1.5-4s.5 2 2 2c0-4 1.5-8 1.5-8z',
+  shield:'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',heart:'M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z',globe:'M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18',grid:'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z'};
+const KB=[
+{id:'all',s:'ภาพรวมกลุ่มป่า',h:['#0b2e22','#1f8a5b'],kd:'กลุ่มป่า',n:'กลุ่มป่าดงพญาเย็น-เขาใหญ่',en:'Dong Phayayen–Khao Yai Forest Complex',
+ tags:[['มรดกโลกทางธรรมชาติ UNESCO 2548',1],['เกณฑ์ (x) ความหลากหลายทางชีวภาพ']],
+ lead:'ผืนป่าต่อเนื่องขนาดใหญ่ทอดตัวราว 230 กิโลเมตร จากอุทยานแห่งชาติเขาใหญ่ทางทิศตะวันตก ถึงอุทยานแห่งชาติตาพระยาที่ชายแดนไทย–กัมพูชา ครอบคลุมทิวเขาสันกำแพงและทิวเขาพนมดงรัก เป็นรอยต่อของภาคกลาง ภาคตะวันออก และภาคตะวันออกเฉียงเหนือ',
+ kpi:[['6,155','ตร.กม. พื้นที่มรดกโลก (≈ 3.85 ล้านไร่)'],['5','พื้นที่องค์ประกอบมรดกโลก'],['800+','ชนิดสัตว์ป่า'],['2548','ขึ้นทะเบียนเป็นมรดกโลก']],
+ imp:['แหล่งมรดกโลกทางธรรมชาติแห่งที่ 2 ของไทย ต่อจากทุ่งใหญ่นเรศวร–ห้วยขาแข้ง (2534) ขึ้นทะเบียนในการประชุมคณะกรรมการมรดกโลกสมัยที่ 29 ที่เมืองเดอร์บัน แอฟริกาใต้ เมื่อ 14 กรกฎาคม 2548',
+  'ผ่านเกณฑ์ (x) — เป็นถิ่นอาศัยสำคัญของชนิดพันธุ์ที่ถูกคุกคามระดับโลก ได้แก่ ใกล้สูญพันธุ์อย่างยิ่ง 1 ชนิด ใกล้สูญพันธุ์ 4 ชนิด และมีแนวโน้มใกล้สูญพันธุ์ 19 ชนิด',
+  'ป่าเขตร้อนผืนใหญ่ที่ยังสมบูรณ์ ป่าดิบแล้งเป็นหลัก รองรับประชากรช้างป่า กระทิง วัวแดง และเสือโคร่งที่สำคัญของภาคตะวันออก',
+  'ต้นน้ำของลุ่มน้ำบางปะกง–ปราจีนบุรี (แม่น้ำนครนายก แม่น้ำปราจีนบุรี) และลุ่มน้ำมูล (ลำตะคอง ลำพระเพลิง ลำมูลบน ลำนางรอง) หล่อเลี้ยงผู้คนหลายล้านคน',
+  'แหล่งท่องเที่ยวเชิงนิเวศระดับประเทศ — เฉพาะเขาใหญ่มีผู้มาเยือนราว 1.55 ล้านคนในปี 2562'],
+ hist:[['18 ก.ย. 2505','ประกาศอุทยานแห่งชาติเขาใหญ่ อุทยานแห่งชาติแห่งแรกของไทย'],['23 ธ.ค. 2524','ประกาศอุทยานแห่งชาติทับลาน'],['22 ก.พ. 2525','ประกาศอุทยานแห่งชาติปางสีดา'],['2527','เขาใหญ่ได้รับการประกาศเป็นอุทยานมรดกแห่งอาเซียน'],['2539','จัดตั้งอุทยานแห่งชาติตาพระยา และเขตรักษาพันธุ์สัตว์ป่าดงใหญ่'],['14 ก.ค. 2548','ยูเนสโกขึ้นทะเบียน “กลุ่มป่าดงพญาเย็น-เขาใหญ่” เป็นมรดกโลกทางธรรมชาติ'],['15 มี.ค. 2564','คณะกรรมการสงวนและคุ้มครองสัตว์ป่ามีมติกำหนดพื้นที่เตรียมการเขตห้ามล่าสัตว์ป่าโคกสูง และเขาฉกรรจ์ (สระแก้ว)']],
+ threat:['ถนนตัดผ่านผืนป่า เช่น ทางหลวงหมายเลข 304 ระหว่างเขาใหญ่กับทับลาน — จึงมีโครงการสะพานยกระดับและอุโมงค์ให้สัตว์ป่าข้าม','การบุกรุกพื้นที่และการลักลอบตัดไม้พะยูง','การล่าสัตว์ป่า','ไฟป่าในฤดูแล้ง (ม.ค.–เม.ย.) โดยเฉพาะป่าเบญจพรรณ ป่าเต็งรัง และพื้นที่ติดชุมชน','ช้างป่าออกนอกพื้นที่และความขัดแย้งระหว่างคนกับสัตว์ป่า','นักท่องเที่ยวหนาแน่น ขยะและน้ำเสีย']},
+{id:'ky',s:'เขาใหญ่',n:'อุทยานแห่งชาติเขาใหญ่',en:'Khao Yai National Park',h:['#0b3d2b','#2f9e5b'],c:'#2f9e5b',
+ tags:[['อุทยานแห่งชาติแห่งแรกของไทย'],['อุทยานมรดกแห่งอาเซียน 2527'],[WHS,1]],
+ lead:'อุทยานแห่งชาติแห่งแรกของประเทศไทย ประกาศเมื่อ 18 กันยายน 2505 ครอบคลุม 4 จังหวัด คือ นครราชสีมา สระบุรี นครนายก และปราจีนบุรี เป็นภูเขาสลับซับซ้อนของทิวเขาสันกำแพง มียอดเขาร่มสูง 1,351 เมตร เป็นยอดสูงสุดของผืนป่า',
+ kpi:[['2505','ปีที่ประกาศ (แห่งแรกของไทย)'],['1,351 ม.','ยอดเขาร่ม']],
+ imp:['อุทยานแห่งชาติแห่งแรกของไทย และเป็นอุทยานมรดกแห่งอาเซียน (ASEAN Heritage Park) ตั้งแต่ปี 2527','แกนกลางของมรดกโลก — ป่าดิบแล้ง ป่าดิบชื้น ป่าดิบเขา และทุ่งหญ้า เป็นถิ่นอาศัยของช้างป่า กระทิง และนกเงือก 4 ชนิด','ต้นน้ำของแม่น้ำนครนายก แม่น้ำปราจีนบุรี ลำตะคอง และลำพระเพลิง หล่อเลี้ยงพื้นที่เกษตรและเมืองทั้งสองฝั่งเขา','แหล่งท่องเที่ยวธรรมชาติที่มีผู้มาเยือนมากที่สุดแห่งหนึ่งของไทย (ราว 1.55 ล้านคนในปี 2562) และห้องเรียนธรรมชาติของงานวิจัยสัตว์ป่า'],
+ hist:[['เดิม','ป่าดิบทึบชื่อ “ดงพญาไฟ” ไข้ป่าชุกชุม สัตว์ร้ายมาก ภายหลังเปลี่ยนเรียกเป็น “ดงพญาเย็น” เพื่อไม่ให้ผู้คนหวาดกลัว'],['ราว 2465','ชาวบ้านจากนครนายกบุกเบิกที่ทำกินริมหนองขิง ตั้งเป็น “ตำบลเขาใหญ่” ขึ้นกับอำเภอปากพลี'],['2475','ทางการส่งปลัดจ่างขึ้นไปปราบโจรที่ซ่องสุม ปลัดจ่างเสียชีวิตด้วยไข้ป่า เป็นที่มาของศาลเจ้าพ่อเขาใหญ่ ต่อมายุบตำบลและอพยพชาวบ้านลงพื้นราบ'],['2502–2504','จอมพลสฤษดิ์ ธนะรัชต์ สั่งสำรวจพื้นที่ ตัดถนนธนะรัชต์ และมีการตราพระราชบัญญัติอุทยานแห่งชาติ พ.ศ. 2504'],['18 ก.ย. 2505','ประกาศเป็นอุทยานแห่งชาติแห่งแรกของไทย'],['2527','ประกาศเป็นอุทยานมรดกแห่งอาเซียน'],['2548','ขึ้นทะเบียนเป็นมรดกโลกร่วมกับอีก 4 พื้นที่'],['ต.ค. 2562','ช้างป่า 11 ตัวพลัดตกน้ำตกเหวนรกขณะข้ามลำน้ำช่วงน้ำหลาก']],
+ forest:'ป่าดิบแล้งเป็นป่าหลัก ป่าดิบชื้นพบตามลาดเขาด้านใต้ที่รับฝนมาก ป่าดิบเขาขึ้นบนยอดเขาสูงกว่า ~1,000 ม. เช่น เขาเขียว เขาร่ม ส่วนทุ่งหญ้ากลางอุทยานเกิดจากพื้นที่ไร่เก่าของชุมชนในอดีต ซึ่งยังรักษาไว้เป็นแหล่งอาหารสัตว์กินพืช มีพรรณพืชราว 3,000 ชนิด',
+ plants:['ยางนา','ตะเคียนทอง','กระบาก','ไม้วงศ์ก่อ (ป่าดิบเขา)','กล้วยไม้ป่า','เฟิร์นและมอส','หญ้าคา (ทุ่งหญ้า)'],
+ fauna:[['ช้างป่า','พบบ่อยบนถนนและโป่งในอุทยานฯ','EN'],['ชะนีมือขาว · ชะนีมงกุฎ','พื้นที่ที่ชะนีสองชนิดอาศัยซ้อนทับกัน','EN'],['นกเงือก 4 ชนิด','นกกก นกกรามช้าง นกแก๊ก นกเงือกสีน้ำตาล',''],['กระทิง','ดูได้ที่หอดูสัตว์และโป่ง','VU'],['กวางป่า','มักพบตามทุ่งหญ้าและลานกางเต็นท์','VU'],['เสือโคร่ง','พบจากกล้องดักถ่ายภาพ จำนวนน้อย','EN'],['หมาใน','ล่าเหยื่อเป็นฝูง','EN'],['หมีควาย · หมีหมา','','VU'],['ไก่ฟ้าพญาลอ','นกประจำชาติไทย','']],
+ tour:[['น้ำตกเหวสุวัต','wf',101.4141,14.4355,'น้ำตกจากลำตะคอง เคยเป็นฉากในภาพยนตร์ The Beach'],['น้ำตกผากล้วยไม้','wf',101.4075,14.4271,'ชื่อตามกล้วยไม้ที่ขึ้นตามหน้าผา มีเส้นทางเดินศึกษาธรรมชาติต่อไปน้ำตกเหวสุวัต'],['น้ำตกเหวนรก','wf',101.3882,14.2897,'น้ำตกขนาดใหญ่ไหลลงหุบเหวลึก ฝั่งปราจีนบุรี'],['หอส่องสัตว์หนองผักชี','tw',101.3597,14.4540,'ริมหนองน้ำและทุ่งหญ้า ชมสัตว์ป่ายามเช้า–เย็น'],['จุดชมวิว กม.30','vp',101.3903,14.4739,'ทิวเขาสลับซับซ้อนริมถนนธนะรัชต์'],['ผาเดียวดาย','vp',101.4070,14.3656,'จุดชมวิวบนเส้นทางขึ้นเขาเขียว'],['เขาเขียว','pk',101.3754,14.3548,'ยอดเขาสูง 1,292 ม. ป่าดิบเขา'],['เขาร่ม','pk',101.4250,14.3880,'ยอดเขาสูงสุดของผืนป่า 1,351 ม.'],['ลานกางเต็นท์ลำตะคอง','cp',101.3873,14.4232,'ริมลำตะคอง'],['จุดดูกระทิงเขาแผงม้า','tw',101.7737,14.3668,'ฝั่งวังน้ำเขียว กระทิงกลับมาหลังการฟื้นฟูป่า'],['น้ำตกสาริกา','wf',101.2547,14.3115,'ฝั่งนครนายก'],['น้ำตกนางรอง','wf',101.3197,14.3300,'ฝั่งนครนายก']]},
+{id:'tl',s:'ทับลาน',n:'อุทยานแห่งชาติทับลาน',en:'Thap Lan National Park',h:['#4a3208','#c98a1a'],c:'#c98a1a',
+ tags:[['ใหญ่เป็นอันดับ 2 ของไทย'],['ป่าลานผืนใหญ่'],[WHS,1]],
+ lead:'ประกาศเป็นอุทยานแห่งชาติลำดับที่ 40 เมื่อ 23 ธันวาคม 2524 ใหญ่เป็นอันดับ 2 ของประเทศ ครอบคลุมนครราชสีมา (ครบุรี ปักธงชัย วังน้ำเขียว เสิงสาง) และปราจีนบุรี (นาดี) ตั้งอยู่บนทิวเขาสันกำแพงที่เชื่อมภาคกลางกับภาคอีสาน ที่ทำการอยู่ ต.บุพราหมณ์ อ.นาดี',
+ kpi:[['2524','ปีที่ประกาศ'],['992 ม.','ยอดเขาละมั่ง']],
+ imp:['ชื่อ “ทับลาน” มาจากต้นลาน ปาล์มที่ขึ้นหนาแน่นในพื้นที่ — ป่าลานผืนใหญ่ที่เหลืออยู่ไม่กี่แห่งของไทย ใบลานใช้จารคัมภีร์มาแต่โบราณ','ผืนป่ากว้างที่เชื่อมเขาใหญ่กับปางสีดา–ตาพระยา เป็นทางเดินของช้างป่า กระทิง วัวแดง และเสือโคร่ง (มีการติดปลอกคอ GPS เสือโคร่งเป็นครั้งแรกในผืนป่าตะวันออก)','แหล่งไม้พะยูง ไม้มีค่าที่ถูกลักลอบตัดมาก งานลาดตระเวนจึงเข้มข้น','ต้นน้ำของลำมูลบนและลำแชะ ที่ไหลลงเขื่อนลำมูลบนและเขื่อนลำแชะ จังหวัดนครราชสีมา'],
+ hist:[['23 ธ.ค. 2524','ประกาศเป็นอุทยานแห่งชาติลำดับที่ 40'],['2548','ขึ้นทะเบียนเป็นมรดกโลก'],['ส.ค.–ก.ย. 2552','ต้นลานออกดอกพร้อมกันครั้งใหญ่ — ลานออกดอกเพียงครั้งเดียวในชีวิต (อายุราว 60 ปี) แล้วยืนต้นตาย ให้เมล็ดงอกเป็นรุ่นใหม่'],['2563','ได้รับรางวัลอุทยานแห่งชาติสีเขียว ระดับทอง (ดีเยี่ยม)'],['2567','ข้อเสนอปรับปรุงแนวเขตราว 2.65 แสนไร่ เกิดกระแสคัดค้าน #Saveทับลาน']],
+ forest:'ป่าดิบแล้งเป็นป่าหลัก รองลงมาเป็นป่าเบญจพรรณ ป่าเต็งรัง และป่าลานผลัดใบซึ่งพบเป็นกลุ่มหนาแน่นด้าน ต.บุพราหมณ์ อ.นาดี บริเวณเขาหินปูนและหน้าผาเป็นถิ่นของเลียงผาและค้างคาว',
+ plants:['ต้นลาน','พะยูง','ยางนา','ยางแดง','ประดู่','แดง','ชิงชัน','เต็ง · รัง · เหียง · พลวง','ไผ่'],
+ fauna:[['เสือโคร่ง','ติดปลอกคอ GPS ครั้งแรกในผืนป่าตะวันออก','EN'],['ช้างป่า','','EN'],['วัวแดง','','EN'],['กระทิง','','VU'],['ชะนีมงกุฎ','','EN'],['เลียงผา','เขาหินปูนและหน้าผา','VU'],['หมีควาย · หมีหมา','','VU'],['ไก่ฟ้าพญาลอ','',''],['นกเงือก','ยืนยันนกแล้ว 149 ชนิด','']],
+ tour:[['ที่ทำการอุทยานฯ ทับลาน','of',101.9015,14.2169,'ต.บุพราหมณ์ อ.นาดี — ลานกางเต็นท์ และจุดเริ่มต้นชมป่าลาน'],['น้ำตกห้วยใหญ่ · ม่านฟ้า','wf',101.8953,14.3422,''],['ผาชมตะวัน','vp',101.8974,14.3435,''],['น้ำตกสวนห้อม','wf',101.8849,14.3351,''],['ผาเก็บตะวัน','vp',101.9299,14.3183,'จุดชมวิวทะเลภูเขา'],['ป่าลาน','nt',null,null,'ป่าลานผืนใหญ่ ต.บุพราหมณ์ อ.นาดี'],['น้ำตกทับลาน (เหวนกกก)','wf',null,null,''],['เขื่อนลำมูลบน · หาดชมตะวัน','nt',null,null,'แหล่งพักผ่อนริมอ่างเก็บน้ำ']]},
+{id:'ps',s:'ปางสีดา',n:'อุทยานแห่งชาติปางสีดา',en:'Pang Sida National Park',h:['#0b3155','#2a7fc0'],c:'#2a7fc0',
+ tags:[['ผีเสื้อปางสีดา'],['จระเข้น้ำจืดในธรรมชาติ'],[WHS,1]],
+ lead:'ประกาศเป็นอุทยานแห่งชาติลำดับที่ 41 เมื่อ 22 กุมภาพันธ์ 2525 อยู่ในอำเภอเมืองสระแก้ว อำเภอวัฒนานคร จังหวัดสระแก้ว และบางส่วนของอำเภอนาดี จังหวัดปราจีนบุรี เป็นเทือกเขาสลับซับซ้อนทางตอนใต้ของผืนป่า พื้นที่ราวร้อยละ 95 ยังเป็นป่า',
+ kpi:[['2525','ปีที่ประกาศ'],['~95%','สภาพเป็นป่า']],
+ imp:['ขึ้นชื่อเรื่อง “ผีเสื้อปางสีดา” — ช่วงต้นฤดูฝนผีเสื้อจำนวนมากรวมฝูงตามลำห้วยและถนนในอุทยานฯ','หนึ่งในไม่กี่แหล่งของไทยที่ยังพบจระเข้น้ำจืด (จระเข้สยาม) ในธรรมชาติ ซึ่งเป็นชนิดพันธุ์ใกล้สูญพันธุ์อย่างยิ่ง','ป่าต่อเนื่องเชื่อมทับลานกับตาพระยา เป็นถิ่นอาศัยของช้าง กระทิง วัวแดง เสือโคร่ง และนกยูงไทย','ต้นกำเนิดลำห้วยหลายสายที่หล่อเลี้ยงชุมชนจังหวัดสระแก้ว'],
+ hist:[['22 ก.พ. 2525','ประกาศเป็นอุทยานแห่งชาติลำดับที่ 41'],['2548','ขึ้นทะเบียนเป็นมรดกโลก']],
+ forest:'ป่าดิบแล้งและป่าเบญจพรรณเป็นหลัก มีป่าดิบชื้นตามหุบเขาที่ชุ่มชื้น และป่าดิบเขาบริเวณยอดสูง ความสูงราว 50–870 ม. จากระดับน้ำทะเล',
+ plants:['ตะเคียน','ยางกล่อง','กระบาก','เคี่ยมคะนอง','สนสามพันปี','มะขามป้อมดง','กำลังเสือโคร่ง','เต็ง · รัง · พลวง'],
+ fauna:[['จระเข้น้ำจืด (จระเข้สยาม)','ยังพบในธรรมชาติ','CR'],['ผีเสื้อ','รวมฝูงจำนวนมากช่วงต้นฤดูฝน',''],['ช้างป่า','','EN'],['เสือโคร่ง','','EN'],['วัวแดง','','EN'],['กระทิง','','VU'],['ชะนีมงกุฎ','','EN'],['นกยูงไทย','','EN'],['นากเล็กเล็บสั้น','','VU'],['นกเงือก','','']],
+ tour:[['น้ำตกปางสีดา','wf',102.2061,13.9941,''],['น้ำตกผาตะเคียน','wf',102.2204,14.0051,''],['น้ำตกแควมะค่า','wf',null,null,''],['น้ำตกถ้ำค้างคาว','wf',null,null,''],['น้ำตกธารพลับพลึง','wf',null,null,''],['ทุ่งหญ้าบุตาปอด (กม.25)','vp',null,null,'จุดชมทิวทัศน์'],['ภูเขาเจดีย์','nt',null,null,'']]},
+{id:'tp',s:'ตาพระยา',n:'อุทยานแห่งชาติตาพระยา',en:'Ta Phraya National Park',h:['#4a1a10','#b4513a'],c:'#b4513a',
+ tags:[['ชายแดนไทย–กัมพูชา'],['โบราณสถานขอม'],[WHS,1]],
+ lead:'ประกาศเป็นอุทยานแห่งชาติลำดับที่ 82 เมื่อ 23 พฤศจิกายน 2539 อยู่ปลายสุดด้านตะวันออกของผืนป่า บนทิวเขาพนมดงรักต่อเนื่องทิวเขาบรรทัดตามแนวชายแดนไทย–กัมพูชา ครอบคลุมอำเภอตาพระยา จ.สระแก้ว และอำเภอโนนดินแดง ละหานทราย บ้านกรวด จ.บุรีรัมย์',
+ kpi:[['2539','ปีที่ประกาศ'],['579 ม.','ยอดเขาพรานนุช']],
+ imp:['ปราการด้านตะวันออกของมรดกโลก ผืนป่าติดต่อกับป่าในกัมพูชา — ยูเนสโกเสนอให้ร่วมจัดการข้ามพรมแดน','ต้นน้ำของลำนางรอง ลำสะโดน ห้วยซับกระโดน และห้วยแห้ง หล่อเลี้ยงพื้นที่เกษตรของบุรีรัมย์และสระแก้ว','มีโบราณสถานขอม เช่น ปราสาทเขาโล้น และปราสาทไบแบก สะท้อนการตั้งถิ่นฐานยุคโบราณบริเวณเทือกเขาพนมดงรัก','ถิ่นอาศัยของช้าง วัวแดง และเลียงผา รวมทั้งไม้พะยูง — การลาดตระเวนป้องกันการลักลอบตัดไม้เป็นภารกิจสำคัญ'],
+ hist:[['2528','พัฒนาอ่างเก็บน้ำเมฆาด้วยความช่วยเหลือจากรัฐบาลญี่ปุ่น'],['23 พ.ย. 2539','ประกาศเป็นอุทยานแห่งชาติลำดับที่ 82'],['2548','ขึ้นทะเบียนเป็นมรดกโลก']],
+ forest:'ป่าเบญจพรรณ ป่าดิบแล้ง และป่าเต็งรัง บนภูเขาความสูง 206–579 ม. ความลาดชันเฉลี่ยราวร้อยละ 35 อากาศร้อนและแล้งกว่าฝั่งเขาใหญ่ (สูงสุดเฉลี่ยราว 39.8 °C)',
+ plants:['พะยูง','มะค่าโมง','ประดู่','แดง','เต็ง','รัง','กระเจียว'],
+ fauna:[['ช้างป่า','','EN'],['วัวแดง','ศึกษาการฟื้นตัวของประชากรร่วมกับดงใหญ่','EN'],['เลียงผา','','VU'],['เก้ง','','']],
+ tour:[['ปราสาทเขาโล้น','hs',102.6962,14.0574,'โบราณสถานขอมบนเนินเขา'],['ปราสาทไบแบก','hs',103.1631,14.3462,'ปราสาทขอมขนาดเล็กกลางป่าใกล้ชายแดน'],['ละลุ','nt',102.5751,14.0529,'ดินถูกกัดเซาะเป็นแท่งเสาและหน้าผาดิน'],['ลานกระเจียว','nt',null,null,'ทุ่งดอกกระเจียวช่วงต้นฤดูฝน'],['อ่างเก็บน้ำเมฆา','nt',null,null,''],['ผาแดง','vp',null,null,'บ้านหนองเสม็ด ต.ลำนางรอง อ.โนนดินแดง — ทะเลหมอกฤดูหนาว ชมพระอาทิตย์ตก']]},
+{id:'dy',s:'ดงใหญ่',n:'เขตรักษาพันธุ์สัตว์ป่าดงใหญ่',en:'Dong Yai Wildlife Sanctuary',h:['#2b1b4d','#7b5bb6'],c:'#7b5bb6',
+ tags:[['สบอ.7 (นครราชสีมา)'],['IUCN ประเภท Ia'],[WHS,1]],
+ lead:'จัดตั้งปี 2539 ในอำเภอโนนดินแดงและอำเภอปะคำ จังหวัดบุรีรัมย์ เดิมเป็นส่วนหนึ่งของป่าสงวนแห่งชาติป่าดงใหญ่ (ราว 6.3 แสนไร่) ผืนป่าที่สมบูรณ์ที่สุดของบุรีรัมย์ อยู่ในความดูแลของสำนักบริหารพื้นที่อนุรักษ์ที่ 7 (นครราชสีมา)',
+ kpi:[['2539','ปีที่จัดตั้ง'],['~130','ชนิดนกที่สำรวจพบ']],
+ imp:['พื้นที่คุ้มครองระดับเข้มงวด (เขตรักษาพันธุ์สัตว์ป่า) มุ่งให้สัตว์ป่าอยู่อาศัยและขยายพันธุ์ ไม่ใช่แหล่งท่องเที่ยวหลัก — ยังไม่มีบ้านพัก เน้นเดินป่าและกางเต็นท์','ต้นน้ำของลำนางรองและลำปลายมาศ สายน้ำหลักของจังหวัดบุรีรัมย์','ป่าดิบแล้งผืนใหญ่ที่เชื่อมทับลานกับตาพระยา','ราวปี 2535 มีรายงานพบกูปรี และพบเลียงผา สัตว์ป่าสงวนของไทย'],
+ hist:[['เดิม','ป่าสงวนแห่งชาติป่าดงใหญ่ ราว 631,250 ไร่ ถูกบุกรุกเพื่อทำการเกษตรจนลดลงต่อเนื่อง'],['มี.ค. 2535','สำรวจพบป่ายังอุดมสมบูรณ์ สัตว์ป่าชุกชุม จึงเสนอจัดตั้งเขตรักษาพันธุ์สัตว์ป่า และอพยพราษฎรออกจากพื้นที่'],['2539','จัดตั้งเขตรักษาพันธุ์สัตว์ป่าดงใหญ่'],['2548','ขึ้นทะเบียนเป็นมรดกโลก']],
+ forest:'ป่าดิบแล้งเกือบทั้งพื้นที่ ไม้เด่น มะค่าโมง มะค่าแต้ ประดู่ ตะเคียนหิน ตะเคียนทอง ยางนา ชิงชัน พะยูง และเคี่ยมคะนอง มีกล้วยไม้และเฟิร์นหลายชนิด',
+ plants:['มะค่าโมง','มะค่าแต้','ประดู่','ตะเคียนหิน','ตะเคียนทอง','ยางนา','ชิงชัน','พะยูง','เคี่ยมคะนอง'],
+ fauna:[['เลียงผา','สัตว์ป่าสงวน','VU'],['กูปรี','มีรายงานการพบราวปี 2535 (สัตว์ป่าสงวน)','CR'],['วัวแดง','','EN'],['นกเงือก','',''],['นกขุนทอง','',''],['เหยี่ยวรุ้ง','',''],['ตะกวด · ตะพาบน้ำ','','']],
+ tour:[['โป่งอีหล้า','nt',null,null,'โป่งดินที่สัตว์ป่าลงกิน'],['ซับน้ำล้อม · ร้อยรู','nt',null,null,'แหล่งน้ำซับ'],['ปราสาทหนองหงส์','hs',102.7606,14.3023,'โบราณสถานขอม อ.โนนดินแดง']]},
+{id:'ks',s:'โคกสูง',n:'เตรียมประกาศเป็นเขตห้ามล่าสัตว์ป่าโคกสูง',sn:'เขตห้ามล่าสัตว์ป่าโคกสูง (เตรียมการ)',en:'Khok Sung Non-Hunting Area (proposed)',h:['#4d1730','#d0658c'],c:'#d0658c',
+ tags:[['เตรียมการเขตห้ามล่าสัตว์ป่า'],['นอกพื้นที่มรดกโลก']],
+ lead:'ผืนป่าขนาดเล็กทางใต้ของอุทยานแห่งชาติตาพระยา ในอำเภอโคกสูง ตาพระยา และวัฒนานคร จังหวัดสระแก้ว คณะกรรมการสงวนและคุ้มครองสัตว์ป่ามีมติเมื่อ 15 มีนาคม 2564 ให้กำหนดเป็นพื้นที่เตรียมการเขตห้ามล่าสัตว์ป่า',
+ kpi:[['2564','มติกำหนดพื้นที่'],['สระแก้ว','จังหวัด']],
+ imp:['ป่าผืนสุดท้ายท่ามกลางพื้นที่เกษตร เป็น “เกาะ” ที่หลบภัยและแหล่งอาหารของสัตว์ป่าท้องถิ่น','กันชนและแหล่งต้นน้ำของชุมชนโดยรอบ','ข้อมูลความหลากหลายทางชีวภาพยังอยู่ระหว่างการสำรวจ'],
+ hist:[['15 มี.ค. 2564','คณะกรรมการสงวนและคุ้มครองสัตว์ป่ามีมติกำหนดเป็นพื้นที่เตรียมการเขตห้ามล่าสัตว์ป่า'],['ปัจจุบัน','อยู่ระหว่างขั้นตอนประกาศ ดูแลโดยสำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)']],
+ forest:'ป่าดิบแล้งเป็นหลัก มีป่าเบญจพรรณแทรก',plants:[],fauna:[],
+ tour:[['เขาอีด่าง','pk',102.6554,13.9121,'ภูเขาในพื้นที่']]},
+{id:'kc',s:'เขาฉกรรจ์',n:'เตรียมประกาศเป็นเขตห้ามล่าสัตว์ป่าเขาฉกรรจ์',sn:'เขตห้ามล่าสัตว์ป่าเขาฉกรรจ์ (เตรียมการ)',en:'Khao Chakan Non-Hunting Area (proposed)',h:['#0c3a3a','#3aa3a0'],c:'#3aa3a0',
+ tags:[['เตรียมการเขตห้ามล่าสัตว์ป่า'],['นอกพื้นที่มรดกโลก']],
+ lead:'ผืนป่าขนาดเล็กทางใต้สุดของพื้นที่รับผิดชอบ ส่วนใหญ่อยู่ในอำเภอวัฒนานคร และบางส่วนของอำเภอเมืองสระแก้วและอำเภอเขาฉกรรจ์ จังหวัดสระแก้ว คณะกรรมการสงวนและคุ้มครองสัตว์ป่ามีมติเมื่อ 15 มีนาคม 2564 ให้กำหนดเป็นพื้นที่เตรียมการเขตห้ามล่าสัตว์ป่า',
+ kpi:[['2564','มติกำหนดพื้นที่'],['สระแก้ว','จังหวัด']],
+ imp:['ป่าเบญจพรรณผืนเล็กกลางพื้นที่เกษตร เป็นที่หลบภัยและแหล่งอาหารของสัตว์ป่าท้องถิ่น','กันชนและแหล่งต้นน้ำของชุมชนโดยรอบ','ข้อมูลความหลากหลายทางชีวภาพยังอยู่ระหว่างการสำรวจ'],
+ hist:[['15 มี.ค. 2564','คณะกรรมการสงวนและคุ้มครองสัตว์ป่ามีมติกำหนดเป็นพื้นที่เตรียมการเขตห้ามล่าสัตว์ป่า'],['ปัจจุบัน','อยู่ระหว่างขั้นตอนประกาศ ดูแลโดยสำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)']],
+ forest:'ป่าเบญจพรรณเกือบทั้งพื้นที่',plants:[],fauna:[],tour:[]},
+{id:'ft',s:'ชนิดป่าและไฟ',kd:'ความรู้',n:'ชนิดป่าและไฟป่า',en:'Forest types & fire',h:['#1f3a0b','#5a9a2a'],tags:[['ชนิดป่า กรมป่าไม้ 2568'],['จุดความร้อนกรมอุทยานฯ 2561–2569']],
+ lead:'ป่าแต่ละชนิดมีเชื้อเพลิง ความชื้น และการตอบสนองต่อไฟต่างกัน การรู้ว่าจุดความร้อนเกิดในป่าชนิดใดช่วยประเมินความรุนแรงและวางแผนดับไฟได้ตรงจุด — แผนที่ทางขวาแสดงชั้นชนิดป่าในแนวเขต (โมเดลไฟในระบบนี้ใช้ชั้นเดียวกันเลือกเชื้อเพลิงอัตโนมัติ)'}];
+const FTX={3:['ป่าไม่ผลัดใบ เรือนยอดหลายชั้น พบที่ความสูงราว 100–800 ม. ไม้เด่น ยางนา ยางแดง ตะเคียน กระบาก มะค่าโมง','ใต้เรือนยอดชื้น ไฟเข้าได้ยาก แต่ปีที่แล้งจัดไฟผิวดินลามเข้าจากขอบป่า ไม้ป่าดิบไม่ทนไฟ ความเสียหายจึงสูงและฟื้นตัวช้า'],
+ 2:['ฝนชุก ความชื้นสูงตลอดปี พบตามลาดเขาด้านรับลมมรสุมและหุบเขา','เสี่ยงต่ำ ยกเว้นปีแล้งรุนแรง'],
+ 4:['ความสูงเกิน ~1,000 ม. อากาศเย็น ไม้วงศ์ก่อ มอส เฟิร์น กล้วยไม้อิงอาศัย','เสี่ยงต่ำ แต่หากถูกไฟไหม้จะฟื้นตัวช้ามาก'],
+ 6:['ป่าผลัดใบผสม มีไผ่มาก ไม้เด่น ประดู่ แดง มะค่าโมง ชิงชัน','ใบไม้และกาบไผ่ร่วงหนาในฤดูแล้ง เกิดไฟผิวดินเกือบทุกปีช่วง ม.ค.–เม.ย. ลามเร็วเมื่อมีลมและความลาดชัน'],
+ 7:['ป่าโปร่ง ดินตื้นแห้งแล้ง ไม้เด่น เต็ง รัง เหียง พลวง พื้นล่างเป็นหญ้าเพ็กและไผ่แคระ','ไฟผิวดินบ่อยที่สุด ต้นไม้เปลือกหนาทนไฟได้ดี แต่ไฟซ้ำทุกปีทำให้ลูกไม้ไม่รอด'],
+ 8:['ไผ่ขึ้นหนาแน่น มักเกิดหลังพื้นที่ถูกรบกวน','เชื้อเพลิงแห้งปริมาณมาก ไฟแรงและลามเร็ว ไผ่ออกขุยแล้วตายพร้อมกันยิ่งเพิ่มเชื้อเพลิง'],
+ 12:['ทุ่งหญ้าสลับไม้พุ่ม แหล่งอาหารของสัตว์กินพืช','ไฟลามเร็วที่สุด หญ้าแห้งติดไฟง่าย จึงใช้การชิงเผาอย่างมีแผนเพื่อลดเชื้อเพลิงและรักษาทุ่งหญ้า'],
+ 11:['ป่าที่กลับฟื้นจากไร่ร้างหรือพื้นที่เสื่อมโทรม','มีหญ้าและไม้เบิกนำ ติดไฟง่าย การป้องกันไฟคือหัวใจของการฟื้นฟู'],
+ 9:['ป่าปลูก เช่น สวนสัก','ใบสักร่วงหนาในฤดูแล้ง ต้องทำแนวกันไฟ'],10:['ป่าปลูกไม้ชนิดอื่น','ต้องทำแนวกันไฟและกำจัดเชื้อเพลิงใต้ต้น'],
+ 13:['ลานหินทราย พืชทนแล้ง เช่น กระเจียว ดอกไม้ดิน','เชื้อเพลิงน้อย ไฟมักผ่านเร็ว'],5:['ป่าบนพื้นที่น้ำขังตลอดหรือเกือบตลอดปี','ปกติไม่ไหม้ แต่ซากพืชอาจคุไหม้ใต้ผิวดินในปีแล้งจัด']};
+const MON=['ต.ค.','พ.ย.','ธ.ค.','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.'];
+const AR=KB.filter(a=>a.c),aOf=n=>AR.find(a=>arKey(a.n)===arKey(n)),fOf=a=>GEO.cons.features.find(f=>f.properties.name===a.n);
+const ic=(k,bg,c)=>`<i${bg?` style="--ic:${bg};--icc:${c}"`:''}><svg viewBox="0 0 24 24"><path d="${IC[k]}"/></svg></i>`,
+ card=(k,t,body,o={})=>`<div class="kb-card"${o.id?` id="${o.id}"`:''}><h3>${ic(k,o.bg,o.c)}${t}${o.sm?`<small>${o.sm}</small>`:''}</h3>${body}</div>`,
+ lis=a=>`<ul class="kb-li">${a.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`,
+ bbOf=fs=>{let b=[180,90,-180,-90];fs.forEach(f=>f.geometry.coordinates.forEach(p=>p[0].forEach(([x,y])=>{b=[Math.min(b[0],x),Math.min(b[1],y),Math.max(b[2],x),Math.max(b[3],y)]})));return b};
+// กราฟแท่ง SVG (ค่าบนแท่ง ป้ายใต้แท่ง) — hi = ดัชนีที่เน้นสี
+function bars(v,lb,col,hi){const n=v.length,W=420,w=W/n,H=118,mx=Math.max(1,...v);
+ return`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(lb.map((l,i)=>l+' '+v[i]).join(', '))}">${v.map((x,i)=>{const h=Math.round(x/mx*76),y=92-h,on=hi&&hi.includes(i);
+  return`<rect x="${i*w+5}" y="${y}" width="${w-10}" height="${Math.max(h,x?2:0)}" rx="4" fill="${on?col:col+'73'}"/><text x="${i*w+w/2}" y="${y-4}" text-anchor="middle" font-size="10.5" fill="#4b5563" font-weight="${on?700:400}">${x?nf(x):''}</text><text x="${i*w+w/2}" y="109" text-anchor="middle" font-size="10.5" fill="#6b7280">${lb[i]}</text>`}).join('')}<line x1="0" x2="${W}" y1="92.5" y2="92.5" stroke="#e3e6ee"/></svg>`}
+// จุดความร้อนย้อนหลัง (HD = กรมอุทยานฯ Suomi NPP, ไม่รวมจุดจัดการเชื้อเพลิง/ไม่พบไฟ เหมือนการ์ดหลัก)
+function hot(a){const L=HD.filter(r=>fuOK(r)&&(!a||arKey(DIC.ar[r.ar])===arKey(a.n))),fys=[...new Set(HD.map(r=>r.fy))].sort(),by=fys.map(y=>L.filter(r=>r.fy===y).length),mo=MON.map((_,i)=>L.filter(r=>r.mo===i).length);return{L,fys,by,mo}}
+function fireCard(a){const{L,fys,by,mo}=hot(a),pk=by.indexOf(Math.max(...by)),pm=mo.indexOf(Math.max(...mo)),top=[...mo.keys()].sort((x,y)=>mo[y]-mo[x]).slice(0,3);
+ const rs=a?GEO.resp.features.filter(f=>arKey(f.properties.loc)===arKey(a.n)):[],wp=a?GEO.wpt.features.filter(f=>arKey(f.properties.loc)===arKey(a.n)).length:GEO.wpt.features.length;
+ const st=a?`<div class="kb-ch"><div class="t">สถานีควบคุมไฟป่าที่รับผิดชอบ</div>${rs.length?lis(rs.map(f=>f.properties.station+(f.properties.rai?` — แปลงรับผิดชอบ ${nf(f.properties.rai)} ไร่`:''))):'<p class="sm">ไม่มีแปลงรับผิดชอบของสถานีควบคุมไฟป่าในพื้นที่นี้</p>'}${wp?`<p class="sm" style="margin-top:6px">จุดเฝ้าระวังไฟป่า ปี 2569 ในพื้นที่ ${wp} จุด</p>`:''}</div>`:'';
+ const body=L.length?`<div class="kb-st"><div><b>${nf(L.length)}</b><span>จุด ปีงบ ${fys[0]%100}–${fys[fys.length-1]%100}</span></div><div><b>${nf(L.length/fys.length,1)}</b><span>จุดเฉลี่ยต่อปีงบ</span></div><div><b>${fys[pk]}</b><span>ปีงบที่พบมากสุด (${nf(by[pk])} จุด)</span></div><div><b>${MON[pm]}</b><span>เดือนที่พบมากสุด</span></div></div>
+  <div class="kb-ch"><div class="t">จำนวนจุดรายปีงบประมาณ</div>${bars(by,fys.map(y=>String(y%100)),'#D93A1F',[pk])}</div>
+  <div class="kb-ch"><div class="t">ฤดูไฟป่า — จุดสะสมรายเดือน (ทุกปีรวมกัน)</div>${bars(mo,MON,'#e07b24',top)}</div>`:'<p>ไม่พบจุดความร้อนในฐานข้อมูลย้อนหลังของพื้นที่นี้</p>';
+ return card('fire','ไฟป่าในพื้นที่',body+st+(a?`<button class="kb-go" data-go="${esc(a.n)}"><svg class="i" viewBox="0 0 24 24"><path d="${IC.pin}"/></svg>ดูพื้นที่นี้บนแผนที่หลัก</button>`:''),{bg:'#fdece6',c:'#D93A1F',sm:'กรมอุทยานฯ · Suomi NPP'})}
+// สัดส่วนชนิดป่าในแนวเขต (ftype.json — โหลดครั้งแรกที่ใช้)
+function ftSum(a){const j=FT,s=new Array(j.cn.length).fill(0);for(const k in j.s){const i=+k.split('|')[0];if(!i||(a&&arKey(j.ar[i])!==arKey(a.n)))continue;j.s[k].forEach((v,c)=>s[c]+=v)}s[1]=0;return s}
+function ftBox(a){const s=ftSum(a),T=s.reduce((x,y)=>x+y,0);if(!T)return'<p class="sm">ไม่มีข้อมูลชนิดป่า</p>';const o=[...s.keys()].filter(k=>s[k]>0).sort((x,y)=>s[y]-s[x]);
+ return`<div class="kb-sb">${o.map(k=>`<i style="width:${s[k]/T*100}%;background:${FT.col[k]}" title="${esc(FT.cn[k])} ${nf(s[k]/T*100,1)}%"></i>`).join('')}</div><div class="kb-lgd">${o.filter(k=>s[k]/T>=.003).map(k=>`<span><i style="background:${FT.col[k]}"></i>${esc(FT.cn[k])}<em>${nf(s[k]/T*100,s[k]/T<.1?1:0)}%</em></span>`).join('')}</div><p class="sm" style="margin:8px 0 0">ป่าไม้ในแนวเขต ≈ ${nf(T)} ไร่ · ชนิดป่า กรมป่าไม้ 2568 (ประมวลจากภาพแผนที่ กริด 100 ม.)</p>`}
+function ftFill(a){const e=$('#kb-ftb');if(!e)return;const go=()=>{const x=$('#kb-ftb');if(x&&KBI===(a?a.id:KBI))x.innerHTML=ftBox(a)};FT?go():ftLoad().then(go).catch(()=>{const x=$('#kb-ftb');if(x)x.innerHTML='<p class="sm">โหลดข้อมูลชนิดป่าไม่ได้</p>'})}
+function hero(a){const f=a.c&&fOf(a),rai=f?f.properties.rai:GEO.cons.features.reduce((s,f)=>s+f.properties.rai,0),
+  k=a.id==='all'?a.kpi:a.id==='ft'?null:[[nf(rai),'ไร่ ตามแนวเขต'],[nf(rai/625),'ตร.กม.'],...a.kpi];
+ return`<div class="kb-tags"><span class="kb-tag">${esc(a.kd||(f?f.properties.kindTh:''))}</span>${a.tags.map(([t,au])=>`<span class="kb-tag${au?' au':''}">${au?'★ ':''}${esc(t)}</span>`).join('')}</div><h2>${esc(a.sn||a.n)}</h2><div class="kb-en">${esc(a.en)}</div><p>${esc(a.lead)}</p>${k?`<div class="kb-kpi">${k.map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join('')}</div>`:'<div class="kb-kpi" id="kb-ftk"></div>'}
+ <svg viewBox="0 0 1200 200" preserveAspectRatio="none" aria-hidden="true"><path d="M0 150 L120 95 L210 130 L330 60 L450 120 L560 80 L690 135 L820 70 L950 125 L1060 90 L1200 130 V200 H0Z" fill="rgba(255,255,255,.06)"/><path d="M0 175 L150 120 L280 160 L420 105 L560 158 L700 112 L860 165 L1000 118 L1200 160 V200 H0Z" fill="rgba(255,255,255,.08)"/><path d="M0 200 L0 185 L200 150 L380 188 L560 150 L760 190 L960 152 L1200 185 V200Z" fill="rgba(0,0,0,.12)"/></svg>`}
+function tourCard(a){const t=a.tour;if(!t.length)return'';let n=0;
+ return card('pin','แหล่งท่องเที่ยวและจุดน่าสนใจ',`<div class="kb-tr">${t.map((x,i)=>{const p=x[2]!=null;p&&n++;return`<button data-ti="${i}"${p?'':' disabled'}><span class="n${p?'':' x'}" style="${p?`background:${KBT[x[1]][1]}`:''}">${p?n:'·'}</span><span><b>${esc(x[0])}</b><small>${KBT[x[1]][0]}${x[4]?' · '+esc(x[4]):''}${p?'':' · ไม่มีพิกัดบนแผนที่'}</small></span></button>`}).join('')}</div>`,{bg:'#e8f0fb',c:'#2a7fc0',sm:'แตะเพื่อดูตำแหน่ง'})}
+function faunaCard(a){if(!a.fauna.length)return card('paw','สัตว์ป่า','<p>ยังไม่มีข้อมูลการสำรวจสัตว์ป่าที่เผยแพร่สำหรับพื้นที่นี้</p>',{bg:'#f4ecfb',c:'#7b5bb6'});
+ return card('paw','สัตว์ป่าเด่น',`<div class="kb-fa">${a.fauna.map(([n,d,s])=>`<div><b>${esc(n)}${s?`<span class="kb-iu" style="background:${IUCN[s][0]}" title="IUCN Red List: ${IUCN[s][1]}">${s}</span>`:''}</b>${d?`<small>${esc(d)}</small>`:''}</div>`).join('')}</div><p class="sm" style="margin:10px 0 0">ป้ายสี = สถานะใน IUCN Red List: <b style="color:${IUCN.CR[0]}">CR</b> ใกล้สูญพันธุ์อย่างยิ่ง · <b style="color:${IUCN.EN[0]}">EN</b> ใกล้สูญพันธุ์ · <b style="color:${IUCN.VU[0]}">VU</b> มีแนวโน้มใกล้สูญพันธุ์</p>`,{bg:'#f4ecfb',c:'#7b5bb6'})}
+function areaCards(a){return card('star','ความสำคัญของพื้นที่',lis(a.imp),{bg:'#fff4dc',c:'#c98a1a'})+`<div class="kb-two">${card('clock','ประวัติความเป็นมา',`<div class="kb-tl">${a.hist.map(([w,t])=>`<div><b>${esc(w)}</b>${esc(t)}</div>`).join('')}</div>`)}${card('tree','ทรัพยากรป่าไม้',`<p>${esc(a.forest)}</p><div id="kb-ftb"><p class="sm">กำลังโหลดชนิดป่า…</p></div>${a.plants.length?`<div class="kb-chips" style="margin-top:10px">${a.plants.map(p=>`<span class="kb-chip">${esc(p)}</span>`).join('')}</div>`:''}`)}</div>`+faunaCard(a)+tourCard(a)+fireCard(a)}
+function allCards(a){const{L}=hot(null),tot=GEO.cons.features.reduce((s,f)=>s+f.properties.rai,0),mx=Math.max(...AR.map(x=>fOf(x).properties.rai)),hc=x=>L.filter(r=>arKey(DIC.ar[r.ar])===arKey(x.n)).length;
+ return card('star','ความสำคัญของกลุ่มป่า',lis(a.imp),{bg:'#fff4dc',c:'#c98a1a'})
+ +card('globe','ความหลากหลายทางชีวภาพ (ตามเอกสารมรดกโลก)',`<div class="kb-big"><div><b>112</b><span>ชนิดสัตว์เลี้ยงลูกด้วยนม (รวมชะนี 2 ชนิด)</span></div><div><b>392</b><span>ชนิดนก รวมนกเงือก 4 ชนิด</span></div><div><b>200+</b><span>ชนิดสัตว์เลื้อยคลานและสะเทินน้ำสะเทินบก</span></div><div><b>2,500</b><span>ชนิดพรรณพืช (พืชเฉพาะถิ่น 16 ชนิด)</span></div></div>`,{bg:'#e6f4ec',c:'#1f8a5b'})
+ +card('grid','พื้นที่อนุรักษ์ในระบบนี้',`<div class="kb-ar">${AR.map(x=>{const r=fOf(x).properties.rai;return`<button data-tab="${x.id}"><i style="background:${x.c}"></i><span>${esc(x.sn||x.n)}${x.tags.some(t=>t[1])?' <span class="sm" style="color:#b7862a">★ มรดกโลก</span>':''}</span><em>${nf(r)} ไร่ · จุดความร้อน ${nf(hc(x))}</em><u><s style="width:${r/mx*100}%;background:${x.c}"></s></u></button>`}).join('')}</div><p class="sm" style="margin:8px 0 0">รวม ${nf(tot)} ไร่ ตามแนวเขต KMZ · จุดความร้อน = ปีงบ 2561–2569 (กรมอุทยานฯ) · แตะชื่อเพื่อดูรายละเอียด</p>`,{bg:'#eef0fb',c:'#1B2A5E'})
+ +`<div class="kb-two">${card('clock','เส้นทางการอนุรักษ์',`<div class="kb-tl">${a.hist.map(([w,t])=>`<div><b>${esc(w)}</b>${esc(t)}</div>`).join('')}</div>`)}${card('shield','ภัยคุกคามสำคัญ',lis(a.threat),{bg:'#fdece6',c:'#c0301c'})}</div>`
+ +card('tree','ทรัพยากรป่าไม้',`<p>ป่าดิบแล้งเป็นป่าหลักของกลุ่มป่า สลับป่าเบญจพรรณ ป่าเต็งรัง ป่าดิบชื้น ป่าดิบเขาบนยอดสูง และทุ่งหญ้า</p><div id="kb-ftb"><p class="sm">กำลังโหลดชนิดป่า…</p></div>`)
+ +fireCard(null)
+ +card('heart','ร่วมปกป้องผืนป่า',`${lis(['ไม่จุดไฟหรือเผาขยะ เศษพืชในป่าและพื้นที่ติดป่า โดยเฉพาะช่วง ม.ค.–เม.ย.','ทิ้งก้นบุหรี่และดับกองไฟให้สนิททุกครั้ง','พบไฟป่าหรือการลักลอบตัดไม้ ล่าสัตว์ แจ้งสายด่วนกรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช 1362','ขับรถช้าและให้ทางสัตว์ป่า ไม่ให้อาหารสัตว์ป่า','นำขยะกลับออกมาทุกชิ้น'])}<div class="kb-hot"><b>1362</b><span>สายด่วนกรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช<br>แจ้งไฟป่า · การลักลอบ · สัตว์ป่าเดือดร้อน</span></div>`,{bg:'#fdeef3',c:'#d0658c'})}
+function ftCards(){const{mo}=hot(null),top=[...mo.keys()].sort((x,y)=>mo[y]-mo[x]).slice(0,4);
+ return card('fire','ฤดูไฟป่าของกลุ่มป่า',`<p>จุดความร้อนส่วนใหญ่เกิดช่วงปลายฤดูหนาวถึงต้นฤดูฝน เมื่อใบไม้ร่วงสะสมเป็นเชื้อเพลิงและความชื้นต่ำสุด</p><div class="kb-ch">${bars(mo,MON,'#e07b24',top)}</div><p class="sm" style="margin:0">จุดสะสมรายเดือน ปีงบ 2561–2569 ทุกพื้นที่ (กรมอุทยานฯ · ไม่รวมจุดจัดการเชื้อเพลิง/ไม่พบไฟ)</p>`,{bg:'#fdece6',c:'#D93A1F'})
+ +card('tree','สัดส่วนชนิดป่าในแนวเขต',`<div id="kb-ftb"><p class="sm">กำลังโหลดชนิดป่า…</p></div>`)
+ +`<div class="kb-ft" id="kb-ftc"><p class="sm">กำลังโหลดชนิดป่า…</p></div>`}
+function ftTypes(){const e=$('#kb-ftc');if(!e)return;const go=()=>{const x=$('#kb-ftc');if(!x)return;const s=ftSum(null),T=s.reduce((p,q)=>p+q,0),o=[...s.keys()].filter(k=>s[k]>0&&FTX[k]).sort((p,q)=>s[q]-s[p]),
+  hk=(()=>{const c=new Array(FT.cn.length).fill(0);HD.forEach(r=>{if(!fuOK(r))return;const f=ftAt(r.lo,r.la);if(f)c[f.k]++});return c})(),hT=hk.reduce((p,q)=>p+q,0);
+  x.innerHTML=o.map(k=>`<div class="kb-card" style="--c:${FT.col[k]}"><h4><i style="width:12px;height:12px;border-radius:4px;background:${FT.col[k]}"></i>${esc(FT.cn[k])}<em>${nf(s[k]/T*100,s[k]/T<.1?1:0)}% ของป่า</em></h4><p>${esc(FTX[k][0])}</p><div class="fi"><b>ไฟป่า:</b> ${esc(FTX[k][1])}${hT?`<br><b>จุดความร้อน:</b> ${nf(hk[k])} จุด (${nf(hk[k]/hT*100,1)}%)`:''}</div></div>`).join('');
+  const kp=$('#kb-ftk');if(kp)kp.innerHTML=[[nf(T),'ไร่ ป่าไม้ในแนวเขต'],[nf(s[3]/T*100)+'%','ป่าดิบแล้ง'],[nf(s[6]/T*100)+'%','ป่าเบญจพรรณ'],[nf(hT),'จุดความร้อนในพื้นที่ป่า (2561–2569)']].map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join('')};
+ FT?go():ftLoad().then(go).catch(()=>{const x=$('#kb-ftc');if(x)x.innerHTML='<p class="sm">โหลดข้อมูลชนิดป่าไม่ได้</p>'})}
+/* ---------- แผนที่ประกอบ ---------- */
+let KM=null,KMK=[],KBI='all',KMB='topo',KMF=false,KPOP=null;
+const kmCol=['match',['get','name'],...AR.flatMap(a=>[a.n,a.c]),'#888'];
+function kmInit(){KM=new maplibregl.Map({container:'kb-map',bounds:[101.1,13.62,103.25,14.66],fitBoundsOptions:{padding:20},attributionControl:{compact:true},dragRotate:false,pitchWithRotate:false,touchPitch:false,cooperativeGestures:matchMedia('(max-width:900px)').matches,locale:{'CooperativeGesturesHandler.WindowsHelpText':'กด Ctrl ค้างแล้วเลื่อนล้อเมาส์เพื่อซูมแผนที่','CooperativeGesturesHandler.MacHelpText':'กด ⌘ ค้างแล้วเลื่อนเพื่อซูมแผนที่','CooperativeGesturesHandler.MobileHelpText':'ใช้สองนิ้วเพื่อเลื่อนแผนที่'},
+ style:{version:8,sources:{topo:{type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:18,attribution:'© Esri'},
+  img:{type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:18,attribution:'© Esri, Maxar'},
+  ft:{type:'raster',tiles:['ftype://{z}/{x}/{y}'],tileSize:256,minzoom:6,maxzoom:13,bounds:BNB,attribution:'ชนิดป่า กรมป่าไม้ 2568'},cons:{type:'geojson',data:GEO.cons,promoteId:'name'}},
+  layers:[{id:'topo',type:'raster',source:'topo'},{id:'img',type:'raster',source:'img',layout:{visibility:'none'}},{id:'ft',type:'raster',source:'ft',layout:{visibility:'none'},paint:{'raster-opacity':.8,'raster-resampling':'nearest','raster-fade-duration':0}},
+   {id:'kf',type:'fill',source:'cons',paint:{'fill-color':kmCol,'fill-opacity':['case',['boolean',['feature-state','on'],false],.3,['boolean',['feature-state','dim'],false],.05,.24]}},
+   {id:'kl',type:'line',source:'cons',paint:{'line-color':kmCol,'line-width':['case',['boolean',['feature-state','on'],false],3.2,1.3],'line-opacity':['case',['boolean',['feature-state','dim'],false],.55,1]}}]}});
+ KM.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
+ KM.on('click','kf',e=>{const a=aOf(e.features[0].properties.name);if(a&&a.id!==KBI)kbTab(a.id)});
+ KM.on('mouseenter','kf',()=>{KM.getCanvas().style.cursor='pointer'});KM.on('mouseleave','kf',()=>{KM.getCanvas().style.cursor=''})}
+function kmBase(){if(!KM||!KM.isStyleLoaded())return;KM.setLayoutProperty('topo','visibility',KMB==='topo'?'visible':'none');KM.setLayoutProperty('img','visibility',KMB==='img'?'visible':'none');KM.setLayoutProperty('ft','visibility',KMF?'visible':'none');
+ KM.setPaintProperty('kf','fill-opacity',['case',['boolean',['feature-state','on'],false],KMF?.04:.3,['boolean',['feature-state','dim'],false],.05,KMF?.03:.24]);
+ $$('#kb-mt button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.b==='ft'?KMF:b.dataset.b===KMB))}
+function kmShow(){if(!KM)kmInit();KM.resize();if(!KM.isStyleLoaded()){KM.once('load',kmShow);return}
+ const a=KB.find(x=>x.id===KBI);kmBase();KMK.forEach(m=>m.remove());KMK=[];if(KPOP){KPOP.remove();KPOP=null}
+ AR.forEach(x=>KM.setFeatureState({source:'cons',id:x.n},{on:x.id===KBI,dim:!!a.c&&x.id!==KBI}));
+ const mk=(el,ll,fn)=>{el.addEventListener('click',e=>{e.stopPropagation();fn()});const m=new maplibregl.Marker({element:el}).setLngLat(ll).addTo(KM);KMK.push(m);return m};
+ const lg=[];
+ if(!a.c){AR.forEach(x=>{const f=fOf(x),b=bbOf([f]),c=[(b[0]+b[2])/2,(b[1]+b[3])/2];let p=c;if(!inFeat(c,f)){let d=1e9;for(let i=0;i<=24;i++)for(let j=0;j<=24;j++){const q=[b[0]+(b[2]-b[0])*i/24,b[1]+(b[3]-b[1])*j/24],dd=(q[0]-c[0])**2+(q[1]-c[1])**2;if(dd<d&&inFeat(q,f)){d=dd;p=q}}}
+   const e=document.createElement('div');e.className='kb-lb';e.style.setProperty('--c',x.c);e.textContent=x.s;mk(e,p,()=>kbTab(x.id))});
+  KM.fitBounds([101.1,13.62,103.25,14.66],{padding:24,duration:600});lg.push('<span>แตะพื้นที่หรือชื่อเพื่อดูรายละเอียด</span>');$('#kb-ml').innerHTML=lg.join('')+(KMF?ftLg():'');return}
+ const f=fOf(a),pts=[];let n=0;
+ a.tour.forEach((t,i)=>{if(t[2]==null)return;n++;const e=document.createElement('div');e.className='kb-pin';e.style.background=KBT[t[1]][1];e.textContent=n;e.dataset.ti=i;pts.push([t[2],t[3]]);
+  mk(e,[t[2],t[3]],()=>kbPin(i))});
+ const nk=s=>String(s||'').replace(/\s*\(พื้นที่รอง\)/,'').replace(/\s*-\s*/g,'-').replace(/\s+/g,''),ss=new Set(GEO.resp.features.filter(r=>arKey(r.properties.loc)===arKey(a.n)).map(r=>nk(r.properties.station)));
+ GEO.stn.features.filter(s=>ss.has(nk(s.properties.name))).forEach(s=>{const e=document.createElement('div');e.className='kb-sn';e.title=s.properties.name;e.innerHTML='<svg viewBox="0 0 24 24"><path d="'+IC.fire+'"/></svg>';const ll=s.geometry.coordinates;
+  mk(e,ll,()=>{if(KPOP)KPOP.remove();KPOP=new maplibregl.Popup({offset:14,maxWidth:'260px'}).setLngLat(ll).setHTML(`<div class="kb-pp"><b>${esc(s.properties.name)}</b><span>ต.${esc(s.properties.tam)} อ.${esc(s.properties.amp)} จ.${esc(s.properties.prov)}</span><a href="https://www.google.com/maps?q=${ll[1]},${ll[0]}" target="_blank" rel="noopener">เปิดใน Google Maps</a></div>`).addTo(KM)})});
+ const used=[...new Set(a.tour.filter(t=>t[2]!=null).map(t=>t[1]))];used.forEach(k=>lg.push(`<span><i style="background:${KBT[k][1]}"></i>${KBT[k][0]}</span>`));if(ss.size)lg.push('<span><i class="sq" style="background:#1B2A5E"></i>สถานีควบคุมไฟป่า</span>');
+ lg.push(`<span><i class="sq" style="background:${a.c};opacity:.6"></i>แนวเขต${esc(a.s)}</span>`);$('#kb-ml').innerHTML=lg.join('')+(KMF?ftLg():'');
+ const b=bbOf([f]);pts.forEach(([x,y])=>{b[0]=Math.min(b[0],x);b[1]=Math.min(b[1],y);b[2]=Math.max(b[2],x);b[3]=Math.max(b[3],y)});KM.fitBounds(b,{padding:{top:48,bottom:28,left:28,right:28},maxZoom:12,duration:600})}
+function ftLg(){if(!FT)return'';const s=ftSum(null);return[...s.keys()].filter(k=>s[k]>0).sort((p,q)=>s[q]-s[p]).slice(0,6).map(k=>`<span><i class="sq" style="background:${FT.col[k]}"></i>${esc(FT.cn[k])}</span>`).join('')}
+async function kbPin(i){const a=KB.find(x=>x.id===KBI),t=a.tour[i];if(!t||t[2]==null||!KM)return;
+ $$('#kb-c .kb-tr button').forEach(b=>b.classList.toggle('on',+b.dataset.ti===i));KMK.forEach(m=>{const e=m.getElement();if(e.classList.contains('kb-pin'))e.classList.toggle('on',+e.dataset.ti===i)});
+ const ll=[t[2],t[3]],inb=inFeat(ll,fOf(a));let ad='';try{await admLoad();const p=admAt(ll[0],ll[1]);if(p)ad=`ต.${p.t} อ.${p.a} จ.${p.p}`}catch(e){}
+ if(KPOP)KPOP.remove();KPOP=new maplibregl.Popup({offset:16,maxWidth:'270px'}).setLngLat(ll).setHTML(`<div class="kb-pp"><b>${esc(t[0])}</b><span>${KBT[t[1]][0]}${inb?'':' · อยู่นอกแนวเขตเล็กน้อย'}${ad?' · '+esc(ad):''}</span>${t[4]?`<span>${esc(t[4])}</span>`:''}<a href="https://www.google.com/maps?q=${ll[1]},${ll[0]}" target="_blank" rel="noopener">เปิดใน Google Maps</a></div>`).addTo(KM);
+ KM.easeTo({center:ll,zoom:Math.max(KM.getZoom(),11.5),duration:dur(700)});if(matchMedia('(max-width:900px)').matches)$('#kb-map').scrollIntoView({behavior:'smooth',block:'center'})}
+/* ---------- เปิด/ปิด/สลับแท็บ ---------- */
+function kbTab(id){KBI=id;const a=KB.find(x=>x.id===id);
+ $$('#kb-nav button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===id));const nb=$(`#kb-nav button[data-tab="${id}"]`);if(nb)nb.scrollIntoView({block:'nearest',inline:'center'});
+ const h=$('#kb-hero');h.style.setProperty('--h1',a.h[0]);h.style.setProperty('--h2',a.h[1]);h.innerHTML=hero(a);
+ $('#kb-c').innerHTML=id==='all'?allCards(a):id==='ft'?ftCards():areaCards(a);$('#kb-body').scrollTop=0;
+ if(id==='ft'){KMF=true;ftTypes()}ftFill(a.c?a:null);kmShow()}
+function kbOpen(id){$('#kb').hidden=false;if(!$('#kb-nav').childElementCount)$('#kb-nav').innerHTML=KB.map(a=>`<button role="tab" data-tab="${a.id}" aria-selected="false">${a.c?`<i style="background:${a.c}"></i>`:''}${esc(a.s)}</button>`).join('');
+ $('#kb-src').innerHTML='ข้อมูลเรียบเรียงจาก UNESCO World Heritage Centre, กรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช และวิกิพีเดีย · ขนาดพื้นที่จากแนวเขต KMZ ในระบบนี้ (อาจต่างจากตัวเลขในราชกิจจานุเบกษาเล็กน้อย) · ชนิดป่า: กรมป่าไม้ 2568 (ประมวลจากภาพแผนที่รายจังหวัด) · จุดความร้อน: กรมอุทยานฯ (Suomi NPP) ปีงบ 2561–2569 ไม่รวมจุดที่จัดการเชื้อเพลิง/ตรวจสอบแล้วไม่พบไฟ · พิกัดแหล่งท่องเที่ยว: © OpenStreetMap (ตำแหน่งโดยประมาณ) · สถานะสัตว์: IUCN Red List';
+ requestAnimationFrame(()=>kbTab(id||KBI));$('#kb-x').focus()}
+function kbClose(){$('#kb').hidden=true;if(KPOP){KPOP.remove();KPOP=null}}
+$('#bKnow').onclick=()=>kbOpen();$('#kb-x').onclick=kbClose;
+$('#kb-nav').onclick=e=>{const b=e.target.closest('button[data-tab]');if(b)kbTab(b.dataset.tab)};
+$('#kb-mt').onclick=e=>{const b=e.target.closest('button[data-b]');if(!b)return;if(b.dataset.b==='ft'){KMF=!KMF;if(KMF)ftLoad().then(()=>kmShow()).catch(()=>{})}else KMB=b.dataset.b;kmShow()};
+$('#kb-c').onclick=e=>{const t=e.target.closest('[data-tab]');if(t)return kbTab(t.dataset.tab);const p=e.target.closest('button[data-ti]');if(p)return kbPin(+p.dataset.ti);
+ const g=e.target.closest('[data-go]');if(g){const f=GEO.cons.features.find(f=>f.properties.name===g.dataset.go);kbClose();if(f)map.fitBounds(bbOf([f]),{padding:homePad(),duration:dur(900)})}};
+addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#kb').hidden)kbClose()});
+// ลิงก์ตรง ?kb=<รหัสแท็บ> (all ky tl ps tp dy ks kc ft) เปิดหน้าความสำคัญทันที
+const KQ=new URLSearchParams(location.search).get('kb');if(KQ!=null)kbOpen(KB.some(a=>a.id===KQ)?KQ:'all');
+})();
 </script>
 </body>
 </html>
