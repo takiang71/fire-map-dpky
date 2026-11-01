@@ -70,7 +70,7 @@ function problems() {
   const aid = ADMIN && require('crypto').createHash('sha256').update(ADMIN).digest('hex').slice(0, 12);
   if (aid && st.admin !== aid && TOKEN) try {
     const n = Object.keys(P).length;
-    if (await send(`✅ ตั้งค่าแจ้งเตือนผู้ดูแลเรียบร้อย\nบอทจะส่งข้อความถึงคุณคนเดียวเมื่อระบบแผนที่ไฟป่าเสีย (API/sync/ระบบต้นทาง/LINE/หน้าเว็บหยุด) และเมื่อกลับมาปกติ\nสถานะตอนนี้: ${n ? `มีปัญหา ${n} เรื่อง (จะแจ้งแยก)` : 'ปกติ'}\n${SITE}health.json`)) { st.admin = aid; console.log('ส่งข้อความยืนยันผู้ดูแลแล้ว') }
+    if (await send(`✅ ตั้งค่าแจ้งเตือนผู้ดูแลเรียบร้อย\nบอทจะส่งข้อความถึงคุณคนเดียวเมื่อระบบแผนที่ไฟป่าเสีย (API/sync/ระบบต้นทาง/LINE/หน้าเว็บหยุด) และเมื่อกลับมาปกติ\nสถานะตอนนี้: ${n ? `มีปัญหา ${n} เรื่อง (จะแจ้งแยก)` : 'ปกติ'}`)) { st.admin = aid; console.log('ส่งข้อความยืนยันผู้ดูแลแล้ว') }
   } catch (e) { console.log('ส่งข้อความยืนยันไม่สำเร็จ:', e.message) }
   for (const [k, m] of Object.entries(P)) {
     const c = st.checks[k] = { since: now, ...st.checks[k], msg: m };
@@ -82,7 +82,7 @@ function problems() {
     const L = [];
     if (bad.length) L.push('⚠️ ระบบแผนที่ไฟป่า: พบปัญหา', ...bad.map(k => `• ${CHECKS[k][0]}: ${st.checks[k].msg}${st.checks[k].alerted ? ` (ยังไม่หาย ตั้งแต่ ${thTime(st.checks[k].since)})` : ''}`));
     if (ok.length) L.push(...(bad.length ? [''] : []), '✅ กลับมาปกติแล้ว', ...ok.map(k => `• ${CHECKS[k][0]} (เริ่ม ${thTime(st.checks[k].since)})`));
-    L.push('', `Actions: ${ACTIONS}`, `สถานะ: ${SITE}health.json`);
+    L.push('', `ตรวจที่ GitHub Actions: ${ACTIONS}`); // ไม่ใส่ลิงก์ health.json — LINE แสดงตัวอย่างลิงก์เป็น JSON ดิบ (ผู้ใช้ให้เอาออก 1 พ.ย. 69)
     let sent = false;
     try { sent = await send(L.join('\n')) } catch (e) { console.log('ส่งไม่สำเร็จ:', e.message) }
     if (sent) { bad.forEach(k => st.checks[k].alerted = now); ok.forEach(k => delete st.checks[k]) }
