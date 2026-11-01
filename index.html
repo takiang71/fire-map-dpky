@@ -319,6 +319,12 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 /* หน้าพยากรณ์อากาศ Windy (#wy) — ใช้ .kb-top/.kb-nav ร่วมกับหน้าความสำคัญ */
 #wy{position:fixed;inset:0;z-index:45;display:flex;flex-direction:column;background:#fff;color:var(--ink);--kg:#1b3a6b}
 #wy[hidden]{display:none}#wy iframe{flex:1;width:100%;border:0;background:#e9eef5}
+.wy-h{display:flex;align-items:center;gap:10px;padding:6px max(12px,env(safe-area-inset-right)) 6px max(12px,env(safe-area-inset-left));padding-top:calc(6px + env(safe-area-inset-top));border-bottom:1px solid var(--line)}
+.wy-h .kb-lg{width:32px;height:32px;border-radius:10px}.wy-h>b{font-size:15px;font-weight:800;color:var(--kg);white-space:nowrap}
+#wy .wy-nav{flex:1;min-width:0;padding:0;border:0;background:none}#wy .wy-nav button{padding:5px 12px}
+.wy-dt{flex:none;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:99px;padding:5px 12px;font-size:13px;white-space:nowrap}
+.wy-dt[aria-pressed=true]{background:#e6eef9;border-color:#9db6dd;color:var(--kg);font-weight:600}.wy-h .cb{flex:none;width:36px;height:36px;box-shadow:none}
+@media(max-width:700px){.wy-h{flex-wrap:wrap;row-gap:6px}.wy-h>b{flex:1}#wy .wy-nav{order:9;flex-basis:100%}.wy-dt span{display:none}.wy-dt{padding:7px 9px}}
 @media print{#wy{display:none!important}}
 </style>
 </head>
@@ -327,7 +333,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 <div id="map"></div>
 <canvas id="wc" aria-hidden="true"></canvas><div id="tip"></div>
 <div id="kb" hidden role="dialog" aria-modal="true" aria-labelledby="kb-t"><div class="kb-top"><span class="kb-lg"><svg class="i" viewBox="0 0 24 24"><path d="M5 19c9 0 14-6 14-14-8 0-14 5-14 14zM5 19l6-6"/></svg></span><div><b id="kb-t">ความสำคัญของผืนป่า</b><small>กลุ่มป่าดงพญาเย็น-เขาใหญ่ · มรดกโลกทางธรรมชาติ · ความรู้รายพื้นที่อนุรักษ์</small></div><button class="cb ib" id="kb-x" aria-label="ปิดหน้าความสำคัญ"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><nav class="kb-nav" id="kb-nav" role="tablist" aria-label="เลือกพื้นที่"></nav><div class="kb-body" id="kb-body"><div class="kb-in"><section class="kb-hero" id="kb-hero"></section><div class="kb-grid"><div class="kb-mapw"><div id="kb-map" role="region" aria-label="แผนที่ประกอบ"></div><div class="kb-mt" id="kb-mt"><button data-b="topo" aria-pressed="true">ภูมิประเทศ</button><button data-b="img" aria-pressed="false">ดาวเทียม</button><button data-b="ft" aria-pressed="false">ชนิดป่า</button></div><div class="kb-ml" id="kb-ml"></div></div><div class="kb-cards" id="kb-c"></div></div><div class="kb-src" id="kb-src"></div></div></div></div>
-<div id="wy" hidden role="dialog" aria-modal="true" aria-labelledby="wy-t"><div class="kb-top"><span class="kb-lg" style="background:linear-gradient(135deg,#4aa3df,#1b3a6b)"><svg class="i" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 10-3-3M3 12h16a3 3 0 11-3 3M3 16h7"/></svg></span><div><b id="wy-t">พยากรณ์อากาศ (Windy)</b><small>แบบจำลอง ECMWF (ฝุ่น = CAMS) · กดปุ่มเล่นด้านล่างเพื่อดูพยากรณ์ล่วงหน้า · แตะแผนที่เพื่อดูพยากรณ์รายชั่วโมงของจุดนั้น · ไม่มีแนวเขตกลุ่มป่า</small></div><button class="cb ib" id="wy-x" aria-label="ปิดหน้าพยากรณ์อากาศ"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><nav class="kb-nav" id="wy-nav" role="tablist" aria-label="เลือกชั้นข้อมูลอากาศ"></nav><iframe id="wy-f" title="แผนที่พยากรณ์อากาศ Windy" allow="fullscreen"></iframe></div>
+<div id="wy" hidden role="dialog" aria-modal="true" aria-labelledby="wy-t"><div class="wy-h"><span class="kb-lg" style="background:linear-gradient(135deg,#4aa3df,#1b3a6b)"><svg class="i" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 10-3-3M3 12h16a3 3 0 11-3 3M3 16h7"/></svg></span><b id="wy-t" title="Windy · แบบจำลอง ECMWF (ฝุ่น = CAMS) · กดปุ่มเล่นด้านล่างเพื่อดูพยากรณ์ล่วงหน้า · แตะแผนที่เพื่อดูค่าของจุดนั้น · ไม่มีแนวเขตกลุ่มป่า">พยากรณ์อากาศ</b><nav class="kb-nav wy-nav" id="wy-nav" role="tablist" aria-label="เลือกชั้นข้อมูลอากาศ"></nav><button class="wy-dt" id="wy-dt" aria-pressed="false" title="แสดง/ซ่อนตารางพยากรณ์รายชั่วโมงของจุดกลางแผนที่ (ซ่อนแล้วแผนที่ใหญ่ขึ้น)"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></svg><span>ตารางพยากรณ์</span></button><button class="cb ib" id="wy-x" aria-label="ปิดหน้าพยากรณ์อากาศ"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><iframe id="wy-f" title="แผนที่พยากรณ์อากาศ Windy" allow="fullscreen"></iframe></div>
 <div class="md" id="md" hidden role="dialog" aria-modal="true" aria-labelledby="md-t"><div class="mc"><div class="mh"><b id="md-t"></b><button class="cb ib" id="md-x" aria-label="ปิด"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="mb" id="md-b"></div></div></div>
 <div id="toast" role="status"></div>
 <div id="rpt" aria-hidden="true"></div>
@@ -1423,10 +1429,12 @@ function radLayer(){if(!RV||!map.getSource('cons'))return;const ids=RV.f.map(f=>
  tx('rd-v',new Date(t).toLocaleDateString('th-TH',{day:'numeric',month:'short',timeZone:'Asia/Bangkok'})+' '+thTime(t)+' น.'+(L?' (ล่าสุด)':` (${Math.round((RV.f[RV.f.length-1].time*1e3-t)/6e4)} นาทีก่อนล่าสุด)`))}
 function rdStop(){clearInterval(RVP);RVP=0;const b=$('#rd-pl');b.textContent='▶';b.setAttribute('aria-label','เล่นภาพเคลื่อนไหว')}
 /* --- หน้าพยากรณ์อากาศ Windy (Embed ฟรี ไม่ใช้คีย์) เปิดที่ตำแหน่ง/ซูมเดียวกับแผนที่หลัก · ลิงก์ตรง ?wy=<ชั้น> --- */
-const WYO=[['wind','ลม'],['gust','ลมกระโชก'],['rain','ฝน'],['thunder','ฟ้าคะนอง'],['temp','อุณหภูมิ'],['rh','ความชื้น'],['clouds','เมฆ'],['pm2p5','ฝุ่น PM2.5','cams']];let WYK='wind';
+// ชื่อชั้นที่ใช้ได้ใน Embed ตรวจแล้ว 1 พ.ย. 69 (fwi = "ไฟลุกลาม" ดัชนีอันตรายไฟป่า; fireDanger/fires/drought ไม่มี — ตกเป็นลม)
+const WYO=[['wind','ลม'],['fwi','ความเสี่ยงไฟป่า'],['radar','เรดาร์'],['satellite','ดาวเทียม'],['rain','ฝน'],['thunder','ฟ้าคะนอง'],['gust','ลมกระโชก'],['temp','อุณหภูมิ'],['rh','ความชื้น'],['clouds','เมฆ'],['pm2p5','ฝุ่น PM2.5','cams']];let WYK='wind',WYD=false; // WYD = แสดงตารางพยากรณ์
+try{WYD=localStorage.getItem('fm-wyd')==='1'}catch(e){}
 function wyLoad(){const o=WYO.find(a=>a[0]===WYK)||WYO[0],c=map.getCenter(),z=Math.max(5,Math.min(11,Math.round(map.getZoom()+1))),la=c.lat.toFixed(3),lo=c.lng.toFixed(3); // ซูม Leaflet = ซูม MapLibre + 1
- $('#wy-f').src=`https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C&metricWind=km/h&zoom=${z}&overlay=${o[0]}&product=${o[2]||'ecmwf'}&level=surface&lat=${la}&lon=${lo}&detailLat=${la}&detailLon=${lo}&detail=true&message=true`;
- $$('#wy-nav button').forEach(b=>b.setAttribute('aria-selected',b.dataset.o===o[0]))}
+ $('#wy-f').src=`https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C&metricWind=km/h&zoom=${z}&overlay=${o[0]}&product=${o[2]||'ecmwf'}&level=surface&lat=${la}&lon=${lo}&detailLat=${la}&detailLon=${lo}&detail=${WYD}&message=true`;
+ $$('#wy-nav button').forEach(b=>b.setAttribute('aria-selected',b.dataset.o===o[0]));$('#wy-dt').setAttribute('aria-pressed',WYD)}
 function wyOpen(k){if(k)WYK=k;$('#wy').hidden=false;if(!$('#wy-nav').childElementCount)$('#wy-nav').innerHTML=WYO.map(a=>`<button role="tab" data-o="${a[0]}" aria-selected="false">${a[1]}</button>`).join('');wyLoad()}
 function wyClose(){$('#wy').hidden=true;$('#wy-f').src='about:blank'}
 /* ---------- พื้นที่เผาไหม้ (ระบบตามรอยเผา tamroypao.hii.or.th ความละเอียด 20 ม.) ----------
@@ -1719,7 +1727,8 @@ $('#rd-pl').onclick=()=>{if(RVP)return rdStop();if(!RV)return;const b=$('#rd-pl'
  let w=0;RVP=setInterval(()=>{if(RVI===RV.f.length-1&&w++<2)return;w=0;RVI=(RVI+1)%RV.f.length;radLayer()},600)}; // ค้างภาพล่าสุดนานขึ้นก่อนวนรอบใหม่
 $('#wy-nav').onclick=e=>{const b=e.target.closest('button');if(b){WYK=b.dataset.o;wyLoad()}};
 $('#bWy').onclick=()=>wyOpen();$('#wy-x').onclick=wyClose;
-$('#wy-o').onclick=()=>wyOpen(S.wx?{t:'temp',rh:'rh',pr:'rain',cc:'clouds'}[S2.wxv]:S.rad?'rain':S.pm?'pm2p5':'wind');
+$('#wy-dt').onclick=()=>{WYD=!WYD;try{localStorage.setItem('fm-wyd',WYD?'1':'0')}catch(e){}wyLoad()};
+$('#wy-o').onclick=()=>wyOpen(S.wx?{t:'temp',rh:'rh',pr:'rain',cc:'clouds'}[S2.wxv]:S.rad?'radar':S.dry?'fwi':S.pm?'pm2p5':'wind');
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#wy').hidden)wyClose()});
 {const q=new URLSearchParams(location.search).get('wy');if(q!=null)wyOpen(WYO.some(a=>a[0]===q)?q:'wind')}
 $('#pmchips').onclick=e=>{const b=e.target.closest('.chip');if(b){S2.pmDay=+b.dataset.i;drawPM()}};
