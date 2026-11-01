@@ -2,7 +2,7 @@
 // งานหนัก (ดึง API ทั้งประเทศ กรองแนวเขต แจ้งเตือน push) อยู่บน GitHub Actions (scripts/line_notify.js) เพราะ Worker ฟรีจำกัด CPU 10 ms
 // ที่นี่อ่านแค่ไฟล์เล็กที่เว็บเผยแพร่ไว้: live.json (จุด 48 ชม. ในแนวเขต) + summary.json (ยอดสะสมปีงบรายพื้นที่/รายเดือน)
 // ตั้งค่าใน Cloudflare: Secrets LINE_SECRET (Channel secret), LINE_TOKEN (Channel access token) · Variable SITE_URL (ไม่ใส่ = เว็บหลัก)
-// คำสั่งในกลุ่ม: "สรุป" · "ช่วยเหลือ" · "รหัสกลุ่ม" (ใช้ตอนติดตั้ง) — บอทจะตอบเฉพาะข้อความที่ขึ้นต้นด้วยคำสั่ง ไม่ตอบแชตทั่วไป
+// คำสั่งในกลุ่ม: "สรุป" · "ช่วยเหลือ" · "รหัสกลุ่ม" / "รหัสผู้ใช้" (ใช้ตอนติดตั้ง) — บอทจะตอบเฉพาะข้อความที่ขึ้นต้นด้วยคำสั่ง ไม่ตอบแชตทั่วไป
 // carousel() ใช้ร่วมกับ scripts/line_notify.js (import ไฟล์นี้) — ข้อความแจ้งเตือนและคำตอบ "สรุป" จึงหน้าตาเดียวกัน
 const SITE0 = 'https://takiang71.github.io/fire-map-dpky/';
 const SATN = { SNPP: 'Suomi NPP', NOAA20: 'NOAA-20', NOAA21: 'NOAA-21' };
@@ -241,6 +241,8 @@ export async function handle(env, ev) {
   }
   if (/^(ช่วยเหลือ|วิธีใช้|help)/i.test(t)) return reply(env, ev.replyToken, HELP);
   if (/^(รหัสกลุ่ม|groupid)/i.test(t)) return reply(env, ev.replyToken, src.groupId ? `รหัสกลุ่มนี้:\n${src.groupId}` : `ไม่ใช่กลุ่ม (${src.type}) — เชิญบอทเข้ากลุ่มแล้วพิมพ์ใหม่`);
+  // รหัสผู้ใช้ของคนที่พิมพ์ — ใช้ตั้ง LINE_ADMIN_ID (รับแจ้งเตือนเมื่อระบบเสีย scripts/health.js) · ไม่อยู่ใน "ช่วยเหลือ" เพราะใช้ตอนติดตั้งเท่านั้น
+  if (/^(รหัสผู้ใช้|รหัสของฉัน|userid)/i.test(t)) return reply(env, ev.replyToken, src.userId ? `รหัสผู้ใช้ของคุณ (ใช้ตั้งค่า LINE_ADMIN_ID):\n${src.userId}` : 'อ่านรหัสผู้ใช้ไม่ได้ — ลองพิมพ์ในแชตส่วนตัวกับบอท (เพิ่มบอทเป็นเพื่อนก่อน)');
 }
 
 export default {

@@ -42,6 +42,11 @@ jobs:
           LINE_DAILY: ${{ vars.LINE_DAILY }}
           # การ์ดพื้นที่เผาไหม้เมื่อมีรอบใหม่ ("off" = ปิด)
           LINE_BURN: ${{ vars.LINE_BURN }}
+      # แจ้งเตือนผู้ดูแลทาง LINE เมื่อระบบเสีย (scripts/health.js) — ส่งถึง LINE_ADMIN_ID คนเดียว ไม่ตั้ง = บันทึกสถานะใน health.json อย่างเดียว
+      - run: node scripts/health.js || true
+        env:
+          LINE_TOKEN: ${{ secrets.LINE_TOKEN }}
+          LINE_ADMIN_ID: ${{ vars.LINE_ADMIN_ID }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

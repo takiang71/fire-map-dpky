@@ -51,3 +51,10 @@ jobs:
         run: gh workflow run site.yml --ref main
         env:
           GH_TOKEN: ${{ github.token }}
+      # ตรวจว่า workflow site (cron-job.org ทุก 10 นาที) ยังทำงาน — ถ้าหยุด การตรวจ health ในรอบ site ก็หยุดด้วย
+      - name: check site
+        if: always()
+        run: node scripts/health.js --site || true
+        env:
+          LINE_TOKEN: ${{ secrets.LINE_TOKEN }}
+          LINE_ADMIN_ID: ${{ vars.LINE_ADMIN_ID }}

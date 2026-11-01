@@ -1,0 +1,88 @@
+// แจ้งเตือนเมื่อระบบเสีย → LINE ถึงผู้ดูแลคนเดียว (LINE_ADMIN_ID) ไม่ใช่เข้ากลุ่ม
+// ใช้ใน workflow "site" ต่อจาก line_notify.js:  node scripts/health.js
+//   ตรวจ: ดึง API จุดความร้อนไม่ได้/ตอบว่างทั้งประเทศ (เกิน 1 ชม.) · ระบบต้นทางไม่อัปเดต (เกิน 18 ชม.) · sync ไม่ทำงาน (adata เก่ากว่า 14 ชม.)
+//         ข้อมูลสะสมค้าง (วันล่าสุดที่ดึงครบเก่ากว่า 2 วัน) · LINE ใช้งานไม่ได้ (ช่อง line ใน notify.json)
+//   แจ้งเมื่อเริ่มพบ · ทวนซ้ำทุก 12 ชม. ถ้ายังไม่หาย · แจ้ง "กลับมาปกติ" เมื่อหาย — รวมทุกเรื่องเป็นข้อความเดียวต่อรอบ (push ถึง 1 คน = 1 ข้อความจากโควตา)
+//   สถานะเก็บใน _site/health.json (เผยแพร่บน Pages ไม่ commit; รอบถัดไปอ่านจาก URL — แบบเดียวกับ notify.json) ดูสถานะปัจจุบันได้ที่ <เว็บ>/health.json
+// ใช้ใน workflow "sync":  node scripts/health.js --site  → ตรวจว่า workflow site ยังทำงาน (notify.json บนเว็บอัปเดตใน 90 นาที)
+//   ถ้า cron-job.org/site หยุด การตรวจข้างบนก็หยุดด้วย จึงให้ sync (วันละ 4 รอบ) ตรวจแทน · ไม่มีที่เก็บสถานะ จึงแจ้งทุกรอบ sync จนกว่าจะหาย (≤ 4 ครั้ง/วัน)
+// env: LINE_TOKEN, LINE_ADMIN_ID (รหัสผู้ใช้ LINE ของผู้ดูแล — พิมพ์ "รหัสผู้ใช้" คุยกับบอท) · SITE_URL, LINE_API (ทดสอบ) · HEALTH_NOW (มิลลิวินาที จำลองเวลา)
+const fs = require('fs'), path = require('path');
+
+const ROOT = path.join(__dirname, '..'), OUT = path.join(ROOT, '_site');
+const SITE = process.env.SITE_URL || 'https://takiang71.github.io/fire-map-dpky/';
+const TOKEN = process.env.LINE_TOKEN, ADMIN = (process.env.LINE_ADMIN_ID || '').trim(), API = process.env.LINE_API || 'https://api.line.me';
+const ACTIONS = 'https://github.com/takiang71/fire-map-dpky/actions';
+const H = 36e5, REMIND = 12 * H;
+// เรื่องที่ตรวจ: ชื่อ + ต้องเป็นต่อเนื่องนานเท่าไรจึงแจ้ง (กันขัดข้องชั่วคราว)
+const CHECKS = { api: ['ดึงจุดความร้อนจาก API ไม่ได้', H], src: ['ระบบต้นทางไม่อัปเดต', 0], sync: ['sync จุดความร้อนไม่ทำงาน', 0], gap: ['ข้อมูลสะสมค้าง', 0], line: ['LINE ใช้งานไม่ได้', H] };
+const now = +process.env.HEALTH_NOW || Date.now();
+const thTime = ms => { const d = new Date(ms + 7 * H); return `${d.getUTCDate()}/${d.getUTCMonth() + 1} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')} น.` };
+const hrs = ms => (ms / H).toFixed(ms < 10 * H ? 1 : 0);
+const readJ = f => { try { return JSON.parse(fs.readFileSync(f, 'utf8')) } catch (e) { return null } };
+const getJ = async f => { try { const r = await fetch(SITE + f + '?t=' + now, { signal: AbortSignal.timeout(20e3) }); return r.ok ? await r.json() : null } catch (e) { return null } };
+
+async function line(p, body) {
+  const r = await fetch(API + p, { method: body ? 'POST' : 'GET', signal: AbortSignal.timeout(20e3), headers: { Authorization: 'Bearer ' + TOKEN, ...(body ? { 'Content-Type': 'application/json' } : {}) }, body: body && JSON.stringify(body) });
+  const t = await r.text(); if (!r.ok) throw new Error(`${p} HTTP ${r.status} ${t.slice(0, 200)}`); return t ? JSON.parse(t) : {};
+}
+// ส่งข้อความถึงผู้ดูแล (ตรวจโควตาก่อน) → true = ส่งแล้ว
+async function send(text) {
+  if (!TOKEN || !ADMIN) { console.log('ยังไม่ตั้ง', !TOKEN ? 'LINE_TOKEN' : 'LINE_ADMIN_ID', '— ไม่ส่ง:\n' + text); return false }
+  const [q, u] = await Promise.all([line('/v2/bot/message/quota'), line('/v2/bot/message/quota/consumption')]);
+  if (q.type !== 'none' && q.value - u.totalUsage < 1) { console.log('โควตาหมด — ไม่ส่ง'); return false }
+  await line('/v2/bot/message/push', { to: ADMIN, messages: [{ type: 'text', text: text.slice(0, 4900) }] });
+  return true;
+}
+
+// ปัญหาที่พบตอนนี้ { key: ข้อความ }
+function problems() {
+  const P = {}, live = readJ(path.join(OUT, 'live.json')), nt = readJ(path.join(OUT, 'notify.json'));
+  if (!live) P.api = 'สร้าง live.json ไม่ได้ (API ไม่ตอบหรือผิดพลาด)';
+  else if (!live.meta || !live.meta.nation_total) P.api = 'API ตอบว่างทั้งประเทศ (48 ชม. ไม่มีจุดเลย = น่าจะขัดข้อง)';
+  const su = live && live.meta && live.meta.sys_update && Date.parse(live.meta.sys_update);
+  if (su && now - su > 18 * H) P.src = `Land Fire Alerts อัปเดตล่าสุด ${thTime(su)} (${hrs(now - su)} ชม.)`;
+  let a = null; try { a = JSON.parse(fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').match(/id="adata">([\s\S]*?)<\/script>/)[1]) } catch (e) { }
+  if (!a) P.sync = 'อ่านข้อมูลสะสม (adata) ใน index.html ไม่ได้';
+  else {
+    const up = Date.parse(a.upd);
+    if (now - up > 14 * H) P.sync = `อัปเดตล่าสุด ${thTime(up)} (${hrs(now - up)} ชม.) — ดู workflow sync`;
+    const today = Math.floor((now + 7 * H) / 864e5), to = a.to ? Date.parse(a.to) / 864e5 : 0;
+    if (today - to > 2) P.gap = `ดึงครบถึง ${a.to || '-'} (ขาด ${today - to - 1} วัน) — API อาจตอบว่างย้อนหลัง`;
+  }
+  if (nt && nt.line && nt.line.ok === 0 && TOKEN) P.line = nt.line.why || 'ตรวจโควตา/กลุ่มไม่ผ่าน';
+  return P;
+}
+
+(async () => {
+  if (process.argv.includes('--site')) {
+    const nt = await getJ('notify.json'), up = nt && Date.parse(nt.updated);
+    if (up && now - up <= 90 * 60e3) { console.log('site ปกติ (notify.json อัปเดต', thTime(up) + ')'); return }
+    const msg = `⚠️ ระบบแผนที่ไฟป่า: หน้าเว็บ/การแจ้งเตือนไม่อัปเดต\n• ${up ? `notify.json อัปเดตล่าสุด ${thTime(up)} (${hrs(now - up)} ชม.)` : 'อ่าน notify.json บนเว็บไม่ได้'}\nตรวจ workflow site และงาน cron-job.org "fire-map site"\n${ACTIONS}`;
+    try { console.log(await send(msg) ? 'ส่งแล้ว' : 'ไม่ได้ส่ง') } catch (e) { console.log('ส่งไม่สำเร็จ:', e.message) }
+    return;
+  }
+
+  const st = (await getJ('health.json')) || { checks: {}, log: [] };
+  st.checks = st.checks || {};
+  const P = problems(), bad = [], ok = [];
+  for (const [k, m] of Object.entries(P)) {
+    const c = st.checks[k] = { since: now, ...st.checks[k], msg: m };
+    if (now - c.since >= CHECKS[k][1] && (!c.alerted || now - c.alerted >= REMIND)) bad.push(k);
+  }
+  for (const k of Object.keys(st.checks)) if (!(k in P)) { if (st.checks[k].alerted) ok.push(k); else delete st.checks[k] }
+
+  if (bad.length || ok.length) {
+    const L = [];
+    if (bad.length) L.push('⚠️ ระบบแผนที่ไฟป่า: พบปัญหา', ...bad.map(k => `• ${CHECKS[k][0]}: ${st.checks[k].msg}${st.checks[k].alerted ? ` (ยังไม่หาย ตั้งแต่ ${thTime(st.checks[k].since)})` : ''}`));
+    if (ok.length) L.push(...(bad.length ? [''] : []), '✅ กลับมาปกติแล้ว', ...ok.map(k => `• ${CHECKS[k][0]} (เริ่ม ${thTime(st.checks[k].since)})`));
+    L.push('', `Actions: ${ACTIONS}`, `สถานะ: ${SITE}health.json`);
+    let sent = false;
+    try { sent = await send(L.join('\n')) } catch (e) { console.log('ส่งไม่สำเร็จ:', e.message) }
+    if (sent) { bad.forEach(k => st.checks[k].alerted = now); ok.forEach(k => delete st.checks[k]) }
+    st.log = [{ t: new Date(now).toISOString(), bad, ok, sent: sent ? 1 : 0 }, ...(st.log || [])].slice(0, 30);
+    console.log(sent ? 'ส่งแจ้งเตือนผู้ดูแลแล้ว' : 'ยังไม่ได้ส่ง', JSON.stringify({ bad, ok }));
+  } else console.log(Object.keys(P).length ? 'มีปัญหา (แจ้งแล้วหรือรอครบเวลา): ' + Object.entries(P).map(([k, m]) => `${k}: ${m}`).join(' · ') : 'ระบบปกติ');
+  st.ok = !Object.keys(P).length; st.updated = new Date(now).toISOString();
+  if (fs.existsSync(OUT)) fs.writeFileSync(path.join(OUT, 'health.json'), JSON.stringify(st));
+})();
