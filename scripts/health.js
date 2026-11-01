@@ -66,6 +66,12 @@ function problems() {
   const st = (await getJ('health.json')) || { checks: {}, log: [] };
   st.checks = st.checks || {};
   const P = problems(), bad = [], ok = [];
+  // ตั้ง/เปลี่ยน LINE_ADMIN_ID → ส่งข้อความยืนยัน 1 ครั้ง (health.json เป็นสาธารณะ จึงเก็บแค่แฮชของรหัส)
+  const aid = ADMIN && require('crypto').createHash('sha256').update(ADMIN).digest('hex').slice(0, 12);
+  if (aid && st.admin !== aid && TOKEN) try {
+    const n = Object.keys(P).length;
+    if (await send(`✅ ตั้งค่าแจ้งเตือนผู้ดูแลเรียบร้อย\nบอทจะส่งข้อความถึงคุณคนเดียวเมื่อระบบแผนที่ไฟป่าเสีย (API/sync/ระบบต้นทาง/LINE/หน้าเว็บหยุด) และเมื่อกลับมาปกติ\nสถานะตอนนี้: ${n ? `มีปัญหา ${n} เรื่อง (จะแจ้งแยก)` : 'ปกติ'}\n${SITE}health.json`)) { st.admin = aid; console.log('ส่งข้อความยืนยันผู้ดูแลแล้ว') }
+  } catch (e) { console.log('ส่งข้อความยืนยันไม่สำเร็จ:', e.message) }
   for (const [k, m] of Object.entries(P)) {
     const c = st.checks[k] = { since: now, ...st.checks[k], msg: m };
     if (now - c.since >= CHECKS[k][1] && (!c.alerted || now - c.alerted >= REMIND)) bad.push(k);
