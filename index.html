@@ -38,7 +38,7 @@ h1 small{display:block;font-size:.42em;font-weight:600;color:var(--mut);margin-t
 .st b{text-align:right;font-size:22px;line-height:1.25;font-weight:800}
 .st b:first-child{color:var(--fire)}.st span{align-self:center}
 .sm{font-size:12px;color:var(--mut)}
-.btns{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.btn[aria-pressed=true]{background:var(--sel);color:var(--navy)}
 .btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;background:var(--bg);border:0;border-radius:14px;box-shadow:var(--sh);font-size:13px}
 .card{background:var(--bg);border-radius:20px;box-shadow:var(--sh);width:min(335px,100%);padding:12px}
 .srch{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:0 10px;min-height:40px}
@@ -135,6 +135,8 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .zm{display:flex;flex-direction:row;gap:8px}
 #hint{position:fixed;left:auto;right:calc(470px + env(safe-area-inset-right));max-width:420px;bottom:calc(30px + env(safe-area-inset-bottom));font-size:12px;color:var(--mut);background:var(--glass);padding:3px 12px;border-radius:99px;z-index:4;text-align:center;pointer-events:none;max-width:46vw}
 #attr{position:fixed;left:50%;transform:translateX(-50%);bottom:0;max-width:calc(100% - 20px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:2px 10px calc(2px + env(safe-area-inset-bottom));font-size:10px;line-height:1.4;color:var(--mut);background:var(--glass);border-radius:8px 8px 0 0;z-index:4}
+/* เดสก์ท็อป: การ์ดจุดความร้อนเลื่อนภายในตัวเอง (ท้ายมนเสมอแบบการ์ดสถิติ) จบห่างขอบล่าง 12 px · แถบอ้างอิงข้อมูลอยู่กลางพื้นที่ขวาของแผงซ้าย ไม่ทับการ์ด */
+@media(min-width:768px){#left:not(.hm){display:flex;flex-direction:column;max-height:100%;padding-bottom:12px}#left:not(.hm)>*{flex-shrink:0}#left>#pcard{flex-shrink:1;min-height:200px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}#attr{left:calc(50% + 210px);max-width:calc(100% - 440px)}}
 .maplibregl-ctrl-bottom-right{bottom:calc(86px + env(safe-area-inset-bottom))!important;right:max(6px,env(safe-area-inset-right))!important}
 #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--on);color:#fff;border-radius:12px;padding:8px 16px;font-size:13px;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s}
 #toast.show{opacity:1}
@@ -367,7 +369,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
  <div class="sm">อัปเดต <span class="tm">--:--</span> น. · <span id="hsrc">กำลังดึงข้อมูล…</span> · ย้อนหลัง 2 วัน</div>
  <div class="dmr"><button class="sw" id="bDemo" role="switch" aria-label="แสดงจุดความร้อนตัวอย่าง"></button><span>แสดง<b>จุดความร้อนตัวอย่าง</b>ในผืนป่า (ชั่วคราว เพื่อดูการแสดงผลระหว่างยังไม่ถึงฤดูไฟป่า)</span></div>
  <div class="btns">
-  <button class="btn" id="bHide"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg><span>ซ่อนรายการ</span></button>
+  <button class="btn" id="bHide" aria-pressed="true" title="แสดง/ซ่อนการ์ดจุดความร้อนที่ตรวจพบ"><svg class="i" viewBox="0 0 24 24"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 01-10 0c0-2.5 1.5-4 2.5-5.5.3 1.6 1 2.6 2 3 0-3 .5-5.5.5-7.5z"/></svg><span>จุดความร้อนที่ตรวจพบ</span></button>
   <button class="btn" id="bKnow" title="ความสำคัญ ประวัติ ทรัพยากร สัตว์ป่า แหล่งท่องเที่ยว รายพื้นที่อนุรักษ์"><svg class="i" viewBox="0 0 24 24"><path d="M5 19c9 0 14-6 14-14-8 0-14 5-14 14zM5 19l6-6"/></svg>ความสำคัญ</button>
   <button class="btn" id="bWy" title="แผนที่พยากรณ์อากาศ Windy: ลม ฝน ฟ้าคะนอง อุณหภูมิ ความชื้น เมฆ ฝุ่น"><svg class="i" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 10-3-3M3 12h16a3 3 0 11-3 3M3 16h7"/></svg>พยากรณ์อากาศ</button>
   <button class="btn" id="bStat">วิเคราะห์สถิติย้อนหลัง</button>
@@ -1092,7 +1094,7 @@ $('#p-tb').onclick=e=>{const b=e.target.closest('[data-t]');if(b)setPT(b.dataset
 $('#p-tb2').onclick=e=>{const b=e.target.closest('[data-t]');if(b)setPT(b.dataset.t)};
 $('#p-md').onclick=e=>{const b=e.target.closest('[data-m]');if(!b||b.dataset.m===PM)return;PM=b.dataset.m;$$('#p-md [data-m]').forEach(x=>x.setAttribute('aria-selected',x===b));$('#p-cm').hidden=PM!=='cmp';drawList()};
 $('#p-cm').onclick=e=>{const b=e.target.closest('[data-c]');if(!b||b.dataset.c===CM)return;CM=b.dataset.c;$$('#p-cm [data-c]').forEach(x=>x.setAttribute('aria-selected',x===b));drawList()};
-$('#bHide').onclick=()=>{const h=$('#pcard').hidden=!$('#pcard').hidden;$('#bHide span').textContent=h?'แสดงรายการ':'ซ่อนรายการ'};
+$('#bHide').onclick=()=>{const h=$('#pcard').hidden=!$('#pcard').hidden;$('#bHide').setAttribute('aria-pressed',!h)};
 $$('[data-soon]').forEach(b=>b.onclick=()=>{const[a,p]=b.dataset.soon.split('|');toast(`"${a}" จะเปิดใช้ในเฟส ${p}`)});
 $('#grab').onclick=()=>$('#left').classList.toggle('up');
 $('#bLay').onclick=()=>{closeDetail();$('#right').classList.toggle('open');sync()};
@@ -1117,7 +1119,7 @@ map.on('moveend',()=>{if(S.base==='sat'&&imgOf()==='esri'){clearTimeout(imgT);im
 $('#rf').onclick=async()=>{await load();toast('ดึงข้อมูลใหม่แล้ว')};
 $('#sdef').onclick=()=>{try{localStorage.setItem('fm-v1',JSON.stringify(S));toast('บันทึกค่าเริ่มต้นแล้ว')}catch(e){toast('บันทึกไม่ได้ในเบราว์เซอร์นี้')}};
 addEventListener('keydown',e=>{
- if(e.key==='/'&&document.activeElement!==$('#q')){e.preventDefault();$('#pcard').hidden=false;$('#q').focus()}
+ if(e.key==='/'&&document.activeElement!==$('#q')){e.preventDefault();$('#pcard').hidden=false;$('#bHide').setAttribute('aria-pressed',true);$('#q').focus()}
  if(e.key==='Escape'){closeModal();closeDetail();$('#right').classList.remove('open');$('#q').blur();sync()}});
 
 map.on('click',e=>{
@@ -2038,7 +2040,7 @@ addEventListener('resize',pbPos);
 /* --- เปิด/ปิดการ์ด --- */
 function hOpen(play){HOPEN=true;$('#left').classList.add('hm');$('#pcard').hidden=true;$('#hcard').hidden=false;S.hist=true;apply();if(!hOpen.done)hDef();hRender();if(!hOpen.done){hOpen.done=1;hFit()}
  if(play)pbOpen()}
-function hClose(){HOPEN=false;pbClose();$('#left').classList.remove('hm');$('#hcard').hidden=true;$('#pcard').hidden=false;$('#bHide span').textContent='ซ่อนรายการ';S.hist=false;apply()} // ปิดการ์ด = ซ่อนจุดความร้อนย้อนหลังด้วย
+function hClose(){HOPEN=false;pbClose();$('#left').classList.remove('hm');$('#hcard').hidden=true;$('#pcard').hidden=false;$('#bHide').setAttribute('aria-pressed',true);S.hist=false;apply()} // ปิดการ์ด = ซ่อนจุดความร้อนย้อนหลังด้วย
 
 /* ---------- ประวัติบริเวณจุดไฟ จากข้อมูลย้อนหลัง (ใช้ในแผงรายละเอียด) ---------- */
 function kmTo(la,lo,r){const k=Math.cos(la*Math.PI/180);return Math.hypot((r.lo-lo)*111.32*k,(r.la-la)*110.57)}
@@ -2056,7 +2058,7 @@ function fillHist(h){const nr=nearestHist(h.lat,h.lon),near=[];for(const r of HD
  tx('hx-n',n2?'ประมาณจากจุดย้อนหลังในไฟล์ Excel (ไม่ใช่การหาตำแหน่งในแนวเขตจริง)':'ไม่เคยพบจุดย้อนหลังในรัศมี 2 กม. ซึ่งไม่ได้แปลว่าไม่มีความเสี่ยง (ข้อมูลย้อนหลังเป็นจุดจากดาวเทียมเท่านั้น)')}
 $('#hx-m').onclick=()=>{S.hist=true;apply();hRender();toast('เปิดชั้นจุดความร้อนย้อนหลังแล้ว')};
 $('#bStat').onclick=()=>HOPEN?hClose():hOpen();$('#bPlay').onclick=()=>hOpen(true);$('#hs-o').onclick=()=>hOpen();$('#h-x').onclick=hClose;
-$('#bHide').onclick=()=>{const t=HOPEN?$('#hcard'):$('#pcard'),h=t.hidden=!t.hidden;$('#bHide span').textContent=h?'แสดงรายการ':'ซ่อนรายการ';pbPos()};
+$('#bHide').onclick=()=>{const t=HOPEN?$('#hcard'):$('#pcard'),h=t.hidden=!t.hidden;$('#bHide').setAttribute('aria-pressed',!h);pbPos()};
 $('#hcard').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;const k=b.dataset.k,v=Number(b.dataset.v);HF[k].has(v)?HF[k].delete(v):HF[k].add(v);if(PB.on)PB.i=0;hRender()});
 $('#h-rs').onclick=()=>{hDef();hRender()};
 $('#h-per').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;HF.fy.clear();hPerYs(+b.dataset.v).forEach(y=>HF.fy.add(y));if(PB.on)PB.i=0;hRender()};
