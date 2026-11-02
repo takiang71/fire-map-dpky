@@ -152,7 +152,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 #grab{display:none}
 @media(max-width:767px){
  #lbg{display:none}
- #left{width:100%;top:auto;bottom:0;max-height:34vh;padding:6px 16px calc(14px + env(safe-area-inset-bottom));background:var(--glass);border-radius:22px 22px 0 0;box-shadow:var(--sh);pointer-events:auto;transition:max-height .25s}
+ #left{width:100%;top:auto;bottom:0;max-height:var(--sh0,34vh);padding:6px 16px calc(14px + env(safe-area-inset-bottom));background:var(--glass);border-radius:22px 22px 0 0;box-shadow:var(--sh);pointer-events:auto;transition:max-height .25s}
  #left.up{max-height:80vh}
  #grab{display:block;width:44px;height:5px;border-radius:3px;background:#b8bdcc;margin:0 auto 8px;border:0;padding:10px 0;background-clip:content-box;min-height:24px}
  #ctl{top:calc(12px + env(safe-area-inset-top));bottom:auto;flex-direction:column-reverse} /* ชิดบนขวา (ผู้ใช้ขอ 2 พ.ย. 69) แผ่นล่างลากขึ้นได้สูงขึ้นก่อนต้องซ่อนปุ่ม */
@@ -161,7 +161,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
  .zm{flex-direction:column}
  #right{left:8px;right:8px;width:auto;top:auto;bottom:0;max-height:70vh;border-radius:22px 22px 0 0}
  #hint,#attr{display:none}
- .maplibregl-ctrl-bottom-right{bottom:36vh!important;right:auto!important;left:0!important}
+ .maplibregl-ctrl-bottom-right{bottom:calc(var(--sh0,34vh) + 6px)!important;right:auto!important;left:0!important}
 }
 @media(max-width:1179px){#hint{display:none}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -221,7 +221,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 #pbf[hidden]{display:none}
 .pbh{display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:13px}.pbh b{flex:none;color:var(--navy)}.pbh .sm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pbh .cb{flex:none}.pbo{display:flex;align-items:center;gap:6px;margin-top:6px}.pbo .sm{flex:none}.pbo .seg{margin:0;flex:4}.pbo .seg+.sm+.seg{flex:3}.pbo .seg button{min-height:30px;font-size:12px}
-@media(max-width:767px){#pbf{bottom:calc(34vh + 8px);padding:6px 10px 8px}.pbo{flex-wrap:wrap;row-gap:4px}.pbo .seg{flex:1 1 calc(100% - 60px)}}.pbr .btn{min-height:34px;padding:0 10px;box-shadow:none;border:1px solid var(--line)}
+@media(max-width:767px){#pbf{bottom:calc(var(--sh0,34vh) + 8px);padding:6px 10px 8px}.pbo{flex-wrap:wrap;row-gap:4px}.pbo .seg{flex:1 1 calc(100% - 60px)}}.pbr .btn{min-height:34px;padding:0 10px;box-shadow:none;border:1px solid var(--line)}
 .md{position:fixed;inset:0;background:rgba(10,20,50,.45);z-index:40;display:grid;place-items:center;padding:12px}
 .mc{background:var(--bg);color:var(--ink);border-radius:22px;width:min(520px,100%);max-height:88vh;overflow:auto;box-shadow:var(--sh)}
 .mh{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg)}.mh b{flex:1;font-size:17px;color:var(--navy)}.mb{padding:14px 16px}
@@ -232,7 +232,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 #left.hm{height:100%;max-height:none;overflow:hidden;padding-top:12px;padding-bottom:12px;display:flex;flex-direction:column}
 #left.hm>h1,#left.hm>.hrow,#left.hm>.dmr,#left.hm>.pill,#left.hm>.desc,#left.hm>.st,#left.hm>.sm,#left.hm>.btns,#left.hm>#pcard{display:none}
 #left.hm #hcard{flex:1;min-height:0;overflow:auto;width:min(390px,100%)}
-@media(max-width:767px){#left.hm{height:auto;max-height:34vh}#left.hm.up{max-height:80vh}}
+@media(max-width:767px){#left.hm{height:auto;max-height:var(--sh0,34vh)}#left.hm.up{max-height:80vh}}
 .kg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
 .kc{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--line);border-left:4px solid var(--c);border-radius:12px;padding:8px}
 .kc .ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;background:var(--cb);color:var(--c)}.kc .ic svg{width:17px;height:17px}
@@ -351,7 +351,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 .wyb-c{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;min-width:0;flex:1}.wyb-c::-webkit-scrollbar{display:none}.wyb-c button{padding:4px 10px;font-size:12px}
 .wyb-m{flex:none;display:inline-flex;border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:2px;white-space:nowrap}.wyb-m button{border:0;background:none;border-radius:99px;padding:3px 10px;font:inherit;font-size:12px;color:var(--mut);cursor:pointer}
 .wyb-m button[aria-pressed=true]{background:#1f2f5c;color:#fff;font-weight:600}.wyb-m button[data-m="1"][aria-pressed=true]{background:#fff4d6;color:#7a5200;box-shadow:inset 0 0 0 1px #e0b44a}#wyb .cb{flex:none;width:30px;height:30px;box-shadow:none}
-@media(max-width:767px){#wyb{bottom:calc(35vh + 8px);border-radius:16px;flex-wrap:wrap;row-gap:4px}.wyb-c{order:9;flex-basis:100%}#wyb>b{flex:1}}
+@media(max-width:767px){#wyb{bottom:calc(var(--sh0,34vh) + 8px);border-radius:16px;flex-wrap:wrap;row-gap:4px}.wyb-c{order:9;flex-basis:100%}#wyb>b{flex:1}}
 #wyb.cp{gap:6px;padding-left:10px}#wyb.cp .wyb-c{gap:3px}#wyb.cp .wyb-c button{padding:4px 8px}#wyb.cp .wyb-m button{padding:3px 8px}#wyb.wr{border-radius:16px}#wyb.wr .wyb-c{flex-wrap:wrap;row-gap:4px}
 </style>
 </head>
@@ -778,6 +778,9 @@ async function imgDate(){const el=$('#imgdate'),q=++imgQ;if(!el)return;el.hidden
   const t=v?`ภาพถ่าย ${thD(new Date(v.slice(0,4)+'-'+v.slice(4,6)+'-'+v.slice(6)))} · ${a.src||'Esri'}${a.res?' '+a.res+' ม.':''} (กลางจอ)${w?' · ภาพย้อนหลัง Esri Wayback':''}`:'ไม่พบวันที่ของภาพบริเวณนี้';
   IMC[key]=t;if(q===imgQ)el.textContent=t}
  catch(e){if(q===imgQ)el.textContent='อ่านวันที่ภาพไม่ได้'}}
+/* มือถือ: ความสูงปกติของแผ่นล่าง (--sh0) = ขอบบนชิดใต้คอลัมน์ปุ่มควบคุม 8 px (ผู้ใช้ขอ 2 พ.ย. 69) ใช้ร่วมกับแถบลอย/มาตราส่วนที่วางเหนือแผ่น · จอเตี้ยจนแผ่นต่ำกว่า 30% ใช้ 34vh เดิม (ปุ่มจะซ่อนเมื่อทับ) · คำนวณก่อนสร้างแผนที่ เพราะ homePad ใช้ความสูงแผ่น */
+function sheetFit(){const R=document.documentElement,B=document.body,k=$('#ctl');if(innerWidth>767||!k){R.style.removeProperty('--sh0');return}const had=B.classList.contains('ctlh');if(had)B.classList.remove('ctlh');const h=Math.floor(innerHeight-k.getBoundingClientRect().bottom-8);if(had)B.classList.add('ctlh');if(h>=innerHeight*.3)R.style.setProperty('--sh0',h+'px');else R.style.removeProperty('--sh0')}
+sheetFit();addEventListener('resize',sheetFit);
 const map=new maplibregl.Map({container:'map',style:sty(),bounds:HOME,fitBoundsOptions:{padding:homePad()},attributionControl:false,maxPitch:75,preserveDrawingBuffer:true}); // preserveDrawingBuffer: ให้ดึงภาพแผนที่ใส่รายงานได้
 /* มาตราส่วนแบบแถบสลับสี: ขั้นละเอียด 1 1.5 2 2.5 3 4 5 6 8 ×10ⁿ (ScaleControl เดิมมีแค่ 1 2 3 5) ป้าย 0 / กลาง / ปลาย · คงคลาส maplibregl-ctrl-scale ให้ wybScale วัดตำแหน่งได้ */
 class FScale{onAdd(m){this.m=m;const e=this.e=document.createElement('div');e.className='maplibregl-ctrl maplibregl-ctrl-scale fsc';this.u=()=>this.up();m.on('move',this.u);this.up();return e}
@@ -1904,7 +1907,7 @@ function sheet(el,h){let y0=0,h0=0,mv=0;
  h.addEventListener('pointerup',()=>{el.style.transition='';h._m=mv});
  h.addEventListener('click',e=>{if(h._m){e.stopImmediatePropagation();e.preventDefault();h._m=0}},true)}
 sheet($('#left'),$('#grab'));$$('.gb').forEach(g=>sheet(g.parentElement,g));
-// มือถือ: คอลัมน์ปุ่มควบคุมอยู่เหนือ 35vh+8 px จากขอบล่าง — แผ่นล่าง (แผงซ้าย/การ์ดสถิติ, ชั้นข้อมูล, รายละเอียดจุด) ที่ขอบบนสูงกว่านั้นจะทับปุ่ม จึงซ่อนปุ่มไว้จนกว่าแผ่นจะลดลง/ปิด
+// มือถือ: คอลัมน์ปุ่มควบคุมชิดบนขวา แผ่นล่างปกติสูงถึงใต้คอลัมน์ (sheetFit) — แผ่นล่าง (แผงซ้าย/การ์ดสถิติ, ชั้นข้อมูล, รายละเอียดจุด) ที่ขอบบนสูงกว่านั้นจะทับปุ่ม จึงซ่อนปุ่มไว้จนกว่าแผ่นจะลดลง/ปิด
 // ขอบล่างของคอลัมน์วัดจากตำแหน่งจริง — ห้ามคิดจาก innerHeight×สัดส่วน: Chrome มือถือ vh = ความสูงตอนแถบที่อยู่ซ่อน > innerHeight ตอนแถบแสดง เคยทำให้ซ่อนปุ่มตั้งแต่เปิดหน้า (S25 Ultra)
 function ctlFit(){const B=document.body;B.classList.remove('ctlh');if(innerWidth>767)return;const yb=$('#ctl').getBoundingClientRect().bottom; // วัดตอนแสดง (ถอดคลาสแล้วใส่กลับในรอบเดียวกัน ไม่กะพริบ)
  B.classList.toggle('ctlh',['#left','#right','#dp'].some(q=>{const r=$(q).getBoundingClientRect();return r.height>0&&r.top<yb+4}))}
