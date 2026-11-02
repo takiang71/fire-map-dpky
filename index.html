@@ -59,6 +59,7 @@ h1 small{display:block;font-size:.42em;font-weight:600;color:var(--mut);margin-t
 .pq{display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin:12px 0 4px;font-size:13.5px;color:var(--navy)}
 .cr{display:grid;grid-template-columns:120px 1fr 36px;align-items:center;gap:6px;font-size:12px;min-height:20px}.cr i{display:block;height:8px;border-radius:0 4px 4px 0;min-width:2px}.cr em{font-style:normal;text-align:right;font-weight:700}
 .cv{font-size:12px;margin:4px 0 0}.cv b{font-weight:700}
+.cfy{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;margin:8px 0 2px;padding:8px 10px;border:1px solid #dfe3ee;border-radius:12px;background:#f6f8fc}.cfy div{display:flex;flex-direction:column;line-height:1.2;min-width:0}.cfy span{font-size:11.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cfy b{font-size:20px;font-weight:700}.cfy small{font-size:10.5px;color:var(--mut)}.cfy em{font-style:normal;font-weight:700;font-size:14px;padding:4px 8px;border-radius:8px;white-space:nowrap}.cfy .up{color:#c0301c;background:#fde8e4}.cfy .dn{color:#1f7a4d;background:#e2f4ea}.cfy .eq{color:var(--mut);background:#eef0f5}
 .plg{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:11px;color:var(--mut);margin:8px 0 2px}.plg i{display:inline-block;width:14px;border-top:2px solid;vertical-align:middle;margin-right:4px}.plg i.sb{height:9px;border:0;background:#f6efe2;width:12px}
 .pch{position:relative}.pch svg{display:block;width:100%;height:auto;overflow:visible;touch-action:pan-y}
 .ptip{position:absolute;top:0;display:none;pointer-events:none;background:var(--bg);border:1px solid var(--line);box-shadow:var(--sh);border-radius:8px;padding:4px 8px;font-size:11px;line-height:1.45;white-space:nowrap;z-index:2}.ptip i{display:inline-block;width:10px;border-top:2px solid;vertical-align:middle;margin-right:4px}
@@ -901,11 +902,17 @@ function renderLeft(){
  ['r','o','b'].forEach(g=>$('#c-'+g).textContent=HS.filter(h=>grp(h)===g).length);
  renderCard();satBtns();
 }
-/* ปุ่มเลือกดาวเทียม (มีสองชุด: การ์ดซ้าย + แผงชั้นข้อมูล ใช้สถานะเดียวกัน) · ตัวเลข = จุดใน 24 ชม. ของดาวเทียมนั้น */
+/* ปุ่มเลือกดาวเทียม (มีสองชุด: การ์ดซ้าย + แผงชั้นข้อมูล ใช้สถานะเดียวกัน) · ตัวเลข = จุดสะสมตั้งแต่ 1 ต.ค. ของปีงบปัจจุบันของดาวเทียมนั้น (ผู้ใช้ขอ 2 พ.ย. 69 — เดิมจุดใน 24 ชม.) ชุดเดียวกับตาราง "ปีงบ" */
 // Suomi NPP หยุดส่งข้อมูล 2 พ.ย. 69 20:00 น. → ซ่อนปุ่มตั้งแต่ 3 พ.ย. (ผู้ใช้ขอ 30 ต.ค. 69) · ดวงที่ซ่อนถือว่าเปิด (จุดที่ค้างใน 48 ชม. ยังแสดง) · ถ้าดวงที่เหลือถูกปิดหมด (ค่าที่บันทึกไว้) ถือว่าเปิดทุกดวง
 const satList=()=>thDay()>IND_SW?['NOAA20','NOAA21']:['SNPP','NOAA20','NOAA21'],satOn=k=>{const L=satList();return!L.includes(k)||S.sats[k]!==false||!L.some(x=>S.sats[x]!==false)};
-function satBtns(){xdyBtns();const A=[...LIVE,...(S.demo&&DEMO?DEMO:[])].filter(h=>(loadedAt-h.t)/H<24&&xLive(h)),n=k=>A.filter(h=>satKey(h.sat)===k).length;
- $$('[data-sats]').forEach(e=>e.innerHTML=satList().map(k=>`<button data-sat="${k}" aria-pressed="${satOn(k)}" title="${k==='SNPP'?'Suomi NPP หยุดส่งข้อมูล 2 พ.ย. 69 · ':''}จุดใน 24 ชม."><i></i>${SATN[k]} <em>${n(k)}</em></button>`).join(''))}
+let SFC=null;
+function satFy(){const T0=thDay(),s=fy0(fyOfDay(T0)),k=s+'|'+loadedAt+'|'+AD.length+'|'+LIVE.length+'|'+!!S.xdy;if(SFC&&SFC.k===k)return SFC.n;
+ const n={},seen=new Set(),add=x=>n[x]=(n[x]||0)+1;
+ AD.forEach(r=>{if(r.d>=s&&r.d<=T0){seen.add(hKey(r.d,r.t,r.la,r.lo));if(xAD(r))add(r.sat)}});
+ LIVE.forEach(h=>{const x=new Date(h.t+7*36e5),d=Math.floor(x/864e5),q=hKey(d,x.getUTCHours()*100+x.getUTCMinutes(),h.lat,h.lon);if(d>=s&&d<=T0&&!seen.has(q)){seen.add(q);if(xLive(h))add(satKey(h.sat))}});
+ return(SFC={k,n}).n}
+function satBtns(){xdyBtns();const F=fyOfDay(thDay()),N=satFy(),n=k=>nf(N[k]||0);
+ $$('[data-sats]').forEach(e=>e.innerHTML=satList().map(k=>`<button data-sat="${k}" aria-pressed="${satOn(k)}" title="${k==='SNPP'?'Suomi NPP หยุดส่งข้อมูล 2 พ.ย. 69 · ':''}ตัวเลข = จุดสะสมปีงบ ${F} (ตั้งแต่ 1 ต.ค.) ของดาวเทียมดวงนี้ · กดเพื่อซ่อน/แสดงจุดของดวงนี้บนแผนที่"><i></i>${SATN[k]} <em>${n(k)}</em></button>`).join(''))}
 function xdyBtns(){$$('[data-xdy]').forEach(e=>e.innerHTML=`<button aria-pressed="${!!S.xdy}" title="ขสป.ดงใหญ่สังกัด สบอ.7 (นครราชสีมา) · กดเพื่อดูเฉพาะพื้นที่อนุรักษ์ในสังกัด สบอ.1 (ปราจีนบุรี) · มีผลกับแผนที่ การ์ด ตาราง และสถิติย้อนหลัง"><i></i>ไม่รวม ขสป.ดงใหญ่ (สบอ.7)</button>`)}
 document.addEventListener('click',e=>{if(!e.target.closest('[data-xdy] button'))return;S.xdy=!S.xdy;refreshHS();if(HOPEN)hRender();if($('#dt-w'))dtRender();LB();LF();LFT()});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-sat]');if(!b)return;const k=b.dataset.sat,on=satOn(k),L=satList();
@@ -978,7 +985,9 @@ function renderCard(){
  $('#p-cq').textContent='เทียบปีงบประมาณ '+Hh.P;$('#p-asof').textContent='ช่วงเดียวกัน 1 ต.ค. – '+dShort(T0);
  const df=now[T]-Hh.cp[T];
  $('#p-cmp').innerHTML=C.map(([l,v,c])=>`<div class="cr"><span>${l}</span><i style="width:${v/cm*100}%;background:${c}"></i><em>${nf(v,v%1?1:0)}</em></div>`).join('')+
-  `<div class="cv">${df?`<b>${df>0?'▲ มากกว่า':'▼ น้อยกว่า'}</b> ปีงบ ${Hh.P} ช่วงเดียวกัน <b>${nf(Math.abs(df))}</b> จุด`:`<b>เท่ากับ</b> ปีงบ ${Hh.P} ช่วงเดียวกัน`}${Hh.cp[T]?` (${df>0?'+':''}${Math.round(df/Hh.cp[T]*100)}%)`:''}</div>`;
+  `<div class="cv">${df?`<b>${df>0?'▲ มากกว่า':'▼ น้อยกว่า'}</b> ปีงบ ${Hh.P} ช่วงเดียวกัน <b>${nf(Math.abs(df))}</b> จุด`:`<b>เท่ากับ</b> ปีงบ ${Hh.P} ช่วงเดียวกัน`}${Hh.cp[T]?` (${df>0?'+':''}${Math.round(df/Hh.cp[T]*100)}%)`:''}</div>`+
+  // เทียบยอดรวมทั้งปีงบก่อน (ผู้ใช้ขอ 2 พ.ย. 69: ให้รู้จากการ์ดเลยว่าปีงบก่อนทั้งปีมีกี่จุด)
+  ((t,[c,p])=>`<div class="cfy"><div><span>ปีงบ ${Hh.P} ทั้งปี</span><b>${nf(t)}</b><small>จุด · 1 ต.ค. – 30 ก.ย.</small></div><div><span>ปีงบ ${F} ถึง ${dShort(T0)}</span><b>${nf(now[T])}</b><small>จุด · เทียบทั้งปี ${Hh.P}</small></div><em class="${c}" title="ปีงบ ${F} (ถึงวันนี้) เทียบยอดรวมทั้งปีงบ ${Hh.P} · ลูกศรแดง = มากกว่า, เขียว = น้อยกว่า">${p}</em></div>`)(Hh.tot,dPct(now[T],Hh.tot));
  $('#p-lg').innerHTML=`<span><i style="border-color:var(--fire)"></i>ปีงบ ${F}${sx}</span><span><i style="border-color:#3E6FD8"></i>ปีงบ ${Hh.P}</span>${Hh.av.map((a,j)=>`<span><i style="border-color:${AVC[j]};border-top-style:dashed"></i>เฉลี่ย ${a.n} ปี</span>`).join('')}<span><i style="border-color:#9aa3b5;border-top-style:dashed"></i>เฉลี่ย ${yr}</span><span><i class="sb"></i>ช่วงไฟป่า ม.ค.–เม.ย.</span>`;
  pChart(F,T,now,Hh);
  $('#p-yr').innerHTML=`ตัวชี้วัดกรมอุทยานฯ: ${ind}${ADI&&T0-ADI.to>2?` · <b>ข้อมูลสะสมถึง ${dShort(ADI.to)}</b>`:''}<br>ปีงบ ${Hh.P} ทั้งปี <b>${nf(Hh.tot)}</b> จุด${Hh.tot?` · มากสุดเดือน ${TMO[Hh.pm]} (${nf(Hh.pmN)}) · วันที่มากสุด ${dShort(Hh.pd[0])} (${nf(Hh.pd[1])} จุด)`:''} · กราฟเป็นยอดสะสมตั้งแต่ 1 ต.ค.`;
@@ -1043,7 +1052,7 @@ function dtRows(){const F=fyOfDay(thDay()),out=[];
  else{const Y=F,s=fy0(Y),e=fy0(Y+1),seen=new Set();
   AD.forEach(r=>{if(r.d>=s&&r.d<e){seen.add(hKey(r.d,r.t,r.la,r.lo));const[tb,am]=r.tm.split('|');out.push({d:r.d,t:r.t,sat:r.sat,cf:CFN[r.cf]||r.cf,la:r.la,lo:r.lo,tm:tb,am:am||r.am,pv:r.pv,ar:r.ar,st:r.st,sb:SBP[r.pv]||r.sb})}});
   if(Y===F)LIVE.forEach(h=>{const x=new Date(h.t+7*36e5),d=Math.floor(x/864e5),t=x.getUTCHours()*100+x.getUTCMinutes();if(d>=s&&!seen.has(hKey(d,t,h.lat,h.lon))){const g=h.geo||(h.geo=geoAt(h.lon,h.lat)),r=g.resp[0];out.push({d,t,sat:satKey(h.sat),cf:CFN[h.conf]||'-',la:h.lat,lo:h.lon,tm:h.tam,am:h.amp,pv:h.prov,sb:sbOf(h.prov,g),ar:g.cons?g.cons.properties.name:'นอกพื้นที่อนุรักษ์',st:r?r.properties.station.replace(/\s*\(พื้นที่รอง\)/,''):'ไม่มี'})}})}
- return out.filter(r=>(DT.sat==='all'?DT.rg==='fyp'||satOn(r.sat):r.sat===DT.sat)&&!(S.xdy&&dyAS(r.ar,r.st))&&afMatch(r)).sort((a,b)=>b.d-a.d||b.t-a.t)}
+ return out.filter(r=>(DT.sat==='all'?DT.rg==='fyp'||satOn(r.sat):r.sat===DT.sat)&&!(S.xdy&&dyAS(r.ar,r.st))&&afMatch(r)).sort((a,b)=>a.d-b.d||a.t-b.t)} // เรียงจุดที่เกิดก่อนเป็นลำดับแรก (ผู้ใช้ขอ 2 พ.ย. 69)
 const dtSum=R=>{const m={};R.forEach(r=>m[r.sat]=(m[r.sat]||0)+1);return Object.entries(m).map(([k,v])=>(SATN[k]||k)+' '+nf(v)).join(' · ')};
 const dtLabel=()=>dtRanges().find(r=>r[0]===DT.rg)[1]+' · '+(DT.rg==='fyp'?'ข้อมูลกรมอุทยานฯ (Suomi NPP · ไม่รวมจุดจัดการเชื้อเพลิง/ไม่พบไฟ)':DT.sat==='all'?dtSats().filter(satOn).map(k=>SATN[k]).join(', '):SATN[DT.sat])+(S.xdy?' · ไม่รวม ขสป.ดงใหญ่':'')+(AF?' · เฉพาะ'+afText():'');
 function openTable(){openModal('ตารางรายละเอียดจุดความร้อน',`<div class="dtc"><div class="sg" id="dt-rg">${dtRanges().map(([k,l])=>`<button data-v="${k}">${l}</button>`).join('')}</div><div class="sg" id="dt-sat"></div></div>
