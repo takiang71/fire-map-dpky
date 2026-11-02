@@ -21,9 +21,8 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 /* แผงซ้ายบน */
 #left{position:fixed;top:env(safe-area-inset-top);left:0;width:min(420px,100%);max-height:calc(100% - 12px);overflow:auto;padding:16px 24px 16px max(16px,env(safe-area-inset-left));pointer-events:none;z-index:5;scrollbar-width:none}
 #left>*{pointer-events:auto}
-/* พื้นขาวเฉพาะส่วนหัว: กล่องแยกนอก #left (ใน #left จะถูก overflow ตัดขอบขวาแข็ง) สูงถึงก่อนแถวปุ่ม (--lh) เลื่อนตามแผง (--ls) จางออกขวาและล่าง · ขวาจบที่ 440 px = ขอบซ้ายของกลุ่มป่าใน homePad ไม่ทับแนวเขต */
-#lbg{position:fixed;left:0;top:env(safe-area-inset-top);width:calc(min(420px,100%) + 20px);height:calc(var(--lh,0px) + 6px);transform:translateY(calc(-1 * var(--ls,0px)));background:rgba(255,255,255,.9);-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 62px),rgba(0,0,0,.85) calc(100% - 46px),rgba(0,0,0,.55) calc(100% - 30px),rgba(0,0,0,.22) calc(100% - 14px),transparent),linear-gradient(#000 calc(100% - 26px),rgba(0,0,0,.75) calc(100% - 16px),rgba(0,0,0,.3) calc(100% - 7px),transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,#000 calc(100% - 62px),rgba(0,0,0,.85) calc(100% - 46px),rgba(0,0,0,.55) calc(100% - 30px),rgba(0,0,0,.22) calc(100% - 14px),transparent),linear-gradient(#000 calc(100% - 26px),rgba(0,0,0,.75) calc(100% - 16px),rgba(0,0,0,.3) calc(100% - 7px),transparent);mask-composite:intersect;pointer-events:none;z-index:4}
-#left.hm+#lbg{display:none}
+/* ส่วนหัวแผงซ้าย = กล่องขาวทึบมุมมน 20 แบบการ์ดด้านล่าง (ผู้ใช้ขอ 2 พ.ย. 69) กว้างเท่าการ์ด ระยะห่าง 12 px เท่ากันทุกช่อง */
+.lhd{background:var(--bg);border-radius:20px;box-shadow:var(--sh);padding:14px 16px 10px}.lhd>.dmr{margin-bottom:0}
 /* iPad/จอสัมผัส: Safari ไม่เลื่อนกล่องที่ pointer-events:none แม้ลูกจะรับการแตะได้ */
 @media(any-pointer:coarse){#left{pointer-events:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}}
 h1{margin:0 0 10px;font-size:clamp(22px,3vw,36px);line-height:1.2;font-weight:800;color:var(--navy)}
@@ -141,7 +140,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 #hint{position:fixed;left:auto;right:calc(470px + env(safe-area-inset-right));max-width:420px;bottom:calc(30px + env(safe-area-inset-bottom));font-size:12px;color:var(--mut);background:var(--glass);padding:3px 12px;border-radius:99px;z-index:4;text-align:center;pointer-events:none;max-width:46vw}
 #attr{position:fixed;left:50%;transform:translateX(-50%);bottom:0;max-width:calc(100% - 20px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:2px 10px calc(2px + env(safe-area-inset-bottom));font-size:10px;line-height:1.4;color:var(--mut);background:var(--glass);border-radius:8px 8px 0 0;z-index:4}
 /* เดสก์ท็อป: ทั้งแผงเลื่อนรวมกัน จบห่างขอบล่าง 12 px · ขณะแสดงการ์ดจุดความร้อน (การ์ดสุดท้าย กว้างเต็มเนื้อแผง x 16 ถึงขอบขวา−24 มุม 20) mask ขอบล่างของแผงเป็นมุมมนของการ์ด → ท้ายการ์ดมนเสมอไม่ว่าเลื่อนถึงไหน · แถบอ้างอิงข้อมูลอยู่กลางพื้นที่ขวาของแผงซ้าย ไม่ทับการ์ด */
-@media(min-width:768px){#left:not(.hm){max-height:100%;padding-bottom:12px}#left:not(.hm):has(>#pcard:not([hidden])){-webkit-mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);-webkit-mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;-webkit-mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;-webkit-mask-repeat:no-repeat;mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;mask-repeat:no-repeat}#attr{left:calc(50% + 210px);max-width:calc(100% - 440px)}#left>#pcard{width:auto}#hint{right:auto;left:calc((min(420px,100%) + 100% - 370px) / 2);transform:translateX(-50%);max-width:calc(100% - min(420px,100%) - 400px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+@media(min-width:768px){#left:not(.hm){max-height:100%;padding-top:12px;padding-bottom:12px}#left:not(.hm):has(>#pcard:not([hidden])){-webkit-mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);-webkit-mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;-webkit-mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;-webkit-mask-repeat:no-repeat;mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;mask-repeat:no-repeat}#attr{left:calc(50% + 210px);max-width:calc(100% - 440px)}#left>#pcard{width:auto}#hint{right:auto;left:calc((min(420px,100%) + 100% - 370px) / 2);transform:translateX(-50%);max-width:calc(100% - min(420px,100%) - 400px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
 .maplibregl-ctrl-bottom-right{bottom:calc(86px + env(safe-area-inset-bottom))!important;right:max(6px,env(safe-area-inset-right))!important}
 #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--on);color:#fff;border-radius:12px;padding:8px 16px;font-size:13px;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s}
 #toast.show{opacity:1}
@@ -152,7 +151,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .wpm{cursor:pointer;display:flex;flex-direction:column;align-items:center}.wpm svg{width:18px;height:18px;filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.45))}.wpm span{display:none;font:700 11px 'Noto Sans Thai',sans-serif;color:#b3121f;white-space:nowrap;text-shadow:0 0 2px #fff,0 0 3px #fff,0 0 4px #fff}.z11 .wpm span{display:block}
 #grab{display:none}
 @media(max-width:767px){
- #lbg{display:none}
+ .lhd{background:none;box-shadow:none;border-radius:0;padding:0}
  #left{width:100%;top:auto;bottom:0;max-height:var(--sh0,34vh);padding:6px 16px calc(14px + env(safe-area-inset-bottom));background:var(--glass);border-radius:22px 22px 0 0;box-shadow:var(--sh);pointer-events:auto;transition:max-height .25s}
  #left.up{max-height:80vh}
  #grab{display:block;width:44px;height:5px;border-radius:3px;background:#b8bdcc;margin:0 auto 8px;border:0;padding:10px 0;background-clip:content-box;min-height:24px}
@@ -231,7 +230,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 .hh>div{flex:1}.kp small{font-size:11px;font-weight:600;color:var(--mut)}
 .yd{display:inline-flex;align-items:center;gap:3px;margin:2px 8px 0 0;font-size:11px}.yd i{width:10px;height:10px;border-radius:50%;display:inline-block}
 #left.hm{height:100%;max-height:none;overflow:hidden;padding-top:12px;padding-bottom:12px;display:flex;flex-direction:column}
-#left.hm>h1,#left.hm>.hrow,#left.hm>.dmr,#left.hm>.pill,#left.hm>.desc,#left.hm>.st,#left.hm>.sm,#left.hm>.btns,#left.hm>#pcard{display:none}
+#left.hm>.lhd,#left.hm>.pill,#left.hm>.desc,#left.hm>.btns,#left.hm>#pcard{display:none}
 #left.hm #hcard{flex:1;min-height:0;overflow:auto;width:min(390px,100%)}
 @media(max-width:767px){#left.hm{height:auto;max-height:var(--sh0,34vh)}#left.hm.up{max-height:80vh}}
 .kg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
@@ -370,11 +369,13 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 
 <aside id="left">
  <button id="grab" aria-label="ขยายหรือย่อแผง"></button>
+ <div class="lhd">
  <div class="hrow"><span class="h1a">สถานการณ์ไฟป่า</span><div class="pill"><i></i><span>อัปเดต <span class="tm">--:--</span> น.</span></div></div>
  <h1><span class="h1m">กลุ่มป่าดงพญาเย็น-เขาใหญ่</span><small>Dong Phayayen-Khao Yai Forest Complex</small><small class="h1o">สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)</small></h1>
  <div class="st" id="stats"></div>
  <div class="sm">อัปเดต <span class="tm">--:--</span> น. · <span id="hsrc">กำลังดึงข้อมูล…</span> · ย้อนหลัง 2 วัน</div>
  <div class="dmr"><button class="sw" id="bDemo" role="switch" aria-label="แสดงจุดความร้อนตัวอย่าง"></button><span>แสดง<b>จุดความร้อนตัวอย่าง</b>ในผืนป่า (ชั่วคราว เพื่อดูการแสดงผลระหว่างยังไม่ถึงฤดูไฟป่า)</span></div>
+ </div>
  <div class="btns">
   <button class="btn" id="bHide" aria-pressed="true" title="แสดง/ซ่อนการ์ดจุดความร้อนที่ตรวจพบ"><svg class="i" viewBox="0 0 24 24"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 01-10 0c0-2.5 1.5-4 2.5-5.5.3 1.6 1 2.6 2 3 0-3 .5-5.5.5-7.5z"/></svg><span>จุดความร้อนที่ตรวจพบ</span></button>
   <button class="btn" id="bKnow" title="ความสำคัญ ประวัติ ทรัพยากร สัตว์ป่า แหล่งท่องเที่ยว รายพื้นที่อนุรักษ์"><svg class="i" viewBox="0 0 24 24"><path d="M5 19c9 0 14-6 14-14-8 0-14 5-14 14zM5 19l6-6"/></svg>ความสำคัญ</button>
@@ -2394,7 +2395,6 @@ map.once('style.load',hRender);fitHome(false);
 sync();load(true);consInfo();respLegend();
 function fitTitle(){const h1=$('#left h1'),m=$('.h1m');if(!h1||!m)return;h1.style.fontSize='';let fs=parseFloat(getComputedStyle(h1).fontSize);while(m.scrollWidth>m.clientWidth+1&&fs>15){fs-=1;h1.style.fontSize=fs+'px'}}
 fitTitle();addEventListener('resize',fitTitle);
-const LBG=document.createElement('div');LBG.id='lbg';$('#left').after(LBG);
 const TT=document.createElement('div');TT.id='tt';TT.setAttribute('role','tooltip');document.body.append(TT);
 $$('#ctl .cb').forEach(b=>b.dataset.tip=b.getAttribute('aria-label'));
 let ttEl=null,ttT=0;
@@ -2407,9 +2407,7 @@ document.addEventListener('pointerover',e=>{if(e.pointerType!=='mouse')return;co
 // จอสัมผัส: แตะชื่อชั้นข้อมูลเพื่อดูคำอธิบาย 6 วินาที
 document.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'){ttHide();return}const el=e.target.closest('b')&&e.target.closest('#right [data-tip],#right [data-tipel]');if(el){ttShow(el);clearTimeout(ttT);ttT=setTimeout(ttHide,6000)}else ttHide()});
 addEventListener('wheel',()=>ttEl&&!ttEl.closest('#ctl')&&ttHide(),{passive:true});
-function leftBg(){const b=$('#left .btns');if(b)LBG.style.setProperty('--lh',b.offsetTop+'px')}
-$('#left').addEventListener('scroll',e=>LBG.style.setProperty('--ls',e.target.scrollTop+'px'),{passive:true});
-if(window.ResizeObserver){const o=new ResizeObserver(leftBg);$$('#left>.hrow,#left>h1,#stats,#left>.sm,#left>.dmr').forEach(e=>o.observe(e))}leftBg();document.fonts&&document.fonts.ready.then(fitTitle);
+document.fonts&&document.fonts.ready.then(fitTitle);
 /* จุดเฝ้าระวังไฟป่า ปี 2569 (ดาวแดงตามสัญลักษณ์ใน KMZ) — สร้างก่อน FSM เพื่อให้ป้ายสถานีฯ อยู่ด้านบน */
 $('#c-wpt').textContent=GEO.wpt.features.length+' จุด';
 window.WPM=GEO.wpt.features.map(f=>{const p=f.properties,[lo,la]=f.geometry.coordinates,el=document.createElement('div');el.className='wpm';el.setAttribute('role','button');el.setAttribute('aria-label','จุดเฝ้าระวัง '+p.name);
