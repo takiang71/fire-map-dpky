@@ -14,6 +14,7 @@
 //    (dy = แถวห่างจากรันก่อน, dx = คอลัมน์ห่างจากท้ายรันก่อนถ้าแถวเดียวกัน ไม่งั้นนับจาก 0,
 //    ค่า = b4: จำนวนครั้งที่ตรวจพบ (สูงสุด 9) / c: ประเภท 1–5 ตาม CLS, ar/st = ลำดับใน index.json ar[]/st[] — หน้าเว็บใช้คิดพื้นที่แบบไม่นับซ้ำ และตัดดงใหญ่ตามปุ่ม)
 //  - รอบที่ประมวลผลแล้วจะทำซ้ำเมื่อขนาด/เวลาไฟล์ต้นทางเปลี่ยน หรือมีกริดเพิ่ม
+//  - จบแล้วสร้าง data/burn/rep.json (พื้นที่เผาซ้ำซาก) ใหม่ด้วย scripts/burn_rep.js
 const fs = require('fs'), path = require('path');
 const { readTiff, utmToLL } = require('./lib/tiff');
 const { SRC, GRIDS, RAI, writeSafe, get, listing, ARN, STN, rasterize, gridCenter, owner } = require('./lib/tamroypao');
@@ -113,4 +114,4 @@ async function run(key) {
   console.log(`บันทึก ${todo.length} รอบ · รวม ${L.length} รอบ ${kb.toFixed(0)} KB · ล่าสุด ${L.at(-1).p} = ${L.at(-1).rai.toLocaleString()} ไร่`);
 }
 
-(async () => { for (const k of Object.keys(SETS)) if (!ONLY || ONLY === k) await run(k) })().catch(e => { console.error('ผิดพลาด:', e.stack || e); process.exit(1) });
+(async () => { for (const k of Object.keys(SETS)) if (!ONLY || ONLY === k) await run(k); require('./burn_rep').build() })().catch(e => { console.error('ผิดพลาด:', e.stack || e); process.exit(1) });
