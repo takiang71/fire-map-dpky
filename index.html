@@ -566,7 +566,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
  <div class="pbo"><span class="sm">ย้อนหลัง</span><div class="seg" id="pb-w"><button data-v="1">1 วัน</button><button data-v="3">3 วัน</button><button data-v="7">7 วัน</button><button data-v="30">30 วัน</button></div><span class="sm">ความเร็ว</span><div class="seg" id="pb-sp"><button data-v="1">×1</button><button data-v="2">×2</button><button data-v="4">×4</button></div></div>
 </div>
 <div class="card" id="wyb" hidden role="region" aria-label="แถบควบคุมชั้นสภาพอากาศ Windy"><span class="wyb-d" aria-hidden="true"></span><b id="wyb-n">ลม</b><div class="wyb-c" id="wyb-c" role="group" aria-label="เลือกชั้นสภาพอากาศ"></div>
- <div class="wyb-m" id="wyb-m" role="group" aria-label="ควบคุมด้วย" title="ควบคุมด้วยแผนที่: ซูมลื่น แตะจุดความร้อน/แนวเขตได้ตามปกติ · ควบคุมด้วย Windy: ซูม/เลื่อน/แตะดูค่าบนภาพ Windy (ซูมทีละขั้นแบบ Windy) แผนที่และแนวเขตเลื่อนตามเมื่อ Windy วาดเสร็จ"><button data-m="0" aria-pressed="true">แผนที่</button><button data-m="1" aria-pressed="false">Windy</button></div>
+ <div class="wyb-m" id="wyb-m" role="group" aria-label="ควบคุมด้วย" title="ควบคุมด้วยแผนที่: ซูมลื่น แตะจุดความร้อน/แนวเขตได้ตามปกติ · ควบคุมด้วย Windy: เลื่อน/แตะดูค่าบนภาพ Windy · ล้อเมาส์ซูมแบบ Windy ขั้นละ 2 เท่า (ปุ่ม + − ซูมทีละขั้น) แผนที่และแนวเขตเลื่อนตามเมื่อ Windy วาดเสร็จ"><button data-m="0" aria-pressed="true">แผนที่</button><button data-m="1" aria-pressed="false">Windy</button></div>
  <button class="cb ib" id="wyb-f" aria-label="เปิดแบบเต็มจอ" title="เปิดแบบเต็มจอ (มีตารางพยากรณ์รายชั่วโมง)"><svg class="i" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
  <button class="cb ib" id="wyb-x" aria-label="ปิดชั้นสภาพอากาศ"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
 <nav id="ctl" aria-label="ปุ่มควบคุมแผนที่">
@@ -1809,16 +1809,17 @@ $('#rd-pl').onclick=()=>{if(RVP)return rdStop();if(!RV)return;const b=$('#rd-pl'
  let w=0;RVP=setInterval(()=>{if(RVI===RV.f.length-1&&w++<2)return;w=0;RVI=(RVI+1)%RV.f.length;radLayer()},600)}; // ค้างภาพล่าสุดนานขึ้นก่อนวนรอบใหม่
 $('#wy-nav').onclick=e=>{const b=e.target.closest('button');if(b){WYK=b.dataset.o;wyLoad()}};
 $('#bWy').onclick=()=>{S.wyl=!S.wyl;apply();if(S.wyl)toast('เปิดชั้นสภาพอากาศ Windy — เลือกชั้น/ความเข้มได้ที่แถบด้านล่างหรือแผงชั้นข้อมูล')};$('#wy-x').onclick=wyClose;
-map.on('moveend',()=>{if(!S.wyl||WLint)return;clearTimeout(WLT);WLT=setTimeout(()=>{if(!wlSame())wlLoad()},30)});
+map.on('moveend',()=>{if(!S.wyl||WLint&&!WLz)return;WLz=0;clearTimeout(WLT);WLT=setTimeout(()=>{if(!wlSame())wlLoad()},30)});
 // ปุ่ม +− ซูมทีละขั้นเต็มขณะเปิดชั้น Windy (ภาพคมตรงขนาด) · ล้อเมาส์ใช้ซูมลื่นของแผนที่ตามปกติ (เคยบังคับทีละขั้นแล้วผู้ใช้บอกหยาบ/กระโดด 2 ขั้น) ภาพ Windy ย่อขยายตามด้วย scale
-const wlZoom=d=>S.wyl?map.easeTo({zoom:Math.round(map.getZoom())+d,duration:dur(250)}):d>0?map.zoomIn():map.zoomOut();
+let WLz=0;// ปุ่ม +− ขณะควบคุมด้วย Windy ให้โหลด Windy ใหม่ตาม (moveend ปกติข้ามเพราะแผนที่เลื่อนตาม Windy)
+const wlZoom=d=>S.wyl?(WLz=1,map.easeTo({zoom:Math.round(map.getZoom())+d,duration:dur(250)})):d>0?map.zoomIn():map.zoomOut();
 addEventListener('resize',()=>{if(S.wyl){clearTimeout(WLT);WLT=setTimeout(wlLoad,500);wybPos()}});
 const wlPick=k=>{S.wyo=k;wlUI();wlLoad()};
 $('#wyl-c').onclick=$('#wyb-c').onclick=e=>{const b=e.target.closest('button');if(b)wlPick(b.dataset.o)};
 $$('#wyl-t button').forEach(b=>b.onclick=()=>{WLcal=b.dataset.v;wlUI();wlLoad()});
 $('#wyl-o').oninput=e=>{S.wyop=+e.target.value;wlBase();tx('wyl-ov',S.wyop+'%')};
 $('#wyb-m').onclick=e=>{const b=e.target.closest('button');if(!b||(b.dataset.m==='1')===WLint)return;wlMode(!WLint);
- if(WLint)toast('ควบคุมด้วย Windy: ซูม/เลื่อน/แตะดูค่าบนภาพ Windy (ซูมทีละขั้นแบบ Windy) · แนวเขตเลื่อนตามเมื่อ Windy วาดเสร็จ · กด "แผนที่" เพื่อกลับมาซูมลื่น');else if(!wlSame())wlLoad()}; // กลับมาควบคุมด้วยแผนที่ = โหลดใหม่เฉพาะเมื่อมุมมองไม่ตรง
+ if(WLint)toast('ควบคุมด้วย Windy: เลื่อน/แตะดูค่าบนภาพ Windy · ล้อเมาส์ซูมแบบ Windy (ขั้นละ 2 เท่า หมุนต่อเนื่องหรือใช้ทัชแพดจะข้ามหลายขั้น — ใช้ปุ่ม + − ซูมทีละขั้น) · แนวเขตเลื่อนตามเมื่อ Windy วาดเสร็จ · กด "แผนที่" เพื่อกลับมาซูมลื่น');else if(!wlSame())wlLoad()}; // กลับมาควบคุมด้วยแผนที่ = โหลดใหม่เฉพาะเมื่อมุมมองไม่ตรง
 $('#wyb-x').onclick=()=>{S.wyl=false;apply()};$('#wyb-f').onclick=()=>wyOpen(S.wyo);
 $('#d-wy').onclick=()=>{if(!CUR)return;S.wyl=true;S.wyo='wind';apply();map.easeTo({center:[CUR.lon,CUR.lat],zoom:Math.min(10,Math.max(8,Math.round(map.getZoom()))),duration:dur(800)})};
 setInterval(()=>{if(S.wyl&&!document.hidden)wlQuick()},10*6e4);
