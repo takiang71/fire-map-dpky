@@ -21,6 +21,18 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 /* แผงซ้ายบน */
 #left{position:fixed;top:env(safe-area-inset-top);left:0;width:min(420px,100%);max-height:calc(100% - 12px);overflow:auto;padding:16px 24px 16px max(16px,env(safe-area-inset-left));pointer-events:none;z-index:5;scrollbar-width:none}
 #left>*{pointer-events:auto}
+/* --lw = ความกว้างที่แผงซ้ายกินพื้นที่แผนที่ (เดสก์ท็อป 420 / มือถือหรือพับแผงแล้ว 0) ใช้จัดกลางป้ายวันที่ภาพ แถบอ้างอิง ป้ายคำแนะนำ */
+:root{--lw:420px}body.lc{--lw:0px}
+/* ปุ่มพับแผงซ้ายไปด้านข้าง (เดสก์ท็อป) */
+#lcol{position:fixed;z-index:6;top:50%;left:400px;transform:translateY(-50%);width:24px;height:56px;padding:0;border:0;border-radius:12px;background:var(--bg);box-shadow:var(--sh);display:grid;place-items:center;color:var(--navy);cursor:pointer;transition:left .25s}
+#lcol svg{width:18px;height:18px;transition:transform .25s}body.lc #lcol{left:8px}body.lc #lcol svg{transform:rotate(180deg)}
+/* กล่องลอยท้ายแผงซ้าย: ยังเลื่อนลงได้ = แสดง (ลูกศรขยับขึ้นลง) ถึงท้ายแล้วหาย */
+#more{position:fixed;z-index:6;transform:translateX(-50%);display:inline-flex;align-items:center;gap:5px;padding:5px 13px 5px 9px;border:1px solid var(--line);border-radius:99px;background:var(--bg);box-shadow:var(--sh);font-size:12.5px;color:var(--ink);white-space:nowrap;cursor:pointer}
+#more[hidden]{display:none}#more svg{width:15px;height:15px;animation:mbob 1.1s ease-in-out infinite}
+@keyframes mbob{0%,100%{transform:translateY(-2px)}50%{transform:translateY(2px)}}
+@media(prefers-reduced-motion:reduce){#more svg{animation:none}}
+@media(min-width:768px){#left{transition:transform .25s}body.lc #left{transform:translateX(calc(-100% - 12px))}}
+@media(max-width:767px){:root{--lw:0px}#lcol{display:none}}
 /* ส่วนหัวแผงซ้าย = กล่องขาวทึบมุมมน 20 แบบการ์ดด้านล่าง (ผู้ใช้ขอ 2 พ.ย. 69) กว้างเท่าการ์ด ระยะห่าง 12 px เท่ากันทุกช่อง */
 .lhd{background:var(--bg);border-radius:20px;box-shadow:var(--sh);padding:14px 16px 10px}.lhd>.dmr{margin-bottom:0}
 /* iPad/จอสัมผัส: Safari ไม่เลื่อนกล่องที่ pointer-events:none แม้ลูกจะรับการแตะได้ */
@@ -112,7 +124,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .seg{display:flex;margin:6px 0}
 .seg button{flex:1;min-height:40px;border:1px solid var(--line);background:var(--bg);font-size:12.5px;margin-left:-1px}
 .seg button:first-child{border-radius:10px 0 0 10px;margin:0}.seg button:last-child{border-radius:0 10px 10px 0}
-#imgdate{position:fixed;top:calc(12px + env(safe-area-inset-top));left:calc(50% + 210px);transform:translateX(-50%);z-index:4;background:rgba(27,42,94,.9);color:#fff;font-size:12.5px;line-height:1.3;padding:6px 14px;border-radius:999px;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis;pointer-events:none;box-shadow:var(--sh)}#imgdate[hidden]{display:none}@media(max-width:767px){#imgdate{left:50%}} /* เดสก์ท็อป: กึ่งกลางพื้นที่แผนที่ขวาของแผงซ้าย 420 px */
+#imgdate{position:fixed;top:calc(12px + env(safe-area-inset-top));left:calc(50% + var(--lw) / 2);transform:translateX(-50%);z-index:4;background:rgba(27,42,94,.9);color:#fff;font-size:12.5px;line-height:1.3;padding:6px 14px;border-radius:999px;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis;pointer-events:none;box-shadow:var(--sh)}#imgdate[hidden]{display:none}@media(max-width:767px){#imgdate{left:50%}} /* เดสก์ท็อป: กึ่งกลางพื้นที่แผนที่ขวาของแผงซ้าย 420 px */
 #imgtime{margin:0 0 10px}
 #bnbox,#fubox,#hcbox,#rpbox{margin:0 0 10px}.hci{display:flex;gap:8px;align-items:flex-start;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:5px 0;font:inherit;font-size:12.5px;color:var(--navy);cursor:pointer;line-height:1.4}.hci>b{min-width:26px;color:#a3171b}.hci:hover{background:var(--bg)}.hcp{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0 2px}.hcp label{display:flex;flex-direction:column;justify-content:space-between;gap:3px;font-size:11.5px;line-height:1.25;color:var(--mut)}.hcp input{width:100%;min-width:0;font:inherit;font-size:13px;padding:4px 6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--navy)}#fu-s{width:100%;font:inherit;font-size:13px;padding:5px 6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--navy);margin-bottom:4px}
 .bnhs{font-size:12px;margin:2px 0 6px;line-height:1.6}#bn-h{display:block;margin-top:4px;font:inherit;font-size:12px;padding:3px 9px;border:1px solid #c4b5fd;border-radius:999px;background:var(--bg);color:#5b21b6;cursor:pointer}#bn-h[aria-pressed=true]{background:#ede9fe}
@@ -140,7 +152,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 #hint{position:fixed;left:auto;right:calc(470px + env(safe-area-inset-right));max-width:420px;bottom:calc(30px + env(safe-area-inset-bottom));font-size:12px;color:var(--mut);background:var(--glass);padding:3px 12px;border-radius:99px;z-index:4;text-align:center;pointer-events:none;max-width:46vw}
 #attr{position:fixed;left:50%;transform:translateX(-50%);bottom:0;max-width:calc(100% - 20px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:2px 10px calc(2px + env(safe-area-inset-bottom));font-size:10px;line-height:1.4;color:var(--mut);background:var(--glass);border-radius:8px 8px 0 0;z-index:4}
 /* เดสก์ท็อป: ทั้งแผงเลื่อนรวมกัน จบห่างขอบล่าง 12 px · ขณะแสดงการ์ดจุดความร้อน (การ์ดสุดท้าย กว้างเต็มเนื้อแผง x 16 ถึงขอบขวา−24 มุม 20) mask ขอบล่างของแผงเป็นมุมมนของการ์ด → ท้ายการ์ดมนเสมอไม่ว่าเลื่อนถึงไหน · แถบอ้างอิงข้อมูลอยู่กลางพื้นที่ขวาของแผงซ้าย ไม่ทับการ์ด */
-@media(min-width:768px){#left:not(.hm){max-height:100%;padding-top:12px;padding-bottom:12px}#left:not(.hm):has(>#pcard:not([hidden])){-webkit-mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);-webkit-mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;-webkit-mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;-webkit-mask-repeat:no-repeat;mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;mask-repeat:no-repeat}#attr{left:calc(50% + 210px);max-width:calc(100% - 440px)}#left>#pcard{width:auto}#hint{right:auto;left:calc((min(420px,100%) + 100% - 370px) / 2);transform:translateX(-50%);max-width:calc(100% - min(420px,100%) - 400px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+@media(min-width:768px){#left:not(.hm){max-height:100%;padding-top:12px;padding-bottom:12px}#left:not(.hm):has(>#pcard:not([hidden])){-webkit-mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);-webkit-mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;-webkit-mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;-webkit-mask-repeat:no-repeat;mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;mask-repeat:no-repeat}#attr{left:calc(50% + var(--lw) / 2);max-width:calc(100% - var(--lw) - 20px)}#left>#pcard{width:auto}#hint{right:auto;left:calc((var(--lw) + 100% - 370px) / 2);transform:translateX(-50%);max-width:calc(100% - var(--lw) - 400px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
 .maplibregl-ctrl-bottom-right{bottom:calc(86px + env(safe-area-inset-bottom))!important;right:max(6px,env(safe-area-inset-right))!important}
 #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--on);color:#fff;border-radius:12px;padding:8px 16px;font-size:13px;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s}
 #toast.show{opacity:1}
@@ -2263,7 +2275,7 @@ function histPopup(f){const r=HD[f.properties.i];if(!r)return;const hh=Math.floo
  +row('พิกัด',r.la.toFixed(5)+', '+r.lo.toFixed(5))
  +`<a class="hpg" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${r.la},${r.lo}">🗺️ เปิด Google Maps</a></div>`).addTo(map)}
 function homePad(){if(innerWidth<=767){const l=$('#left'),h=Math.min(innerHeight*.6,parseFloat(getComputedStyle(l).maxHeight)||innerHeight*.34);return{top:24,bottom:Math.round(h)+20,left:24,right:66}} // มือถือ: กลุ่มป่ากลางพื้นที่เหนือแผ่นล่าง เว้นคอลัมน์ปุ่มขวา
- return{top:60,bottom:100,left:Math.min(440,Math.round(innerWidth*.36)),right:60}} // เว้นด้านซ้ายให้การ์ด เพื่อให้กลุ่มป่าอยู่กลางพื้นที่ว่างด้านขวา
+ return{top:60,bottom:100,left:document.body.classList.contains('lc')?60:Math.min(440,Math.round(innerWidth*.36)),right:60}} // เว้นด้านซ้ายให้การ์ด เพื่อให้กลุ่มป่าอยู่กลางพื้นที่ว่างด้านขวา
 function hFit(){const F=hfilt();if(!F.length)return toast('ไม่มีข้อมูลตามตัวกรอง');const b=new maplibregl.LngLatBounds([F[0].lo,F[0].la],[F[0].lo,F[0].la]);F.forEach(r=>b.extend([r.lo,r.la]));map.fitBounds(b,{padding:homePad(),maxZoom:11,duration:dur(1000)})}
 const histBounds=()=>{let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const r of HD){a=Math.min(a,r.lo);b=Math.min(b,r.la);c=Math.max(c,r.lo);d=Math.max(d,r.la)}a=Math.min(a,CB[0]);b=Math.min(b,CB[1]);c=Math.max(c,CB[2]);d=Math.max(d,CB[3]);return[[a,b],[c,d]]};
 let MOVED=false;function fitHome(anim){map.fitBounds(histBounds(),{padding:homePad(),maxZoom:11,bearing:0,pitch:S.d3?60:0,duration:anim?dur(1200):0})}
@@ -2395,6 +2407,21 @@ map.once('style.load',hRender);fitHome(false);
 sync();load(true);consInfo();respLegend();
 function fitTitle(){const h1=$('#left h1'),m=$('.h1m');if(!h1||!m)return;h1.style.fontSize='';let fs=parseFloat(getComputedStyle(h1).fontSize);while(m.scrollWidth>m.clientWidth+1&&fs>15){fs-=1;h1.style.fontSize=fs+'px'}}
 fitTitle();addEventListener('resize',fitTitle);
+/* กล่องลอย "เลื่อนลงเพื่อดูเนื้อหาเพิ่มเติม" (ผู้ใช้ขอ 2 พ.ย. 69): ตัวเลื่อน = #hcard ขณะเปิดการ์ดสถิติ (เลื่อนภายใน) ไม่งั้น #left · วางกลางการ์ด เหนือขอบล่างของตัวเลื่อน 14 px · แตะ = เลื่อนลง 80% */
+const MORE=document.createElement('button');MORE.id='more';MORE.type='button';MORE.hidden=true;MORE.innerHTML='<svg class="i" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>เลื่อนลงเพื่อดูเนื้อหาเพิ่มเติม';document.body.append(MORE);
+const moreEl=()=>HOPEN&&!$('#hcard').hidden?$('#hcard'):$('#left');
+function moreFit(){const el=moreEl(),r=el.getBoundingClientRect(),c=HOPEN?$('#hcard'):$('#pcard'),cr=(c&&!c.hidden&&innerWidth>767?c:el).getBoundingClientRect();
+ const on=!document.body.classList.contains('lc')&&r.height>0&&el.scrollHeight-el.clientHeight-el.scrollTop>8;MORE.hidden=!on;if(!on)return;
+ MORE.style.left=Math.round((cr.left+cr.right)/2)+'px';MORE.style.bottom=Math.round(innerHeight-r.bottom+14)+'px'}
+let moreQ=0;const moreRun=()=>{if(!moreQ)moreQ=requestAnimationFrame(()=>{moreQ=0;moreFit()})};
+MORE.onclick=()=>{const el=moreEl();el.scrollBy({top:el.clientHeight*.8,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'})};
+['#left','#hcard'].forEach(q=>$(q).addEventListener('scroll',moreRun,{passive:true}));addEventListener('resize',moreRun);
+if(window.ResizeObserver){const o=new ResizeObserver(moreRun);['#left','#hcard','#pcard','#stats'].forEach(q=>o.observe($(q)))}moreRun();
+/* ปุ่มพับแผงซ้ายไปด้านข้าง (ผู้ใช้ขอ 2 พ.ย. 69) เพิ่มพื้นที่แผนที่ · body.lc → --lw 0 (ป้าย/แถบที่จัดกลางพื้นที่ขวาขยับตาม) · homePad ใช้พื้นที่เต็ม · ไม่บันทึกสถานะ */
+const LCOL=document.createElement('button');LCOL.id='lcol';LCOL.type='button';LCOL.innerHTML='<svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>';document.body.append(LCOL);
+function lcSet(on){document.body.classList.toggle('lc',on);const t=on?'แสดงแผงด้านซ้าย':'ซ่อนแผงด้านซ้าย เพื่อดูแผนที่ได้กว้างขึ้น';LCOL.setAttribute('aria-label',t);LCOL.dataset.tip=t;LCOL.setAttribute('aria-expanded',String(!on));
+ try{ttHide()}catch(e){}moreFit();setTimeout(()=>{try{wybPos()}catch(e){}try{pbPos()}catch(e){}moreFit()},300)}
+LCOL.onclick=()=>lcSet(!document.body.classList.contains('lc'));lcSet(false);
 const TT=document.createElement('div');TT.id='tt';TT.setAttribute('role','tooltip');document.body.append(TT);
 $$('#ctl .cb').forEach(b=>b.dataset.tip=b.getAttribute('aria-label'));
 let ttEl=null,ttT=0;
