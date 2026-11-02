@@ -1472,11 +1472,15 @@ function wyClose(){$('#wy').hidden=true;$('#wy-f').src='about:blank'}
    ซิงก์: ระหว่างเลื่อน/ซูมใช้ CSS transform · หยุดแล้วโหลด iframe ใหม่ที่ตำแหน่งใหม่ (รอภาพพร้อมแล้วค่อยสลับ ไม่กะพริบ)
    Embed ซูม 3–11 เป็นจำนวนเต็ม (ซูม Leaflet = MapLibre+1) จึงปัดซูมแผนที่ให้ลงขั้นเมื่อเปิดชั้นนี้ · หมุน/เอียงไม่ได้ · calendar ได้แค่ now/12/24 */
 const WLB=document.createElement('div');WLB.id='wyl';map.getContainer().prepend(WLB);
-let WLT=0,WLQ=0,WLcal='now',WLint=false,WLqat=0;
+let WLT=0,WLQ=0,WLcal='now',WLint=false,WLqat=0,WLover=false;
+const WLMAX=10.25; // ซูมแผนที่เกินนี้ = เกินซูม 11 ของ Windy เกิน 1.19 เท่า (ตัวหนังสือ/โลโก้ Windy ใหญ่เกิน) → ซ่อนชั้น Windy ชั่วคราว
+const wlZl=zm=>Math.max(3,Math.min(11,Math.ceil(zm+1-.25))); // ซูม Windy: ขยายภาพไม่เกิน 1.19 เท่า (ย่อได้ถึง 0.59) ตัวหนังสือจึงไม่ใหญ่เกินปกติ
 function wlSrc(c,z){const o=WYO.find(a=>a[0]===S.wyo)||WYO[0];return`https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C&metricWind=km/h&zoom=${z}&overlay=${o[0]}&product=${o[2]||'ecmwf'}&level=surface&lat=${c.lat.toFixed(4)}&lon=${c.lng.toFixed(4)}&calendar=${WLcal}&detail=false&message=true&embedMake=true`} // embedMake = Embed ส่ง postMessage "updateValues" เมื่อวาดเสร็จ (redrawFinished) → สลับภาพได้ทันที
 // แบบต้นแบบ: ภาพ Windy ค้างเต็มจออยู่กับที่ (ไม่เลื่อนตามแผนที่) · ปล่อยเมาส์ (moveend) แล้วโหลดใหม่ทันที · ตัวเก่าค้างไว้จนตัวใหม่พร้อมแล้วสลับทันที (ไม่จาง)
 // ซูมเศษ (นิ้วถ่าง/fitBounds) = ย่อขยายภาพคงที่ด้วย scale ให้ตรงขนาด ไม่ปัดซูมแผนที่ตามหลัง (เดิมทำให้ซูมสะดุดแล้วซูมซ้ำ)
-function wlLoad(c=map.getCenter(),zm=map.getZoom()){if(!S.wyl)return;const z=Math.max(3,Math.min(11,Math.round(zm+1))),W=WLB.clientWidth,H=WLB.clientHeight,s=Math.pow(2,zm+1-z),q=++WLQ,f=document.createElement('iframe'),w=Math.round(W/s),h=Math.round(H/s);
+function wlLoad(c=map.getCenter(),zm=map.getZoom()){if(!S.wyl)return;const ov=zm>WLMAX;if(ov!==WLover){WLover=ov;WLB.style.visibility=ov?'hidden':'';wlBase();wlUI();if(ov)toast('ซูมใกล้เกินที่ Windy แสดงได้ — ซ่อนชั้นสภาพอากาศชั่วคราว ซูมออกเพื่อดูอีกครั้ง')}
+ if(ov){WLB.innerHTML='';return}
+ const z=wlZl(zm),W=WLB.clientWidth,H=WLB.clientHeight,s=Math.pow(2,zm+1-z),q=++WLQ,f=document.createElement('iframe'),w=Math.round(W/s),h=Math.round(H/s);
  WLB.querySelectorAll('iframe:not([data-ok])').forEach(o=>o.remove()); // ตัวที่ยังโหลดไม่เสร็จ = ตำแหน่งเก่า ทิ้งได้
  Object.assign(f.dataset,{lo:c.lng,la:c.lat,zm,q});Object.assign(f.style,{width:w+'px',height:h+'px',left:(W-w)/2+'px',top:(H-h)/2+'px',transform:Math.abs(s-1)<1e-3?'':`scale(${s})`,visibility:'hidden'});
  f.title='ชั้นสภาพอากาศ Windy';f.tabIndex=-1;f.src=wlSrc(c,z);WLB.append(f);
@@ -1484,14 +1488,14 @@ function wlLoad(c=map.getCenter(),zm=map.getZoom()){if(!S.wyl)return;const z=Mat
 function wlReady(f){if(!f.isConnected||f.dataset.ok)return;f.dataset.ok=1;f.style.visibility='';requestAnimationFrame(()=>WLB.querySelectorAll('iframe').forEach(o=>+o.dataset.q<+f.dataset.q&&o.remove()))}
 addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='updateValues')return;const f=[...WLB.querySelectorAll('iframe')].find(x=>x.contentWindow===e.source);if(f)wlReady(f)}); // Embed (embedMake) แจ้งเมื่อวาดเสร็จ
 const BPROP={background:['background-opacity'],raster:['raster-opacity'],fill:['fill-opacity'],line:['line-opacity'],symbol:['text-opacity','icon-opacity'],'fill-extrusion':['fill-extrusion-opacity'],circle:['circle-opacity'],hillshade:['hillshade-exaggeration']};
-function wlBase(){if(!map.getStyle())return;const k=S.wyl?1-S.wyop/100:1;
+function wlBase(){if(!map.getStyle())return;const k=S.wyl&&!WLover?1-S.wyop/100:1;
  BASEL.forEach(id=>{const l=map.getLayer(id);if(!l)return;(BPROP[l.type]||[]).forEach(p=>{const key=id+'|'+p;if(!(key in BOP)){if(k===1)return;BOP[key]=map.getPaintProperty(id,p)}const o=BOP[key];
   map.setPaintProperty(id,p,k===1?o:typeof o==='number'?o*k:o==null?(p==='hillshade-exaggeration'?.5:1)*k:k)})})} // ค่าเดิมเป็น expression (ตามซูม) ใช้ค่าคงที่แทนชั่วคราว
 function wlMode(b){WLint=b;$('#map').classList.toggle('wyi',b);const m=$('#wyb-m');m.setAttribute('aria-pressed',b);m.textContent=b?'โหมด Windy':'โหมดแผนที่'}
 function wlUI(){const o=WYO.find(a=>a[0]===S.wyo)||WYO[0],btn=a=>`<button data-o="${a[0]}" aria-pressed="${a[0]===o[0]}">${a[1]}</button>`;
  if(!$('#wyl-c').childElementCount){$('#wyl-c').innerHTML=WYO.map(btn).join('');$('#wyb-c').innerHTML=WYO.map(btn).join('')}
  $$('#wyl-c button,#wyb-c button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.o===o[0]));$$('#wyl-t button').forEach(b=>b.classList.toggle('on',b.dataset.v===WLcal));
- tx('wyb-n',WLcal==='now'?'':`พยากรณ์ +${WLcal} ชม.`);$('#wyb-n').hidden=WLcal==='now';$('#wyl-o').value=S.wyop;tx('wyl-ov',S.wyop+'%')}
+ tx('wyb-n',WLover?'ซูมใกล้เกินที่ Windy แสดงได้ · ซูมออกเพื่อดู':WLcal==='now'?'':`พยากรณ์ +${WLcal} ชม.`);$('#wyb-n').hidden=!WLover&&WLcal==='now';$('#wyl-o').value=S.wyop;tx('wyl-ov',S.wyop+'%')}
 function wybPos(){const f=$('#wyb');if(f.hidden)return;const c=$('#ctl').getBoundingClientRect();
  if(innerWidth<768)return Object.assign(f.style,{left:'12px',right:(innerWidth-c.left+8)+'px',bottom:''}); // มือถือ: ปุ่มควบคุมเป็นคอลัมน์ขวา
  const l=$('#left').getBoundingClientRect().right+12,r=innerWidth-c.left+12;
@@ -1505,7 +1509,7 @@ function wlApply0(){const on=!!S.wyl;$('#wylbox').hidden=!on;$('#wyb').hidden=!o
  if(on!==wlApply.on){wlApply.on=on;
   if(on){if(S.d3){S.d3=false;sync()}map.dragRotate.disable();map.touchZoomRotate.disableRotation();if(map.getBearing()||map.getPitch())map.jumpTo({bearing:0,pitch:0});
    const z=map.getZoom()+1,zr=Math.round(z);if(zr>=3&&zr<=11&&Math.abs(z-zr)>.02)map.jumpTo({zoom:zr-1});wlLoad();wlQuick()}
-  else{WLB.innerHTML='';wlMode(false);map.dragRotate.enable();map.touchZoomRotate.enableRotation()}}
+  else{WLB.innerHTML='';WLover=false;WLB.style.visibility='';wlMode(false);map.dragRotate.enable();map.touchZoomRotate.enableRotation()}}
  wlBase();wlUI();wybPos()}
 /* ---------- พื้นที่เผาไหม้ (ระบบตามรอยเผา tamroypao.hii.or.th ความละเอียด 20 ม.) ----------
    scripts/sync_burn.js ตัดเฉพาะพิกเซลในแนวเขตแล้วเก็บแบบ run-length (data/burn/) · หน้าเว็บวาดไทล์เองผ่าน addProtocol('burn')
@@ -1809,7 +1813,7 @@ $$('#wyl-t button').forEach(b=>b.onclick=()=>{WLcal=b.dataset.v;wlUI();wlLoad()}
 $('#wyl-o').oninput=e=>{S.wyop=+e.target.value;wlBase();tx('wyl-ov',S.wyop+'%')};
 $('#wyb-m').onclick=()=>{wlMode(!WLint);if(WLint)toast('โหมด Windy: แตะดูค่าบนภาพ Windy ได้ · แผนที่และแนวเขตจะไม่เลื่อนตาม');else wlLoad()}; // กลับโหมดแผนที่ = โหลดตามตำแหน่งแผนที่อีกครั้ง
 $('#wyb-x').onclick=()=>{S.wyl=false;apply()};$('#wyb-f').onclick=()=>wyOpen(S.wyo);
-$('#d-wy').onclick=()=>{if(!CUR)return;S.wyl=true;S.wyo='wind';apply();map.easeTo({center:[CUR.lon,CUR.lat],zoom:Math.max(8,Math.round(map.getZoom())),duration:dur(800)})};
+$('#d-wy').onclick=()=>{if(!CUR)return;S.wyl=true;S.wyo='wind';apply();map.easeTo({center:[CUR.lon,CUR.lat],zoom:Math.min(10,Math.max(8,Math.round(map.getZoom()))),duration:dur(800)})};
 setInterval(()=>{if(S.wyl&&!document.hidden)wlQuick()},10*6e4);
 $('#wy-dt').onclick=()=>{WYD=!WYD;try{localStorage.setItem('fm-wyd',WYD?'1':'0')}catch(e){}wyLoad()};
 $('#wy-o').onclick=()=>wyOpen(S.wx?{t:'temp',rh:'rh',pr:'rain',cc:'clouds'}[S2.wxv]:S.rad?'radar':S.dry?'fwi':S.pm?'pm2p5':'wind');
