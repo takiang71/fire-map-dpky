@@ -337,8 +337,8 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 #wyb{position:fixed;z-index:6;bottom:calc(36px + env(safe-area-inset-bottom));width:auto;display:flex;align-items:center;gap:8px;padding:6px 8px 6px 12px;border-radius:99px;max-width:calc(100vw - 24px)}
 #wyb[hidden],#wyb>b[hidden],body.wyon #attr{display:none}#wyb>b{font-size:13px;white-space:nowrap}.wyb-d{width:8px;height:8px;border-radius:50%;background:#22a35a;flex:none;box-shadow:0 0 0 3px #22a35a33}
 .wyb-c{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;min-width:0;flex:1}.wyb-c::-webkit-scrollbar{display:none}.wyb-c button{padding:4px 10px;font-size:12px}
-.wyb-m{flex:none;display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:4px 10px;font-size:12px;white-space:nowrap}
-.wyb-m[aria-pressed=true]{background:#fff4d6;border-color:#e0b44a;color:#7a5200;font-weight:600}#wyb .cb{flex:none;width:30px;height:30px;box-shadow:none}
+.wyb-m{flex:none;display:inline-flex;border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:2px;white-space:nowrap}.wyb-m button{border:0;background:none;border-radius:99px;padding:3px 10px;font:inherit;font-size:12px;color:var(--mut);cursor:pointer}
+.wyb-m button[aria-pressed=true]{background:#1f2f5c;color:#fff;font-weight:600}.wyb-m button[data-m="1"][aria-pressed=true]{background:#fff4d6;color:#7a5200;box-shadow:inset 0 0 0 1px #e0b44a}#wyb .cb{flex:none;width:30px;height:30px;box-shadow:none}
 @media(max-width:767px){#wyb{bottom:calc(35vh + 8px);border-radius:16px;flex-wrap:wrap;row-gap:4px}.wyb-c{order:9;flex-basis:100%}#wyb>b{flex:1}}
 </style>
 </head>
@@ -566,7 +566,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
  <div class="pbo"><span class="sm">ย้อนหลัง</span><div class="seg" id="pb-w"><button data-v="1">1 วัน</button><button data-v="3">3 วัน</button><button data-v="7">7 วัน</button><button data-v="30">30 วัน</button></div><span class="sm">ความเร็ว</span><div class="seg" id="pb-sp"><button data-v="1">×1</button><button data-v="2">×2</button><button data-v="4">×4</button></div></div>
 </div>
 <div class="card" id="wyb" hidden role="region" aria-label="แถบควบคุมชั้นสภาพอากาศ Windy"><span class="wyb-d" aria-hidden="true"></span><b id="wyb-n">ลม</b><div class="wyb-c" id="wyb-c" role="group" aria-label="เลือกชั้นสภาพอากาศ"></div>
- <button class="wyb-m" id="wyb-m" aria-pressed="false" title="โหมดแผนที่: แตะจุดความร้อน/แนวเขตได้ตามปกติ · โหมด Windy: แตะดูค่าบนภาพ Windy (แผนที่ไม่เลื่อนตาม — กลับโหมดแผนที่เพื่อจัดให้ตรง)">โหมดแผนที่</button>
+ <div class="wyb-m" id="wyb-m" role="group" aria-label="ควบคุมด้วย" title="ควบคุมด้วยแผนที่: ซูมลื่น แตะจุดความร้อน/แนวเขตได้ตามปกติ · ควบคุมด้วย Windy: ซูม/เลื่อน/แตะดูค่าบนภาพ Windy (ซูมทีละขั้นแบบ Windy) แผนที่และแนวเขตเลื่อนตามเมื่อ Windy วาดเสร็จ"><button data-m="0" aria-pressed="true">แผนที่</button><button data-m="1" aria-pressed="false">Windy</button></div>
  <button class="cb ib" id="wyb-f" aria-label="เปิดแบบเต็มจอ" title="เปิดแบบเต็มจอ (มีตารางพยากรณ์รายชั่วโมง)"><svg class="i" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
  <button class="cb ib" id="wyb-x" aria-label="ปิดชั้นสภาพอากาศ"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
 <nav id="ctl" aria-label="ปุ่มควบคุมแผนที่">
@@ -1482,16 +1482,20 @@ function wlLoad(c=map.getCenter(),zm=map.getZoom()){if(!S.wyl)return;const ov=zm
  if(ov){WLB.innerHTML='';return}
  const z=wlZl(zm),W=WLB.clientWidth,H=WLB.clientHeight,s=Math.pow(2,zm+1-z),q=++WLQ,f=document.createElement('iframe'),w=Math.round(W/s),h=Math.round(H/s);
  WLB.querySelectorAll('iframe:not([data-ok])').forEach(o=>o.remove()); // ตัวที่ยังโหลดไม่เสร็จ = ตำแหน่งเก่า ทิ้งได้
- Object.assign(f.dataset,{lo:c.lng,la:c.lat,zm,q});Object.assign(f.style,{width:w+'px',height:h+'px',left:(W-w)/2+'px',top:(H-h)/2+'px',transform:Math.abs(s-1)<1e-3?'':`scale(${s})`,visibility:'hidden'});
+ Object.assign(f.dataset,{lo:c.lng,la:c.lat,zm,q,s});Object.assign(f.style,{width:w+'px',height:h+'px',left:(W-w)/2+'px',top:(H-h)/2+'px',transform:Math.abs(s-1)<1e-3?'':`scale(${s})`,visibility:'hidden'});
  f.title='ชั้นสภาพอากาศ Windy';f.tabIndex=-1;f.src=wlSrc(c,z);WLB.append(f);
  f.onload=()=>setTimeout(()=>wlReady(f),400)} // สำรองกรณีไม่ได้รับข้อความจาก Embed
 function wlReady(f){if(!f.isConnected||f.dataset.ok)return;f.dataset.ok=1;f.style.visibility='';requestAnimationFrame(()=>WLB.querySelectorAll('iframe').forEach(o=>+o.dataset.q<+f.dataset.q&&o.remove()))}
-addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='updateValues')return;const f=[...WLB.querySelectorAll('iframe')].find(x=>x.contentWindow===e.source);if(f)wlReady(f)}); // Embed (embedMake) แจ้งเมื่อวาดเสร็จ
+addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='updateValues')return;const f=[...WLB.querySelectorAll('iframe')].find(x=>x.contentWindow===e.source);if(!f)return;wlReady(f); // Embed (embedMake) แจ้งเมื่อวาดเสร็จ
+ const p=d.payload||{},c=p.coordinates;if(!WLint||!c||!p.zoom||f!==WLB.lastElementChild)return; // ควบคุมด้วย Windy: ให้แผนที่/แนวเขตตามมุมมองของ Windy (กลางภาพ + ซูม)
+ const zm=p.zoom-1+Math.log2(+f.dataset.s||1);if(Math.abs(c.lat-f.dataset.la)<1e-6&&Math.abs(c.lon-f.dataset.lo)<1e-6&&Math.abs(zm-f.dataset.zm)<1e-3)return;
+ Object.assign(f.dataset,{lo:c.lon,la:c.lat,zm});map.jumpTo({center:[c.lon,c.lat],zoom:zm})});
 const BPROP={background:['background-opacity'],raster:['raster-opacity'],fill:['fill-opacity'],line:['line-opacity'],symbol:['text-opacity','icon-opacity'],'fill-extrusion':['fill-extrusion-opacity'],circle:['circle-opacity'],hillshade:['hillshade-exaggeration']};
 function wlBase(){if(!map.getStyle())return;const k=S.wyl&&!WLover?1-S.wyop/100:1;
  BASEL.forEach(id=>{const l=map.getLayer(id);if(!l)return;(BPROP[l.type]||[]).forEach(p=>{const key=id+'|'+p;if(!(key in BOP)){if(k===1)return;BOP[key]=map.getPaintProperty(id,p)}const o=BOP[key];
   map.setPaintProperty(id,p,k===1?o:typeof o==='number'?o*k:o==null?(p==='hillshade-exaggeration'?.5:1)*k:k)})})} // ค่าเดิมเป็น expression (ตามซูม) ใช้ค่าคงที่แทนชั่วคราว
-function wlMode(b){WLint=b;$('#map').classList.toggle('wyi',b);const m=$('#wyb-m');m.setAttribute('aria-pressed',b);m.textContent=b?'โหมด Windy':'โหมดแผนที่'}
+function wlMode(b){WLint=b;$('#map').classList.toggle('wyi',b);$$('#wyb-m button').forEach(x=>x.setAttribute('aria-pressed',(x.dataset.m==='1')===b))}
+function wlSame(){const f=WLB.querySelector('iframe:last-child');if(!f)return false;const p=map.project([+f.dataset.lo,+f.dataset.la]);return Math.hypot(p.x-WLB.clientWidth/2,p.y-WLB.clientHeight/2)<2&&Math.abs(map.getZoom()-f.dataset.zm)<.01}
 function wlUI(){const o=WYO.find(a=>a[0]===S.wyo)||WYO[0],btn=a=>`<button data-o="${a[0]}" aria-pressed="${a[0]===o[0]}">${a[1]}</button>`;
  if(!$('#wyl-c').childElementCount){$('#wyl-c').innerHTML=WYO.map(btn).join('');$('#wyb-c').innerHTML=WYO.map(btn).join('')}
  $$('#wyl-c button,#wyb-c button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.o===o[0]));$$('#wyl-t button').forEach(b=>b.classList.toggle('on',b.dataset.v===WLcal));
@@ -1805,9 +1809,7 @@ $('#rd-pl').onclick=()=>{if(RVP)return rdStop();if(!RV)return;const b=$('#rd-pl'
  let w=0;RVP=setInterval(()=>{if(RVI===RV.f.length-1&&w++<2)return;w=0;RVI=(RVI+1)%RV.f.length;radLayer()},600)}; // ค้างภาพล่าสุดนานขึ้นก่อนวนรอบใหม่
 $('#wy-nav').onclick=e=>{const b=e.target.closest('button');if(b){WYK=b.dataset.o;wyLoad()}};
 $('#bWy').onclick=()=>{S.wyl=!S.wyl;apply();if(S.wyl)toast('เปิดชั้นสภาพอากาศ Windy — เลือกชั้น/ความเข้มได้ที่แถบด้านล่างหรือแผงชั้นข้อมูล')};$('#wy-x').onclick=wyClose;
-map.on('moveend',()=>{if(!S.wyl||WLint)return;clearTimeout(WLT);WLT=setTimeout(()=>{
- const f=WLB.querySelector('iframe:last-child');if(f){const p=map.project([+f.dataset.lo,+f.dataset.la]);if(Math.hypot(p.x-WLB.clientWidth/2,p.y-WLB.clientHeight/2)<2&&Math.abs(map.getZoom()-f.dataset.zm)<.01)return}
- wlLoad()},30)});
+map.on('moveend',()=>{if(!S.wyl||WLint)return;clearTimeout(WLT);WLT=setTimeout(()=>{if(!wlSame())wlLoad()},30)});
 // ปุ่ม +− ซูมทีละขั้นเต็มขณะเปิดชั้น Windy (ภาพคมตรงขนาด) · ล้อเมาส์ใช้ซูมลื่นของแผนที่ตามปกติ (เคยบังคับทีละขั้นแล้วผู้ใช้บอกหยาบ/กระโดด 2 ขั้น) ภาพ Windy ย่อขยายตามด้วย scale
 const wlZoom=d=>S.wyl?map.easeTo({zoom:Math.round(map.getZoom())+d,duration:dur(250)}):d>0?map.zoomIn():map.zoomOut();
 addEventListener('resize',()=>{if(S.wyl){clearTimeout(WLT);WLT=setTimeout(wlLoad,500);wybPos()}});
@@ -1815,7 +1817,8 @@ const wlPick=k=>{S.wyo=k;wlUI();wlLoad()};
 $('#wyl-c').onclick=$('#wyb-c').onclick=e=>{const b=e.target.closest('button');if(b)wlPick(b.dataset.o)};
 $$('#wyl-t button').forEach(b=>b.onclick=()=>{WLcal=b.dataset.v;wlUI();wlLoad()});
 $('#wyl-o').oninput=e=>{S.wyop=+e.target.value;wlBase();tx('wyl-ov',S.wyop+'%')};
-$('#wyb-m').onclick=()=>{wlMode(!WLint);if(WLint)toast('โหมด Windy: แตะดูค่าบนภาพ Windy ได้ · แผนที่และแนวเขตจะไม่เลื่อนตาม');else wlLoad()}; // กลับโหมดแผนที่ = โหลดตามตำแหน่งแผนที่อีกครั้ง
+$('#wyb-m').onclick=e=>{const b=e.target.closest('button');if(!b||(b.dataset.m==='1')===WLint)return;wlMode(!WLint);
+ if(WLint)toast('ควบคุมด้วย Windy: ซูม/เลื่อน/แตะดูค่าบนภาพ Windy (ซูมทีละขั้นแบบ Windy) · แนวเขตเลื่อนตามเมื่อ Windy วาดเสร็จ · กด "แผนที่" เพื่อกลับมาซูมลื่น');else if(!wlSame())wlLoad()}; // กลับมาควบคุมด้วยแผนที่ = โหลดใหม่เฉพาะเมื่อมุมมองไม่ตรง
 $('#wyb-x').onclick=()=>{S.wyl=false;apply()};$('#wyb-f').onclick=()=>wyOpen(S.wyo);
 $('#d-wy').onclick=()=>{if(!CUR)return;S.wyl=true;S.wyo='wind';apply();map.easeTo({center:[CUR.lon,CUR.lat],zoom:Math.min(10,Math.max(8,Math.round(map.getZoom()))),duration:dur(800)})};
 setInterval(()=>{if(S.wyl&&!document.hidden)wlQuick()},10*6e4);
