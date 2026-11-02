@@ -1460,7 +1460,7 @@ function radLayer(){if(!RV||!map.getSource('cons'))return;const ids=RV.f.map(f=>
 function rdStop(){clearInterval(RVP);RVP=0;const b=$('#rd-pl');b.textContent='▶';b.setAttribute('aria-label','เล่นภาพเคลื่อนไหว')}
 /* --- หน้าพยากรณ์อากาศ Windy (Embed ฟรี ไม่ใช้คีย์) เปิดที่ตำแหน่ง/ซูมเดียวกับแผนที่หลัก · ลิงก์ตรง ?wy=<ชั้น> --- */
 // ชื่อชั้นที่ใช้ได้ใน Embed ตรวจแล้ว 1 พ.ย. 69 (fwi = "ไฟลุกลาม" ดัชนีอันตรายไฟป่า; fireDanger/fires/drought ไม่มี — ตกเป็นลม)
-const WYO=[['wind','ลม'],['rain','ฝน'],['temp','อุณหภูมิ'],['rh','ความชื้น'],['radar','เรดาร์'],['satellite','ดาวเทียม'],['pm2p5','PM2.5','cams'],['fwi','ความเสี่ยงไฟป่า']]; // ลำดับตามผู้ใช้ 2 พ.ย. 69let WYK='wind',WYD=false; // WYD = แสดงตารางพยากรณ์
+const WYO=[['wind','ลม'],['rain','ฝน'],['temp','อุณหภูมิ'],['rh','ความชื้น'],['radar','เรดาร์'],['satellite','ดาวเทียม'],['pm2p5','PM2.5','cams'],['fwi','ความเสี่ยงไฟป่า']];let WYK='wind',WYD=false; // WYD = แสดงตารางพยากรณ์
 try{WYD=localStorage.getItem('fm-wyd')==='1'}catch(e){}
 function wyLoad(){const o=WYO.find(a=>a[0]===WYK)||WYO[0],c=map.getCenter(),z=Math.max(5,Math.min(11,Math.round(map.getZoom()+1))),la=c.lat.toFixed(3),lo=c.lng.toFixed(3); // ซูม Leaflet = ซูม MapLibre + 1
  $('#wy-f').src=`https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C&metricWind=km/h&zoom=${z}&overlay=${o[0]}&product=${o[2]||'ecmwf'}&level=surface&lat=${la}&lon=${lo}&detailLat=${la}&detailLon=${lo}&detail=${WYD}&message=true`;
@@ -1500,16 +1500,18 @@ function wlSame(){const f=WLB.querySelector('iframe:last-child');if(!f)return fa
 function wlUI(){const o=WYO.find(a=>a[0]===S.wyo)||WYO[0],btn=a=>`<button data-o="${a[0]}" aria-pressed="${a[0]===o[0]}">${a[1]}</button>`;
  if(!$('#wyl-c').childElementCount){$('#wyl-c').innerHTML=WYO.map(btn).join('');$('#wyb-c').innerHTML=WYO.map(btn).join('')}
  $$('#wyl-c button,#wyb-c button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.o===o[0]));$$('#wyl-t button').forEach(b=>b.classList.toggle('on',b.dataset.v===WLcal));
- tx('wyb-n',WLover?'ซูมใกล้เกินที่ Windy แสดงได้ · ซูมออกเพื่อดู':WLcal==='now'?'':`พยากรณ์ +${WLcal} ชม.`);$('#wyb-n').hidden=!WLover&&WLcal==='now';$('#wyl-o').value=S.wyop;tx('wyl-ov',S.wyop+'%');wybFit()}
+ tx('wyb-n',WLover?'ซูมใกล้เกินที่ Windy แสดงได้ · ซูมออกเพื่อดู':WLcal==='now'?'':`พยากรณ์ +${WLcal} ชม.`);$('#wyb-n').hidden=!WLover&&WLcal==='now';$('#wyl-o').value=S.wyop;tx('wyl-ov',S.wyop+'%');wybPos()}
+let WYBX=[0,0];
 function wybPos(){const f=$('#wyb');if(f.hidden)return;const c=$('#ctl').getBoundingClientRect();
- if(innerWidth<768){Object.assign(f.style,{left:'12px',right:(innerWidth-c.left+8)+'px',bottom:''});return wybScale()} // มือถือ: ปุ่มควบคุมเป็นคอลัมน์ขวา
- const l=$('#left').getBoundingClientRect().right+12,r=innerWidth-c.left+12;
- if(innerWidth-l-r>=700)Object.assign(f.style,{left:l+'px',right:r+'px',bottom:''});else Object.assign(f.style,{left:l+'px',right:'12px',bottom:(innerHeight-c.top+10)+'px'}); // แคบ = ยกขึ้นเหนือแถวปุ่มควบคุม
- wybScale();wybFit()}
-function wybFit(){const f=$('#wyb'),c=$('#wyb-c');f.classList.remove('wr','cp');if(f.hidden||innerWidth<768)return;const o=()=>c.scrollWidth>c.clientWidth+1;if(o())f.classList.add('cp');if(o()){f.classList.add('wr');wybScale()}} // ชิปไม่พอแถวเดียว (ถูกบัง): ย่อระยะก่อน ยังไม่พอ = ชิปท้ายตกแถวล่าง ปุ่มควบคุมอยู่แถวบน
+ if(innerWidth<768){Object.assign(f.style,{left:'12px',right:(innerWidth-c.left+8)+'px',bottom:'',maxWidth:''});wybFit();return wybScale()} // มือถือ: ปุ่มควบคุมเป็นคอลัมน์ขวา
+ const l=$('#left').getBoundingClientRect().right+12,r=c.left-12;
+ if(r-l>=700)wybPut(l,r,'');else wybPut(l,innerWidth-12,(innerHeight-c.top+10)+'px'); // แคบ = ยกขึ้นเหนือแถวปุ่มควบคุม
+ wybScale()}
+function wybPut(x0,x1,bt){const f=$('#wyb');WYBX=[x0,x1];Object.assign(f.style,{left:x0+'px',right:'auto',maxWidth:(x1-x0)+'px',bottom:bt});wybFit();f.style.left=Math.round(x0+Math.max(0,(x1-x0-f.offsetWidth)/2))+'px'} // กว้างตามเนื้อหา วางกลางช่องว่าง
+function wybFit(){const f=$('#wyb'),c=$('#wyb-c');f.classList.remove('wr','cp');if(f.hidden||innerWidth<768)return;const o=()=>c.scrollWidth>c.clientWidth+1;if(o())f.classList.add('cp');if(o()){f.classList.add('wr');}} // ชิปไม่พอแถวเดียว (ถูกบัง): ย่อระยะก่อน ยังไม่พอ = ชิปท้ายตกแถวล่าง ปุ่มควบคุมอยู่แถวบน
 function wybScale(){const f=$('#wyb'),e=$('.maplibregl-ctrl-scale');if(f.hidden||!e)return;const a=f.getBoundingClientRect(),b=e.getBoundingClientRect(),L=Math.min(b.left,b.right-110); // กันแถบมาตราส่วนยาวขึ้นตามซูม (สูงสุด ~100 px)
  if(a.bottom<=b.top-4||a.top>=b.bottom+4||a.right<=L-8||a.left>=b.right+8)return;
- if(L-8-a.left>=300)f.style.right=(innerWidth-L+8)+'px';else f.style.bottom=(innerHeight-b.top+6)+'px'} // ไม่บังมาตราส่วน: หดจากขวา ถ้าที่ไม่พอยกขึ้นเหนือมาตราส่วน
+ if(innerWidth>=768&&L-8-WYBX[0]>=300)wybPut(WYBX[0],L-8,f.style.bottom);else f.style.bottom=(innerHeight-b.top+6)+'px'} // ไม่บังมาตราส่วน: หดช่องจากขวา ถ้าที่ไม่พอยกขึ้นเหนือมาตราส่วน
 async function wlQuick(){if(Date.now()-WLqat<20*6e4)return;WLqat=Date.now();const c=[(HOME[0][0]+HOME[1][0])/2,(HOME[0][1]+HOME[1][1])/2];
  try{const j=await(await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${c[1]}&longitude=${c[0]}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh&timezone=Asia%2FBangkok`)).json(),u=j.current;
   tx('wyl-q',`<span title="ลมพัดมาจาก${dn(u.wind_direction_10m)}">ลม <b>${nf(u.wind_speed_10m,1)}</b> กม./ชม. จาก${DIRN[Math.round(u.wind_direction_10m/45)%8]}</span><span>อุณหภูมิ <b>${nf(u.temperature_2m,1)}</b> °C</span><span>ความชื้น <b>${Math.round(u.relative_humidity_2m)}</b>%</span><span>ฝน <b>${nf(u.precipitation,1)}</b> มม.</span><span class="sm">${thTime(Date.parse(u.time+':00+07:00'))} น.</span>`)}
