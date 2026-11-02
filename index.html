@@ -115,7 +115,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .seg button:first-child{border-radius:10px 0 0 10px;margin:0}.seg button:last-child{border-radius:0 10px 10px 0}
 #imgdate{position:fixed;top:calc(12px + env(safe-area-inset-top));left:calc(50% + 210px);transform:translateX(-50%);z-index:4;background:rgba(27,42,94,.9);color:#fff;font-size:12.5px;line-height:1.3;padding:6px 14px;border-radius:999px;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis;pointer-events:none;box-shadow:var(--sh)}#imgdate[hidden]{display:none}@media(max-width:767px){#imgdate{left:50%}} /* เดสก์ท็อป: กึ่งกลางพื้นที่แผนที่ขวาของแผงซ้าย 420 px */
 #imgtime{margin:0 0 10px}
-#bnbox,#fubox,#hcbox{margin:0 0 10px}.hci{display:flex;gap:8px;align-items:flex-start;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:5px 0;font:inherit;font-size:12.5px;color:var(--navy);cursor:pointer;line-height:1.4}.hci>b{min-width:26px;color:#a3171b}.hci:hover{background:var(--bg)}#fu-s{width:100%;font:inherit;font-size:13px;padding:5px 6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--navy);margin-bottom:4px}
+#bnbox,#fubox,#hcbox{margin:0 0 10px}.hci{display:flex;gap:8px;align-items:flex-start;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:5px 0;font:inherit;font-size:12.5px;color:var(--navy);cursor:pointer;line-height:1.4}.hci>b{min-width:26px;color:#a3171b}.hci:hover{background:var(--bg)}.hcp{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0 2px}.hcp label{display:flex;flex-direction:column;justify-content:space-between;gap:3px;font-size:11.5px;line-height:1.25;color:var(--mut)}.hcp input{width:100%;min-width:0;font:inherit;font-size:13px;padding:4px 6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--navy)}#fu-s{width:100%;font:inherit;font-size:13px;padding:5px 6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--navy);margin-bottom:4px}
 .bnhs{font-size:12px;margin:2px 0 6px;line-height:1.6}#bn-h{display:block;margin-top:4px;font:inherit;font-size:12px;padding:3px 9px;border:1px solid #c4b5fd;border-radius:999px;background:var(--bg);color:#5b21b6;cursor:pointer}#bn-h[aria-pressed=true]{background:#ede9fe}
 .fub{display:flex;flex:1;height:8px;border-radius:4px;overflow:hidden;margin:3px 0;min-width:60px}.fub i{display:block}.fua{font-size:12px}.fua>div{display:flex;gap:8px;align-items:center;min-height:20px}.fua span{width:44%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fua b{min-width:36px;text-align:right;font-weight:600}#bn-s,#hc-s{width:100%;font:inherit;font-size:13px;padding:5px 6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--navy)}
 .bnh{font-size:13px;margin:6px 0 4px}.bna{font-size:12px}.bna>div{display:flex;gap:6px;align-items:center;min-height:20px}.bna span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bna i{display:block;height:6px;border-radius:3px;background:#e8541c;flex:none}.bna b{min-width:44px;text-align:right;font-weight:600}
@@ -448,10 +448,13 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div class="row sub"><svg class="i" style="color:#f08a1c" viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg><span>6-24 ชม.</span><em id="c-o"></em></div>
   <div class="row sub"><svg class="i" style="color:#9a6a4a" viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg><span>เก่ากว่า 24 ชม.</span><em id="c-b"></em></div>
   <button class="lk" id="rf">↻ ดึงข้อมูลใหม่</button>
-  <div class="row" data-tip="Hotspot Cluster · จุดความร้อนวันเดียวกัน (เวลาไทย) ที่ห่างกันไม่เกิน 1 กม. ต่อเนื่องกันเป็นลูกโซ่ = 1 กอง · วงกลมอยู่กลางกอง ตัวเลข = จำนวนจุด · แดง = วันล่าสุด ไล่ไปเหลือง = วันเก่า · ใช้จุดทุกดวงตามปุ่มดาวเทียมและปุ่มดงใหญ่ · แตะวงกลมเพื่อดูรายละเอียด"><svg class="i" viewBox="0 0 24 24"><circle cx="8" cy="9" r="3.2" style="fill:#d93a1f;stroke:#fff"/><circle cx="15.5" cy="12.5" r="4" style="fill:#f08a1c;stroke:#fff"/><circle cx="9" cy="17.5" r="2.6" style="fill:#f5c542;stroke:#fff"/></svg><b>กองจุดความร้อนรายวัน</b><span class="tag">Cluster</span><button class="sw" data-k="hcl" role="switch" aria-label="กองจุดความร้อนรายวัน"></button></div>
-  <div class="row" data-tip="Hotspot Group · รวมจุดที่ห่างกันไม่เกิน 1 กม. และเกิดห่างกันไม่เกิน 2 วัน เป็นไฟเหตุการณ์เดียวกัน (เส้นประ = ขอบเขตกอง) · จุดเริ่มต้นของไฟ = จุดที่ดาวเทียมพบเป็นรอบแรกของกอง ใช้ระบุแหล่งที่มาของความร้อน · เส้นลูกศร = ทิศการลามรายวันจากจุดเริ่มต้น · แตะจุดเริ่มต้นเพื่อดูรายละเอียด"><svg class="i" viewBox="0 0 24 24"><path d="M8 16l8-8" style="stroke:#5c1209;stroke-width:2"/><path d="M16 8l-4 .5M16 8l-.5 4" style="stroke:#5c1209;stroke-width:2"/><circle cx="7" cy="17" r="4.5" style="fill:#d93a1f;stroke:#5c1209;stroke-width:1.5"/><circle cx="7" cy="17" r="1.5" style="fill:#fff;stroke:none"/></svg><b>กองจุดความร้อนรวม + จุดเริ่มต้นไฟ</b><span class="tag">Group</span><button class="sw" data-k="hgp" role="switch" aria-label="กองจุดความร้อนรวมและจุดเริ่มต้นของไฟ"></button></div>
-  <div class="row" data-tip="Hotspot Area · รูปหลายเหลี่ยมครอบทุกจุดของกองรวม ขยายรอบจุดละ 200 ม. (ครึ่งพิกเซล VIIRS 375 ม.) · ไร่ = พื้นที่ที่ความร้อนกระจายตัวโดยประมาณ ไม่ใช่พื้นที่เผาไหม้จริง (ดูชั้นพื้นที่เผาไหม้)"><svg class="i" viewBox="0 0 24 24"><path d="M4 9l6-5 9 4 1 8-8 5-7-4z" style="fill:rgba(232,84,28,.35);stroke:#b8321a"/></svg><b>พื้นที่จุดความร้อนรวม</b><span class="tag">Area</span><button class="sw" data-k="har" role="switch" aria-label="พื้นที่จุดความร้อนรวม"></button></div>
-  <div id="hcbox" hidden><select id="hc-s" aria-label="ช่วงเวลาของกองจุดความร้อน"></select><div class="lgd" id="hc-lg"></div><div id="hc-a"></div></div>
+  <div class="row" data-tip="Hotspot Cluster · จุดความร้อนวันเดียวกัน (เวลาไทย) ที่ห่างกันไม่เกินระยะที่กำหนด (ค่าเริ่มต้น 1 กม.) ต่อเนื่องกันเป็นลูกโซ่ = 1 กอง · วงกลมอยู่กลางกอง ตัวเลข = จำนวนจุด · แดง = วันล่าสุด ไล่ไปเหลือง = วันเก่า · ใช้จุดทุกดวงตามปุ่มดาวเทียมและปุ่มดงใหญ่ · แตะวงกลมเพื่อดูรายละเอียด · ดับเบิลคลิกที่กองเพื่อกระจายจุดทั้งหมดออก"><svg class="i" viewBox="0 0 24 24"><circle cx="8" cy="9" r="3.2" style="fill:#d93a1f;stroke:#fff"/><circle cx="15.5" cy="12.5" r="4" style="fill:#f08a1c;stroke:#fff"/><circle cx="9" cy="17.5" r="2.6" style="fill:#f5c542;stroke:#fff"/></svg><b>กองจุดความร้อนรายวัน</b><span class="tag">Cluster</span><button class="sw" data-k="hcl" role="switch" aria-label="กองจุดความร้อนรายวัน"></button></div>
+  <div class="row" data-tip="Hotspot Group · รวมจุดที่ห่างกันไม่เกินระยะที่กำหนด และเกิดห่างกันไม่เกินจำนวนวันที่กำหนด (ค่าเริ่มต้น 1 กม. · 2 วัน) เป็นไฟเหตุการณ์เดียวกัน (เส้นประ = ขอบเขตกอง) · จุดเริ่มต้นของไฟ = จุดที่ดาวเทียมพบเป็นรอบแรกของกอง ใช้ระบุแหล่งที่มาของความร้อน · เส้นลูกศร = ทิศการลามรายวันจากจุดเริ่มต้น · แตะจุดเริ่มต้นเพื่อดูรายละเอียด"><svg class="i" viewBox="0 0 24 24"><path d="M8 16l8-8" style="stroke:#5c1209;stroke-width:2"/><path d="M16 8l-4 .5M16 8l-.5 4" style="stroke:#5c1209;stroke-width:2"/><circle cx="7" cy="17" r="4.5" style="fill:#d93a1f;stroke:#5c1209;stroke-width:1.5"/><circle cx="7" cy="17" r="1.5" style="fill:#fff;stroke:none"/></svg><b>กองจุดความร้อนรวม + จุดเริ่มต้นไฟ</b><span class="tag">Group</span><button class="sw" data-k="hgp" role="switch" aria-label="กองจุดความร้อนรวมและจุดเริ่มต้นของไฟ"></button></div>
+  <div class="row" data-tip="Hotspot Area · รูปหลายเหลี่ยมครอบทุกจุดของกองรวม ขยายรอบจุดตามระยะที่กำหนด (ค่าเริ่มต้น 200 ม. ≈ ครึ่งพิกเซล VIIRS 375 ม.) · ไร่ = พื้นที่ที่ความร้อนกระจายตัวโดยประมาณ ไม่ใช่พื้นที่เผาไหม้จริง (ดูชั้นพื้นที่เผาไหม้)"><svg class="i" viewBox="0 0 24 24"><path d="M4 9l6-5 9 4 1 8-8 5-7-4z" style="fill:rgba(232,84,28,.35);stroke:#b8321a"/></svg><b>พื้นที่จุดความร้อนรวม</b><span class="tag">Area</span><button class="sw" data-k="har" role="switch" aria-label="พื้นที่จุดความร้อนรวม"></button></div>
+  <div id="hcbox" hidden><select id="hc-s" aria-label="ช่วงเวลาของกองจุดความร้อน"></select>
+   <div class="hcp"><label title="จุดที่ห่างกันไม่เกินระยะนี้นับเป็นกองเดียวกัน (ต่อเป็นลูกโซ่) · ใช้กับกองรายวันและกองรวม · 0.1–10 กม.">ห่างกันไม่เกิน (กม.)<input id="hc-d" type="number" min="0.1" max="10" step="0.1" inputmode="decimal"></label><label title="จุดที่เกิดห่างกันไม่เกินจำนวนวันนี้นับเป็นกองรวมเดียวกัน · 0 = วันเดียวกันเท่านั้น · 0–30 วัน">เกิดห่างกันไม่เกิน (วัน)<input id="hc-g" type="number" min="0" max="30" step="1" inputmode="numeric"></label><label title="ขยายรอบแต่ละจุดก่อนครอบเป็นพื้นที่จุดความร้อนรวม · 200 ม. ≈ ครึ่งพิกเซล VIIRS 375 ม. · 50–2,000 ม.">ระยะขยายรอบจุด (ม.)<input id="hc-r" type="number" min="50" max="2000" step="50" inputmode="numeric"></label></div>
+   <button class="lk" id="hc-0" style="padding-left:0" hidden>คืนค่าเริ่มต้น (1 กม. · 2 วัน · 200 ม.)</button>
+   <div class="lgd" id="hc-lg"></div><div id="hc-a"></div></div>
   <div class="row" data-tip="จุดความร้อนของกรมอุทยานแห่งชาติฯ ปีงบ 2561–2569 (Suomi NPP จากไฟล์ Excel) แสดงเป็นจุดหรือความหนาแน่นตามตัวกรองในการ์ดวิเคราะห์สถิติ"><svg class="i" viewBox="0 0 24 24"><defs><linearGradient id="hg"><stop offset="0" stop-color="#ffd84a"/><stop offset=".5" stop-color="#f08a1c"/><stop offset="1" stop-color="#d93a1f"/></linearGradient></defs><rect x="3" y="9" width="18" height="6" rx="3" fill="url(#hg)" stroke="none"/></svg><b>จุดความร้อนย้อนหลัง</b><span class="tag" id="hs-t">–</span><button class="sw" data-k="hist" role="switch" aria-label="จุดความร้อนย้อนหลัง"></button></div>
   <button class="lk" id="hs-o">เปิดการ์ดวิเคราะห์สถิติ →</button>
   <div class="row" data-tip="รอยเผาไหม้จากภาพดาวเทียม 20 ม. ระบบตามรอยเผา (สสน.) เฉพาะในพื้นที่อนุรักษ์และพื้นที่รับผิดชอบสถานีฯ · ราย 7 วัน สี = จำนวนครั้งที่พบ (ออกหลังสิ้นรอบ ~9 วัน) หรือแยกป่า/เกษตร รายเดือนและรายฤดู · มีจุดความร้อน = มีจุด VIIRS ห่างไม่เกิน 1 กม. ในช่วงเวลาของรอย · แตะรอยบนแผนที่เพื่อดูรายละเอียด"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="8" height="7" style="fill:#f5a623;stroke:none"/><rect x="11" y="5" width="10" height="7" style="fill:#e8541c;stroke:none"/><rect x="6" y="12" width="12" height="7" style="fill:#a3171b;stroke:none"/></svg><b>พื้นที่เผาไหม้</b><span class="tag" id="bn-t">–</span><button class="sw" data-k="burn" role="switch" aria-label="พื้นที่เผาไหม้"></button></div>
@@ -718,7 +721,7 @@ const areaHtml=g=>{let s='';if(g.cons)s+=`<b>${esc(g.cons.properties.name)}</b><
  return s||'<span class="sm">อยู่นอกพื้นที่อนุรักษ์และพื้นที่รับผิดชอบไฟป่าตามไฟล์แนวเขต</span><br>'};
 
 /* ---------- สถานะ + จำค่าที่ผู้ใช้เลือก ---------- */
-let S={base:'natural',img:'google',d3:false,hot:true,prov:true,cons:true,resp:false,stn:false,wpt:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,demo:false,water:true,road:true,wind:false,pm:false,dry:false,wx:false,rad:false,wyl:false,wyo:'wind',wyop:60,hist:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7'};
+let S={base:'natural',img:'google',d3:false,hot:true,prov:true,cons:true,resp:false,stn:false,wpt:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,demo:false,water:true,road:true,wind:false,pm:false,dry:false,wx:false,rad:false,wyl:false,wyo:'wind',wyop:60,hist:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',hcd:1,hcg:2,hcr:200};
 try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;if(S.base==='road')S.base='detail';
 const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2200)};
 const thTime=d=>new Date(d).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'});
@@ -1156,7 +1159,9 @@ map.on('click',e=>{
  if(f){openDetail(HS.find(x=>x.id===f.properties.id));return}
  const fp=PM!=='24'&&map.getLayer('fypt')&&map.queryRenderedFeatures(e.point,{layers:['fypt']})[0];
  if(fp){const p=fp.properties,[lo,la]=fp.geometry.coordinates;new maplibregl.Popup({maxWidth:'260px'}).setLngLat([lo,la]).setHTML(`<b>จุดความร้อนสะสมปีงบ ${fyOfDay(p.d)}</b><br>${dShort(p.d)} เวลา ${hhmmTh(p.t)} น. · ${esc(SATN[p.sat]||p.sat)}${p.fm?'<br><span class="sm">ที่มา: NASA FIRMS (ระบบไทยขัดข้องวันนั้น)</span>':''}<br>${p.tam?'ต.'+esc(p.tam)+' ':''}${p.amp?'อ.'+esc(p.amp)+' ':''}${p.prov?'จ.'+esc(p.prov):''}<br><span class="sm">พิกัด ${la.toFixed(5)}, ${lo.toFixed(5)}</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${la},${lo}">เปิดใน Google Maps</a>`).addTo(map);return}
- const hc=(S.hcl||S.hgp||S.har)&&map.queryRenderedFeatures(e.point,{layers:['hcg-i','hcc-c','hca-f'].filter(id=>map.getLayer(id))})[0];if(hc){hcPop(hc,e.lngLat);return}
+ const hc=(S.hcl||S.hgp||S.har)&&map.queryRenderedFeatures(e.point,{layers:['hcs-m','hcg-i','hcc-c','hca-f'].filter(id=>map.getLayer(id))})[0];
+ if(HCS&&!(hc&&/^hc[sc]-[mc]$/.test(hc.layer.id))){hcSpider(null);if(!hc)return} // แตะที่ว่างขณะกระจายจุด = ยุบกลับ
+ if(hc){hcPop(hc,e.lngLat);return}
  const hcl=S.hist&&map.getLayer('histc-cl')&&map.queryRenderedFeatures(e.point,{layers:['histc-cl']})[0];
  if(hcl){map.getSource('histc').getClusterExpansionZoom(hcl.properties.cluster_id).then(z=>map.easeTo({center:hcl.geometry.coordinates,zoom:z+.5,duration:dur(800)}));return}
  const hf=S.hist&&map.queryRenderedFeatures(e.point,{layers:['hist-c','histc-p'].filter(id=>map.getLayer(id))})[0];if(hf){histPopup(hf);return}
@@ -1650,9 +1655,9 @@ function hcPts(R){const L=[],seen=new Set(),ok=(d,ms)=>R.ms?ms>=R.ms:d>=R.d0&&d<
  LIVE.forEach(h=>{const x=new Date(h.t+7*36e5),d=Math.floor(x/864e5),t=x.getUTCHours()*100+x.getUTCMinutes(),k=hKey(d,t,h.lat,h.lon);if(seen.has(k)||!ok(d,h.t))return;seen.add(k);
   const s=satKey(h.sat);if(!xLive(h)||!satOn(s))return;L.push({la:h.lat,lo:h.lon,d,t,ms:h.t,sat:s,tam:h.tam||'',amp:h.amp||'',prov:h.prov||''})});
  return L.sort((a,b)=>a.ms-b.ms)}
-// เชื่อมจุดที่ห่างกันไม่เกิน HCD และวันต่างกันไม่เกิน gap (union-find + ตารางช่อง 0.01° ≈ 1.1 กม.) → รายการกอง
-function hcLink(P,gap){const par=P.map((_,i)=>i),f=i=>{while(par[i]!==i)i=par[i]=par[par[i]];return i},G=new Map(),cx=Math.cos(14.3*Math.PI/180)*111320;
- P.forEach((p,i)=>{p.x=p.lo*cx;p.y=p.la*110574;const gx=Math.floor(p.lo*100),gy=Math.floor(p.la*100);
+// เชื่อมจุดที่ห่างกันไม่เกิน HCD และวันต่างกันไม่เกิน gap (union-find + ตารางช่องกว้าง ≥ HCD ทั้งสองแกน) → รายการกอง
+function hcLink(P,gap){const par=P.map((_,i)=>i),f=i=>{while(par[i]!==i)i=par[i]=par[par[i]];return i},G=new Map(),cx=Math.cos(14.3*Math.PI/180)*111320,cs=HCD/107000;
+ P.forEach((p,i)=>{p.x=p.lo*cx;p.y=p.la*110574;const gx=Math.floor(p.lo/cs),gy=Math.floor(p.la/cs);
   for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const c=G.get((gx+a)+','+(gy+b));if(c)c.forEach(j=>{const q=P[j];if(Math.abs(q.d-p.d)<=gap&&Math.hypot(q.x-p.x,q.y-p.y)<=HCD){const A=f(i),B=f(j);if(A!==B)par[A]=B}})}
   const k=gx+','+gy;(G.get(k)||G.set(k,[]).get(k)).push(i)});
  const M=new Map();P.forEach((p,i)=>{const r=f(i);(M.get(r)||M.set(r,[]).get(r)).push(p)});return[...M.values()]}
@@ -1667,7 +1672,10 @@ function hcHull(pts){const o=pts[0],cx=Math.cos(o.la*Math.PI/180)*111320,cy=1105
 const hcMid=L=>{let la=0,lo=0;L.forEach(p=>{la+=p.la;lo+=p.lo});return[lo/L.length,la/L.length]},
  hcNear=(L,c)=>L.reduce((m,p)=>Math.hypot(p.lo-c[0],p.la-c[1])<Math.hypot(m.lo-c[0],m.la-c[1])?p:m,L[0]),
  hcLoc=p=>p?[p.tam&&'ต.'+p.tam,p.amp&&'อ.'+p.amp,p.prov&&'จ.'+p.prov].filter(Boolean).join(' '):'';
-function hcCalc(){const R=hcRange(),k=[S.hcp,R.d0,R.d1,loadedAt,AD.length,LIVE.length,!!S.xdy,satList().map(satOn).join()].join('|');if(HCC&&HCC.k===k)return HCC;
+// เงื่อนไขการจัดกองที่ผู้ใช้กำหนดในกล่อง #hcbox (บันทึกค่าเริ่มต้นได้) — นอกช่วงที่ยอมรับใช้ค่าขอบ
+const hcV=(v,lo,hi,df)=>{v=parseFloat(v);return isFinite(v)?Math.min(hi,Math.max(lo,v)):df};
+function hcCalc(){HCD=Math.round(hcV(S.hcd,.1,10,1)*1000);HCG=Math.round(hcV(S.hcg,0,30,2));HCR=Math.round(hcV(S.hcr,50,2000,200));
+ const R=hcRange(),k=[S.hcp,R.d0,R.d1,loadedAt,AD.length,LIVE.length,!!S.xdy,satList().map(satOn).join(),HCD,HCG,HCR].join('|');if(HCC&&HCC.k===k)return HCC;
  const P=hcPts(R),C=hcLink(P,0).map(L=>{const c=hcMid(L);return{L,d:L[0].d,n:L.length,c,t0:L[0].t,t1:L[L.length-1].t,sats:[...new Set(L.map(p=>p.sat))],at:hcNear(L,c)}});
  C.forEach((c,i)=>c.L.forEach(p=>p.c=i));
  const G=hcLink(P,HCG).map(L=>{L.sort((a,b)=>a.ms-b.ms);const f=L[0],I=L.filter(p=>p.sat===f.sat&&p.ms-f.ms<=15*6e4),ic=hcMid(I),days=[...new Set(L.map(p=>p.d))].sort((a,b)=>a-b),
@@ -1695,16 +1703,47 @@ function setupHC(){const E={type:'FeatureCollection',features:[]},hide={visibili
  map.addLayer({id:'hcc-c',type:'circle',source:'hcc',layout:hide,paint:{'circle-radius':['interpolate',['linear'],['zoom'],7,['step',['get','n'],4,2,6,5,8,10,10,20,12],12,['step',['get','n'],9,2,12,5,15,10,18,20,22]],
   'circle-color':['interpolate',['linear'],['get','q'],0,'#d93a1f',.5,'#f08a1c',1,'#f5c542'],'circle-opacity':.88,'circle-stroke-color':'#fff','circle-stroke-width':1.5}});
  if(map.getStyle().glyphs)map.addLayer({id:'hcc-n',type:'symbol',source:'hcc',filter:['>',['get','n'],1],layout:{...hide,'text-field':['to-string',['get','n']],'text-font':['Noto Sans Bold'],'text-size':11,'text-allow-overlap':true},paint:{'text-color':'#fff','text-halo-color':'rgba(90,20,10,.6)','text-halo-width':1}});
- map.addLayer({id:'hcg-i',type:'symbol',source:'hcg',filter:['==',['get','k'],'i'],layout:{...hide,'icon-image':'hc-ign','icon-size':['interpolate',['linear'],['zoom'],7,['case',['>',['get','n'],1],.55,.3],12,['case',['>',['get','n'],1],.9,.6]],'icon-allow-overlap':true,'symbol-sort-key':['-',0,['get','n']]}})}
+ map.addLayer({id:'hcg-i',type:'symbol',source:'hcg',filter:['==',['get','k'],'i'],layout:{...hide,'icon-image':'hc-ign','icon-size':['interpolate',['linear'],['zoom'],7,['case',['>',['get','n'],1],.55,.3],12,['case',['>',['get','n'],1],.9,.6]],'icon-allow-overlap':true,'symbol-sort-key':['-',0,['get','n']]}});
+ // จุดที่กระจายออกจากกองรายวัน (ดับเบิลคลิก) — อยู่บนสุดของชั้นกอง
+ map.addSource('hcs',{type:'geojson',data:E});HCS=null;
+ map.addLayer({id:'hcs-c',type:'line',source:'hcs',filter:['==',['get','k'],'c'],paint:{'line-color':'#5c1209','line-width':1,'line-opacity':.55,'line-dasharray':[2,2]}});
+ map.addLayer({id:'hcs-l',type:'line',source:'hcs',filter:['==',['get','k'],'l'],paint:{'line-color':'#5c1209','line-width':1.4,'line-opacity':.8}});
+ map.addLayer({id:'hcs-r',type:'circle',source:'hcs',filter:['==',['get','k'],'r'],paint:{'circle-radius':2.6,'circle-color':'#5c1209','circle-stroke-color':'#fff','circle-stroke-width':1}});
+ map.addLayer({id:'hcs-m',type:'circle',source:'hcs',filter:['==',['get','k'],'m'],paint:{'circle-radius':7,'circle-color':['match',['get','sat'],'NOAA21','#f08a1c','SNPP','#a3171b','#d93a1f'],'circle-stroke-color':'#fff','circle-stroke-width':1.8}});
+ if(map.getStyle().glyphs)map.addLayer({id:'hcs-t',type:'symbol',source:'hcs',filter:['==',['get','k'],'m'],layout:{'text-field':['get','tx'],'text-font':['Noto Sans Bold'],'text-size':10,'text-offset':[0,1.25],'text-allow-overlap':true},paint:{'text-color':'#5c1209','text-halo-color':'#fff','text-halo-width':1.4}})}
 function LC(){const on=!!(S.hcl||S.hgp||S.har),box=$('#hcbox');if(box)box.hidden=!on;
  const set=(id,b)=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',b?'visible':'none');
  set('hca-f',S.har);set('hca-l',S.har);set('hcg-o',S.hgp&&!S.har);['hcg-p','hcg-ar','hcg-i'].forEach(id=>set(id,S.hgp));set('hcc-c',S.hcl);set('hcc-n',S.hcl);
+ if(HCS&&!S.hcl)hcSpider(null);
  if(!on)return;const H=hcCalc();
- if(map.getSource('hcc')&&HCK!==H.k){const F=hcFC(H);map.getSource('hcc').setData(F.c);map.getSource('hcg').setData(F.g);HCK=H.k}
+ if(map.getSource('hcc')&&HCK!==H.k){const F=hcFC(H);map.getSource('hcc').setData(F.c);map.getSource('hcg').setData(F.g);HCK=H.k;if(HCS)hcSpider(null)}
  hcBox(H)}
+/* กระจายจุดของกองรายวันออกรอบกลางกอง (แบบ spiderfy): ≤8 จุดเป็นวง มากกว่านั้นเป็นเกลียว · เรียงตามเวลา · เส้นทึบ = ขาจากกลางกอง, เส้นประ = ชี้ตำแหน่งจริง
+   ตำแหน่งคิดเป็นพิกเซลที่ซูมปัจจุบัน → ยุบเมื่อเริ่มซูม (zoomstart) แตะที่ว่าง ดับเบิลคลิกซ้ำ หรือข้อมูลเปลี่ยน */
+var HCS=null;
+function hcSpider(i){const s=map.getSource('hcs'),c=i==null||!HCC?null:HCC.C[i];HCS=null;if(!s)return;
+ const op=(a,b)=>{map.getLayer('hcc-c')&&map.setPaintProperty('hcc-c','circle-opacity',a);map.getLayer('hcc-n')&&map.setPaintProperty('hcc-n','text-opacity',b)}; // กองอื่นจางขณะกระจาย
+ if(!c||c.n<2){s.setData({type:'FeatureCollection',features:[]});op(.88,1);return}
+ op(['case',['==',['get','i'],i],.88,.22],['case',['==',['get','i'],i],1,.3]);
+ $$('.maplibregl-popup').forEach(p=>p.remove());
+ const o=map.project(c.c),n=c.n,P=[];
+ if(n<=8){const r=Math.max(36,26*(2+n)/(2*Math.PI)),st=2*Math.PI/n;for(let k=0;k<n;k++){const a=-Math.PI/2+k*st;P.push([o.x+r*Math.cos(a),o.y+r*Math.sin(a)])}}
+ else{let len=30,a=0;for(let k=0;k<n;k++){a+=27/len+k*5e-4;P.push([o.x+len*Math.cos(a),o.y+len*Math.sin(a)]);len+=2*Math.PI*2.6/a}}
+ const F=[];c.L.forEach((p,j)=>{const m=map.unproject(P[j]).toArray(),r=[p.lo,p.la];
+  F.push({type:'Feature',geometry:{type:'LineString',coordinates:[c.c,m]},properties:{k:'l'}},{type:'Feature',geometry:{type:'LineString',coordinates:[m,r]},properties:{k:'c'}},
+   {type:'Feature',geometry:{type:'Point',coordinates:r},properties:{k:'r'}},{type:'Feature',geometry:{type:'Point',coordinates:m},properties:{k:'m',i,j,tx:hhmmTh(p.t),sat:p.sat}})});
+ s.setData({type:'FeatureCollection',features:F});HCS={i}}
+map.on('zoomstart',()=>{if(HCS)hcSpider(null)});
+map.on('dblclick',e=>{if(!S.hcl||!map.getLayer('hcc-c'))return;const f=map.queryRenderedFeatures(e.point,{layers:['hcc-c']})[0];if(!f)return;
+ e.preventDefault();const i=f.properties.i;if(HCS&&HCS.i===i)return hcSpider(null);if(HCC&&HCC.C[i]&&HCC.C[i].n<2)return toast('กองนี้มีจุดเดียว');hcSpider(i)});
+document.addEventListener('click',e=>{const b=e.target.closest('.hcsp');if(b)hcSpider(+b.dataset.i)});
+const hcIn=()=>{clearTimeout(hcIn.t);hcIn.t=setTimeout(()=>{S.hcd=hcV($('#hc-d').value,.1,10,1);S.hcg=Math.round(hcV($('#hc-g').value,0,30,2));S.hcr=Math.round(hcV($('#hc-r').value,50,2000,200));LC()},350)};
+['#hc-d','#hc-g','#hc-r'].forEach(id=>{const el=$(id);el.addEventListener('input',hcIn);el.addEventListener('change',()=>{hcIn();const[lo,hi,df]=id==='#hc-d'?[.1,10,1]:id==='#hc-g'?[0,30,2]:[50,2000,200];el.value=id==='#hc-d'?hcV(el.value,lo,hi,df):Math.round(hcV(el.value,lo,hi,df))})});
+$('#hc-0').onclick=()=>{S.hcd=1;S.hcg=2;S.hcr=200;LC()};
 function hcBox(H){const sel=$('#hc-s'),T0=thDay(),F=fyOfDay(T0),pv=AD.some(r=>r.d>=fy0(F-1)&&r.d<fy0(F)),
   O=[['48',HCN['48']],['7',HCN['7']],['30',HCN['30']],['fy','ปีงบ '+F+' (ตั้งแต่ 1 ต.ค.)']].concat(pv?[['fyp','ปีงบ '+(F-1)+' ทั้งปี']]:[]);
  if(sel.dataset.k!==O.join()){sel.innerHTML=O.map(([v,t])=>`<option value="${v}">${esc(t)}</option>`).join('');sel.dataset.k=O.join()}sel.value=S.hcp||'7';
+ [['#hc-d',HCD/1000],['#hc-g',HCG],['#hc-r',HCR]].forEach(([id,v])=>{const el=$(id);if(document.activeElement!==el)el.value=v});$('#hc-0').hidden=HCD===1000&&HCG===2&&HCR===200;
  const rai=H.G.reduce((s,g)=>s+g.rai,0),top=H.G.filter(g=>g.n>1).slice(0,5),mm=d=>dShort(d);
  $('#hc-lg').innerHTML=(S.hcl?'<div><i style="background:linear-gradient(90deg,#d93a1f,#f08a1c,#f5c542);border-radius:7px;width:42px"></i>กองรายวัน วันล่าสุด → เก่า · ตัวเลข = จำนวนจุด</div>':'')
   +(S.hgp?'<div><img src="'+hcIco()+'" width="14" height="14" alt="" style="flex:none">จุดเริ่มต้นของไฟ · ➝ ทิศการลามรายวัน</div>':'')
@@ -1722,7 +1761,10 @@ function hcGroupHtml(g){const a=g.ign,[lo,la]=a.c;
 function hcPop(f,ll){const H=HCC;if(!H)return;const p=f.properties;let h;
  if(f.layer.id==='hcc-c'){const c=H.C[p.i];if(!c)return;const g=H.G[c.g];
   h=`<b>กองจุดความร้อนรายวัน</b><br>${dShort(c.d)} · ${nf(c.n)} จุด · ${c.t0===c.t1?hhmmTh(c.t0):hhmmTh(c.t0)+'–'+hhmmTh(c.t1)} น.<br>${c.sats.map(s=>esc(SATN[s]||s)).join(', ')}<br>${esc(hcLoc(c.at))}`
-   +(g&&(g.n>c.n)?`<br><span class="sm">อยู่ในกองรวม #${g.i} (${g.days} วัน ${nf(g.n)} จุด · เริ่ม ${dShort(g.ign.d)} ${hhmmTh(g.ign.t)} น.)</span>`:'')}
+   +(g&&(g.n>c.n)?`<br><span class="sm">อยู่ในกองรวม #${g.i} (${g.days} วัน ${nf(g.n)} จุด · เริ่ม ${dShort(g.ign.d)} ${hhmmTh(g.ign.t)} น.)</span>`:'')
+   +(c.n>1?`<br><button class="lk hcsp" data-i="${p.i}" style="padding:4px 0 0">กระจายจุดทั้ง ${c.n} จุด</button> <span class="sm">(หรือดับเบิลคลิกที่กอง)</span>`:'')}
+ else if(f.layer.id==='hcs-m'){const c=H.C[p.i],q=c&&c.L[p.j];if(!q)return;ll=f.geometry.coordinates;
+  h=`<b>จุดความร้อนที่ ${p.j+1}/${c.n} ของกองรายวัน</b><br>${dShort(q.d)} เวลา ${hhmmTh(q.t)} น. · ${esc(SATN[q.sat]||q.sat)}<br>${esc(hcLoc(q))}<br><span class="sm">ตำแหน่งจริงตามเส้นประ ${q.la.toFixed(5)}, ${q.lo.toFixed(5)} · <a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${q.la.toFixed(5)},${q.lo.toFixed(5)}">Google Maps</a></span>`}
  else{const g=H.G[p.i];if(!g)return;h=hcGroupHtml(g);if(p.k==='i')ll=g.ign.c}
  new maplibregl.Popup({maxWidth:'280px'}).setLngLat(ll).setHTML(h).addTo(map)}
 $('#hc-s').onchange=e=>{S.hcp=e.target.value;LC()};
