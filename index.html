@@ -1143,8 +1143,8 @@ $('#p-cm').onclick=e=>{const b=e.target.closest('[data-c]');if(!b||b.dataset.c==
 $('#bHide').onclick=()=>{const h=$('#pcard').hidden=!$('#pcard').hidden;$('#bHide').setAttribute('aria-pressed',!h)};
 $$('[data-soon]').forEach(b=>b.onclick=()=>{const[a,p]=b.dataset.soon.split('|');toast(`"${a}" จะเปิดใช้ในเฟส ${p}`)});
 $('#grab').onclick=()=>$('#left').classList.toggle('up');
-$('#bLay').onclick=()=>{closeDetail();$('#right').classList.toggle('open');sync()};
-$('#xr').onclick=()=>{$('#right').classList.remove('open');sync()};
+$('#bLay').onclick=()=>{closeDetail();$('#right').classList.toggle('open');sync();panFit()};
+$('#xr').onclick=()=>{$('#right').classList.remove('open');sync();panFit()};
 $('#zi').onclick=()=>wlZoom(1);$('#zo').onclick=()=>wlZoom(-1);$('#bN').onclick=()=>map.resetNorth();
 $('#bHome').onclick=()=>fitHome(true);
 $('#bLoc').onclick=()=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>map.flyTo({center:[p.coords.longitude,p.coords.latitude],zoom:11,duration:dur(1500)}),()=>toast('ไม่สามารถระบุตำแหน่งได้ กรุณาอนุญาตการเข้าถึงตำแหน่ง')):toast('อุปกรณ์ไม่รองรับการระบุตำแหน่ง');
@@ -1165,7 +1165,7 @@ $('#rf').onclick=async()=>{await load();toast('ดึงข้อมูลให
 $('#sdef').onclick=()=>{try{localStorage.setItem('fm-v1',JSON.stringify(S));toast('บันทึกค่าเริ่มต้นแล้ว')}catch(e){toast('บันทึกไม่ได้ในเบราว์เซอร์นี้')}};
 addEventListener('keydown',e=>{
  if(e.key==='/'&&document.activeElement!==$('#q')){e.preventDefault();$('#pcard').hidden=false;$('#bHide').setAttribute('aria-pressed',true);$('#q').focus()}
- if(e.key==='Escape'){closeModal();closeDetail();$('#right').classList.remove('open');$('#q').blur();sync()}});
+ if(e.key==='Escape'){const wr=$('#right').classList.contains('open');closeModal();closeDetail();$('#right').classList.remove('open');$('#q').blur();sync();if(wr)panFit()}});
 
 map.on('click',e=>{
  const cl=map.getLayer('hot-cl')&&map.queryRenderedFeatures(e.point,{layers:['hot-cl']})[0];
@@ -2275,7 +2275,11 @@ function histPopup(f){const r=HD[f.properties.i];if(!r)return;const hh=Math.floo
  +row('พิกัด',r.la.toFixed(5)+', '+r.lo.toFixed(5))
  +`<a class="hpg" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${r.la},${r.lo}">🗺️ เปิด Google Maps</a></div>`).addTo(map)}
 function homePad(){if(innerWidth<=767){const l=$('#left'),h=Math.min(innerHeight*.6,parseFloat(getComputedStyle(l).maxHeight)||innerHeight*.34);return{top:24,bottom:Math.round(h)+20,left:24,right:66}} // มือถือ: กลุ่มป่ากลางพื้นที่เหนือแผ่นล่าง เว้นคอลัมน์ปุ่มขวา
- const R=$('#right');return{top:60,bottom:100,left:document.body.classList.contains('lc')?60:Math.min(440,Math.round(innerWidth*.36)),right:R&&R.classList.contains('open')?innerWidth-R.offsetLeft+60:60}} // เปิดแผงชั้นข้อมูล = เว้นจากขอบแผง 60 เท่าขอบซ้าย → กลุ่มป่ากลางพื้นที่ที่เหลือ // เว้นด้านซ้ายให้การ์ด เพื่อให้กลุ่มป่าอยู่กลางพื้นที่ว่างด้านขวา
+ // เดสก์ท็อป: เว้นจากขอบแผงที่เปิดอยู่ (หรือขอบจอ) 60 px เท่ากันทั้งสองข้าง → กลุ่มป่ากลางพื้นที่ระหว่างแผง (ผู้ใช้กำหนด 2 พ.ย. 69) · ตำแหน่งตามเลย์เอาต์ ไม่นับ transform ระหว่างเลื่อน
+ const L=$('#left'),R=$('#right'),lx=document.body.classList.contains('lc')||!L?0:L.offsetLeft+L.offsetWidth-24;
+ return{top:60,bottom:100,left:lx+60,right:R&&R.classList.contains('open')?innerWidth-R.offsetLeft+60:60}}
+// เปิด/ปิดแผงซ้ายหรือแผงชั้นข้อมูลโดยผู้ใช้ = จัดกลุ่มป่ากลางพื้นที่ที่เหลือ (มือถือแผงเป็นแผ่นล่าง ไม่จัด) · ไม่เรียกตอนแผงปิดเองเพราะเปิดรายละเอียดจุด
+function panFit(){if(innerWidth>767)try{fitHome(true)}catch(e){}} // เว้นด้านซ้ายให้การ์ด เพื่อให้กลุ่มป่าอยู่กลางพื้นที่ว่างด้านขวา
 function hFit(){const F=hfilt();if(!F.length)return toast('ไม่มีข้อมูลตามตัวกรอง');const b=new maplibregl.LngLatBounds([F[0].lo,F[0].la],[F[0].lo,F[0].la]);F.forEach(r=>b.extend([r.lo,r.la]));map.fitBounds(b,{padding:homePad(),maxZoom:11,duration:dur(1000)})}
 const histBounds=()=>{let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const r of HD){a=Math.min(a,r.lo);b=Math.min(b,r.la);c=Math.max(c,r.lo);d=Math.max(d,r.la)}a=Math.min(a,CB[0]);b=Math.min(b,CB[1]);c=Math.max(c,CB[2]);d=Math.max(d,CB[3]);return[[a,b],[c,d]]};
 let MOVED=false;function fitHome(anim){map.fitBounds(histBounds(),{padding:homePad(),maxZoom:11,bearing:0,pitch:S.d3?60:0,duration:anim?dur(1200):0})}
@@ -2419,7 +2423,7 @@ MORE.onclick=()=>{const el=moreEl();el.scrollBy({top:el.clientHeight*.8,behavior
 if(window.ResizeObserver){const o=new ResizeObserver(moreRun);['#left','#hcard','#pcard','#stats'].forEach(q=>o.observe($(q)))}moreRun();
 /* ปุ่มพับแผงซ้ายไปด้านข้าง (ผู้ใช้ขอ 2 พ.ย. 69) เพิ่มพื้นที่แผนที่ · body.lc → --lw 0 (ป้าย/แถบที่จัดกลางพื้นที่ขวาขยับตาม) · homePad ใช้พื้นที่เต็ม · ไม่บันทึกสถานะ */
 const LCOL=document.createElement('button');LCOL.id='lcol';LCOL.type='button';LCOL.innerHTML='<svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>';document.body.append(LCOL);
-function lcSet(on,fit){document.body.classList.toggle('lc',on);if(fit)try{fitHome(true)}catch(e){} // ผู้ใช้ขอ 2 พ.ย. 69: กลุ่มป่ากลางพื้นที่แผนที่ที่เหลือ
+function lcSet(on,fit){document.body.classList.toggle('lc',on);if(fit)panFit(); // ผู้ใช้ขอ 2 พ.ย. 69: กลุ่มป่ากลางพื้นที่แผนที่ที่เหลือ
  const t=on?'แสดงแผงด้านซ้าย':'ซ่อนแผงด้านซ้าย เพื่อดูแผนที่ได้กว้างขึ้น';LCOL.setAttribute('aria-label',t);LCOL.dataset.tip=t;LCOL.setAttribute('aria-expanded',String(!on));
  try{ttHide()}catch(e){}moreFit();setTimeout(()=>{try{wybPos()}catch(e){}try{pbPos()}catch(e){}moreFit()},300)}
 LCOL.onclick=()=>lcSet(!document.body.classList.contains('lc'),true);lcSet(false);
@@ -2434,7 +2438,7 @@ function swipeClose(el,dir,close,ok){let x0=0,y0=0,t0=0,dx=0,st=0;
  const end=()=>{if(st!==2){st=0;return}st=0;const v=Math.abs(dx)/Math.max(1,performance.now()-t0);el.style.transition='';el.style.transform='';if(Math.abs(dx)>70||v>.5&&Math.abs(dx)>30)close()};
  el.addEventListener('touchend',end);el.addEventListener('touchcancel',end)}
 swipeClose($('#left'),-1,()=>lcSet(true,true),()=>!document.body.classList.contains('lc'));
-swipeClose($('#right'),1,()=>{$('#right').classList.remove('open');sync()},()=>$('#right').classList.contains('open'));
+swipeClose($('#right'),1,()=>{$('#right').classList.remove('open');sync();panFit()},()=>$('#right').classList.contains('open'));
 {let x0=null;LCOL.addEventListener('touchstart',e=>{x0=e.touches[0].clientX},{passive:true});LCOL.addEventListener('touchend',e=>{if(x0==null)return;const d=e.changedTouches[0].clientX-x0;x0=null;const c=document.body.classList.contains('lc');if(d>30&&c||d<-30&&!c){e.preventDefault();lcSet(!c,true)}})}
 const TT=document.createElement('div');TT.id='tt';TT.setAttribute('role','tooltip');document.body.append(TT);
 $$('#ctl .cb').forEach(b=>b.dataset.tip=b.getAttribute('aria-label'));
