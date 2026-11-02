@@ -1503,9 +1503,9 @@ async function wlQuick(){if(Date.now()-WLqat<20*6e4)return;WLqat=Date.now();cons
 function wlApply(){try{wlApply0()}catch(e){}} // apply() ถูกเรียกก่อนประกาศ WLB — กันไม่ให้ apply() หยุดกลางทาง (setup() เรียกซ้ำหลังโหลด)
 function wlApply0(){const on=!!S.wyl;$('#wylbox').hidden=!on;$('#wyb').hidden=!on;WLB.style.display=on?'':'none';
  if(on!==wlApply.on){wlApply.on=on;
-  if(on){if(S.d3){S.d3=false;sync()}map.dragRotate.disable();map.touchZoomRotate.disableRotation();map.scrollZoom.disable();if(map.getBearing()||map.getPitch())map.jumpTo({bearing:0,pitch:0});
+  if(on){if(S.d3){S.d3=false;sync()}map.dragRotate.disable();map.touchZoomRotate.disableRotation();if(map.getBearing()||map.getPitch())map.jumpTo({bearing:0,pitch:0});
    const z=map.getZoom()+1,zr=Math.round(z);if(zr>=3&&zr<=11&&Math.abs(z-zr)>.02)map.jumpTo({zoom:zr-1});wlLoad();wlQuick()}
-  else{WLB.innerHTML='';wlMode(false);map.dragRotate.enable();map.touchZoomRotate.enableRotation();map.scrollZoom.enable()}}
+  else{WLB.innerHTML='';wlMode(false);map.dragRotate.enable();map.touchZoomRotate.enableRotation()}}
  wlBase();wlUI();wybPos()}
 /* ---------- พื้นที่เผาไหม้ (ระบบตามรอยเผา tamroypao.hii.or.th ความละเอียด 20 ม.) ----------
    scripts/sync_burn.js ตัดเฉพาะพิกเซลในแนวเขตแล้วเก็บแบบ run-length (data/burn/) · หน้าเว็บวาดไทล์เองผ่าน addProtocol('burn')
@@ -1800,11 +1800,7 @@ $('#bWy').onclick=()=>{S.wyl=!S.wyl;apply();if(S.wyl)toast('เปิดชั�
 map.on('moveend',()=>{if(!S.wyl||WLint)return;clearTimeout(WLT);WLT=setTimeout(()=>{
  const f=WLB.querySelector('iframe:last-child');if(f){const p=map.project([+f.dataset.lo,+f.dataset.la]);if(Math.hypot(p.x-WLB.clientWidth/2,p.y-WLB.clientHeight/2)<2&&Math.abs(map.getZoom()-f.dataset.zm)<.01)return}
  wlLoad()},30)});
-// ล้อเมาส์/ปุ่ม +− ซูมทีละขั้นเต็มแบบ Leaflet ขณะเปิดชั้น Windy (ภาพ Windy คมและตรงขนาดพอดี)
-let WLW=0,WLWt=0;
-map.getContainer().addEventListener('wheel',e=>{if(!S.wyl||WLint)return;e.preventDefault();WLW+=e.deltaY*(e.deltaMode===1?40:1);const now=Date.now();if(now-WLWt<300||Math.abs(WLW)<25)return;
- const r=map.getContainer().getBoundingClientRect(),z=Math.max(map.getMinZoom(),Math.min(map.getMaxZoom(),Math.round(map.getZoom())+(WLW<0?1:-1)));WLW=0;WLWt=now;
- map.easeTo({zoom:z,around:map.unproject([e.clientX-r.left,e.clientY-r.top]),duration:dur(250)})},{passive:false});
+// ปุ่ม +− ซูมทีละขั้นเต็มขณะเปิดชั้น Windy (ภาพคมตรงขนาด) · ล้อเมาส์ใช้ซูมลื่นของแผนที่ตามปกติ (เคยบังคับทีละขั้นแล้วผู้ใช้บอกหยาบ/กระโดด 2 ขั้น) ภาพ Windy ย่อขยายตามด้วย scale
 const wlZoom=d=>S.wyl?map.easeTo({zoom:Math.round(map.getZoom())+d,duration:dur(250)}):d>0?map.zoomIn():map.zoomOut();
 addEventListener('resize',()=>{if(S.wyl){clearTimeout(WLT);WLT=setTimeout(wlLoad,500);wybPos()}});
 const wlPick=k=>{S.wyo=k;wlUI();wlLoad()};
