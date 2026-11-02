@@ -19,8 +19,11 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
 svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 #ld{position:fixed;inset:0;background:#fff;color:#1B2A5E;display:grid;place-items:center;z-index:50;font-weight:600}
 /* แผงซ้ายบน */
-#left{position:fixed;top:env(safe-area-inset-top);left:0;width:min(420px,100%);max-height:calc(100% - 12px);overflow:auto;padding:16px 24px 16px max(16px,env(safe-area-inset-left));background:linear-gradient(90deg,var(--glass) 72%,transparent);pointer-events:none;z-index:5;scrollbar-width:none}
+#left{position:fixed;top:env(safe-area-inset-top);left:0;width:min(420px,100%);max-height:calc(100% - 12px);overflow:auto;padding:16px 24px 16px max(16px,env(safe-area-inset-left));pointer-events:none;z-index:5;scrollbar-width:none}
 #left>*{pointer-events:auto}
+/* พื้นขาวเฉพาะส่วนหัว (ถึงก่อนแถวปุ่ม --lh วัดด้วย leftBg) จางออกไปทางขวาและด้านล่าง — ใต้ปุ่มไม่มีพื้น */
+#left::before{content:'';position:absolute;left:0;top:0;width:calc(100% + 100px);height:calc(var(--lh,0px) + 80px);background:rgba(255,255,255,.9);-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 150px),rgba(0,0,0,.55) calc(100% - 75px),transparent),linear-gradient(#000 calc(100% - 100px),rgba(0,0,0,.55) calc(100% - 50px),transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,#000 calc(100% - 150px),rgba(0,0,0,.55) calc(100% - 75px),transparent),linear-gradient(#000 calc(100% - 100px),rgba(0,0,0,.55) calc(100% - 50px),transparent);mask-composite:intersect;pointer-events:none;z-index:-1}
+#left.hm::before{display:none}
 /* iPad/จอสัมผัส: Safari ไม่เลื่อนกล่องที่ pointer-events:none แม้ลูกจะรับการแตะได้ */
 @media(any-pointer:coarse){#left{pointer-events:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}}
 h1{margin:0 0 10px;font-size:clamp(22px,3vw,36px);line-height:1.2;font-weight:800;color:var(--navy)}
@@ -142,6 +145,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .wpm{cursor:pointer;display:flex;flex-direction:column;align-items:center}.wpm svg{width:18px;height:18px;filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.45))}.wpm span{display:none;font:700 11px 'Noto Sans Thai',sans-serif;color:#b3121f;white-space:nowrap;text-shadow:0 0 2px #fff,0 0 3px #fff,0 0 4px #fff}.z11 .wpm span{display:block}
 #grab{display:none}
 @media(max-width:767px){
+ #left::before{display:none}
  #left{width:100%;top:auto;bottom:0;max-height:34vh;padding:6px 16px calc(14px + env(safe-area-inset-bottom));background:var(--glass);border-radius:22px 22px 0 0;box-shadow:var(--sh);pointer-events:auto;transition:max-height .25s}
  #left.up{max-height:80vh}
  #grab{display:block;width:44px;height:5px;border-radius:3px;background:#b8bdcc;margin:0 auto 8px;border:0;padding:10px 0;background-clip:content-box;min-height:24px}
@@ -2142,7 +2146,9 @@ $('#imp').onclick=openImport;
 map.once('style.load',hRender);fitHome(false);
 sync();load(true);consInfo();respLegend();
 function fitTitle(){const h1=$('#left h1'),m=$('.h1m');if(!h1||!m)return;h1.style.fontSize='';let fs=parseFloat(getComputedStyle(h1).fontSize);while(m.scrollWidth>m.clientWidth+1&&fs>15){fs-=1;h1.style.fontSize=fs+'px'}}
-fitTitle();addEventListener('resize',fitTitle);document.fonts&&document.fonts.ready.then(fitTitle);
+fitTitle();addEventListener('resize',fitTitle);
+function leftBg(){const b=$('#left .btns');if(b)$('#left').style.setProperty('--lh',b.offsetTop+'px')}
+if(window.ResizeObserver){const o=new ResizeObserver(leftBg);$$('#left>.hrow,#left>h1,#stats,#left>.sm,#left>.dmr').forEach(e=>o.observe(e))}leftBg();document.fonts&&document.fonts.ready.then(fitTitle);
 /* จุดเฝ้าระวังไฟป่า ปี 2569 (ดาวแดงตามสัญลักษณ์ใน KMZ) — สร้างก่อน FSM เพื่อให้ป้ายสถานีฯ อยู่ด้านบน */
 $('#c-wpt').textContent=GEO.wpt.features.length+' จุด';
 window.WPM=GEO.wpt.features.map(f=>{const p=f.properties,[lo,la]=f.geometry.coordinates,el=document.createElement('div');el.className='wpm';el.setAttribute('role','button');el.setAttribute('aria-label','จุดเฝ้าระวัง '+p.name);
