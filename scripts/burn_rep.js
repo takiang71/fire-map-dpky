@@ -1,8 +1,8 @@
 // พื้นที่เผาซ้ำซาก: รวมรอยเผาไหม้ทุกรอบที่ sync_burn เก็บไว้ (b4 ราย 7 วัน + c แยกประเภทรายเดือน/รายฤดู) เป็นรายปีงบ แล้วนับว่าแต่ละพิกเซล 20 ม. ไหม้กี่ปีงบ
 // ใช้: node scripts/burn_rep.js (sync_burn.js เรียกต่อท้ายให้เองทุกรอบ)
 //  - ปีงบของรอบ = ปีงบของวันกลางรอบ (เหมือน bnFY ในหน้าเว็บ) · ปีงบ 2567 มีแค่ชุด c (ข้อมูลเริ่ม ธ.ค. 66) · b4 เริ่ม ม.ค. 68
-//  - ผลลัพธ์ data/burn/rep.json: { fy: [ปีงบ…], g: {กริด: {z, x0, y0, px, r: [dy, dx, ยาว, mask, ar, st, cl, …]}} }
-//    mask = บิตของปีงบที่ไหม้ (บิต i = fy[i]) · cl = ประเภทพื้นที่จากชุด c รอบล่าสุดที่พบ (1 ป่าไม้, 2–5 เกษตร, 0 = ไม่ทราบ — พบเฉพาะใน b4)
+//  - ผลลัพธ์ data/burn/rep.json: { fy: [ปีงบ…], n: 8, g: {กริด: {z, x0, y0, px, r: [dy, dx, ยาว, mask, b4, ar, st, cl, …]}} }
+//    mask = บิตของปีงบที่ไหม้ (บิต i = fy[i]) · b4 = บิตของปีงบที่พบในชุดราย 7 วันด้วย (หน้าเว็บแยกให้เห็นว่ายอดรายปีมาจากชุดไหน — ชั้นพื้นที่เผาไหม้สะสมปีงบใช้ราย 7 วันอย่างเดียว) · cl = ประเภทพื้นที่จากชุด c รอบล่าสุดที่พบ (1 ป่าไม้, 2–5 เกษตร, 0 = ไม่ทราบ — พบเฉพาะใน b4)
 //    run-length แบบเดียวกับไฟล์รายรอบ (dy = แถวห่างจากรันก่อน, dx = คอลัมน์ห่างจากท้ายรันก่อนถ้าแถวเดียวกัน ไม่งั้นนับจาก 0)
 //  - index.json ช่อง rep = { sig, fy, upd } ให้หน้าเว็บรู้ว่ามีไฟล์และใช้ sig กันแคชเก่า
 const fs = require('fs'), path = require('path');
@@ -29,20 +29,20 @@ function build() {
         const n = r[i + 2], v = r[i + 3], a = r[i + 4], s = r[i + 5]; le = x + n;
         for (let j = 0; j < n; j++) {
           const k = y * 8192 + x + j, q = P.m.get(k);
-          if (q) { q[0] |= bit; if (C) q[3] = v } else P.m.set(k, [bit, a, s, C ? v : 0]);
+          if (q) { q[0] |= bit; if (C) q[3] = v; else q[4] |= bit } else P.m.set(k, [bit, a, s, C ? v : 0, C ? 0 : bit]);
         }
       }
     }
   }
-  const out = { fy, g: {} }, cnt = {};
+  const out = { fy, n: 8, g: {} }, cnt = {};
   for (const g in G) {
     const P = G[g], r = [];
     let ly = 0, le = 0;
     for (const k of [...P.m.keys()].sort((a, b) => a - b)) {
-      const [m, a, s, c] = P.m.get(k), y = Math.floor(k / 8192), x = k % 8192, n = r.length;
+      const [m, a, s, c, b4] = P.m.get(k), y = Math.floor(k / 8192), x = k % 8192, n = r.length;
       let b = 0; for (let t = m; t; t >>= 1) b += t & 1; cnt[b] = (cnt[b] || 0) + 1;
-      if (n && y === ly && x === le && r[n - 4] === m && r[n - 3] === a && r[n - 2] === s && r[n - 1] === c) { r[n - 5]++; le++; continue }
-      r.push(y - ly, y === ly && n ? x - le : x, 1, m, a, s, c); ly = y; le = x + 1;
+      if (n && y === ly && x === le && r[n - 5] === m && r[n - 4] === b4 && r[n - 3] === a && r[n - 2] === s && r[n - 1] === c) { r[n - 6]++; le++; continue }
+      r.push(y - ly, y === ly && n ? x - le : x, 1, m, b4, a, s, c); ly = y; le = x + 1;
     }
     out.g[g] = { z: P.z, x0: P.x0, y0: P.y0, px: P.px, r };
   }

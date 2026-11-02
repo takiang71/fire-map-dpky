@@ -118,7 +118,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 #bnbox,#fubox,#hcbox,#rpbox{margin:0 0 10px}.hci{display:flex;gap:8px;align-items:flex-start;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:5px 0;font:inherit;font-size:12.5px;color:var(--navy);cursor:pointer;line-height:1.4}.hci>b{min-width:26px;color:#a3171b}.hci:hover{background:var(--bg)}.hcp{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0 2px}.hcp label{display:flex;flex-direction:column;justify-content:space-between;gap:3px;font-size:11.5px;line-height:1.25;color:var(--mut)}.hcp input{width:100%;min-width:0;font:inherit;font-size:13px;padding:4px 6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--navy)}#fu-s{width:100%;font:inherit;font-size:13px;padding:5px 6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--navy);margin-bottom:4px}
 .bnhs{font-size:12px;margin:2px 0 6px;line-height:1.6}#bn-h{display:block;margin-top:4px;font:inherit;font-size:12px;padding:3px 9px;border:1px solid #c4b5fd;border-radius:999px;background:var(--bg);color:#5b21b6;cursor:pointer}#bn-h[aria-pressed=true]{background:#ede9fe}
 .fub{display:flex;flex:1;height:8px;border-radius:4px;overflow:hidden;margin:3px 0;min-width:60px}.fub i{display:block}.fua{font-size:12px}.fua>div{display:flex;gap:8px;align-items:center;min-height:20px}.fua span{width:44%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fua b{min-width:36px;text-align:right;font-weight:600}#bn-s,#hc-s{width:100%;font:inherit;font-size:13px;padding:5px 6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--navy)}
-.bnh{font-size:13px;margin:6px 0 4px}.bna{font-size:12px}.bna>div{display:flex;gap:6px;align-items:center;min-height:20px}.bna span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bna i{display:block;height:6px;border-radius:3px;background:#e8541c;flex:none}.bna b{min-width:44px;text-align:right;font-weight:600}
+.bnh{font-size:13px;margin:6px 0 4px}.rpy{font-size:12px}.rpy>div{display:grid;grid-template-columns:38px 78px 1fr;gap:6px;align-items:baseline;padding:2px 0}.rpy span{text-align:right;font-weight:600}.rpy em{font-style:normal;color:var(--mut);font-size:11.5px;line-height:1.3}.bna{font-size:12px}.bna>div{display:flex;gap:6px;align-items:center;min-height:20px}.bna span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bna i{display:block;height:6px;border-radius:3px;background:#e8541c;flex:none}.bna b{min-width:44px;text-align:right;font-weight:600}
 .bnc{display:flex;align-items:flex-end;gap:1px;height:46px;margin:4px 0 2px;border-bottom:1px solid var(--line)}.bnc button{flex:1;min-width:2px;padding:0;border:0;border-radius:2px 2px 0 0;background:#eba27c;cursor:pointer}.bnc button.on{background:#a3171b}.bnc button.z{background:var(--line)}.bnx{display:flex;justify-content:space-between;font-size:11px;color:var(--mut)}.bnx a{cursor:pointer;color:var(--navy);text-decoration:underline}#imgtime[hidden],#it-d[hidden]{display:none}
 #imgtime .itr{display:flex;align-items:center;gap:6px}#it-r{flex:1;min-width:0;accent-color:var(--navy)}
 #imgtime .itr button{flex:none;width:30px;height:30px;padding:0;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:17px;line-height:1;color:var(--navy)}
@@ -1651,14 +1651,15 @@ const RPC=['#f6d365','#f08a1c','#c0301c','#5c0a14'],rpCol=n=>RPC[Math.min(n,4)-1
 function rpData(){return RPD||(RPD=(async()=>{const I=await bnIndex();if(!I.rep)throw new Error(I.err||'ยังไม่มีข้อมูล');
  const r=await fetch(BN_BASE+'rep.json?v='+bnHash(I.rep.sig));if(!r.ok)throw new Error('HTTP '+r.status);
  const f=await r.json(),dy=I.ar.map(a=>I.st.map(s=>dyAS(a,s))),R=[];
+ const K=f.n||7,o8=K===8?1:0; // n 8 = มีบิตปีงบที่พบในชุดราย 7 วัน (b4) ต่อจาก mask
  for(const g in f.g){const o=f.g[g],rr=o.r;let y=0,x=0,le=0;
-  for(let i=0;i<rr.length;i+=7){if(rr[i]){y+=rr[i];x=rr[i+1]}else x=le+rr[i+1];const n=rr[i+2];le=x+n;
+  for(let i=0;i<rr.length;i+=K){if(rr[i]){y+=rr[i];x=rr[i+1]}else x=le+rr[i+1];const n=rr[i+2];le=x+n;
    const e0=o.x0+x*o.px,e1=e0+n*o.px,n0=o.y0-y*o.px,n1=n0-o.px,q=[[e0,n0],[e1,n0],[e1,n1],[e0,n1]].flatMap(([E,N])=>bnM(bnLL(E,N,o.z)));
-   R.push({n,m:rr[i+3],c:rpN(rr[i+3]),a:rr[i+4],s:rr[i+5],cl:rr[i+6],q,bb:[Math.min(q[0],q[6]),Math.min(q[1],q[3]),Math.max(q[2],q[4]),Math.max(q[5],q[7])],dy:dy[rr[i+4]][rr[i+5]]})}}
+   const a=rr[i+4+o8],s=rr[i+5+o8];R.push({n,m:rr[i+3],b4:o8?rr[i+4]:-1,c:rpN(rr[i+3]),a,s,cl:rr[i+6+o8],q,bb:[Math.min(q[0],q[6]),Math.min(q[1],q[3]),Math.max(q[2],q[4]),Math.max(q[5],q[7])],dy:dy[a][s]})}}
  R.sort((a,b)=>a.c-b.c); // ไหม้หลายปีวาดทับทีหลัง
  // ช่วงข้อมูลจริงของแต่ละปีงบ (ปีงบแรก/ล่าสุดอาจไม่ครบปี)
  const span={};[...I.periods,...I.cls].forEach(p=>{const F=bnFY(p),a=bnDay(p.d0),b=bnDay(p.d1),s=span[F]||(span[F]=[a,b]);s[0]=Math.min(s[0],a);s[1]=Math.max(s[1],b)});
- return RPV={I,fy:f.fy,R,span}})().catch(e=>{RPD=null;throw e}))}
+ return RPV={I,fy:f.fy,R,span,hasB4:!!o8}})().catch(e=>{RPD=null;throw e}))}
 function rpURL(){return'brep://{z}/{x}/{y}?m='+(S.rpm||2)+'&x='+(S.xdy?1:0)}
 maplibregl.addProtocol('brep',async p=>{
  const m=p.url.match(/^brep:\/\/(\d+)\/(\d+)\/(\d+)\?m=(\d)&x=(\d)/),z=+m[1],tx=+m[2],ty=+m[3],mn=+m[4],xd=m[5]==='1',D=await rpData(),W=256*2**z,ox=tx*256,oy=ty*256,
@@ -1674,6 +1675,8 @@ async function LR(){const on=!!S.rep,vis=b=>map.getLayer('brep')&&map.setLayoutP
  if(!RPV)$('#rp-a').innerHTML='<span class="sm">กำลังโหลด…</span>';
  let D;try{D=await rpData()}catch(e){$('#rp-a').innerHTML='<span class="sm">โหลดข้อมูลพื้นที่เผาซ้ำซากไม่สำเร็จ ('+esc(e.message)+')</span>';vis(false);return}
  rpStats(D)}
+// ไร่ที่ไหม้ในปีงบ F: t = ทุกชุด, b = เฉพาะที่พบในชุดราย 7 วัน (เท่ากับยอดสะสมปีงบของชั้นพื้นที่เผาไหม้) — ตามปุ่มดงใหญ่
+function rpYear(D,F){const i=D.fy.indexOf(F);let t=0,b=0;if(i<0)return{t,b};for(const o of D.R){if((S.xdy&&o.dy)||!(o.m>>i&1))continue;const r=o.n*BNPX;t+=r;if(o.b4>>i&1)b+=r}return{t,b}}
 function rpStats(D){const mn=S.rpm||2,I=D.I,keep=o=>!(S.xdy&&o.dy),cnt={},ar={},st={},cl=[0,0,0],yr=D.fy.map(()=>0);let all=0,rep=0;
  for(const o of D.R){if(!keep(o))continue;const r=o.n*BNPX;all+=r;cnt[o.c]=(cnt[o.c]||0)+r;D.fy.forEach((f,i)=>{if(o.m>>i&1)yr[i]+=r});
   if(o.c>=Math.max(2,mn)){rep+=r;ar[o.a]=(ar[o.a]||0)+r;st[o.s]=(st[o.s]||0)+r;cl[o.cl===1?0:o.cl?1:2]+=r}}
@@ -1687,8 +1690,8 @@ function rpStats(D){const mn=S.rpm||2,I=D.I,keep=o=>!(S.xdy&&o.dy),cnt={},ar={},
   +(rep?`<div class="sm" style="margin-top:6px">ที่ไหม้ซ้ำแยกประเภท: <b style="color:${BCC[0]}">ป่าไม้ ${nf(cl[0])}</b> · เกษตร ${nf(cl[1])}${cl[2]?' · ไม่ทราบประเภท '+nf(cl[2]):''} ไร่</div>`
    +`<div class="sm" style="margin-top:6px">ตามพื้นที่อนุรักษ์ (ไร่ที่ไหม้ซ้ำ)</div><div class="bna">${rows(ar,i=>I.ar[i]==='นอกพื้นที่อนุรักษ์'?I.ar[i]:paShort(I.ar[i]))}</div>`
    +`<div class="sm" style="margin-top:6px">ตามพื้นที่รับผิดชอบสถานีฯ (ไร่ที่ไหม้ซ้ำ)</div><div class="bna">${rows(st,i=>I.st[i]==='ไม่มี'?NOST:I.st[i].replace('สถานีควบคุมไฟป่า','สถานีฯ '))}</div>`:'')
-  +`<div class="sm" style="margin-top:6px">ไร่ที่ไหม้รายปีงบ: ${D.fy.map((f,i)=>f+' '+nf(yr[i])).join(' · ')}</div>`
-  +`<p class="note" style="margin-left:0">ปีงบที่มีข้อมูล: ${esc(fyl)} — ปีงบแรกและปีงบล่าสุดยังไม่ครบปี · ข้อมูลระบบตามรอยเผาเริ่ม ธ.ค. 66 · ปีงบ 2567 มีแค่ภาพรายเดือน/รายฤดู ส่วนตั้งแต่ ม.ค. 68 มีราย 7 วันด้วย จึงตรวจพบรอยเล็กได้มากกว่า</p>`}
+  +`<div class="sm" style="margin-top:6px">ไร่ที่ไหม้รายปีงบ (ไม่นับซ้ำในปีเดียวกัน)</div><div class="rpy">${D.fy.map(f=>{const y=rpYear(D,f),x=y.t-y.b;return`<div><b>${f}</b><span>${nf(y.t)} ไร่</span><em>${!D.hasB4?'':!y.b?'รายเดือน/รายฤดูอย่างเดียว (ยังไม่มีราย 7 วัน)':x<.5?'= ยอดสะสมในชั้นพื้นที่เผาไหม้':'ราย 7 วัน '+nf(y.b)+' + เฉพาะรายเดือน/รายฤดู '+nf(x)}</em></div>`}).join('')}</div>`
+  +`<p class="note" style="margin-left:0"><b>ทำไมยอดรายปีอาจไม่เท่ากับชั้นพื้นที่เผาไหม้:</b> ทั้งสองชั้นมาจากระบบตามรอยเผา (สสน.) ชุดเดียวกัน แต่ยอดสะสมปีงบในชั้นพื้นที่เผาไหม้ใช้<b>ภาพราย 7 วันอย่างเดียว</b> (ต้นทางเริ่ม ม.ค. 68) ส่วนชั้นนี้<b>รวมภาพรายเดือน/รายฤดูแยกป่า-เกษตรด้วย</b> (เริ่ม ธ.ค. 66) เพื่อย้อนได้หลายปี — ปีที่มีราย 7 วันครบทั้งปีตัวเลขจะเท่ากัน ปีที่ราย 7 วันยังไม่มีหรือมีไม่ครบปีชั้นนี้จะมากกว่า<br>ปีงบที่มีข้อมูล: ${esc(fyl)} — ปีงบแรกและปีงบล่าสุดยังไม่ครบปี · ภาพราย 7 วันจับรอยเล็กได้มากกว่ารายเดือน ปีที่มีแต่รายเดือน/รายฤดูจึงอาจได้ตัวเลขต่ำกว่าจริง</p>`}
 // ข้อความในป๊อปอัปเมื่อแตะแผนที่ตรงพื้นที่เผาซ้ำซาก
 function rpAt(ll){const D=RPV;if(!S.rep||!D)return'';const mn=S.rpm||2,[x,y]=bnM([ll.lng,ll.lat]),tol=3/(256*2**map.getZoom());
  let o=null;for(const r of D.R)if(r.c>=mn&&!(S.xdy&&r.dy)&&x>=r.bb[0]-tol&&x<=r.bb[2]+tol&&y>=r.bb[1]-tol&&y<=r.bb[3]+tol&&(!o||r.c>o.c))o=r;if(!o)return'';
@@ -1851,7 +1854,7 @@ async function LB(){ // เรียกจาก apply() และเมื่�
  const C=bnIsC(BNK);$('#bn-lg').innerHTML=(C?I.cn.map((n,i)=>`<div><i style="background:${BCC[i]}"></i>${esc(n)}</div>`).join(''):'<div><i style="background:#f5a623"></i>พบ 1 ครั้ง</div><div><i style="background:#e8541c"></i>2 ครั้ง</div><div><i style="background:#a3171b"></i>3 ครั้งขึ้นไป</div>')+(BNH?'<div><i style="background:'+BNV+'"></i>ไม่พบจุดความร้อน</div>':'');
  const s=map.getSource('burn'),u=bnURL();if(s&&s.tiles&&s.tiles[0]!==u)s.setTiles([u]);vis(true);
  const k=BNK,F=bnFYk(I,k);$('#bn-a').innerHTML='<span class="sm">กำลังโหลด…</span>';
- try{const [D,DF]=await Promise.all([bnData(k),bnData((C?'cfy':'fy')+F)]);if(k!==BNK)return;BNCUR=D;bnStats(D,DF,F)}
+ try{const [D,DF]=await Promise.all([bnData(k),bnData((C?'cfy':'fy')+F)]);if(k!==BNK)return;BNCUR=D;bnStats(D,DF,F);bnRpNote()}
  catch(e){$('#bn-a').innerHTML='<span class="sm">โหลดข้อมูลไม่สำเร็จ ('+esc(e.message)+')</span>'}}
 function bnSel(I){const sel=$('#bn-s'),fys=[...new Set(I.periods.map(bnFY))].sort((a,b)=>b-a),opt=(v,t)=>`<option value="${v}">${esc(t)}</option>`,
   ss=I.cls.filter(p=>p.p.length>6).reverse(),ms=I.cls.filter(p=>p.p.length===6).reverse();
@@ -1871,12 +1874,15 @@ function bnStats(D,DF,F){
  const bars=DF.pr,val=b=>S.xdy?b.x:b.all,mx=Math.max(1,...bars.map(val)),sea=I.cls.find(p=>p.p.length>6&&bnFY(p)===F);
  const bar=b=>{const v=val(b),k=(D.C?'c':'')+b.p.p,f=D.C?(S.xdy?b.cx:b.ca)[1]:0,pf=v?Math.round(f/v*100):0;
   return`<button data-p="${k}" class="${k===BNK?'on':''}${v?'':' z'}" style="height:${Math.max(2,Math.round(v/mx*44))}px${D.C&&v?`;background:linear-gradient(to top,${BCC[0]} ${pf}%,#f2b84b ${pf}%)`:''}" title="${esc(bnLab(b.p))} · ${nf(v)} ไร่${D.C?' (ป่าไม้ '+nf(f)+')':''}" aria-label="${esc(bnLab(b.p))} ${nf(v)} ไร่"></button>`};
- $('#bn-a').innerHTML=`<div class="bnh">${esc(ttl)}: <b>${nf(t)} ไร่</b> <span class="sm">(${nf(t/625,1)} ตร.กม.)</span></div>`+(miss?`<div class="sm" style="color:#b45309">${D.ps.length>1?miss+' รอบในช่วงนี้':'รอบนี้'}ต้นทางไม่มีภาพบางส่วนของพื้นที่ (เมฆมาก/ไม่มีภาพ) ตัวเลขจริงอาจมากกว่านี้</div>`:'')+(t?bnHsLine(D,t,th):'')+
+ $('#bn-a').innerHTML=`<div class="bnh">${esc(ttl)}: <b>${nf(t)} ไร่</b> <span class="sm">(${nf(t/625,1)} ตร.กม.)</span></div>`+(/^fy/.test(D.k)?`<div class="sm" id="bn-rp" data-f="${F}" style="margin-bottom:4px">ยอดสะสมปีงบใช้ภาพราย 7 วันอย่างเดียว (ต้นทางเริ่ม ม.ค. 68)</div>`:'')+(miss?`<div class="sm" style="color:#b45309">${D.ps.length>1?miss+' รอบในช่วงนี้':'รอบนี้'}ต้นทางไม่มีภาพบางส่วนของพื้นที่ (เมฆมาก/ไม่มีภาพ) ตัวเลขจริงอาจมากกว่านี้</div>`:'')+(t?bnHsLine(D,t,th):'')+
   (t?(D.C?`<div class="bna">${rows(cl,i=>I.cn[i-1],i=>BCC[i-1])}</div><div class="sm" style="margin-top:6px">ตามพื้นที่อนุรักษ์ (ไร่)</div>`:'')+
    `<div class="bna">${rows(ar,i=>I.ar[i]==='นอกพื้นที่อนุรักษ์'?I.ar[i]:paShort(I.ar[i]))}</div><div class="sm" style="margin-top:6px">ตามพื้นที่รับผิดชอบสถานีฯ (ไร่)</div><div class="bna">${rows(st,i=>I.st[i]==='ไม่มี'?NOST:I.st[i].replace('สถานีควบคุมไฟป่า','สถานีฯ '))}</div>`
    :'<div class="sm">ไม่พบรอยเผาไหม้ในแนวเขต'+(S.xdy?' (ไม่รวม ขสป.ดงใหญ่)':'')+'</div>')+
   (bars.length?`<div class="sm" style="margin-top:8px">ปีงบ ${F} ${D.C?'รายเดือน (ไร่ · แดง = ป่าไม้, ส้ม = เกษตร)':'รายรอบ (ไร่)'} · แตะแท่งเพื่อดู</div><div class="bnc">${bars.map(bar).join('')}</div>`+
    `<div class="bnx"><span>${esc(D.C?bnMon(bars[0].p.d0):dShort(bnDay(bars[0].p.d0)))}</span>${D.C?(sea?`<a role="button" tabindex="0" data-p="c${sea.p}">ดูทั้งฤดูฝุ่น</a>`:''):`<a role="button" tabindex="0" data-p="fy${F}">ดูสะสมทั้งปีงบ</a>`}<span>${esc(D.C?bnMon(bars[bars.length-1].p.d0):dShort(bnDay(bars[bars.length-1].p.d1)))}</span></div>`:'')}
+// หมายเหตุใต้ยอดสะสมปีงบ: เทียบกับยอดปีเดียวกันในชั้นพื้นที่เผาซ้ำซาก (รวมรายเดือน/รายฤดู) — โหลด rep.json เบื้องหลังเมื่อยังไม่มี
+function bnRpNote(){const e=$('#bn-rp');if(!e)return;const F=+e.dataset.f;rpData().then(D=>{const el=$('#bn-rp');if(!el||+el.dataset.f!==F)return;const y=rpYear(D,F);if(!y.t)return;
+ el.innerHTML=y.t-y.b<.5?'ยอดสะสมปีงบใช้ภาพราย 7 วันอย่างเดียว · ตรงกับยอดปีงบ '+F+' ในชั้นพื้นที่เผาซ้ำซาก':'ยอดสะสมปีงบใช้ภาพราย 7 วันอย่างเดียว (ต้นทางเริ่ม ม.ค. 68) · ชั้นพื้นที่เผาซ้ำซากรวมภาพรายเดือน/รายฤดูด้วย จึงนับปีงบ '+F+' ได้ <b>'+nf(y.t)+'</b> ไร่ ('+(y.b?'มากกว่า '+nf(y.t-y.b)+' ไร่ = รอยที่พบเฉพาะในภาพรายเดือน/รายฤดู':'ปีนี้ยังไม่มีภาพราย 7 วัน')+')'}).catch(()=>{})}
 // ข้อความในป๊อปอัปเมื่อแตะแผนที่ตรงรอยเผาไหม้ (ยอมคลาด ~3 px เพราะพิกเซล 20 ม. เล็กมากเมื่อซูมไกล)
 function bnAt(ll){const D=BNCUR;if(!S.burn||!D||D.k!==BNK)return'';const [x,y]=bnM([ll.lng,ll.lat]),tol=3/(256*2**map.getZoom());
  const o=D.R.find(o=>!(S.xdy&&o.dy)&&x>=o.bb[0]-tol&&x<=o.bb[2]+tol&&y>=o.bb[1]-tol&&y<=o.bb[3]+tol);if(!o)return'';
