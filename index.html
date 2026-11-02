@@ -1905,7 +1905,8 @@ function sheet(el,h){let y0=0,h0=0,mv=0;
  h.addEventListener('click',e=>{if(h._m){e.stopImmediatePropagation();e.preventDefault();h._m=0}},true)}
 sheet($('#left'),$('#grab'));$$('.gb').forEach(g=>sheet(g.parentElement,g));
 // มือถือ: คอลัมน์ปุ่มควบคุมอยู่เหนือ 35vh+8 px จากขอบล่าง — แผ่นล่าง (แผงซ้าย/การ์ดสถิติ, ชั้นข้อมูล, รายละเอียดจุด) ที่ขอบบนสูงกว่านั้นจะทับปุ่ม จึงซ่อนปุ่มไว้จนกว่าแผ่นจะลดลง/ปิด
-function ctlFit(){const yb=innerHeight*.65-8;document.body.classList.toggle('ctlh',innerWidth<=767&&['#left','#right','#dp'].some(q=>{const r=$(q).getBoundingClientRect();return r.height>0&&r.top<yb-4}))}
+// ระยะจากขอบล่างอ่านจาก CSS ของ #ctl (35vh+8) — ห้ามคิดจาก innerHeight: Chrome มือถือ vh = ความสูงตอนแถบที่อยู่ซ่อน > innerHeight ตอนแถบแสดง เคยทำให้ซ่อนปุ่มตั้งแต่เปิดหน้า (S25 Ultra)
+function ctlFit(){const yb=innerHeight-(parseFloat(getComputedStyle($('#ctl')).bottom)||0);document.body.classList.toggle('ctlh',innerWidth<=767&&['#left','#right','#dp'].some(q=>{const r=$(q).getBoundingClientRect();return r.height>0&&r.top<yb-4}))}
 if(window.ResizeObserver){const o=new ResizeObserver(ctlFit);['#left','#right','#dp'].forEach(q=>o.observe($(q)))}addEventListener('resize',ctlFit);ctlFit();
 
 /* ================= เฟส 4a: สถิติย้อนหลัง · จุดความร้อนย้อนหลัง · ย้อนดูตามวัน · นำเข้าข้อมูล ================= */
