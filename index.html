@@ -2173,7 +2173,7 @@ $$('#ctl .cb').forEach(b=>b.dataset.tip=b.getAttribute('aria-label'));
 let ttEl=null,ttT=0;
 function ttShow(el){const c=el.closest('#ctl'),g=el.dataset.tipel&&$('#'+el.dataset.tipel);TT.innerHTML=(el.dataset.tip?'<div class="ttl">'+esc(el.dataset.tip)+'</div>':'')+(g&&g.innerHTML?'<div class="ttl">'+g.innerHTML+'</div>':'');if(!TT.textContent)return ttHide();
  ttEl=el;TT.className=c?'on one':'on';const r=el.getBoundingClientRect(),w=TT.offsetWidth,h=TT.offsetHeight,W=innerWidth,H=innerHeight;let x,y;
- if(c){x=r.left+r.width/2-w/2;y=r.top-h-8}else if(W>767&&el.closest('#right')){x=$('#right').getBoundingClientRect().left-w-10;y=r.top+r.height/2-h/2}else{x=r.left;y=r.bottom+6;if(y+h>H-8)y=r.top-h-6}
+ if(c){x=r.left+r.width/2-w/2;y=r.top-h-8}else{x=r.left;y=r.top-h-6;if(y<8)y=r.bottom+6} // แถวในแผงชั้นข้อมูล: เหนือแถวนั้น ชิดซ้ายของแถว (ผู้ใช้ขอ 2 พ.ย. 69) ที่ไม่พอจึงไว้ใต้แถว
  TT.style.left=Math.max(8,Math.min(x,W-w-8))+'px';TT.style.top=Math.max(8,Math.min(y,H-h-8))+'px'}
 function ttHide(){ttEl=null;TT.className='';clearTimeout(ttT)}
 document.addEventListener('pointerover',e=>{if(e.pointerType!=='mouse')return;const el=e.target.closest('[data-tip],[data-tipel]');if(el!==ttEl)el?ttShow(el):ttHide()});
