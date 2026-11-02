@@ -340,6 +340,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 .wyb-m{flex:none;display:inline-flex;border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:2px;white-space:nowrap}.wyb-m button{border:0;background:none;border-radius:99px;padding:3px 10px;font:inherit;font-size:12px;color:var(--mut);cursor:pointer}
 .wyb-m button[aria-pressed=true]{background:#1f2f5c;color:#fff;font-weight:600}.wyb-m button[data-m="1"][aria-pressed=true]{background:#fff4d6;color:#7a5200;box-shadow:inset 0 0 0 1px #e0b44a}#wyb .cb{flex:none;width:30px;height:30px;box-shadow:none}
 @media(max-width:767px){#wyb{bottom:calc(35vh + 8px);border-radius:16px;flex-wrap:wrap;row-gap:4px}.wyb-c{order:9;flex-basis:100%}#wyb>b{flex:1}}
+#wyb.wr{border-radius:16px;flex-wrap:wrap;row-gap:4px}#wyb.wr .wyb-c{order:9;flex-basis:100%;flex-wrap:wrap}#wyb.wr .wyb-m{margin-left:auto}
 </style>
 </head>
 <body>
@@ -1459,7 +1460,7 @@ function radLayer(){if(!RV||!map.getSource('cons'))return;const ids=RV.f.map(f=>
 function rdStop(){clearInterval(RVP);RVP=0;const b=$('#rd-pl');b.textContent='▶';b.setAttribute('aria-label','เล่นภาพเคลื่อนไหว')}
 /* --- หน้าพยากรณ์อากาศ Windy (Embed ฟรี ไม่ใช้คีย์) เปิดที่ตำแหน่ง/ซูมเดียวกับแผนที่หลัก · ลิงก์ตรง ?wy=<ชั้น> --- */
 // ชื่อชั้นที่ใช้ได้ใน Embed ตรวจแล้ว 1 พ.ย. 69 (fwi = "ไฟลุกลาม" ดัชนีอันตรายไฟป่า; fireDanger/fires/drought ไม่มี — ตกเป็นลม)
-const WYO=[['wind','ลม'],['fwi','ความเสี่ยงไฟป่า'],['radar','เรดาร์'],['satellite','ดาวเทียม'],['rain','ฝน'],['temp','อุณหภูมิ'],['rh','ความชื้น'],['pm2p5','ฝุ่น PM2.5','cams']];let WYK='wind',WYD=false; // WYD = แสดงตารางพยากรณ์
+const WYO=[['wind','ลม'],['rain','ฝน'],['temp','อุณหภูมิ'],['rh','ความชื้น'],['radar','เรดาร์'],['satellite','ดาวเทียม'],['pm2p5','PM2.5','cams'],['fwi','ความเสี่ยงไฟป่า']]; // ลำดับตามผู้ใช้ 2 พ.ย. 69let WYK='wind',WYD=false; // WYD = แสดงตารางพยากรณ์
 try{WYD=localStorage.getItem('fm-wyd')==='1'}catch(e){}
 function wyLoad(){const o=WYO.find(a=>a[0]===WYK)||WYO[0],c=map.getCenter(),z=Math.max(5,Math.min(11,Math.round(map.getZoom()+1))),la=c.lat.toFixed(3),lo=c.lng.toFixed(3); // ซูม Leaflet = ซูม MapLibre + 1
  $('#wy-f').src=`https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C&metricWind=km/h&zoom=${z}&overlay=${o[0]}&product=${o[2]||'ecmwf'}&level=surface&lat=${la}&lon=${lo}&detailLat=${la}&detailLon=${lo}&detail=${WYD}&message=true`;
@@ -1499,12 +1500,13 @@ function wlSame(){const f=WLB.querySelector('iframe:last-child');if(!f)return fa
 function wlUI(){const o=WYO.find(a=>a[0]===S.wyo)||WYO[0],btn=a=>`<button data-o="${a[0]}" aria-pressed="${a[0]===o[0]}">${a[1]}</button>`;
  if(!$('#wyl-c').childElementCount){$('#wyl-c').innerHTML=WYO.map(btn).join('');$('#wyb-c').innerHTML=WYO.map(btn).join('')}
  $$('#wyl-c button,#wyb-c button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.o===o[0]));$$('#wyl-t button').forEach(b=>b.classList.toggle('on',b.dataset.v===WLcal));
- tx('wyb-n',WLover?'ซูมใกล้เกินที่ Windy แสดงได้ · ซูมออกเพื่อดู':WLcal==='now'?'':`พยากรณ์ +${WLcal} ชม.`);$('#wyb-n').hidden=!WLover&&WLcal==='now';$('#wyl-o').value=S.wyop;tx('wyl-ov',S.wyop+'%')}
+ tx('wyb-n',WLover?'ซูมใกล้เกินที่ Windy แสดงได้ · ซูมออกเพื่อดู':WLcal==='now'?'':`พยากรณ์ +${WLcal} ชม.`);$('#wyb-n').hidden=!WLover&&WLcal==='now';$('#wyl-o').value=S.wyop;tx('wyl-ov',S.wyop+'%');wybFit()}
 function wybPos(){const f=$('#wyb');if(f.hidden)return;const c=$('#ctl').getBoundingClientRect();
  if(innerWidth<768){Object.assign(f.style,{left:'12px',right:(innerWidth-c.left+8)+'px',bottom:''});return wybScale()} // มือถือ: ปุ่มควบคุมเป็นคอลัมน์ขวา
  const l=$('#left').getBoundingClientRect().right+12,r=innerWidth-c.left+12;
  if(innerWidth-l-r>=700)Object.assign(f.style,{left:l+'px',right:r+'px',bottom:''});else Object.assign(f.style,{left:l+'px',right:'12px',bottom:(innerHeight-c.top+10)+'px'}); // แคบ = ยกขึ้นเหนือแถวปุ่มควบคุม
- wybScale()}
+ wybScale();wybFit()}
+function wybFit(){const f=$('#wyb'),c=$('#wyb-c');f.classList.remove('wr');if(f.hidden||innerWidth<768)return;if(c.scrollWidth>c.clientWidth+1){f.classList.add('wr');wybScale()}} // ชิปไม่พอแถวเดียว (ถูกบัง) = ขึ้นแถวที่สอง
 function wybScale(){const f=$('#wyb'),e=$('.maplibregl-ctrl-scale');if(f.hidden||!e)return;const a=f.getBoundingClientRect(),b=e.getBoundingClientRect(),L=Math.min(b.left,b.right-110); // กันแถบมาตราส่วนยาวขึ้นตามซูม (สูงสุด ~100 px)
  if(a.bottom<=b.top-4||a.top>=b.bottom+4||a.right<=L-8||a.left>=b.right+8)return;
  if(L-8-a.left>=300)f.style.right=(innerWidth-L+8)+'px';else f.style.bottom=(innerHeight-b.top+6)+'px'} // ไม่บังมาตราส่วน: หดจากขวา ถ้าที่ไม่พอยกขึ้นเหนือมาตราส่วน
