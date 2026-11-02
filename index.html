@@ -156,6 +156,8 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
  #left.up{max-height:80vh}
  #grab{display:block;width:44px;height:5px;border-radius:3px;background:#b8bdcc;margin:0 auto 8px;border:0;padding:10px 0;background-clip:content-box;min-height:24px}
  #ctl{bottom:calc(35vh + 8px);flex-direction:column-reverse}
+ /* แผ่นล่างที่สูงกว่าคอลัมน์ปุ่ม (ชั้นข้อมูล 70vh, รายละเอียดจุด 72vh, แผงซ้ายที่ขยาย 80vh) เปิดอยู่ = ซ่อนปุ่มควบคุม ไม่ให้ทับขอบขวาของแผ่น — แต่ละแผ่นมีปุ่มปิดของตัวเอง */
+ body:has(#right.open,#dp.open,#left.up) #ctl{display:none}
  .zm{flex-direction:column}
  #right{left:8px;right:8px;width:auto;top:auto;bottom:0;max-height:70vh;border-radius:22px 22px 0 0}
  #hint,#attr{display:none}
