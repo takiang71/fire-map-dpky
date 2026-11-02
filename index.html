@@ -95,7 +95,11 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .rh a{font-size:12px;color:var(--navy);text-decoration:underline;cursor:pointer}
 .rb{overflow:auto;padding:0 16px 12px;scrollbar-width:thin}
 .rb h3{margin:14px 0 6px;font-size:14px;color:var(--navy)}
-.row{display:flex;align-items:center;gap:10px;min-height:40px;font-size:14px}.row b{flex:1;font-weight:600}
+.row{display:flex;align-items:center;gap:10px;min-height:40px;font-size:14px}.row[data-tip]>b,.row[data-tipel]>b{cursor:help}
+/* ป้ายเมื่อชี้เมาส์ (#tt สร้างใน JS): ปุ่มควบคุมแผนที่ + คำอธิบายแถวในแผงชั้นข้อมูล */
+#tt{position:fixed;left:-999px;top:0;z-index:60;max-width:300px;padding:8px 11px;border-radius:10px;background:rgba(24,31,48,.95);color:#fff;font-size:12px;line-height:1.55;box-shadow:0 6px 20px rgba(0,0,0,.25);pointer-events:none;opacity:0;transition:opacity .12s}#tt.on{opacity:1}#tt.one{white-space:nowrap;padding:5px 10px}#tt .ttl{margin-top:5px}#tt .ttl:first-child{margin-top:0}
+/* มาตราส่วน */
+.fsc.maplibregl-ctrl-scale{box-sizing:content-box;background:var(--glass);border:0;border-radius:8px;padding:5px 10px 3px;color:var(--ink);font-size:10.5px;line-height:1.2}.fsb{display:flex;height:4px;border:1px solid #2b3245}.fsb i{flex:1;background:#fff}.fsb i:nth-child(odd){background:#2b3245}.fsl{position:relative;height:13px;margin-top:2px}.fsl span{position:absolute;left:0;white-space:nowrap}.fsl span[style]{transform:translateX(-50%)}.fsl span:last-child[style]{transform:translateX(-100%)}.row b{flex:1;font-weight:600}
 .sub{margin-left:30px;font-size:13px;gap:8px;min-height:32px}.sub span{flex:1}
 .sub svg{width:16px;height:16px}
 .note{font-size:12px;color:var(--mut);margin:0 0 6px 30px}
@@ -135,8 +139,8 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .zm{display:flex;flex-direction:row;gap:8px}
 #hint{position:fixed;left:auto;right:calc(470px + env(safe-area-inset-right));max-width:420px;bottom:calc(30px + env(safe-area-inset-bottom));font-size:12px;color:var(--mut);background:var(--glass);padding:3px 12px;border-radius:99px;z-index:4;text-align:center;pointer-events:none;max-width:46vw}
 #attr{position:fixed;left:50%;transform:translateX(-50%);bottom:0;max-width:calc(100% - 20px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:2px 10px calc(2px + env(safe-area-inset-bottom));font-size:10px;line-height:1.4;color:var(--mut);background:var(--glass);border-radius:8px 8px 0 0;z-index:4}
-/* เดสก์ท็อป: ทั้งแผงเลื่อนรวมกัน จบห่างขอบล่าง 12 px · ขณะแสดงการ์ดจุดความร้อน (การ์ดสุดท้าย x 16–351 มุม 20) mask ขอบล่างของแผงเป็นมุมมนของการ์ด → ท้ายการ์ดมนเสมอไม่ว่าเลื่อนถึงไหน · แถบอ้างอิงข้อมูลอยู่กลางพื้นที่ขวาของแผงซ้าย ไม่ทับการ์ด */
-@media(min-width:768px){#left:not(.hm){max-height:100%;padding-bottom:12px}#left:not(.hm):has(>#pcard:not([hidden])){-webkit-mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);-webkit-mask-size:100% calc(100% - 32px),295px 20px,20px 20px,20px 20px;-webkit-mask-position:0 0,left 36px bottom 12px,left 16px bottom 12px,left 331px bottom 12px;-webkit-mask-repeat:no-repeat;mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);mask-size:100% calc(100% - 32px),295px 20px,20px 20px,20px 20px;mask-position:0 0,left 36px bottom 12px,left 16px bottom 12px,left 331px bottom 12px;mask-repeat:no-repeat}#attr{left:calc(50% + 210px);max-width:calc(100% - 440px)}}
+/* เดสก์ท็อป: ทั้งแผงเลื่อนรวมกัน จบห่างขอบล่าง 12 px · ขณะแสดงการ์ดจุดความร้อน (การ์ดสุดท้าย กว้างเต็มเนื้อแผง x 16 ถึงขอบขวา−24 มุม 20) mask ขอบล่างของแผงเป็นมุมมนของการ์ด → ท้ายการ์ดมนเสมอไม่ว่าเลื่อนถึงไหน · แถบอ้างอิงข้อมูลอยู่กลางพื้นที่ขวาของแผงซ้าย ไม่ทับการ์ด */
+@media(min-width:768px){#left:not(.hm){max-height:100%;padding-bottom:12px}#left:not(.hm):has(>#pcard:not([hidden])){-webkit-mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);-webkit-mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;-webkit-mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;-webkit-mask-repeat:no-repeat;mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;mask-repeat:no-repeat}#attr{left:calc(50% + 210px);max-width:calc(100% - 440px)}#left>#pcard{width:auto}#hint{right:auto;left:calc((min(420px,100%) + 100% - 370px) / 2);transform:translateX(-50%);max-width:calc(100% - min(420px,100%) - 400px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
 .maplibregl-ctrl-bottom-right{bottom:calc(86px + env(safe-area-inset-bottom))!important;right:max(6px,env(safe-area-inset-right))!important}
 #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--on);color:#fff;border-radius:12px;padding:8px 16px;font-size:13px;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s}
 #toast.show{opacity:1}
@@ -432,83 +436,82 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div class="sg" id="imgsrc" hidden aria-label="แหล่งภาพดาวเทียม"><button data-i="google">Google</button><button data-i="esri">Esri</button><button data-i="s2">Sentinel-2</button><button data-i="day">NOAA-20</button></div>
   <div id="imgtime" hidden><div class="itr"><button id="it-p" aria-label="ภาพก่อนหน้า">‹</button><input type="range" id="it-r" list="it-l" aria-label="เลื่อนดูภาพย้อนหลัง"><datalist id="it-l"></datalist><button id="it-n" aria-label="ภาพถัดไป">›</button></div>
    <div class="itv"><b id="it-v"></b><input type="date" id="it-d" aria-label="เลือกวันที่ภาพ"><a id="it-0" role="button" tabindex="0">ล่าสุด</a></div></div>
-  <div class="row"><svg class="i" viewBox="0 0 24 24"><path d="M3 20l6-10 4 6 3-4 5 8z"/></svg><b>มุมมอง 3 มิติ</b><button class="sw" data-k="d3" role="switch" aria-label="มุมมอง 3 มิติ"></button></div>
+  <div class="row" data-tip="ภูมิประเทศนูนต่ำ เอียงและหมุนแผนที่ได้"><svg class="i" viewBox="0 0 24 24"><path d="M3 20l6-10 4 6 3-4 5 8z"/></svg><b>มุมมอง 3 มิติ</b><button class="sw" data-k="d3" role="switch" aria-label="มุมมอง 3 มิติ"></button></div>
 
-  <h3>ไฟและควัน</h3>
-  <div class="row"><svg class="i" style="color:var(--fire)" viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg><b>จุดความร้อน</b><button class="sw" data-k="hot" role="switch" aria-label="จุดความร้อน"></button></div>
+  <h3>ไฟป่า</h3>
+  <div class="row" data-tip="ดาวเทียม VIIRS 375 ม. (NOAA-20, NOAA-21, Suomi NPP) จาก Land Fire Alerts Thailand (WFSRU/ThaiREN) · แสดง 48 ชม. ล่าสุด เฉพาะในแนวเขตกลุ่มป่า · ดึงข้อมูลใหม่อัตโนมัติทุก 5 นาทีขณะเปิดดู"><svg class="i" style="color:var(--fire)" viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg><b>จุดความร้อน</b><button class="sw" data-k="hot" role="switch" aria-label="จุดความร้อน"></button></div>
   <div class="sats" data-sats role="group" aria-label="เลือกดาวเทียมที่แสดง" style="margin:0 0 6px"></div>
   <div class="row sub"><svg class="i" style="color:#e0301e" viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg><span>ภายใน 6 ชม.</span><em id="c-r"></em></div>
   <div class="row sub"><svg class="i" style="color:#f08a1c" viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg><span>6-24 ชม.</span><em id="c-o"></em></div>
   <div class="row sub"><svg class="i" style="color:#9a6a4a" viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg><span>เก่ากว่า 24 ชม.</span><em id="c-b"></em></div>
-  <p class="note">ดาวเทียม VIIRS ความละเอียด 375 ม. (NOAA-20/21, Suomi NPP) จาก Land Fire Alerts Thailand (WFSRU/ThaiREN) หน้าเว็บดึงข้อมูลใหม่อัตโนมัติทุก 5 นาที (ขณะเปิดดูอยู่) · มุมมอง 3 มิติ ความสูงแท่ง = ความแรงไฟ (FRP)</p>
   <button class="lk" id="rf">↻ ดึงข้อมูลใหม่</button>
-  <div class="row"><svg class="i" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 10-3-3M3 12h16a3 3 0 11-3 3M3 16h7"/></svg><b>ทิศทางลมปัจจุบัน</b><button class="sw" data-k="wind" role="switch" aria-label="ทิศทางลม"></button></div>
-  <div id="wbox" hidden><div class="wscale"><span>ลมเบา</span><span class="wl"><i style="width:8px"></i><i style="width:14px"></i><i style="width:22px"></i><i style="width:32px"></i><i style="width:44px"></i></span><span>ลมแรง</span></div><p class="note">หัวเส้นชี้ไปทางที่ลมพัดไป หางจางๆ ยิ่งยาว = ลมยิ่งแรง แบ่ง 5 ระดับ (ม./วินาที: &lt;1 · 1–2.5 · 2.5–5 · 5–8 · &gt;8) · Open-Meteo ตามบริเวณที่มองเห็น ปรับทุก 15 นาที (ตาราง 7x6 จุด) · <span id="wn">กำลังดึงข้อมูล…</span></p></div>
-  <div class="row"><svg class="i" viewBox="0 0 24 24"><rect x="2" y="8" width="5" height="8" rx="1.500" style="fill:#00E400"/><rect x="9.500" y="8" width="5" height="8" rx="1.500" style="fill:#FFFF00"/><rect x="17" y="8" width="5" height="8" rx="1.500" style="fill:#FF7E00"/></svg><b>ฝุ่น PM2.5 / AQI</b><span class="sm" id="pm-t"></span><button class="sw" data-k="pm" role="switch" aria-label="ฝุ่น PM2.5 AQI"></button></div>
-  <div id="pmbox" hidden><div class="seg" id="pmseg"><button data-v="aqi">AQI (ดัชนีสากล)</button><button data-v="pm">PM2.5 (µg/m³)</button></div>
-   <p class="note">ช่วงเวลา: ค่าปัจจุบัน หรือพยากรณ์ฝุ่นล่วงหน้า (CAMS)</p><div class="chips" id="pmchips"></div><div class="lgd" id="pmlg"></div>
-   <p class="note">สี่เหลี่ยม = สถานีตรวจวัด Air4Thai (กรมควบคุมมลพิษ) PM2.5 ค่าล่าสุด · พื้นผิว = แบบจำลอง CAMS (ข้อมูลต้นทางตาราง ~110 กม. ปรับให้เรียบด้วยการประมาณค่า) ครอบคลุมเพื่อนบ้าน เป็นค่าประมาณ · ใช้ร่วมกับทิศทางลมดูควันข้ามแดน</p></div>
-  <div class="row"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v18M5 8c3-3 11-3 14 0"/></svg><b>อากาศแห้ง เสี่ยงเกิดไฟป่า</b><span class="sm" id="dr-t"></span><button class="sw" data-k="dry" role="switch" aria-label="อากาศแห้ง"></button></div>
-  <div id="drybox" hidden><div class="seg" id="drseg"><button data-v="fwi">ดัชนีไฟป่า FWI</button><button data-v="rh">ความชื้นต่ำสุด</button><button data-v="vpd">ความแห้ง VPD</button></div>
-   <div class="chips" id="drchips"></div><div class="lgd" id="drlg"></div>
-   <div class="lgd"><div><i style="background:#e8741c;border-radius:50%"></i><span style="flex:1">พื้นที่เสี่ยงสูงขึ้นไป (FWI ≥ 75)</span><b id="dr-s1"></b></div><div><i style="background:#c0503c;border-radius:50%"></i><span style="flex:1">เสี่ยงสูงมาก–วิกฤต (FWI ≥ 90)</span><b id="dr-s2"></b></div><div><i style="background:#7e0023;border-radius:50%"></i><span style="flex:1">ความชื้นต่ำสุดในประเทศ</span><b id="dr-s3"></b></div></div>
-   <p class="note">รวมผลอุณหภูมิสูงสุด ความชื้นต่ำสุด ลม และฝน (Chandler Burning Index) · ≥ 75 = เชื้อเพลิงแห้ง ติดไฟง่าย · พยากรณ์รายวัน Open-Meteo (ข้อมูลต้นทางตาราง ~110 กม. ปรับให้เรียบด้วยการประมาณค่า) · ชี้เมาส์บนแผนที่เพื่อดูค่า · <span id="dr-n"></span> · สถิติเป็นสัดส่วนช่องตารางที่อยู่ในกรอบไทยโดยประมาณ</p>
-   <button class="lk" id="dr-r">↻ คำนวณใหม่</button></div>
-
-  <div class="row"><svg class="i" viewBox="0 0 24 24"><defs><linearGradient id="hg"><stop offset="0" stop-color="#ffd84a"/><stop offset=".5" stop-color="#f08a1c"/><stop offset="1" stop-color="#d93a1f"/></linearGradient></defs><rect x="3" y="9" width="18" height="6" rx="3" fill="url(#hg)" stroke="none"/></svg><b>จุดความร้อนย้อนหลัง</b><span class="tag" id="hs-t">–</span><button class="sw" data-k="hist" role="switch" aria-label="จุดความร้อนย้อนหลัง"></button></div>
-  <p class="note">ข้อมูลจากไฟล์ที่นำเข้า (ตอนนี้: Excel ปีงบ 2561-2569) แสดงเป็นจุดหรือความหนาแน่น ตามตัวกรองในการ์ดสถิติ</p><button class="lk" id="hs-o">เปิดการ์ดวิเคราะห์สถิติ →</button>
-  <div class="row"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="8" height="7" style="fill:#f5a623;stroke:none"/><rect x="11" y="5" width="10" height="7" style="fill:#e8541c;stroke:none"/><rect x="6" y="12" width="12" height="7" style="fill:#a3171b;stroke:none"/></svg><b>พื้นที่เผาไหม้</b><span class="tag" id="bn-t">–</span><button class="sw" data-k="burn" role="switch" aria-label="พื้นที่เผาไหม้"></button></div>
+  <div class="row" data-tip="จุดความร้อนของกรมอุทยานแห่งชาติฯ ปีงบ 2561–2569 (Suomi NPP จากไฟล์ Excel) แสดงเป็นจุดหรือความหนาแน่นตามตัวกรองในการ์ดวิเคราะห์สถิติ"><svg class="i" viewBox="0 0 24 24"><defs><linearGradient id="hg"><stop offset="0" stop-color="#ffd84a"/><stop offset=".5" stop-color="#f08a1c"/><stop offset="1" stop-color="#d93a1f"/></linearGradient></defs><rect x="3" y="9" width="18" height="6" rx="3" fill="url(#hg)" stroke="none"/></svg><b>จุดความร้อนย้อนหลัง</b><span class="tag" id="hs-t">–</span><button class="sw" data-k="hist" role="switch" aria-label="จุดความร้อนย้อนหลัง"></button></div>
+  <button class="lk" id="hs-o">เปิดการ์ดวิเคราะห์สถิติ →</button>
+  <div class="row" data-tip="รอยเผาไหม้จากภาพดาวเทียม 20 ม. ระบบตามรอยเผา (สสน.) เฉพาะในพื้นที่อนุรักษ์และพื้นที่รับผิดชอบสถานีฯ · ราย 7 วัน สี = จำนวนครั้งที่พบ (ออกหลังสิ้นรอบ ~9 วัน) หรือแยกป่า/เกษตร รายเดือนและรายฤดู · มีจุดความร้อน = มีจุด VIIRS ห่างไม่เกิน 1 กม. ในช่วงเวลาของรอย · แตะรอยบนแผนที่เพื่อดูรายละเอียด"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="8" height="7" style="fill:#f5a623;stroke:none"/><rect x="11" y="5" width="10" height="7" style="fill:#e8541c;stroke:none"/><rect x="6" y="12" width="12" height="7" style="fill:#a3171b;stroke:none"/></svg><b>พื้นที่เผาไหม้</b><span class="tag" id="bn-t">–</span><button class="sw" data-k="burn" role="switch" aria-label="พื้นที่เผาไหม้"></button></div>
   <div id="bnbox" hidden><select id="bn-s" aria-label="ช่วงเวลาพื้นที่เผาไหม้"></select>
    <div class="lgd" id="bn-lg" style="display:flex;flex-wrap:wrap;column-gap:12px"></div>
    <div id="bn-a"></div>
    <div class="pbt" style="margin:8px 0 6px"><button id="bn-csv" title="ตารางไร่แยกรอบ × พื้นที่อนุรักษ์ × สถานีฯ ของช่วงที่เลือก (สะสมปีงบ = ทุกรอบในปีงบ แยกรอบ — ผลรวมทุกแถวอาจมากกว่ายอดสะสมเพราะพื้นที่ที่ไหม้ซ้ำนับทุกรอบ)"><svg class="i" viewBox="0 0 24 24"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 20h14"/></svg>ดาวน์โหลด CSV</button><button id="bn-pdf"><svg class="i" viewBox="0 0 24 24"><path d="M7 8V3h10v5M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg>รายงาน PDF</button></div>
-   <p class="note" style="margin-left:0">รอยเผาไหม้จากภาพดาวเทียมความละเอียด 20 ม. ระบบ<a href="https://tamroypao.hii.or.th/" target="_blank" rel="noopener">ตามรอยเผา</a> (สสน.) แสดงเฉพาะในพื้นที่อนุรักษ์และพื้นที่รับผิดชอบสถานีฯ · <b>ราย 7 วัน</b> (B4) สี = จำนวนครั้งที่ตรวจพบ ออกหลังสิ้นรอบ ~9 วัน มีตั้งแต่ 1 ม.ค. 2568 · <b>แยกป่า/เกษตร</b> (B2/B3 รายเดือนและรายฤดูฝุ่น ธ.ค.–เม.ย.) ป่าไม้ = เขตป่าไม้ตามกฎหมาย, ข้าว/อ้อย/ข้าวโพด/พืชผสม = รอยเผาในแปลงเกษตร (ส่วนใหญ่อยู่ในพื้นที่รับผิดชอบสถานีฯ นอกเขตอนุรักษ์) มีตั้งแต่ ธ.ค. 2566 บางเดือนช่วงฤดูฝนต้นทางไม่ได้ผลิต · ปุ่ม "ไม่รวม ขสป.ดงใหญ่" มีผลด้วย · แตะรอยเผาไหม้บนแผนที่เพื่อดูช่วงเวลา · เทียบจุดความร้อน = มีจุดความร้อน (VIIRS) ห่างไม่เกิน 1 กม. ในช่วงเวลาของรอยเผา (เผื่อก่อนหน้า 10 วัน) รอยที่ไม่พบจุดอาจเป็นไฟขนาดเล็ก/ไฟใต้เรือนยอด หรือเกิดตอนดาวเทียมไม่ผ่าน</p></div>
-  <div class="row"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="6" width="5" height="12" style="fill:#e10000;stroke:none"/><rect x="8" y="6" width="4" height="12" style="fill:#ffe100;stroke:none"/><rect x="12" y="6" width="5" height="12" style="fill:#00e100;stroke:none"/><rect x="17" y="6" width="4" height="12" style="fill:#005000;stroke:none"/></svg><b>แหล่งเชื้อเพลิง (SAVI)</b><span class="tag" id="fu-t">–</span><button class="sw" data-k="fuel" role="switch" aria-label="แหล่งเชื้อเพลิง"></button></div>
+   </div>
+  <div class="row" data-tip="ดัชนีไฟป่า (Chandler Burning Index) จากอุณหภูมิสูงสุด ความชื้นต่ำสุด ลม และฝน · ตั้งแต่ 75 = เชื้อเพลิงแห้ง ติดไฟง่าย · พยากรณ์รายวัน Open-Meteo (ตาราง ~110 กม.) · ชี้เมาส์บนแผนที่เพื่อดูค่า"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v18M5 8c3-3 11-3 14 0"/></svg><b>อากาศแห้ง เสี่ยงเกิดไฟป่า</b><span class="sm" id="dr-t"></span><button class="sw" data-k="dry" role="switch" aria-label="อากาศแห้ง"></button></div>
+  <div id="drybox" hidden><div class="seg" id="drseg"><button data-v="fwi">ดัชนีไฟป่า FWI</button><button data-v="rh">ความชื้นต่ำสุด</button><button data-v="vpd">ความแห้ง VPD</button></div>
+   <div class="chips" id="drchips"></div><div class="lgd" id="drlg"></div>
+   <div class="lgd"><div><i style="background:#e8741c;border-radius:50%"></i><span style="flex:1">พื้นที่เสี่ยงสูงขึ้นไป (FWI ≥ 75)</span><b id="dr-s1"></b></div><div><i style="background:#c0503c;border-radius:50%"></i><span style="flex:1">เสี่ยงสูงมาก–วิกฤต (FWI ≥ 90)</span><b id="dr-s2"></b></div><div><i style="background:#7e0023;border-radius:50%"></i><span style="flex:1">ความชื้นต่ำสุดในประเทศ</span><b id="dr-s3"></b></div></div>
+   <p class="note" style="margin-left:0"><span id="dr-n"></span></p>
+   <button class="lk" id="dr-r">↻ คำนวณใหม่</button></div>
+
+  <h3>ป่าไม้และเชื้อเพลิง</h3>
+  <div class="row" data-tip="ชนิดป่าปี 2568 จากภาพแผนที่รายจังหวัดของกรมป่าไม้ ความละเอียด 100 ม. เส้นแบ่งชนิดป่าหยาบตามภาพต้นทาง · ใช้จำแนกพื้นที่และเลือกเชื้อเพลิงให้โมเดลไฟ ไม่ใช่ตัวเลขทางการ · แตะแผนที่เพื่อดูชนิดป่า"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="9" height="14" style="fill:#38a800;stroke:none"/><rect x="12" y="5" width="9" height="7" style="fill:#a87000;stroke:none"/><rect x="12" y="12" width="9" height="7" style="fill:#e69800;stroke:none"/></svg><b>ชนิดป่า</b><span class="tag">2568</span><button class="sw" data-k="ftype" role="switch" aria-label="ชนิดป่า"></button></div>
+  <div id="ftbox" hidden><div id="ft-a"></div>
+   </div>
+  <div class="row" data-tip="ดัชนีพืชพรรณปรับค่าดิน (SAVI) รายเดือน 20 ม. ระบบตามรอยเผา (สสน.) · SAVI ต่ำ (พืชโปร่ง แห้ง ดินโล่ง) = ระดับสูง · ใช้ดูความต่อเนื่องของเชื้อเพลิงและวางแผนแนวกันไฟ · ไม่มีสี = ไม่มีข้อมูล (เช่น เมฆ)"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="6" width="5" height="12" style="fill:#e10000;stroke:none"/><rect x="8" y="6" width="4" height="12" style="fill:#ffe100;stroke:none"/><rect x="12" y="6" width="5" height="12" style="fill:#00e100;stroke:none"/><rect x="17" y="6" width="4" height="12" style="fill:#005000;stroke:none"/></svg><b>แหล่งเชื้อเพลิง (SAVI)</b><span class="tag" id="fu-t">–</span><button class="sw" data-k="fuel" role="switch" aria-label="แหล่งเชื้อเพลิง"></button></div>
   <div id="fubox" hidden><select id="fu-s" aria-label="เดือนของข้อมูลแหล่งเชื้อเพลิง" hidden></select>
    <div class="lgd" style="display:flex;flex-wrap:wrap;column-gap:12px"><div><i style="background:#e10000"></i>สูงมาก</div><div><i style="background:#e17d00"></i>สูง</div><div><i style="background:#ffe100"></i>ปานกลาง</div><div><i style="background:#00e100"></i>ต่ำ</div><div><i style="background:#005000"></i>ต่ำมาก</div></div>
    <div id="fu-a"></div>
-   <p class="note" style="margin-left:0">ดัชนีพืชพรรณปรับค่าดิน (SAVI) รายเดือน ความละเอียด 20 ม. จากระบบ<a href="https://tamroypao.hii.or.th/" target="_blank" rel="noopener">ตามรอยเผา</a> (สสน.) จัดระดับตามต้นทาง: ค่า SAVI ต่ำ (พืชพรรณโปร่ง แห้ง หรือดินโล่ง) = ระดับสูง · ค่าสูง (พืชพรรณเขียวหนาแน่น) = ระดับต่ำ · ใช้ดูความต่อเนื่องของเชื้อเพลิงและวางแผนแนวกันไฟ · บริเวณไม่มีสีในแนวเขต = ไม่มีข้อมูล (เช่น เมฆ) · แผนที่แสดงทุกพื้นที่ ตัวเลขเป็นไปตามปุ่ม "ไม่รวม ขสป.ดงใหญ่" · ต้นทางมีเฉพาะบางเดือน</p></div>
-  <div class="row"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="9" height="14" style="fill:#38a800;stroke:none"/><rect x="12" y="5" width="9" height="7" style="fill:#a87000;stroke:none"/><rect x="12" y="12" width="9" height="7" style="fill:#e69800;stroke:none"/></svg><b>ชนิดป่า</b><span class="tag">2568</span><button class="sw" data-k="ftype" role="switch" aria-label="ชนิดป่า"></button></div>
-  <div id="ftbox" hidden><div id="ft-a"></div>
-   <p class="note" style="margin-left:0">ชนิดป่าจากภาพแผนที่รายจังหวัดใน<a href="https://forestinfo.forest.go.th/" target="_blank" rel="noopener">โครงการจัดทำข้อมูลสภาพพื้นที่ป่าไม้และชนิดป่า ปี พ.ศ. 2568</a> (กรมป่าไม้) ตั้งพิกัดจากเส้นกริด UTM ในภาพแล้วตัดตามขอบเขตพื้นที่ป่าไม้ 2568 (shapefile) · ความละเอียด 100 ม. แต่เส้นแบ่งระหว่างชนิดป่าหยาบตามภาพต้นทาง 90–290 ม. · ส่วนที่ภาพบอกไม่ได้ (ใต้ป้ายชื่อ ขอบภาพ) ใช้ชนิดที่ใกล้สุดในผืนป่าเดียวกัน — แตะแผนที่เพื่อดูว่าเป็นค่าประมาณหรือไม่ · ใช้จำแนกพื้นที่และเลือกเชื้อเพลิงให้โมเดลไฟ ไม่ใช่ตัวเลขพื้นที่ทางการ · ตัวเลขเป็นไปตามปุ่ม "ไม่รวม ขสป.ดงใหญ่"</p></div>
-  <h3>สภาพอากาศ</h3>
-  <div class="row"><svg class="i" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 10-3-3M3 12h16a3 3 0 11-3 3M3 16h7"/></svg><b>สภาพอากาศ Windy</b><span class="tag wylv">LIVE</span><button class="sw" data-k="wyl" role="switch" aria-label="ชั้นสภาพอากาศ Windy"></button></div>
+   </div>
+
+  <h3>สภาพอากาศและคุณภาพอากาศ</h3>
+  <div class="row" data-tip="ภาพพยากรณ์จาก Windy.com (ECMWF, ฝุ่น = CAMS) ซ้อนใต้แนวเขตและจุดความร้อน · หยุดเลื่อนแผนที่แล้วภาพโหลดใหม่ตามตำแหน่ง · ระหว่างเปิดชั้นนี้ซูมใกล้ได้จำกัดตาม Windy · เลือกควบคุมด้วย Windy ในแถบด้านล่างเพื่อแตะดูค่าบนภาพ"><svg class="i" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 10-3-3M3 12h16a3 3 0 11-3 3M3 16h7"/></svg><b>สภาพอากาศ Windy</b><span class="tag wylv">LIVE</span><button class="sw" data-k="wyl" role="switch" aria-label="ชั้นสภาพอากาศ Windy"></button></div>
   <div id="wylbox" hidden><div class="wyc" id="wyl-c" role="group" aria-label="เลือกชั้นสภาพอากาศ"></div>
    <div class="seg" id="wyl-t" role="group" aria-label="เวลาพยากรณ์"><button data-v="now">ตอนนี้</button><button data-v="12">+12 ชม.</button><button data-v="24">+24 ชม.</button></div>
    <div class="wyo"><span>ความเข้มของชั้นสภาพอากาศ</span><b id="wyl-ov">60%</b></div><input type="range" id="wyl-o" min="20" max="100" step="5" value="60" aria-label="ความเข้มของชั้นสภาพอากาศ">
    <div class="wyq"><div class="sm">สภาพอากาศกลางกลุ่มป่า (สบอ.1) ตอนนี้</div><div id="wyl-q">กำลังดึงข้อมูล…</div></div>
-   <p class="note">ภาพพยากรณ์อากาศจาก <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy.com</a> (แบบจำลอง ECMWF, ฝุ่น = CAMS) ซ้อนใต้แนวเขตและจุดความร้อน · หยุดเลื่อนแผนที่แล้วภาพ Windy จะโหลดใหม่ตามตำแหน่ง (1–3 วินาที) · ระหว่างเปิดชั้นนี้ ระดับซูมจะปัดเป็นขั้นเต็มให้ตรงกับ Windy (ซูมใกล้สุดของ Windy = ระดับตำบล) และหมุน/เอียงแผนที่ไม่ได้ · "โหมด Windy" ในแถบด้านล่าง = แตะดูค่าบนภาพ Windy ได้ แต่แผนที่จะไม่เลื่อนตาม · ตัวเลขกล่องด้านบนจาก Open-Meteo</p></div>
-  <div class="row"><svg class="i" viewBox="0 0 24 24"><path d="M14 14.8V5a2 2 0 10-4 0v9.8a4 4 0 104 0z"/></svg><b>สภาพอากาศรายชั่วโมง</b><span class="sm" id="wx-t"></span><button class="sw" data-k="wx" role="switch" aria-label="สภาพอากาศรายชั่วโมง"></button></div>
+   </div>
+  <div class="row" data-tip="เส้นลมจาก Open-Meteo ตามบริเวณที่มองเห็น ปรับทุก 15 นาที · หัวเส้นชี้ไปทางที่ลมพัดไป ยิ่งยาวยิ่งแรง (5 ระดับ ต่ำกว่า 1 ถึงเกิน 8 ม./วินาที)"><svg class="i" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 10-3-3M3 12h16a3 3 0 11-3 3M3 16h7"/></svg><b>ทิศทางลมปัจจุบัน</b><button class="sw" data-k="wind" role="switch" aria-label="ทิศทางลม"></button></div>
+  <div id="wbox" hidden><div class="wscale"><span>ลมเบา</span><span class="wl"><i style="width:8px"></i><i style="width:14px"></i><i style="width:22px"></i><i style="width:32px"></i><i style="width:44px"></i></span><span>ลมแรง</span></div><p class="note" style="margin-left:0"><span id="wn">กำลังดึงข้อมูล…</span></p></div>
+  <div class="row" data-tip="แบบจำลอง Open-Meteo (~10–25 กม.) ตามบริเวณที่มองเห็น: อุณหภูมิ ความชื้น ฝน เมฆ · เลื่อนเวลาได้ตั้งแต่ย้อนหลัง 24 ชม. ถึงพยากรณ์ 48 ชม. · ชี้เมาส์บนแผนที่เพื่อดูค่า"><svg class="i" viewBox="0 0 24 24"><path d="M14 14.8V5a2 2 0 10-4 0v9.8a4 4 0 104 0z"/></svg><b>สภาพอากาศรายชั่วโมง</b><span class="sm" id="wx-t"></span><button class="sw" data-k="wx" role="switch" aria-label="สภาพอากาศรายชั่วโมง"></button></div>
   <div id="wxbox" hidden><div class="seg" id="wxseg"><button data-v="t">อุณหภูมิ</button><button data-v="rh">ความชื้น</button><button data-v="pr">ฝน</button><button data-v="cc">เมฆ</button></div>
    <div class="tsl"><button id="wx-pv" aria-label="ชั่วโมงก่อนหน้า">‹</button><input type="range" id="wx-r" min="0" max="71" aria-label="เลื่อนเวลา ย้อนหลัง 24 ชม. ถึงพยากรณ์ 48 ชม."><button id="wx-nx" aria-label="ชั่วโมงถัดไป">›</button></div>
    <div class="tsv"><b id="wx-v">–</b><a id="wx-0" role="button" tabindex="0">ตอนนี้</a></div>
    <div id="wx-lg"></div>
-   <p class="note">แบบจำลองพยากรณ์อากาศ Open-Meteo (ความละเอียดต้นทาง ~10–25 กม. ปรับให้เรียบด้วยการประมาณค่า) ตามบริเวณที่มองเห็น · เลื่อนได้ตั้งแต่ย้อนหลัง 24 ชม. ถึงพยากรณ์ล่วงหน้า 48 ชม. · ชี้เมาส์บนแผนที่เพื่อดูค่า · <span id="wx-st"></span></p></div>
-  <div class="row"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 12l6-6M12 7a5 5 0 105 5"/></svg><b>เรดาร์ฝน</b><span class="sm" id="rd-t"></span><button class="sw" data-k="rad" role="switch" aria-label="เรดาร์ฝน"></button></div>
+   <p class="note" style="margin-left:0"><span id="wx-st"></span></p></div>
+  <div class="row" data-tip="เรดาร์ตรวจอากาศจาก RainViewer ย้อนหลัง 2 ชม. ทุก 10 นาที · ละเอียดสูงสุดเท่าระดับซูม 7 · บริเวณที่ไม่มีเรดาร์ครอบคลุมจะไม่แสดงฝน"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 12l6-6M12 7a5 5 0 105 5"/></svg><b>เรดาร์ฝน</b><span class="sm" id="rd-t"></span><button class="sw" data-k="rad" role="switch" aria-label="เรดาร์ฝน"></button></div>
   <div id="radbox" hidden><div class="tsl"><button id="rd-pl" aria-label="เล่นภาพเคลื่อนไหว">▶</button><input type="range" id="rd-r" min="0" max="0" aria-label="เลื่อนเวลาภาพเรดาร์"></div>
    <div class="tsv"><b id="rd-v">กำลังดึงข้อมูล…</b><a id="rd-0" role="button" tabindex="0">ล่าสุด</a></div>
    <div class="wxb" style="background:linear-gradient(90deg,#d8d3c4,#9bd5f0,#2b8fd6,#0b4ea2,#ffd400,#e8001e)"></div><div class="wxs"><span>ฝนเบา</span><span>ปานกลาง</span><span>หนัก</span><span>หนักมาก/พายุ</span></div>
-   <p class="note">ภาพเรดาร์ตรวจอากาศรวมหลายแหล่งจาก RainViewer ย้อนหลัง 2 ชม. ทุก 10 นาที ปรับทุก 10 นาที · ความละเอียดสูงสุดเท่าระดับซูม 7 ซูมใกล้กว่านั้นภาพจะหยาบ · บริเวณที่ไม่มีเรดาร์ครอบคลุมจะไม่แสดงฝน</p></div>
+   </div>
+  <div class="row" data-tip="สี่เหลี่ยม = สถานี Air4Thai (กรมควบคุมมลพิษ) ค่าล่าสุด · พื้นผิว = แบบจำลอง CAMS (~110 กม.) ค่าปัจจุบันหรือพยากรณ์ล่วงหน้า ครอบคลุมประเทศเพื่อนบ้าน · ใช้ร่วมกับทิศทางลมดูควันข้ามแดน"><svg class="i" viewBox="0 0 24 24"><rect x="2" y="8" width="5" height="8" rx="1.500" style="fill:#00E400"/><rect x="9.500" y="8" width="5" height="8" rx="1.500" style="fill:#FFFF00"/><rect x="17" y="8" width="5" height="8" rx="1.500" style="fill:#FF7E00"/></svg><b>ฝุ่น PM2.5 / AQI</b><span class="sm" id="pm-t"></span><button class="sw" data-k="pm" role="switch" aria-label="ฝุ่น PM2.5 AQI"></button></div>
+  <div id="pmbox" hidden><div class="seg" id="pmseg"><button data-v="aqi">AQI (ดัชนีสากล)</button><button data-v="pm">PM2.5 (µg/m³)</button></div>
+   <div class="chips" id="pmchips"></div><div class="lgd" id="pmlg"></div>
+   </div>
   <button class="lk" id="wy-o">เปิดแผนที่พยากรณ์ Windy แบบเต็มจอ (มีตารางพยากรณ์รายชั่วโมง) →</button>
-  <h3>แนวเขต</h3>
-  <div class="row"><svg class="i" viewBox="0 0 24 24"><path d="M3 12h18"/></svg><b>จังหวัด</b><button class="sw" data-k="prov" role="switch" aria-label="เส้นแนวเขตจังหวัด"></button></div>
-  <p class="note">แนวเขตจากแผนที่ฐาน (แบบธรรมชาติ/ดาวเทียมไม่มีเส้นนี้) · แนวเขตทางการ 77 จังหวัดมาเฟสถัดไป</p>
-  <div class="row"><svg class="i" style="color:#5b3f86" viewBox="0 0 24 24"><path d="M3 12h4M10 12h4M17 12h4" /></svg><b>อำเภอ</b><button class="sw" data-k="amp" role="switch" aria-label="แนวเขตอำเภอ"></button></div>
-  <div class="row"><svg class="i" style="color:#7a6a58" viewBox="0 0 24 24"><path d="M4 12h.01M9 12h.01M14 12h.01M19 12h.01"/></svg><b>ตำบล</b><button class="sw" data-k="tam" role="switch" aria-label="แนวเขตตำบล"></button></div>
-  <p class="note">แนวเขตกรมการปกครอง (OCHA HDX, 2565) เฉพาะ 18 จังหวัดรอบกลุ่มป่า · ตำบลแสดงเมื่อซูมเข้า · แตะแผนที่เพื่อดูชื่อตำบล</p>
-  <div class="row"><svg class="i" style="color:#3b9a4c" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="5"/></svg><b>พื้นที่อนุรักษ์</b><span class="tag" id="c-cons">–</span><button class="sw" data-k="cons" role="switch" aria-label="พื้นที่อนุรักษ์"></button></div>
-  <p class="note" id="cn"></p>
-  <div class="row"><svg class="i" style="color:#2a6fdb" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3" stroke-dasharray="4 3"/></svg><b>พื้นที่รับผิดชอบของสถานีควบคุมไฟป่า</b><span class="tag">8 แปลง</span><button class="sw" data-k="resp" role="switch" aria-label="พื้นที่รับผิดชอบไฟป่า"></button></div>
-  <p class="note"><span id="rleg"></span><br>แตะในแผนที่เพื่อดูสถานีฯ ที่รับผิดชอบ · ข้อมูลปี 2570</p>
-  <div class="row"><svg class="i" style="color:#2a6fdb" viewBox="0 0 24 24"><path d="M12 3l8 3.5v5.5c0 4.5-3.5 7.5-8 9-4.500-1.500-8-4.500-8-9V6.500z"/></svg><b>สถานีควบคุมไฟป่า</b><span class="tag">8 แห่ง</span><button class="sw" data-k="stn" role="switch" aria-label="สถานีควบคุมไฟป่า"></button></div>
-  <p class="note">ตำแหน่งตามไฟล์ KMZ ของผู้ใช้ · ซูมเข้าเพื่อดูชื่อสถานีฯ</p>
-  <div class="row"><svg class="i" viewBox="0 0 24 24"><path d="M12 2.5l2.8 6.2 6.7.6-5.1 4.5 1.5 6.7L12 17l-5.9 3.5 1.5-6.7-5.1-4.5 6.7-.6z" style="fill:#e11d2e;stroke:#3b0a0f"/></svg><b>จุดเฝ้าระวังไฟป่า</b><span class="tag" id="c-wpt">–</span><button class="sw" data-k="wpt" role="switch" aria-label="จุดเฝ้าระวังไฟป่า"></button></div>
-  <p class="note">ปี 2569 · ตำแหน่งตามไฟล์ KMZ ของผู้ใช้ · ซูมเข้าเพื่อดูรหัสจุด</p>
+
+  <h3>พื้นที่อนุรักษ์และสถานีควบคุมไฟป่า</h3>
+  <div class="row" data-tipel="cn"><svg class="i" style="color:#3b9a4c" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="5"/></svg><b>พื้นที่อนุรักษ์</b><span class="tag" id="c-cons">–</span><button class="sw" data-k="cons" role="switch" aria-label="พื้นที่อนุรักษ์"></button></div>
+  <p class="note" id="cn" hidden></p>
+  <div class="row" data-tip="ข้อมูลปี 2570 · แตะในแผนที่เพื่อดูสถานีฯ ที่รับผิดชอบ" data-tipel="rleg"><svg class="i" style="color:#2a6fdb" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3" stroke-dasharray="4 3"/></svg><b>พื้นที่รับผิดชอบของสถานีควบคุมไฟป่า</b><span class="tag">8 แปลง</span><button class="sw" data-k="resp" role="switch" aria-label="พื้นที่รับผิดชอบไฟป่า"></button></div>
+  <div id="rleg" hidden></div>
+  <div class="row" data-tip="ตำแหน่งตามไฟล์ KMZ ของผู้ใช้ · ซูมเข้าเพื่อดูชื่อสถานีฯ"><svg class="i" style="color:#2a6fdb" viewBox="0 0 24 24"><path d="M12 3l8 3.5v5.5c0 4.5-3.5 7.5-8 9-4.500-1.500-8-4.500-8-9V6.500z"/></svg><b>สถานีควบคุมไฟป่า</b><span class="tag">8 แห่ง</span><button class="sw" data-k="stn" role="switch" aria-label="สถานีควบคุมไฟป่า"></button></div>
+  <div class="row" data-tip="จุดเฝ้าระวังไฟป่า ปี 2569 ตามไฟล์ KMZ ของผู้ใช้ · ซูมเข้าเพื่อดูรหัสจุด"><svg class="i" viewBox="0 0 24 24"><path d="M12 2.5l2.8 6.2 6.7.6-5.1 4.5 1.5 6.7L12 17l-5.9 3.5 1.5-6.7-5.1-4.5 6.7-.6z" style="fill:#e11d2e;stroke:#3b0a0f"/></svg><b>จุดเฝ้าระวังไฟป่า</b><span class="tag" id="c-wpt">–</span><button class="sw" data-k="wpt" role="switch" aria-label="จุดเฝ้าระวังไฟป่า"></button></div>
+
+  <h3>แนวเขตการปกครอง</h3>
+  <div class="row" data-tip="แนวเขต 77 จังหวัด กรมการปกครอง (OCHA HDX, 2565)"><svg class="i" viewBox="0 0 24 24"><path d="M3 12h18"/></svg><b>จังหวัด</b><button class="sw" data-k="prov" role="switch" aria-label="เส้นแนวเขตจังหวัด"></button></div>
+  <div class="row" data-tip="แนวเขตอำเภอ กรมการปกครอง (OCHA HDX, 2565) เฉพาะ 18 จังหวัดรอบกลุ่มป่า"><svg class="i" style="color:#5b3f86" viewBox="0 0 24 24"><path d="M3 12h4M10 12h4M17 12h4" /></svg><b>อำเภอ</b><button class="sw" data-k="amp" role="switch" aria-label="แนวเขตอำเภอ"></button></div>
+  <div class="row" data-tip="แนวเขตตำบล กรมการปกครอง (OCHA HDX, 2565) เฉพาะ 18 จังหวัดรอบกลุ่มป่า · แสดงเมื่อซูมเข้า · แตะแผนที่เพื่อดูชื่อตำบล"><svg class="i" style="color:#7a6a58" viewBox="0 0 24 24"><path d="M4 12h.01M9 12h.01M14 12h.01M19 12h.01"/></svg><b>ตำบล</b><button class="sw" data-k="tam" role="switch" aria-label="แนวเขตตำบล"></button></div>
 
   <h3>น้ำและเส้นทาง</h3>
-  <div class="row"><svg class="i" style="color:#2f8fd6" viewBox="0 0 24 24"><path d="M3 15c3-3 6 3 9 0s6 3 9 0M3 9c3-3 6 3 9 0s6 3 9 0"/></svg><b>แม่น้ำ ลำห้วย อ่างเก็บน้ำ</b><button class="sw" data-k="water" role="switch" aria-label="แหล่งน้ำ"></button></div>
-  <div class="row"><svg class="i" style="color:#e8741c" viewBox="0 0 24 24"><path d="M6 21L10 3M18 21L14 3M12 7v2M12 13v2"/></svg><b>ถนน ทางรถ ทางเดิน</b><button class="sw" data-k="road" role="switch" aria-label="ถนน"></button></div>
-  <p class="note">เปิด/ปิดชั้นน้ำและถนนของแผนที่ฐานแบบเวกเตอร์ (เรียบ/ละเอียด/ถนน)</p>
+  <div class="row" data-tip="แหล่งน้ำของแผนที่ฐานแบบเวกเตอร์ (เรียบ ถนน/ชุมชน โทนมืด)"><svg class="i" style="color:#2f8fd6" viewBox="0 0 24 24"><path d="M3 15c3-3 6 3 9 0s6 3 9 0M3 9c3-3 6 3 9 0s6 3 9 0"/></svg><b>แม่น้ำ ลำห้วย อ่างเก็บน้ำ</b><button class="sw" data-k="water" role="switch" aria-label="แหล่งน้ำ"></button></div>
+  <div class="row" data-tip="ถนนและทางเดินของแผนที่ฐานแบบเวกเตอร์ (เรียบ ถนน/ชุมชน โทนมืด)"><svg class="i" style="color:#e8741c" viewBox="0 0 24 24"><path d="M6 21L10 3M18 21L14 3M12 7v2M12 13v2"/></svg><b>ถนน ทางรถ ทางเดิน</b><button class="sw" data-k="road" role="switch" aria-label="ถนน"></button></div>
  </div>
  <button class="imp" id="imp">นำเข้าข้อมูล</button>
 </section>
@@ -578,7 +581,6 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
  <button class="cb ib" id="wyb-x" aria-label="ปิดชั้นสภาพอากาศ"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
 <nav id="ctl" aria-label="ปุ่มควบคุมแผนที่">
  <button class="cb" id="bLoc" aria-label="ตำแหน่งของฉัน"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
- <button class="cb" id="bAqi" aria-label="สลับการแสดงสถานีวัดฝุ่น"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="9" cy="10" r="1"/><circle cx="14" cy="9" r="1"/><circle cx="12" cy="14" r="1"/></svg></button>
  <button class="cb" id="bLay" aria-label="ชั้นข้อมูล"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"/></svg></button>
  <div class="zm"><button class="cb" id="zi" aria-label="ซูมเข้า"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><button class="cb" id="zo" aria-label="ซูมออก"><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button></div>
  <button class="cb" id="b3d" aria-label="โหมด 3 มิติ"><svg class="i" viewBox="0 0 24 24"><path d="M3 20l6-10 4 6 3-4 5 8z"/></svg></button>
@@ -775,7 +777,14 @@ async function imgDate(){const el=$('#imgdate'),q=++imgQ;if(!el)return;el.hidden
   IMC[key]=t;if(q===imgQ)el.textContent=t}
  catch(e){if(q===imgQ)el.textContent='อ่านวันที่ภาพไม่ได้'}}
 const map=new maplibregl.Map({container:'map',style:sty(),bounds:HOME,fitBoundsOptions:{padding:homePad()},attributionControl:false,maxPitch:75,preserveDrawingBuffer:true}); // preserveDrawingBuffer: ให้ดึงภาพแผนที่ใส่รายงานได้
-map.addControl(new maplibregl.ScaleControl({unit:'metric'}),'bottom-right');
+/* มาตราส่วนแบบแถบสลับสี: ขั้นละเอียด 1 1.5 2 2.5 3 4 5 6 8 ×10ⁿ (ScaleControl เดิมมีแค่ 1 2 3 5) ป้าย 0 / กลาง / ปลาย · คงคลาส maplibregl-ctrl-scale ให้ wybScale วัดตำแหน่งได้ */
+class FScale{onAdd(m){this.m=m;const e=this.e=document.createElement('div');e.className='maplibregl-ctrl maplibregl-ctrl-scale fsc';this.u=()=>this.up();m.on('move',this.u);this.up();return e}
+ onRemove(){this.e.remove();this.m.off('move',this.u)}
+ up(){const m=this.m,y=m.getContainer().clientHeight/2,MW=150,d=m.unproject([0,y]).distanceTo(m.unproject([MW,y]));if(!(d>0))return;
+  const p=10**Math.floor(Math.log10(d)),f=d/p;let k=[1,4];for(const z of [[1,4],[1.5,3],[2,4],[2.5,5],[3,3],[4,4],[5,5],[6,3],[8,4]])if(z[0]<=f)k=z;
+  const v=k[0]*p,n=k[1],w=Math.max(20,Math.round(MW*v/d)),km=v>=1000,g=x=>String(+(km?x/1000:x).toFixed(2)),u=km?'กม.':'ม.';
+  this.e.style.width=w+'px';this.e.innerHTML='<div class="fsb">'+'<i></i>'.repeat(n)+'</div><div class="fsl"><span>0</span>'+(n%2?'':'<span style="left:50%">'+g(v/2)+'</span>')+'<span style="left:100%">'+g(v)+' '+u+'</span></div>'}}
+map.addControl(new FScale(),'bottom-right');
 const COL={r:'#e0301e',o:'#f08a1c',b:'#9a6a4a'}, GL=['match',['get','g'],'r',COL.r,'o',COL.o,COL.b];
 
 function flame(c){ // วาดไอคอนเปลวไฟลง canvas
@@ -1101,7 +1110,6 @@ $('#bLay').onclick=()=>{closeDetail();$('#right').classList.toggle('open');sync(
 $('#xr').onclick=()=>{$('#right').classList.remove('open');sync()};
 $('#zi').onclick=()=>wlZoom(1);$('#zo').onclick=()=>wlZoom(-1);$('#bN').onclick=()=>map.resetNorth();
 $('#bHome').onclick=()=>fitHome(true);
-$('#bAqi').onclick=()=>toast('สถานีวัดฝุ่นจะเปิดใช้ในเฟส 3');
 $('#bLoc').onclick=()=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>map.flyTo({center:[p.coords.longitude,p.coords.latitude],zoom:11,duration:dur(1500)}),()=>toast('ไม่สามารถระบุตำแหน่งได้ กรุณาอนุญาตการเข้าถึงตำแหน่ง')):toast('อุปกรณ์ไม่รองรับการระบุตำแหน่ง');
 function set3d(b){if(b&&S.wyl)return toast('ปิดชั้นสภาพอากาศ Windy ก่อนใช้มุมมอง 3 มิติ (ภาพ Windy เอียงตามไม่ได้)');S.d3=b;apply();map.easeTo({pitch:b?60:0,duration:dur(900)})}
 $('#b3d').onclick=()=>set3d(!S.d3);
@@ -1412,7 +1420,7 @@ function wstatic(){wx2.clearRect(0,0,wc.width,wc.height);if(!WG||!S.wind)return;
  for(let x=30;x<wc.width;x+=44)for(let y=30;y<wc.height;y+=44){const l=map.unproject([x,y]),w=wget(l.lng,l.lat);if(!w)continue;const sp=Math.hypot(w[0],w[1]),c=wcls(sp);comet(x,y,w[0]/(sp||1),-w[1]/(sp||1),WL[c],Math.min(.95,.6+.08*c),col)}}
 function L3(){ // เรียกจาก apply() ทุกครั้งที่สวิตช์/สไตล์เปลี่ยน
  const set=(id,b)=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',b?'visible':'none');set('pm-f',S.pm);set('dry-f',S.dry);
- $('#wbox').hidden=!S.wind;$('#pmbox').hidden=!S.pm;$('#drybox').hidden=!S.dry;$('#bAqi').classList.toggle('on',S.pm);
+ $('#wbox').hidden=!S.wind;$('#pmbox').hidden=!S.pm;$('#drybox').hidden=!S.dry;
  wc.style.display=S.wind?'':'none';cancelAnimationFrame(raf);wx2.clearRect(0,0,wc.width,wc.height);
  if(S.wind){wsz();if(!WP.length)WP=Array.from({length:650},()=>{const p={};wseed(p);return p});if(WG&&RM)wstatic();else if(!RM)raf=requestAnimationFrame(wframe);if(!WG)loadWind()}
  if(S.pm)loadPM().then(()=>drawPM());else drawStations();if(S.dry)loadDry();
@@ -1807,7 +1815,6 @@ addEventListener('resize',()=>{if(S.wind){wsz();WP.forEach(wseed)}});
 map.on('movestart',()=>{if(S.wind)wx2.clearRect(0,0,wc.width,wc.height)});
 let wt=0;map.on('moveend',()=>{if(!S.wind)return;WP.forEach(wseed);clearTimeout(wt);wt=setTimeout(loadWind,500);if(RM)wstatic()});
 setInterval(()=>{if(S.wind)loadWind()},15*60*1000);
-$('#bAqi').onclick=()=>{S.pm=!S.pm;apply()};
 map.on('moveend',()=>{if(S.wx){clearTimeout(wxT);wxT=setTimeout(loadWx,600)}});
 setInterval(()=>{if(document.hidden)return;if(S.wx)loadWx();if(S.rad&&!RVP)loadRad(true)},10*6e4); // อากาศดึงจริงเมื่อเก่ากว่า 30 นาที · เรดาร์ทุก 10 นาที
 $$('#wxseg button').forEach(b=>b.onclick=()=>{S2.wxv=b.dataset.v;drawWx()});
@@ -2150,6 +2157,18 @@ sync();load(true);consInfo();respLegend();
 function fitTitle(){const h1=$('#left h1'),m=$('.h1m');if(!h1||!m)return;h1.style.fontSize='';let fs=parseFloat(getComputedStyle(h1).fontSize);while(m.scrollWidth>m.clientWidth+1&&fs>15){fs-=1;h1.style.fontSize=fs+'px'}}
 fitTitle();addEventListener('resize',fitTitle);
 const LBG=document.createElement('div');LBG.id='lbg';$('#left').after(LBG);
+const TT=document.createElement('div');TT.id='tt';TT.setAttribute('role','tooltip');document.body.append(TT);
+$$('#ctl .cb').forEach(b=>b.dataset.tip=b.getAttribute('aria-label'));
+let ttEl=null,ttT=0;
+function ttShow(el){const c=el.closest('#ctl'),g=el.dataset.tipel&&$('#'+el.dataset.tipel);TT.innerHTML=(el.dataset.tip?'<div class="ttl">'+esc(el.dataset.tip)+'</div>':'')+(g&&g.innerHTML?'<div class="ttl">'+g.innerHTML+'</div>':'');if(!TT.textContent)return ttHide();
+ ttEl=el;TT.className=c?'on one':'on';const r=el.getBoundingClientRect(),w=TT.offsetWidth,h=TT.offsetHeight,W=innerWidth,H=innerHeight;let x,y;
+ if(c){x=r.left+r.width/2-w/2;y=r.top-h-8}else if(W>767&&el.closest('#right')){x=$('#right').getBoundingClientRect().left-w-10;y=r.top+r.height/2-h/2}else{x=r.left;y=r.bottom+6;if(y+h>H-8)y=r.top-h-6}
+ TT.style.left=Math.max(8,Math.min(x,W-w-8))+'px';TT.style.top=Math.max(8,Math.min(y,H-h-8))+'px'}
+function ttHide(){ttEl=null;TT.className='';clearTimeout(ttT)}
+document.addEventListener('pointerover',e=>{if(e.pointerType!=='mouse')return;const el=e.target.closest('[data-tip],[data-tipel]');if(el!==ttEl)el?ttShow(el):ttHide()});
+// จอสัมผัส: แตะชื่อชั้นข้อมูลเพื่อดูคำอธิบาย 6 วินาที
+document.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'){ttHide();return}const el=e.target.closest('b')&&e.target.closest('#right [data-tip],#right [data-tipel]');if(el){ttShow(el);clearTimeout(ttT);ttT=setTimeout(ttHide,6000)}else ttHide()});
+addEventListener('wheel',()=>ttEl&&!ttEl.closest('#ctl')&&ttHide(),{passive:true});
 function leftBg(){const b=$('#left .btns');if(b)LBG.style.setProperty('--lh',b.offsetTop+'px')}
 $('#left').addEventListener('scroll',e=>LBG.style.setProperty('--ls',e.target.scrollTop+'px'),{passive:true});
 if(window.ResizeObserver){const o=new ResizeObserver(leftBg);$$('#left>.hrow,#left>h1,#stats,#left>.sm,#left>.dmr').forEach(e=>o.observe(e))}leftBg();document.fonts&&document.fonts.ready.then(fitTitle);
