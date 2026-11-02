@@ -1706,10 +1706,11 @@ function setupHC(){const E={type:'FeatureCollection',features:[]},hide={visibili
  map.addLayer({id:'hcg-i',type:'symbol',source:'hcg',filter:['==',['get','k'],'i'],layout:{...hide,'icon-image':'hc-ign','icon-size':['interpolate',['linear'],['zoom'],7,['case',['>',['get','n'],1],.55,.3],12,['case',['>',['get','n'],1],.9,.6]],'icon-allow-overlap':true,'symbol-sort-key':['-',0,['get','n']]}});
  // จุดที่กระจายออกจากกองรายวัน (ดับเบิลคลิก) — อยู่บนสุดของชั้นกอง
  map.addSource('hcs',{type:'geojson',data:E});HCS=null;
- map.addLayer({id:'hcs-w',type:'circle',source:'hcs',filter:['==',['get','k'],'w'],paint:{'circle-radius':0,'circle-color':'rgba(240,138,28,.12)','circle-stroke-color':'#f08a1c','circle-stroke-width':2,'circle-stroke-opacity':0}});
+ map.addLayer({id:'hcs-w',type:'circle',source:'hcs',filter:['==',['get','k'],'w'],paint:{'circle-radius':['get','wr'],'circle-color':'rgba(240,138,28,.1)','circle-stroke-color':'#f08a1c','circle-stroke-width':2,'circle-stroke-opacity':['get','wo'],'circle-opacity':['get','wo']}});
  map.addLayer({id:'hcs-l',type:'line',source:'hcs',filter:['==',['get','k'],'l'],paint:{'line-color':'#5c1209','line-width':1,'line-opacity':.45}});
- map.addLayer({id:'hcs-m',type:'circle',source:'hcs',filter:['==',['get','k'],'m'],paint:{'circle-radius':7,'circle-color':['match',['get','sat'],'NOAA21','#f08a1c','SNPP','#a3171b','#d93a1f'],'circle-stroke-color':'#fff','circle-stroke-width':1.8}});
- if(map.getStyle().glyphs)map.addLayer({id:'hcs-t',type:'symbol',source:'hcs',filter:['==',['get','k'],'m'],layout:{'text-field':['get','tx'],'text-font':['Noto Sans Bold'],'text-size':10,'text-offset':[0,1.25]},paint:{'text-color':'#5c1209','text-halo-color':'#fff','text-halo-width':1.4}})}
+ map.addLayer({id:'hcs-m',type:'circle',source:'hcs',filter:['==',['get','k'],'m'],paint:{'circle-radius':['get','r'],'circle-color':['match',['get','sat'],'NOAA21','#f08a1c','SNPP','#a3171b','#d93a1f'],'circle-stroke-color':'#fff','circle-stroke-width':1.8}});
+ if(map.getStyle().glyphs){map.addLayer({id:'hcs-t',type:'symbol',source:'hcs',filter:['==',['get','k'],'m'],layout:{'text-field':['get','tx'],'text-font':['Noto Sans Bold'],'text-size':10,'text-offset':[0,1.3]},paint:{'text-color':'#5c1209','text-halo-color':'#fff','text-halo-width':1.4}});
+  map.addLayer({id:'hcs-o',type:'symbol',source:'hcs',filter:['all',['==',['get','k'],'m'],['>=',['get','r'],6]],layout:{'text-field':['to-string',['get','no']],'text-font':['Noto Sans Bold'],'text-size':9,'text-allow-overlap':true,'text-ignore-placement':true},paint:{'text-color':'#fff'}})}}
 function LC(){const on=!!(S.hcl||S.hgp||S.har),box=$('#hcbox');if(box)box.hidden=!on;
  const set=(id,b)=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',b?'visible':'none');
  set('hca-f',S.har);set('hca-l',S.har);set('hcg-o',S.hgp&&!S.har);['hcg-p','hcg-ar','hcg-i'].forEach(id=>set(id,S.hgp));set('hcc-c',S.hcl);set('hcc-n',S.hcl);
@@ -1717,26 +1718,29 @@ function LC(){const on=!!(S.hcl||S.hgp||S.har),box=$('#hcbox');if(box)box.hidden
  if(!on)return;const H=hcCalc();
  if(map.getSource('hcc')&&HCK!==H.k){const F=hcFC(H);map.getSource('hcc').setData(F.c);map.getSource('hcg').setData(F.g);HCK=H.k;if(HCS)hcSpider(null)}
  hcBox(H)}
-/* กระจายจุดของกองรายวันไปยังตำแหน่งจริง (ผู้ใช้ขอ 2 พ.ย. 69 แทนแบบวง/เกลียว): ฟองแตก = วงกระเพื่อมขยายจากกลางกอง + จุดพุ่งจากกลางกองไปตำแหน่งจริงแบบเลยเล็กน้อยแล้วเด้งกลับ (easeOutBack)
-   กองที่จุดอยู่ชิดกันจนแยกไม่ออกที่ซูมปัจจุบัน → ซูมเข้าก่อน (hcBurst) · ยุบกลับ (ดูดเข้ากลางกอง) เมื่อแตะที่ว่าง ดับเบิลคลิกซ้ำ ข้อมูลเปลี่ยน หรือปิดสวิตช์ · ตำแหน่งเป็นพิกัดจริงจึงซูม/เลื่อนแผนที่ได้ */
-var HCS=null,HCA=0;
+/* กระจายจุดของกองรายวันไปยังตำแหน่งจริง (ผู้ใช้ขอ 2 พ.ย. 69 แทนแบบวง/เกลียว): ฟองแตก = วงกระเพื่อมขยายจากกลางกอง แล้วจุดพุ่งออกทีละจุดตามลำดับเวลาที่ดาวเทียมพบ (จุดแรก → จุดสุดท้าย, ผู้ใช้ขอ)
+   แต่ละจุดเลยตำแหน่งจริงเล็กน้อยแล้วเด้งกลับ (easeOutBack) + วงกระเพื่อมเล็กตอนลงจอด · ตัวเลขในจุด = ลำดับ ป้ายใต้จุด = เวลา (ขึ้นเมื่อลงจอด)
+   กองที่จุดอยู่ชิดกันจนแยกไม่ออกที่ซูมปัจจุบัน → ซูมเข้าก่อน (hcBurst) · ยุบกลับ (ดูดเข้ากลางกองพร้อมกัน) เมื่อแตะที่ว่าง ดับเบิลคลิกซ้ำ ข้อมูลเปลี่ยน หรือปิดสวิตช์ · ตำแหน่งเป็นพิกัดจริงจึงซูม/เลื่อนแผนที่ได้ */
+var HCS=null,HCA=0,HCF=520; // HCF = เวลาบินของแต่ละจุด (ms)
 const hcBack=u=>{const c1=1.4,c3=c1+1;return 1+c3*(u-1)**3+c1*(u-1)**2},
+ hcStep=n=>Math.min(160,Math.max(40,1800/n)), // ระยะห่างการปล่อยแต่ละจุด: กองเล็กช้าให้เห็นลำดับ กองใหญ่เร็วขึ้น (รวมไม่เกิน ~2.3 วิ)
  hcOp=(i)=>{const a=i==null?.88:['case',['==',['get','i'],i],.15,.22],b=i==null?1:['case',['==',['get','i'],i],0,.3];map.getLayer('hcc-c')&&map.setPaintProperty('hcc-c','circle-opacity',a);map.getLayer('hcc-n')&&map.setPaintProperty('hcc-n','text-opacity',b)};
-function hcSpFC(c,i,t,lab,w){const F=w?[{type:'Feature',geometry:{type:'Point',coordinates:c.c},properties:{k:'w'}}]:[];
- c.L.forEach((p,j)=>{const m=[c.c[0]+(p.lo-c.c[0])*t,c.c[1]+(p.la-c.c[1])*t];
-  F.push({type:'Feature',geometry:{type:'LineString',coordinates:[c.c,m]},properties:{k:'l'}},{type:'Feature',geometry:{type:'Point',coordinates:m},properties:{k:'m',i,j,tx:lab?hhmmTh(p.t):'',sat:p.sat}})});
+// v(j) = ความคืบหน้าของจุด j (null = ยังไม่ปล่อย, ≥1 = ลงจอดแล้ว) · w = วงกระเพื่อมกลางกอง 0..1 (null = ไม่มี) · lin = ใช้ v เป็นสัดส่วนระยะตรงๆ (ตอนยุบ)
+function hcSpFC(c,i,v,w,lin){const F=w==null?[]:[{type:'Feature',geometry:{type:'Point',coordinates:c.c},properties:{k:'w',wr:12+56*(1-(1-w)**3),wo:.9*(1-w)}}];
+ c.L.forEach((p,j)=>{const x=v(j);if(x==null)return;const t=lin||x>=1?Math.min(1,x):hcBack(x),m=[c.c[0]+(p.lo-c.c[0])*t,c.c[1]+(p.la-c.c[1])*t],r=lin?2+5*x:x>=1?7:Math.max(1.5,2+5*hcBack(Math.min(1,x*1.25)));
+  if(!lin&&x>=1&&x<1+400/HCF){const q=(x-1)*HCF/400;F.push({type:'Feature',geometry:{type:'Point',coordinates:m},properties:{k:'w',wr:7+16*q,wo:.8*(1-q)}})}
+  F.push({type:'Feature',geometry:{type:'LineString',coordinates:[c.c,m]},properties:{k:'l'}},{type:'Feature',geometry:{type:'Point',coordinates:m},properties:{k:'m',i,j,no:j+1,r,tx:x>=1?hhmmTh(p.t):'',sat:p.sat}})});
  return{type:'FeatureCollection',features:F}}
 function hcAnim(ms,step,done){cancelAnimationFrame(HCA);const t0=performance.now();if(!dur(ms)){step(1);done&&done();return}
  const f=now=>{const u=Math.min(1,(now-t0)/ms);step(u);if(u<1)HCA=requestAnimationFrame(f);else done&&done()};HCA=requestAnimationFrame(f)}
 function hcSpider(i){const s=map.getSource('hcs'),c=i==null||!HCC?null:HCC.C[i];if(!s)return;
- const pr=(k,v)=>map.getLayer(k[0])&&map.setPaintProperty(k[0],k[1],v),E={type:'FeatureCollection',features:[]};
+ const E={type:'FeatureCollection',features:[]};
  if(!c||c.n<2){const o=HCS;HCS=null;if(!o){cancelAnimationFrame(HCA);s.setData(E);hcOp(null);return}
-  pr(['hcs-w','circle-stroke-opacity'],0); // ยุบกลับ: ดูดเข้ากลางกอง
-  hcAnim(260,u=>{const e=1-u*u*u;s.setData(hcSpFC(o.c,o.i,e,false,false));pr(['hcs-m','circle-radius'],2+5*e)},()=>{s.setData(E);pr(['hcs-m','circle-radius'],7);hcOp(null)});return}
+  // ยุบกลับ: ดูดเข้ากลางกองพร้อมกัน
+  hcAnim(260,u=>{const e=1-u*u*u;s.setData(hcSpFC(o.c,o.i,()=>e,null,true))},()=>{s.setData(E);hcOp(null)});return}
  $$('.maplibregl-popup').forEach(p=>p.remove());HCS={i,c};hcOp(i);
- hcAnim(750,u=>{const e=hcBack(u),w=Math.min(1,u/.7);
-  s.setData(hcSpFC(c,i,e,u>=1,w<1));pr(['hcs-m','circle-radius'],Math.max(1,2+5*hcBack(Math.min(1,u*1.25))));
-  pr(['hcs-w','circle-radius'],12+56*(1-(1-w)**3));pr(['hcs-w','circle-stroke-opacity'],.9*(1-w))})}
+ const st=hcStep(c.n),T=(c.n-1)*st+HCF+400; // +400 ให้วงกระเพื่อมของจุดสุดท้ายจางหมด
+ hcAnim(T,u=>{const ms=u*T;s.setData(hcSpFC(c,i,j=>{const x=(ms-j*st)/HCF;return x<=0?null:x},ms<600?ms/600:null))})}
 function hcBurst(i){const c=HCC&&HCC.C[i];if(!c)return;if(c.n<2)return toast('กองนี้มีจุดเดียว');
  const o=map.project(c.c),far=Math.max(...c.L.map(p=>{const q=map.project([p.lo,p.la]);return Math.hypot(q.x-o.x,q.y-o.y)}));
  if(far>=30||map.getZoom()>=14.4)return hcSpider(i);
