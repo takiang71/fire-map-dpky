@@ -46,7 +46,7 @@ jobs:
       - run: node scripts/telegram_notify.js || true
         env:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
-          TG_CHAT_ID: ${{ vars.TG_CHAT_ID }}
+          TG_CHAT_ID: ${{ vars.TG_CHAT_ID || secrets.TG_CHAT_ID }}
           # สรุปประจำวัน เวลาไทย HH:MM (ไม่ตั้ง = 07:30, "off" = ปิด)
           TG_DAILY: ${{ vars.TG_DAILY }}
           # ข้อความพื้นที่เผาไหม้เมื่อมีรอบใหม่ ("off" = ปิด)
@@ -57,7 +57,7 @@ jobs:
           LINE_TOKEN: ${{ secrets.LINE_TOKEN }}
           LINE_ADMIN_ID: ${{ vars.LINE_ADMIN_ID }}
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
-          TG_ADMIN_ID: ${{ vars.TG_ADMIN_ID }}
+          TG_ADMIN_ID: ${{ vars.TG_ADMIN_ID || secrets.TG_ADMIN_ID }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

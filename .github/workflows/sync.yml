@@ -59,4 +59,4 @@ jobs:
           LINE_TOKEN: ${{ secrets.LINE_TOKEN }}
           LINE_ADMIN_ID: ${{ vars.LINE_ADMIN_ID }}
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
-          TG_ADMIN_ID: ${{ vars.TG_ADMIN_ID }}
+          TG_ADMIN_ID: ${{ vars.TG_ADMIN_ID || secrets.TG_ADMIN_ID }}
