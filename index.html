@@ -2408,7 +2408,21 @@ function openImport(){IMP=null;openModal('นำเข้าข้อมูล',
   Object.values(HF).forEach(s=>s.clear());closeModal();hOpen.done=0;hOpen();toast(`นำเข้า ${nf(add)} จุด${dup?' (ข้ามซ้ำ '+nf(dup)+')':''}`)}}
 $('#imp').onclick=openImport;
 map.once('style.load',hRender);fitHome(false);
-sync();load(true);consInfo();respLegend();
+// ลิงก์ตรงจากปุ่มในการ์ด LINE (ผู้ใช้ขอ 3 พ.ย. 69 — เดิมปุ่มแค่เปิดหน้าแรก):
+//  ?hs=ละติจูด,ลองจิจูด = เปิดแผงรายละเอียดจุดนั้น (จุดใน HS ห่าง ≤ ~400 ม.; เกิน 48 ชม. แล้วซูมไปตำแหน่ง + วงแหวน)
+//  ?bb=ตะวันตก,ใต้,ตะวันออก,เหนือ = ซูมกรอบของหลายจุด · ?ar=<รหัส ky tl ps tp dy ks kc เดียวกับหน้าความสำคัญ> = ซูมพื้นที่อนุรักษ์
+const LNK={ky:'อุทยานแห่งชาติเขาใหญ่',tl:'อุทยานแห่งชาติทับลาน',ps:'อุทยานแห่งชาติปางสีดา',tp:'อุทยานแห่งชาติตาพระยา',dy:'เขตรักษาพันธุ์สัตว์ป่าดงใหญ่',ks:'เตรียมประกาศเป็นเขตห้ามล่าสัตว์ป่าโคกสูง',kc:'เตรียมประกาศเป็นเขตห้ามล่าสัตว์ป่าเขาฉกรรจ์'};
+async function deepLink(LD){
+ const q=new URLSearchParams(location.search),num=k=>{const a=(q.get(k)||'').split(',').map(parseFloat);return a.every(isFinite)?a:[]};
+ const hs=num('hs'),bb=num('bb'),ar=LNK[q.get('ar')];if(hs.length!==2&&bb.length!==4&&!ar)return;
+ try{await LD}catch(e){}if(!map.isStyleLoaded())await new Promise(r=>map.once('idle',r));MOVED=true;
+ if(hs.length===2){const[la,lo]=hs,h=HS.reduce((m,x)=>{const d=Math.hypot(x.lat-la,x.lon-lo);return d<m.d?{d,h:x}:m},{d:.004,h:null}).h;if(h)return openDetail(h);
+  const r=map.getSource('ring');r&&r.setData({type:'FeatureCollection',features:[{type:'Feature',properties:{},geometry:{type:'Point',coordinates:[lo,la]}}]});
+  map.jumpTo({center:[lo,la],zoom:12.5});return toast('จุดนี้เก่ากว่า 48 ชม. แล้ว — แสดงตำแหน่งที่พบ')}
+ if(bb.length===4)return map.fitBounds([[bb[0],bb[1]],[bb[2],bb[3]]],{padding:homePad(),maxZoom:13,duration:0});
+ const f=GEO.cons.features.find(f=>f.properties.name===ar);if(!f)return;const b=new maplibregl.LngLatBounds();f.geometry.coordinates.forEach(p=>p[0].forEach(c=>b.extend(c)));
+ map.fitBounds(b,{padding:homePad(),duration:0});toast('ซูมไปยัง '+ar.replace(/^เตรียมประกาศเป็น/,''))}
+sync();deepLink(load(true));consInfo();respLegend();
 function fitTitle(){const h1=$('#left h1'),m=$('.h1m');if(!h1||!m)return;h1.style.fontSize='';let fs=parseFloat(getComputedStyle(h1).fontSize);while(m.scrollWidth>m.clientWidth+1&&fs>15){fs-=1;h1.style.fontSize=fs+'px'}}
 fitTitle();addEventListener('resize',fitTitle);
 /* กล่องลอย "เลื่อนลงเพื่อดูเนื้อหาเพิ่มเติม" (ผู้ใช้ขอ 2 พ.ย. 69): ตัวเลื่อน = #hcard ขณะเปิดการ์ดสถิติ (เลื่อนภายใน) ไม่งั้น #left · วางกลางการ์ด เหนือขอบล่างของตัวเลื่อน 14 px · แตะ = เลื่อนลง 80% */

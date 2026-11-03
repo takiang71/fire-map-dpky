@@ -17,12 +17,12 @@ export const EX = /ดงใหญ่/;
 export const excluded = p => EX.test(p._ar || '') || EX.test(p._st || '');
 // การ์ด 2–7: 6 พื้นที่อนุรักษ์ (การ์ด 1 ภาพรวม มีไทล์จังหวัด/อำเภอ/ตำบลสูงสุด) (ชื่อตาม where() ใน scripts/lib/area.js)
 const AREAS = [
-  { k: 'อุทยานแห่งชาติเขาใหญ่', s: 'อช.เขาใหญ่', c: '#2E7D32' },
-  { k: 'อุทยานแห่งชาติทับลาน', s: 'อช.ทับลาน', c: '#1565C0' },
-  { k: 'อุทยานแห่งชาติปางสีดา', s: 'อช.ปางสีดา', c: '#00838F' },
-  { k: 'อุทยานแห่งชาติตาพระยา', s: 'อช.ตาพระยา', c: '#6A1B9A' },
-  { k: 'เขตห้ามล่าสัตว์ป่าเขาฉกรรจ์ (เตรียมการ)', s: 'ขห.เขาฉกรรจ์', c: '#E65100', n: 'เขตห้ามล่าสัตว์ป่าเขาฉกรรจ์ (เตรียมประกาศ)' },
-  { k: 'เขตห้ามล่าสัตว์ป่าโคกสูง (เตรียมการ)', s: 'ขห.โคกสูง', c: '#AD1457', n: 'เขตห้ามล่าสัตว์ป่าโคกสูง (เตรียมประกาศ)' },
+  { id: 'ky', k: 'อุทยานแห่งชาติเขาใหญ่', s: 'อช.เขาใหญ่', c: '#2E7D32' },
+  { id: 'tl', k: 'อุทยานแห่งชาติทับลาน', s: 'อช.ทับลาน', c: '#1565C0' },
+  { id: 'ps', k: 'อุทยานแห่งชาติปางสีดา', s: 'อช.ปางสีดา', c: '#00838F' },
+  { id: 'tp', k: 'อุทยานแห่งชาติตาพระยา', s: 'อช.ตาพระยา', c: '#6A1B9A' },
+  { id: 'kc', k: 'เขตห้ามล่าสัตว์ป่าเขาฉกรรจ์ (เตรียมการ)', s: 'ขห.เขาฉกรรจ์', c: '#E65100', n: 'เขตห้ามล่าสัตว์ป่าเขาฉกรรจ์ (เตรียมประกาศ)' },
+  { id: 'ks', k: 'เขตห้ามล่าสัตว์ป่าโคกสูง (เตรียมการ)', s: 'ขห.โคกสูง', c: '#AD1457', n: 'เขตห้ามล่าสัตว์ป่าโคกสูง (เตรียมประกาศ)' },
 ];
 const OUT = 'นอกพื้นที่อนุรักษ์', RED = '#D93A1F', BLUE = '#3E6FD8', MUT = '#8A8F98';
 
@@ -58,7 +58,12 @@ const topN = (o, n) => Object.entries(o || {}).sort((a, b) => b[1] - a[1] || a[0
 const LV = { pv: ['จังหวัด', k => 'จ.' + k], am: ['อำเภอ', k => { const [a, p] = k.split('|'); return `อ.${a} จ.${p}` }], tm: ['ตำบล', k => { const [t, a, p] = k.split('|'); return `ต.${t} อ.${a} จ.${p}` }] };
 const mergeCnt = (to, from) => { for (const k in from || {}) to[k] = (to[k] || 0) + from[k] };
 const dateTh = ms => new Date(ms).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit', timeZone: 'Asia/Bangkok' });
-const footer = site => B('vertical', [{ type: 'button', style: 'link', height: 'sm', action: { type: 'uri', label: 'เปิดแผนที่', uri: site } }], { paddingAll: '0px' });
+// q = ลิงก์ตรงของหน้าเว็บ (deepLink ใน index.html): ?hs=lat,lon เปิดจุด · ?bb=w,s,e,n ซูมกรอบจุด · ?ar=<AREAS.id> ซูมพื้นที่อนุรักษ์
+const footer = (site, q = '', label = 'เปิดแผนที่') => B('vertical', [{ type: 'button', style: 'link', height: 'sm', action: { type: 'uri', label, uri: site + q } }], { paddingAll: '0px' });
+// ลิงก์ของการ์ดรายพื้นที่: 1 จุด = เปิดแผงรายละเอียดจุดนั้น, หลายจุด = ซูมกรอบของจุด, ไม่มีจุด = ซูมพื้นที่อนุรักษ์
+const areaLink = (L, id) => { if (!L.length) return [`?ar=${id}`, 'ดูพื้นที่บนแผนที่']; const c = L.map(f => f.geometry.coordinates);
+  if (c.length === 1) return [`?hs=${c[0][1].toFixed(5)},${c[0][0].toFixed(5)}`, 'ดูจุดนี้บนแผนที่'];
+  const x = c.map(p => p[0]), y = c.map(p => p[1]), r = v => v.toFixed(4); return [`?bb=${r(Math.min(...x))},${r(Math.min(...y))},${r(Math.max(...x))},${r(Math.max(...y))}`, `ดู ${c.length} จุดบนแผนที่`] };
 // เมนูกดแทนพิมพ์ในกลุ่ม (ผู้ใช้ขอ 3 พ.ย. 69) — Rich menu ขึ้นเฉพาะแชตส่วนตัวกับบอท ในกลุ่มจึงใช้ 2 อย่างนี้แทน:
 //  ปุ่มท้ายการ์ดภาพรวม (อยู่ถาวรในประวัติแชต) + Quick Reply ทุกข้อความของบอท (ลอยเหนือช่องพิมพ์ หายเมื่อมีข้อความใหม่ในแชต)
 // ปุ่มแบบ message = ส่งคำว่า "สรุป"/"เผาไหม้" ในนามคนกด → บอทตอบด้วย reply (ไม่นับโควตา)
@@ -143,7 +148,7 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
         ...(L.length ? L.slice(0, per).map(ptRow) : [T(alert ? 'ไม่มีจุดใหม่ในพื้นที่นี้รอบนี้' : 'ไม่พบจุดความร้อนใน 24 ชม.', { size: 'xxs', color: '#2E7D32', margin: 'sm' })]),
         ...(L.length > per ? [T(`…และอีก ${L.length - per} จุด`, { size: 'xxs', color: MUT })] : []),
       ], { paddingAll: '10px' }),
-      footer: footer(site),
+      footer: footer(site, ...areaLink(L, a.id)),
     };
   });
 
@@ -208,7 +213,7 @@ function burnBuild(bs, { site = SITE0, test = false, lv = 3 } = {}) {
         sub('ตามพื้นที่รับผิดชอบสถานีฯ รอบนี้ (ไร่)'),
         ...(sts.length ? sts.map(([n, v]) => row(stShort(n), v, a.c, smx)) : [T('ไม่พบรอยเผาไหม้ในพื้นที่นี้รอบนี้', { size: 'xxs', color: '#2E7D32', margin: 'sm' })]),
       ], { paddingAll: '10px' }),
-      footer: footer(site),
+      footer: footer(site, `?ar=${a.id}`, 'ดูพื้นที่บนแผนที่'),
     };
   });
   return { type: 'flex', altText: `${test ? '[ทดสอบ] ' : ''}🔥 พื้นที่เผาไหม้รอบ ${lab}: ${nf(bs.rai)} ไร่ · มีจุดความร้อนใกล้ ${P}% · สะสมปีงบ ${bs.fy} ${nf(bs.fy_rai)} ไร่`.slice(0, 390), contents: { type: 'carousel', contents: [overview, ...cards] }, quickReply: quickReply(site) };
