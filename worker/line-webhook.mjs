@@ -58,6 +58,12 @@ const LV = { pv: ['จังหวัด', k => 'จ.' + k], am: ['อำเภ�
 const mergeCnt = (to, from) => { for (const k in from || {}) to[k] = (to[k] || 0) + from[k] };
 const dateTh = ms => new Date(ms).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit', timeZone: 'Asia/Bangkok' });
 const footer = site => B('vertical', [{ type: 'button', style: 'link', height: 'sm', action: { type: 'uri', label: 'เปิดแผนที่', uri: site } }], { paddingAll: '0px' });
+// เมนูกดแทนพิมพ์ในกลุ่ม (ผู้ใช้ขอ 3 พ.ย. 69) — Rich menu ขึ้นเฉพาะแชตส่วนตัวกับบอท ในกลุ่มจึงใช้ 2 อย่างนี้แทน:
+//  ปุ่มท้ายการ์ดภาพรวม (อยู่ถาวรในประวัติแชต) + Quick Reply ทุกข้อความของบอท (ลอยเหนือช่องพิมพ์ หายเมื่อมีข้อความใหม่ในแชต)
+// ปุ่มแบบ message = ส่งคำว่า "สรุป"/"เผาไหม้" ในนามคนกด → บอทตอบด้วย reply (ไม่นับโควตา)
+const btn = (label, action) => ({ type: 'button', style: 'link', height: 'sm', action: { label, ...action } });
+const menuFooter = site => B('horizontal', [btn('📊 สรุป', { type: 'message', text: 'สรุป' }), btn('🔥 เผาไหม้', { type: 'message', text: 'เผาไหม้' }), btn('🗺️ แผนที่', { type: 'uri', uri: site })], { paddingAll: '0px' });
+export const quickReply = site => ({ items: [['📊 สรุป', 'สรุป'], ['🔥 เผาไหม้', 'เผาไหม้'], ['❓ วิธีใช้', 'ช่วยเหลือ']].map(([label, text]) => ({ type: 'action', action: { type: 'message', label, text } })).concat([{ type: 'action', action: { type: 'uri', label: '🗺️ แผนที่', uri: site } }]) });
 
 // live = live.json, sum = summary.json, fresh = จุดใหม่ที่จะแจ้งเตือน (null = โหมดสรุป แสดงจุด 24 ชม. แทน)
 // LINE จำกัด JSON ของ carousel ไม่เกิน 50 KB → ถ้าเกิน 48,000 ไบต์ (UTF-8: อักษรไทยตัวละ 3 ไบต์) ลดจำนวนจุดที่แสดงต่อการ์ดลง
@@ -113,7 +119,7 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
       ...months(all.m, all.pm),
       T(`ไม่รวม ขสป.ดงใหญ่ · ปีก่อนไม่รวมจุดจัดการเชื้อเพลิง/ไม่พบไฟ${fy === 2570 ? ' · ตั้งแต่ 2 พ.ย. 69 ตัวชี้วัดใช้ NOAA-20 แทน SNPP (ปีก่อน = SNPP)' : ''}${quotaLeft != null ? ` · แจ้งเตือนได้อีก ~${quotaLeft} ครั้ง` : ''}`, { size: 'xxs', color: MUT, margin: 'sm', wrap: true }),
     ], { paddingAll: '10px' }),
-    footer: footer(site),
+    footer: menuFooter(site),
   };
 
   // การ์ดที่ 2–7: รายพื้นที่อนุรักษ์ (โหมดแจ้งเตือน: พื้นที่ที่มีจุดใหม่ขึ้นก่อน)
@@ -142,7 +148,7 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
   const altText = ((test ? '[ทดสอบ] ' : '') + (alert
     ? `🔥 พบจุดความร้อนใหม่ ${nw.length} จุด ` + AREAS.map(a => [a.s, inA(nw, a.k).length]).filter(x => x[1]).map(x => `${x[0]} ${x[1]}`).join(', ')
     : `${daily ? '📋 สรุปประจำวัน ' + dateTh(now) + ' · ' : ''}สรุปจุดความร้อน ปีงบ ${fy}: สะสม ${all.fy} จุด · 24 ชม. ${h24.length} จุด`)).slice(0, 390);
-  return { type: 'flex', altText, contents: { type: 'carousel', contents: [overview, ...cards] } };
+  return { type: 'flex', altText, contents: { type: 'carousel', contents: [overview, ...cards] }, quickReply: quickReply(site) };
 }
 
 // การ์ดพื้นที่เผาไหม้รอบล่าสุด (bs = burn_summary.json จาก scripts/lib/burnsum.js) — line_notify.js push เมื่อมีรอบใหม่ · คำสั่ง "เผาไหม้" ตอบด้วยการ์ดนี้
@@ -181,7 +187,7 @@ function burnBuild(bs, { site = SITE0, test = false, lv = 3 } = {}) {
       ...(bs.miss ? [T('⚠ รอบนี้ต้นทางไม่มีภาพบางส่วนของพื้นที่ (เมฆมาก) ตัวเลขจริงอาจมากกว่านี้', { size: 'xxs', color: '#B45309', margin: 'sm', wrap: true })] : []),
       T('ภาพดาวเทียม 20 ม. จากระบบตามรอยเผา (สสน.) ออกหลังสิ้นรอบ ~9 วัน · ไม่รวม ขสป.ดงใหญ่ · ไม่พบจุดความร้อน = ไฟที่ดาวเทียม VIIRS ไม่เห็น', { size: 'xxs', color: MUT, margin: 'sm', wrap: true }),
     ], { paddingAll: '10px' }),
-    footer: footer(site),
+    footer: menuFooter(site),
   };
   // ใบ 2–7: รายพื้นที่อนุรักษ์ (ไม่รวม ขสป.ดงใหญ่) — พื้นที่ที่มีรอยเผารอบนี้มากกว่าขึ้นก่อน
   const order = AREAS.map((a, i) => ({ a, i, X: (bs.areas || {})[a.k] || Z })).sort((x, y) => y.X.rai - x.X.rai || x.i - y.i);
@@ -203,7 +209,7 @@ function burnBuild(bs, { site = SITE0, test = false, lv = 3 } = {}) {
       footer: footer(site),
     };
   });
-  return { type: 'flex', altText: `${test ? '[ทดสอบ] ' : ''}🔥 พื้นที่เผาไหม้รอบ ${lab}: ${nf(bs.rai)} ไร่ · มีจุดความร้อนใกล้ ${P}% · สะสมปีงบ ${bs.fy} ${nf(bs.fy_rai)} ไร่`.slice(0, 390), contents: { type: 'carousel', contents: [overview, ...cards] } };
+  return { type: 'flex', altText: `${test ? '[ทดสอบ] ' : ''}🔥 พื้นที่เผาไหม้รอบ ${lab}: ${nf(bs.rai)} ไร่ · มีจุดความร้อนใกล้ ${P}% · สะสมปีงบ ${bs.fy} ${nf(bs.fy_rai)} ไร่`.slice(0, 390), contents: { type: 'carousel', contents: [overview, ...cards] }, quickReply: quickReply(site) };
 }
 
 async function verify(secret, body, sig) {
@@ -218,12 +224,13 @@ const HELP = ['🤖 บอทแจ้งเตือนจุดความร
   '• พิมพ์ "สรุป" — การ์ดสรุปทั้งปี + รายพื้นที่',
   '• พิมพ์ "เผาไหม้" — พื้นที่เผาไหม้รอบล่าสุด (ระบบตามรอยเผา ราย 7 วัน) · บอทส่งให้เองเมื่อมีรอบใหม่ที่มีรอยเผา',
   '• พิมพ์ "ช่วยเหลือ" — ข้อความนี้',
+  '• ไม่ต้องพิมพ์เอง: แตะปุ่มลัดเหนือช่องพิมพ์ (ขึ้นหลังข้อความบอท) หรือปุ่มท้ายการ์ดใบแรก 📊 สรุป · 🔥 เผาไหม้ · 🗺️ แผนที่',
   '', 'การแจ้งเตือนอัตโนมัติใช้โควตาข้อความฟรีของ LINE ตามจำนวนสมาชิกกลุ่ม ถ้าโควตาเดือนนี้หมด บอทจะหยุดแจ้งเตือนเอง แต่ยังตอบ "สรุป" ได้ตลอด'].join('\n');
 
 async function reply(env, token, msg) {
   const r = await fetch('https://api.line.me/v2/bot/message/reply', {
     method: 'POST', headers: { Authorization: 'Bearer ' + env.LINE_TOKEN, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ replyToken: token, messages: [typeof msg === 'string' ? { type: 'text', text: msg.slice(0, 4900) } : msg] }),
+    body: JSON.stringify({ replyToken: token, messages: [{ quickReply: quickReply(env.SITE_URL || SITE0), ...(typeof msg === 'string' ? { type: 'text', text: msg.slice(0, 4900) } : msg) }] }),
   });
   if (!r.ok) console.log('reply', r.status, await r.text());
 }
