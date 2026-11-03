@@ -154,6 +154,19 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 /* เดสก์ท็อป: ทั้งแผงเลื่อนรวมกัน จบห่างขอบล่าง 12 px · ขณะแสดงการ์ดจุดความร้อน (การ์ดสุดท้าย กว้างเต็มเนื้อแผง x 16 ถึงขอบขวา−24 มุม 20) mask ขอบล่างของแผงเป็นมุมมนของการ์ด → ท้ายการ์ดมนเสมอไม่ว่าเลื่อนถึงไหน · แถบอ้างอิงข้อมูลอยู่กลางพื้นที่ขวาของแผงซ้าย ไม่ทับการ์ด */
 @media(min-width:768px){#left:not(.hm){max-height:100%;padding-top:12px;padding-bottom:12px}#left:not(.hm):has(>#pcard:not([hidden])){-webkit-mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);-webkit-mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;-webkit-mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;-webkit-mask-repeat:no-repeat;mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;mask-repeat:no-repeat}#attr{left:calc(50% + var(--lw) / 2);max-width:calc(100% - var(--lw) - 20px)}#left>#pcard{width:auto}#hint{right:auto;left:calc((var(--lw) + 100% - 370px) / 2);transform:translateX(-50%);max-width:calc(100% - var(--lw) - 400px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
 .maplibregl-ctrl-bottom-right{bottom:calc(86px + env(safe-area-inset-bottom))!important;right:max(6px,env(safe-area-inset-right))!important}
+/* เครื่องมือวัดระยะทาง/พื้นที่ (#bMs) */
+#map.msr .maplibregl-canvas-container.maplibregl-interactive{cursor:crosshair}#map.msr .fsm,#map.msr .wpm,#map.msr .stm{pointer-events:none}body.msron #hint{display:none}
+#msr{position:fixed;z-index:8;top:calc(56px + env(safe-area-inset-top));left:calc(50% + var(--lw) / 2);transform:translateX(-50%);width:min(330px,calc(100vw - 24px));padding:8px 12px 12px;border-radius:16px}#msr[hidden],#mhud[hidden]{display:none}
+.msh{display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:2px}.msh b{flex:1;color:var(--navy)}.msh .i{color:#0b6bcb}
+.msrw{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:2px 0}.msrw span{flex:none;color:var(--mut)}.msrw b{min-width:0;text-align:right}.msrw.mbig b{font-size:16px;color:var(--navy)}.msrw.msub b{color:var(--navy)}
+.msa{font-size:19px;font-weight:800;color:var(--navy);margin:2px 0 4px}
+.msl{display:grid;grid-template-columns:auto 1fr;gap:1px 10px;font-size:12px;max-height:120px;overflow:auto;margin-top:4px;border-top:1px solid var(--line);padding-top:4px}.msl span{color:var(--mut)}.msl b{text-align:right;font-weight:600}
+.msbt{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.msbt .btn{min-height:32px;padding:0 10px;box-shadow:none;border:1px solid var(--line);font-size:12.5px}
+#mhud{position:fixed;z-index:59;pointer-events:none;background:rgba(24,31,48,.92);color:#fff;border-radius:10px;padding:6px 10px;font-size:12px;line-height:1.45;max-width:270px;box-shadow:0 6px 20px rgba(0,0,0,.25)}#mhud b{display:block;font-size:14px}#mhud span{display:block;color:#cfd6e6}#mhud i{display:block;font-style:normal;color:#a9bfff;font-size:11.5px;margin-top:2px}
+.msv{width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #0b6bcb;color:#0b3b75;font:800 11px/18px 'Noto Sans Thai',sans-serif;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.35)}.msv.m1{background:#0b6bcb;color:#fff;border-color:#fff}.msv.hot{box-shadow:0 0 0 7px rgba(11,107,203,.35),0 1px 3px rgba(0,0,0,.35)}
+.msb{background:#0b3b75;color:#fff;font:700 11px/1.55 'Noto Sans Thai',sans-serif;padding:0 7px;border-radius:99px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3)}.msb.hd{opacity:0}
+@media(max-width:767px){#msr{top:calc(12px + env(safe-area-inset-top));left:12px;right:66px;width:auto;transform:none;padding:6px 10px 8px}#msr .sm{display:none}.msa{font-size:16px}.msl{max-height:60px}.msbt{margin-top:6px}.msbt .btn{min-height:30px;padding:0 9px;font-size:12px}
+ body.msron #left{display:none}body.msron .maplibregl-ctrl-bottom-right{bottom:calc(10px + env(safe-area-inset-bottom))!important} /* ขณะวัดซ่อนแผ่นล่าง ให้เห็นแผนที่เต็มจอ */}
 #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--on);color:#fff;border-radius:12px;padding:8px 16px;font-size:13px;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s}
 #toast.show{opacity:1}
 .maplibregl-popup-content{border-radius:14px;font:13px 'Noto Sans Thai',sans-serif;box-shadow:var(--sh);padding:12px 14px}
@@ -608,11 +621,14 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 <nav id="ctl" aria-label="ปุ่มควบคุมแผนที่">
  <button class="cb" id="bLoc" aria-label="ตำแหน่งของฉัน"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
  <button class="cb" id="bLay" aria-label="ชั้นข้อมูล"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"/></svg></button>
+ <button class="cb" id="bMs" aria-label="วัดระยะทางและพื้นที่" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><path d="M3 16.5L16.5 3 21 7.5 7.5 21zM7 12.5l2 2M10 9.5l2.5 2.5M13 6.5l2 2"/></svg></button>
  <div class="zm"><button class="cb" id="zi" aria-label="ซูมเข้า"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><button class="cb" id="zo" aria-label="ซูมออก"><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button></div>
  <button class="cb" id="b3d" aria-label="โหมด 3 มิติ"><svg class="i" viewBox="0 0 24 24"><path d="M3 20l6-10 4 6 3-4 5 8z"/></svg></button>
  <button class="cb" id="bN" aria-label="รีเซ็ตทิศเหนือ"><svg class="i" id="cmp" viewBox="0 0 24 24"><path d="M12 3l4 9H8zM12 21l-4-9h8z" /></svg></button>
  <button class="cb" id="bHome" aria-label="กลับมุมมองเริ่มต้น"><svg class="i" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/></svg></button>
 </nav>
+<div class="card" id="msr" hidden role="region" aria-label="ผลการวัดระยะทางและพื้นที่"><div class="msh"><svg class="i" viewBox="0 0 24 24"><path d="M3 16.5L16.5 3 21 7.5 7.5 21zM7 12.5l2 2M10 9.5l2.5 2.5M13 6.5l2 2"/></svg><b id="ms-t">วัดระยะทางและพื้นที่</b><button class="cb ib" id="ms-x" aria-label="ปิดเครื่องมือวัด" title="ปิดเครื่องมือวัด (Esc)"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div id="ms-b" aria-live="polite"></div></div>
+<div id="mhud" hidden></div>
 
 <script>
 /* ป้องกันหน้าโหลดค้าง: ถ้าสคริปต์พังหรือโหลด MapLibre ไม่ได้ จะแสดงสาเหตุแทนการค้างเงียบๆ */
@@ -852,6 +868,7 @@ function setup(){ // เรียกทุกครั้งที่สลั�
  map.addLayer({id:'resp-f',type:'fill',source:'resp',paint:{'fill-color':['get','sc'],'fill-opacity':.07}});
  map.addLayer({id:'resp-l',type:'line',source:'resp',paint:{'line-color':['get','sc'],'line-width':2.6,'line-dasharray':[3,1.6]}});
  setupBN();setupRP();setupFU();setupFT();setupAD();setupPV();setup3();setup4();setupHC();
+ if(typeof msLayers==='function')msLayers(); // เครื่องมือวัด (สคริปต์ท้ายไฟล์) — บนสุด
  map.addSource('fx',{type:'geojson',data:FXD});
  map.addLayer({id:'fx-cf',type:'fill',source:'fx',filter:['==',['get','k'],'cone'],paint:{'fill-color':'#6b7280','fill-opacity':.16}});
  map.addLayer({id:'fx-cl',type:'line',source:'fx',filter:['==',['get','k'],'cone'],paint:{'line-color':'#4b5563','line-width':1.6,'line-dasharray':[3,2]}});
@@ -1168,6 +1185,7 @@ addEventListener('keydown',e=>{
  if(e.key==='Escape'){const wr=$('#right').classList.contains('open');closeModal();closeDetail();$('#right').classList.remove('open');$('#q').blur();sync();if(wr)panFit()}});
 
 map.on('click',e=>{
+ if(typeof msBusy==='function'&&msBusy())return; // เครื่องมือวัดจัดการคลิกเอง
  const cl=map.getLayer('hot-cl')&&map.queryRenderedFeatures(e.point,{layers:['hot-cl']})[0];
  if(cl){map.getSource('hot').getClusterExpansionZoom(cl.properties.cluster_id).then(z=>map.easeTo({center:cl.geometry.coordinates,zoom:z+.5,duration:dur(800)}));return}
  if($('#dp').classList.contains('open')&&!(map.queryRenderedFeatures(e.point,{layers:['hot-icon','hot-3d']})[0])){closeDetail();return}
@@ -1819,7 +1837,7 @@ function hcBurst(i){const c=HCC&&HCC.C[i];if(!c)return;if(c.n<2)return toast('�
  const B=new maplibregl.LngLatBounds([c.c[0],c.c[1]],[c.c[0],c.c[1]]);c.L.forEach(p=>B.extend([p.lo,p.la]));
  if(HCS)hcSpider(null);$$('.maplibregl-popup').forEach(p=>p.remove());MOVED=true;
  setTimeout(()=>{map.fitBounds(B,{padding:homePad(),maxZoom:14.5,duration:dur(700)});map.once('moveend',()=>hcSpider(i))},30)} // เลื่อนออกจากเหตุการณ์ dblclick — ถ้าเรียกตรงๆ ตัวจัดการเมาส์ของแผนที่หยุดแอนิเมชันทันที
-map.on('dblclick',e=>{if(!S.hcl||!map.getLayer('hcc-c'))return;const f=map.queryRenderedFeatures(e.point,{layers:['hcc-c']})[0];if(!f)return;
+map.on('dblclick',e=>{if(typeof msBusy==='function'&&msBusy()||!S.hcl||!map.getLayer('hcc-c'))return;const f=map.queryRenderedFeatures(e.point,{layers:['hcc-c']})[0];if(!f)return;
  e.preventDefault();const i=f.properties.i;if(HCS&&HCS.i===i)return hcSpider(null);hcBurst(i)});
 document.addEventListener('click',e=>{const b=e.target.closest('.hcsp');if(b)hcBurst(+b.dataset.i)});
 const hcIn=()=>{clearTimeout(hcIn.t);hcIn.t=setTimeout(()=>{S.hcd=hcV($('#hc-d').value,.1,10,1);S.hcg=Math.round(hcV($('#hc-g').value,0,30,2));S.hcr=Math.round(hcV($('#hc-r').value,50,2000,200));LC()},350)};
@@ -2702,6 +2720,113 @@ addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#kb').hidden)kbClose()})
 // ลิงก์ตรง ?kb=<รหัสแท็บ> (all ky tl ps tp dy ks kc ft) เปิดหน้าความสำคัญทันที
 const KQ=new URLSearchParams(location.search).get('kb');if(KQ!=null)kbOpen(KB.some(a=>a.id===KQ)?KQ:'all');
 })();
+</script>
+<script>
+/* ===== เครื่องมือวัดระยะทางและพื้นที่ (ปุ่ม #bMs, ผู้ใช้ขอ 3 พ.ย. 69) =====
+   ระยะ = Vincenty บนทรงรี WGS84 (geodesic) · พื้นที่ = ฉายแบบ equal-area ทรงกระบอกบนทรงรี (พื้นที่เท่าของจริงทุกจุด) หลังซอยขอบตามเส้น geodesic ทุก ~200 ม.
+   คลิก = เพิ่มจุด · ดับเบิลคลิก/Enter = จบ · ชี้/คลิกใกล้จุดที่ 1 (≥3 จุด) = ปิดเป็นรูปพื้นที่ · Backspace = ย้อนจุด · Esc = ปิดเครื่องมือ */
+const MS={on:false,pts:[],done:false,closed:false,cur:null,snap:false,mk:[],bd:[],t:0,dz:true};
+const MSE={type:'FeatureCollection',features:[]},MSC='#0b6bcb';
+const msR=Math.PI/180,MSa=6378137,MSf=1/298.257223563,MSb=MSa*(1-MSf),MSe=Math.sqrt(MSf*(2-MSf));
+function msDist(p,q){ // Vincenty inverse (ม.) — ไม่ลู่เข้า (เกือบตรงข้ามโลก) ใช้ haversine
+ const L=(q[0]-p[0])*msR,U1=Math.atan((1-MSf)*Math.tan(p[1]*msR)),U2=Math.atan((1-MSf)*Math.tan(q[1]*msR)),sU1=Math.sin(U1),cU1=Math.cos(U1),sU2=Math.sin(U2),cU2=Math.cos(U2);
+ let l=L,lp,it=0,sS,cS,S,ca2,c2m;
+ do{const sl=Math.sin(l),cl=Math.cos(l);sS=Math.hypot(cU2*sl,cU1*sU2-sU1*cU2*cl);if(!sS)return 0;cS=sU1*sU2+cU1*cU2*cl;S=Math.atan2(sS,cS);
+  const sa=cU1*cU2*sl/sS;ca2=1-sa*sa;c2m=ca2?cS-2*sU1*sU2/ca2:0;const C=MSf/16*ca2*(4+MSf*(4-3*ca2));lp=l;l=L+(1-C)*MSf*sa*(S+C*sS*(c2m+C*cS*(-1+2*c2m*c2m)))}
+ while(Math.abs(l-lp)>1e-12&&++it<200);
+ if(it>=200){const a=Math.sin((q[1]-p[1])*msR/2)**2+Math.cos(p[1]*msR)*Math.cos(q[1]*msR)*Math.sin(L/2)**2;return 2*6371008.8*Math.asin(Math.min(1,Math.sqrt(a)))}
+ const u2=ca2*(MSa*MSa-MSb*MSb)/(MSb*MSb),A=1+u2/16384*(4096+u2*(-768+u2*(320-175*u2))),B=u2/1024*(256+u2*(-128+u2*(74-47*u2)));
+ return MSb*A*(S-B*sS*(c2m+B/4*(cS*(-1+2*c2m*c2m)-B/6*c2m*(-3+4*sS*sS)*(-3+4*c2m*c2m))))}
+function msInterp(p,q,n){ // จุดบนเส้นวงกลมใหญ่ p→q แบ่ง n ช่วง (ใกล้ geodesic ของทรงรีมากในระยะที่ใช้ — ใช้วาดเส้นและซอยขอบก่อนคิดพื้นที่)
+ const v=a=>{const la=a[1]*msR,lo=a[0]*msR;return[Math.cos(la)*Math.cos(lo),Math.cos(la)*Math.sin(lo),Math.sin(la)]},A=v(p),B=v(q),d=Math.acos(Math.max(-1,Math.min(1,A[0]*B[0]+A[1]*B[1]+A[2]*B[2]))),o=[];
+ for(let i=0;i<=n;i++){const t=i/n;if(d<1e-12){o.push([p[0]+(q[0]-p[0])*t,p[1]+(q[1]-p[1])*t]);continue}
+  const a=Math.sin((1-t)*d)/Math.sin(d),b=Math.sin(t*d)/Math.sin(d),x=a*A[0]+b*B[0],y=a*A[1]+b*B[1],z=a*A[2]+b*B[2];o.push([Math.atan2(y,x)/msR,Math.atan2(z,Math.hypot(x,y))/msR])}
+ return o}
+function msArea(R){ // ตร.ม. — ring ไม่ต้องปิด
+ const q=f=>{const s=Math.sin(f*msR),es=MSe*s;return(1-MSe*MSe)*(s/(1-es*es)-Math.log((1-es)/(1+es))/(2*MSe))},P=[];
+ R.forEach((p,i)=>{const r=R[(i+1)%R.length],n=Math.min(256,Math.max(1,Math.ceil(msDist(p,r)/200)));msInterp(p,r,n).slice(0,-1).forEach(x=>P.push(x))});
+ let s=0;const lo0=P[0][0];for(let i=0;i<P.length;i++){const a=P[i],b=P[(i+1)%P.length],xa=(a[0]-lo0)*msR*MSa,xb=(b[0]-lo0)*msR*MSa;s+=xa*q(b[1])*MSa/2-xb*q(a[1])*MSa/2}
+ return Math.abs(s)/2}
+const msLen=(P,c)=>{let s=0;for(let i=1;i<P.length;i++)s+=msDist(P[i-1],P[i]);if(c&&P.length>2)s+=msDist(P[P.length-1],P[0]);return s};
+/* รูปแบบตัวเลข */
+const msNf=(x,d)=>x.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const msDS=m=>m<1000?msNf(m,m<10?1:0)+' ม.':msNf(m/1000,m<10000?2:1)+' กม.'; // ป้ายสั้น
+const msDF=m=>msNf(m,1)+' ม. · '+msNf(m/1000,3)+' กม.';
+function msRai(m2){const w=Math.round(m2/4*10)/10,r=Math.floor(w/400),g=Math.floor((w-r*400)/100),v=Math.round((w-r*400-g*100)*10)/10;return msNf(r,0)+' ไร่ '+g+' งาน '+msNf(v,1)+' ตร.ว.'}
+const msM2=m2=>msNf(m2,m2<10000?1:0)+' ตร.ม.',msK2=m2=>{const k=m2/1e6;return msNf(k,k>=10?2:k>=.1?3:k>=.001?4:6)+' ตร.กม.'};
+/* ชั้นบนแผนที่ (setup() เรียกทุกครั้งที่สลับแผนที่ฐาน) */
+function msLayers(){if(map.getSource('msr'))return;map.addSource('msr',{type:'geojson',data:MSE});
+ map.addLayer({id:'msr-f',type:'fill',source:'msr',filter:['==',['get','k'],'f'],paint:{'fill-color':MSC,'fill-opacity':.18}});
+ map.addLayer({id:'msr-c',type:'line',source:'msr',filter:['!=',['get','k'],'f'],layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#fff','line-width':5,'line-opacity':.9}});
+ map.addLayer({id:'msr-l',type:'line',source:'msr',filter:['==',['get','k'],'l'],layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':MSC,'line-width':2.6}});
+ map.addLayer({id:'msr-v',type:'line',source:'msr',filter:['==',['get','k'],'v'],layout:{'line-cap':'butt'},paint:{'line-color':MSC,'line-width':2.4,'line-dasharray':[2,1.6]}});
+ msGeo()}
+function msTop(){try{const L=map.getStyle().layers;if(L.length&&L[L.length-1].id!=='msr-v')['msr-f','msr-c','msr-l','msr-v'].forEach(id=>map.getLayer(id)&&map.moveLayer(id))}catch(e){}}
+const msPath=(P,c)=>{const o=[];const Q=c?P.concat([P[0]]):P;for(let i=1;i<Q.length;i++){const n=Math.min(64,Math.max(1,Math.ceil(msDist(Q[i-1],Q[i])/2000))),s=msInterp(Q[i-1],Q[i],n);o.push(...(i>1?s.slice(1):s))}return o};
+function msGeo(){const s=map.getSource('msr');if(!s)return;const P=MS.pts,F=[],cl=MS.closed||MS.snap,n=P.length;
+ if(cl&&n>2)F.push({type:'Feature',properties:{k:'f'},geometry:{type:'Polygon',coordinates:[msPath(P,1)]}});
+ if(n>1)F.push({type:'Feature',properties:{k:'l'},geometry:{type:'LineString',coordinates:msPath(P,MS.closed)}});
+ if(!MS.done&&n&&MS.cur&&!MS.snap)F.push({type:'Feature',properties:{k:'v'},geometry:{type:'LineString',coordinates:msPath([P[n-1],MS.cur])}});
+ else if(MS.snap)F.push({type:'Feature',properties:{k:'v'},geometry:{type:'LineString',coordinates:msPath([P[n-1],P[0]])}});
+ s.setData({type:'FeatureCollection',features:F})}
+/* จุดกำกับหมายเลข + ป้ายระยะกลางแต่ละช่วง (DOM marker — ตัวอักษรไทยคม ไม่ต้องใช้ glyph ของแผนที่ฐาน, ไม่รับคลิกให้คลิกทะลุถึงแผนที่) */
+function msMk(cls,html,ll){const el=document.createElement('div');el.className=cls;el.innerHTML=html;el.style.pointerEvents='none';return new maplibregl.Marker({element:el}).setLngLat(ll).addTo(map)}
+function msMarks(){MS.mk.forEach(m=>m.remove());MS.bd.forEach(m=>m.remove());MS.mk=[];MS.bd=[];const P=MS.pts,n=P.length;
+ const seg=(a,b,i)=>{const d=msDist(a,b);const m=msMk('msb',msDS(d),msInterp(a,b,2)[1]);m._ab=[a,b];MS.bd.push(m)};
+ for(let i=1;i<n;i++)seg(P[i-1],P[i],i);if(MS.closed&&n>2)seg(P[n-1],P[0],n);
+ P.forEach((p,i)=>MS.mk.push(msMk('msv'+(i?'':' m1')+(!i&&MS.snap?' hot':''),String(i+1),p)));msFit()}
+function msFit(){MS.bd.forEach(m=>{const[a,b]=m._ab,A=map.project(a),B=map.project(b);m.getElement().classList.toggle('hd',Math.hypot(A.x-B.x,A.y-B.y)<56)})} // ช่วงสั้นบนจอ = ซ่อนป้ายกันทับจุด
+/* แผงผล #msr */
+function msPanel(){const b=$('#ms-b'),P=MS.pts,n=P.length,tc=matchMedia('(hover:none)').matches,L=msLen(P,MS.closed);let h='';
+ const row=(k,v,c)=>`<div class="msrw${c?' '+c:''}"><span>${k}</span><b>${v}</b></div>`;
+ if(MS.done&&MS.closed){const A=msArea(P);h=`<div class="msa">${msRai(A)}</div>`+row('ตารางเมตร',msM2(A))+row('ตารางกิโลเมตร',msK2(A))+row('เส้นรอบรูป',msDF(L))+row('จำนวนจุด',n+' จุด')}
+ else if(MS.done){h=row('ระยะทางรวม',msNf(L,1)+' ม.','mbig')+row('',msNf(L/1000,3)+' กม.','mbig')+row('จำนวนจุด',n+' จุด · '+(n-1)+' ช่วง');
+  if(n>2)h+='<div class="msl">'+P.slice(1).map((p,i)=>`<span>${i+1}→${i+2}</span><b>${msDS(msDist(P[i],p))}</b>`).join('')+'</div>'}
+ else if(!n)h=`<div class="sm">${tc?'แตะ':'คลิก'}บนแผนที่เพื่อวางจุดวัดจุดที่ 1</div>`;
+ else{h=row('ระยะทางรวม',n>1?msDF(L):'—')+row('จำนวนจุด',n+' จุด');if(n>2)h+=row('ถ้าปิดเป็นรูป',msRai(msArea(P)),'msub');
+  h+=`<div class="sm">${tc?'แตะเพื่อเพิ่มจุด · แตะจุดที่ 1 เพื่อปิดเป็นรูปพื้นที่':'คลิกเพื่อเพิ่มจุด · ดับเบิลคลิกเพื่อจบ'+(n>2?' · คลิกจุดที่ 1 เพื่อปิดรูป':'')}</div>`}
+ const B=[];if(!MS.done&&n)B.push('<button class="btn" data-ms="u">↶ ย้อนจุด</button>');if(!MS.done&&n>1)B.push('<button class="btn" data-ms="f">จบ</button>');
+ if(!MS.done&&n>2)B.push('<button class="btn" data-ms="c">ปิดรูปพื้นที่</button>');if(MS.done)B.push('<button class="btn" data-ms="n">วัดใหม่</button><button class="btn" data-ms="y">คัดลอกผล</button>');else if(n)B.push('<button class="btn" data-ms="r">ล้าง</button>');
+ b.innerHTML=h+(B.length?'<div class="msbt">'+B.join('')+'</div>':'');$('#ms-t').textContent=MS.done?(MS.closed?'ขนาดพื้นที่':'ระยะทาง'):'วัดระยะทางและพื้นที่'}
+function msText(){const P=MS.pts,L=msLen(P,MS.closed),pt=P.map((p,i)=>`${i+1}. ${p[1].toFixed(6)}, ${p[0].toFixed(6)}`).join('\n');
+ if(MS.closed){const A=msArea(P);return`พื้นที่ ${msRai(A)}\n${msM2(A)} · ${msK2(A)}\nเส้นรอบรูป ${msDF(L)}\nพิกัดจุด (ละติจูด, ลองจิจูด)\n${pt}`}
+ return`ระยะทางรวม ${msDF(L)}\nพิกัดจุด (ละติจูด, ลองจิจูด)\n${pt}`}
+/* HUD ลอยตามเคอร์เซอร์ */
+function msHud(e){const H=$('#mhud');if(!MS.on||!e||matchMedia('(hover:none)').matches){H.hidden=true;return}const P=MS.pts,n=P.length;let h;
+ if(MS.done)h='<i>คลิกเพื่อเริ่มวัดใหม่ · Esc ปิดเครื่องมือ</i>';
+ else if(!n)h='<b>คลิกเพื่อวางจุดที่ 1</b><i>Esc ปิดเครื่องมือ</i>';
+ else if(MS.snap){const A=msArea(P);h=`<b>${msRai(A)}</b><span>${msM2(A)} · ${msK2(A)}</span><i>คลิกเพื่อปิดเป็นรูปพื้นที่</i>`}
+ else{const d=msDist(P[n-1],MS.cur),L=msLen(P)+d;h=`<b>${msDF(d)}</b><span>จากจุดที่ ${n}${n>1?' · รวม '+msDS(L):''}</span><i>คลิกเพื่อเพิ่มจุดวัด · ดับเบิลคลิกเพื่อจบ${n>2?'<br>ชี้ที่จุดที่ 1 เพื่อปิดเป็นรูปพื้นที่':''}</i>`}
+ H.innerHTML=h;H.hidden=false;const x=e.originalEvent.clientX,y=e.originalEvent.clientY,w=H.offsetWidth,hh=H.offsetHeight;
+ H.style.left=(x+18+w>innerWidth-8?x-18-w:x+18)+'px';H.style.top=(y+18+hh>innerHeight-8?y-14-hh:y+18)+'px'}
+function msDraw(full){msGeo();if(full){msMarks();msPanel();msTop()}}
+const msNear=(ll,pt,r)=>{const p=map.project(ll);return Math.hypot(p.x-pt.x,p.y-pt.y)<=r};
+function msFinish(close){const n=MS.pts.length;if(MS.done)return;if(close?n<3:n<2){toast(close?'ต้องมีอย่างน้อย 3 จุดจึงปิดเป็นรูปพื้นที่ได้':'ต้องมีอย่างน้อย 2 จุด');return}
+ MS.done=true;MS.closed=!!close;MS.snap=false;MS.cur=null;MS.t=Date.now();msDraw(1);$('#mhud').hidden=true}
+function msReset(){MS.pts=[];MS.done=MS.closed=MS.snap=false;MS.cur=null;msDraw(1)}
+function msSet(on){if(on===MS.on)return;MS.on=on;if(on&&map.getSource('dem'))msLayers();const b=$('#bMs');b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);$('#map').classList.toggle('msr',on);document.body.classList.toggle('msron',on);$('#msr').hidden=!on;
+ if(on){MS.dz=map.doubleClickZoom.isEnabled();map.doubleClickZoom.disable();$$('.maplibregl-popup').forEach(p=>p.remove());if(typeof hcSpider==='function'&&typeof HCS!=='undefined'&&HCS)hcSpider(null);msReset()}
+ else{if(MS.dz)map.doubleClickZoom.enable();MS.pts=[];MS.done=MS.closed=MS.snap=false;MS.cur=null;msGeo();MS.mk.forEach(m=>m.remove());MS.bd.forEach(m=>m.remove());MS.mk=[];MS.bd=[];$('#mhud').hidden=true}}
+function msBusy(){return MS.on}
+$('#bMs').onclick=()=>msSet(!MS.on);$('#ms-x').onclick=()=>msSet(false);
+$('#ms-b').addEventListener('click',e=>{const k=e.target.closest('[data-ms]');if(!k)return;const a=k.dataset.ms;
+ if(a==='u'){MS.pts.pop();MS.snap=false;msDraw(1)}else if(a==='f')msFinish(0);else if(a==='c')msFinish(1);else if(a==='r'||a==='n')msReset();
+ else if(a==='y'){const t=msText();(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('คัดลอกผลการวัดแล้ว'),()=>toast('คัดลอกไม่ได้ในเบราว์เซอร์นี้'))}});
+map.on('click',e=>{if(!MS.on)return;const P=MS.pts,n=P.length;
+ if(MS.done){if(Date.now()-MS.t<450)return;msReset()} // คลิกที่สองของดับเบิลคลิกที่เพิ่งจบ — ไม่เริ่มใหม่
+ else if(n>2&&msNear(P[0],e.point,12))return msFinish(1);
+ else if(n&&msNear(P[n-1],e.point,5))return; // คลิกที่สองของดับเบิลคลิก
+ MS.pts.push([e.lngLat.lng,e.lngLat.lat]);MS.cur=MS.pts[MS.pts.length-1];msDraw(1);msHud(e)});
+map.on('dblclick',e=>{if(!MS.on)return;e.preventDefault();if(!MS.done)msFinish(0)});
+map.on('mousemove',e=>{if(!MS.on)return;const P=MS.pts,n=P.length;
+ if(!MS.done){const s=n>2&&msNear(P[0],e.point,12);if(s!==MS.snap){MS.snap=s;const m=MS.mk[0];m&&m.getElement().classList.toggle('hot',s)}MS.cur=s?P[0]:[e.lngLat.lng,e.lngLat.lat];if(n)msGeo()}
+ msHud(e)});
+map.getCanvasContainer().addEventListener('mouseleave',()=>{if(!MS.on)return;$('#mhud').hidden=true;if(!MS.done&&MS.cur){MS.cur=null;if(MS.snap){MS.snap=false;const m=MS.mk[0];m&&m.getElement().classList.remove('hot')}msGeo()}});
+map.on('move',()=>{if(MS.bd.length)msFit()});
+map.on('dragstart',()=>{if(MS.on)$('#mhud').hidden=true});
+addEventListener('keydown',e=>{if(!MS.on||/INPUT|SELECT|TEXTAREA/.test((document.activeElement||{}).tagName||''))return;
+ if(e.key==='Escape')msSet(false);else if((e.key==='Backspace'||e.key==='Delete')&&!MS.done&&MS.pts.length){e.preventDefault();MS.pts.pop();MS.snap=false;msDraw(1)}else if(e.key==='Enter'&&!MS.done){e.preventDefault();msFinish(0)}});
+if(map.getSource('dem'))msLayers(); // สไตล์โหลดเสร็จก่อนสคริปต์นี้ทำงาน (setup() ข้ามไปแล้ว)
 </script>
 </body>
 </html>
