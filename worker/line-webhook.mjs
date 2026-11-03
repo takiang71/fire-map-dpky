@@ -32,7 +32,8 @@ const T = (text, o = {}) => ({ type: 'text', text: String(text), ...o, ...(o.con
 const B = (layout, contents, o = {}) => ({ type: 'box', layout, contents, ...o });
 const dPct = (c, p) => !p ? (c ? ['▲ ใหม่', RED] : ['–', MUT]) : c === p ? ['= เท่าเดิม', MUT] : [`${c > p ? '▲' : '▼'} ${Math.abs(Math.round((c - p) / p * 100))}%`, c > p ? RED : '#2E7D32'];
 // ไทล์ตัวเลข (กระชับ: ตัวเลข lg, ระยะขอบ 4px — ผู้ใช้ขอให้การ์ดสั้นพอเห็นเต็มจอมือถือ)
-const tile = (v, l, color = '#222222') => B('vertical', [T(v, { size: 'lg', weight: 'bold', align: 'center', color }), T(l, { size: 'xxs', align: 'center', color: MUT, wrap: true })],
+// ค่ายาว (เช่น NOAA-20) ลดขนาดลง — LINE บน PC ฟอนต์กว้างกว่ามือถือ เคยถูกตัดเป็น "NOAA-…" (3 พ.ย. 69)
+const tile = (v, l, color = '#222222') => B('vertical', [T(v, { size: String(v).length > 4 ? 'md' : 'lg', weight: 'bold', align: 'center', color }), T(l, { size: 'xxs', align: 'center', color: MUT, wrap: true })],
   { flex: 1, backgroundColor: '#F5F6F8', cornerRadius: 'md', paddingAll: '4px' });
 // หัวข้อย่อยพร้อมคำอธิบายสีในบรรทัดเดียว
 const sub = (txt, keys = []) => T('x', { size: 'xxs', margin: 'md', contents: [{ type: 'span', text: txt + '  ', weight: 'bold', color: '#444444' }, ...keys.flatMap(([c, l]) => [{ type: 'span', text: '■', color: c }, { type: 'span', text: ' ' + l + '  ', color: MUT }])] });
@@ -62,7 +63,8 @@ const footer = site => B('vertical', [{ type: 'button', style: 'link', height: '
 //  ปุ่มท้ายการ์ดภาพรวม (อยู่ถาวรในประวัติแชต) + Quick Reply ทุกข้อความของบอท (ลอยเหนือช่องพิมพ์ หายเมื่อมีข้อความใหม่ในแชต)
 // ปุ่มแบบ message = ส่งคำว่า "สรุป"/"เผาไหม้" ในนามคนกด → บอทตอบด้วย reply (ไม่นับโควตา)
 const btn = (label, action) => ({ type: 'button', style: 'link', height: 'sm', action: { label, ...action } });
-const menuFooter = site => B('horizontal', [btn('📊 สรุป', { type: 'message', text: 'สรุป' }), btn('🔥 เผาไหม้', { type: 'message', text: 'เผาไหม้' }), btn('🗺️ แผนที่', { type: 'uri', uri: site })], { paddingAll: '0px' });
+// ป้ายปุ่มไม่มีไอคอน: LINE บน PC ตัด "🔥 เผาไหม้" เป็น "🔥 เผาไ…" (3 พ.ย. 69)
+const menuFooter = site => B('horizontal', [btn('สรุป', { type: 'message', text: 'สรุป' }), btn('เผาไหม้', { type: 'message', text: 'เผาไหม้' }), btn('แผนที่', { type: 'uri', uri: site })], { paddingAll: '0px' });
 export const quickReply = site => ({ items: [['📊 สรุป', 'สรุป'], ['🔥 เผาไหม้', 'เผาไหม้'], ['❓ วิธีใช้', 'ช่วยเหลือ']].map(([label, text]) => ({ type: 'action', action: { type: 'message', label, text } })).concat([{ type: 'action', action: { type: 'uri', label: '🗺️ แผนที่', uri: site } }]) });
 
 // live = live.json, sum = summary.json, fresh = จุดใหม่ที่จะแจ้งเตือน (null = โหมดสรุป แสดงจุด 24 ชม. แทน)
