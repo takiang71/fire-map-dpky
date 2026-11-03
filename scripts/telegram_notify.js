@@ -104,7 +104,8 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
   // สถิติรายพื้นที่อนุรักษ์: สะสมปีงบนี้ | ทั้งปีงบก่อน ▲▼% (ผู้ใช้ขอ 3 พ.ย. 69 แบบกระชับ — บรรทัดละพื้นที่ ใช้ทั้งแจ้งเตือนและสรุปประจำวัน)
   //  hot = พื้นที่ที่มีจุดใหม่รอบนี้ (ขึ้นต้น 🔥 แทน •) · ปีงบนี้นับเฉพาะดาวเทียมตัวชี้วัด ปีก่อน = จุดกรมอุทยานฯ ไม่รวมจัดการเชื้อเพลิง/ไม่พบไฟ (summary.json ชุดเดียวกับ LINE)
   const areaTable = (hot, lab) => !sum ? [] : [
-    `📊 <b>รายพื้นที่</b> สะสมปีงบ ${fy} | ทั้งปีงบ ${fy - 1}${hot.size ? ` (🔥 ${lab})` : ''}`,
+    // หัวตารางสั้นให้อยู่บรรทัดเดียวบนมือถือ (เดิม "รายพื้นที่ สะสมปีงบ 2570 | ทั้งปีงบ 2569 (🔥 มีจุดใหม่)" ตก 2 บรรทัด — ผู้ใช้ส่งภาพ 3 พ.ย. 69)
+    `📊 ปีงบ ${fy % 100} | ทั้งปีงบ ${(fy - 1) % 100}${hot.size ? ` · 🔥 ${lab}` : ''}`,
     ...[...AREAS.map(a => [a.s, a.k, tot(k => k === a.k)]), ['นอกเขตอนุรักษ์', OUTA, tot(k => k.startsWith(OUTA))]].filter(([, , v], i) => i < AREAS.length || v.fy || v.pfull)
       .map(([n, k, v]) => `${hot.has(k) ? '🔥' : '•'} ${esc(n)} ${v.fy} | ${v.pfull}  ${dPct(v.fy, v.pfull)}`),
     `รวม <b>${all.fy}</b> | ${all.pfull}  ${dPct(all.fy, all.pfull)}`];
@@ -122,8 +123,8 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
       `${test ? '🧪 <b>ทดสอบ</b> · ' : ''}🔥 <b>พบจุดความร้อนใหม่ ${fresh.length} จุด</b>`,
       `กลุ่มป่าดงพญาเย็น-เขาใหญ่ · ${dateTh(now)} ${hm(now)} น.`,
       ...G.flatMap(([n, L]) => ['', `🌲 <b>${esc(n)}</b> ${L.length} จุด`, ...list(byNew(L), per)]),
-      '', ...areaTable(new Set(fresh.map(f => AREAS.some(a => a.k === f.properties._ar) ? f.properties._ar : OUTA)), 'มีจุดใหม่'),
-      `🕐 จุดใน 24 ชม.: ${h24.length} จุด`, NOTE,
+      '', ...areaTable(new Set(fresh.map(f => AREAS.some(a => a.k === f.properties._ar) ? f.properties._ar : OUTA)), 'จุดใหม่'),
+      '', `🕐 จุดใน 24 ชม.: ${h24.length} จุด`, NOTE,
     ].join('\n'), strict);
     return msgOf(text, [[mapBtn(fresh), ['🗺️ แผนที่ไฟป่า', SITE]]]);
   };
@@ -133,7 +134,7 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
       'สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่ · สบอ.1 (ปราจีนบุรี)', '',
       `🕐 จุดใน 24 ชม.: <b>${h24.length}</b> จุด`,
       ...(sum && sum.ind ? [`🛰 ดาวเทียมตัวชี้วัด: ${esc(sum.ind)}`] : []),
-      ...(sum ? ['', ...areaTable(new Set(h24.map(f => AREAS.some(a => a.k === f.properties._ar) ? f.properties._ar : OUTA)), 'พบใน 24 ชม.')] : []),
+      ...(sum ? ['', ...areaTable(new Set(h24.map(f => AREAS.some(a => a.k === f.properties._ar) ? f.properties._ar : OUTA)), '24 ชม.')] : []),
       ...(all.fy ? [`📍 พบมากสุด: ${tops(all)}`] : []),
       ...(h24.length ? ['', '<b>จุดใน 24 ชม.</b>', `<blockquote expandable>${list(byNew(h24), per * 2, true).join('\n')}</blockquote>`] : []),
       '<i>ไม่รวม ขสป.ดงใหญ่ · ปีก่อนไม่รวมจุดจัดการเชื้อเพลิง/ไม่พบไฟ</i>',
