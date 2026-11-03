@@ -1,0 +1,33 @@
+# ปุ่มส่งการ์ด LINE ทดสอบเข้ากลุ่ม (Actions → line-test → Run workflow) — ใช้ token ที่เก็บใน secret อยู่แล้ว ไม่ต้องวาง token ในเครื่อง
+# แต่ละครั้งใช้โควตาเท่าจำนวนสมาชิกกลุ่ม ยกเว้น validate (ให้ LINE ตรวจรูปแบบอย่างเดียว ไม่ส่ง) · ไม่ deploy และไม่แตะ notify.json
+name: line-test
+on:
+  workflow_dispatch:
+    inputs:
+      kind:
+        description: 'การ์ดที่จะส่ง'
+        type: choice
+        default: test-push
+        options:
+          - test-push   # การ์ดแจ้งเตือน (จุดจริงย้อนหลัง 5 จุด ติดป้าย ทดสอบ)
+          - daily       # สรุปประจำวัน
+          - burn        # พื้นที่เผาไหม้รอบล่าสุด
+          - validate    # ตรวจรูปแบบอย่างเดียว ไม่ส่ง ไม่เสียโควตา
+
+permissions:
+  contents: read
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/build_site.js || true
+      - run: node scripts/line_notify.js --${{ inputs.kind }}
+        env:
+          LINE_TOKEN: ${{ secrets.LINE_TOKEN }}
+          LINE_GROUP_ID: ${{ vars.LINE_GROUP_ID }}
