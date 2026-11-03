@@ -101,8 +101,14 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
   const groups = L => [...AREAS.map(a => [a.s, L.filter(f => f.properties._ar === a.k)]), ['นอกเขตอนุรักษ์', L.filter(f => !AREAS.some(a => a.k === f.properties._ar))]].filter(g => g[1].length);
   const top1 = o => Object.entries(o || {}).sort((a, b) => b[1] - a[1])[0];
   const tops = (o, u = '') => [['จ.', top1(o.pv), k => k], ['อ.', top1(o.am), k => k.split('|')[0]], ['ต.', top1(o.tm), k => k.split('|')[0]]].filter(x => x[1]).map(([p, [k, v], f]) => `${p}${esc(f(k))} ${u ? rai(v) + u : v}`).join(' · ');
-  const fyLine = () => sum ? `📈 สะสมปีงบ ${fy}: <b>${all.fy}</b> จุด (${dPct(all.fy, all.pfull)} เทียบทั้งปีงบ ${fy - 1}: ${all.pfull})` : '';
-  const NOTE = '<i>ไม่รวม ขสป.ดงใหญ่</i>';
+  // สถิติรายพื้นที่อนุรักษ์: สะสมปีงบนี้ | ทั้งปีงบก่อน ▲▼% (ผู้ใช้ขอ 3 พ.ย. 69 แบบกระชับ — บรรทัดละพื้นที่ ใช้ทั้งแจ้งเตือนและสรุปประจำวัน)
+  //  hot = พื้นที่ที่มีจุดใหม่รอบนี้ (ขึ้นต้น 🔥 แทน •) · ปีงบนี้นับเฉพาะดาวเทียมตัวชี้วัด ปีก่อน = จุดกรมอุทยานฯ ไม่รวมจัดการเชื้อเพลิง/ไม่พบไฟ (summary.json ชุดเดียวกับ LINE)
+  const areaTable = (hot, lab) => !sum ? [] : [
+    `📊 <b>รายพื้นที่</b> สะสมปีงบ ${fy} | ทั้งปีงบ ${fy - 1}${hot.size ? ` (🔥 ${lab})` : ''}`,
+    ...[...AREAS.map(a => [a.s, a.k, tot(k => k === a.k)]), ['นอกเขตอนุรักษ์', OUTA, tot(k => k.startsWith(OUTA))]].filter(([, , v], i) => i < AREAS.length || v.fy || v.pfull)
+      .map(([n, k, v]) => `${hot.has(k) ? '🔥' : '•'} ${esc(n)} ${v.fy} | ${v.pfull}  ${dPct(v.fy, v.pfull)}`),
+    `รวม <b>${all.fy}</b> | ${all.pfull}  ${dPct(all.fy, all.pfull)}`];
+  const NOTE = `<i>ไม่รวม ขสป.ดงใหญ่${sum && sum.ind ? ` · สะสมนับเฉพาะ ${esc(sum.ind)} (ตัวชี้วัด)` : ''}</i>`;
   // ข้อความยาวเกิน/ลิงก์มากเกิน → ลดจำนวนจุดที่แสดงต่อพื้นที่ลง · strict = นับความยาวรวมแท็กและ URL (ใช้ซ้ำเมื่อ Telegram ตอบว่ายาวเกิน)
   const vis = t => t.replace(/<[^>]+>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&');
   const ents = t => (t.match(/<(a|b|i|blockquote)[\s>]/g) || []).length;
@@ -116,18 +122,18 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
       `${test ? '🧪 <b>ทดสอบ</b> · ' : ''}🔥 <b>พบจุดความร้อนใหม่ ${fresh.length} จุด</b>`,
       `กลุ่มป่าดงพญาเย็น-เขาใหญ่ · ${dateTh(now)} ${hm(now)} น.`,
       ...G.flatMap(([n, L]) => ['', `🌲 <b>${esc(n)}</b> ${L.length} จุด`, ...list(byNew(L), per)]),
-      '', ...[fyLine(), `🕐 จุดใน 24 ชม.: ${h24.length} จุด`].filter(Boolean), NOTE,
+      '', ...areaTable(new Set(fresh.map(f => AREAS.some(a => a.k === f.properties._ar) ? f.properties._ar : OUTA)), 'มีจุดใหม่'),
+      `🕐 จุดใน 24 ชม.: ${h24.length} จุด`, NOTE,
     ].join('\n'), strict);
     return msgOf(text, [[mapBtn(fresh), ['🗺️ แผนที่ไฟป่า', SITE]]]);
   };
   const dailyMsg = (strict = false) => {
-    const rows = [...AREAS.map(a => [a.s, tot(k => k === a.k)]), ['นอกเขตอนุรักษ์', tot(k => k.startsWith(OUTA))]].filter(([, v], i) => i < AREAS.length || v.fy || v.pfull);
     const text = fit(per => [
       `📋 <b>สรุปประจำวัน ${dateTh(now)}</b>`,
       'สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่ · สบอ.1 (ปราจีนบุรี)', '',
-      `🕐 จุดใน 24 ชม.: <b>${h24.length}</b> จุด`, ...[fyLine()].filter(Boolean),
+      `🕐 จุดใน 24 ชม.: <b>${h24.length}</b> จุด`,
       ...(sum && sum.ind ? [`🛰 ดาวเทียมตัวชี้วัด: ${esc(sum.ind)}`] : []),
-      ...(sum ? ['', `<b>รายพื้นที่</b> (สะสมปีงบ ${fy} / ทั้งปีงบ ${fy - 1})`, ...rows.map(([n, v]) => `• ${esc(n)}: <b>${v.fy}</b> / ${v.pfull}  ${dPct(v.fy, v.pfull)}`)] : []),
+      ...(sum ? ['', ...areaTable(new Set(h24.map(f => AREAS.some(a => a.k === f.properties._ar) ? f.properties._ar : OUTA)), 'พบใน 24 ชม.')] : []),
       ...(all.fy ? [`📍 พบมากสุด: ${tops(all)}`] : []),
       ...(h24.length ? ['', '<b>จุดใน 24 ชม.</b>', `<blockquote expandable>${list(byNew(h24), per * 2, true).join('\n')}</blockquote>`] : []),
       '<i>ไม่รวม ขสป.ดงใหญ่ · ปีก่อนไม่รวมจุดจัดการเชื้อเพลิง/ไม่พบไฟ</i>',
