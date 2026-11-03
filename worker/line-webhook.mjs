@@ -127,6 +127,8 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
         ...(alert && L.length ? [banner(`🔥 พบจุดใหม่ ${L.length} จุด`)] : []),
         B('horizontal', [tile(n24, 'จุดใน 24 ชม.', n24 ? RED : '#222222'), tile(v.fy, `สะสมปีงบ ${fy}`), tile(v.pfull, `ทั้งปีงบ ${fy - 1}`, BLUE)], { spacing: 'sm', margin: alert && L.length ? 'sm' : 'none' }),
         T('x', { size: 'xxs', margin: 'sm', wrap: true, contents: [{ type: 'span', text: t + ' ', color: c, weight: 'bold' }, { type: 'span', text: `ปีงบ ${fy} เทียบทั้งปีงบ ${fy - 1}`, color: MUT }] }),
+        // จังหวัด/อำเภอ/ตำบลที่พบจุดสูงสุดในพื้นที่ — ข้อความบรรทัดเดียว (ไทล์ทำให้กรณีหนักสุดเกินเพดาน 50 KB, ผู้ใช้เลือก 3 พ.ย. 69) · ไม่มีจุดในปีงบ = ไม่แสดง
+        ...(v.fy ? [T('สูงสุด ' + ['pv', 'am', 'tm'].map(l => { const [x] = topN(v[l], 1); return x ? `${{ pv: 'จ.', am: 'อ.', tm: 'ต.' }[l]}${x[0].split('|')[0]} ${x[1]}` : '' }).filter(Boolean).join(' · '), { size: 'xxs', color: '#444444', wrap: true, margin: 'sm' })] : []),
         sub('รายเดือน', [[a.c, `ปีงบ ${fy}`]]),
         ...months(v.m, null, a.c, 24),
         sub(alert ? 'จุดใหม่รอบนี้ (แตะเพื่อเปิดแผนที่)' : 'จุดใน 24 ชม. (แตะเพื่อเปิดแผนที่)'),
