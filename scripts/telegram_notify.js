@@ -15,7 +15,9 @@ const fs = require('fs'), path = require('path'), { pathToFileURL } = require('u
 
 const ROOT = path.join(__dirname, '..'), OUT = path.join(ROOT, '_site');
 const SITE = process.env.SITE_URL || 'https://takiang71.github.io/fire-map-dpky/';
-const TOKEN = (process.env.TG_TOKEN || '').trim(), CHATS = (process.env.TG_CHAT_ID || '').split(/[\s,]+/).filter(Boolean);
+// TG_CHAT_ID: เก็บเฉพาะส่วนที่เป็นรหัสห้อง (ตัวเลข/@ชื่อช่อง) — กันวางทั้งบรรทัดจาก log "TG_CHAT_ID = -100… (supergroup) ชื่อกลุ่ม" (3 พ.ย. 69)
+const IDS = (process.env.TG_CHAT_ID || '').replace(/["'`]/g, ' ').split(/[\s,;]+/).filter(Boolean), isId = x => /^-?\d{5,}$|^@\w{4,}$/.test(x);
+const TOKEN = (process.env.TG_TOKEN || '').trim(), CHATS = [...new Set(IDS.filter(isId))], BADID = IDS.filter(x => !isId(x));
 const API = process.env.TG_API || 'https://api.telegram.org';
 const DAILY = /^\d{1,2}:\d{2}$/.test(process.env.TG_DAILY || '') ? process.env.TG_DAILY : /^(off|0|no)$/i.test(process.env.TG_DAILY || '') ? null : '07:30';
 const DAILY_WIN_H = 4, BURN = !/^(off|0|no)$/i.test(process.env.TG_BURN || '');
@@ -216,9 +218,11 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
   if (!on) st.tg = { off: 1, why: off, at: new Date(now).toISOString() };
   else if (!st.tg || !st.tg.ok || now - Date.parse(st.tg.at) > 36e5 || sendErr || Object.keys(MIG).length > mig0) {
     try {
-      const me = await tg('getMe'), chats = [];
-      for (const c of CHATS) { const id = MIG[c] || c, ch = await tg('getChat', { chat_id: id }); let n = null; try { n = await tg('getChatMemberCount', { chat_id: id }) } catch (e) { } chats.push({ type: ch.type, title: ch.title || ch.username || ch.first_name || '', members: n }) }
-      st.tg = { ok: 1, bot: me.username, chats, at: new Date(now).toISOString() };
+      const me = await tg('getMe'), chats = [], bad = [];
+      for (const c of CHATS) { const id = MIG[c] || c;
+        try { const ch = await tg('getChat', { chat_id: id }); let n = null; try { n = await tg('getChatMemberCount', { chat_id: id }) } catch (e) { } chats.push({ id, type: ch.type, title: ch.title || ch.username || ch.first_name || '', members: n }) }
+        catch (e) { chats.push({ id, why: e.message.slice(0, 120) }); bad.push(`${id}: ${e.message.slice(0, 120)}`) } }
+      st.tg = { ok: bad.length ? 0 : 1, bot: me.username, chats, ...(bad.length ? { why: bad.join(' | ') } : {}), ...(BADID.length ? { ignored: BADID.length } : {}), at: new Date(now).toISOString() };
     } catch (e) { st.tg = { ok: 0, why: e.message.slice(0, 200), at: new Date(now).toISOString() } }
   }
   for (const k in st.sent) if (now - st.sent[k] > KEEP_H * 36e5) delete st.sent[k];
