@@ -16,7 +16,7 @@ const dTh = ms => new Date(ms).toLocaleDateString('th-TH', { day: 'numeric', mon
 export const EX = /ดงใหญ่/;
 export const excluded = p => EX.test(p._ar || '') || EX.test(p._st || '');
 // การ์ด 2–7: 6 พื้นที่อนุรักษ์ (การ์ด 1 ภาพรวม มีไทล์จังหวัด/อำเภอ/ตำบลสูงสุด) (ชื่อตาม where() ใน scripts/lib/area.js)
-const AREAS = [
+export const AREAS = [
   { id: 'ky', k: 'อุทยานแห่งชาติเขาใหญ่', s: 'อช.เขาใหญ่', c: '#2E7D32' },
   { id: 'tl', k: 'อุทยานแห่งชาติทับลาน', s: 'อช.ทับลาน', c: '#1565C0' },
   { id: 'ps', k: 'อุทยานแห่งชาติปางสีดา', s: 'อช.ปางสีดา', c: '#00838F' },
@@ -164,7 +164,7 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
 const BURN = '#A3171B', VIO = '#7C3AED', nf = v => Math.round(v).toLocaleString('en-US'), rai = v => v > 0 && v < 1 ? '<1' : nf(v);
 const dYMD = s => Date.UTC(+s.slice(0, 4), +s.slice(4, 6) - 1, +s.slice(6, 8));
 // ชื่อสถานีฯ แบบสั้นพอดีช่องในการ์ด (ผู้ใช้เห็น "สถานีฯ ทับลาน (ด้าน…" ถูกตัด 30 ต.ค. 69)
-const stShort = n => n === 'ไม่มี' ? 'ไม่มีสถานีฯ ดูแล' : n.replace('สถานีควบคุมไฟป่า', 'สถานีฯ ').replace(' (ด้านทิศใต้)', ' (ใต้)').replace(' - ', '-');
+export const stShort = n => n === 'ไม่มี' ? 'ไม่มีสถานีฯ ดูแล' : n.replace('สถานีควบคุมไฟป่า', 'สถานีฯ ').replace(' (ด้านทิศใต้)', ' (ใต้)').replace(' - ', '-');
 export const burnLab = bs => { const a = dateTh(dYMD(bs.d0)), b = dateTh(dYMD(bs.d1)); return bs.d0.slice(0, 6) === bs.d1.slice(0, 6) ? a.replace(/ \S+ \S+$/, '') + '–' + b : a.replace(/ \S+$/, '') + ' – ' + b };
 // เพดาน 50 KB: ถ้าเกิน 48,000 ไบต์ ลดบรรทัดที่ไหม้มากสุดในการ์ดรายพื้นที่ 3 → 1 (ตำบล) → 0 (กรณีหนักสุดสมมติแบบ 3 บรรทัด = 49.7 KB)
 export function burnCard(bs, o = {}) {

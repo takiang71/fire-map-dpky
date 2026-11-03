@@ -1,0 +1,34 @@
+# ปุ่มทดสอบ Telegram (Actions → tg-test → Run workflow) — ใช้ token ที่เก็บใน secret TG_TOKEN ไม่ต้องวาง token ในเครื่อง · ไม่ deploy และไม่แตะ tg_notify.json
+# chats = แสดงรหัสห้องที่บอทอยู่ (เชิญบอทเข้ากลุ่มแล้วพิมพ์ /start@ชื่อบอท ในกลุ่มก่อน) → เอาไปตั้ง Variable TG_CHAT_ID / TG_ADMIN_ID
+name: tg-test
+on:
+  workflow_dispatch:
+    inputs:
+      kind:
+        description: 'สิ่งที่จะทำ'
+        type: choice
+        default: chats
+        options:
+          - chats       # แสดงรหัสห้อง (ไม่ส่งข้อความ)
+          - test-push   # ข้อความแจ้งเตือน (จุดจริงย้อนหลัง 5 จุด ติดป้าย ทดสอบ)
+          - daily       # สรุปประจำวัน
+          - burn        # พื้นที่เผาไหม้รอบล่าสุด
+          - preview     # แสดงข้อความทุกแบบใน log (ไม่ส่ง)
+
+permissions:
+  contents: read
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/build_site.js || true
+      - run: node scripts/telegram_notify.js --${{ inputs.kind }}
+        env:
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          TG_CHAT_ID: ${{ vars.TG_CHAT_ID }}

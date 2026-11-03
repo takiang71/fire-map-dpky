@@ -42,11 +42,22 @@ jobs:
           LINE_DAILY: ${{ vars.LINE_DAILY }}
           # การ์ดพื้นที่เผาไหม้เมื่อมีรอบใหม่ ("off" = ปิด)
           LINE_BURN: ${{ vars.LINE_BURN }}
-      # แจ้งเตือนผู้ดูแลทาง LINE เมื่อระบบเสีย (scripts/health.js) — ส่งถึง LINE_ADMIN_ID คนเดียว ไม่ตั้ง = บันทึกสถานะใน health.json อย่างเดียว
+      # แจ้งเตือนคู่ขนานทาง Telegram (docs/telegram-bot.md) — สถานะแยกใน tg_notify.json · ไม่ตั้ง secret ก็ข้าม
+      - run: node scripts/telegram_notify.js || true
+        env:
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          TG_CHAT_ID: ${{ vars.TG_CHAT_ID }}
+          # สรุปประจำวัน เวลาไทย HH:MM (ไม่ตั้ง = 07:30, "off" = ปิด)
+          TG_DAILY: ${{ vars.TG_DAILY }}
+          # ข้อความพื้นที่เผาไหม้เมื่อมีรอบใหม่ ("off" = ปิด)
+          TG_BURN: ${{ vars.TG_BURN }}
+      # แจ้งเตือนผู้ดูแลเมื่อระบบเสีย (scripts/health.js) — ส่งถึง LINE_ADMIN_ID / TG_ADMIN_ID คนเดียว ไม่ตั้ง = บันทึกสถานะใน health.json อย่างเดียว
       - run: node scripts/health.js || true
         env:
           LINE_TOKEN: ${{ secrets.LINE_TOKEN }}
           LINE_ADMIN_ID: ${{ vars.LINE_ADMIN_ID }}
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          TG_ADMIN_ID: ${{ vars.TG_ADMIN_ID }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

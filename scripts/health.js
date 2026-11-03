@@ -2,20 +2,25 @@
 // ใช้ใน workflow "site" ต่อจาก line_notify.js:  node scripts/health.js
 //   ตรวจ: ดึง API จุดความร้อนไม่ได้/ตอบว่างทั้งประเทศ (เกิน 1 ชม.) · ระบบต้นทางไม่อัปเดต (เกิน 18 ชม.) · sync ไม่ทำงาน (adata เก่ากว่า 14 ชม.)
 //         ข้อมูลสะสมค้าง (วันล่าสุดที่ดึงครบเก่ากว่า 2 วัน) · LINE ใช้งานไม่ได้ (ช่อง line ใน notify.json)
+//         Telegram ใช้งานไม่ได้ / กลุ่มถูกอัปเกรดเป็น supergroup (ช่อง tg, migrate ใน tg_notify.json — scripts/telegram_notify.js)
 //   แจ้งเมื่อเริ่มพบ · ทวนซ้ำทุก 12 ชม. ถ้ายังไม่หาย · แจ้ง "กลับมาปกติ" เมื่อหาย — รวมทุกเรื่องเป็นข้อความเดียวต่อรอบ (push ถึง 1 คน = 1 ข้อความจากโควตา)
 //   สถานะเก็บใน _site/health.json (เผยแพร่บน Pages ไม่ commit; รอบถัดไปอ่านจาก URL — แบบเดียวกับ notify.json) ดูสถานะปัจจุบันได้ที่ <เว็บ>/health.json
 // ใช้ใน workflow "sync":  node scripts/health.js --site  → ตรวจว่า workflow site ยังทำงาน (notify.json บนเว็บอัปเดตใน 90 นาที)
 //   ถ้า cron-job.org/site หยุด การตรวจข้างบนก็หยุดด้วย จึงให้ sync (วันละ 4 รอบ) ตรวจแทน · ไม่มีที่เก็บสถานะ จึงแจ้งทุกรอบ sync จนกว่าจะหาย (≤ 4 ครั้ง/วัน)
 // env: LINE_TOKEN, LINE_ADMIN_ID (รหัสผู้ใช้ LINE ของผู้ดูแล — พิมพ์ "รหัสผู้ใช้" คุยกับบอท) · SITE_URL, LINE_API (ทดสอบ) · HEALTH_NOW (มิลลิวินาที จำลองเวลา)
+//   ส่งทาง Telegram ด้วย (ไม่บังคับ): TG_TOKEN + TG_ADMIN_ID (รหัสแชตส่วนตัวกับบอท — docs/telegram-bot.md) · TG_API (ทดสอบ)
+//   ตั้งไว้ทั้งสองทาง = ส่งทั้งสอง · ส่งได้ทางใดทางหนึ่งถือว่าแจ้งแล้ว (LINE เสียก็ยังรู้ทาง Telegram)
 const fs = require('fs'), path = require('path');
 
 const ROOT = path.join(__dirname, '..'), OUT = path.join(ROOT, '_site');
 const SITE = process.env.SITE_URL || 'https://takiang71.github.io/fire-map-dpky/';
 const TOKEN = process.env.LINE_TOKEN, ADMIN = (process.env.LINE_ADMIN_ID || '').trim(), API = process.env.LINE_API || 'https://api.line.me';
+const TG = (process.env.TG_TOKEN || '').trim(), TADMIN = (process.env.TG_ADMIN_ID || '').trim(), TAPI = process.env.TG_API || 'https://api.telegram.org';
 const ACTIONS = 'https://github.com/takiang71/fire-map-dpky/actions';
 const H = 36e5, REMIND = 12 * H;
 // เรื่องที่ตรวจ: ชื่อ + ต้องเป็นต่อเนื่องนานเท่าไรจึงแจ้ง (กันขัดข้องชั่วคราว)
-const CHECKS = { api: ['ดึงจุดความร้อนจาก API ไม่ได้', H], src: ['ระบบต้นทางไม่อัปเดต', 0], sync: ['sync จุดความร้อนไม่ทำงาน', 0], gap: ['ข้อมูลสะสมค้าง', 0], line: ['LINE ใช้งานไม่ได้', H] };
+const CHECKS = { api: ['ดึงจุดความร้อนจาก API ไม่ได้', H], src: ['ระบบต้นทางไม่อัปเดต', 0], sync: ['sync จุดความร้อนไม่ทำงาน', 0], gap: ['ข้อมูลสะสมค้าง', 0], line: ['LINE ใช้งานไม่ได้', H],
+  tg: ['Telegram ใช้งานไม่ได้', H], tgm: ['กลุ่ม Telegram ถูกอัปเกรดเป็น supergroup', 0] };
 const now = +process.env.HEALTH_NOW || Date.now();
 const thTime = ms => { const d = new Date(ms + 7 * H); return `${d.getUTCDate()}/${d.getUTCMonth() + 1} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')} น.` };
 const hrs = ms => (ms / H).toFixed(ms < 10 * H ? 1 : 0);
@@ -26,13 +31,24 @@ async function line(p, body) {
   const r = await fetch(API + p, { method: body ? 'POST' : 'GET', signal: AbortSignal.timeout(20e3), headers: { Authorization: 'Bearer ' + TOKEN, ...(body ? { 'Content-Type': 'application/json' } : {}) }, body: body && JSON.stringify(body) });
   const t = await r.text(); if (!r.ok) throw new Error(`${p} HTTP ${r.status} ${t.slice(0, 200)}`); return t ? JSON.parse(t) : {};
 }
-// ส่งข้อความถึงผู้ดูแล (ตรวจโควตาก่อน) → true = ส่งแล้ว
-async function send(text) {
-  if (!TOKEN || !ADMIN) { console.log('ยังไม่ตั้ง', !TOKEN ? 'LINE_TOKEN' : 'LINE_ADMIN_ID', '— ไม่ส่ง:\n' + text); return false }
-  const [q, u] = await Promise.all([line('/v2/bot/message/quota'), line('/v2/bot/message/quota/consumption')]);
-  if (q.type !== 'none' && q.value - u.totalUsage < 1) { console.log('โควตาหมด — ไม่ส่ง'); return false }
-  await line('/v2/bot/message/push', { to: ADMIN, messages: [{ type: 'text', text: text.slice(0, 4900) }] });
-  return true;
+async function tgSend(text) {
+  const r = await fetch(`${TAPI}/bot${TG}/sendMessage`, { method: 'POST', signal: AbortSignal.timeout(20e3), headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: TADMIN, text: text.slice(0, 4000), link_preview_options: { is_disabled: true } }) });
+  const j = await r.json().catch(() => ({})); if (!j.ok) throw new Error(`Telegram ${j.error_code || r.status} ${j.description || ''}`);
+}
+// ส่งข้อความถึงผู้ดูแลทาง Telegram และ/หรือ LINE (ตรวจโควตาก่อน) → true = ส่งได้อย่างน้อยหนึ่งทาง · to = { line, tg } เลือกทาง (ข้อความยืนยันการตั้งค่า)
+async function send(text, to = { line: 1, tg: 1 }) {
+  let sent = false, err = null;
+  if (to.tg && TG && TADMIN) try { await tgSend(text); sent = true } catch (e) { console.log('Telegram ส่งไม่สำเร็จ:', e.message); err = e }
+  if (to.line) {
+    if (!TOKEN || !ADMIN) console.log('ยังไม่ตั้ง', !TOKEN ? 'LINE_TOKEN' : 'LINE_ADMIN_ID', '— ไม่ส่งทาง LINE' + (sent ? '' : ':\n' + text));
+    else try {
+      const [q, u] = await Promise.all([line('/v2/bot/message/quota'), line('/v2/bot/message/quota/consumption')]);
+      if (q.type !== 'none' && q.value - u.totalUsage < 1) console.log('โควตา LINE หมด — ไม่ส่งทาง LINE');
+      else { await line('/v2/bot/message/push', { to: ADMIN, messages: [{ type: 'text', text: text.slice(0, 4900) }] }); sent = true }
+    } catch (e) { console.log('LINE ส่งไม่สำเร็จ:', e.message); err = e }
+  }
+  if (!sent && err) throw err;
+  return sent;
 }
 
 // ปัญหาที่พบตอนนี้ { key: ข้อความ }
@@ -51,6 +67,9 @@ function problems() {
     if (today - to > 2) P.gap = `ดึงครบถึง ${a.to || '-'} (ขาด ${today - to - 1} วัน) — API อาจตอบว่างย้อนหลัง`;
   }
   if (nt && nt.line && nt.line.ok === 0 && TOKEN) P.line = nt.line.why || 'ตรวจโควตา/กลุ่มไม่ผ่าน';
+  const tn = readJ(path.join(OUT, 'tg_notify.json'));
+  if (tn && tn.tg && tn.tg.ok === 0) P.tg = tn.tg.why || 'ตรวจบอท/ห้องไม่ผ่าน';
+  if (tn && tn.migrate && Object.keys(tn.migrate).length) P.tgm = 'แก้ GitHub Variable TG_CHAT_ID: ' + Object.entries(tn.migrate).map(([a, b]) => `${a} → ${b}`).join(', ') + ' (ระหว่างนี้ระบบส่งไปที่รหัสใหม่ให้เอง)';
   return P;
 }
 
@@ -66,12 +85,15 @@ function problems() {
   const st = (await getJ('health.json')) || { checks: {}, log: [] };
   st.checks = st.checks || {};
   const P = problems(), bad = [], ok = [];
-  // ตั้ง/เปลี่ยน LINE_ADMIN_ID → ส่งข้อความยืนยัน 1 ครั้ง (health.json เป็นสาธารณะ จึงเก็บแค่แฮชของรหัส)
-  const aid = ADMIN && require('crypto').createHash('sha256').update(ADMIN).digest('hex').slice(0, 12);
+  // ตั้ง/เปลี่ยน LINE_ADMIN_ID / TG_ADMIN_ID → ส่งข้อความยืนยันทางนั้น 1 ครั้ง (health.json เป็นสาธารณะ จึงเก็บแค่แฮชของรหัส)
+  const hash = v => v && require('crypto').createHash('sha256').update(v).digest('hex').slice(0, 12), aid = hash(ADMIN), tid = hash(TADMIN);
+  const hello = () => { const n = Object.keys(P).length; return `✅ ตั้งค่าแจ้งเตือนผู้ดูแลเรียบร้อย\nบอทจะส่งข้อความถึงคุณคนเดียวเมื่อระบบแผนที่ไฟป่าเสีย (API/sync/ระบบต้นทาง/LINE/Telegram/หน้าเว็บหยุด) และเมื่อกลับมาปกติ\nสถานะตอนนี้: ${n ? `มีปัญหา ${n} เรื่อง (จะแจ้งแยก)` : 'ปกติ'}` };
   if (aid && st.admin !== aid && TOKEN) try {
-    const n = Object.keys(P).length;
-    if (await send(`✅ ตั้งค่าแจ้งเตือนผู้ดูแลเรียบร้อย\nบอทจะส่งข้อความถึงคุณคนเดียวเมื่อระบบแผนที่ไฟป่าเสีย (API/sync/ระบบต้นทาง/LINE/หน้าเว็บหยุด) และเมื่อกลับมาปกติ\nสถานะตอนนี้: ${n ? `มีปัญหา ${n} เรื่อง (จะแจ้งแยก)` : 'ปกติ'}`)) { st.admin = aid; console.log('ส่งข้อความยืนยันผู้ดูแลแล้ว') }
+    if (await send(hello(), { line: 1 })) { st.admin = aid; console.log('ส่งข้อความยืนยันผู้ดูแลแล้ว') }
   } catch (e) { console.log('ส่งข้อความยืนยันไม่สำเร็จ:', e.message) }
+  if (tid && st.tadmin !== tid && TG) try {
+    if (await send(hello(), { tg: 1 })) { st.tadmin = tid; console.log('ส่งข้อความยืนยันผู้ดูแลทาง Telegram แล้ว') }
+  } catch (e) { console.log('ส่งข้อความยืนยันทาง Telegram ไม่สำเร็จ:', e.message) }
   for (const [k, m] of Object.entries(P)) {
     const c = st.checks[k] = { since: now, ...st.checks[k], msg: m };
     if (now - c.since >= CHECKS[k][1] && (!c.alerted || now - c.alerted >= REMIND)) bad.push(k);
