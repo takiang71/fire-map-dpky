@@ -27,10 +27,10 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 #lcol{position:fixed;z-index:6;top:50%;left:400px;transform:translateY(-50%);width:24px;height:56px;padding:0;border:0;border-radius:12px;background:var(--bg);box-shadow:var(--sh);display:grid;place-items:center;color:var(--navy);cursor:pointer;transition:left .25s}
 #lcol svg{width:18px;height:18px;transition:transform .25s}body.lc #lcol{left:8px}body.lc #lcol svg{transform:rotate(180deg)}
 /* กล่องลอยท้ายแผงซ้าย: ยังเลื่อนลงได้ = แสดง (ลูกศรขยับขึ้นลง) ถึงท้ายแล้วหาย */
-#more{position:fixed;z-index:6;transform:translateX(-50%);display:inline-flex;align-items:center;gap:5px;padding:5px 13px 5px 9px;border:1px solid var(--line);border-radius:99px;background:var(--bg);box-shadow:var(--sh);font-size:12.5px;color:var(--ink);white-space:nowrap;cursor:pointer}
-#more[hidden]{display:none}#more svg{width:15px;height:15px;animation:mbob 1.1s ease-in-out infinite}
+#more,#more2{position:fixed;z-index:6;transform:translateX(-50%);display:inline-flex;align-items:center;gap:5px;padding:5px 13px 5px 9px;border:1px solid var(--line);border-radius:99px;background:var(--bg);box-shadow:var(--sh);font-size:12.5px;color:var(--ink);white-space:nowrap;cursor:pointer}
+#more2{z-index:7}#more[hidden],#more2[hidden]{display:none}#more svg,#more2 svg{width:15px;height:15px;animation:mbob 1.1s ease-in-out infinite}
 @keyframes mbob{0%,100%{transform:translateY(-2px)}50%{transform:translateY(2px)}}
-@media(prefers-reduced-motion:reduce){#more svg{animation:none}}
+@media(prefers-reduced-motion:reduce){#more svg,#more2 svg{animation:none}}
 @media(min-width:768px){#left{transition:transform .25s}body.lc #left{transform:translateX(calc(-100% - 12px))}}
 @media(max-width:767px){:root{--lw:0px}#lcol{display:none}}
 /* ส่วนหัวแผงซ้าย = กล่องขาวทึบมุมมน 20 แบบการ์ดด้านล่าง (ผู้ใช้ขอ 2 พ.ย. 69) กว้างเท่าการ์ด ระยะห่าง 12 px เท่ากันทุกช่อง */
@@ -2421,6 +2421,14 @@ let moreQ=0;const moreRun=()=>{if(!moreQ)moreQ=requestAnimationFrame(()=>{moreQ=
 MORE.onclick=()=>{const el=moreEl();el.scrollBy({top:el.clientHeight*.8,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'})};
 ['#left','#hcard'].forEach(q=>$(q).addEventListener('scroll',moreRun,{passive:true}));addEventListener('resize',moreRun);
 if(window.ResizeObserver){const o=new ResizeObserver(moreRun);['#left','#hcard','#pcard','#stats'].forEach(q=>o.observe($(q)))}moreRun();
+// กล่องเดียวกันที่แผงชั้นข้อมูล (ผู้ใช้ขอ 3 พ.ย. 69): ตัวเลื่อน .rb · ใช้ตำแหน่งตามเลย์เอาต์ (offset*) เพราะแผงเลื่อนเข้า-ออกด้วย transform · วางกลางแผง เหนือขอบล่างของ .rb (ปุ่มนำเข้าข้อมูลอยู่ใต้) 10 px
+const MORE2=MORE.cloneNode(true);MORE2.id='more2';document.body.append(MORE2);
+function more2Fit(){const R=$('#right'),b=R.querySelector('.rb'),on=R.classList.contains('open')&&b.scrollHeight-b.clientHeight-b.scrollTop>8;MORE2.hidden=!on;if(!on)return;
+ MORE2.style.left=Math.round(R.offsetLeft+R.offsetWidth/2)+'px';MORE2.style.bottom=Math.round(innerHeight-(R.offsetTop+b.offsetTop+b.offsetHeight)+10)+'px'}
+let more2Q=0;const more2Run=()=>{if(!more2Q)more2Q=requestAnimationFrame(()=>{more2Q=0;more2Fit()})};
+MORE2.onclick=()=>{const b=$('#right .rb');b.scrollBy({top:b.clientHeight*.8,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'})};
+$('#right .rb').addEventListener('scroll',more2Run,{passive:true});addEventListener('resize',more2Run);new MutationObserver(more2Run).observe($('#right'),{attributes:true,attributeFilter:['class']});
+if(window.ResizeObserver){const o=new ResizeObserver(more2Run);o.observe($('#right .rb'));[...$('#right .rb').children].forEach(e=>o.observe(e))}more2Run();
 /* ปุ่มพับแผงซ้ายไปด้านข้าง (ผู้ใช้ขอ 2 พ.ย. 69) เพิ่มพื้นที่แผนที่ · body.lc → --lw 0 (ป้าย/แถบที่จัดกลางพื้นที่ขวาขยับตาม) · homePad ใช้พื้นที่เต็ม · ไม่บันทึกสถานะ */
 const LCOL=document.createElement('button');LCOL.id='lcol';LCOL.type='button';LCOL.innerHTML='<svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>';document.body.append(LCOL);
 function lcSet(on,fit){document.body.classList.toggle('lc',on);if(fit)panFit(); // ผู้ใช้ขอ 2 พ.ย. 69: กลุ่มป่ากลางพื้นที่แผนที่ที่เหลือ
