@@ -81,10 +81,12 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
   // --- ตัวสร้างข้อความ ---
   const arS = k => (AREAS.find(a => a.k === k) || {}).s || (k && k !== OUTA ? k : 'นอกเขตอนุรักษ์');
   const gm = f => { const [lo, la] = f.geometry.coordinates; return `https://maps.google.com/?q=${la.toFixed(5)},${lo.toFixed(5)}` };
-  // ท้ายบรรทัดจุดมีลิงก์ Google Maps (นำทาง) + แผนที่ไฟป่า (?hs= เปิดแผงรายละเอียดจุดบนหน้าเว็บ) — ผู้ใช้ขอ 3 พ.ย. 69 (เดิมแตะเวลาเปิด Google Maps อย่างเดียว)
+  // ใต้บรรทัดจุดมีลิงก์ Google Maps (นำทาง) + แผนที่ไฟป่า (?hs= เปิดแผงรายละเอียดจุดบนหน้าเว็บ) — ผู้ใช้ขอ 3 พ.ย. 69 (เดิมแตะเวลาเปิด Google Maps อย่างเดียว)
+  // เวลาตัวหนาให้แยกจุดง่าย · ลิงก์บรรทัดใหม่ · NBSP หลังไอคอน กัน Telegram ตัดบรรทัดระหว่างอีโมจิกับคำ (ผู้ใช้ส่งภาพ 🔥 ค้างท้ายบรรทัด 3 พ.ย. 69)
   const hsUrl = f => { const [lo, la] = f.geometry.coordinates; return `${SITE}?hs=${la.toFixed(5)},${lo.toFixed(5)}` };
   const ptLine = (f, ar = false) => { const p = f.properties, t = thMs(p.full_date);
-    return `• ${hm(t)} น. ${dTh(t)} ${esc(SATN[satKey(p.satellite_name)] || p.satellite_name)}${ar ? ' · ' + esc(arS(p._ar)) : ''} · ต.${esc(p.subdistrict_name_th || '-')} อ.${esc(p.district_name_th || '-')} จ.${esc(p.province_name_th || '-')}${p._st ? ' · ' + esc(stShort(p._st)) : ''} · 📍<a href="${gm(f)}">Google Maps</a> · 🔥<a href="${hsUrl(f)}">แผนที่ไฟป่า</a>` };
+    return `• <b>${hm(t)} น. ${dTh(t)}</b> ${esc(SATN[satKey(p.satellite_name)] || p.satellite_name)}${ar ? ' · ' + esc(arS(p._ar)) : ''} · ต.${esc(p.subdistrict_name_th || '-')} อ.${esc(p.district_name_th || '-')} จ.${esc(p.province_name_th || '-')}${p._st ? ' · ' + esc(stShort(p._st)) : ''}
+   📍 <a href="${gm(f)}">Google Maps</a>  ·  🔥 <a href="${hsUrl(f)}">แผนที่ไฟป่า</a>` };
   // ปุ่มแผนที่ของชุดจุด (ลิงก์ตรงแบบเดียวกับการ์ด LINE): 1 จุด = เปิดจุดนั้น, หลายจุด = ซูมกรอบ
   // ป้ายปุ่มสั้น: ปุ่มครึ่งจอบนมือถือตัด "ดู 5 จุดบนแผนที่" เป็น "ดู 5 จุดบนแผนท…" (ผู้ใช้ส่งภาพ 3 พ.ย. 69)
   const mapBtn = L => { const c = L.map(f => f.geometry.coordinates), r = v => v.toFixed(4);
@@ -103,8 +105,8 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
   const NOTE = '<i>ไม่รวม ขสป.ดงใหญ่</i>';
   // ข้อความยาวเกิน/ลิงก์มากเกิน → ลดจำนวนจุดที่แสดงต่อพื้นที่ลง · strict = นับความยาวรวมแท็กและ URL (ใช้ซ้ำเมื่อ Telegram ตอบว่ายาวเกิน)
   const vis = t => t.replace(/<[^>]+>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&');
-  const ents = t => (t.match(/<(a|b|i|blockquote)[s>]/g) || []).length;
-  const fit = (f, strict) => { let t; for (const per of [20, 10, 5, 3, 1, 0]) { t = f(per); if ((strict ? t.length : vis(t).length) <= MAXLEN && ents(t) <= MAXENT) break } return t };
+  const ents = t => (t.match(/<(a|b|i|blockquote)[\s>]/g) || []).length;
+  const fit = (f, strict) => { let t; for (let per = 20; per >= 0; per--) { t = f(per); if ((strict ? t.length : vis(t).length) <= MAXLEN && ents(t) <= MAXENT) break } return t };
   const list = (L, per, ar) => [...L.slice(0, per).map(f => ptLine(f, ar)), ...(L.length > per ? [`  …และอีก ${L.length - per} จุด`] : [])];
   const byNew = L => L.slice().sort((a, b) => thMs(b.properties.full_date) - thMs(a.properties.full_date));
 
