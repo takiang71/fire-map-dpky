@@ -2351,9 +2351,16 @@ function histPopup(f){const r=HD[f.properties.i];if(!r)return;const hh=Math.floo
  +row('ประเภทป่า',esc(DIC.ld[r.ld]))+row('การจัดการเชื้อเพลิง',esc(DIC.fu[r.fu]))
  +row('พิกัด',r.la.toFixed(5)+', '+r.lo.toFixed(5))
  +`<a class="hpg" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${r.la},${r.lo}">🗺️ เปิด Google Maps</a></div>`).addTo(map)}
-/* เส้นแนวเขตพื้นที่รับผิดชอบสถานีฯ ต้นฉบับ KMZ เป็นเส้นหักช่วงละ 100–300 ม. ดูหยาบ (ผู้ใช้แจ้ง 4 พ.ย. 69) → ตัดมุมแบบ Chaikin 2 รอบ (ขยับจากเส้นเดิมไม่เกิน ~1/4 ช่วง) ใช้แสดงผลเท่านั้น */
-let RESPS=null;function respSmooth(){if(RESPS)return RESPS;const ck=r=>{let p=r;for(let k=0;k<2;k++){const q=[];for(let i=0;i<p.length-1;i++){const a=p[i],b=p[i+1];q.push([a[0]*.75+b[0]*.25,a[1]*.75+b[1]*.25],[a[0]*.25+b[0]*.75,a[1]*.25+b[1]*.75])}q.push(q[0]);p=q}return p.map(c=>[+c[0].toFixed(6),+c[1].toFixed(6)])};
- return RESPS={type:'FeatureCollection',features:GEO.resp.features.map(f=>({type:'Feature',properties:f.properties,geometry:{type:'MultiPolygon',coordinates:f.geometry.coordinates.map(pg=>pg.map(r=>r.length>4?ck(r):r))}}))}}
+/* เส้นแนวเขตพื้นที่รับผิดชอบสถานีฯ ต้นฉบับ KMZ เป็นเส้นหักช่วงละ 100–300 ม. มีคลื่นเล็กๆ ดูหยาบ (ผู้ใช้แจ้ง 4 พ.ย. 69 แล้วขอให้เรียบกว่าการตัดมุม)
+   → ซอยเส้นทุก RSM ม. แล้วเฉลี่ยถ่วงน้ำหนักแบบเกาส์ ±RSK จุด (σ ≈ 120 ม.) แบบวนรอบวง · ลบคลื่นที่สั้นกว่า ~300 ม. (เส้นขยับจากเดิม ≤ ~50 ม.) · วงเล็ก (จุดน้อย) ลดหน้าต่างลงกันหด
+   ใช้แสดงผลเท่านั้น — GEO.resp/geoAt ใช้เส้นเดิม */
+const RSM=40,RSK=6;let RESPS=null;
+function respRing(r){const n0=r.length-1;if(n0<4)return r;const ky=110600,kx=111320*Math.cos(r[0][1]*Math.PI/180),P=[];
+ for(let i=0;i<n0;i++){const a=r[i],b=r[i+1],m=Math.max(1,Math.ceil(Math.hypot((b[0]-a[0])*kx,(b[1]-a[1])*ky)/RSM));for(let j=0;j<m;j++)P.push([a[0]+(b[0]-a[0])*j/m,a[1]+(b[1]-a[1])*j/m])}
+ const n=P.length,K=Math.min(RSK,Math.floor(n/8));if(K<1)return r;const W=[];let ws=0;for(let j=-K;j<=K;j++){const w=Math.exp(-j*j/(2*(K/2)**2));W.push(w);ws+=w}
+ const Q=P.map((_,i)=>{let x=0,y=0;for(let j=-K;j<=K;j++){const p=P[((i+j)%n+n)%n],w=W[j+K];x+=p[0]*w;y+=p[1]*w}return[+(x/ws).toFixed(6),+(y/ws).toFixed(6)]});Q.push(Q[0]);return Q}
+function respSmooth(){if(RESPS)return RESPS;
+ return RESPS={type:'FeatureCollection',features:GEO.resp.features.map(f=>({type:'Feature',properties:f.properties,geometry:{type:'MultiPolygon',coordinates:f.geometry.coordinates.map(pg=>pg.map(respRing))}}))}}
 function homePad(){if(innerWidth<=767){const l=$('#left'),h=Math.min(innerHeight*.6,parseFloat(getComputedStyle(l).maxHeight)||innerHeight*.34);return{top:24,bottom:Math.round(h)+20,left:24,right:66}} // มือถือ: กลุ่มป่ากลางพื้นที่เหนือแผ่นล่าง เว้นคอลัมน์ปุ่มขวา
  // เดสก์ท็อป: เว้นจากขอบแผงที่เปิดอยู่ (หรือขอบจอ) 60 px เท่ากันทั้งสองข้าง → กลุ่มป่ากลางพื้นที่ระหว่างแผง (ผู้ใช้กำหนด 2 พ.ย. 69) · ตำแหน่งตามเลย์เอาต์ ไม่นับ transform ระหว่างเลื่อน
  const L=$('#left'),R=[$('#right'),$('#ulm')].find(e=>e&&(e.id==='right'?e.classList.contains('open'):!e.hidden)),lx=document.body.classList.contains('lc')||!L?0:L.offsetLeft+L.offsetWidth-24;
