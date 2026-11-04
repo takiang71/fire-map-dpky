@@ -540,7 +540,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
    <button class="lk" id="dr-r">↻ คำนวณใหม่</button></div>
 
   <h3>ป่าไม้และเชื้อเพลิง</h3>
-  <div class="row" data-tip="ชนิดป่าปี 2568 จากภาพแผนที่รายจังหวัดของกรมป่าไม้ ความละเอียด 100 ม. เส้นแบ่งชนิดป่าหยาบตามภาพต้นทาง · ใช้จำแนกพื้นที่และเลือกเชื้อเพลิงให้โมเดลไฟ ไม่ใช่ตัวเลขทางการ · แตะแผนที่เพื่อดูชนิดป่า"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="9" height="14" style="fill:#38a800;stroke:none"/><rect x="12" y="5" width="9" height="7" style="fill:#a87000;stroke:none"/><rect x="12" y="12" width="9" height="7" style="fill:#e69800;stroke:none"/></svg><b>ชนิดป่า</b><span class="tag">2568</span><button class="sw" data-k="ftype" role="switch" aria-label="ชนิดป่า"></button></div>
+  <div class="row" data-tip="ชนิดป่าปี 2561 จาก shapefile ของกรมป่าไม้ (โครงการจัดทำข้อมูลสภาพพื้นที่ป่าไม้ ปี 2560–2561) ทำเป็นกริด 50 ม. · ใช้จำแนกพื้นที่และเลือกเชื้อเพลิงให้โมเดลไฟ · แตะแผนที่เพื่อดูชนิดป่า"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="9" height="14" style="fill:#38a800;stroke:none"/><rect x="12" y="5" width="9" height="7" style="fill:#a87000;stroke:none"/><rect x="12" y="12" width="9" height="7" style="fill:#e69800;stroke:none"/></svg><b>ชนิดป่า</b><span class="tag">2561</span><button class="sw" data-k="ftype" role="switch" aria-label="ชนิดป่า"></button></div>
   <div id="ftbox" hidden><div id="ft-a"></div>
    </div>
   <div class="row" data-tip="ดัชนีพืชพรรณปรับค่าดิน (SAVI) รายเดือน 20 ม. ระบบตามรอยเผา (สสน.) · SAVI ต่ำ (พืชโปร่ง แห้ง ดินโล่ง) = ระดับสูง · ใช้ดูความต่อเนื่องของเชื้อเพลิงและวางแผนแนวกันไฟ · ไม่มีสี = ไม่มีข้อมูล (เช่น เมฆ)"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="6" width="5" height="12" style="fill:#e10000;stroke:none"/><rect x="8" y="6" width="4" height="12" style="fill:#ffe100;stroke:none"/><rect x="12" y="6" width="5" height="12" style="fill:#00e100;stroke:none"/><rect x="17" y="6" width="4" height="12" style="fill:#005000;stroke:none"/></svg><b>แหล่งเชื้อเพลิง (SAVI)</b><span class="tag" id="fu-t">–</span><button class="sw" data-k="fuel" role="switch" aria-label="แหล่งเชื้อเพลิง"></button></div>
@@ -1370,9 +1370,9 @@ $('#fuel').innerHTML=FUEL.map((f,i)=>`<option value="${i}">${f.n} (${f.w} ตั
 const fuelByElev=z=>z>1000?3:z<250?1:0;
 // เลือกเชื้อเพลิงอัตโนมัติจากชนิดป่าของแปลงพื้นที่รับผิดชอบ (resp.ftype) ที่จุดอยู่ · แปลงที่มีหลายชนิด (เช่น "ป่าเบญจพรรณ/เต็งรัง") ใช้ชนิดแรก
 // เว้นแต่ความสูงชี้ชนิดอื่นในรายการ (ต่ำกว่า 250 ม. → เต็งรัง, ตั้งแต่ 500 ม. → ดิบแล้ง) · สูงกว่า 1,000 ม. = ดิบเขาเสมอ · ไม่อยู่ในแปลงใด → ตามความสูง
-// มีชั้นชนิดป่ากรมป่าไม้ 2568 (ftAt) → ใช้ก่อน: ดิบชื้น/บึงน้ำจืด ใช้ค่าดิบแล้ง · สวนป่า/ป่าที่ฟื้นฟูตามธรรมชาติ ใช้ค่าเบญจพรรณ · ป่าทุ่ง/ลานหิน ใช้ค่าเต็งรัง (ไฟลามตามหญ้า)
+// มีชั้นชนิดป่ากรมป่าไม้ 2561 (ftAt) → ใช้ก่อน: ดิบชื้น/บึงน้ำจืด ใช้ค่าดิบแล้ง · สวนป่า/ป่าที่ฟื้นฟูตามธรรมชาติ ใช้ค่าเบญจพรรณ · ป่าทุ่ง/ลานหิน ใช้ค่าเต็งรัง (ไฟลามตามหญ้า)
 const FTI={เบญจพรรณ:0,เต็งรัง:1,ดิบแล้ง:2,ดิบเขา:3,ไผ่:4},FTF={2:2,3:2,4:3,5:2,6:0,7:1,8:4,9:0,10:0,11:0,12:1,13:1};
-function fuelAt(g,z,f){if(f&&FTF[f.k]!=null){const i=FTF[f.k];return{i,why:'ชนิดป่า (กรมป่าไม้ 2568): '+f.n+(f.e?' (ประมาณจากป่าข้างเคียง)':'')+(FUEL[i].n.indexOf(f.n)<0?' → ใช้ค่า'+FUEL[i].n:'')}}
+function fuelAt(g,z,f){if(f&&FTF[f.k]!=null){const i=FTF[f.k];return{i,why:'ชนิดป่า (กรมป่าไม้ 2561): '+f.n+(f.e?' (ประมาณจากป่าข้างเคียง)':'')+(FUEL[i].n.indexOf(f.n)<0?' → ใช้ค่า'+FUEL[i].n:'')}}
  const r=g&&(g.resp.find(f=>f.properties.ftype&&!/พื้นที่รอง/.test(f.properties.station))||g.resp.find(f=>f.properties.ftype)),ft=r?r.properties.ftype:'',
  c=[...ft.matchAll(/เบญจพรรณ|เต็งรัง|ดิบแล้ง|ดิบเขา|ไผ่/g)].map(m=>FTI[m[0]]),zt=z==null?'':' · สูง '+nf(Math.round(z))+' ม.';
  if(z!=null&&z>1000)return{i:3,why:'ความสูงเกิน 1,000 ม.'+(ft?' (แปลง: '+ft+')':'')};
@@ -2098,9 +2098,9 @@ async function LF(){ // เรียกจาก apply() และปุ่ม�
   `<div class="sm" style="margin-top:6px">ตามพื้นที่อนุรักษ์ (% ระดับสูง–สูงมาก)</div><div class="fua">${Object.entries(ar).sort((x,y)=>(y[1][0]+y[1][1])/sum(y[1])-(x[1][0]+x[1][1])/sum(x[1])).map(([a,g])=>
    `<div><span>${esc(I.ar[a]==='นอกพื้นที่อนุรักษ์'?I.ar[a]:paShort(I.ar[a]))}</span>${bar(g)}<b>${Math.round((g[0]+g[1])/sum(g)*100)}%</b></div>`).join('')}</div>`}
 $('#fu-s').onchange=e=>{FUM=e.target.value;LF()};
-/* ---------- ชนิดป่า (กรมป่าไม้ 2568) ----------
-   scripts/build_ftype.js ประกอบภาพแผนที่ชนิดป่ารายจังหวัดในรายงาน + shapefile ป่าไม้ 2568 → data/ftype/ftype.json (กริด UTM 47N 100 ม. run-length)
-   ค่าในกริด: ชนิด (index ของ cn) | ระดับการเติม<<4 (1 = ผืนป่าเดียวกัน, 2 = ข้ามผืน) | 128 = อยู่ในแนวเขต · โหลดครั้งแรกที่ใช้ (ชั้นแผนที่ ป๊อปอัป โมเดลไฟ) */
+/* ---------- ชนิดป่า (กรมป่าไม้ 2561) ----------
+   scripts/build_ftype.js ทำ shapefile ชนิดป่า 2561 เป็นกริด → data/ftype/ftype.json (กริด UTM 47N ขนาดตาม px — ตอนนี้ 50 ม., run-length)
+   ค่าในกริด: ชนิด (index ของ cn) | ระดับการเติม<<4 (ชุดเดิมจากภาพรายงาน 2568 — ชุด 2561 เป็น 0 เสมอ) | 128 = อยู่ในแนวเขต · โหลดครั้งแรกที่ใช้ (ชั้นแผนที่ ป๊อปอัป โมเดลไฟ) */
 const FT_URL=BN_BASE.replace(/burn\/$/,'ftype/ftype.json');
 let FT=null,FTP=null;
 const ftLoad=()=>FTP||(FTP=fetch(FT_URL).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{
@@ -2666,7 +2666,7 @@ const KB=[
  imp:['ป่าเบญจพรรณผืนเล็กกลางพื้นที่เกษตร เป็นที่หลบภัยและแหล่งอาหารของสัตว์ป่าท้องถิ่น','กันชนและแหล่งต้นน้ำของชุมชนโดยรอบ','ข้อมูลความหลากหลายทางชีวภาพยังอยู่ระหว่างการสำรวจ'],
  hist:[['15 มี.ค. 2564','คณะกรรมการสงวนและคุ้มครองสัตว์ป่ามีมติกำหนดเป็นพื้นที่เตรียมการเขตห้ามล่าสัตว์ป่า'],['ปัจจุบัน','อยู่ระหว่างขั้นตอนประกาศ ดูแลโดยสำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)']],
  forest:'ป่าเบญจพรรณเกือบทั้งพื้นที่',plants:[],fauna:[],tour:[]},
-{id:'ft',s:'ชนิดป่าและไฟ',kd:'ความรู้',n:'ชนิดป่าและไฟป่า',en:'Forest types & fire',h:['#1f3a0b','#5a9a2a'],tags:[['ชนิดป่า กรมป่าไม้ 2568'],['จุดความร้อนกรมอุทยานฯ 2561–2569']],
+{id:'ft',s:'ชนิดป่าและไฟ',kd:'ความรู้',n:'ชนิดป่าและไฟป่า',en:'Forest types & fire',h:['#1f3a0b','#5a9a2a'],tags:[['ชนิดป่า กรมป่าไม้ 2561'],['จุดความร้อนกรมอุทยานฯ 2561–2569']],
  lead:'ป่าแต่ละชนิดมีเชื้อเพลิง ความชื้น และการตอบสนองต่อไฟต่างกัน การรู้ว่าจุดความร้อนเกิดในป่าชนิดใดช่วยประเมินความรุนแรงและวางแผนดับไฟได้ตรงจุด — แผนที่ทางขวาแสดงชั้นชนิดป่าในแนวเขต (โมเดลไฟในระบบนี้ใช้ชั้นเดียวกันเลือกเชื้อเพลิงอัตโนมัติ)'}];
 const FTX={3:['ป่าไม่ผลัดใบ เรือนยอดหลายชั้น พบที่ความสูงราว 100–800 ม. ไม้เด่น ยางนา ยางแดง ตะเคียน กระบาก มะค่าโมง','ใต้เรือนยอดชื้น ไฟเข้าได้ยาก แต่ปีที่แล้งจัดไฟผิวดินลามเข้าจากขอบป่า ไม้ป่าดิบไม่ทนไฟ ความเสียหายจึงสูงและฟื้นตัวช้า'],
  2:['ฝนชุก ความชื้นสูงตลอดปี พบตามลาดเขาด้านรับลมมรสุมและหุบเขา','เสี่ยงต่ำ ยกเว้นปีแล้งรุนแรง'],
@@ -2700,7 +2700,7 @@ function fireCard(a){const{L,fys,by,mo}=hot(a),pk=by.indexOf(Math.max(...by)),pm
 // สัดส่วนชนิดป่าในแนวเขต (ftype.json — โหลดครั้งแรกที่ใช้)
 function ftSum(a){const j=FT,s=new Array(j.cn.length).fill(0);for(const k in j.s){const i=+k.split('|')[0];if(!i||(a&&arKey(j.ar[i])!==arKey(a.n)))continue;j.s[k].forEach((v,c)=>s[c]+=v)}s[1]=0;return s}
 function ftBox(a){const s=ftSum(a),T=s.reduce((x,y)=>x+y,0);if(!T)return'<p class="sm">ไม่มีข้อมูลชนิดป่า</p>';const o=[...s.keys()].filter(k=>s[k]>0).sort((x,y)=>s[y]-s[x]);
- return`<div class="kb-sb">${o.map(k=>`<i style="width:${s[k]/T*100}%;background:${FT.col[k]}" title="${esc(FT.cn[k])} ${nf(s[k]/T*100,1)}%"></i>`).join('')}</div><div class="kb-lgd">${o.filter(k=>s[k]/T>=.003).map(k=>`<span><i style="background:${FT.col[k]}"></i>${esc(FT.cn[k])}<em>${nf(s[k]/T*100,s[k]/T<.1?1:0)}%</em></span>`).join('')}</div><p class="sm" style="margin:8px 0 0">ป่าไม้ในแนวเขต ≈ ${nf(T)} ไร่ · ชนิดป่า กรมป่าไม้ 2568 (ประมวลจากภาพแผนที่ กริด 100 ม.)</p>`}
+ return`<div class="kb-sb">${o.map(k=>`<i style="width:${s[k]/T*100}%;background:${FT.col[k]}" title="${esc(FT.cn[k])} ${nf(s[k]/T*100,1)}%"></i>`).join('')}</div><div class="kb-lgd">${o.filter(k=>s[k]/T>=.003).map(k=>`<span><i style="background:${FT.col[k]}"></i>${esc(FT.cn[k])}<em>${nf(s[k]/T*100,s[k]/T<.1?1:0)}%</em></span>`).join('')}</div><p class="sm" style="margin:8px 0 0">ป่าไม้ในแนวเขต ≈ ${nf(T)} ไร่ · ชนิดป่า กรมป่าไม้ 2561 (shapefile กริด 50 ม.)</p>`}
 function ftFill(a){const e=$('#kb-ftb');if(!e)return;const go=()=>{const x=$('#kb-ftb');if(x&&KBI===(a?a.id:KBI))x.innerHTML=ftBox(a)};FT?go():ftLoad().then(go).catch(()=>{const x=$('#kb-ftb');if(x)x.innerHTML='<p class="sm">โหลดข้อมูลชนิดป่าไม่ได้</p>'})}
 function hero(a){const f=a.c&&fOf(a),rai=f?f.properties.rai:GEO.cons.features.reduce((s,f)=>s+f.properties.rai,0),
   k=a.id==='all'?a.kpi:a.id==='ft'?null:[[nf(rai),'ไร่ ตามแนวเขต'],[nf(rai/625),'ตร.กม.'],...a.kpi];
@@ -2734,7 +2734,7 @@ const kmCol=['match',['get','name'],...AR.flatMap(a=>[a.n,a.c]),'#888'];
 function kmInit(){KM=new maplibregl.Map({container:'kb-map',bounds:[101.1,13.62,103.25,14.66],fitBoundsOptions:{padding:20},attributionControl:{compact:true},dragRotate:false,pitchWithRotate:false,touchPitch:false,cooperativeGestures:matchMedia('(max-width:900px)').matches,locale:{'CooperativeGesturesHandler.WindowsHelpText':'กด Ctrl ค้างแล้วเลื่อนล้อเมาส์เพื่อซูมแผนที่','CooperativeGesturesHandler.MacHelpText':'กด ⌘ ค้างแล้วเลื่อนเพื่อซูมแผนที่','CooperativeGesturesHandler.MobileHelpText':'ใช้สองนิ้วเพื่อเลื่อนแผนที่'},
  style:{version:8,sources:{topo:{type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:18,attribution:'© Esri'},
   img:{type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:18,attribution:'© Esri, Maxar'},
-  ft:{type:'raster',tiles:['ftype://{z}/{x}/{y}'],tileSize:256,minzoom:6,maxzoom:13,bounds:BNB,attribution:'ชนิดป่า กรมป่าไม้ 2568'},cons:{type:'geojson',data:GEO.cons,promoteId:'name'}},
+  ft:{type:'raster',tiles:['ftype://{z}/{x}/{y}'],tileSize:256,minzoom:6,maxzoom:13,bounds:BNB,attribution:'ชนิดป่า กรมป่าไม้ 2561'},cons:{type:'geojson',data:GEO.cons,promoteId:'name'}},
   layers:[{id:'topo',type:'raster',source:'topo'},{id:'img',type:'raster',source:'img',layout:{visibility:'none'}},{id:'ft',type:'raster',source:'ft',layout:{visibility:'none'},paint:{'raster-opacity':.8,'raster-resampling':'nearest','raster-fade-duration':0}},
    {id:'kf',type:'fill',source:'cons',paint:{'fill-color':kmCol,'fill-opacity':['case',['boolean',['feature-state','on'],false],.3,['boolean',['feature-state','dim'],false],.05,.24]}},
    {id:'kl',type:'line',source:'cons',paint:{'line-color':kmCol,'line-width':['case',['boolean',['feature-state','on'],false],3.2,1.3],'line-opacity':['case',['boolean',['feature-state','dim'],false],.55,1]}}]}});
@@ -2774,7 +2774,7 @@ function kbTab(id){KBI=id;const a=KB.find(x=>x.id===id);
  $('#kb-c').innerHTML=id==='all'?allCards(a):id==='ft'?ftCards():areaCards(a);$('#kb-body').scrollTop=0;
  if(id==='ft'){KMF=true;ftTypes()}ftFill(a.c?a:null);kmShow()}
 function kbOpen(id){$('#kb').hidden=false;if(!$('#kb-nav').childElementCount)$('#kb-nav').innerHTML=KB.map(a=>`<button role="tab" data-tab="${a.id}" aria-selected="false">${a.c?`<i style="background:${a.c}"></i>`:''}${esc(a.s)}</button>`).join('');
- $('#kb-src').innerHTML='ข้อมูลเรียบเรียงจาก UNESCO World Heritage Centre, กรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช และวิกิพีเดีย · ขนาดพื้นที่จากแนวเขต KMZ ในระบบนี้ (อาจต่างจากตัวเลขในราชกิจจานุเบกษาเล็กน้อย) · ชนิดป่า: กรมป่าไม้ 2568 (ประมวลจากภาพแผนที่รายจังหวัด) · จุดความร้อน: กรมอุทยานฯ (Suomi NPP) ปีงบ 2561–2569 ไม่รวมจุดที่จัดการเชื้อเพลิง/ตรวจสอบแล้วไม่พบไฟ · พิกัดแหล่งท่องเที่ยว: © OpenStreetMap (ตำแหน่งโดยประมาณ) · สถานะสัตว์: IUCN Red List';
+ $('#kb-src').innerHTML='ข้อมูลเรียบเรียงจาก UNESCO World Heritage Centre, กรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช และวิกิพีเดีย · ขนาดพื้นที่จากแนวเขต KMZ ในระบบนี้ (อาจต่างจากตัวเลขในราชกิจจานุเบกษาเล็กน้อย) · ชนิดป่า: กรมป่าไม้ 2561 (shapefile โครงการจัดทำข้อมูลสภาพพื้นที่ป่าไม้ ปี 2560–2561) · จุดความร้อน: กรมอุทยานฯ (Suomi NPP) ปีงบ 2561–2569 ไม่รวมจุดที่จัดการเชื้อเพลิง/ตรวจสอบแล้วไม่พบไฟ · พิกัดแหล่งท่องเที่ยว: © OpenStreetMap (ตำแหน่งโดยประมาณ) · สถานะสัตว์: IUCN Red List';
  requestAnimationFrame(()=>kbTab(id||KBI));$('#kb-x').focus()}
 function kbClose(){$('#kb').hidden=true;if(KPOP){KPOP.remove();KPOP=null}}
 $('#bKnow').onclick=()=>kbOpen();$('#kb-x').onclick=kbClose;
