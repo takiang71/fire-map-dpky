@@ -111,8 +111,6 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .row{display:flex;align-items:center;gap:10px;min-height:40px;font-size:14px}.row[data-tip]>b,.row[data-tipel]>b{cursor:help}
 /* ป้ายเมื่อชี้เมาส์ (#tt สร้างใน JS): ปุ่มควบคุมแผนที่ + คำอธิบายแถวในแผงชั้นข้อมูล */
 #tt{position:fixed;left:-999px;top:0;z-index:60;max-width:300px;padding:8px 11px;border-radius:10px;background:rgba(24,31,48,.95);color:#fff;font-size:12px;line-height:1.55;box-shadow:0 6px 20px rgba(0,0,0,.25);pointer-events:none;opacity:0;transition:opacity .12s}#tt.on{opacity:1}#tt.one{white-space:nowrap;padding:5px 10px}#tt .ttl{margin-top:5px}#tt .ttl:first-child{margin-top:0}
-/* มาตราส่วน */
-.fsc.maplibregl-ctrl-scale{box-sizing:content-box;background:var(--glass);border:0;border-radius:8px;padding:5px 10px 3px;color:var(--ink);font-size:10.5px;line-height:1.2}.fsb{display:flex;height:4px;border:1px solid #2b3245}.fsb i{flex:1;background:#fff}.fsb i:nth-child(odd){background:#2b3245}.fsl{position:relative;height:13px;margin-top:2px}.fsl span{position:absolute;left:0;white-space:nowrap}.fsl span[style]{transform:translateX(-50%)}.fsl span:last-child[style]{transform:translateX(-100%)}.row b{flex:1;font-weight:600}
 .sub{margin-left:30px;font-size:13px;gap:8px;min-height:32px}.sub span{flex:1}
 .sub svg{width:16px;height:16px}
 .note{font-size:12px;color:var(--mut);margin:0 0 6px 30px}
@@ -150,13 +148,13 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .cb{width:42px;height:42px;display:grid;place-items:center;border:0;background:var(--bg);border-radius:12px;box-shadow:var(--sh)}
 .cb.on{background:var(--on);color:#fff}
 .zm{display:flex;flex-direction:row;gap:8px}
-#hint{position:fixed;left:auto;right:calc(470px + env(safe-area-inset-right));max-width:420px;bottom:calc(30px + env(safe-area-inset-bottom));font-size:12px;color:var(--mut);background:var(--glass);padding:3px 12px;border-radius:99px;z-index:4;text-align:center;pointer-events:none;max-width:46vw}
+
 #attr{position:fixed;left:50%;transform:translateX(-50%);bottom:0;max-width:calc(100% - 20px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:2px 10px calc(2px + env(safe-area-inset-bottom));font-size:10px;line-height:1.4;color:var(--mut);background:var(--glass);border-radius:8px 8px 0 0;z-index:4}
 /* เดสก์ท็อป: ทั้งแผงเลื่อนรวมกัน จบห่างขอบล่าง 12 px · ขณะแสดงการ์ดจุดความร้อน (การ์ดสุดท้าย กว้างเต็มเนื้อแผง x 16 ถึงขอบขวา−24 มุม 20) mask ขอบล่างของแผงเป็นมุมมนของการ์ด → ท้ายการ์ดมนเสมอไม่ว่าเลื่อนถึงไหน · แถบอ้างอิงข้อมูลอยู่กลางพื้นที่ขวาของแผงซ้าย ไม่ทับการ์ด */
-@media(min-width:768px){#left:not(.hm){max-height:100%;padding-top:12px;padding-bottom:12px}#left:not(.hm):has(>#pcard:not([hidden])){-webkit-mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);-webkit-mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;-webkit-mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;-webkit-mask-repeat:no-repeat;mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;mask-repeat:no-repeat}#attr{left:calc(50% + var(--lw) / 2);max-width:calc(100% - var(--lw) - 20px)}#left>#pcard{width:auto}#hint{right:auto;left:calc((var(--lw) + 100% - 370px) / 2);transform:translateX(-50%);max-width:calc(100% - var(--lw) - 400px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+@media(min-width:768px){#left:not(.hm){max-height:100%;padding-top:12px;padding-bottom:12px}#left:not(.hm):has(>#pcard:not([hidden])){-webkit-mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);-webkit-mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;-webkit-mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;-webkit-mask-repeat:no-repeat;mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;mask-repeat:no-repeat}#attr{left:calc(50% + var(--lw) / 2);max-width:calc(100% - var(--lw) - 20px)}#left>#pcard{width:auto}}
 .maplibregl-ctrl-bottom-right{bottom:calc(86px + env(safe-area-inset-bottom))!important;right:max(6px,env(safe-area-inset-right))!important}
 /* เครื่องมือวัดระยะทาง/พื้นที่ (#bMs) */
-#map.msr .maplibregl-canvas-container.maplibregl-interactive{cursor:crosshair}#map.msr .fsm,#map.msr .wpm,#map.msr .stm{pointer-events:none}body.msron #hint{display:none}
+#map.msr .maplibregl-canvas-container.maplibregl-interactive{cursor:crosshair}#map.msr .fsm,#map.msr .wpm,#map.msr .stm{pointer-events:none}
 #msr{position:fixed;z-index:8;top:calc(56px + env(safe-area-inset-top));left:calc(50% + var(--lw) / 2);transform:translateX(-50%);width:min(330px,calc(100vw - 24px));padding:8px 12px 12px;border-radius:16px}#msr[hidden],#mhud[hidden]{display:none}
 .msh{display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:2px}.msh b{flex:1;color:var(--navy)}.msh .i{color:#0b6bcb}
 .msrw{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:2px 0}.msrw span{flex:none;color:var(--mut)}.msrw b{min-width:0;text-align:right}.msrw.mbig b{font-size:16px;color:var(--navy)}.msrw.msub b{color:var(--navy)}
@@ -171,7 +169,10 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 @media(max-width:767px){#msr{top:calc(12px + env(safe-area-inset-top));left:12px;right:66px;width:auto;transform:none;padding:6px 10px 8px}#msr .sm{display:none}.msa{font-size:16px}.msl{max-height:60px}.msbt{margin-top:6px}.msbt .btn{min-height:30px;padding:0 9px;font-size:12px}
  body.msron #left{display:none}body.msron .maplibregl-ctrl-bottom-right{bottom:calc(10px + env(safe-area-inset-bottom))!important} /* ขณะวัดซ่อนแผ่นล่าง ให้เห็นแผนที่เต็มจอ */}
 /* เครื่องมือวาด + Layer Manager (#bUl, #ulm) — ช่องเดียวกับแผงชั้นข้อมูล #right (เปิดทีละแผง) */
-#ulm{position:fixed;z-index:8;top:calc(12px + env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));width:350px;max-height:calc(100vh - 108px - env(safe-area-inset-top) - env(safe-area-inset-bottom));display:flex;flex-direction:column;padding:10px 0 0;border-radius:22px;overflow:hidden}#ulm[hidden]{display:none}
+#ulm{position:fixed;z-index:8;top:calc(12px + env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));width:350px;max-height:calc(100vh - 108px - env(safe-area-inset-top) - env(safe-area-inset-bottom));display:flex;flex-direction:column;padding:10px 0 0;border-radius:22px;overflow:hidden;transform:none;visibility:visible;transition:transform .25s ease}
+/* ปิด (hidden) = เลื่อนออกนอกจอแบบแผงชั้นข้อมูล (ผู้ใช้ขอ 4 พ.ย. 69) แทน display none · เดสก์ท็อปสูงจรดแถวปุ่มควบคุมเหมือน #right ยกเว้นขณะวาด (ย่อตามเนื้อหาให้เห็นแผนที่) */
+#ulm[hidden]{display:flex!important;transform:translateX(calc(100% + 24px));visibility:hidden;transition:transform .25s ease,visibility 0s linear .25s}
+@media(min-width:768px){#ulm:not(.drawing){bottom:calc(84px + env(safe-area-inset-bottom));max-height:none}}
 #ulm .ulh{display:flex;align-items:center;gap:8px;padding:0 12px 6px 16px;font-size:14px}#ulm .ulh b{flex:1;color:var(--navy)}#ulm .ulh .i{color:#0b6bcb}
 .ultb{display:flex;gap:6px;padding:0 12px 8px}.ultb button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:52px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:600 12px 'Noto Sans Thai',sans-serif;cursor:pointer;padding:4px 2px}.ultb button .i{width:20px;height:20px}.ultb button[aria-pressed=true]{background:#0b6bcb;border-color:#0b6bcb;color:#fff}
 #ul-d{padding:0 14px;overflow:auto;min-height:0;flex:0 1 auto}#ul-d:empty{display:none}#ulm.drawing #ul-d{flex:1 1 auto}
@@ -205,8 +206,8 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .ula fieldset{border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:8px 0}.ula legend{font-size:12px;color:var(--mut);padding:0 4px}.ula label{display:flex;align-items:center;gap:6px;font-size:13px;margin:3px 0}.ula label.blk{display:block;margin:6px 0 2px;font-size:12px;color:var(--mut)}
 .ula .chk{display:flex;flex-wrap:wrap;gap:2px 14px}.ula .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ula .acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.ula .err{color:#b42318;font-size:12.5px;min-height:1em;margin-top:6px}
 .ula .pill{display:inline-block;font-size:11px;border-radius:99px;padding:0 7px;background:#eef0f6;color:var(--navy);margin:1px 2px 1px 0}.ula .pill.all{background:#e3f4e6;color:#1e6b31}.ula .pill.off{background:#fde8e6;color:#b42318}
-body.udon #hint{display:none}#map.udr .maplibregl-canvas-container.maplibregl-interactive{cursor:crosshair}#map.udr .fsm,#map.udr .wpm,#map.udr .stm{pointer-events:none}
-@media(max-width:767px){#ulm{left:8px;right:8px;width:auto;top:auto;bottom:0;max-height:62vh;border-radius:22px 22px 0 0;padding-bottom:env(safe-area-inset-bottom)}#ulm.drawing{max-height:40vh}#ulm.drawing.form{max-height:min(62vh,calc(100vh - 140px))}.uldf textarea{min-height:40px}.uldf>p.sm{display:none}
+#map.udr .maplibregl-canvas-container.maplibregl-interactive{cursor:crosshair}#map.udr .fsm,#map.udr .wpm,#map.udr .stm{pointer-events:none}
+@media(max-width:767px){#ulm{left:8px;right:8px;width:auto;top:auto;bottom:0;max-height:62vh;border-radius:22px 22px 0 0;padding-bottom:env(safe-area-inset-bottom)}#ulm[hidden]{transform:translateY(calc(100% + 16px))}#ulm.drawing{max-height:40vh}#ulm.drawing.form{max-height:min(62vh,calc(100vh - 140px))}.uldf textarea{min-height:40px}.uldf>p.sm{display:none}
  body.ulon #left{display:none}body.ulon .maplibregl-ctrl-bottom-right{bottom:calc(10px + env(safe-area-inset-bottom))!important}.ultb button{min-height:46px}.ula .row2{grid-template-columns:1fr}}
 #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--on);color:#fff;border-radius:12px;padding:8px 16px;font-size:13px;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s}
 #toast.show{opacity:1}
@@ -226,10 +227,9 @@ body.udon #hint{display:none}#map.udr .maplibregl-canvas-container.maplibregl-in
  body.ctlh #ctl{display:none}
  .zm{flex-direction:column}
  #right{left:8px;right:8px;width:auto;top:auto;bottom:0;max-height:70vh;border-radius:22px 22px 0 0;transform:translateY(calc(100% + 16px))}
- #hint,#attr{display:none}
+ #attr{display:none}
  .maplibregl-ctrl-bottom-right{bottom:calc(var(--sh0,34vh) + 6px)!important;right:auto!important;left:0!important}
 }
-@media(max-width:1179px){#hint{display:none}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 #dp{position:fixed;top:calc(12px + env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));width:360px;bottom:calc(84px + env(safe-area-inset-bottom));background:var(--bg);border-radius:22px;box-shadow:var(--sh);display:none;flex-direction:column;z-index:6}
 #dp.open{display:flex}.ib{width:34px;height:34px;box-shadow:none}
@@ -650,7 +650,6 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div style="text-align:center;padding-bottom:6px"><a class="tl" style="display:inline;margin:0 10px" id="d-cp2" role="button" tabindex="0">คัดลอกพิกัด</a><a class="tl" style="display:inline;margin:0 10px" id="d-go2" role="button" tabindex="0">นำทางด้วย Google Maps</a></div>
   <div style="display:none"></div></div>
 </section>
-<div id="hint">คลิกจุดความร้อนหรือตำแหน่งใดบนแผนที่ เพื่อดูสภาพอากาศ พิกัด และเส้นทางนำทาง</div>
 <!-- แผงเล่นย้อนตามวัน ลอยด้านล่างแผนที่ (เปิดจากปุ่ม "ย้อนดูการลามของไฟ") ตำแหน่งจัดโดย pbPos() -->
 <div class="card" id="pbf" hidden role="region" aria-label="ย้อนดูการลามของไฟ">
  <div class="pbh"><b>ย้อนดูการลามของไฟ</b><span class="sm" id="pb-d"></span><button class="cb ib" id="pb-x" aria-label="ออกจากโหมดเล่น" title="ออกจากโหมดเล่น"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
@@ -814,11 +813,11 @@ GEO.stn.features.forEach(f=>{const k=stKey(f.properties.name);f.properties.sc=ST
 function respLegend(){const e=$('#rleg');if(!e)return;const seen=new Set();e.innerHTML=GEO.resp.features.map(f=>f.properties).filter(p=>{const k=stKey(p.station);return seen.has(k)?false:seen.add(k)}).map(p=>`<span style="display:inline-flex;align-items:center;gap:5px;margin:2px 10px 2px 0"><i style="display:inline-block;width:16px;border-top:3px dashed ${p.sc}"></i>${esc(p.station.replace(/\s*\(พื้นที่รอง\)/,''))}</span>`).join('')}
 const stShort=n=>n;
 const areaHtml=g=>{let s='';if(g.cons)s+=`<b>${esc(g.cons.properties.name)}</b><br><span class="sm">${esc(g.cons.properties.paro)}</span><br>`;
- g.resp.forEach(r=>{const p=r.properties;s+=`<span class="sm">รับผิดชอบโดย <b>${esc(p.station)}</b>${p.ftype?' · ชนิดป่า '+esc(p.ftype):''}</span><br>`});
+ g.resp.forEach(r=>{const p=r.properties;s+=`<span class="sm">รับผิดชอบโดย <b>${esc(p.station)}</b></span><br>`});
  return s||'<span class="sm">อยู่นอกพื้นที่อนุรักษ์และพื้นที่รับผิดชอบไฟป่าตามไฟล์แนวเขต</span><br>'};
 
 /* ---------- สถานะ + จำค่าที่ผู้ใช้เลือก ---------- */
-let S={base:'natural',img:'google',d3:false,hot:true,prov:true,cons:true,resp:false,stn:false,wpt:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,demo:false,water:true,road:true,wind:false,pm:false,dry:false,wx:false,rad:false,wyl:false,wyo:'wind',wyop:60,hist:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',rep:false,rpm:2,hcd:1,hcg:2,hcr:200};
+let S={base:'natural',img:'google',d3:false,hot:true,prov:false,cons:true,resp:false,stn:false,wpt:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,demo:false,water:true,road:true,wind:false,pm:false,dry:false,wx:false,rad:false,wyl:false,wyo:'wind',wyop:60,hist:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',rep:false,rpm:2,hcd:1,hcg:2,hcr:200};
 try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;if(S.base==='road')S.base='detail';
 const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2200)};
 const thTime=d=>new Date(d).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'});
@@ -887,14 +886,7 @@ async function imgDate(){const el=$('#imgdate'),q=++imgQ;if(!el)return;el.hidden
 function sheetFit(){const R=document.documentElement,B=document.body,k=$('#ctl');if(innerWidth>767||!k){R.style.removeProperty('--sh0');return}const had=B.classList.contains('ctlh');if(had)B.classList.remove('ctlh');const h=Math.floor(innerHeight-k.getBoundingClientRect().bottom-8);if(had)B.classList.add('ctlh');if(h>=innerHeight*.3)R.style.setProperty('--sh0',h+'px');else R.style.removeProperty('--sh0')}
 sheetFit();addEventListener('resize',sheetFit);
 const map=new maplibregl.Map({container:'map',style:sty(),bounds:HOME,fitBoundsOptions:{padding:homePad()},attributionControl:false,maxPitch:75,preserveDrawingBuffer:true}); // preserveDrawingBuffer: ให้ดึงภาพแผนที่ใส่รายงานได้
-/* มาตราส่วนแบบแถบสลับสี: ขั้นละเอียด 1 1.5 2 2.5 3 4 5 6 8 ×10ⁿ (ScaleControl เดิมมีแค่ 1 2 3 5) ป้าย 0 / กลาง / ปลาย · คงคลาส maplibregl-ctrl-scale ให้ wybScale วัดตำแหน่งได้ */
-class FScale{onAdd(m){this.m=m;const e=this.e=document.createElement('div');e.className='maplibregl-ctrl maplibregl-ctrl-scale fsc';this.u=()=>this.up();m.on('move',this.u);this.up();return e}
- onRemove(){this.e.remove();this.m.off('move',this.u)}
- up(){const m=this.m,y=m.getContainer().clientHeight/2,MW=150,d=m.unproject([0,y]).distanceTo(m.unproject([MW,y]));if(!(d>0))return;
-  const p=10**Math.floor(Math.log10(d)),f=d/p;let k=[1,4];for(const z of [[1,4],[1.5,3],[2,4],[2.5,5],[3,3],[4,4],[5,5],[6,3],[8,4]])if(z[0]<=f)k=z;
-  const v=k[0]*p,n=k[1],w=Math.max(20,Math.round(MW*v/d)),km=v>=1000,g=x=>String(+(km?x/1000:x).toFixed(2)),u=km?'กม.':'ม.';
-  this.e.style.width=w+'px';this.e.innerHTML='<div class="fsb">'+'<i></i>'.repeat(n)+'</div><div class="fsl"><span>0</span>'+(n%2?'':'<span style="left:50%">'+g(v/2)+'</span>')+'<span style="left:100%">'+g(v)+' '+u+'</span></div>'}}
-map.addControl(new FScale(),'bottom-right');
+
 const COL={r:'#e0301e',o:'#f08a1c',b:'#9a6a4a'}, GL=['match',['get','g'],'r',COL.r,'o',COL.o,COL.b];
 
 function flame(c){ // วาดไอคอนเปลวไฟลง canvas
@@ -929,9 +921,9 @@ function setup(){ // เรียกทุกครั้งที่สลั�
  map.addSource('cons',{type:'geojson',data:CF});
  map.addLayer({id:'cons-f',type:'fill',source:'cons',paint:{'fill-color':['match',['get','kind'],'NPRK',KC.NPRK,'WLDS',KC.WLDS,KC.P_WLDS],'fill-opacity':.14}});
  map.addLayer({id:'cons-l',type:'line',source:'cons',paint:{'line-color':['match',['get','kind'],'NPRK',KCD.NPRK,'WLDS',KCD.WLDS,KCD.P_WLDS],'line-width':1.8}});
- map.addSource('resp',{type:'geojson',data:GEO.resp});
+ map.addSource('resp',{type:'geojson',data:respSmooth()});
  map.addLayer({id:'resp-f',type:'fill',source:'resp',paint:{'fill-color':['get','sc'],'fill-opacity':.07}});
- map.addLayer({id:'resp-l',type:'line',source:'resp',paint:{'line-color':['get','sc'],'line-width':2.6,'line-dasharray':[3,1.6]}});
+ map.addLayer({id:'resp-l',type:'line',source:'resp',layout:{'line-join':'round'},paint:{'line-color':['get','sc'],'line-width':2.4,'line-dasharray':[3,1.6]}});
  setupBN();setupRP();setupFU();setupFT();setupAD();setupPV();setup3();setup4();setupHC();
  if(typeof ulLayers==='function')ulLayers(); // ชั้นข้อมูลของผู้ใช้ (สคริปต์ท้ายไฟล์)
  if(typeof msLayers==='function')msLayers(); // เครื่องมือวัด (สคริปต์ท้ายไฟล์) — บนสุด
@@ -2235,8 +2227,8 @@ sheet($('#left'),$('#grab'));$$('.gb').forEach(g=>sheet(g.parentElement,g));
 // มือถือ: คอลัมน์ปุ่มควบคุมชิดบนขวา แผ่นล่างปกติสูงถึงใต้คอลัมน์ (sheetFit) — แผ่นล่าง (แผงซ้าย/การ์ดสถิติ, ชั้นข้อมูล, รายละเอียดจุด) ที่ขอบบนสูงกว่านั้นจะทับปุ่ม จึงซ่อนปุ่มไว้จนกว่าแผ่นจะลดลง/ปิด
 // ขอบล่างของคอลัมน์วัดจากตำแหน่งจริง — ห้ามคิดจาก innerHeight×สัดส่วน: Chrome มือถือ vh = ความสูงตอนแถบที่อยู่ซ่อน > innerHeight ตอนแถบแสดง เคยทำให้ซ่อนปุ่มตั้งแต่เปิดหน้า (S25 Ultra)
 function ctlFit(){const B=document.body;B.classList.remove('ctlh');if(innerWidth>767)return;const yb=$('#ctl').getBoundingClientRect().bottom; // วัดตอนแสดง (ถอดคลาสแล้วใส่กลับในรอบเดียวกัน ไม่กะพริบ)
- B.classList.toggle('ctlh',['#left','#right','#dp','#ulm'].some(q=>{const e=$(q);return e.offsetHeight>0&&e.offsetTop<yb+4&&(q!=='#right'||e.classList.contains('open'))}))} // offsetTop = ตำแหน่งปลายทาง (ไม่นับ transform ระหว่างเลื่อน)
-if(window.ResizeObserver){const o=new ResizeObserver(ctlFit);['#left','#right','#dp','#ulm'].forEach(q=>o.observe($(q)))}new MutationObserver(ctlFit).observe($('#right'),{attributes:true,attributeFilter:['class']});addEventListener('resize',ctlFit);ctlFit();
+ B.classList.toggle('ctlh',['#left','#right','#dp','#ulm'].some(q=>{const e=$(q);return e.offsetHeight>0&&e.offsetTop<yb+4&&(q!=='#right'||e.classList.contains('open'))&&(q!=='#ulm'||!e.hidden)}))} // offsetTop = ตำแหน่งปลายทาง (ไม่นับ transform ระหว่างเลื่อน)
+if(window.ResizeObserver){const o=new ResizeObserver(ctlFit);['#left','#right','#dp','#ulm'].forEach(q=>o.observe($(q)))}new MutationObserver(ctlFit).observe($('#ulm'),{attributes:true,attributeFilter:['hidden']});new MutationObserver(ctlFit).observe($('#right'),{attributes:true,attributeFilter:['class']});addEventListener('resize',ctlFit);ctlFit();
 
 /* ================= เฟส 4a: สถิติย้อนหลัง · จุดความร้อนย้อนหลัง · ย้อนดูตามวัน · นำเข้าข้อมูล ================= */
 const MON=['ต.ค.','พ.ย.','ธ.ค.','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.'];
@@ -2359,10 +2351,13 @@ function histPopup(f){const r=HD[f.properties.i];if(!r)return;const hh=Math.floo
  +row('ประเภทป่า',esc(DIC.ld[r.ld]))+row('การจัดการเชื้อเพลิง',esc(DIC.fu[r.fu]))
  +row('พิกัด',r.la.toFixed(5)+', '+r.lo.toFixed(5))
  +`<a class="hpg" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${r.la},${r.lo}">🗺️ เปิด Google Maps</a></div>`).addTo(map)}
+/* เส้นแนวเขตพื้นที่รับผิดชอบสถานีฯ ต้นฉบับ KMZ เป็นเส้นหักช่วงละ 100–300 ม. ดูหยาบ (ผู้ใช้แจ้ง 4 พ.ย. 69) → ตัดมุมแบบ Chaikin 2 รอบ (ขยับจากเส้นเดิมไม่เกิน ~1/4 ช่วง) ใช้แสดงผลเท่านั้น */
+let RESPS=null;function respSmooth(){if(RESPS)return RESPS;const ck=r=>{let p=r;for(let k=0;k<2;k++){const q=[];for(let i=0;i<p.length-1;i++){const a=p[i],b=p[i+1];q.push([a[0]*.75+b[0]*.25,a[1]*.75+b[1]*.25],[a[0]*.25+b[0]*.75,a[1]*.25+b[1]*.75])}q.push(q[0]);p=q}return p.map(c=>[+c[0].toFixed(6),+c[1].toFixed(6)])};
+ return RESPS={type:'FeatureCollection',features:GEO.resp.features.map(f=>({type:'Feature',properties:f.properties,geometry:{type:'MultiPolygon',coordinates:f.geometry.coordinates.map(pg=>pg.map(r=>r.length>4?ck(r):r))}}))}}
 function homePad(){if(innerWidth<=767){const l=$('#left'),h=Math.min(innerHeight*.6,parseFloat(getComputedStyle(l).maxHeight)||innerHeight*.34);return{top:24,bottom:Math.round(h)+20,left:24,right:66}} // มือถือ: กลุ่มป่ากลางพื้นที่เหนือแผ่นล่าง เว้นคอลัมน์ปุ่มขวา
  // เดสก์ท็อป: เว้นจากขอบแผงที่เปิดอยู่ (หรือขอบจอ) 60 px เท่ากันทั้งสองข้าง → กลุ่มป่ากลางพื้นที่ระหว่างแผง (ผู้ใช้กำหนด 2 พ.ย. 69) · ตำแหน่งตามเลย์เอาต์ ไม่นับ transform ระหว่างเลื่อน
- const L=$('#left'),R=$('#right'),lx=document.body.classList.contains('lc')||!L?0:L.offsetLeft+L.offsetWidth-24;
- return{top:60,bottom:100,left:lx+60,right:R&&R.classList.contains('open')?innerWidth-R.offsetLeft+60:60}}
+ const L=$('#left'),R=[$('#right'),$('#ulm')].find(e=>e&&(e.id==='right'?e.classList.contains('open'):!e.hidden)),lx=document.body.classList.contains('lc')||!L?0:L.offsetLeft+L.offsetWidth-24;
+ return{top:60,bottom:100,left:lx+60,right:R?innerWidth-R.offsetLeft+60:60}}
 // เปิด/ปิดแผงซ้ายหรือแผงชั้นข้อมูลโดยผู้ใช้ = จัดกลุ่มป่ากลางพื้นที่ที่เหลือ (มือถือแผงเป็นแผ่นล่าง ไม่จัด) · ไม่เรียกตอนแผงปิดเองเพราะเปิดรายละเอียดจุด
 function panFit(){if(innerWidth>767)try{fitHome(true)}catch(e){}} // เว้นด้านซ้ายให้การ์ด เพื่อให้กลุ่มป่าอยู่กลางพื้นที่ว่างด้านขวา
 function hFit(){const F=hfilt();if(!F.length)return toast('ไม่มีข้อมูลตามตัวกรอง');const b=new maplibregl.LngLatBounds([F[0].lo,F[0].la],[F[0].lo,F[0].la]);F.forEach(r=>b.extend([r.lo,r.la]));map.fitBounds(b,{padding:homePad(),maxZoom:11,duration:dur(1000)})}
@@ -2568,10 +2563,12 @@ window.WPM=GEO.wpt.features.map(f=>{const p=f.properties,[lo,la]=f.geometry.coor
   new maplibregl.Popup({maxWidth:'280px',offset:[0,-10]}).setLngLat([lo,la]).setHTML(`<b>จุดเฝ้าระวังไฟป่า ${esc(p.name)}</b><br><span class="sm">${esc(p.loc+p.station)}</span><br><span class="sm">${p.vil?esc(p.vil)+(p.moo?' หมู่ '+esc(p.moo):'')+' ':''}ต.${esc(p.tam)} อ.${esc(p.amp)} จ.${esc(p.prov)}</span><br><span class="sm">UTM ${esc(p.utm)} · ${la.toFixed(5)}, ${lo.toFixed(5)}</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${la},${lo}">นำทางด้วย Google Maps</a>`).addTo(map)});
  return new maplibregl.Marker({element:el,anchor:'center'}).setLngLat([lo,la]).addTo(map)});
 /* ป้ายสถานีควบคุมไฟป่า (DOM marker คงอยู่แม้สลับแผนที่ฐาน) */
+// หน่วยดับไฟป่าที่สังกัดสถานีฯ (ผู้ใช้กำหนด 4 พ.ย. 69) — แสดงบรรทัดที่สองในป๊อปอัป
+const STUP={'หน่วยดับไฟป่าเคลื่อนที่เนินหอม':'สถานีควบคุมไฟป่าเขาใหญ่ (ด้านทิศใต้)'};
 window.FSM=GEO.stn.features.map(f=>{const p=f.properties,el=document.createElement('div');el.className='fsm';el.setAttribute('role','button');el.setAttribute('aria-label',p.name);
  el.innerHTML=`<svg viewBox="0 0 24 24"><path d="M12 2l9 4v6c0 5-4 9-9 10-5-1-9-5-9-10V6z" fill="${p.sc}" stroke="#fff" stroke-width="1.5"/><path d="M12 7c.7 2.5-2.2 3.6-2.2 6.3a2.2 2.2 0 004.4 0c0-1.2-.6-1.8-.6-2.8-.6.5-.9 1.1-1.1 1.1.6-1.7 0-3.3-.5-4.6z" fill="#fff"/></svg><span style="color:${p.sc}">${esc(stShort(p.name))}</span>`;
  el.addEventListener('click',ev=>{ev.stopPropagation();const rs=GEO.resp.features.filter(r=>stKey(r.properties.station)===stKey(p.name)).map(r=>r.properties);
-  new maplibregl.Popup({maxWidth:'280px',offset:[0,-26]}).setLngLat(f.geometry.coordinates).setHTML(`<b>${esc(p.name)}</b><br><span class="sm">${esc(p.paro)}</span><br><span class="sm">ต.${esc(p.tam)} อ.${esc(p.amp)} จ.${esc(p.prov)}</span>${rs.length?'<br><span class="sm">พื้นที่รับผิดชอบ '+nf(rs.reduce((s,r)=>s+r.rai,0))+' ไร่</span>':''}<br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${f.geometry.coordinates[1]},${f.geometry.coordinates[0]}">นำทางด้วย Google Maps</a>`).addTo(map)});
+  new maplibregl.Popup({maxWidth:'280px',offset:[0,-26]}).setLngLat(f.geometry.coordinates).setHTML(`<b>${esc(p.name)}</b>${STUP[p.name]?`<br><b style="font-weight:600">${esc(STUP[p.name])}</b>`:''}<br><span class="sm">${esc(p.paro)}</span><br><span class="sm">ต.${esc(p.tam)} อ.${esc(p.amp)} จ.${esc(p.prov)}</span>${rs.length?'<br><span class="sm">พื้นที่รับผิดชอบ '+nf(rs.reduce((s,r)=>s+r.rai,0))+' ไร่</span>':''}<br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${f.geometry.coordinates[1]},${f.geometry.coordinates[0]}">นำทางด้วย Google Maps</a>`).addTo(map)});
  return new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat(f.geometry.coordinates).addTo(map)});
 map.on('zoom',()=>{const z=map.getZoom(),c=$('#map').classList;c.toggle('z9',z>=9.3);c.toggle('z11',z>=10.5)});apply();
 // รีเฟรชอัตโนมัติ: ตรวจทุกนาที · ไม่ดึงขณะแท็บถูกซ่อน แต่ดึงทันทีเมื่อกลับมาดูถ้าเลยรอบแล้ว
@@ -3496,8 +3493,8 @@ $('#ul-new').onclick=()=>{const l=ulNewL();UL.tg=l.id;ulLS('fm-ultg',l.id);UL.x=
 $('#ul-imp').onclick=()=>$('#ul-f').click();
 $('#ul-f').onchange=e=>{const f=[...e.target.files];e.target.value='';if(f.length)ulImport(f)};
 $('#ul-exp').onclick=()=>ulExport(null);
-$('#ul-x').onclick=()=>ulOpen(false);
-$('#bUl').onclick=()=>ulOpen(!UL.open);
+$('#ul-x').onclick=()=>{ulOpen(false);panFit()};
+$('#bUl').onclick=()=>{ulOpen(!UL.open);panFit()};
 $$('#ulm [data-ud]').forEach(b=>b.onclick=()=>{const m=b.dataset.ud;udSet(UD.m===m&&!UD.ed?null:m)});
 if($('#ul-o'))$('#ul-o').onclick=()=>ulOpen(true);
 new MutationObserver(()=>{if(UL.open&&$('#right').classList.contains('open'))ulOpen(false)}).observe($('#right'),{attributes:true,attributeFilter:['class']});
