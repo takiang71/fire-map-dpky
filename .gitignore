@@ -11,6 +11,8 @@ node_modules/
 ~$*
 # ไฟล์ต้นฉบับขนาดใหญ่จากกรมป่าไม้ (shapefile ป่าไม้ .rar ~350 MB + รายงาน PDF) — scripts/build_ftype.js อ่านจากที่นี่ ผลอยู่ใน data/ftype/
 data/ข้อมูลโครงการ*/
+# shapefile ชนิดป่า 2561 ของกรมป่าไม้ (.rar ~332 MB เกินเพดาน GitHub 100 MB)
+data/โครงการจัดทำข้อมูล*.rar
 # MAP_KEY ของ NASA FIRMS (scripts/lib/firms.js) — ห้าม commit
 .firms_key
 # รายงานของ firms_audit.js (สร้างใหม่ได้)
