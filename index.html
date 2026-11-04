@@ -176,7 +176,9 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 #ulm .ulh{display:flex;align-items:center;gap:8px;padding:0 12px 6px 16px;font-size:14px}#ulm .ulh b{flex:1;color:var(--navy)}#ulm .ulh .i{color:#0b6bcb}
 .ultb{display:flex;gap:6px;padding:0 12px 8px}.ultb button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:52px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:600 12px 'Noto Sans Thai',sans-serif;cursor:pointer;padding:4px 2px}.ultb button .i{width:20px;height:20px}.ultb button[aria-pressed=true]{background:#0b6bcb;border-color:#0b6bcb;color:#fff}
 #ul-d{padding:0 14px;overflow:auto;min-height:0;flex:0 1 auto}#ul-d:empty{display:none}#ulm.drawing #ul-d{flex:1 1 auto}
-.ulbody{overflow:auto;flex:1;min-height:0;padding:0 12px 12px;border-top:1px solid var(--line)}#ulm.drawing .ulbody{display:none}
+.ulbody{overflow:auto;flex:1;min-height:0;padding:0 12px 12px;border-top:1px solid var(--line);display:flex;flex-direction:column}.ulbody>*{flex:none}
+/* ส่วนในเครื่อง/เซิร์ฟเวอร์เป็นการ์ดพื้นเทาอ่อน · ช่องวางไฟล์ขยายเต็มที่ว่างที่เหลือ (ผู้ใช้บอกด้านล่างแผงว่างเกินไป 4 พ.ย. 69) */
+.ulcd{background:#f6f7fa;border-radius:14px;padding:8px 8px 6px;margin-top:10px}.ulcd .ulsec{margin:0 4px 4px}.ulcd .ulr:hover{background:#eceef4}.ulcd .ulx{background:#fff}#ulm.drawing .ulbody{display:none}
 .ulbar{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}.ulbar .btn,.uldf .btn,.ulx .btn,.ula .btn{min-height:32px;padding:0 10px;box-shadow:none;border:1px solid var(--line);font-size:12.5px}.btn.pri{background:#0b6bcb;border-color:#0b6bcb;color:#fff;font-weight:700}.btn.dng{color:#b42318;border-color:#f2c6c2}
 .ulsec{display:flex;align-items:baseline;gap:6px;margin:12px 0 4px;font-size:13px}.ulsec b{color:var(--navy)}.ulsec .sm{flex:1;min-width:0}.ulsec a{font-size:12px;cursor:pointer;color:#0b6bcb;white-space:nowrap}
 .ulr{display:flex;align-items:center;gap:8px;padding:6px 4px;border-radius:10px}.ulr:hover{background:#f5f6fa}.ulr input{width:18px;height:18px;margin:0;flex:none;accent-color:#0b6bcb}
@@ -186,7 +188,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .ulmn{flex:none;width:30px;height:30px;border:0;border-radius:8px;background:none;cursor:pointer;color:var(--mut);font-size:18px;line-height:1}.ulmn:hover,.ulmn[aria-expanded=true]{background:var(--sel);color:var(--navy)}
 .ulx{margin:2px 0 8px 30px;padding:8px;border-radius:12px;background:#f5f6fa;font-size:12.5px}.ulx[hidden]{display:none}.ulx .ulbt{display:flex;flex-wrap:wrap;gap:6px}.ulx label{display:flex;align-items:center;gap:6px;margin-top:6px}
 .ulfl{max-height:180px;overflow:auto;margin-top:8px;border-top:1px solid var(--line);padding-top:4px}.ulfl a{display:flex;gap:6px;padding:3px 2px;cursor:pointer;color:var(--ink);text-decoration:none}.ulfl a:hover{color:#0b6bcb}.ulfl a i{flex:none;width:10px;height:10px;border-radius:50%;margin-top:5px}
-.ulhint{margin-top:10px;padding:8px 10px;border:1.5px dashed var(--line);border-radius:12px;text-align:center}#ulm.dragover .ulbody{background:#eef5fd}#ulm.dragover .ulhint{border-color:#0b6bcb;color:#0b6bcb}
+.ulbody>.ulhint{flex:1 0 140px}.ulhint{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;margin-top:12px;padding:14px 12px;border:1.5px dashed #c6ccda;border-radius:14px;text-align:center;cursor:pointer;color:var(--mut);font-size:12px;line-height:1.5;background:#fbfcfe}.ulhint .i{width:30px;height:30px;color:#0b6bcb}.ulhint b{color:var(--ink);font-size:13px}.ulhint:hover,.ulhint:focus-visible{border-color:#0b6bcb;background:#f3f8fe}#ulm.dragover .ulbody{background:#eef5fd}#ulm.dragover .ulhint{border-color:#0b6bcb;color:#0b6bcb}
 .ulacc{font-size:12.5px;margin-top:6px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}.ulacc a{cursor:pointer;color:#0b6bcb}
 .uldf{font-size:12.5px;padding-bottom:10px}.uldf .msrw{padding:1px 0}.uldf input[type=text],.uldf textarea,.uldf select,.ula input[type=text],.ula input[type=password],.ula textarea,.ula select{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;padding:6px 9px;font:13px 'Noto Sans Thai',sans-serif;background:var(--bg);color:var(--ink)}.uldf textarea,.ula textarea{min-height:52px;resize:vertical}
 .uldf .lb{display:block;font-size:11.5px;color:var(--mut);margin:6px 0 2px}
@@ -685,12 +687,12 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
  <div class="ulbody" id="ul-b">
   <div class="ulbar"><button class="btn pri" id="ul-imp">นำเข้าไฟล์</button><button class="btn" id="ul-new">+ ชั้นใหม่</button><button class="btn" id="ul-exp">ส่งออก…</button></div>
   <input type="file" id="ul-f" multiple hidden accept=".geojson,.json,.kml,.kmz,.gpx,.zip,.shp,.dbf,.shx,.prj,.cpg,.csv,.txt">
-  <div class="ulsec"><b>ในเครื่องนี้</b><span class="sm">เก็บในเบราว์เซอร์นี้เท่านั้น</span></div>
-  <div id="ul-ll"></div>
-  <div class="ulsec"><b>จากเซิร์ฟเวอร์</b><span class="sm" id="ul-ss"></span><a id="ul-rf" role="button" tabindex="0" title="ดึงรายการชั้นใหม่">↻</a></div>
+  <div class="ulcd"><div class="ulsec"><b>ในเครื่องนี้</b><span class="sm">เก็บในเบราว์เซอร์นี้เท่านั้น</span></div>
+  <div id="ul-ll"></div></div>
+  <div class="ulcd"><div class="ulsec"><b>จากเซิร์ฟเวอร์</b><span class="sm" id="ul-ss"></span><a id="ul-rf" role="button" tabindex="0" title="ดึงรายการชั้นใหม่">↻</a></div>
   <div id="ul-sl"></div>
-  <div class="ulacc" id="ul-acc"></div>
-  <div class="sm ulhint">ลากไฟล์มาวางที่แผงนี้ได้ · GeoJSON, Esri JSON, KML/KMZ, GPX, Shapefile (.zip หรือเลือก .shp .dbf .prj พร้อมกัน), CSV (คอลัมน์ละติจูด/ลองจิจูด, UTM หรือ WKT)</div>
+  <div class="ulacc" id="ul-acc"></div></div>
+  <div class="ulhint" id="ul-drop" role="button" tabindex="0" aria-label="เลือกไฟล์เพื่อนำเข้า"><svg class="i" viewBox="0 0 24 24"><path d="M12 16V4m0 0l-4 4m4-4l4 4M5 16v3a1 1 0 001 1h12a1 1 0 001-1v-3"/></svg><b>ลากไฟล์มาวางที่นี่ หรือแตะเพื่อเลือกไฟล์</b><span>GeoJSON · Esri JSON · KML/KMZ · GPX<br>Shapefile (.zip หรือเลือก .shp .dbf .prj พร้อมกัน)<br>CSV (ละติจูด/ลองจิจูด, UTM หรือ WKT)</span></div>
  </div>
 </div>
 
@@ -3497,7 +3499,7 @@ $('#ul-b').addEventListener('change',e=>{const t=e.target,a=t.dataset.a;if(!a)re
  else if(a==='color'&&!s){o.color=t.value;ulSave(o);ulRender(k);ulList()}});
 $('#ul-b').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset.a==='name')e.target.blur()});
 $('#ul-new').onclick=()=>{const l=ulNewL();UL.tg=l.id;ulLS('fm-ultg',l.id);UL.x='l'+l.id;ulRender('l'+l.id);ulList();const i=$(`#ul-ll [data-k="l${l.id}"] + .ulx input[data-a=name]`);if(i){i.focus();i.select()}};
-$('#ul-imp').onclick=()=>$('#ul-f').click();
+$('#ul-imp').onclick=$('#ul-drop').onclick=()=>$('#ul-f').click();$('#ul-drop').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('#ul-f').click()}};
 $('#ul-f').onchange=e=>{const f=[...e.target.files];e.target.value='';if(f.length)ulImport(f)};
 $('#ul-exp').onclick=()=>ulExport(null);
 $('#ul-x').onclick=()=>{ulOpen(false);panFit()};
