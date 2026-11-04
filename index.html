@@ -163,7 +163,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .msl{display:grid;grid-template-columns:auto 1fr;gap:1px 10px;font-size:12px;max-height:120px;overflow:auto;margin-top:4px;border-top:1px solid var(--line);padding-top:4px}.msl span{color:var(--mut)}.msl b{text-align:right;font-weight:600}
 .msbt{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.msbt .btn{min-height:32px;padding:0 10px;box-shadow:none;border:1px solid var(--line);font-size:12.5px}
 #mhud{position:fixed;z-index:59;pointer-events:none;background:rgba(24,31,48,.92);color:#fff;border-radius:10px;padding:6px 10px;font-size:12px;line-height:1.45;max-width:270px;box-shadow:0 6px 20px rgba(0,0,0,.25)}#mhud b{display:block;font-size:14px}#mhud span{display:block;color:#cfd6e6}#mhud i{display:block;font-style:normal;color:#a9bfff;font-size:11.5px;margin-top:2px}
-.msv{width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #0b6bcb;color:#0b3b75;font:800 11px/18px 'Noto Sans Thai',sans-serif;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.35)}.msv.m1{background:#0b6bcb;color:#fff;border-color:#fff}.msv.hot{box-shadow:0 0 0 7px rgba(11,107,203,.35),0 1px 3px rgba(0,0,0,.35)}.msv{cursor:grab;touch-action:none}.msv::before{content:'';position:absolute;inset:-8px;border-radius:50%}.msv.drag{cursor:grabbing;box-shadow:0 0 0 8px rgba(11,107,203,.3),0 2px 6px rgba(0,0,0,.4)}@media(hover:none){.msv::before{inset:-14px}}
+.msv{width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #0b6bcb;color:#0b3b75;font:800 11px/18px 'Noto Sans Thai',sans-serif;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.35)}.msv.m1{background:#0b6bcb;color:#fff;border-color:#fff}.msv.hot{box-shadow:0 0 0 7px rgba(11,107,203,.35),0 1px 3px rgba(0,0,0,.35)}.msv{cursor:grab;touch-action:none}.msv::before{content:'';position:absolute;inset:-8px;border-radius:50%}.msv.drag{cursor:grabbing;box-shadow:0 0 0 8px rgba(11,107,203,.3),0 2px 6px rgba(0,0,0,.4)}body.mstc .msv::before{inset:-14px}
 #mcross{position:fixed;z-index:5;width:48px;height:48px;margin:-24px 0 0 -24px;pointer-events:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}#mcross[hidden]{display:none}#mcross svg{display:block;width:100%;height:100%}#mcross.hot g g:last-child circle{stroke:#0b6bcb}
 .msbt .btn.pri{background:#0b6bcb;border-color:#0b6bcb;color:#fff;font-weight:700}
 .msb{background:#0b3b75;color:#fff;font:700 11px/1.55 'Noto Sans Thai',sans-serif;padding:0 7px;border-radius:99px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3)}.msb.hd{opacity:0}
@@ -2773,7 +2773,14 @@ function msGeo(){const s=map.getSource('msr');if(!s)return;const P=MS.pts,F=[],c
  else if(MS.snap&&MS.drag==null)F.push({type:'Feature',properties:{k:'v'},geometry:{type:'LineString',coordinates:msPath([P[n-1],P[0]])}});
  s.setData({type:'FeatureCollection',features:F})}
 /* จุดกำกับหมายเลข (ลากย้ายได้) + ป้ายระยะกลางแต่ละช่วง (DOM marker — ตัวอักษรไทยคม ไม่ต้องใช้ glyph ของแผนที่ฐาน) */
-const msTouch=()=>MS.tc!=null?MS.tc:matchMedia('(hover:none)').matches; // อุปกรณ์ไม่มีเมาส์ชี้ (MS.tc = บังคับตอนทดสอบ)
+/* จอสัมผัสหรือเมาส์: ตัดสินจากอินพุตที่ใช้จริงล่าสุด (pointerType) — มือถือ Android บางรุ่น (เช่น Samsung) รายงาน (hover:hover) ทั้งที่ไม่มีเมาส์
+   ยังไม่มีอินพุต = เดาจาก maxTouchPoints/สื่อ · MS.tc = บังคับตอนทดสอบ */
+let MSI=null;
+const msTouch=()=>MS.tc!=null?MS.tc:MSI?MSI==='touch':navigator.maxTouchPoints>0||matchMedia('(hover:none),(pointer:coarse)').matches;
+function msPT(e){const k=e.pointerType==='mouse'?'mouse':'touch';if(k===MSI)return;MSI=k;document.body.classList.toggle('mstc',msTouch());
+ if(MS.on){if(k==='touch')$('#mhud').hidden=true;msPanel();msCross()}}
+addEventListener('pointerdown',msPT,true);addEventListener('pointermove',e=>{if(e.pointerType==='mouse')msPT(e)},true);
+document.body.classList.toggle('mstc',msTouch());
 function msMk(cls,html,ll){const el=document.createElement('div');el.className=cls;el.innerHTML=html;el.style.pointerEvents='none';return new maplibregl.Marker({element:el}).setLngLat(ll).addTo(map)}
 function msVx(i){const P=MS.pts,el=document.createElement('div');el.className='msv'+(i?'':' m1')+(!i&&MS.snap?' hot':'');el.textContent=i+1;
  el.title='ลากเพื่อย้ายจุดที่ '+(i+1)+(i||MS.done?'':' · คลิกเพื่อปิดเป็นรูปพื้นที่');
