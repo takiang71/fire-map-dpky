@@ -51,6 +51,7 @@ h1 small{display:block;font-size:.42em;font-weight:600;color:var(--mut);margin-t
 .sm{font-size:12px;color:var(--mut)}
 .btns{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.btn[aria-pressed=true]{background:var(--sel);color:var(--navy)}
 .btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;background:var(--bg);border:0;border-radius:14px;box-shadow:var(--sh);font-size:13px}
+a.btn{color:inherit;text-decoration:none;cursor:pointer}
 .card{background:var(--bg);border-radius:20px;box-shadow:var(--sh);width:min(335px,100%);padding:12px}
 .srch{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:0 10px;min-height:40px}
 .srch input{flex:1;border:0;background:none;font:inherit;color:inherit;min-width:0}
@@ -447,7 +448,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <button class="btn" id="bWy" title="แผนที่พยากรณ์อากาศ Windy: ลม ฝน ฟ้าคะนอง อุณหภูมิ ความชื้น เมฆ ฝุ่น"><svg class="i" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 10-3-3M3 12h16a3 3 0 11-3 3M3 16h7"/></svg>พยากรณ์อากาศ</button>
   <button class="btn" id="bStat">วิเคราะห์สถิติย้อนหลัง</button>
   <button class="btn" id="bPlay">ย้อนดูการลามของไฟ</button>
-  <button class="btn" data-soon="คู่มือการใช้งาน|4"><svg class="i" viewBox="0 0 24 24"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 21V5M9 7h6"/></svg>คู่มือการใช้งาน</button>
+  <a class="btn" id="bMan" href="manual/index.html" target="_blank" rel="noopener" title="คู่มือการใช้งาน: ส่วนประกอบหน้าจอ เมนู ชั้นข้อมูล ที่มาข้อมูล วิธีคิด และการอ้างอิง"><svg class="i" viewBox="0 0 24 24"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 21V5M9 7h6"/></svg>คู่มือการใช้งาน</a>
  </div>
  <div class="card" id="pcard" aria-label="สรุปจุดความร้อนที่ตรวจพบ">
   <div class="ph"><b>จุดความร้อนที่ตรวจพบ</b><span class="smp" id="p-smp" title="ยอดสะสมปีงบประมาณปัจจุบันเป็นข้อมูลตัวอย่าง เพราะ API ให้ข้อมูลย้อนหลังเพียง 48 ชม. และระบบยังไม่ได้เก็บสะสม">ข้อมูลตัวอย่าง</span></div>

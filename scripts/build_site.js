@@ -67,6 +67,8 @@ function summary(L) {
   fs.mkdirSync(OUT, { recursive: true });
   fs.copyFileSync(H, path.join(OUT, 'index.html'));
   fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
+  // คู่มือการใช้งาน (manual/index.html + ภาพประกอบ) — ปุ่ม #bMan ในหน้าเว็บเปิดหน้านี้
+  if (fs.existsSync(path.join(ROOT, 'manual'))) fs.cpSync(path.join(ROOT, 'manual'), path.join(OUT, 'manual'), { recursive: true });
   // พื้นที่เผาไหม้ (scripts/sync_burn.js) และแหล่งเชื้อเพลิง (scripts/sync_fuel.js) — หน้าเว็บอ่านจาก data/ ทางเดียวกับตอนเปิดผ่าน serve.js
   for (const d of ['burn', 'fuel']) if (fs.existsSync(path.join(ROOT, 'data', d))) fs.cpSync(path.join(ROOT, 'data', d), path.join(OUT, 'data', d), { recursive: true });
   // แนวเขตอำเภอ/ตำบล (scripts/build_admin.js) — หน้าเว็บโหลดเมื่อใช้

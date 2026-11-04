@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>คู่มือการใช้งาน · แผนที่สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1B2A5E;--fire:#D93A1F;--ink:#1d2433;--mut:#5d6573;--line:#e3e6ee;--soft:#f5f6fa;--sel:#e6e8fb;--cream:#fff7ec;--ok:#1f7a4d;--warn:#b45309}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:16px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:#fff;color:var(--ink);font-family:'Noto Sans Thai','IBM Plex Sans Thai',system-ui,sans-serif;font-size:16px;line-height:1.75;font-variant-numeric:tabular-nums}
+a{color:#2f4fb8}
+a:hover{color:var(--navy)}
+code,kbd{font-family:ui-monospace,Consolas,monospace;font-size:.88em;background:var(--soft);border:1px solid var(--line);border-radius:5px;padding:0 4px;white-space:nowrap}
+kbd{background:#fff;box-shadow:0 1px 0 var(--line)}
+.wrap{display:grid;grid-template-columns:290px minmax(0,1fr);max-width:1320px;margin:0 auto}
+/* ส่วนหัว */
+.top{background:linear-gradient(135deg,#1B2A5E,#2c3f86 60%,#8a2a1a);color:#fff;padding:28px 24px 26px}
+.top .in{max-width:1320px;margin:0 auto;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
+.top h1{margin:0;font-size:clamp(24px,3.4vw,34px);line-height:1.3;font-weight:800}
+.top p{margin:6px 0 0;opacity:.9}
+.top .meta{font-size:14px;opacity:.85}
+.top a.back{display:inline-flex;align-items:center;gap:6px;background:#fff;color:var(--navy);text-decoration:none;font-weight:600;padding:9px 16px;border-radius:99px;white-space:nowrap}
+/* สารบัญ */
+nav.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:20px 14px 40px 20px;border-right:1px solid var(--line);font-size:14.5px;line-height:1.5}
+nav.toc .srch{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:10px;padding:0 10px;margin-bottom:14px;background:#fff}
+nav.toc .srch input{border:0;outline:0;font:inherit;padding:9px 0;width:100%;background:transparent}
+nav.toc ol{list-style:none;margin:0;padding:0}
+nav.toc li{margin:1px 0}
+nav.toc a{display:block;padding:5px 8px;border-radius:8px;color:var(--ink);text-decoration:none}
+nav.toc a:hover{background:var(--soft)}
+nav.toc a.on{background:var(--sel);color:var(--navy);font-weight:600}
+nav.toc ol ol a{padding-left:22px;color:var(--mut);font-size:13.5px}
+nav.toc .n{color:var(--mut);display:inline-block;min-width:26px}
+#nores{display:none;color:var(--mut);font-size:14px;padding:8px}
+/* เนื้อหา */
+main{padding:24px clamp(16px,4vw,48px) 80px;min-width:0}
+section.s{max-width:900px;margin:0 0 8px;padding-top:14px}
+h2{font-size:26px;line-height:1.35;color:var(--navy);margin:34px 0 10px;padding-top:10px;border-top:2px solid var(--line)}
+section.s:first-of-type h2{border-top:0;margin-top:6px}
+h2 .n{color:var(--fire);margin-right:8px}
+h3{font-size:19px;color:var(--navy);margin:26px 0 6px;line-height:1.4}
+h4{font-size:16.5px;margin:18px 0 4px}
+p{margin:8px 0}
+ul,ol{padding-left:24px;margin:6px 0}
+li{margin:3px 0}
+.lead{font-size:17px;color:#333a48}
+.box{border-radius:14px;padding:12px 16px;margin:14px 0;border:1px solid var(--line);background:var(--soft)}
+.box.tip{background:#eef7f1;border-color:#cfe6d7}
+.box.warn{background:#fff6e9;border-color:#f3d7ae}
+.box.note{background:#eef1fb;border-color:#d6dcf3}
+.box b.t{display:block;margin-bottom:2px}
+.box>:last-child{margin-bottom:0}
+table{border-collapse:collapse;width:100%;margin:10px 0 14px;font-size:14.5px;line-height:1.55}
+th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+th{background:var(--soft);font-weight:600;color:var(--navy)}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tw table{min-width:560px}
+figure{margin:16px 0 20px}
+figure img{display:block;max-width:100%;height:auto;border-radius:12px;border:1px solid var(--line);box-shadow:0 4px 18px rgba(20,30,60,.10)}
+figcaption{font-size:13.5px;color:var(--mut);margin-top:6px}
+.fig2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;align-items:start}
+.narrow img{max-width:min(100%,380px)}
+.ann{position:relative;display:inline-block;max-width:100%}
+.ann img{display:block}
+.ann i{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:var(--fire);color:#fff;font-style:normal;font-weight:800;font-size:14px;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35);line-height:1}
+@media (max-width:600px){.ann i{width:20px;height:20px;font-size:11px}}
+.legend{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;margin:10px 0}
+.legend>b{width:26px;height:26px;border-radius:50%;background:var(--fire);color:#fff;display:grid;place-items:center;font-size:14px}
+.sw{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:4px;border:1px solid rgba(0,0,0,.15)}
+.dot{border-radius:50%}
+.eq{background:#fbfbfd;border:1px solid var(--line);border-left:4px solid var(--navy);border-radius:8px;padding:10px 14px;margin:10px 0;font-family:ui-monospace,Consolas,monospace;font-size:14px;line-height:1.7;overflow-x:auto;white-space:pre}
+.btnl{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:0 10px;background:#fff;font-size:.92em;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.steps{counter-reset:st;list-style:none;padding-left:0}
+.steps>li{counter-increment:st;position:relative;padding-left:38px;margin:8px 0}
+.steps>li::before{content:counter(st);position:absolute;left:0;top:1px;width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:13.5px;font-weight:600}
+dl.gl dt{font-weight:600;color:var(--navy);margin-top:10px}
+dl.gl dd{margin:0 0 0 16px}
+.tag{display:inline-block;font-size:12px;border-radius:99px;padding:0 8px;background:var(--sel);color:var(--navy);font-weight:600;vertical-align:1px}
+.hidden{display:none!important}
+mark{background:#ffe58a;border-radius:3px}
+.totop{position:fixed;right:16px;bottom:16px;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:#fff;box-shadow:0 4px 14px rgba(20,30,60,.18);display:grid;place-items:center;text-decoration:none;color:var(--navy);font-size:20px}
+.mtoc{display:none}
+@media (max-width:999px){
+ .wrap{grid-template-columns:1fr}
+ nav.toc{display:none}
+ .mtoc{display:block;margin:0 0 10px;border:1px solid var(--line);border-radius:12px;padding:6px 14px;background:var(--soft)}
+ .mtoc summary{font-weight:600;color:var(--navy);cursor:pointer;padding:6px 0}
+ .mtoc ol{padding-left:20px;font-size:15px}
+ .mtoc a{text-decoration:none}
+}
+@media print{
+ nav.toc,.mtoc,.totop,.top a.back,.srch{display:none!important}
+ .wrap{display:block}
+ .top{background:none;color:var(--ink);padding:0 0 10px;border-bottom:2px solid var(--navy)}
+ body{font-size:12.5px}
+ h2{break-after:avoid}
+ figure,table,.box,.eq{break-inside:avoid}
+ a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+ <div>
+  <h1>คู่มือการใช้งาน แผนที่สถานการณ์ไฟป่า</h1>
+  <p>กลุ่มป่าดงพญาเย็น-เขาใหญ่ (Dong Phayayen–Khao Yai Forest Complex) · สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)</p>
+  <div class="meta">ฉบับปรับปรุง 4 พฤศจิกายน 2569 · ตรงกับหน้าเว็บรุ่นปัจจุบัน</div>
+ </div>
+ <a class="back" href="../index.html">← กลับไปที่แผนที่</a>
+</div></header>
+
+<div class="wrap">
+<nav class="toc" aria-label="สารบัญ">
+ <label class="srch"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="q" type="search" placeholder="ค้นหาในคู่มือ" aria-label="ค้นหาในคู่มือ" autocomplete="off"></label>
+ <ol id="tocl"></ol>
+ <div id="nores">ไม่พบหัวข้อที่ตรงกับคำค้น</div>
+</nav>
+
+<main id="main">
+<details class="mtoc"><summary>สารบัญ</summary><ol id="mtocl"></ol></details>
+
+<!-- ============ 1 ============ -->
+<section class="s" id="about">
+<h2>เกี่ยวกับระบบ</h2>
+<p class="lead">เว็บแผนที่นี้ติดตาม<strong>จุดความร้อน (hotspot)</strong> จากดาวเทียมในแนวเขตกลุ่มป่าดงพญาเย็น-เขาใหญ่แบบใกล้เวลาจริง แล้วนำข้อมูลมาประกอบกับสภาพอากาศ ภูมิประเทศ ชนิดป่า และสถิติย้อนหลัง เพื่อช่วยเจ้าหน้าที่ตัดสินใจเรื่องการเฝ้าระวัง การเข้าตรวจสอบ และการวางแผนป้องกันไฟป่า</p>
+<ul>
+ <li><b>ขอบเขตพื้นที่:</b> พื้นที่อนุรักษ์ 7 แห่ง ได้แก่ อุทยานแห่งชาติเขาใหญ่ ทับลาน ปางสีดา ตาพระยา เขตรักษาพันธุ์สัตว์ป่าดงใหญ่ และเขตห้ามล่าสัตว์ป่าเขาฉกรรจ์ กับโคกสูง (เตรียมการ) รวมพื้นที่รับผิดชอบของสถานีควบคุมไฟป่า 8 แห่ง</li>
+ <li><b>ที่อยู่เว็บ:</b> <a href="https://takiang71.github.io/fire-map-dpky/">takiang71.github.io/fire-map-dpky</a> เปิดได้ทั้งคอมพิวเตอร์ แท็บเล็ต และมือถือ ไม่ต้องติดตั้งโปรแกรม ไม่ต้องล็อกอิน</li>
+ <li><b>ข้อมูลอัปเดตเอง:</b> ระบบดึงจุดความร้อนใหม่ทุกประมาณ 10 นาที และหน้าเว็บที่เปิดค้างไว้จะดึงข้อมูลใหม่ให้ทุก 5 นาที</li>
+ <li><b>ภาษา:</b> ภาษาไทยทั้งหมด วันที่เป็นปีพุทธศักราช เวลาเป็นเวลาประเทศไทย</li>
+</ul>
+<div class="box warn"><b class="t">ข้อควรทราบ</b>จุดความร้อนคือ "บริเวณที่ดาวเทียมตรวจพบว่าร้อนผิดปกติ" ไม่ได้แปลว่ามีไฟป่าเสมอ และค่าจากแบบจำลอง (การลุกลาม ควัน ดัชนีอันตรายไฟป่า) เป็นค่าประมาณ ต้องใช้ร่วมกับการตรวจสอบภาคสนามทุกครั้ง ดูรายละเอียดที่ <a href="#limits">ข้อจำกัดและข้อควรระวัง</a></div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section class="s" id="screen">
+<h2>ส่วนประกอบของหน้าจอ</h2>
+<p>เมื่อเปิดเว็บบนคอมพิวเตอร์ หน้าจอแบ่งเป็นส่วนต่างๆ ตามหมายเลขในภาพ</p>
+<figure>
+ <div class="ann"><img src="img/overview.jpg" width="1440" height="860" alt="หน้าจอหลักของแผนที่บนคอมพิวเตอร์ พร้อมหมายเลขกำกับแต่ละส่วน" loading="lazy">
+  <i style="left:25%;top:22%">1</i><i style="left:22.9%;top:61.5%">2</i><i style="left:25%;top:69.8%">3</i><i style="left:28.6%;top:44.2%">4</i><i style="left:62.5%;top:23.3%">5</i><i style="left:83.3%;top:88.4%">6</i><i style="left:93.8%;top:84%">7</i><i style="left:51.7%;top:92.4%">8</i><i style="left:35.8%;top:98.6%">9</i>
+ </div>
+ <figcaption>หน้าจอหลักบนคอมพิวเตอร์ (ภาพจริง 4 พ.ย. 2569 ช่วงที่ยังไม่มีจุดความร้อน)</figcaption>
+</figure>
+<div class="legend">
+ <b>1</b><div><b>ส่วนหัวสรุปสถานการณ์</b> — จำนวนจุดความร้อน 24 ชม. พื้นที่อนุรักษ์ จังหวัด อำเภอ ตำบล ที่พบมากที่สุด และเวลาอัปเดต ดู <a href="#header">ส่วนหัวสรุปสถานการณ์</a></div>
+ <b>2</b><div><b>ปุ่มเมนูหลัก</b> 6 ปุ่ม ดู <a href="#menu">ปุ่มเมนูหลัก</a></div>
+ <b>3</b><div><b>การ์ดจุดความร้อนที่ตรวจพบ</b> — สรุปตัวเลข เทียบปีงบก่อน กราฟสะสม รายการแยกพื้นที่ ตาราง/CSV/รายงาน ดู <a href="#card">การ์ดจุดความร้อน</a></div>
+ <b>4</b><div><b>ปุ่มพับแผงซ้าย</b> — ซ่อนแผงซ้ายไปด้านข้างเพื่อให้เห็นแผนที่เต็มจอ กดอีกครั้งเพื่อเปิด (บนแท็บเล็ตปัดแผงไปทางซ้ายได้)</div>
+ <b>5</b><div><b>แผนที่</b> — เส้นสีเขียว = แนวเขตพื้นที่อนุรักษ์ · คลิกจุดความร้อนหรือตำแหน่งใดก็ได้เพื่อดูข้อมูล ดู <a href="#map">การใช้แผนที่</a></div>
+ <b>6</b><div><b>ปุ่มควบคุมแผนที่</b> — ตำแหน่งของฉัน ชั้นข้อมูล วัดระยะ วาด ซูม 3 มิติ ทิศเหนือ กลับหน้าแรก ดู <a href="#ctl">ปุ่มควบคุมแผนที่</a></div>
+ <b>7</b><div><b>มาตราส่วน</b> — แถบสลับสีบอกระยะจริงบนพื้น ปรับตามระดับซูม</div>
+ <b>8</b><div><b>คำแนะนำ</b> — บอกสิ่งที่ทำได้ในขณะนั้น</div>
+ <b>9</b><div><b>แหล่งที่มาของข้อมูล</b> (เครดิต) — ชี้เมาส์ที่ปุ่มแผนที่ฐานเพื่อดูที่มาของแผนที่ฐานที่ใช้อยู่</div>
+</div>
+
+<h3 id="mobile">บนมือถือ</h3>
+<div class="fig2">
+ <figure class="narrow"><img src="img/mobile.jpg" width="780" height="1688" alt="หน้าจอบนมือถือ แผนที่อยู่ด้านบน แผ่นข้อมูลอยู่ด้านล่าง" loading="lazy"><figcaption>บนมือถือ แผงซ้ายกลายเป็น "แผ่นล่าง" และปุ่มควบคุมอยู่ขวาบน</figcaption></figure>
+ <div>
+  <ul>
+   <li><b>แผ่นล่าง:</b> ลากแถบเทาด้านบนของแผ่นขึ้นเพื่อขยาย ลากลงเพื่อย่อ หรือเลื่อนเนื้อหาในแผ่นขึ้นลงตามปกติ</li>
+   <li><b>ปุ่มควบคุม:</b> เรียงเป็นคอลัมน์ชิดขวาบน และจะซ่อนเองเมื่อแผ่นล่างถูกดึงขึ้นมาสูงจนบังปุ่ม</li>
+   <li><b>แผงชั้นข้อมูลและแผงรายละเอียดจุด</b> เปิดเป็นแผ่นจากด้านล่างเช่นกัน ปิดด้วยปุ่ม ✕</li>
+   <li>ใช้นิ้วสองนิ้วซูม/หมุนแผนที่ ใช้นิ้วเดียวเลื่อน</li>
+   <li>กล่องลอย <span class="btnl">⌄ เลื่อนลงเพื่อดูเนื้อหาเพิ่มเติม</span> แสดงเมื่อยังมีเนื้อหาด้านล่าง แตะเพื่อเลื่อนลง</li>
+  </ul>
+  <div class="box tip"><b class="t">เคล็ดลับ</b>บนมือถือ เพิ่มหน้าเว็บไว้ที่หน้าจอหลัก (Chrome: ⋮ → เพิ่มลงในหน้าจอหลัก · Safari: แชร์ → เพิ่มไปยังหน้าจอโฮม) จะเปิดได้เหมือนแอป</div>
+ </div>
+</div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section class="s" id="header">
+<h2>ส่วนหัวสรุปสถานการณ์</h2>
+<ul>
+ <li><b>ป้าย "อัปเดต HH:MM น."</b> (มุมขวาบน จุดสีเขียว) — เวลาที่หน้าเว็บดึงข้อมูลสำเร็จครั้งล่าสุด</li>
+ <li><b>ตัวเลขสรุป 5 บรรทัด</b> — จุดความร้อนใน 24 ชม. ล่าสุด, จำนวนพื้นที่อนุรักษ์ที่พบจุด (พร้อมรายชื่อย่อ เช่น "8 อช.เขาใหญ่"), จังหวัด อำเภอ และตำบลที่พบมากที่สุด · <b>คลิกชื่อพื้นที่เพื่อซูมไปที่พื้นที่นั้น</b></li>
+ <li><b>บรรทัดสถานะ</b> — แหล่งข้อมูล (Land Fire Alerts Thailand · WFSRU/ThaiREN), ดาวเทียม VIIRS 375 ม., "ระบบต้นทางอัปเดต …" (เวลาที่ระบบต้นทางประมวลผลรอบล่าสุด อ่านจากหน้าเว็บต้นทาง), จำนวนจุดในกลุ่มป่า และช่วงข้อมูลบนแผนที่ (ย้อนหลัง 2 วัน)</li>
+ <li><b>สวิตช์ "แสดงจุดความร้อนตัวอย่าง"</b> — สร้างจุด<b>ปลอม</b>สุ่มในแนวเขตเพื่อดูการทำงานของหน้าจอช่วงที่ไม่มีไฟ (ปิดเป็นค่าเริ่มต้น และจะปิดเองทุกครั้งที่เปิดเว็บใหม่) จุดตัวอย่างมีป้าย "ไม่ใช่ข้อมูลจริง" กำกับทุกที่ <b>ห้ามนำตัวเลขขณะเปิดสวิตช์นี้ไปรายงาน</b></li>
+</ul>
+</section>
+
+<!-- ============ 4 ============ -->
+<section class="s" id="menu">
+<h2>ปุ่มเมนูหลัก</h2>
+<div class="tw"><table>
+<tr><th style="width:30%">ปุ่ม</th><th>หน้าที่</th></tr>
+<tr><td><span class="btnl">🔥 จุดความร้อนที่ตรวจพบ</span></td><td>แสดง/ซ่อน <a href="#card">การ์ดจุดความร้อน</a> (ปุ่มเป็นสีเมื่อการ์ดแสดงอยู่)</td></tr>
+<tr><td><span class="btnl">ความสำคัญ</span></td><td>เปิดหน้าความรู้ "ความสำคัญของผืนป่า" รายพื้นที่อนุรักษ์ ดู <a href="#know">หน้าความสำคัญ</a></td></tr>
+<tr><td><span class="btnl">พยากรณ์อากาศ</span></td><td>เปิด/ปิดชั้นพยากรณ์อากาศ Windy ซ้อนบนแผนที่ ดู <a href="#windy">พยากรณ์อากาศ Windy</a></td></tr>
+<tr><td><span class="btnl">วิเคราะห์สถิติย้อนหลัง</span></td><td>เปิดการ์ดสถิติจุดความร้อนปีงบ 2561–2569 ดู <a href="#stats">วิเคราะห์สถิติย้อนหลัง</a></td></tr>
+<tr><td><span class="btnl">ย้อนดูการลามของไฟ</span></td><td>เปิดแผงเล่นภาพเคลื่อนไหวจุดความร้อนตามวัน ดู <a href="#play">ย้อนดูการลามของไฟ</a></td></tr>
+<tr><td><span class="btnl">คู่มือการใช้งาน</span></td><td>เปิดคู่มือนี้ในแท็บใหม่</td></tr>
+</table></div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section class="s" id="card">
+<h2>การ์ดจุดความร้อนที่ตรวจพบ</h2>
+<div class="fig2">
+<figure class="narrow"><div class="ann"><img src="img/card.jpg" width="400" height="1020" alt="การ์ดจุดความร้อนที่ตรวจพบ พร้อมหมายเลขกำกับ" loading="lazy">
+ <i style="left:95%;top:10.1%">1</i><i style="left:95%;top:13.3%">2</i><i style="left:95%;top:18.4%">3</i><i style="left:95%;top:28.4%">4</i><i style="left:95%;top:41.5%">5</i><i style="left:95%;top:56.9%">6</i><i style="left:95%;top:71.8%">7</i><i style="left:95%;top:77.2%">8</i><i style="left:95%;top:83.2%">9</i><i style="left:95%;top:93.8%">10</i>
+</div><figcaption>การ์ดจุดความร้อนที่ตรวจพบ</figcaption></figure>
+<div class="legend" style="align-content:start">
+ <b>1</b><div><b>ปุ่มเลือกดาวเทียม</b> (NOAA-20 / NOAA-21) — กดเพื่อเปิด/ปิดจุดของดาวเทียมแต่ละดวง ตัวเลขบนปุ่ม = จุดสะสมปีงบปัจจุบันของดวงนั้น · ปิดพร้อมกันทุกดวงไม่ได้ · มีผลกับแผนที่ ตัวเลข 24 ชม. รายการ และตาราง แต่<b>ไม่มีผล</b>กับยอดสะสมตัวชี้วัด (Suomi NPP หยุดส่งข้อมูลถาวรแล้วจึงซ่อนปุ่ม)</div>
+ <b>2</b><div><b>ไม่รวม ขสป.ดงใหญ่ (สบอ.7)</b> — เปิดเป็นค่าเริ่มต้น เพื่อดูเฉพาะพื้นที่ของ สบอ.1 ปิดเพื่อรวมดงใหญ่ (ปุ่มนี้มีอีกชุดในการ์ดสถิติ ทั้งสองชุดเป็นสถานะเดียวกัน) ดู <a href="#m-area">กติกาการจัดพื้นที่</a></div>
+ <b>3</b><div><b>ไทล์ตัวเลข</b> — 24 ชม. ล่าสุด (เทียบ 24 ชม. ก่อนหน้า) · ใหม่ใน 6 ชม. · <b>สะสมปีงบ</b> นับเฉพาะดาวเทียมตัวชี้วัดของกรมอุทยานฯ (ปัจจุบัน NOAA-20)</div>
+ <b>4</b><div><b>เทียบปีงบประมาณ</b> — แท่งเทียบยอดปีนี้กับปีก่อน และค่าเฉลี่ย 3 ปี 5 ปี และทุกปีงบ ในช่วงเดียวกัน (1 ต.ค. ถึงวันนี้)</div>
+ <b>5</b><div><b>ปีงบก่อนทั้งปี vs ปีนี้ถึงวันนี้</b> พร้อมลูกศร % (▲ แดง = มากขึ้น ▼ เขียว = น้อยลง)</div>
+ <b>6</b><div><b>กราฟสะสม</b> — เส้นแดง = ปีงบปัจจุบัน, น้ำเงิน = ปีงบก่อน, เหลือง/ม่วง = เฉลี่ย 3/5 ปี, เทาประ = เฉลี่ยทุกปีงบ · แถบครีม = ช่วงไฟป่า ม.ค.–เม.ย. · ชี้เมาส์ดูค่าแต่ละเดือน</div>
+ <b>7</b><div><b>ช่วงข้อมูลของรายการ</b> — จุดใน 24 ชม. / จุดสะสมปีงบ (แสดงจุดสะสมเป็นวงส้มบนแผนที่ด้วย) / เทียบปีงบก่อน (เลือก "เทียบช่วงเวลาเดียวกัน" หรือ "เทียบทั้งปีงบก่อน")</div>
+ <b>8</b><div><b>ระดับพื้นที่</b> — จังหวัด (แยกย่อย อำเภอ/ตำบล) · สบอ. · พื้นที่อนุรักษ์ · สถานีฯ ไฟป่า</div>
+ <b>9</b><div><b>ช่องค้นหา</b> — พิมพ์ชื่อพื้นที่เพื่อกรองรายการ</div>
+ <b>10</b><div><b>ตารางรายละเอียด · ดาวน์โหลด CSV · รายงาน PDF</b> ดู <a href="#export">ตาราง CSV และรายงาน</a></div>
+</div>
+</div>
+<h3>การคลิกในรายการ</h3>
+<ul>
+ <li><b>คลิกชื่อพื้นที่</b> = ซูมแผนที่ไปที่พื้นที่นั้น และ<b>เลือกพื้นที่เป็นตัวกรอง</b>ของตาราง/CSV/รายงาน (มีป้ายใต้รายการบอกพื้นที่ที่เลือก กด ✕ ที่ป้ายหรือคลิกชื่อเดิมซ้ำเพื่อยกเลิก)</li>
+ <li>สถานีฯ นับจุดตามแปลงรับผิดชอบที่จุดอยู่ จุดนอกแปลงรวมเป็น "พื้นที่ไม่มีสถานีฯไฟป่ารับผิดชอบ"</li>
+</ul>
+<div class="box note"><b class="t">ทำไมยอดสะสมในการ์ดอาจไม่เท่ากับผลรวมจุดบนแผนที่</b>แผนที่แสดงจุดจากทุกดาวเทียม (NOAA-20, NOAA-21) ส่วนยอดสะสมปีงบนับเฉพาะ<b>ดาวเทียมตัวชี้วัด</b>ของกรมอุทยานแห่งชาติฯ เพื่อให้เทียบกับตัวเลขทางการได้ ดู <a href="#m-ind">ดาวเทียมตัวชี้วัด</a></div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section class="s" id="map">
+<h2>การใช้แผนที่</h2>
+<h3>สัญลักษณ์จุดความร้อน</h3>
+<table>
+<tr><th>สัญลักษณ์</th><th>ความหมาย</th></tr>
+<tr><td><span class="sw dot" style="background:#e0301e"></span> แดง</td><td>ตรวจพบภายใน 6 ชม.</td></tr>
+<tr><td><span class="sw dot" style="background:#f08a1c"></span> ส้ม</td><td>6–24 ชม.</td></tr>
+<tr><td><span class="sw dot" style="background:#9a6a4a"></span> น้ำตาล</td><td>เก่ากว่า 24 ชม. (แสดงถึง 48 ชม.)</td></tr>
+<tr><td><span class="sw dot" style="background:#f6a04d;border:2px solid #d9701e"></span> วงส้ม</td><td>จุดสะสมปีงบ (เมื่อเลือกแท็บ "จุดสะสมปีงบ" ในการ์ด)</td></tr>
+<tr><td><span class="sw dot" style="background:#ffd84a"></span> วงเหลือง</td><td>จุดความร้อนของวันที่ภาพดาวเทียมย้อนหลังที่เลือกอยู่</td></tr>
+</table>
+<h3>คลิกบนแผนที่</h3>
+<ul>
+ <li><b>คลิกจุดความร้อน</b> → เปิด <a href="#detail">แผงรายละเอียดจุดความร้อน</a> ทางขวา</li>
+ <li><b>คลิกตำแหน่งอื่น</b> → ป๊อปอัปข้อมูลตำแหน่ง: พื้นที่อนุรักษ์ สถานีฯ ที่รับผิดชอบ, พื้นที่เผาไหม้/เผาซ้ำซาก (ถ้าเปิดชั้น), ชนิดป่า, พิกัด, สภาพอากาศขณะนั้น, ตำบล/อำเภอ/จังหวัด และลิงก์ <b>นำทางด้วย Google Maps</b></li>
+ <li><b>คลิกสถานีควบคุมไฟป่า / จุดเฝ้าระวัง / สถานีวัดฝุ่น</b> → ป๊อปอัปชื่อ ที่ตั้ง และลิงก์ Google Maps</li>
+ <li><b>ชี้เมาส์</b> บนชั้นอากาศแห้ง/สภาพอากาศรายชั่วโมง เพื่อดูค่า ณ ตำแหน่งนั้น</li>
+</ul>
+<h3>การเลื่อนและซูม</h3>
+<ul>
+ <li>ลากเพื่อเลื่อน · ล้อเมาส์หรือปุ่ม + − เพื่อซูม · ดับเบิลคลิกเพื่อซูมเข้า</li>
+ <li>คลิกขวาค้างแล้วลาก (หรือ <kbd>Ctrl</kbd>+ลาก) เพื่อหมุนและเอียง · ปุ่มเข็มทิศเพื่อหันทิศเหนือขึ้น</li>
+ <li>ป้ายรหัสจุดเฝ้าระวังและชื่อสถานีฯ จะแสดงเมื่อซูมเข้าใกล้พอ</li>
+</ul>
+</section>
+
+<!-- ============ 7 ============ -->
+<section class="s" id="ctl">
+<h2>ปุ่มควบคุมแผนที่</h2>
+<p>ชี้เมาส์ที่ปุ่มเพื่อดูชื่อปุ่ม (เรียงจากซ้ายไปขวาบนคอมพิวเตอร์ / ล่างขึ้นบนบนมือถือ)</p>
+<div class="tw"><table>
+<tr><th style="width:26%">ปุ่ม</th><th>หน้าที่</th></tr>
+<tr><td>⌖ ตำแหน่งของฉัน</td><td>แสดงตำแหน่งปัจจุบันจาก GPS ของอุปกรณ์ (เบราว์เซอร์จะขออนุญาตก่อน) ใช้ดูว่าอยู่ห่างจุดความร้อนเท่าไร</td></tr>
+<tr><td>◇ ชั้นข้อมูล</td><td>เปิด/ปิด <a href="#layers">แผงชั้นข้อมูล</a></td></tr>
+<tr><td>📏 วัดระยะทางและพื้นที่</td><td>ดู <a href="#measure">เครื่องมือวัด</a></td></tr>
+<tr><td>✎ วาดและจัดการชั้นข้อมูล</td><td>ดู <a href="#draw">เครื่องมือวาดและชั้นข้อมูลของผู้ใช้</a></td></tr>
+<tr><td>+ / −</td><td>ซูมเข้า / ซูมออก</td></tr>
+<tr><td>⛰ โหมด 3 มิติ</td><td>เอียงแผนที่และแสดงภูมิประเทศนูน (ความสูงขยาย) ดูสันเขาและหุบเขาที่ไฟมักลาม</td></tr>
+<tr><td>◆ รีเซ็ตทิศเหนือ</td><td>หมุนแผนที่ให้ทิศเหนือขึ้นและเลิกเอียง</td></tr>
+<tr><td>⌂ กลับมุมมองเริ่มต้น</td><td>ซูมให้เห็นทั้งกลุ่มป่า (จัดให้อยู่กลางช่องที่แผงไม่บัง)</td></tr>
+</table></div>
+<p><b>แป้นลัด:</b> <kbd>Esc</kbd> ปิดแผงหรือเครื่องมือที่เปิดอยู่</p>
+</section>
+
+<!-- ============ 8 ============ -->
+<section class="s" id="layers">
+<h2>แผงชั้นข้อมูล</h2>
+<div class="fig2">
+<figure class="narrow"><img src="img/layers.jpg" width="366" height="1810" alt="แผงชั้นข้อมูลทั้งหมด" loading="lazy"><figcaption>แผงชั้นข้อมูล (ทุกหมวด)</figcaption></figure>
+<div>
+<p>เปิดจากปุ่ม ◇ ในปุ่มควบคุม แต่ละแถวมีสวิตช์เปิด/ปิด <b>ชี้เมาส์ที่ชื่อชั้น (หรือแตะชื่อบนจอสัมผัส) เพื่อดูคำอธิบายย่อ</b> ชั้นที่มีตัวเลือกเพิ่มเติมจะแสดงกล่องตั้งค่าใต้แถวเมื่อเปิด</p>
+<ul>
+ <li><b>ตั้งที่เลือกเป็นค่าเริ่มต้น</b> (มุมบนของแผง) — จำชั้นที่เปิด แผนที่ฐาน ดาวเทียม ปุ่มดงใหญ่ และค่าตั้งของกองจุด/Windy ไว้ในเบราว์เซอร์นี้ ครั้งต่อไปจะเปิดมาแบบเดิม (เก็บเฉพาะเครื่องนั้น)</li>
+ <li>ค่าเริ่มต้นของระบบ: เปิดจุดความร้อน พื้นที่อนุรักษ์ เส้นจังหวัด แหล่งน้ำ ถนน · ปิดพื้นที่รับผิดชอบสถานีฯ ที่ตั้งสถานีฯ จุดเฝ้าระวัง</li>
+ <li>เปิด/ปิดแผงนี้ แผนที่จะเลื่อนให้กลุ่มป่าอยู่กลางช่องที่เหลือเอง</li>
+</ul>
+</div></div>
+
+<h3 id="l-base">แผนที่ฐาน</h3>
+<div class="tw"><table>
+<tr><th>ตัวเลือก</th><th>ลักษณะ / เหมาะกับ</th><th>ที่มา</th></tr>
+<tr><td>ธรรมชาติ</td><td>ภูมิประเทศ เส้นชั้นความสูง เงาภูเขา — ค่าเริ่มต้น ใช้ดูสันเขา/หุบเขา</td><td>Esri World Topo + AWS Terrain</td></tr>
+<tr><td>เรียบ</td><td>พื้นสีอ่อน สีจุดเด่นชัด เหมาะทำรายงานและพิมพ์</td><td>OpenFreeMap Positron · © OpenStreetMap</td></tr>
+<tr><td>ดาวเทียม</td><td>ภาพถ่ายจริง เลือกแหล่งภาพได้ 4 แบบ (ดูด้านล่าง)</td><td>Google / Esri / Sentinel-2 / NASA GIBS</td></tr>
+<tr><td>ถนน/ชุมชน</td><td>ถนน หมู่บ้าน วัด โรงเรียน อาคาร — ใช้วางแผนเส้นทางเข้าพื้นที่</td><td>OpenFreeMap Liberty · © OpenStreetMap</td></tr>
+<tr><td>โทนมืด</td><td>พื้นมืด จุดความร้อนเด่น เหมาะดูตอนกลางคืน/จอใหญ่</td><td>OpenFreeMap Dark</td></tr>
+</table></div>
+<h4>แหล่งภาพดาวเทียมและการดูภาพย้อนหลัง</h4>
+<div class="tw"><table>
+<tr><th>ปุ่ม</th><th>รายละเอียด</th><th>ดูย้อนหลัง</th></tr>
+<tr><td>Google</td><td>ภาพละเอียดสูง (ค่าเริ่มต้น) ไม่ทราบวันที่ถ่าย · ถ้าโหลดไม่ได้ ระบบสลับเป็น Esri ให้เอง</td><td>–</td></tr>
+<tr><td>Esri</td><td>World Imagery · ป้ายกลางบนจอบอกวันที่ถ่ายภาพ ณ กลางจอ (เมื่อซูมใกล้พอ)</td><td><b>Esri Wayback</b> — แถบเลื่อนแสดงเฉพาะรุ่นที่ภาพ ณ บริเวณกลางจอเปลี่ยนจริง เรียงตามวันที่ถ่าย (ไม่ใช่วันออกรุ่น) ย้อนได้ถึงราว พ.ศ. 2555 · เลื่อนแผนที่แล้วระบบค้นใหม่</td></tr>
+<tr><td>Sentinel-2</td><td>ภาพไร้เมฆรายปี 10 ม. (EOX Sentinel-2 cloudless, CC BY-NC-SA)</td><td>รายปี 2559, 2561–2568</td></tr>
+<tr><td>NOAA-20</td><td>ภาพ VIIRS รายวันจาก NASA GIBS ความละเอียดต่ำ (เห็นกลุ่มควัน/เมฆ)</td><td>รายวัน ตั้งแต่ 1 ม.ค. 2561 · ขีดบนแถบ = วันที่มีจุดความร้อน · ช่องเลือกวันที่</td></tr>
+</table></div>
+<p>เมื่อดูภาพย้อนหลัง จุดความร้อนของวันนั้นจะแสดงเป็นวงเหลือง · กด <span class="btnl">ล่าสุด</span> เพื่อกลับภาพปัจจุบัน</p>
+<p><b>มุมมอง 3 มิติ</b> — เหมือนปุ่ม ⛰ ในปุ่มควบคุม</p>
+
+<h3 id="l-fire">หมวดไฟป่า</h3>
+<h4>จุดความร้อน</h4>
+<p>จุด VIIRS 48 ชม. ล่าสุดในแนวเขต มีปุ่มเลือกดาวเทียม (ชุดเดียวกับในการ์ด) และจำนวนจุดแยกอายุ ภายใน 6 ชม. / 6–24 ชม. / เก่ากว่า 24 ชม. · <span class="btnl">↻ ดึงข้อมูลใหม่</span> ดึงทันทีโดยไม่ต้องรอรอบอัตโนมัติ</p>
+
+<h4 id="l-cluster">กองจุดความร้อน (Cluster / Group / Area)</h4>
+<figure><img src="img/hcluster.jpg" width="1440" height="860" alt="กองจุดความร้อนรวมและจุดเริ่มต้นไฟ ปีงบ 2569" loading="lazy"><figcaption>กองจุดความร้อนรวม + จุดเริ่มต้นไฟ (วงเป้า) ของปีงบ 2569 บริเวณทับลาน</figcaption></figure>
+<div class="tw"><table>
+<tr><th style="width:28%">สวิตช์</th><th>แสดงอะไร</th></tr>
+<tr><td>กองจุดความร้อนรายวัน <span class="tag">Cluster</span></td><td>จุดที่เกิด<b>วันเดียวกัน</b> (เวลาไทย) และห่างกันไม่เกินระยะที่กำหนด ต่อเนื่องกันเป็นลูกโซ่ = 1 กอง · วงกลมอยู่กลางกอง ตัวเลข = จำนวนจุด · แดง = วันล่าสุด ไล่ไปเหลือง = เก่า</td></tr>
+<tr><td>กองจุดความร้อนรวม + จุดเริ่มต้นไฟ <span class="tag">Group</span></td><td>รวมจุดที่ห่างกันไม่เกินระยะ <b>และ</b>เกิดห่างกันไม่เกินจำนวนวันที่กำหนด เป็นไฟเหตุการณ์เดียวกัน · <b>วงเป้า</b> = จุดเริ่มต้นไฟ (จุดที่ดาวเทียมพบเป็นรอบแรกของกอง) · เส้นลูกศร = ทิศทางที่ไฟลามในวันถัดไป</td></tr>
+<tr><td>พื้นที่จุดความร้อนรวม <span class="tag">Area</span></td><td>รูปหลายเหลี่ยมครอบทุกจุดของกองรวม ขยายรอบจุดตามระยะที่กำหนด แสดงไร่ — <b>เป็นพื้นที่ที่ความร้อนกระจายตัวโดยประมาณ ไม่ใช่พื้นที่เผาไหม้จริง</b></td></tr>
+</table></div>
+<p>กล่องตั้งค่าใต้สวิตช์:</p>
+<ul>
+ <li><b>ช่วงเวลา</b> — 48 ชม. / 7 วัน / 30 วัน / ปีงบปัจจุบัน / ปีงบก่อน</li>
+ <li><b>ห่างกันไม่เกิน (กม.)</b> 0.1–10 (ค่าเริ่มต้น 1) · <b>เกิดห่างกันไม่เกิน (วัน)</b> 0–30 (ค่าเริ่มต้น 2) · <b>ระยะขยายรอบจุด (ม.)</b> 50–2,000 (ค่าเริ่มต้น 200 ≈ ครึ่งพิกเซล VIIRS) · <span class="btnl">คืนค่าเริ่มต้น</span></li>
+ <li>สรุปจำนวนกองและไร่ และรายการ 5 กองรวมใหญ่สุด แตะเพื่อซูมไปที่กองนั้น</li>
+ <li><b>ดับเบิลคลิกที่กองรายวัน</b> (หรือปุ่มในป๊อปอัปบนจอสัมผัส) = จุดในกอง "แตกตัว" ออกไปยังตำแหน่งจริงทีละจุดตามลำดับเวลาที่พบ พร้อมหมายเลขลำดับและเวลา · แตะที่ว่างเพื่อยุบกลับ</li>
+</ul>
+<p>วิธีคิดดูที่ <a href="#m-cluster">การจัดกองจุดความร้อน</a></p>
+
+<h4>จุดความร้อนย้อนหลัง</h4>
+<p>จุดของกรมอุทยานแห่งชาติฯ ปีงบ 2561–2569 (Suomi NPP) แสดงตามตัวกรองในการ์ดวิเคราะห์สถิติ · ลิงก์ <span class="btnl">เปิดการ์ดวิเคราะห์สถิติ →</span></p>
+
+<h4 id="l-burn">พื้นที่เผาไหม้</h4>
+<figure><img src="img/burn.jpg" width="1440" height="860" alt="ชั้นพื้นที่เผาไหม้สะสมปีงบ 2569" loading="lazy"><figcaption>พื้นที่เผาไหม้สะสมปีงบ 2569 พร้อมสรุปไร่แยกพื้นที่อนุรักษ์และสถานีฯ</figcaption></figure>
+<ul>
+ <li><b>เลือกช่วง</b> — สะสมปีงบ / รายรอบ 7 วัน / แยกประเภทป่า–เกษตร รายเดือน / รายฤดูฝุ่น (ธ.ค.–เม.ย.)</li>
+ <li><b>สี (ราย 7 วันและสะสม):</b> <span class="sw" style="background:#f5a623"></span>พบ 1 ครั้ง <span class="sw" style="background:#e8541c"></span>2 ครั้ง <span class="sw" style="background:#a3171b"></span>3 ครั้งขึ้นไป</li>
+ <li><b>สี (แยกประเภท):</b> <span class="sw" style="background:#ef0707"></span>ป่าไม้ <span class="sw" style="background:#ffe600"></span>ข้าว <span class="sw" style="background:#ff72df"></span>อ้อย <span class="sw" style="background:#a8e05a"></span>ข้าวโพด <span class="sw" style="background:#ffaa01"></span>พืชผสม</li>
+ <li><b>ไร่รวม และ "มีจุดความร้อนในรัศมี 1 กม."</b> — กี่ไร่/กี่ % ของรอยเผาที่มีจุดความร้อนใกล้ในช่วงเวลาที่สอดคล้องกัน · ปุ่ม <span class="btnl">เน้นสีรอยเผาที่ไม่พบจุดความร้อน</span> ระบายรอยที่ไม่มีจุดเป็น<span class="sw" style="background:#7c3aed"></span>ม่วง (ไฟที่ดาวเทียมจุดความร้อนตกหล่น)</li>
+ <li>แท่งรายรอบของปีงบ (แตะเพื่อเลือกรอบ) · ไร่แยกพื้นที่อนุรักษ์และสถานีฯ (ตามปุ่มดงใหญ่)</li>
+ <li><span class="btnl">ดาวน์โหลด CSV</span> แถวละรอบ × พื้นที่อนุรักษ์ × สถานีฯ × ประเภท · <span class="btnl">รายงาน PDF</span> แผนที่ + พื้นที่เผาไหม้ + แหล่งเชื้อเพลิง</li>
+ <li>แตะแผนที่บนรอยเผา → ป๊อปอัปบอกรอบที่พบ จำนวนครั้ง ประเภท และพบจุดความร้อนใกล้หรือไม่</li>
+</ul>
+<div class="box note">ข้อมูลออกช้ากว่าวันสิ้นสุดรอบราว 9 วัน และบางรอบบางพื้นที่ไม่มีภาพ (เมฆมาก) ระบบแจ้งไว้ในกล่องสรุป ดูวิธีคิดที่ <a href="#m-burn">พื้นที่เผาไหม้</a></div>
+
+<h4 id="l-rep">พื้นที่เผาซ้ำซาก</h4>
+<p>พื้นที่ที่พบรอยเผาไหม้มากกว่า 1 ปีงบ — ใช้กำหนดจุดวางแนวกันไฟและลาดตระเวนก่อนฤดูไฟ</p>
+<ul>
+ <li>ตัวเลือก ไหม้ ≥ 2 ปี (ค่าเริ่มต้น) / ≥ 3 ปี / ทุกพื้นที่ที่เคยไหม้</li>
+ <li>สี <span class="sw" style="background:#f6d365"></span>1 ปี <span class="sw" style="background:#f08a1c"></span>2 ปี <span class="sw" style="background:#c0301c"></span>3 ปี <span class="sw" style="background:#5c0a14"></span>4 ปีขึ้นไป</li>
+ <li>สรุปไร่ตามจำนวนปี แยกป่า/เกษตร แยกพื้นที่อนุรักษ์และสถานีฯ และตารางรายปีงบ (พร้อมหมายเหตุว่าทำไมยอดรายปีอาจไม่เท่ากับชั้นพื้นที่เผาไหม้)</li>
+</ul>
+
+<h4 id="l-dry">อากาศแห้ง เสี่ยงเกิดไฟป่า</h4>
+<ul>
+ <li>พื้นผิวสีทั้งประเทศ (ตาราง ~110 กม.) พยากรณ์รายวัน เลือกได้ 3 ดัชนี: <b>ดัชนีไฟป่า FWI</b> (CBI) / <b>ความชื้นต่ำสุด</b> / <b>ความแห้ง VPD</b></li>
+ <li>ชิปเลือกวัน (วันนี้และวันถัดไป) · คำอธิบายสี · สรุปจำนวนพื้นที่เสี่ยงสูง (FWI ≥ 75) เสี่ยงสูงมาก–วิกฤต (FWI ≥ 90) และจุดที่ความชื้นต่ำสุดในประเทศ</li>
+ <li>ชี้เมาส์บนแผนที่เพื่อดูค่า · <span class="btnl">↻ คำนวณใหม่</span></li>
+</ul>
+<p>ระดับและสูตรดูที่ <a href="#m-fwi">ดัชนีอันตรายไฟป่า</a></p>
+
+<h3 id="l-forest">หมวดป่าไม้และเชื้อเพลิง</h3>
+<h4>ชนิดป่า</h4>
+<p>ชนิดป่าปี 2561 ของกรมป่าไม้ ทำเป็นกริด 50 ม. เฉพาะในแนวเขต · แท่งซ้อนไร่ต่อชนิดป่าในแต่ละพื้นที่อนุรักษ์ · แตะแผนที่เพื่อดูชนิดป่า ณ จุดนั้น · ใช้เลือกเชื้อเพลิงให้โมเดลไฟอัตโนมัติ</p>
+<h4>แหล่งเชื้อเพลิง (SAVI)</h4>
+<p>ดัชนีพืชพรรณปรับค่าดิน รายเดือน 20 ม. — 5 ระดับ <span class="sw" style="background:#e10000"></span>สูงมาก <span class="sw" style="background:#e17d00"></span>สูง <span class="sw" style="background:#ffe100"></span>ปานกลาง <span class="sw" style="background:#00e100"></span>ต่ำ <span class="sw" style="background:#005000"></span>ต่ำมาก · พื้นที่ระดับสูง = พืชโปร่ง แห้ง หรือดินโล่ง ซึ่งเชื้อเพลิงผิวดินแห้งติดไฟง่าย · ไม่มีสี = ไม่มีข้อมูล (เช่น เมฆ) · มีแท่งสัดส่วนต่อพื้นที่อนุรักษ์และตัวเลือกเดือน (เมื่อมีหลายเดือน) ดู <a href="#m-savi">วิธีคิด</a></p>
+
+<h3 id="l-wx">หมวดสภาพอากาศและคุณภาพอากาศ</h3>
+<div class="tw"><table>
+<tr><th style="width:24%">ชั้น</th><th>รายละเอียดและวิธีใช้</th></tr>
+<tr><td>สภาพอากาศ Windy <span class="tag">LIVE</span></td><td>ภาพพยากรณ์ของ Windy ซ้อนใต้แนวเขตและจุดความร้อน ดู <a href="#windy">พยากรณ์อากาศ Windy</a> · ในกล่อง: เลือกชั้น, เวลา ตอนนี้/+12/+24 ชม., ความเข้ม 20–100%, สภาพอากาศกลางกลุ่มป่าตอนนี้</td></tr>
+<tr><td>ทิศทางลมปัจจุบัน</td><td>เส้นลมเคลื่อนไหว (Open-Meteo) ตามบริเวณที่มองเห็น ปรับทุก 15 นาที · หัวเส้นชี้ทิศที่ลม<b>พัดไป</b> ยิ่งยาวยิ่งแรง (5 ระดับ ต่ำกว่า 1 ถึงเกิน 8 ม./วินาที) · ใช้ประเมินทิศไฟลามและควัน</td></tr>
+<tr><td>สภาพอากาศรายชั่วโมง</td><td>อุณหภูมิ / ความชื้น / ฝน / เมฆ จากแบบจำลอง Open-Meteo (~10–25 กม.) · แถบเลื่อนเวลาย้อนหลัง 24 ชม. ถึงพยากรณ์ 48 ชม. · ‹ › ทีละชั่วโมง · <span class="btnl">ตอนนี้</span> · ชี้เมาส์ดูค่า</td></tr>
+<tr><td>เรดาร์ฝน</td><td>RainViewer ย้อนหลัง 2 ชม. ทุก 10 นาที · ▶ เล่นภาพเคลื่อนไหว · ละเอียดสูงสุดเท่าซูม 7 (ซูมใกล้กว่านี้ภาพจะขยายหยาบ) · บริเวณที่ไม่มีเรดาร์ครอบคลุมจะไม่แสดงฝน</td></tr>
+<tr><td>ฝุ่น PM2.5 / AQI</td><td>สี่เหลี่ยม = สถานี Air4Thai (กรมควบคุมมลพิษ) ค่าล่าสุด · พื้นผิว = แบบจำลอง CAMS (~110 กม.) ค่าปัจจุบันหรือพยากรณ์ ครอบคลุมประเทศเพื่อนบ้าน · สลับ AQI / PM2.5 (µg/m³) · ใช้ร่วมกับชั้นลมดูควันข้ามแดน</td></tr>
+</table></div>
+
+<h3 id="l-area">หมวดพื้นที่อนุรักษ์และสถานีควบคุมไฟป่า</h3>
+<ul>
+ <li><b>พื้นที่อนุรักษ์</b> (7 แห่ง) — สีต่อพื้นที่ ชี้ชื่อชั้นเพื่อดูคำอธิบายสี</li>
+ <li><b>พื้นที่รับผิดชอบของสถานีควบคุมไฟป่า</b> (8 แปลง ข้อมูลปี 2570) — สีต่อสถานี</li>
+ <li><b>สถานีควบคุมไฟป่า</b> (8 แห่ง) — ไอคอนโล่ ซูมเข้าเพื่อดูชื่อ</li>
+ <li><b>จุดเฝ้าระวังไฟป่า ปี 2569</b> (47 จุด) — ดาวแดง ซูมเข้าเพื่อดูรหัสจุด (เช่น ขญ.1) คลิกเพื่อดูสถานีฯ หมู่บ้าน ตำบล ประเภทพื้นที่ และพิกัด UTM</li>
+</ul>
+<h3 id="l-adm">หมวดแนวเขตการปกครองและน้ำ/เส้นทาง</h3>
+<ul>
+ <li><b>จังหวัด</b> (77 จังหวัด) · <b>อำเภอ</b> · <b>ตำบล</b> (เฉพาะ 18 จังหวัดรอบกลุ่มป่า แสดงเมื่อซูมเข้า) — กรมการปกครอง ผ่าน OCHA HDX</li>
+ <li><b>แม่น้ำ ลำห้วย อ่างเก็บน้ำ</b> และ <b>ถนน ทางรถ ทางเดิน</b> — ของแผนที่ฐานแบบเวกเตอร์ (มีผลกับแผนที่ฐาน เรียบ ถนน/ชุมชน โทนมืด)</li>
+</ul>
+<h3>ชั้นข้อมูลของผู้ใช้ และปุ่มนำเข้าข้อมูล</h3>
+<ul>
+ <li>ลิงก์ <span class="btnl">วาดหมุด/เส้นทาง/พื้นที่ · นำเข้าและส่งออก →</span> เปิด <a href="#draw">เครื่องมือวาด</a></li>
+ <li>ปุ่ม <span class="btnl">นำเข้าข้อมูล</span> ท้ายแผง — นำเข้าไฟล์จุดความร้อนย้อนหลัง (.xlsx .csv .geojson รูปแบบเดียวกับไฟล์ Excel ของกรมอุทยานฯ) เลือกได้ว่าจะเพิ่มต่อจากข้อมูลเดิม (ข้ามจุดซ้ำ) หรือแทนที่ทั้งหมด แล้วเปิดการ์ดสถิติให้วิเคราะห์ทันที — มีผลเฉพาะหน้าที่เปิดอยู่ โหลดหน้าใหม่แล้วกลับเป็นข้อมูลเดิม ประมวลผลในเบราว์เซอร์ทั้งหมด ไม่อัปโหลดไปไหน (ชั้นประเภทอื่นยังไม่รองรับ — ใช้เครื่องมือวาดแทน)</li>
+</ul>
+</section>
+
+<!-- ============ 9 ============ -->
+<section class="s" id="detail">
+<h2>แผงรายละเอียดจุดความร้อน</h2>
+<figure><img src="img/detail.jpg" width="1440" height="860" alt="แผงรายละเอียดจุดความร้อนทางขวาของแผนที่" loading="lazy"><figcaption>คลิกจุดความร้อนแล้วแผงรายละเอียดเปิดทางขวา (ภาพนี้ใช้จุดตัวอย่าง)</figcaption></figure>
+<div class="fig2">
+<figure class="narrow"><img src="img/detail_full.jpg" width="376" height="3120" alt="แผงรายละเอียดจุดความร้อนทั้งหมด" loading="lazy"><figcaption>เนื้อหาทั้งหมดในแผงรายละเอียด</figcaption></figure>
+<div>
+<h3>ส่วนหัวและข้อมูลจุด</h3>
+<ul>
+ <li>ปุ่มด้านบน: <b>ลม</b> (เปิดชั้น Windy แล้วซูมไปที่จุด) · <b>คัดลอก</b>พิกัดและลิงก์ · <b>นำทาง</b>ด้วย Google Maps · <b>ปิด</b></li>
+ <li><b>ชื่อพื้นที่</b> ตำบล อำเภอ จังหวัด · พื้นที่อนุรักษ์ · สถานีฯ ที่รับผิดชอบ</li>
+ <li><b>อายุ</b> (ชั่วโมงที่แล้ว) · <b>ความแรงไฟ (FRP, MW)</b> — API ไทยไม่ส่งค่า FRP จึงแสดง "–" สำหรับจุดจริง</li>
+ <li><b>เวลาที่ตรวจพบ</b> = เวลาที่ดาวเทียมสแกน (เวลาไทย) · <b>ความเชื่อมั่น</b> (ต่ำ/ปกติ/สูง) · <b>พิกัด</b> ทศนิยม และ <b>UTM</b> · <b>ความสูง</b> และ<b>ความลาดชัน</b>พร้อมทิศลาด (จากแบบจำลองความสูง)</li>
+</ul>
+<h3>ประวัติในบริเวณนี้</h3>
+<p>จากข้อมูลย้อนหลังกรมอุทยานฯ: ประเภทพื้นที่ สถานีฯ สบอ. · <b>เคยพบในรัศมี 1 กม. / 2 กม.</b> · กราฟจำนวนจุดในรัศมี 2 กม. แยกปีงบ · ปุ่ม <span class="btnl">แสดงจุดย้อนหลังบนแผนที่ →</span> — จุดที่ไหม้ซ้ำทุกปีมักเป็นพื้นที่เผาเพื่อหาของป่า/เตรียมพื้นที่เกษตร</p>
+</div></div>
+
+<h3 id="sim">คาดการณ์การลุกลามและผลกระทบ</h3>
+<p>จำลองว่า<b>ถ้าไฟนี้ลุกลามโดยไม่มีการควบคุม</b> จะเป็นอย่างไรในช่วงเวลาที่เลือก ผลแสดงบนแผนที่เป็นวงรีไฟ 3 ช่วงเวลา (1/3, 2/3 และเต็มช่วง) และกรวยหรือพื้นผิวกลุ่มควัน กด <span class="btnl">ซูมดูวงคาดการณ์</span></p>
+<ol class="steps">
+ <li><b>ระยะเวลาคาดการณ์</b> 1 / 3 / 6 / 12 / 24 ชม.</li>
+ <li><b>เชื้อเพลิงป่าไม้</b> — ระบบเลือกให้อัตโนมัติจากชั้นชนิดป่า (ถ้าไม่มีข้อมูลใช้แปลงรับผิดชอบสถานีฯ และความสูง) เหตุผลแสดงในวงเล็บ เปลี่ยนเองได้ 5 แบบ: เบญจพรรณ เต็งรัง ดิบแล้ง ดิบเขา/สน ไผ่</li>
+ <li><b>โมเดลกระจายควัน</b> — <i>Gaussian</i> (เร็ว ลมคงที่ เป็นกรวย) หรือ <i>Lagrangian</i> (อนุภาค 2,000 ตัวพัดตามลมพยากรณ์รายชั่วโมง เห็นควันเลี้ยวตามลม และขอบไฟโตแบบ Huygens)</li>
+ <li><b>ปรับตัวแปรจำลอง</b> — ความเร็วลม ทิศที่ลมพัดมา ความชื้นสัมพัทธ์ ความชัน (ค่าเริ่มต้นดึงจากสภาพอากาศจริงและแบบจำลองความสูง ณ จุดนั้น) · <span class="btnl">ใช้ค่าทดสอบ (หัวข้อ 7.3)</span> ใช้ชุดค่ามาตรฐานที่ใช้สอบเทียบโมเดล</li>
+</ol>
+<p><b>ผลลัพธ์:</b></p>
+<div class="tw"><table>
+<tr><th>ค่า</th><th>ความหมาย</th></tr>
+<tr><td>พื้นที่ไหม้ (ไร่)</td><td>พื้นที่วงรีไฟเมื่อครบระยะเวลา</td></tr>
+<tr><td>อัตราไฟลามที่หัวไฟ (ม./นาที)</td><td>ความเร็วหน้าไฟด้านที่ลามเร็วที่สุด (มีข้างไฟและท้ายไฟในสมการ)</td></tr>
+<tr><td>ความรุนแรงหน้าไฟ Byram (kW/m)</td><td>พลังงานความร้อนต่อความยาวหน้าไฟ ใช้แบ่งระดับการเข้าดับ</td></tr>
+<tr><td>ฝุ่น PM2.5 ที่ปลดปล่อย (ตัน)</td><td>จากมวลชีวมวลที่ไหม้ × ค่าสัมประสิทธิ์การปลดปล่อยตามชนิดป่า</td></tr>
+<tr><td>ระดับความรุนแรง 1–4</td><td>จากความยาวเปลวไฟ พร้อมแนวทางการเข้าดับ (ดูตารางใน <a href="#m-fire">วิธีคิด</a>)</td></tr>
+<tr><td>ความชื้นสมดุลเชื้อเพลิงตาย (EMC)</td><td>ยิ่งต่ำ เชื้อเพลิงยิ่งแห้ง ติดไฟง่าย (ไฟดับเองเมื่อ EMC ≥ 24%)</td></tr>
+<tr><td>ผลกระทบสิ่งแวดล้อม</td><td>ทิศหัวไฟ/ทิศควัน (แยกกันเมื่อความลาดชันทำให้ไฟลามคนละทางกับลม), มวลชีวมวลที่ถูกเผา, PM2.5 ในกลุ่มควัน, อัตราตายของไม้หนุ่ม, เวลาฟื้นตัวของป่า</td></tr>
+<tr><td>พื้นที่ใต้ลมที่เสี่ยง</td><td>พิกัดและตำบลของหน้าไฟ จุดใต้ลม 7 กม. และปลายกลุ่มควัน</td></tr>
+</table></div>
+<p>กด <span class="btnl">ข้อสมการและหลักการวิทยาศาสตร์</span> เพื่อดูสมการพร้อมตัวเลขที่ใช้จริงของจุดนั้น</p>
+<div class="box warn">ผลจำลองเป็นค่าประมาณจากแบบจำลองที่ใช้ค่าคงที่ของเชื้อเพลิงแบบเฉลี่ย ไม่ได้รวมแนวกันไฟ ถนน ลำห้วย หรือการเข้าดับ <b>ห้ามใช้เป็นเกณฑ์เดียวในการตัดสินใจภาคสนาม</b></div>
+
+<h3>ฝุ่น PM2.5 / AQI และสภาพอากาศ ณ จุด</h3>
+<ul>
+ <li><b>ฝุ่น</b> — ค่าแบบจำลอง CAMS ณ จุด สลับ AQI/PM2.5 พร้อมคำแนะนำด้านสุขภาพ</li>
+ <li><b>สภาพอากาศตอนนี้</b> — เข็มทิศลม (ลูกศรชี้ทิศที่ลมพัดไป) อุณหภูมิ ความชื้น ลม · <b>ความแห้งของอากาศ VPD</b> · <b>ดัชนีอันตรายไฟป่าตอนนี้ (FWI/CBI)</b> พร้อมคำอธิบายและตารางพยากรณ์รายวัน</li>
+</ul>
+</section>
+
+<!-- ============ 10 ============ -->
+<section class="s" id="stats">
+<h2>วิเคราะห์สถิติย้อนหลัง</h2>
+<figure><img src="img/stats.jpg" width="1440" height="860" alt="การ์ดสถิติจุดความร้อนย้อนหลังกับแผนที่จุดย้อนหลัง" loading="lazy"><figcaption>การ์ดสถิติแทนที่การ์ดจุดความร้อน และแผนที่แสดงจุดย้อนหลังตามตัวกรอง</figcaption></figure>
+<div class="fig2">
+<figure class="narrow"><img src="img/stats_full.jpg" width="404" height="2990" alt="การ์ดสถิติทั้งหมด" loading="lazy"><figcaption>เนื้อหาทั้งหมดในการ์ดสถิติ</figcaption></figure>
+<div>
+<p>ใช้ข้อมูลจุดความร้อนของ<b>กรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช</b> ปีงบ 2561–2569 (3,154 จุด, Suomi NPP) ที่ตรวจสอบภาคสนามแล้ว</p>
+<ul>
+ <li><b>ช่วงปี</b> — 3 ปีย้อนหลัง / 5 ปีย้อนหลัง / ทุกปี (นับเฉพาะปีงบที่จบแล้ว)</li>
+ <li><b>ปุ่มไม่รวมดงใหญ่</b> — สถานะเดียวกับในการ์ดหลัก</li>
+ <li><b>การ์ดตัวเลข (KPI)</b> — จำนวนจุด (และ % ของทั้งหมด), เฉลี่ยต่อปีงบ, เดือนที่พบมากสุด, สบอ. พื้นที่อนุรักษ์ สถานีฯ จังหวัด อำเภอ ตำบลที่พบมากสุด · <b>คลิกการ์ดเพื่อกรอง</b></li>
+ <li><b>กราฟ</b> ปีงบประมาณ (เส้นประ = ค่าเฉลี่ย) · เดือน (เรียง ต.ค.→ก.ย.) · สบอ. · พื้นที่อนุรักษ์ · สถานีฯ · จังหวัด · อำเภอ/ตำบล 8 อันดับ · ประเภทพื้นที่ (ป่าคงสภาพ/พื้นที่ราษฎรทำกิน) · ช่วงเวลาที่ตรวจพบ (กลางคืน/กลางวัน) · การจัดการเชื้อเพลิง/สถานะ</li>
+ <li><b>คลิกแท่งหรือป้ายในกราฟเพื่อกรอง</b> เลือกได้หลายค่า ทุกกราฟและแผนที่อัปเดตทันที · <span class="btnl">ซูม</span> ไปที่ข้อมูลที่กรอง · <span class="btnl">รีเซ็ต</span> คืนค่าเริ่มต้น</li>
+ <li><b>ค่าเริ่มต้นไม่รวม</b>จุดที่มีการจัดการเชื้อเพลิงและจุดที่ตรวจสอบแล้วไม่พบไฟ (เลือกเฉพาะ "ไม่มี") — คลิกป้าย "ไม่มี" ซ้ำเพื่อดูทั้งหมด</li>
+ <li><b>แสดงบนแผนที่</b> — จุด / Cluster / ความหนาแน่น และสีตามปีงบ / ประเภทพื้นที่ / การจัดการเชื้อเพลิง</li>
+ <li><b>ข้อสังเกตจากข้อมูลที่กรอง</b> — สรุปข้อความอัตโนมัติ เช่น ปีที่มากสุด/น้อยสุด เดือนที่พบมาก แนวโน้ม</li>
+ <li>ปุ่มท้ายการ์ด: ตารางรายละเอียด · ดาวน์โหลด CSV · รายงาน PDF (KPI กราฟ แผนที่ ตารางสรุป 8 หมวด ข้อสังเกต และตารางรายจุดเมื่อไม่เกิน 500 จุด)</li>
+</ul>
+<div class="box note">ปีงบปัจจุบันยังไม่อยู่ในสถิติย้อนหลัง จนกว่าจะนำเข้าไฟล์ Excel ฉบับใหม่ของกรมอุทยานฯ (ยอดปีงบปัจจุบันดูได้ในการ์ดจุดความร้อน)</div>
+</div></div>
+</section>
+
+<!-- ============ 11 ============ -->
+<section class="s" id="play">
+<h2>ย้อนดูการลามของไฟ</h2>
+<p>แผงลอยด้านล่างแผนที่ (เปิดจากปุ่มเมนู "ย้อนดูการลามของไฟ" หรือปุ่มในการ์ดสถิติ) เล่นจุดความร้อนย้อนหลังทีละวันตามตัวกรองของการ์ดสถิติ</p>
+<ul>
+ <li><span class="btnl">▶ เล่น</span> / หยุด · ลากแถบเลื่อนเพื่อไปวันใดก็ได้ · วันที่แสดงที่หัวแผง</li>
+ <li><b>ย้อนหลัง</b> 1 / 3 / 7 / 30 วัน = แสดงจุดสะสมกี่วันก่อนหน้าวันปัจจุบันของภาพ</li>
+ <li><b>ความเร็ว</b> ×1 ×2 ×4 · ปุ่ม ✕ ออกจากโหมดเล่น</li>
+</ul>
+<div class="box tip">ใช้ร่วมกับตัวกรองพื้นที่และเดือนในการ์ดสถิติ เช่น เลือก อช.ทับลาน + ก.พ.–มี.ค. แล้วเล่นภาพ จะเห็นเส้นทางที่ไฟเคลื่อนตัวในแต่ละปี</div>
+</section>
+
+<!-- ============ 12 ============ -->
+<section class="s" id="export">
+<h2>ตาราง CSV และรายงาน PDF</h2>
+<figure><img src="img/table.jpg" width="984" height="706" alt="หน้าต่างตารางรายละเอียดจุดความร้อน" loading="lazy"><figcaption>ตารางรายละเอียดจุดความร้อน (ปีงบ 2569 ข้อมูลกรมอุทยานฯ)</figcaption></figure>
+<h3>ตารางรายละเอียด</h3>
+<ul>
+ <li><b>ช่วงข้อมูล:</b> 24 ชม. · 48 ชม. · ปีงบปัจจุบัน (ข้อมูล API ทุกดาวเทียม) · ปีงบก่อน (ข้อมูลกรมอุทยานฯ ชุดเดียวกับการ์ด ไม่รวมจุดจัดการเชื้อเพลิง/ไม่พบไฟ)</li>
+ <li><b>ดาวเทียม:</b> "ตามปุ่มดาวเทียม" หรือเลือกดวงเดียว</li>
+ <li>กรองตามปุ่มดงใหญ่และพื้นที่ที่เลือกในรายการการ์ด · เรียงจุดเก่าสุดก่อน · แสดง 300 แถวแรก (CSV/รายงานมีครบ) · <b>คลิกแถวเพื่อซูมไปยังจุด</b></li>
+ <li>คอลัมน์: ลำดับ วันที่เวลา ดาวเทียม ความเชื่อมั่น ตำบล/อำเภอ/จังหวัด พื้นที่อนุรักษ์ สถานีฯ พิกัด</li>
+</ul>
+<h3>ดาวน์โหลด CSV</h3>
+<p>ไฟล์ UTF-8 มี BOM เปิดด้วย Excel ได้ภาษาไทยถูกต้องทันที มีพิกัด UTM และลิงก์ Google Maps ของแต่ละจุด ชื่อไฟล์บอกช่วงและตัวกรอง</p>
+<h3>รายงาน PDF</h3>
+<ol class="steps">
+ <li>กด <span class="btnl">รายงาน PDF</span> (หรือ "พิมพ์รายงาน / บันทึก PDF" ในตาราง)</li>
+ <li>ระบบถ่ายภาพแผนที่<b>ตามมุมมองที่เห็นอยู่</b> (รวมสถานีฯ จุดเฝ้าระวัง และชั้นที่เปิด) — จัดมุมมอง/ชั้นข้อมูลให้เรียบร้อยก่อนกด แผนที่ฐาน "เรียบ" อ่านง่ายที่สุดเมื่อพิมพ์</li>
+ <li>หน้าต่างพิมพ์ของเบราว์เซอร์เปิดขึ้น เลือกเครื่องพิมพ์ <b>"บันทึกเป็น PDF"</b> (Save as PDF) แล้วกดบันทึก</li>
+</ol>
+<p>เนื้อหารายงานหลัก: สรุปตัวเลข การเทียบปีงบ กราฟ แผนที่ ตารางตามพื้นที่ พื้นที่เผาไหม้ แหล่งเชื้อเพลิง และรายละเอียดจุด</p>
+</section>
+
+<!-- ============ 13 ============ -->
+<section class="s" id="windy">
+<h2>พยากรณ์อากาศ Windy</h2>
+<figure><img src="img/windy.jpg" width="1440" height="860" alt="ชั้นลมของ Windy ซ้อนบนแผนที่ พร้อมแถบควบคุมด้านล่าง" loading="lazy"><figcaption>ชั้นลมของ Windy ซ้อนใต้แนวเขตกลุ่มป่า พร้อมแถบควบคุมลอยด้านล่าง</figcaption></figure>
+<h3>ชั้นซ้อนบนแผนที่ (ปุ่ม "พยากรณ์อากาศ")</h3>
+<ul>
+ <li><b>ชิปเลือกชั้น:</b> ลม · ฝน · อุณหภูมิ · ความชื้น · เรดาร์ · ดาวเทียม (ภาพเมฆ) · PM2.5 (CAMS) · ความเสี่ยงไฟป่า (Windy เรียก "ไฟลุกลาม" พยากรณ์ 10 วัน)</li>
+ <li><b>แผนที่ | Windy</b> — "แผนที่" (ค่าเริ่มต้น) ซูมลื่น คลิกจุดความร้อน/แนวเขตได้ตามปกติ ภาพ Windy โหลดใหม่หลังหยุดเลื่อน · "Windy" ควบคุมภาพ Windy โดยตรง (แตะดูค่าบนภาพ เลื่อนตามเวลา) แผนที่และแนวเขตเลื่อนตาม</li>
+ <li>ขณะเปิดชั้นนี้ <b>ซูมใกล้ได้ไม่เกินระดับที่ Windy รองรับ</b> (ราวระดับที่เห็นทั้งอำเภอ) ปิดชั้นแล้วซูมได้ตามปกติ</li>
+ <li>ปรับความเข้มของภาพในแผงชั้นข้อมูล · ⛶ เปิดแบบเต็มจอ · ✕ ปิดชั้น</li>
+</ul>
+<h3>แบบเต็มจอ</h3>
+<p>มีแท็บชั้นเดียวกัน และ<b>ตารางพยากรณ์รายชั่วโมง</b>ของจุดกลางภาพ (กดปุ่มแสดงตาราง) · กดปุ่มเล่นด้านล่างของ Windy เพื่อดูพยากรณ์ล่วงหน้า · <kbd>Esc</kbd> ปิด · เปิดตรงได้ด้วยลิงก์ <code>?wy=wind</code></p>
+<div class="box note">ใช้ Windy แบบฝัง (Embed) ซึ่งฟรีและไม่ต้องใช้คีย์ แบบจำลองหลัก ECMWF · ฝุ่นจาก CAMS · ภาพ Windy มีป้ายชื่อเมืองของ Windy เองซึ่งปิดไม่ได้</div>
+</section>
+
+<!-- ============ 14 ============ -->
+<section class="s" id="know">
+<h2>หน้าความสำคัญของผืนป่า</h2>
+<figure><img src="img/know.jpg" width="1440" height="860" alt="หน้าความสำคัญ แท็บอุทยานแห่งชาติเขาใหญ่" loading="lazy"><figcaption>หน้าความสำคัญ แท็บอุทยานแห่งชาติเขาใหญ่</figcaption></figure>
+<ul>
+ <li><b>แท็บภาพรวม:</b> กลุ่มป่าดงพญาเย็น-เขาใหญ่ในฐานะมรดกโลกทางธรรมชาติ (UNESCO พ.ศ. 2548) ความหลากหลายทางชีวภาพ รายการพื้นที่ เส้นทางการอนุรักษ์ ภัยคุกคาม และสายด่วนแจ้งไฟป่า 1362</li>
+ <li><b>แท็บรายพื้นที่อนุรักษ์</b> (เขาใหญ่ ทับลาน ปางสีดา ตาพระยา ดงใหญ่ เขาฉกรรจ์ โคกสูง): ขนาดพื้นที่ ความสำคัญ ประวัติ ทรัพยากรป่าไม้ (ไร่ต่อชนิดป่า) สัตว์ป่าเด่นพร้อมสถานภาพ IUCN แหล่งท่องเที่ยว (ปักหมุดบนแผนที่ประกอบ) และสถิติไฟป่าในพื้นที่ (รายปีงบ รายเดือน สถานีฯ จุดเฝ้าระวัง) พร้อมปุ่มซูมแผนที่หลัก</li>
+ <li><b>แท็บชนิดป่าและไฟ:</b> ลักษณะชนิดป่าแต่ละแบบกับพฤติกรรมไฟ และจำนวนจุดความร้อนตามชนิดป่า</li>
+ <li>เปิดตรงด้วยลิงก์ <code>?kb=ky</code> (ky เขาใหญ่ · tl ทับลาน · ps ปางสีดา · tp ตาพระยา · dy ดงใหญ่ · ks เขาฉกรรจ์ · kc โคกสูง · ft ชนิดป่า)</li>
+</ul>
+</section>
+
+<!-- ============ 15 ============ -->
+<section class="s" id="measure">
+<h2>เครื่องมือวัดระยะทางและพื้นที่</h2>
+<figure><img src="img/measure.jpg" width="1440" height="860" alt="วัดพื้นที่รูปสี่เหลี่ยมบนแผนที่ แสดงไร่ งาน ตารางวา" loading="lazy"><figcaption>วัดพื้นที่ — ผลเป็นไร่-งาน-ตารางวา ตารางเมตร ตารางกิโลเมตร และเส้นรอบรูป</figcaption></figure>
+<h3>บนคอมพิวเตอร์</h3>
+<ol class="steps">
+ <li>กดปุ่ม 📏 ในปุ่มควบคุม</li>
+ <li>คลิกบนแผนที่ทีละจุด — ระยะแต่ละช่วงแสดงบนเส้น และป้ายข้างเคอร์เซอร์บอกระยะสะสม</li>
+ <li><b>ดับเบิลคลิก</b> หรือ <kbd>Enter</kbd> เพื่อจบการวัดระยะ · <b>คลิกที่จุดแรก</b> (เมื่อมี 3 จุดขึ้นไป) เพื่อปิดรูปและวัดพื้นที่</li>
+ <li><b>ลากจุดเพื่อย้าย</b>ได้ทั้งระหว่างวาดและหลังจบ ผลคำนวณใหม่ทันที · <kbd>Backspace</kbd> ย้อนจุดล่าสุด · <kbd>Esc</kbd> ปิดเครื่องมือ</li>
+ <li>แผงผล: ย้อนจุด / จบ / ปิดรูปพื้นที่ / ล้าง / วัดใหม่ / <b>คัดลอกผล</b> (พร้อมพิกัดทุกจุด)</li>
+</ol>
+<h3>บนมือถือ/แท็บเล็ต</h3>
+<p>กลางแผนที่มี<b>กากบาทเล็ง</b> — เลื่อนแผนที่ให้กากบาทอยู่ตรงตำแหน่งที่ต้องการแล้วกด <span class="btnl">+ เพิ่มจุด</span> (แตะบนแผนที่ตรงๆ ก็ได้) เมื่อกากบาทเข้าใกล้จุดแรก จะดูดติดเพื่อปิดรูป</p>
+<p>วิธีคำนวณดูที่ <a href="#m-measure">การวัดระยะและพื้นที่</a></p>
+</section>
+
+<!-- ============ 16 ============ -->
+<section class="s" id="draw">
+<h2>เครื่องมือวาดและชั้นข้อมูลของผู้ใช้</h2>
+<p>ปุ่ม ✎ ในปุ่มควบคุม (หรือลิงก์ท้ายแผงชั้นข้อมูล) เปิดแผง "เครื่องมือวาดและชั้นข้อมูล" ใช้บันทึกตำแหน่งแนวกันไฟ เส้นทางลาดตระเวน พื้นที่ไฟไหม้ที่เดินสำรวจ ฯลฯ</p>
+<h3>วาด</h3>
+<ol class="steps">
+ <li>เลือก <span class="btnl">ปักหมุด</span> <span class="btnl">เส้นทาง</span> หรือ <span class="btnl">รูปหลายเหลี่ยม</span></li>
+ <li>คลิกบนแผนที่ (หมุด = คลิกเดียว · เส้น = คลิกทีละจุด ดับเบิลคลิกจบ · รูปหลายเหลี่ยม = คลิกจุดแรกหรือดับเบิลคลิกจบ) บนจอสัมผัสใช้กากบาท + ปุ่ม "+ เพิ่มจุด" เหมือนเครื่องมือวัด</li>
+ <li>กรอกฟอร์ม: ชื่อ รายละเอียด สี ชั้นที่จะบันทึก และข้อมูลเพิ่มเติม (ชื่อช่อง–ค่า) · ระหว่างนี้ลากจุดเพื่อแก้รูป ลากจุดกลางเส้นเพื่อเพิ่มจุด ดับเบิลคลิกจุดเพื่อลบ</li>
+ <li>กด <b>บันทึก</b> แล้ววาดต่อได้ทันที</li>
+</ol>
+<p>คลิกวัตถุที่วาดแล้ว → ป๊อปอัปแสดงระยะ/พื้นที่ พิกัด UTM ข้อมูล ปุ่มแก้ไข ลบ นำทาง (พื้นที่ขนาดใหญ่จะแสดงเป็นบรรทัดบนสุดของป๊อปอัปตำแหน่งแทน เพื่อไม่บังข้อมูลอื่น)</p>
+<h3>จัดการชั้น นำเข้า ส่งออก</h3>
+<ul>
+ <li><b>ในเครื่องนี้</b> — ชั้นที่สร้าง/นำเข้าเก็บในเบราว์เซอร์นั้นเท่านั้น (ล้างข้อมูลเบราว์เซอร์ = หาย ควรส่งออกสำรองไว้) · เปิด/ปิด ซูม เปลี่ยนชื่อ สี ลบ แต่ละชั้น</li>
+ <li><span class="btnl">นำเข้าไฟล์</span> หรือลากไฟล์มาวางที่แผง: <b>GeoJSON, Esri JSON, KML/KMZ</b> (สี โฟลเดอร์ ข้อมูลเพิ่มเติม), <b>GPX</b>, <b>Shapefile</b> (.zip หรือเลือก .shp .dbf .prj พร้อมกัน — รองรับ UTM 47/48, Indian 1975, ภาษาไทย TIS-620/UTF-8), <b>CSV</b> (คอลัมน์ละติจูด/ลองจิจูด หัวไทยได้, องศาลิปดา, UTM x/y + โซน หรือ WKT)</li>
+ <li><span class="btnl">ส่งออก…</span>: KMZ/KML (Google Earth), Shapefile (เลือก WGS84 หรือ UTM 47N/48N, แยกไฟล์จุด/เส้น/พื้นที่), GeoJSON, GPX (เครื่อง GPS), CSV</li>
+ <li><b>จากเซิร์ฟเวอร์</b> — ชั้นข้อมูลกลางที่ผู้ดูแลระบบอัปโหลดให้ เปิดดูได้ตามสิทธิ์ (บางชั้นทุกคน บางชั้นต้องล็อกอินหรือเฉพาะกลุ่ม) ผู้ใช้ทั่วไปดูและส่งออกได้ แต่แก้ไขไม่ได้ · ปุ่ม ↻ ดึงรายการใหม่ · บัญชีผู้ใช้ขอได้จากผู้ดูแลระบบ</li>
+</ul>
+</section>
+
+<!-- ============ 17 ============ -->
+<section class="s" id="links">
+<h2>ลิงก์ตรงไปยังตำแหน่งหรือหน้า</h2>
+<p>เติมต่อท้ายที่อยู่เว็บ (เช่น <code>…/fire-map-dpky/?ar=tl</code>) เพื่อส่งให้ผู้อื่นเปิดตรงไปยังสิ่งที่ต้องการ (การ์ด LINE และ Telegram ใช้ลิงก์เหล่านี้)</p>
+<div class="tw"><table>
+<tr><th>ลิงก์</th><th>ผล</th></tr>
+<tr><td><code>?hs=14.49,101.31</code></td><td>เปิดแผงรายละเอียดของจุดความร้อน ณ พิกัดนั้น (ถ้าจุดเก่ากว่า 48 ชม. จะซูมไปและวงตำแหน่งให้แทน)</td></tr>
+<tr><td><code>?bb=ตะวันตก,ใต้,ตะวันออก,เหนือ</code></td><td>ซูมให้เห็นกรอบพิกัดนั้น</td></tr>
+<tr><td><code>?ar=ky</code></td><td>ซูมไปที่พื้นที่อนุรักษ์ (ky tl ps tp dy ks kc)</td></tr>
+<tr><td><code>?kb=tl</code></td><td>เปิดหน้าความสำคัญที่แท็บนั้น</td></tr>
+<tr><td><code>?wy=rain</code></td><td>เปิด Windy เต็มจอที่ชั้นนั้น</td></tr>
+</table></div>
+</section>
+
+<!-- ============ 18 ============ -->
+<section class="s" id="bots">
+<h2>การแจ้งเตือนผ่าน LINE และ Telegram</h2>
+<p>ระบบส่งข้อความเข้ากลุ่มสนทนาโดยอัตโนมัติ (ผู้ดูแลระบบเป็นผู้เพิ่มบอทเข้ากลุ่ม)</p>
+<div class="tw"><table>
+<tr><th style="width:24%">ข้อความ</th><th>เมื่อไร / เนื้อหา</th></tr>
+<tr><td>แจ้งเตือนจุดใหม่</td><td>เมื่อมีจุดความร้อนใหม่ในแนวเขต (ตรวจทุกรอบประมาณ 10 นาที, จุดที่ตรวจพบภายใน 12 ชม., <b>ไม่รวม ขสป.ดงใหญ่</b>) · LINE: การ์ด 7 ใบ (ภาพรวม + 6 พื้นที่อนุรักษ์ พื้นที่ที่มีจุดใหม่ขึ้นก่อน) · Telegram: ข้อความรายจุด แยกตามพื้นที่ พร้อมลิงก์ 📍 Google Maps และ 🔥 แผนที่ไฟป่า และตารางสะสมปีงบเทียบปีก่อน</td></tr>
+<tr><td>สรุปประจำวัน</td><td>ทุกเช้า 07:30 น. — ยอด 24 ชม. สะสมปีงบ เทียบปีก่อนทั้งปีงบ จังหวัด/อำเภอ/ตำบลสูงสุด และกราฟรายเดือน</td></tr>
+<tr><td>พื้นที่เผาไหม้</td><td>เมื่อมีข้อมูลรอบ 7 วันใหม่ที่มีรอยเผา ≥ 1 ไร่ — ไร่ในรอบ % ที่มีจุดความร้อนใกล้ สะสมปีงบ พื้นที่ที่ไหม้มากสุด และสถานีฯ 3 อันดับ</td></tr>
+</table></div>
+<h3>คำสั่งในกลุ่ม LINE (พิมพ์หรือกดปุ่มด่วนเหนือช่องพิมพ์)</h3>
+<table>
+<tr><th>พิมพ์</th><th>บอทตอบ</th></tr>
+<tr><td><code>สรุป</code></td><td>การ์ดสรุปสถานการณ์ล่าสุด</td></tr>
+<tr><td><code>เผาไหม้</code></td><td>การ์ดพื้นที่เผาไหม้รอบล่าสุด</td></tr>
+<tr><td><code>ช่วยเหลือ</code> หรือ <code>วิธีใช้</code></td><td>รายการคำสั่ง</td></tr>
+</table>
+<p>การตอบคำสั่ง<b>ไม่นับโควตาข้อความ</b>ของ LINE ส่วนการแจ้งเตือนอัตโนมัตินับโควตาตามจำนวนสมาชิกกลุ่ม ปุ่มในการ์ดเปิดแผนที่ตรงไปยังจุดหรือพื้นที่นั้น</p>
+<div class="box note">ตัวเลข "ปีก่อน" ในการ์ด LINE = <b>ทั้งปีงบก่อน</b> จากข้อมูลกรมอุทยานฯ (ไม่รวมจุดจัดการเชื้อเพลิง/ไม่พบไฟ) · ยอดสะสมปีนี้นับเฉพาะดาวเทียมตัวชี้วัด</div>
+</section>
+
+<!-- ============ 19 ============ -->
+<section class="s" id="method">
+<h2>ข้อมูลและวิธีคิด</h2>
+
+<h3 id="m-hs">จุดความร้อนจากดาวเทียม</h3>
+<ul>
+ <li><b>เครื่องวัด:</b> VIIRS (Visible Infrared Imaging Radiometer Suite) บนดาวเทียม Suomi NPP, NOAA-20 (JPSS-1) และ NOAA-21 (JPSS-2) ใช้แบนด์อินฟราเรดความละเอียด <b>375 ม.</b> หนึ่งจุด = พิกเซลราว 375×375 ม. (ราว 88 ไร่) ที่มีความร้อนผิดปกติ <b>ตำแหน่งจริงของไฟอาจอยู่ที่ใดก็ได้ในพิกเซล</b> และคลาดเคลื่อนเพิ่มขึ้นที่ขอบแนวสแกน</li>
+ <li><b>เวลาผ่าน:</b> ดาวเทียมวงโคจรขั้วโลกผ่านประเทศไทยวันละ 2 ช่วงต่อดวง ประมาณ 01:00–03:00 น. และ 12:00–14:30 น. (ดวงต่างๆ ห่างกันราว 50 นาที) ไฟที่เกิดและดับระหว่างรอบ หรือไฟใต้เรือนยอด/เมฆหนา อาจตรวจไม่พบ</li>
+ <li><b>ความเชื่อมั่น</b> (low / nominal / high) มาจากอัลกอริทึมตรวจจับ — ต่ำ = อาจเป็นสัญญาณรบกวนหรือพื้นผิวร้อน</li>
+ <li><b>แหล่งข้อมูล:</b> Land Fire Alerts Thailand ของหน่วยวิจัยไฟป่า (WFSRU) / ThaiREN ซึ่งระบุตำบล อำเภอ จังหวัด และพื้นที่ป่าให้แต่ละจุดแล้ว</li>
+ <li><b>กรองเฉพาะในแนวเขต:</b> ระบบเก็บและแสดงเฉพาะจุดที่อยู่ในแนวเขตพื้นที่อนุรักษ์หรือพื้นที่รับผิดชอบสถานีฯ (จากไฟล์ KMZ ของหน่วยงาน)</li>
+</ul>
+<h4>การรับข้อมูลและการอัปเดต</h4>
+<ul>
+ <li>ระบบบน GitHub Actions ดึงข้อมูล 48 ชม. ทั้งประเทศทุกประมาณ 10 นาที กรองในแนวเขต แล้วเผยแพร่เป็นไฟล์ <code>live.json</code> · หน้าเว็บอ่านไฟล์นี้ก่อน ถ้าเก่ากว่า 40 นาทีจะดึงจาก API โดยตรง</li>
+ <li>หน้าเว็บที่เปิดค้างไว้ดึงข้อมูล 3 ชม. ล่าสุดทุก 5 นาที และดึงเต็ม 48 ชม. ทุก 30 นาที (หยุดดึงเมื่อสลับไปแท็บอื่น และดึงทันทีเมื่อกลับมา)</li>
+ <li><b>ข้อมูลสะสม</b> (ยอดปีงบ ตารางปีงบ กองจุด ภาพดาวเทียมย้อนหลัง) — ระบบดึงย้อนหลังรายวันวันละ 4 รอบ (06:17, 09:17, 15:17, 18:17 น.) เก็บทุกดาวเทียมตั้งแต่ 1 ต.ค. 2568 และดึงซ้ำ 7 วันล่าสุดทุกรอบเพื่อเติมจุดที่ตกหล่น</li>
+ <li><b>แหล่งสำรอง:</b> วันที่ API ไทยไม่มีข้อมูลดาวเทียมดวงใด ระบบเติมจาก <b>NASA FIRMS</b> (ป๊อปอัปจุดบอก "ที่มา: NASA FIRMS") และลบออกเมื่อ API ไทยมีข้อมูลแล้ว</li>
+ <li><b>ตัดจุดซ้ำ:</b> API ไทยบางช่วงมีจุดเดียวกัน 2 ระเบียน (ดาวเทียมและวันเดียวกัน เวลาต่าง 1–3 นาที ห่างไม่เกิน ~165 ม.) ระบบเก็บไว้ระเบียนเดียว</li>
+</ul>
+
+<h3 id="m-ind">ดาวเทียมตัวชี้วัดและปีงบประมาณ</h3>
+<ul>
+ <li><b>ปีงบประมาณ</b> = 1 ต.ค. ถึง 30 ก.ย. ปีถัดไป (ปีงบ 2570 = 1 ต.ค. 2569 – 30 ก.ย. 2570)</li>
+ <li>กรมอุทยานแห่งชาติฯ ใช้จุดจาก <b>Suomi NPP</b> เป็นตัวชี้วัด · Suomi NPP หยุดส่งข้อมูลถาวร 2 พ.ย. 2569 จึงใช้ <b>NOAA-20</b> แทน<b>ตั้งแต่วันที่ 2 พ.ย. 2569 ทั้งวัน</b></li>
+ <li>ยอดสะสมปีงบในการ์ด/LINE/Telegram = จุดของดาวเทียมตัวชี้วัดในแต่ละวัน (ก่อน 2 พ.ย. 2569 = SNPP, ตั้งแต่นั้น = NOAA-20) ส่วนแผนที่แสดงทุกดวง</li>
+ <li>ข้อควรรู้: ดาวเทียมแต่ละดวงตรวจพบจำนวนจุดต่างกันเล็กน้อย ยอดปีที่ใช้ NOAA-20 จึงเทียบกับปีก่อนที่ใช้ SNPP ได้ในเชิงแนวโน้ม แต่ไม่ใช่ชุดเดียวกันพอดี</li>
+</ul>
+
+<h3 id="m-cmp">การเทียบกับปีก่อนและค่าเฉลี่ย</h3>
+<ul>
+ <li><b>ปีก่อน</b> ใช้ข้อมูลจุดความร้อนของกรมอุทยานฯ (ไฟล์ Excel ปีงบ 2561–2569, Suomi NPP) ซึ่งผ่านการตรวจสอบภาคสนาม <b>ไม่รวม</b>จุดที่มีการจัดการเชื้อเพลิง (ชิงเผา) และจุดที่ตรวจสอบแล้วไม่พบไฟ — ปีงบ 2569 จึงนับ 120 จาก 133 จุด (83 จุดเมื่อไม่รวมดงใหญ่)</li>
+ <li><b>ช่วงเวลาเดียวกัน</b> = 1 ต.ค. ถึงวันที่เดียวกันของปีก่อน · <b>ทั้งปีงบก่อน</b> = ทั้ง 12 เดือน</li>
+ <li><b>ค่าเฉลี่ย 3 ปี / 5 ปี / ทุกปีงบ</b> = เฉลี่ยของปีงบที่จบแล้ว (รวมปีงบก่อน)</li>
+ <li><b>% เปลี่ยนแปลง</b> = (ปีนี้ − ปีก่อน) ÷ ปีก่อน × 100 · ปีก่อนเป็น 0 แต่ปีนี้มีจุด = "▲ ใหม่"</li>
+ <li>ปีปัจจุบัน (จาก API) ยังไม่มีข้อมูลการตรวจสอบภาคสนาม จึงนับทุกจุด</li>
+</ul>
+
+<h3 id="m-area">กติกาการจัดพื้นที่</h3>
+<ul>
+ <li><b>พื้นที่อนุรักษ์/สถานีฯ:</b> หาว่าพิกัดของจุดอยู่ในแนวเขตใด (จากไฟล์ KMZ แนวเขตพื้นที่อนุรักษ์ สบอ.1, ขสป.ดงใหญ่ และพื้นที่รับผิดชอบไฟป่า ปี 2570) จุดนอกแปลงรับผิดชอบเรียกว่า "พื้นที่ไม่มีสถานีฯไฟป่ารับผิดชอบ"</li>
+ <li><b>สบอ. แยกตามจังหวัดที่เกิดจุด:</b> สบอ.1 (ปราจีนบุรี) = ปราจีนบุรี นครนายก สระแก้ว · สบอ.1 สาขาสระบุรี = สระบุรี · สบอ.7 (นครราชสีมา) = นครราชสีมา บุรีรัมย์</li>
+ <li><b>"ไม่รวม ขสป.ดงใหญ่"</b> ตัดจุดที่อยู่ในเขตรักษาพันธุ์สัตว์ป่าดงใหญ่ หรืออยู่นอกพื้นที่อนุรักษ์แต่ในพื้นที่รับผิดชอบของสถานีฯ ดงใหญ่</li>
+ <li><b>ตำบล อำเภอ จังหวัด:</b> ใช้ชื่อจาก API ถ้ามี ไม่มีจึงหาจากแนวเขตการปกครอง (กรมการปกครอง ผ่าน OCHA HDX ฉบับ 2565)</li>
+</ul>
+
+<h3 id="m-cluster">การจัดกองจุดความร้อน</h3>
+<ul>
+ <li>เชื่อมจุดสองจุดเข้ากองเดียวกันเมื่อ<b>ห่างกันไม่เกิน D กม.</b> (และสำหรับกองรวม เกิดห่างกันไม่เกิน G วัน) แบบลูกโซ่ (single-linkage / union-find) — จุด A ใกล้ B และ B ใกล้ C ทั้งสามจุดเป็นกองเดียวกันแม้ A ห่าง C เกิน D</li>
+ <li><b>จุดเริ่มต้นไฟ</b> = จุดในรอบดาวเทียมแรกสุดของกองรวม (ถ้ามีหลายจุดในรอบเดียวกันใช้จุดกึ่งกลาง) · เส้นลูกศรต่อไปยังกึ่งกลางของจุดในแต่ละวันถัดไป</li>
+ <li><b>พื้นที่</b> = รูปหลายเหลี่ยมนูน (convex hull) ครอบจุดทั้งหมดหลังขยายรอบจุดละ R ม. — ถ้ากองยาวโค้ง พื้นที่จะเกินจริง ใช้ดูขนาดเหตุการณ์คร่าวๆ เท่านั้น</li>
+ <li>ใช้จุดทุกดาวเทียมตามปุ่มดาวเทียมและปุ่มดงใหญ่ (จุดเดียวกันจากหลายดวงจึงทำให้กองดูหนาแน่นกว่าการนับตัวชี้วัด)</li>
+</ul>
+
+<h3 id="m-burn">พื้นที่เผาไหม้และเผาซ้ำซาก</h3>
+<ul>
+ <li><b>แหล่ง:</b> ระบบตามรอยเผา (tamroypao.hii.or.th) ของสถาบันสารสนเทศทรัพยากรน้ำ (สสน.) วิเคราะห์จากภาพ Sentinel-2 ความละเอียด <b>20 ม.</b> (1 พิกเซล = 0.25 ไร่)
+  <ul>
+   <li><b>B4 ราย 7 วัน</b> (ปี 2568 รอบละ 15 วัน) ตั้งแต่ ม.ค. 2568 — ค่า = จำนวนครั้งที่พบรอยเผาในรอบ</li>
+   <li><b>B2 รายเดือน / B3 รายฤดูฝุ่น ธ.ค.–เม.ย.</b> แยกป่าไม้ (B2F/B3F) กับเกษตร (B2A/B3A: ข้าว อ้อย ข้าวโพด พืชผสม) ตั้งแต่ ธ.ค. 2566</li>
+  </ul></li>
+ <li>ระบบนำเฉพาะพิกเซลในแนวเขตพื้นที่อนุรักษ์และพื้นที่รับผิดชอบสถานีฯ ตรวจตำแหน่งแล้วตรงกับภาพทางการทุกพิกเซล</li>
+ <li><b>สะสมปีงบ</b> รวมทุกรอบ 7 วันในปีงบ พิกเซลที่ไหม้ซ้ำนับไร่ครั้งเดียว (รอบที่คร่อมต้นปีงบนับตามวันกลางรอบ)</li>
+ <li><b>มีจุดความร้อน:</b> รอยเผาที่มีจุดความร้อนห่างไม่เกิน <b>1 กม.</b> ในช่วงตั้งแต่ 10 วันก่อนวันเริ่มรอบแรกที่พบรอย ถึงวันสิ้นสุดรอบล่าสุด (ระยะ 1 กม. เลือกเพราะจุด VIIRS ส่วนใหญ่ห่างรอยเผา 0.5–1.5 กม.) · ก่อน 1 ต.ค. 2568 ใช้จุดกรมอุทยานฯ (Suomi NPP ดวงเดียว) จึงพบจุดน้อยกว่าช่วงหลัง</li>
+ <li><b>เผาซ้ำซาก</b> = จำนวนปีงบที่พิกเซลนั้นพบรอยเผา (รวมทุกชุดข้อมูล) · ปีงบ 2567 มีเฉพาะชุดรายเดือน/รายฤดู ส่วนปีหลังมีชุดราย 7 วันที่จับรอยเล็กได้มากกว่า — เทียบข้ามปีควรคำนึงถึงข้อนี้</li>
+</ul>
+
+<h3 id="m-savi">แหล่งเชื้อเพลิง (SAVI)</h3>
+<div class="eq">SAVI = (NIR − Red) × (1 + L) ÷ (NIR + Red + L)      L = 0.5</div>
+<ul>
+ <li>ข้อมูลรายเดือน 20 ม. จากระบบตามรอยเผา (สสน.) ค่าเก็บเป็น SAVI × 10,000 → ระดับ 1–10 = ปัดลงของ (ค่า ÷ 1,000) ตามเอกสารต้นทาง (ระดับ 1 = SAVI ต่ำสุด = เชื้อเพลิงแห้ง/โปร่งมากที่สุด)</li>
+ <li>รวมสองระดับเป็น 5 กลุ่มบนแผนที่: 1–2 สูงมาก · 3–4 สูง · 5–6 ปานกลาง · 7–8 ต่ำ · 9–10 ต่ำมาก</li>
+ <li>SAVI ลดผลของดินพื้นหลังเมื่อพืชปกคลุมน้อย จึงเหมาะกับป่าผลัดใบช่วงแล้ง · ค่าต่ำอาจมาจากดินโล่ง ลานหิน หรือพื้นที่เพิ่งไหม้ด้วย</li>
+</ul>
+
+<h3 id="m-ft">ชนิดป่า ความสูง และความลาดชัน</h3>
+<ul>
+ <li><b>ชนิดป่า:</b> shapefile ชนิดป่าปี 2561 ของกรมป่าไม้ (โครงการจัดทำข้อมูลสภาพพื้นที่ป่าไม้ ปี 2560–2561) แปลงเป็นกริด 50 ม. ในระบบ UTM 47N · ในแนวเขตเป็นป่าดิบแล้งราว 2.81 ล้านไร่ ป่าเบญจพรรณ 0.54 ล้านไร่</li>
+ <li><b>การเลือกเชื้อเพลิงให้โมเดลไฟ:</b> ใช้ชนิดป่าก่อน (ดิบชื้น/บึงน้ำจืด → ดิบแล้ง · สวนป่า/ป่าฟื้นฟูตามธรรมชาติ → เบญจพรรณ · ป่าทุ่ง/ลานหิน → เต็งรัง) ถ้าไม่มีข้อมูลใช้ชนิดป่าของแปลงรับผิดชอบสถานีฯ ร่วมกับความสูง (&lt; 250 ม. → เต็งรัง, ≥ 500 ม. → ดิบแล้ง, &gt; 1,000 ม. → ดิบเขา)</li>
+ <li><b>ความสูง/ความลาดชัน:</b> แบบจำลองความสูง Terrarium (AWS Terrain Tiles) ระดับซูม 12 (~37 ม.) คำนวณความชันด้วยวิธีของ Horn จากจุดรอบข้างห่าง ~150 ม. (ครึ่งพิกเซล VIIRS) จึงเป็นความชันเฉลี่ยของพื้นที่ ไม่ใช่หน้าผาจุดเดียว · ทิศลาด = ทิศที่ลาดลง</li>
+</ul>
+
+<h3 id="m-fire">โมเดลการลุกลามของไฟ</h3>
+<p>ใช้สมการที่เป็นมาตรฐานสากลของพฤติกรรมไฟผิวดิน ปรับค่าคงที่ตามชนิดป่าในประเทศไทย</p>
+<h4>1. ความชื้นสมดุลเชื้อเพลิงตาย (Simard 1968)</h4>
+<div class="eq">RH &lt; 10%    : EMC = 0.03229 + 0.281073·RH − 0.000578·RH·T
+10 ≤ RH &lt; 50: EMC = 2.22749 + 0.160107·RH − 0.014784·T
+RH ≥ 50%    : EMC = 21.0606 + 0.005565·RH² − 0.00035·RH·T − 0.483199·RH
+η_M = 1 − 2.59·r + 5.11·r² − 3.52·r³     r = EMC ÷ 24   (ความชื้นที่ไฟดับเอง 24%)</div>
+<h4>2. อัตราการลุกลาม (Rothermel 1972)</h4>
+<div class="eq">R = R₀ · k · η_M · (1 + |φ_W + φ_S|)        (ม./นาที)
+φ_W = 7.47·e^(−0.133·σ^0.55) · U^(0.02526·σ^0.54)    σ = 1,500 ft⁻¹, U = ลมที่เปลวไฟ (ft/min)
+φ_S = 5.275 · β^(−0.3) · tan²(θ)                      β = 0.01, θ = ความชัน
+ลมที่เปลวไฟ = ลมที่ 10 ม. × WAF (0.3 ค่าบังลมของป่า)</div>
+<p>φ_W ชี้ไปทางที่ลมพัดไป φ_S ชี้ไปทางลาดขึ้น รวมกันแบบ<b>เวกเตอร์</b> ทิศของผลรวม = ทิศหัวไฟ (จึงอาจต่างจากทิศควัน) · R₀ สอบเทียบให้ค่าทดสอบ (ลม 11 กม./ชม. ความชื้น 61% อุณหภูมิ 32.3 °C ความชัน 4°) ได้หัวไฟ 4.7 ม./นาที</p>
+<h4>3. รูปวงรีของไฟ (Anderson 1983)</h4>
+<div class="eq">L/B = 0.936·e^(0.2566·U) + 0.461·e^(−0.1548·U) − 0.397        U = ลมประสิทธิผล (ม./วินาที)
+ท้ายไฟ R_b = R_h·(L/B − √((L/B)²−1)) ÷ (L/B + √((L/B)²−1))
+ข้างไฟ R_f = (R_h + R_b) ÷ (2·L/B)
+พื้นที่ = π·a·b   a = (R_h+R_b)/2·t, b = R_f·t</div>
+<h4>4. ความรุนแรงหน้าไฟและความยาวเปลวไฟ (Byram 1959)</h4>
+<div class="eq">I_B = H · w · R          H = 18,600 kJ/kg, w = เชื้อเพลิงที่ไหม้ (kg/m²)   → kW/m
+L_f = 0.0775 · I_B^0.46   (ม.)</div>
+<table>
+<tr><th>ระดับ</th><th>ความยาวเปลวไฟ</th><th>แนวทาง</th></tr>
+<tr><td><span class="sw" style="background:#3b9a4c"></span>1 ต่ำ</td><td>&lt; 1.2 ม.</td><td>เข้าตบไฟที่หัวไฟด้วยไม้ตบไฟ/เครื่องเป่าลมได้โดยตรง</td></tr>
+<tr><td><span class="sw" style="background:#e0a010"></span>2 ปานกลาง</td><td>1.2–2.4 ม.</td><td>ตีขนาบจากท้ายไฟและด้านข้าง (flank attack) พร้อมทำแนวกันไฟดักล่วงหน้า</td></tr>
+<tr><td><span class="sw" style="background:#e8741c"></span>3 สูง</td><td>2.4–3.4 ม.</td><td>เกินกำลังคน ใช้เครื่องจักรทำแนวกันไฟ สกัดจากด้านหลังและด้านข้างเท่านั้น</td></tr>
+<tr><td><span class="sw" style="background:#d93a1f"></span>4 สูงมาก</td><td>≥ 3.4 ม.</td><td>เสี่ยงไฟเรือนยอด/ไฟกระโดด ห้ามเข้าใกล้หัวไฟ ถอนกำลังและป้องกันชุมชนใต้ลม</td></tr>
+</table>
+<h4>5. มลพิษและกลุ่มควัน</h4>
+<div class="eq">ชีวมวลที่ไหม้ (ตัน) = พื้นที่ (ไร่) × เชื้อเพลิง (ตัน/ไร่) × สัดส่วนที่ไหม้จริง (Cf)
+PM2.5 (ตัน) = ชีวมวล × EF_PM2.5 ÷ 1,000      CO₂ = ชีวมวล × EF_CO₂ ÷ 1,000   (Seiler &amp; Crutzen 1980)</div>
+<div class="tw"><table>
+<tr><th>เชื้อเพลิง</th><th>เชื้อเพลิง (ตัน/ไร่)</th><th>Cf</th><th>ตัวคูณอัตราลาม k</th><th>EF PM2.5 (g/kg)</th><th>EF CO₂ (g/kg)</th></tr>
+<tr><td>ป่าเบญจพรรณ</td><td>0.85</td><td>0.78</td><td>1.00</td><td>10.5</td><td>1,590</td></tr>
+<tr><td>ป่าเต็งรัง</td><td>0.60</td><td>0.79</td><td>1.15</td><td>9.5</td><td>1,620</td></tr>
+<tr><td>ป่าดิบแล้ง</td><td>1.30</td><td>0.40</td><td>0.55</td><td>12.0</td><td>1,550</td></tr>
+<tr><td>ป่าดิบเขา/ป่าสน</td><td>1.50</td><td>0.52</td><td>0.50</td><td>13.0</td><td>1,530</td></tr>
+<tr><td>ป่าไผ่</td><td>0.70</td><td>0.80</td><td>1.30</td><td>10.5</td><td>1,590</td></tr>
+</table></div>
+<ul>
+ <li><b>Gaussian plume</b> — กรวยควันตามลมคงที่ ความเข้มข้นในแกนกรวยที่ระยะ 5 กม. ใต้ลม</li>
+ <li><b>Lagrangian</b> — ปล่อยอนุภาค 2,000 ตัวตามพื้นที่ไหม้ที่โตขึ้น เคลื่อนตามลมพยากรณ์รายชั่วโมง (Open-Meteo) ทุก 5 นาที บวกการแพร่แบบสุ่ม (K = 50 m²/s) ชั้นผสม 1,000 ม. แล้วคิดความเข้มข้นต่อช่อง 1 กม. · ระยะควัน = ระยะที่มีมวล 95% อยู่ภายใน</li>
+ <li>อัตราตายของไม้หนุ่มและเวลาฟื้นตัวของป่าเป็นค่าประมาณตามระดับความรุนแรง (1–3%/1–2 ปี ถึง &gt;30%/8–15 ปี)</li>
+</ul>
+
+<h3 id="m-fwi">ดัชนีอันตรายไฟป่า และความแห้งของอากาศ</h3>
+<div class="eq">CBI = ((110 − 1.373·RH) − 0.54·(10.2 − T)) · 124 · 10^(−0.0142·RH) ÷ 60
+FWI (ในระบบนี้) = CBI · e^(−0.32·ฝน) · (1 + 0.02·(ลม − 10))
+VPD (kPa) = 0.6108 · e^(17.27·T ÷ (T + 237.3)) · (1 − RH ÷ 100)
+T = อุณหภูมิสูงสุด °C, RH = ความชื้นต่ำสุด %, ลม = ลมสูงสุด กม./ชม., ฝน = มม./วัน</div>
+<p>ใช้ Chandler Burning Index (Chandler et al. 1983) ปรับด้วยฝนสะสมและลม — <b>ไม่ใช่</b> Canadian Fire Weather Index แม้ใช้ชื่อย่อ FWI</p>
+<table>
+<tr><th>ระดับ</th><th>FWI</th><th>ความชื้นต่ำสุด</th><th>VPD</th><th>ความหมาย</th></tr>
+<tr><td><span class="sw" style="background:#cfe3d0"></span>ต่ำ</td><td>&lt; 50</td><td>≥ 60%</td><td>&lt; 1</td><td>โอกาสเกิดและลามต่ำ</td></tr>
+<tr><td><span class="sw" style="background:#e8d9a0"></span>ปานกลาง</td><td>50–75</td><td>40–60%</td><td>1–2</td><td>เชื้อเพลิงเริ่มแห้ง ควรเฝ้าระวัง</td></tr>
+<tr><td><span class="sw" style="background:#f6b26b"></span>สูง</td><td>75–90</td><td>30–40%</td><td>2–3</td><td>ติดไฟง่าย ลามเร็ว เตรียมกำลังพล งดเผา</td></tr>
+<tr><td><span class="sw" style="background:#c0503c"></span>สูงมาก</td><td>90–97.5</td><td>20–30%</td><td>3–4</td><td>ไฟรุนแรง ควบคุมยาก ควรประกาศห้ามเผาเด็ดขาด</td></tr>
+<tr><td><span class="sw" style="background:#7e0023"></span>วิกฤต</td><td>≥ 97.5</td><td>&lt; 20%</td><td>≥ 4</td><td>เสี่ยงไฟเรือนยอดและไฟกระโดด</td></tr>
+</table>
+
+<h3 id="m-aqi">ฝุ่น PM2.5 และ AQI</h3>
+<ul>
+ <li><b>สถานีวัด:</b> Air4Thai กรมควบคุมมลพิษ ~170 สถานี ค่าเฉลี่ยรายชั่วโมงล่าสุด (ค่าที่เก่ากว่า 6 ชม. ไม่แสดง)</li>
+ <li><b>แบบจำลอง:</b> CAMS (Copernicus Atmosphere Monitoring Service) ผ่าน Open-Meteo ตาราง ~110 กม. ใช้ดูภาพกว้างและพยากรณ์ ไม่ละเอียดพอสำหรับควันจากไฟจุดเดียว</li>
+ <li><b>AQI</b> ตามเกณฑ์ US EPA (ปรับปรุง 2567/2024) — <i>ต่างจาก AQI ของกรมควบคุมมลพิษ</i></li>
+</ul>
+<table>
+<tr><th>AQI</th><th>PM2.5 (µg/m³)</th><th>ระดับ</th></tr>
+<tr><td><span class="sw" style="background:#00E400"></span>0–50</td><td>0–9.0</td><td>ดี</td></tr>
+<tr><td><span class="sw" style="background:#FFFF00"></span>51–100</td><td>9.1–35.4</td><td>ปานกลาง</td></tr>
+<tr><td><span class="sw" style="background:#FF7E00"></span>101–150</td><td>35.5–55.4</td><td>เริ่มมีผลต่อกลุ่มเสี่ยง</td></tr>
+<tr><td><span class="sw" style="background:#FF0000"></span>151–200</td><td>55.5–125.4</td><td>มีผลต่อสุขภาพ</td></tr>
+<tr><td><span class="sw" style="background:#8F3F97"></span>201–300</td><td>125.5–225.4</td><td>มีผลต่อสุขภาพมาก</td></tr>
+<tr><td><span class="sw" style="background:#7E0023"></span>301+</td><td>225.5 ขึ้นไป</td><td>อันตราย</td></tr>
+</table>
+
+<h3 id="m-measure">การวัดระยะและพื้นที่</h3>
+<ul>
+ <li><b>ระยะทาง</b> คำนวณบนทรงรีโลก WGS84 ด้วยสูตรของ Vincenty (ละเอียดระดับมิลลิเมตร) ไม่ใช่ระยะบนภาพแผนที่</li>
+ <li><b>พื้นที่</b> ซอยขอบตามเส้นวงกลมใหญ่ทุก ~200 ม. แล้วคำนวณด้วยการฉายแบบพื้นที่เท่ากันบนทรงรี · 1 ไร่ = 1,600 ตร.ม. = 4 งาน, 1 งาน = 100 ตร.ว., 1 ตร.ว. = 4 ตร.ม.</li>
+ <li>พื้นที่เป็นพื้นที่ราบตามแผนที่ (ไม่รวมความลาดเอียงของพื้นจริง) เท่ากับวิธีของ GIS ทั่วไป</li>
+</ul>
+
+<h3 id="m-crs">ระบบพิกัด</h3>
+<p>พิกัดทั้งหมดเป็น WGS84 (ละติจูด, ลองจิจูด) · UTM โซน 47N (ตะวันตกของลองจิจูด 102°) หรือ 48N (ตะวันออก) บนพื้นหลักฐาน WGS84 · แผนที่ GPS/แผนที่ทหารรุ่นเก่าที่ใช้ Indian 1975 จะต่างราว 300–400 ม. (เครื่องมือนำเข้า Shapefile แปลงให้เมื่อมีไฟล์ .prj)</p>
+</section>
+
+<!-- ============ 20 ============ -->
+<section class="s" id="sources">
+<h2>แหล่งข้อมูลและการอ้างอิง</h2>
+<h3>แหล่งข้อมูล</h3>
+<div class="tw"><table>
+<tr><th>ข้อมูล</th><th>ที่มา</th><th>รอบปรับปรุง</th></tr>
+<tr><td>จุดความร้อน (ปัจจุบัน)</td><td>Land Fire Alerts Thailand — หน่วยวิจัยไฟป่า (WFSRU) / ThaiREN <a href="https://wildlandfire.thairen.net.th/landfirealertsmap_thailand/">wildlandfire.thairen.net.th</a> · ข้อมูลดาวเทียม NASA/NOAA</td><td>ทุกรอบดาวเทียม</td></tr>
+<tr><td>จุดความร้อนสำรอง</td><td>NASA FIRMS (VIIRS 375 m NRT/SP) <a href="https://firms.modaps.eosdis.nasa.gov/">firms.modaps.eosdis.nasa.gov</a></td><td>เมื่อ API ไทยขาด</td></tr>
+<tr><td>จุดความร้อนย้อนหลัง ปีงบ 2561–2569</td><td>กรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช (ไฟล์ Excel ที่ตรวจสอบภาคสนามแล้ว)</td><td>นำเข้าเมื่อได้ฉบับใหม่</td></tr>
+<tr><td>แนวเขตพื้นที่อนุรักษ์ สถานีฯ พื้นที่รับผิดชอบ ปี 2570 จุดเฝ้าระวัง ปี 2569</td><td>ไฟล์ KMZ ของ สบอ.1 และ ขสป.ดงใหญ่</td><td>–</td></tr>
+<tr><td>พื้นที่เผาไหม้ / SAVI</td><td>ระบบตามรอยเผา สถาบันสารสนเทศทรัพยากรน้ำ (สสน.) <a href="https://tamroypao.hii.or.th/">tamroypao.hii.or.th</a> จากภาพ Sentinel-2 (ESA Copernicus)</td><td>วันละ 4 รอบตรวจของใหม่</td></tr>
+<tr><td>ชนิดป่า</td><td>กรมป่าไม้ — โครงการจัดทำข้อมูลสภาพพื้นที่ป่าไม้ ปี พ.ศ. 2560–2561</td><td>–</td></tr>
+<tr><td>แนวเขตจังหวัด อำเภอ ตำบล</td><td>กรมการปกครอง ผ่าน OCHA HDX COD-AB (ฉบับ 22 ม.ค. 2565)</td><td>–</td></tr>
+<tr><td>สภาพอากาศ ลม ดัชนีไฟ PM2.5 แบบจำลอง</td><td><a href="https://open-meteo.com/">Open-Meteo</a> (CC BY 4.0) · CAMS (Copernicus)</td><td>รายชั่วโมง</td></tr>
+<tr><td>สถานีวัดฝุ่น</td><td>Air4Thai กรมควบคุมมลพิษ</td><td>รายชั่วโมง</td></tr>
+<tr><td>เรดาร์ฝน</td><td><a href="https://www.rainviewer.com/">RainViewer</a></td><td>10 นาที</td></tr>
+<tr><td>พยากรณ์อากาศแบบภาพ</td><td><a href="https://www.windy.com/">Windy.com</a> (ECMWF, CAMS)</td><td>ตามแบบจำลอง</td></tr>
+<tr><td>แผนที่ฐาน</td><td>Esri World Topo/Imagery/Wayback · OpenFreeMap (© OpenStreetMap contributors) · Google · EOX Sentinel-2 cloudless (CC BY-NC-SA 4.0) · NASA GIBS</td><td>–</td></tr>
+<tr><td>ความสูงภูมิประเทศ</td><td>AWS Terrain Tiles (Terrarium) — รวมจาก SRTM และแหล่งอื่น</td><td>–</td></tr>
+</table></div>
+<h3>เอกสารอ้างอิงทางวิชาการ</h3>
+<ul>
+ <li>Anderson, H.E. (1983). <i>Predicting wind-driven wild land fire size and shape.</i> USDA Forest Service Research Paper INT-305.</li>
+ <li>Byram, G.M. (1959). Combustion of forest fuels. In K.P. Davis (Ed.), <i>Forest Fire: Control and Use</i> (pp. 61–89). McGraw-Hill.</li>
+ <li>Chandler, C., Cheney, P., Thomas, P., Trabaud, L., &amp; Williams, D. (1983). <i>Fire in Forestry, Vol. 1: Forest Fire Behavior and Effects.</i> John Wiley &amp; Sons.</li>
+ <li>Horn, B.K.P. (1981). Hill shading and the reflectance map. <i>Proceedings of the IEEE, 69</i>(1), 14–47.</li>
+ <li>Huete, A.R. (1988). A soil-adjusted vegetation index (SAVI). <i>Remote Sensing of Environment, 25</i>(3), 295–309.</li>
+ <li>Rothermel, R.C. (1972). <i>A mathematical model for predicting fire spread in wildland fuels.</i> USDA Forest Service Research Paper INT-115.</li>
+ <li>Schroeder, W., Oliva, P., Giglio, L., &amp; Csiszar, I.A. (2014). The New VIIRS 375 m active fire detection data product. <i>Remote Sensing of Environment, 143</i>, 85–96.</li>
+ <li>Seiler, W., &amp; Crutzen, P.J. (1980). Estimates of gross and net fluxes of carbon between the biosphere and the atmosphere from biomass burning. <i>Climatic Change, 2</i>(3), 207–247.</li>
+ <li>Simard, A.J. (1968). <i>The moisture content of forest fuels — I.</i> Forest Fire Research Institute, Canada, Information Report FF-X-14.</li>
+ <li>U.S. EPA (2024). <i>Technical Assistance Document for the Reporting of Daily Air Quality — the Air Quality Index (AQI).</i></li>
+ <li>Vincenty, T. (1975). Direct and inverse solutions of geodesics on the ellipsoid. <i>Survey Review, 23</i>(176), 88–93.</li>
+</ul>
+<h3>การอ้างอิงเว็บนี้</h3>
+<p class="box">สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี). (2569). <i>แผนที่สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่.</i> สืบค้นเมื่อ [วันที่], จาก https://takiang71.github.io/fire-map-dpky/ <br><span style="color:var(--mut);font-size:14px">เมื่อนำตัวเลขไปใช้ ควรระบุวันเวลาที่ดึงข้อมูล และระบุแหล่งข้อมูลต้นทาง (เช่น "จุดความร้อนจาก Land Fire Alerts Thailand, ดาวเทียม NOAA-20")</span></p>
+</section>
+
+<!-- ============ 21 ============ -->
+<section class="s" id="limits">
+<h2>ข้อจำกัดและข้อควรระวัง</h2>
+<ul>
+ <li><b>จุดความร้อนไม่เท่ากับไฟป่า</b> — อาจเป็นการเผาในพื้นที่เกษตร หลังคาโลหะ/หินร้อน หรือสัญญาณรบกวน และไฟจริงอาจตรวจไม่พบ (เมฆ ควันหนา ไฟใต้เรือนยอด ไฟเล็กกว่าความไวของเครื่องวัด ไฟที่เกิดระหว่างรอบดาวเทียม)</li>
+ <li><b>ตำแหน่ง</b> — จุดแทนพิกเซล 375 ม. ไฟจริงอาจอยู่ห่างจากจุดได้หลายร้อยเมตร ควรค้นหารอบจุด</li>
+ <li><b>ความล่าช้า</b> — ระบบต้นทางใช้เวลาประมวลผลหลังดาวเทียมผ่าน และระบบนี้รับข้อมูลทุก ~10 นาที (บางช่วงบริการภายนอกช้ากว่านั้น)</li>
+ <li><b>ข้อมูลขึ้นกับบริการภายนอก</b> — ถ้า API ต้นทางขัดข้อง จุดอาจขาดชั่วคราว ระบบมีแหล่งสำรอง (NASA FIRMS) สำหรับข้อมูลสะสม และแจ้งผู้ดูแลระบบอัตโนมัติ</li>
+ <li><b>แบบจำลองไฟและควัน</b> — ใช้ค่าคงที่เฉลี่ยของเชื้อเพลิง ไม่รวมแนวกันไฟ ถนน ลำห้วย การดับไฟ หรือความชื้นของเชื้อเพลิงที่วัดจริง ผลเป็นแนวโน้ม ไม่ใช่การพยากรณ์</li>
+ <li><b>ดัชนีไฟ/ฝุ่นจากแบบจำลอง</b> ตารางหยาบ (10–110 กม.) ไม่สะท้อนสภาพเฉพาะจุดในหุบเขา</li>
+ <li><b>พื้นที่เผาไหม้</b> พลาดรอยเล็กกว่า ~0.25 ไร่ รอยใต้เรือนยอดป่าดิบ และรอยในช่วงที่มีเมฆ</li>
+ <li><b>ยอดตัวชี้วัด</b> ช่วงเปลี่ยนจาก Suomi NPP เป็น NOAA-20 ทำให้เทียบข้ามปีได้ในเชิงแนวโน้ม</li>
+ <li>ชั้นข้อมูลที่วาด/นำเข้า "ในเครื่องนี้" เก็บในเบราว์เซอร์ ไม่สำรองให้อัตโนมัติ</li>
+</ul>
+</section>
+
+<!-- ============ 22 ============ -->
+<section class="s" id="faq">
+<h2>คำถามที่พบบ่อยและการแก้ปัญหา</h2>
+<dl class="gl">
+ <dt>แผนที่ขึ้น 0 จุด ทั้งที่ได้ข่าวไฟป่า</dt>
+ <dd>ดาวเทียมอาจยังไม่ผ่าน (ดูเวลา "ระบบต้นทางอัปเดต") มีเมฆ/ควันหนา หรือไฟอยู่นอกแนวเขตกลุ่มป่า ตรวจปุ่มดาวเทียมว่าไม่ได้ปิดไว้ และปุ่ม "ไม่รวมดงใหญ่" ถ้าไฟอยู่ในดงใหญ่ · กด ↻ ดึงข้อมูลใหม่ในแผงชั้นข้อมูล</dd>
+ <dt>ยอดสะสมในการ์ดไม่ตรงกับตัวเลขของหน่วยงานอื่น</dt>
+ <dd>ระบบนับเฉพาะดาวเทียมตัวชี้วัดและเฉพาะในแนวเขตที่กำหนด ส่วนหน่วยงานอื่นอาจนับทุกดาวเทียม รวมพื้นที่นอกเขต หรือใช้ข้อมูลที่ตรวจสอบภาคสนามแล้ว ตรวจสถานะปุ่มดงใหญ่ด้วย</dd>
+ <dt>บรรทัดสถานะขึ้น "ข้อมูลสะสมถึง …"</dt>
+ <dd>ระบบเก็บข้อมูลสะสมยังไม่ได้อัปเดตรอบล่าสุด ยอดสะสมอาจขาดบางวัน ปกติจะกลับมาในรอบถัดไป</dd>
+ <dt>รายงาน PDF ไม่มีแผนที่ หรือภาพแผนที่ว่าง</dt>
+ <dd>รอให้แผนที่โหลดเสร็จก่อนกด และอย่าสลับแท็บระหว่างสร้างรายงาน · ใช้ Chrome หรือ Edge รุ่นปัจจุบัน</dd>
+ <dt>CSV เปิดใน Excel แล้วภาษาไทยเพี้ยน</dt>
+ <dd>ดับเบิลคลิกเปิดไฟล์โดยตรง (ไฟล์มี BOM) อย่าใช้ "นำเข้าข้อความ" แบบเลือก ANSI · ใน Google Sheets ใช้ ไฟล์ → นำเข้า</dd>
+ <dt>"ตำแหน่งของฉัน" ไม่ทำงาน</dt>
+ <dd>อนุญาตตำแหน่งให้เว็บในเบราว์เซอร์ และเปิด GPS ของเครื่อง (ต้องเปิดผ่าน https)</dd>
+ <dt>ชั้น Windy ซูมเข้าไม่ได้</dt>
+ <dd>Windy แสดงภาพได้ถึงระดับซูมจำกัด (ราวระดับที่เห็นทั้งอำเภอ) ปิดชั้นสภาพอากาศ Windy เพื่อซูมใกล้กว่านั้น</dd>
+ <dt>ชั้นที่วาดไว้หายไป</dt>
+ <dd>ชั้น "ในเครื่องนี้" ผูกกับเบราว์เซอร์และอุปกรณ์ที่ใช้ เปิดจากเครื่อง/เบราว์เซอร์อื่นหรือโหมดไม่ระบุตัวตนจะไม่เห็น · ส่งออกเป็น KMZ/GeoJSON เก็บไว้เสมอ</dd>
+ <dt>ค่าที่ตั้งไว้กลับเป็นค่าเดิมทุกครั้ง</dt>
+ <dd>กด "ตั้งที่เลือกเป็นค่าเริ่มต้น" ในแผงชั้นข้อมูล (ไม่ทำงานในโหมดไม่ระบุตัวตน)</dd>
+ <dt>แจ้งปัญหาหรือเสนอแนะ</dt>
+ <dd>ติดต่อผู้ดูแลระบบ สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี) · แจ้งเหตุไฟป่า สายด่วน <b>1362</b></dd>
+</dl>
+</section>
+
+<!-- ============ 23 ============ -->
+<section class="s" id="glossary">
+<h2>คำศัพท์</h2>
+<dl class="gl">
+ <dt>จุดความร้อน (Hotspot / Active fire)</dt><dd>พิกเซลภาพดาวเทียมที่มีอุณหภูมิสูงกว่าพื้นที่รอบข้างอย่างมีนัยสำคัญ</dd>
+ <dt>VIIRS</dt><dd>เครื่องวัดบนดาวเทียม Suomi NPP / NOAA-20 / NOAA-21 ตรวจจุดความร้อนที่ 375 ม.</dd>
+ <dt>FRP (Fire Radiative Power)</dt><dd>กำลังการแผ่รังสีความร้อนของไฟ (เมกะวัตต์) — API ไทยไม่ส่งค่านี้</dd>
+ <dt>ปีงบประมาณ (ปีงบ)</dt><dd>1 ต.ค. – 30 ก.ย. ตั้งชื่อตามปีที่สิ้นสุด</dd>
+ <dt>อช. / ขสป. / ขห. / สบอ.</dt><dd>อุทยานแห่งชาติ / เขตรักษาพันธุ์สัตว์ป่า / เขตห้ามล่าสัตว์ป่า / สำนักบริหารพื้นที่อนุรักษ์</dd>
+ <dt>สถานีฯ</dt><dd>สถานีควบคุมไฟป่า</dd>
+ <dt>การจัดการเชื้อเพลิง</dt><dd>การชิงเผาหรือลดเชื้อเพลิงตามแผน จุดความร้อนจากกิจกรรมนี้ไม่นับเป็นไฟป่าในการเทียบปี</dd>
+ <dt>หัวไฟ / ข้างไฟ / ท้ายไฟ</dt><dd>ด้านของไฟที่ลามเร็วที่สุด (ตามลม/ขึ้นเขา) / ด้านข้าง / ด้านตรงข้ามหัวไฟ ซึ่งลามช้าสุดและเข้าดับได้ปลอดภัยกว่า</dd>
+ <dt>EMC</dt><dd>ความชื้นสมดุลของเชื้อเพลิงตาย (ใบไม้ กิ่งไม้แห้ง) กับอากาศ</dd>
+ <dt>VPD</dt><dd>Vapour Pressure Deficit ความต่างระหว่างไอน้ำที่อากาศรับได้กับที่มีอยู่ ยิ่งสูงอากาศยิ่งดึงความชื้นจากเชื้อเพลิง</dd>
+ <dt>CBI / FWI</dt><dd>ดัชนีอันตรายไฟป่าจากอุณหภูมิและความชื้น (ในระบบนี้ปรับด้วยลมและฝน)</dd>
+ <dt>SAVI</dt><dd>ดัชนีพืชพรรณปรับค่าดิน บอกความเขียว/หนาแน่นของพืช</dd>
+ <dt>AQI</dt><dd>ดัชนีคุณภาพอากาศ ในระบบนี้ใช้เกณฑ์ US EPA</dd>
+ <dt>UTM</dt><dd>ระบบพิกัดฉากเป็นเมตร ประเทศไทยอยู่โซน 47 และ 48</dd>
+</dl>
+</section>
+
+<section class="s" id="admin">
+<h2>สำหรับผู้ดูแลระบบ</h2>
+<p>เอกสารทางเทคนิคอยู่ในที่เก็บโค้ด <a href="https://github.com/takiang71/fire-map-dpky">github.com/takiang71/fire-map-dpky</a>: <code>docs/line-bot.md</code> (LINE bot, cron-job.org, แจ้งเตือนผู้ดูแลเมื่อระบบเสีย) · <code>docs/telegram-bot.md</code> · <code>docs/layers-backend.md</code> (หลังบ้านชั้นข้อมูล บัญชีผู้ใช้/กลุ่ม) · <code>docs/spec-v3.md</code> (สเปกตั้งต้น)</p>
+<ul>
+ <li>นำเข้าจุดความร้อนกรมอุทยานฯ ฉบับใหม่: <code>node scripts/excel_to_hdata.js &lt;ไฟล์.xlsx&gt;</code> แล้ว <code>node scripts/sync_hotspots.js</code></li>
+ <li>สถานะการทำงานอัตโนมัติดูได้ที่แท็บ Actions ของที่เก็บโค้ด และไฟล์ <code>notify.json</code> / <code>health.json</code> บนเว็บ</li>
+</ul>
+</section>
+</main>
+</div>
+<a class="totop" href="#" aria-label="กลับขึ้นด้านบน">↑</a>
+
+<script>
+// สร้างสารบัญจากหัวข้อ + ไฮไลต์หัวข้อที่กำลังอ่าน + ค้นหา
+(function(){
+ const S=[...document.querySelectorAll('section.s')],tl=document.getElementById('tocl'),ml=document.getElementById('mtocl');
+ S.forEach((s,i)=>{const h=s.querySelector('h2');const n=document.createElement('span');n.className='n';n.textContent=(i+1)+'.';h.prepend(n,' ');
+  const t=h.textContent.replace(/^\d+\.\s*/,'');
+  const li=document.createElement('li');li.innerHTML=`<a href="#${s.id}"><span class="n">${i+1}.</span>${t}</a>`;
+  const subs=[...s.querySelectorAll('h3[id]')];if(subs.length){const o=document.createElement('ol');subs.forEach(x=>{const l=document.createElement('li');l.innerHTML=`<a href="#${x.id}">${x.textContent}</a>`;o.appendChild(l)});li.appendChild(o)}
+  tl.appendChild(li);const m=document.createElement('li');m.innerHTML=`<a href="#${s.id}">${t}</a>`;ml.appendChild(m)});
+ ml.addEventListener('click',e=>{if(e.target.closest('a'))e.currentTarget.closest('details').open=false});
+ const links=[...tl.querySelectorAll('a')],map=new Map(links.map(a=>[a.getAttribute('href').slice(1),a]));
+ const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.remove('on'));const a=map.get(e.target.id);if(a){a.classList.add('on');const p=a.closest('ol').closest('li');p&&p.firstElementChild.classList.add('on');a.scrollIntoView({block:'nearest'})}}})},{rootMargin:'0px 0px -75% 0px'});
+ document.querySelectorAll('section.s,h3[id]').forEach(x=>io.observe(x));
+ const q=document.getElementById('q'),nr=document.getElementById('nores');
+ let tm;q.addEventListener('input',()=>{clearTimeout(tm);tm=setTimeout(()=>{const v=q.value.trim().toLowerCase();let any=0;
+  S.forEach((s,i)=>{const hit=!v||s.textContent.toLowerCase().includes(v);s.classList.toggle('hidden',!hit);tl.children[i].classList.toggle('hidden',!hit);if(hit)any++});
+  nr.style.display=any?'none':'block';const f=v&&S.find(x=>!x.classList.contains('hidden'));if(f)f.scrollIntoView({block:'start'})},250)});
+})();
+</script>
+</body>
+</html>
