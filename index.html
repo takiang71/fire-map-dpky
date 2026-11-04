@@ -49,7 +49,7 @@ h1 small{display:block;font-size:.42em;font-weight:600;color:var(--mut);margin-t
 .st b{text-align:right;font-size:22px;line-height:1.25;font-weight:800}
 .st b:first-child{color:var(--fire)}.st span{align-self:center}
 .sm{font-size:12px;color:var(--mut)}
-.btns{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.btn[aria-pressed=true]{background:var(--sel);color:var(--navy)}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}#bDev{display:flex;align-items:center;gap:6px;max-width:100%;margin:-2px 0 12px;padding:6px 12px;border:0;background:var(--glass);backdrop-filter:blur(6px);box-shadow:0 1px 4px rgba(20,30,60,.12);font:inherit;font-size:12px;color:var(--mut);text-align:left;cursor:pointer;border-radius:14px}#bDev:hover{color:var(--navy);background:var(--sel)}#bDev .i{width:14px;height:14px;flex:none}#bDev b{font-weight:600;color:var(--ink)}#bDev:hover b{color:var(--navy)}.dvb{display:flex;gap:14px;align-items:flex-start}.dvb .dva{flex:none;width:52px;height:52px;border-radius:50%;background:var(--sel);color:var(--navy);display:grid;place-items:center}.dvb .dva .i{width:26px;height:26px}.dvb p{margin:0 0 4px;line-height:1.6}.dvb .dvn{font-size:17px;font-weight:700;color:var(--navy)}.dvb .dvo{color:var(--mut);font-size:13.5px}.btn[aria-pressed=true]{background:var(--sel);color:var(--navy)}
 .btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;background:var(--bg);border:0;border-radius:14px;box-shadow:var(--sh);font-size:13px}
 a.btn{color:inherit;text-decoration:none;cursor:pointer}
 .card{background:var(--bg);border-radius:20px;box-shadow:var(--sh);width:min(335px,100%);padding:12px}
@@ -95,7 +95,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
  #rpt img.mp{width:100%;max-height:115mm;object-fit:contain;border:1px solid #ccc}
  #rpt .r3{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}#rpt table{width:100%;border-collapse:collapse}#rpt th,#rpt td{border:1px solid #bbb;padding:2px 5px;text-align:left}#rpt th{background:#eef1f7}#rpt td.n{text-align:right}
  #rpt tr{break-inside:avoid}#rpt thead{display:table-header-group}#rpt .r3{break-inside:avoid;align-items:start}
- #rpt table.dl{font-size:9.5px}#rpt table.dl td:nth-child(-n+3),#rpt table.dl td:last-child{white-space:nowrap}#rpt .ft{margin-top:8px;color:#555;font-size:9.5px}
+ #rpt table.dl{font-size:9.5px}#rpt table.dl td:nth-child(-n+3),#rpt table.dl td:last-child{white-space:nowrap}#rpt .ft{margin-top:8px;color:#555;font-size:9.5px}#rpt .dv{margin-top:4px;padding-top:4px;border-top:1px solid #ddd;color:#555;font-size:9.5px;break-inside:avoid}
 }
 .pmd{display:flex;align-items:center;gap:6px;margin:12px 0 4px}.pmd .sg2{display:flex;flex:1;background:#eef1f6;border-radius:10px;padding:2px;gap:2px}.pmd .sg2 button{flex:1 1 auto;border:0;background:none;border-radius:8px;padding:5px 6px;font-size:12.5px;color:var(--mut);white-space:nowrap}.pmd .sg2 button[aria-selected=true]{background:#fff;color:var(--navy);font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.12)}.pmd>span{margin-left:auto;font-size:12px;color:var(--mut);white-space:nowrap}
 .ptb2{display:flex;gap:4px;margin:-2px 0 8px}.ptb2[hidden]{display:none}.ptb2 button{border:1px solid var(--line);background:none;border-radius:999px;padding:3px 10px;font-size:12.5px;color:var(--mut);white-space:nowrap}.ptb2 button[aria-selected=true]{border-color:var(--navy);color:var(--navy);font-weight:700;background:#eef1f6}.ptb2 em{font-style:normal;font-weight:400}
@@ -298,7 +298,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 .hh>div{flex:1}.kp small{font-size:11px;font-weight:600;color:var(--mut)}
 .yd{display:inline-flex;align-items:center;gap:3px;margin:2px 8px 0 0;font-size:11px}.yd i{width:10px;height:10px;border-radius:50%;display:inline-block}
 #left.hm{height:100%;max-height:none;overflow:hidden;padding-top:12px;padding-bottom:12px;display:flex;flex-direction:column}
-#left.hm>.lhd,#left.hm>.pill,#left.hm>.desc,#left.hm>.btns,#left.hm>#pcard{display:none}
+#left.hm>.lhd,#left.hm>.pill,#left.hm>.desc,#left.hm>.btns,#left.hm>#bDev,#left.hm>#pcard{display:none}
 #left.hm #hcard{flex:1;min-height:0;overflow:auto;width:min(390px,100%)}
 @media(max-width:767px){#left.hm{height:auto;max-height:var(--sh0,34vh)}#left.hm.up{max-height:80vh}}
 .kg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
@@ -452,6 +452,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <button class="btn" id="bPlay">ย้อนดูการลามของไฟ</button>
   <a class="btn" id="bMan" href="manual/index.html" target="_blank" rel="noopener" title="คู่มือการใช้งาน: ส่วนประกอบหน้าจอ เมนู ชั้นข้อมูล ที่มาข้อมูล วิธีคิด และการอ้างอิง"><svg class="i" viewBox="0 0 24 24"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 21V5M9 7h6"/></svg>คู่มือการใช้งาน</a>
  </div>
+ <button id="bDev" title="ผู้พัฒนาเว็บไซต์"><svg class="i" viewBox="0 0 24 24"><path d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0"/></svg><span>พัฒนาโดย <b>นายเกรียงไกร โพธิงาม</b> · สถานีฯ ทับลาน (ด้านทิศใต้)</span></button>
  <div class="card" id="pcard" aria-label="สรุปจุดความร้อนที่ตรวจพบ">
   <div class="ph"><b>จุดความร้อนที่ตรวจพบ</b><span class="smp" id="p-smp" title="ยอดสะสมปีงบประมาณปัจจุบันเป็นข้อมูลตัวอย่าง เพราะ API ให้ข้อมูลย้อนหลังเพียง 48 ชม. และระบบยังไม่ได้เก็บสะสม">ข้อมูลตัวอย่าง</span></div>
   <div class="sm">Land Fire Alerts Thailand (WFSRU/ThaiREN) · ดาวเทียม VIIRS · เฉพาะในแนวเขตกลุ่มป่า</div>
@@ -1193,6 +1194,7 @@ async function snapMarkers(){const mc=map.getCanvas(),cr=mc.getBoundingClientRec
   const t=sp.getBoundingClientRect();x.font=`${cs.fontWeight} ${parseFloat(cs.fontSize)*k}px ${cs.fontFamily}`;x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';
   const tx=(t.left+t.width/2-cr.left)*k,ty=(t.top+t.height/2-cr.top)*k;x.strokeStyle='#fff';x.lineWidth=3*k;x.strokeText(sp.textContent,tx,ty);x.fillStyle=cs.color;x.fillText(sp.textContent,tx,ty)}
  return o.toDataURL('image/jpeg',.88)}
+const RPT_DEV=`<div class="dv">พัฒนาระบบโดย นายเกรียงไกร โพธิงาม นักวิชาการป่าไม้ชำนาญการ หัวหน้าสถานีควบคุมไฟป่าทับลาน (ด้านทิศใต้) ส่วนควบคุมและปฏิบัติการไฟป่า สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี) กรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช</div>`;
 async function buildReport(){const R=dtRows(),img=await mapSnap(),now=Date.now(),bn=await bnReport('#'),cnt=k=>{const m={};R.forEach(r=>{const v=k(r)||'ไม่ระบุ';m[v]=(m[v]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])};
  const tb=(h,E)=>`<table><thead><tr><th>${h}</th><th>จุด</th></tr></thead><tbody>${E.map(([k,v])=>`<tr><td>${esc(k)}</td><td class="n">${nf(v)}</td></tr>`).join('')||'<tr><td colspan="2">–</td></tr>'}</tbody></table>`;
  const sv=$('#p-ch svg'),chart=sv?sv.outerHTML.replace(/<line id="p-x"[^>]*\/?>(<\/line>)?/,''):'',demo=R.some(r=>r.demo)||!$('#p-smp').hidden||HS.some(h=>h.demo&&ageH(h)<24);
@@ -1204,7 +1206,7 @@ async function buildReport(){const R=dtRows(),img=await mapSnap(),now=Date.now()
  <h2>${img?3:2}. สรุปตามพื้นที่ (${esc(dtLabel())} · ${nf(R.length)} จุด)</h2><div class="r3">${tb('จังหวัด',cnt(r=>r.pv))}${tb('สบอ.',cnt(r=>r.sb&&sbShort(r.sb)))}${tb('พื้นที่อนุรักษ์',cnt(r=>paShort(r.ar)))}${tb('สถานีควบคุมไฟป่า',cnt(r=>r.st==='ไม่มี'?NOST:r.st.replace(/^สถานีควบคุมไฟป่า\s*/,'')))}</div>
  ${bn.replace('<h2>#.','<h2>'+(img?4:3)+'.')}
  <h2>${(img?4:3)+(bn?1:0)}. รายละเอียดจุดความร้อน</h2><table class="dl"><thead><tr><th>#</th><th>วันที่ เวลา</th><th>ดาวเทียม</th><th>ความเชื่อมั่น</th><th>ตำบล / อำเภอ / จังหวัด</th><th>พื้นที่อนุรักษ์</th><th>สถานีฯ</th><th>ละติจูด, ลองจิจูด</th></tr></thead><tbody>${R.map((r,i)=>`<tr><td class="n">${i+1}</td><td>${dShort(r.d)} ${hhmmTh(r.t)}</td><td>${SATN[r.sat]||esc(r.sat)}${r.demo?' (ตัวอย่าง)':''}</td><td>${esc(r.cf)}</td><td>${esc([r.tm,r.am,r.pv].filter(v=>v&&v!=='ไม่ระบุ').join(' / ')||'ไม่ระบุ')}</td><td>${esc(paShort(r.ar))}</td><td>${esc(r.st.replace(/^สถานีควบคุมไฟป่า\s*/,''))}</td><td>${r.la.toFixed(5)}, ${r.lo.toFixed(5)}</td></tr>`).join('')||'<tr><td colspan="8">ไม่พบจุดความร้อนในช่วงนี้</td></tr>'}</tbody></table>
- <div class="ft">แหล่งข้อมูล: Land Fire Alerts Thailand (WFSRU/ThaiREN) ระบบ VIIRS ·${bn?' พื้นที่เผาไหม้: ระบบตามรอยเผา (สสน.) ·':''} ข้อมูลย้อนหลังกรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช · แนวเขตจากไฟล์ KMZ ของ สบอ.1 · ตัวชี้วัด: Suomi NPP (ตั้งแต่ ${dShort(IND_SW)} ใช้ NOAA-20)</div>`;
+ <div class="ft">แหล่งข้อมูล: Land Fire Alerts Thailand (WFSRU/ThaiREN) ระบบ VIIRS ·${bn?' พื้นที่เผาไหม้: ระบบตามรอยเผา (สสน.) ·':''} ข้อมูลย้อนหลังกรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช · แนวเขตจากไฟล์ KMZ ของ สบอ.1 · ตัวชี้วัด: Suomi NPP (ตั้งแต่ ${dShort(IND_SW)} ใช้ NOAA-20)</div>${RPT_DEV}`;
  await Promise.all([...$('#rpt').querySelectorAll('img')].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})));return R.length}
 async function printReport(){toast('กำลังสร้างรายงาน…');await buildReport();window.print()}
 
@@ -2009,7 +2011,7 @@ async function fuReport(n){try{const I=await fuIndex();if(!I.months.length)retur
 async function buildBReport(){const img=await mapSnap(),I=await bnIndex(),k=bnDefault(I);
  $('#rpt').innerHTML=`<h1>รายงานพื้นที่เผาไหม้ กลุ่มป่าดงพญาเย็น-เขาใหญ่</h1><div>สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)${S.xdy?' · ไม่รวม ขสป.ดงใหญ่ (สบอ.7)':''} · ออกรายงาน ${new Date().toLocaleString('th-TH',{dateStyle:'long',timeStyle:'short',timeZone:'Asia/Bangkok'})} น.</div>
  ${img?`<h2>1. แผนที่</h2><img class="mp" src="${img}" alt="แผนที่">`:''}${await bnReport(img?2:1)}${await fuReport(img?3:2)}
- <div class="ft">แผนที่แสดงตามชั้นข้อมูลที่เปิดอยู่ขณะออกรายงาน · แนวเขตจากไฟล์ KMZ ของ สบอ.1</div>`;
+ <div class="ft">แผนที่แสดงตามชั้นข้อมูลที่เปิดอยู่ขณะออกรายงาน · แนวเขตจากไฟล์ KMZ ของ สบอ.1</div>${RPT_DEV}`;
  await Promise.all([...$('#rpt').querySelectorAll('img')].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})));return k}
 async function printBReport(){toast('กำลังสร้างรายงาน…');await buildBReport();window.print()}
 // CSV: แถวละ รอบ × พื้นที่อนุรักษ์ × สถานีฯ × ประเภท ของช่วงที่เลือก (ปีงบ = ทุกรอบในปีงบ แยกรอบ)
@@ -2443,7 +2445,7 @@ async function buildHReport(){const F=hRows(),RL=500,img=await mapSnap(),cnt=f=>
  <div class="r3" style="margin-top:8px">${tb('ประเภทพื้นที่',cnt(r=>DIC.ld[r.ld]))}${tb('การจัดการเชื้อเพลิง / สถานะ',cnt(r=>DIC.fu[r.fu]))}${tb('ช่วงเวลา',cnt(r=>r.hg?'กลางวัน (06-18 น.)':'กลางคืน (00-05 น.)'))}${tb('อำเภอ (10 อันดับแรก)',cnt(r=>DIC.am[r.am]+' ('+DIC.pv[r.pv]+')').slice(0,10))}</div>
  <h2>${img?4:3}. ข้อสังเกตจากข้อมูล</h2><ul>${insights(F).map(t=>`<li>${esc(t)}</li>`).join('')}</ul>
  <h2>${img?5:4}. รายละเอียดจุดความร้อน</h2>${F.length>RL?`<div>มี ${nf(F.length)} จุด มากกว่า ${RL} จุด จึงไม่แสดงรายการในรายงาน — ดาวน์โหลด CSV จากการ์ดสถิติเพื่อดูทั้งหมด หรือกรองให้แคบลง</div>`:`<table class="dl"><thead><tr><th>#</th><th>วันที่ เวลา</th><th>ปีงบ</th><th>ตำบล / อำเภอ / จังหวัด</th><th>พื้นที่อนุรักษ์</th><th>สถานีฯ</th><th>ประเภทพื้นที่</th><th>เชื้อเพลิง/สถานะ</th><th>ละติจูด, ลองจิจูด</th></tr></thead><tbody>${F.map((r,i)=>`<tr><td class="n">${i+1}</td><td>${dShort(r.d)} ${hhmmTh(r.t)}</td><td>${r.fy}</td><td>${esc(hLoc(r))}</td><td>${esc(paShort(DIC.ar[r.ar]))}</td><td>${esc(shortSt(DIC.st[r.st]).trim())}</td><td>${esc(DIC.ld[r.ld])}</td><td>${esc(DIC.fu[r.fu])}</td><td>${r.la.toFixed(5)}, ${r.lo.toFixed(5)}</td></tr>`).join('')||'<tr><td colspan="9">ไม่มีจุดความร้อนตรงกับตัวกรองนี้</td></tr>'}</tbody></table>`}
- <div class="ft">แหล่งข้อมูล: จุดความร้อนย้อนหลังจากกรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช (ดาวเทียม Suomi NPP ระบบ VIIRS) ปีงบ ${fyList()[0]}–${fyList().at(-1)} · แนวเขตจากไฟล์ KMZ ของ สบอ.1</div>`;
+ <div class="ft">แหล่งข้อมูล: จุดความร้อนย้อนหลังจากกรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช (ดาวเทียม Suomi NPP ระบบ VIIRS) ปีงบ ${fyList()[0]}–${fyList().at(-1)} · แนวเขตจากไฟล์ KMZ ของ สบอ.1</div>${RPT_DEV}`;
  await Promise.all([...$('#rpt').querySelectorAll('img')].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})));return F.length}
 async function printHReport(){toast('กำลังสร้างรายงาน…');await buildHReport();window.print()}
 $('#h-tbl').onclick=openHTable;$('#h-pdf').onclick=printHReport;
@@ -2453,6 +2455,7 @@ function hCSV(){const F=hfilt(),q=v=>'"'+String(v).replace(/"/g,'""')+'"',hh=['�
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+t],{type:'text/csv;charset=utf-8'}));a.download='hotspots_filtered.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);toast('ส่งออก '+nf(F.length)+' จุดแล้ว')}
 /* ---------- นำเข้าข้อมูล (modal) ---------- */
 function openModal(title,html,wide){$('#md .mc').classList.toggle('wide',!!wide);tx('md-t',title);tx('md-b',html);$('#md').hidden=false;$('#md-x').focus()}
+$('#bDev').onclick=()=>openModal('ผู้พัฒนาเว็บไซต์','<div class="dvb"><div class="dva"><svg class="i" viewBox="0 0 24 24"><path d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0"/></svg></div><div><p class="dvn">นายเกรียงไกร โพธิงาม</p><p>นักวิชาการป่าไม้ชำนาญการ<br>หัวหน้าสถานีควบคุมไฟป่าทับลาน (ด้านทิศใต้)</p><p class="dvo">ส่วนควบคุมและปฏิบัติการไฟป่า<br>สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)<br>กรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช<br>กระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม</p></div></div>');
 function closeModal(){$('#md').hidden=true}
 $('#md-x').onclick=closeModal;$('#md').addEventListener('click',e=>{if(e.target.id==='md')closeModal()});
 const HK={la:/^(lat|latitude|ละติจูด)$/i,lo:/^(long|lon|lng|longitude|ลองจิจูด)$/i,dt:/^(ว\/ด\/ป|ว_ด_ป|วันที่|date|acq_date)$/i,tm:/^(เวลา|time|acq_time)$/i,pv:/^(จังหวัด|province)$/i,am:/^(อำเภอ|amphoe|district)$/i,tb:/^(ตำบล|tambon|subdistrict)$/i,

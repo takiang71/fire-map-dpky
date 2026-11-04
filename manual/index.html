@@ -90,6 +90,15 @@ dl.gl dt{font-weight:600;color:var(--navy);margin-top:10px}
 dl.gl dd{margin:0 0 0 16px}
 .tag{display:inline-block;font-size:12px;border-radius:99px;padding:0 8px;background:var(--sel);color:var(--navy);font-weight:600;vertical-align:1px}
 .hidden{display:none!important}
+.dev{display:flex;gap:18px;align-items:flex-start;border:1px solid var(--line);border-radius:16px;padding:18px 20px;background:var(--soft);margin:12px 0}
+.dev .dva{flex:none;width:64px;height:64px;border-radius:50%;background:var(--sel);color:var(--navy);display:grid;place-items:center}
+.dev .dva svg.i{width:32px;height:32px;vertical-align:0}
+.dev p{margin:0 0 6px;line-height:1.6}
+.dev .dvr{font-size:13px;color:var(--mut);margin:0}
+.dev .dvn{font-size:21px;font-weight:700;color:var(--navy);margin:0 0 4px}
+.dev .dvo{color:var(--mut);font-size:15px}
+footer.ft{border-top:1px solid var(--line);color:var(--mut);font-size:13.5px;line-height:1.6;text-align:center;padding:18px 72px 28px}
+@media (max-width:600px){.dev{padding:14px}.dev .dva{width:48px;height:48px}.dev .dva svg.i{width:24px;height:24px}}
 mark{background:#ffe58a;border-radius:3px}
 .totop{position:fixed;right:16px;bottom:16px;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:#fff;box-shadow:0 4px 14px rgba(20,30,60,.18);display:grid;place-items:center;text-decoration:none;color:var(--navy);font-size:20px}
 .mtoc{display:none}
@@ -203,6 +212,7 @@ mark{background:#ffe58a;border-radius:3px}
 <tr><td><span class="btnl">วิเคราะห์สถิติย้อนหลัง</span></td><td>เปิดการ์ดสถิติจุดความร้อนปีงบ 2561–2569 ดู <a href="#stats">วิเคราะห์สถิติย้อนหลัง</a></td></tr>
 <tr><td><span class="btnl">ย้อนดูการลามของไฟ</span></td><td>เปิดแผงเล่นภาพเคลื่อนไหวจุดความร้อนตามวัน ดู <a href="#play">ย้อนดูการลามของไฟ</a></td></tr>
 <tr><td><span class="btnl"><svg class="i" viewBox="0 0 24 24"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 21V5M9 7h6"/></svg> คู่มือการใช้งาน</span></td><td>เปิดคู่มือนี้ในแท็บใหม่</td></tr>
+<tr><td><span class="btnl"><svg class="i" viewBox="0 0 24 24"><path d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0"/></svg> พัฒนาโดย …</span></td><td>บรรทัดเล็กใต้ปุ่มเมนู แตะเพื่อดูชื่อและสังกัดของผู้พัฒนาเว็บไซต์ ดู <a href="#dev">ผู้จัดทำ</a></td></tr>
 </table></div>
 </section>
 
@@ -1025,8 +1035,22 @@ T = อุณหภูมิสูงสุด °C, RH = ความชื้�
  <li>สถานะการทำงานอัตโนมัติดูได้ที่แท็บ Actions ของที่เก็บโค้ด และไฟล์ <code>notify.json</code> / <code>health.json</code> บนเว็บ</li>
 </ul>
 </section>
+
+<section class="s" id="dev">
+<h2>ผู้จัดทำ</h2>
+<div class="dev">
+ <div class="dva"><svg class="i" viewBox="0 0 24 24"><path d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0"/></svg></div>
+ <div>
+  <p class="dvr">ผู้พัฒนาเว็บไซต์</p>
+  <p class="dvn">นายเกรียงไกร โพธิงาม</p>
+  <p>นักวิชาการป่าไม้ชำนาญการ<br>หัวหน้าสถานีควบคุมไฟป่าทับลาน (ด้านทิศใต้)</p>
+  <p class="dvo">ส่วนควบคุมและปฏิบัติการไฟป่า<br>สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)<br>กรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช<br>กระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม</p>
+ </div>
+</div>
+</section>
 </main>
 </div>
+<footer class="ft">แผนที่สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่ · พัฒนาโดย นายเกรียงไกร โพธิงาม หัวหน้าสถานีควบคุมไฟป่าทับลาน (ด้านทิศใต้) · สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี) กรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช</footer>
 <a class="totop" href="#" aria-label="กลับขึ้นด้านบน">↑</a>
 
 <script>
