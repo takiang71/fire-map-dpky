@@ -36,10 +36,11 @@ const ev = async (expr) => { const r = await send('Runtime.evaluate', { expressi
     if (j.js) { try { await ev("(async()=>{"+j.js+"})()") } catch (e) { console.log(j.name, 'js error', e.message) } await sleep(j.after || 3000) }
     let boxes = null;
     if (j.boxes) boxes = await ev(`(()=>{const o={};for(const [k,s] of Object.entries(${JSON.stringify(j.boxes)})){const e=document.querySelector(s);if(!e){o[k]=null;continue}const r=e.getBoundingClientRect();o[k]=[Math.round(r.x),Math.round(r.y),Math.round(r.width),Math.round(r.height)]}return o})()`);
+    if (j.clipSel) { const r = await ev(`(()=>{const e=document.querySelector(${JSON.stringify(j.clipSel)});const r=e.getBoundingClientRect();return [r.x,r.y,r.width,r.height]})()`); const p = j.pad || 0; j.clip = { x: Math.max(0, r[0] - p), y: Math.max(0, r[1] - p), width: r[2] + 2 * p, height: r[3] + 2 * p } }
     const clip = j.clip ? { ...j.clip, scale: 1 } : undefined;
     const s = await send('Page.captureScreenshot', { format: 'jpeg', quality: j.q || 72, ...(clip ? { clip } : {}) });
     fs.writeFileSync(path.join(OUT, j.name + '.jpg'), Buffer.from(s.data, 'base64'));
-    res[j.name] = { w: j.w, h: j.h, boxes };
+    res[j.name] = { w: j.w, h: j.h, clip: j.clip || null, boxes };
     console.log('ok', j.name);
   }
   fs.writeFileSync(path.join(OUT, 'boxes.json'), JSON.stringify(res, null, 1));

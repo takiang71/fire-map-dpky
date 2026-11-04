@@ -4,22 +4,366 @@
   "url": "http://localhost:8000/",
   "w": 1440,
   "h": 860,
-  "wait": 12000,
-  "q": 70
+  "wait": 11000,
+  "q": 70,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait demo();",
+  "after": 3000,
+  "boxes": {
+   "lhd": "#left .lhd",
+   "btns": "#left .btns",
+   "pcard": "#pcard",
+   "ctl": "#ctl",
+   "attr": "#attr",
+   "hint": "#hint",
+   "lcol": "#lcol",
+   "scale": ".maplibregl-ctrl-scale"
+  }
  },
  {
   "name": "card",
+  "url": "http://localhost:8000/",
   "w": 1440,
-  "h": 2100,
-  "js": "1",
-  "after": 2000,
+  "h": 2200,
+  "wait": 11000,
+  "q": 78,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait demo();document.querySelector('#left').scrollTop=0;",
+  "after": 2500,
+  "clipSel": "#pcard",
+  "pad": 8,
+  "boxes": {
+   "sats": "#pcard [data-sats]",
+   "xdy": "#pcard [data-xdy]",
+   "kp": "#p-kp",
+   "cmp": "#p-cmp",
+   "cfy": "#pcard .cfy",
+   "ch": "#p-ch",
+   "md": "#p-md",
+   "tb": "#p-tb",
+   "q": "#pcard .srch",
+   "pbt": "#pcard .pbt",
+   "pcard": "#pcard"
+  }
+ },
+ {
+  "name": "mobile",
+  "url": "http://localhost:8000/",
+  "w": 390,
+  "h": 844,
+  "wait": 11000,
+  "q": 70,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait demo();",
+  "after": 2500,
+  "dpr": 2
+ },
+ {
+  "name": "base_natural",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nlcSet(true);document.querySelector('[data-b=natural]').click();await W(4000);map.jumpTo({center:[101.415,14.665],zoom:12.4});",
+  "after": 7000,
   "clip": {
-   "x": 8,
-   "y": 552,
-   "width": 400,
-   "height": 1020
-  },
-  "q": 78
+   "x": 340,
+   "y": 190,
+   "width": 600,
+   "height": 380
+  }
+ },
+ {
+  "name": "base_flat",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nlcSet(true);document.querySelector('[data-b=flat]').click();await W(4000);map.jumpTo({center:[101.415,14.665],zoom:12.4});",
+  "after": 7000,
+  "clip": {
+   "x": 340,
+   "y": 190,
+   "width": 600,
+   "height": 380
+  }
+ },
+ {
+  "name": "base_sat",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nlcSet(true);document.querySelector('[data-b=sat]').click();await W(4000);map.jumpTo({center:[101.415,14.665],zoom:12.4});",
+  "after": 7000,
+  "clip": {
+   "x": 340,
+   "y": 190,
+   "width": 600,
+   "height": 380
+  }
+ },
+ {
+  "name": "base_detail",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nlcSet(true);document.querySelector('[data-b=detail]').click();await W(4000);map.jumpTo({center:[101.415,14.665],zoom:12.4});",
+  "after": 7000,
+  "clip": {
+   "x": 340,
+   "y": 190,
+   "width": 600,
+   "height": 380
+  }
+ },
+ {
+  "name": "base_dark",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nlcSet(true);document.querySelector('[data-b=dark]').click();await W(4000);map.jumpTo({center:[101.415,14.665],zoom:12.4});",
+  "after": 7000,
+  "clip": {
+   "x": 340,
+   "y": 190,
+   "width": 600,
+   "height": 380
+  }
+ },
+ {
+  "name": "sw_d3",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('d3',true);await W(1500);row('d3');map.jumpTo({center:[101.38,14.40],zoom:11.6,pitch:62,bearing:-25});",
+  "after": 9000
+ },
+ {
+  "name": "sw_hot",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();await demo();row('hot');const b=new maplibregl.LngLatBounds();HS.forEach(h=>b.extend([h.lon,h.lat]));map.fitBounds(b,{padding:{top:60,bottom:60,left:60,right:420},duration:0});",
+  "after": 6000
+ },
+ {
+  "name": "sw_hcl",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('hcl',true);await W(1500);sel('#hc-s','fyp');await W(1500);row('hcl');map.jumpTo({center:[102.02,14.40],zoom:10.3});",
+  "after": 6000
+ },
+ {
+  "name": "sw_hgp",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('hgp',true);await W(1500);sel('#hc-s','fyp');await W(1500);row('hgp');map.jumpTo({center:[102.02,14.40],zoom:10.3});",
+  "after": 6000
+ },
+ {
+  "name": "sw_har",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('har',true);set('hgp',true);await W(1500);sel('#hc-s','fyp');await W(1500);row('har');map.jumpTo({center:[102.02,14.40],zoom:10.3});",
+  "after": 6000
+ },
+ {
+  "name": "sw_burst",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('hcl',true);await W(1500);sel('#hc-s','fyp');await W(2500);const C=HCC.C;let i=0;C.forEach((c,k)=>{if(c.n>C[i].n)i=k});hcBurst(i);await W(4000);row('hcl');",
+  "after": 5000
+ },
+ {
+  "name": "sw_hist",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('hist',true);await W(2500);row('hist');map.jumpTo({center:[101.75,14.30],zoom:9.1});",
+  "after": 6000
+ },
+ {
+  "name": "sw_burn_c",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('burn',true);await W(3500);sel('#bn-s','c202603');await W(4000);row('burn');document.querySelector('#right .rb').scrollTop+=30;map.jumpTo({center:[102.20,14.30],zoom:10.4});",
+  "after": 8000
+ },
+ {
+  "name": "sw_burn_h",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('burn',true);await W(3500);sel('#bn-s','fy2569');await W(4000);const h=document.querySelector('#bn-h');h&&h.click();await W(2500);row('burn');document.querySelector('#right .rb').scrollTop+=160;map.jumpTo({center:[102.62,14.40],zoom:10.9});",
+  "after": 8000
+ },
+ {
+  "name": "sw_rep",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('rep',true);await W(4000);row('rep');map.jumpTo({center:[102.20,14.30],zoom:10.4});",
+  "after": 8000
+ },
+ {
+  "name": "sw_dry",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('dry',true);await W(6000);const rb=document.querySelector('#drseg button[data-v=rh]');rb&&rb.click();await W(2500);row('dry');map.jumpTo({center:[101.0,13.8],zoom:5.8});",
+  "after": 6000
+ },
+ {
+  "name": "sw_ftype",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('ftype',true);await W(4000);row('ftype');map.jumpTo({center:[101.80,14.25],zoom:9.2});",
+  "after": 8000
+ },
+ {
+  "name": "sw_fuel",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('fuel',true);await W(4000);row('fuel');map.jumpTo({center:[101.45,14.35],zoom:10.6});",
+  "after": 9000
+ },
+ {
+  "name": "sw_wind",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('wind',true);await W(3000);row('wind');map.jumpTo({center:[101.6,14.1],zoom:7.6});",
+  "after": 9000
+ },
+ {
+  "name": "sw_wx",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('wx',true);await W(3000);row('wx');map.jumpTo({center:[101.6,14.1],zoom:7.4});",
+  "after": 9000
+ },
+ {
+  "name": "sw_rad",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('rad',true);await W(3000);row('rad');map.jumpTo({center:[101.0,13.4],zoom:5.4});",
+  "after": 8000
+ },
+ {
+  "name": "sw_pm",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('pm',true);await W(4000);row('pm');map.jumpTo({center:[101.0,13.6],zoom:5.6});",
+  "after": 8000
+ },
+ {
+  "name": "sw_cons",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();row('cons');map.jumpTo({center:[101.95,14.25],zoom:8.9});",
+  "after": 4000
+ },
+ {
+  "name": "sw_resp",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('resp',true);await W(1500);row('resp');map.jumpTo({center:[101.95,14.25],zoom:9});",
+  "after": 5000
+ },
+ {
+  "name": "sw_stn",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('stn',true);set('resp',true);await W(1500);row('stn');map.jumpTo({center:[101.55,14.25],zoom:10.8});",
+  "after": 6000
+ },
+ {
+  "name": "sw_wpt",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('wpt',true);await W(1500);row('wpt');map.jumpTo({center:[101.42,14.22],zoom:11.2});",
+  "after": 6000
+ },
+ {
+  "name": "sw_adm",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('prov',true);set('amp',true);set('tam',true);await W(3000);row('prov');map.jumpTo({center:[101.50,14.10],zoom:10});",
+  "after": 7000
+ },
+ {
+  "name": "sw_road",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();document.querySelector('[data-b=detail]').click();await W(4000);row('water');map.jumpTo({center:[101.42,14.19],zoom:12.6});",
+  "after": 8000
  },
  {
   "name": "layers",
@@ -100,15 +444,6 @@
   }
  },
  {
-  "name": "mobile",
-  "url": "http://localhost:8000/",
-  "w": 390,
-  "h": 844,
-  "dpr": 2,
-  "wait": 12000,
-  "q": 70
- },
- {
   "name": "know",
   "url": "http://localhost:8000/?kb=ky",
   "w": 1440,
@@ -125,16 +460,6 @@
   "js": "document.querySelector('#bWy').click()",
   "after": 12000,
   "q": 70
- },
- {
-  "name": "hcluster",
-  "url": "http://localhost:8000/",
-  "w": 1440,
-  "h": 860,
-  "wait": 12000,
-  "q": 70,
-  "js": "for(const k of ['hcl','hgp','har']){const b=document.querySelector('[data-k='+k+']');b&&b.click()}await new Promise(r=>setTimeout(r,1500));const s=document.querySelector('#hc-s');if(s){const o=[...s.options].find(o=>o.value==='fyp')||[...s.options].pop();s.value=o.value;s.dispatchEvent(new Event('change'))}await new Promise(r=>setTimeout(r,1500));map.jumpTo({center:[102.0,14.35],zoom:9.6})",
-  "after": 5000
  },
  {
   "name": "burn",

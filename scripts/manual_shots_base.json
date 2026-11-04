@@ -1,0 +1,118 @@
+[
+ {
+  "name": "layers",
+  "w": 1440,
+  "h": 2400,
+  "js": "document.querySelector('#bLay').click()",
+  "after": 2500,
+  "clip": {
+   "x": 1070,
+   "y": 4,
+   "width": 366,
+   "height": 1810
+  },
+  "q": 78
+ },
+ {
+  "name": "detail",
+  "url": "http://localhost:8000/",
+  "w": 1440,
+  "h": 860,
+  "wait": 12000,
+  "q": 70,
+  "js": "document.querySelector('#bDemo').click();await new Promise(r=>setTimeout(r,2500));const h=HS.find(x=>x.lat>14.3&&x.lat<14.5)||HS[0];map.jumpTo({center:[h.lon,h.lat],zoom:11});openDetail(h)",
+  "after": 7000
+ },
+ {
+  "name": "detail_full",
+  "w": 1440,
+  "h": 3200,
+  "js": "1",
+  "after": 3000,
+  "clip": {
+   "x": 1060,
+   "y": 4,
+   "width": 376,
+   "height": 3120
+  },
+  "q": 76
+ },
+ {
+  "name": "stats",
+  "url": "http://localhost:8000/",
+  "w": 1440,
+  "h": 860,
+  "wait": 12000,
+  "js": "document.querySelector('#bStat').click()",
+  "after": 5000,
+  "q": 70
+ },
+ {
+  "name": "stats_full",
+  "w": 1440,
+  "h": 3000,
+  "js": "1",
+  "after": 3000,
+  "clip": {
+   "x": 8,
+   "y": 4,
+   "width": 404,
+   "height": 2990
+  },
+  "q": 76
+ },
+ {
+  "name": "table",
+  "url": "http://localhost:8000/",
+  "w": 1440,
+  "h": 860,
+  "wait": 12000,
+  "q": 72,
+  "js": "document.querySelector('#p-tbl').click();await new Promise(r=>setTimeout(r,1000));const b=[...document.querySelectorAll('#dt-rg button')].find(x=>x.dataset.v==='fyp');b&&b.click()",
+  "after": 2500,
+  "clip": {
+   "x": 228,
+   "y": 78,
+   "width": 984,
+   "height": 706
+  }
+ },
+ {
+  "name": "know",
+  "url": "http://localhost:8000/?kb=ky",
+  "w": 1440,
+  "h": 860,
+  "wait": 12000,
+  "q": 70
+ },
+ {
+  "name": "windy",
+  "url": "http://localhost:8000/",
+  "w": 1440,
+  "h": 860,
+  "wait": 10000,
+  "js": "document.querySelector('#bWy').click()",
+  "after": 12000,
+  "q": 70
+ },
+ {
+  "name": "burn",
+  "url": "http://localhost:8000/",
+  "w": 1440,
+  "h": 860,
+  "wait": 12000,
+  "q": 70,
+  "js": "document.querySelector('#bLay').click();document.querySelector('[data-k=burn]').click();await new Promise(r=>setTimeout(r,4000));const s=document.querySelector('#bn-s');const o=[...s.options].find(o=>o.value==='fy2569');if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}await new Promise(r=>setTimeout(r,4000));const rb=document.querySelector('#right .rb');const row=document.querySelector('[data-k=burn]').closest('.row');rb.scrollTop=row.offsetTop-60;map.jumpTo({center:[102.25,14.25],zoom:10.2})",
+  "after": 9000
+ },
+ {
+  "name": "measure",
+  "url": "http://localhost:8000/",
+  "w": 1440,
+  "h": 860,
+  "wait": 12000,
+  "q": 70,
+  "js": "map.jumpTo({center:[101.6,14.3],zoom:11});await new Promise(r=>setTimeout(r,1500));document.querySelector('#bMs').click();await new Promise(r=>setTimeout(r,500));const c=map.getCanvas().getBoundingClientRect();const pts=[[600,300],[850,280],[900,520],[640,560]];for(const [x,y] of pts){const ll=map.unproject([x,y]);map.fire('click',{lngLat:ll,point:{x,y},originalEvent:new MouseEvent('click')});await new Promise(r=>setTimeout(r,300))}const l=map.unproject([600,300]);map.fire('click',{lngLat:l,point:{x:600,y:300},originalEvent:new MouseEvent('click')})",
+  "after": 2500
+ }
+]

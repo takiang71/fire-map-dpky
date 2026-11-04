@@ -1897,7 +1897,7 @@ function hcBurst(i){const c=HCC&&HCC.C[i];if(!c)return;if(c.n<2)return toast('�
  if(far>=30||map.getZoom()>=14.4)return hcSpider(i);
  const B=new maplibregl.LngLatBounds([c.c[0],c.c[1]],[c.c[0],c.c[1]]);c.L.forEach(p=>B.extend([p.lo,p.la]));
  if(HCS)hcSpider(null);$$('.maplibregl-popup').forEach(p=>p.remove());MOVED=true;
- setTimeout(()=>{map.fitBounds(B,{padding:homePad(),maxZoom:14.5,duration:dur(700)});map.once('moveend',()=>hcSpider(i))},30)} // เลื่อนออกจากเหตุการณ์ dblclick — ถ้าเรียกตรงๆ ตัวจัดการเมาส์ของแผนที่หยุดแอนิเมชันทันที
+ setTimeout(()=>{map.once('moveend',()=>hcSpider(i));map.fitBounds(B,{padding:homePad(),maxZoom:14.5,duration:dur(700)})},30)} // ผูก moveend ก่อน — ผู้ใช้ที่ตั้งลดการเคลื่อนไหว dur()=0 แผนที่ย้ายทันทีและยิง moveend ก่อนผูก (จุดไม่แตก) // เลื่อนออกจากเหตุการณ์ dblclick — ถ้าเรียกตรงๆ ตัวจัดการเมาส์ของแผนที่หยุดแอนิเมชันทันที
 map.on('dblclick',e=>{if(typeof msBusy==='function'&&msBusy()||!S.hcl||!map.getLayer('hcc-c'))return;const f=map.queryRenderedFeatures(e.point,{layers:['hcc-c']})[0];if(!f)return;
  e.preventDefault();const i=f.properties.i;if(HCS&&HCS.i===i)return hcSpider(null);hcBurst(i)});
 document.addEventListener('click',e=>{const b=e.target.closest('.hcsp');if(b)hcBurst(+b.dataset.i)});
