@@ -817,6 +817,7 @@ function respLegend(){const e=$('#rleg');if(!e)return;const seen=new Set();e.inn
 const stShort=n=>n;
 const areaHtml=g=>{let s='';if(g.cons)s+=`<b>${esc(g.cons.properties.name)}</b><br><span class="sm">${esc(g.cons.properties.paro)}</span><br>`;
  g.resp.forEach(r=>{const p=r.properties;s+=`<span class="sm">รับผิดชอบโดย <b>${esc(p.station)}</b></span><br>`});
+ if(g.cons&&!g.resp.length)s+='<span class="sm">ไม่มีสถานีควบคุมไฟป่ารับผิดชอบพื้นที่</span><br>'; // ผู้ใช้ขอ 4 พ.ย. 69
  return s||'<span class="sm">อยู่นอกพื้นที่อนุรักษ์และพื้นที่รับผิดชอบไฟป่าตามไฟล์แนวเขต</span><br>'};
 
 /* ---------- สถานะ + จำค่าที่ผู้ใช้เลือก ---------- */
