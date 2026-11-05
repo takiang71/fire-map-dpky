@@ -206,6 +206,16 @@
   "after": 6000
  },
  {
+  "name": "sw_xt",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 66,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('xt',true);await W(2500);row('xt');map.jumpTo({center:[101.75,14.30],zoom:9.1});",
+  "after": 6000
+ },
+ {
   "name": "sw_burn_c",
   "url": "http://localhost:8000/",
   "w": 1280,
@@ -424,6 +434,30 @@
    "y": 4,
    "width": 404,
    "height": 2990
+  },
+  "q": 76
+ },
+ {
+  "name": "stats_xt",
+  "url": "http://localhost:8000/",
+  "w": 1440,
+  "h": 860,
+  "wait": 12000,
+  "js": "hOpen(false,'xt')",
+  "after": 5000,
+  "q": 70
+ },
+ {
+  "name": "stats_xt_full",
+  "w": 1440,
+  "h": 4300,
+  "js": "1",
+  "after": 3000,
+  "clip": {
+   "x": 8,
+   "y": 4,
+   "width": 404,
+   "height": 4290
   },
   "q": 76
  },
