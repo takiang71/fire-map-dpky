@@ -47,7 +47,7 @@ h1{margin:0 0 10px;font-size:clamp(22px,3vw,36px);line-height:1.2;font-weight:80
 h1 small{display:block;font-size:.42em;font-weight:600;color:var(--mut);margin-top:4px}
 .hrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 2px}.h1a{font-size:clamp(17px,1.9vw,23px);font-weight:800;color:#D93A1F;line-height:1.2}.hrow .pill{flex:0 0 auto}.h1m{display:block;white-space:nowrap}
 .st .sl{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:3px 12px;font-size:12.5px;color:var(--mut);margin:-1px 0 3px 58px;line-height:1.35}.st .sl span{white-space:nowrap}.zl{cursor:pointer;color:inherit;text-decoration:underline dotted rgba(0,0,0,.35);text-underline-offset:3px}.zl:hover{color:var(--fire)}.st .sl b{color:var(--fire);font-weight:800;font-size:13px}
-.dmr{display:flex;align-items:center;gap:8px;margin:6px 0 2px;font-size:12.5px;color:var(--mut)}.dmr .sw{flex:0 0 auto}h1 .h1o{margin-top:2px;color:var(--navy);font-weight:700}
+.dmr{display:flex;align-items:center;gap:8px;margin:6px 0 2px;font-size:12.5px;color:var(--mut)}.dmr .sw{flex:0 0 auto}h1 .h1o span{display:inline-block}h1 .h1o{margin-top:2px;color:var(--navy);font-weight:700}
 .pill{display:inline-flex;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:4px 12px;font-size:13px}
 .pill i{width:8px;height:8px;border-radius:50%;background:#22a559}
 .desc{font-size:14px;color:var(--ink);opacity:.8;margin:10px 0;max-width:340px}
@@ -55,7 +55,9 @@ h1 small{display:block;font-size:.42em;font-weight:600;color:var(--mut);margin-t
 .st b{text-align:right;font-size:22px;line-height:1.25;font-weight:800}
 .st b:first-child{color:var(--fire)}.st span{align-self:center}
 .sm{font-size:12px;color:var(--mut)}
-.btns{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}#bDev{display:flex;align-items:center;justify-content:center;gap:5px;width:min(335px,100%);margin:12px 0 0;padding:8px;border:0;background:var(--glass);backdrop-filter:blur(6px);box-shadow:0 1px 4px rgba(20,30,60,.12);font:inherit;font-size:12px;color:var(--mut);text-align:center;cursor:pointer;border-radius:20px}#bDev:hover{color:var(--navy);background:var(--sel)}#bDev .i{width:14px;height:14px;flex:none}#bDev b{font-weight:600;color:var(--ink)}#bDev:hover b{color:var(--navy)}.dvb{display:flex;gap:14px;align-items:flex-start}.dvb .dva{flex:none;width:52px;height:52px;border-radius:50%;background:var(--sel);color:var(--navy);display:grid;place-items:center}.dvb .dva .i{width:26px;height:26px}.dvb p{margin:0 0 4px;line-height:1.6}.dvb .dvn{font-size:17px;font-weight:700;color:var(--navy)}.dvb .dvo{color:var(--mut);font-size:13.5px}.btn[aria-pressed=true]{background:var(--sel);color:var(--navy)}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0} /* 2 คอลัมน์เท่ากัน กว้างเต็มแผงเสมอกับกล่องบน-ล่าง (ผู้ใช้ขอ 5 พ.ย. 69) */
+.btns>.btn{justify-content:flex-start;min-width:0;min-height:42px;padding:6px 12px;line-height:1.25;text-align:left}.btns>.btn span{min-width:0}
+@media(max-width:767px){.btns>.btn{padding:6px 10px;gap:5px;font-size:12.5px}}#bDev{display:flex;align-items:center;justify-content:center;gap:5px;width:min(335px,100%);margin:12px 0 0;padding:8px;border:0;background:var(--glass);backdrop-filter:blur(6px);box-shadow:0 1px 4px rgba(20,30,60,.12);font:inherit;font-size:12px;color:var(--mut);text-align:center;cursor:pointer;border-radius:20px}#bDev:hover{color:var(--navy);background:var(--sel)}#bDev .i{width:14px;height:14px;flex:none}#bDev b{font-weight:600;color:var(--ink)}#bDev:hover b{color:var(--navy)}.dvb{display:flex;gap:14px;align-items:flex-start}.dvb .dva{flex:none;width:52px;height:52px;border-radius:50%;background:var(--sel);color:var(--navy);display:grid;place-items:center}.dvb .dva .i{width:26px;height:26px}.dvb p{margin:0 0 4px;line-height:1.6}.dvb .dvn{font-size:17px;font-weight:700;color:var(--navy)}.dvb .dvo{color:var(--mut);font-size:13.5px}.btn[aria-pressed=true]{background:var(--sel);color:var(--navy)}
 .btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;background:var(--bg);border:0;border-radius:14px;box-shadow:var(--sh);font-size:13px}
 a.btn{color:inherit;text-decoration:none;cursor:pointer}
 .card{background:var(--bg);border-radius:20px;box-shadow:var(--sh);width:min(335px,100%);padding:12px}
@@ -446,17 +448,17 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
  <button id="grab" aria-label="ขยายหรือย่อแผง"></button>
  <div class="lhd">
  <div class="hrow"><span class="h1a">สถานการณ์ไฟป่า</span><div class="pill"><i></i><span>อัปเดต <span class="tm">--:--</span> น.</span></div></div>
- <h1><span class="h1m">กลุ่มป่าดงพญาเย็น-เขาใหญ่</span><small>Dong Phayayen-Khao Yai Forest Complex</small><small class="h1o">สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)</small></h1>
+ <h1><span class="h1m">กลุ่มป่าดงพญาเย็น-เขาใหญ่</span><small>Dong Phayayen-Khao Yai Forest Complex</small><small class="h1o"><span>ส่วนควบคุมและปฏิบัติการไฟป่า</span> <span>สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)</span></small></h1>
  <div class="st" id="stats"></div>
- <div class="sm">อัปเดต <span class="tm">--:--</span> น. · <span id="hsrc">กำลังดึงข้อมูล…</span> · ย้อนหลัง 2 วัน</div>
+ <div class="sm">ข้อมูลจาก <span id="hsrc">กำลังดึงข้อมูล…</span> · ย้อนหลัง 2 วัน</div>
  <div class="dmr"><button class="sw" id="bDemo" role="switch" aria-label="แสดงจุดความร้อนตัวอย่าง"></button><span>แสดง<b>จุดความร้อนตัวอย่าง</b>ในผืนป่า (ชั่วคราว เพื่อดูการแสดงผลระหว่างยังไม่ถึงฤดูไฟป่า)</span></div>
  </div>
  <div class="btns">
   <button class="btn" id="bHide" aria-pressed="true" title="แสดง/ซ่อนการ์ดจุดความร้อนที่ตรวจพบ"><svg class="i" viewBox="0 0 24 24"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 01-10 0c0-2.5 1.5-4 2.5-5.5.3 1.6 1 2.6 2 3 0-3 .5-5.5.5-7.5z"/></svg><span>จุดความร้อนที่ตรวจพบ</span></button>
   <button class="btn" id="bKnow" title="ความสำคัญ ประวัติ ทรัพยากร สัตว์ป่า แหล่งท่องเที่ยว รายพื้นที่อนุรักษ์"><svg class="i" viewBox="0 0 24 24"><path d="M5 19c9 0 14-6 14-14-8 0-14 5-14 14zM5 19l6-6"/></svg>ความสำคัญ</button>
   <button class="btn" id="bWy" title="แผนที่พยากรณ์อากาศ Windy: ลม ฝน ฟ้าคะนอง อุณหภูมิ ความชื้น เมฆ ฝุ่น"><svg class="i" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 10-3-3M3 12h16a3 3 0 11-3 3M3 16h7"/></svg>พยากรณ์อากาศ</button>
-  <button class="btn" id="bStat">วิเคราะห์สถิติย้อนหลัง</button>
-  <button class="btn" id="bPlay">ย้อนดูการลามของไฟ</button>
+  <button class="btn" id="bStat"><svg class="i" viewBox="0 0 24 24"><path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/></svg>วิเคราะห์สถิติย้อนหลัง</button>
+  <button class="btn" id="bPlay"><svg class="i" viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.4 2.6L3 8M3 3v5h5M12 7v5l3 2"/></svg>ย้อนดูการลามของไฟ</button>
   <a class="btn" id="bMan" href="manual/index.html" target="_blank" rel="noopener" title="คู่มือการใช้งาน: ส่วนประกอบหน้าจอ เมนู ชั้นข้อมูล ที่มาข้อมูล วิธีคิด และการอ้างอิง"><svg class="i" viewBox="0 0 24 24"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 21V5M9 7h6"/></svg>คู่มือการใช้งาน</a>
  </div>
  <div class="card" id="pcard" aria-label="สรุปจุดความร้อนที่ตรวจพบ">
