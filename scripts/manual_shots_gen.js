@@ -34,6 +34,7 @@ job('sw_hgp', `await lay();set('hgp',true);await W(1500);sel('#hc-s','fyp');awai
 job('sw_har', `await lay();set('har',true);set('hgp',true);await W(1500);sel('#hc-s','fyp');await W(1500);row('har');${HCV}`);
 job('sw_burst', `await lay();set('hcl',true);await W(1500);sel('#hc-s','fyp');await W(2500);const C=HCC.C;let i=0;C.forEach((c,k)=>{if(c.n>C[i].n)i=k});hcBurst(i);await W(4000);row('hcl');`, { after: 5000 });
 job('sw_hist', `await lay();set('hist',true);await W(2500);row('hist');${go('101.75,14.30', 9.1)}`);
+job('sw_xt', `await lay();set('xt',true);await W(2500);row('xt');${go('101.75,14.30', 9.1)}`);
 job('sw_burn_c', `await lay();set('burn',true);await W(3500);sel('#bn-s','c202603');await W(4000);row('burn');document.querySelector('#right .rb').scrollTop+=30;${go('102.20,14.30', 10.4)}`, { after: 8000 });
 job('sw_burn_h', `await lay();set('burn',true);await W(3500);sel('#bn-s','fy2569');await W(4000);const h=document.querySelector('#bn-h');h&&h.click();await W(2500);row('burn');document.querySelector('#right .rb').scrollTop+=160;${go('102.62,14.40', 10.9)}`, { after: 8000 });
 job('sw_rep', `await lay();set('rep',true);await W(4000);row('rep');${go('102.20,14.30', 10.4)}`, { after: 8000 });

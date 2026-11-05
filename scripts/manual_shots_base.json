@@ -62,6 +62,30 @@
   "q": 76
  },
  {
+  "name": "stats_xt",
+  "url": "http://localhost:8000/",
+  "w": 1440,
+  "h": 860,
+  "wait": 12000,
+  "js": "hOpen(false,'xt')",
+  "after": 5000,
+  "q": 70
+ },
+ {
+  "name": "stats_xt_full",
+  "w": 1440,
+  "h": 4300,
+  "js": "1",
+  "after": 3000,
+  "clip": {
+   "x": 8,
+   "y": 4,
+   "width": 404,
+   "height": 4290
+  },
+  "q": 76
+ },
+ {
   "name": "table",
   "url": "http://localhost:8000/",
   "w": 1440,
