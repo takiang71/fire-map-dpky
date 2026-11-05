@@ -1,4 +1,4 @@
-// ข้อมูลการท่องเที่ยวและสัตว์ป่าของอุทยานแห่งชาติ จากรายงาน Power BI สาธารณะของกรมอุทยานฯ 7 ฉบับ (ผู้ใช้ขอ 5 พ.ย. 69)
+// ข้อมูลการท่องเที่ยวและสัตว์ป่าของอุทยานแห่งชาติ จากรายงาน Power BI สาธารณะของกรมอุทยานฯ 8 ฉบับ (ผู้ใช้ขอ 5 พ.ย. 69)
 // รายเดือน/รายปีงบต่ออุทยาน (REPORTS):
 //   vis = "ระบบรายงานจำนวนนักท่องเที่ยวในอุทยานแห่งชาติ" ตาราง Tourist (ไทย/ต่างชาติ)
 //   rev = "ระบบรายงานการจัดเก็บเงินรายได้อุทยานแห่งชาติ" ตาราง Income
@@ -9,6 +9,7 @@
 //   wild  = "ระบบฐานข้อมูลการกระจายของสัตว์ป่าชนิดสำคัญ" (ปี 2564) — **เก็บแค่จำนวนบันทึกต่อชนิด ไม่เก็บพิกัด**
 //           (ตำแหน่งที่พบเสือโคร่ง/ช้าง/กระทิงเสี่ยงต่อการล่า แม้ต้นทางจะเผยแพร่อยู่แล้ว)
 //   dark  = "อุทยานแห่งชาติและวนอุทยานท้องฟ้ามืด" — อุทยานท้องฟ้ามืด + สถานที่ดูดาว
+//   wsr   = "ระบบรายงานการดำเนินงานในพื้นที่เขตรักษาพันธุ์สัตว์ป่าและเขตห้ามล่าสัตว์ป่า" — ดงใหญ่: นักท่องเที่ยว รายได้ จุดศึกษาธรรมชาติ
 // → data/tourism.json เฉพาะพื้นที่ในกลุ่มป่า + ยอดทั้งประเทศ/อันดับ
 // รายงานเผยแพร่แบบ Publish to web — อ่านผ่าน querydata ที่หน้ารายงานใช้เอง (ไม่ต้องล็อกอิน/คีย์ แต่ไม่ใช่ API ทางการ:
 // ถ้า Microsoft เปลี่ยนรูปแบบหรือเจ้าของปิดการเผยแพร่ ฉบับนั้นจะล้ม → คงข้อมูลเดิมของฉบับนั้นไว้ และจบด้วย exit 1)
@@ -39,6 +40,7 @@ const REPORTS = {
 const R_CLOSE = 'eyJrIjoiN2ZlNzc2NzAtYWJmOC00NWM1LTk4YzAtZDNmMGIwNmQ3NjkyIiwidCI6ImVjOGI5MWM3LTMxMDctNGU5Zi1iMzRmLTY3MmRkZmE5Y2NlMSIsImMiOjEwfQ==';
 const R_WILD = 'eyJrIjoiYmZkZDA5ZTgtZmIwNi00NzRiLWJhZGItNzQwYzE2ODRiMTgzIiwidCI6ImVjOGI5MWM3LTMxMDctNGU5Zi1iMzRmLTY3MmRkZmE5Y2NlMSIsImMiOjEwfQ==';
 const R_DARK = 'eyJrIjoiNDZiZGQzZWYtOGUwZC00MTlhLWFhNzMtZTQ4MjM5N2NkOGY3IiwidCI6ImVjOGI5MWM3LTMxMDctNGU5Zi1iMzRmLTY3MmRkZmE5Y2NlMSIsImMiOjEwfQ==';
+const R_WSR = 'eyJrIjoiMWYxMTdiOWUtZGY4MC00N2QyLWFiNTAtYmFlNDJiZjlhYTQ2IiwidCI6ImVjOGI5MWM3LTMxMDctNGU5Zi1iMzRmLTY3MmRkZmE5Y2NlMSIsImMiOjEwfQ==';
 // พื้นที่อนุรักษ์ในกลุ่มป่า (ชื่อเต็มในรายงานสัตว์ป่า/ท้องฟ้ามืด) → รหัส KB
 const FULL = { 'อุทยานแห่งชาติเขาใหญ่': 'ky', 'อุทยานแห่งชาติทับลาน': 'tl', 'อุทยานแห่งชาติปางสีดา': 'ps', 'อุทยานแห่งชาติตาพระยา': 'tp', 'เขตรักษาพันธุ์สัตว์ป่าดงใหญ่': 'dy' };
 const WIN = 30000; // เพดานแถวต่อคำขอของบริการ (ขอมากกว่านี้ก็ได้แค่ 30,000)
@@ -176,11 +178,30 @@ const EXTRAS = {
     for (const [nm, s, la, lo, img] of b) { const id = FULL[nm]; if (id && parks[id] && s) parks[id].spots.push([s, +(+la).toFixed(5), +(+lo).toFixed(5), img || '']) }
     return { obj: { ...C.meta, n: a.length, parks }, log: Object.keys(parks).length + ' พื้นที่ในกลุ่มป่า จาก ' + a.length };
   },
+  // เขตรักษาพันธุ์สัตว์ป่าดงใหญ่ (รายงานการดำเนินงานในเขตรักษาพันธุ์ฯ/เขตห้ามล่าฯ): vis {ปีงบ: คน} รายปี · rev {ปีงบ: [12 เดือน ต.ค.→ก.ย.]} บาท
+  // · rk อันดับในบรรดาเขตรักษาพันธุ์สัตว์ป่า · nat {ปีงบ: {vis, rev, nv, nr}} ยอดรวมเขตรักษาพันธุ์ฯ ทั้งประเทศ · sites จุดศึกษาธรรมชาติ [หน่วย, จุด, [บริการ], X, Y (UTM 48N)]
+  // ใช้ตาราง *_ขสป_ขหล (ปีงบ 2562–ล่าสุด) — ตาราง เงินรายได้/นักท่องเที่ยว เดิมถึงแค่ 2567
+  async wsr() {
+    const C = await connect(R_WSR, 'ระบบรายงานการดำเนินงานในพื้นที่เขตรักษาพันธุ์สัตว์ป่าและเขตห้ามล่าสัตว์ป่า'), DY = 'เขตรักษาพันธุ์สัตว์ป่าดงใหญ่', WS = 'เขตรักษาพันธุ์สัตว์ป่า';
+    const v = await C.q('นักท่องเที่ยว_ขสป_ขหล', ['ปีงบประมาณ', 'ประเภทพื้นที่อนุรักษ์', 'ชื่อหน่วยงาน'], { sum: 'จำนวน (คน)' });
+    const r = await C.q('เงินรายได้_ขสป_ขหล', ['ปีงบประมาณ', 'ประเภทพื้นที่อนุรักษ์', 'ชื่อหน่วยงาน'], { sum: 'รายได้' });
+    const m = await C.q('เงินรายได้_ขสป_ขหล', ['ปีงบประมาณ', 'เดือน'], { sum: 'รายได้', where: { 'ชื่อหน่วยงาน': [DY] } });
+    const s = await C.q('สถานที่ศึกษาธรรมชาติ', ['หน่วยปฏิบัติ', 'จุดที่ให้บริการ ', 'การให้บริการ', 'พิกัด X', 'พิกัด Y'], { where: { 'ชื่อหน่วยงาน': [DY] } });
+    const dy = { vis: {}, rev: {}, rk: { vis: {}, rev: {} } }, nat = {};
+    const rank = (rows, key) => { const fys = [...new Set(rows.map(x => x[0]))].sort(); for (const fy of fys) { const L = rows.filter(x => x[0] === fy && x[1] === WS).map(x => [x[2], +x[3] || 0]), me = (L.find(x => x[0] === DY) || [])[1] || 0; (nat[fy] ??= {})[key] = Math.round(L.reduce((a, x) => a + x[1], 0)); nat[fy]['n' + key[0]] = L.filter(x => x[1] > 0).length; if (me > 0) dy.rk[key][fy] = 1 + L.filter(x => x[1] > me).length } };
+    for (const [fy, t, n, x] of v) if (n === DY && fy) dy.vis[fy] = (dy.vis[fy] || 0) + Math.round(+x || 0);
+    rank(v, 'vis'); rank(r, 'rev');
+    for (const [fy, mo, x] of m) { const i = MON.indexOf(mo); if (i < 0 && +x) throw new Error('wsr: ไม่รู้จักเดือน ' + mo); if (fy && i >= 0) (dy.rev[fy] ??= Array(12).fill(0))[i] += Math.round(+x || 0) }
+    const sites = [];
+    for (const [u, p, sv, X, Y] of s) { const o = sites.find(z => z[0] === u && z[1] === p); if (o) { if (!o[2].includes(sv)) o[2].push(sv) } else sites.push([u, p, [sv], +X, +Y]) }
+    if (!Object.keys(dy.vis).length) throw new Error('wsr: ไม่พบดงใหญ่');
+    return { obj: { ...C.meta, dy, nat, sites }, log: 'ดงใหญ่ นักท่องเที่ยว ' + Object.keys(dy.vis).join(',') + ' · รายได้ ' + Object.keys(dy.rev).join(',') + ' · จุดศึกษาธรรมชาติ ' + sites.length };
+  },
 };
 
 (async () => {
   const old = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')) : null;
-  const out = { v: 3, mon: MON, names: PARKS, vis: null, rev: null, veh: null, was: null, close: null, wild: null, dark: null, parks: Object.fromEntries(Object.keys(PARKS).map(k => [k, {}])) };
+  const out = { v: 3, mon: MON, names: PARKS, vis: null, rev: null, veh: null, was: null, close: null, wild: null, dark: null, wsr: null, parks: Object.fromEntries(Object.keys(PARKS).map(k => [k, {}])) };
   let bad = 0;
   for (const [k, cfg] of Object.entries(REPORTS)) {
     try {
