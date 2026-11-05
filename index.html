@@ -212,7 +212,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 @media(max-width:767px){#ulm{left:8px;right:8px;width:auto;top:auto;bottom:0;max-height:62vh;border-radius:22px 22px 0 0;padding-bottom:env(safe-area-inset-bottom)}#ulm[hidden]{transform:translateY(calc(100% + 16px))}#ulm.drawing{max-height:40vh}#ulm.drawing.form{max-height:min(62vh,calc(100vh - 140px))}.uldf textarea{min-height:40px}.uldf>p.sm{display:none}
  body.ulon #left{display:none}body.ulon .maplibregl-ctrl-bottom-right{bottom:calc(10px + env(safe-area-inset-bottom))!important}.ultb button{min-height:46px}.ula .row2{grid-template-columns:1fr}}
 #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--on);color:#fff;border-radius:12px;padding:8px 16px;font-size:13px;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s}
-#toast.show{opacity:1}.hsl button{display:block;width:100%;text-align:left;font:inherit;line-height:1.45;padding:8px 12px;margin:0 0 6px;border:1px solid #e3e6ea;border-radius:12px;background:#fff;cursor:pointer}.hsl button:hover{background:#f5f6f8}.hslg{margin:10px 0 6px}.hslg:first-child{margin-top:0}.hslg a{cursor:pointer;color:inherit}.hslg a .sm{color:#3E6FD8}#toast.act{pointer-events:auto;cursor:pointer}#toast.act::after{content:' ›';font-weight:700}
+#toast.show{opacity:1}#hsc{position:fixed;top:calc(16px + env(safe-area-inset-top));left:calc(50% + var(--lw)/2);transform:translateX(-50%);z-index:55;display:flex;align-items:center;max-width:min(560px,calc(100% - var(--lw) - 120px));background:var(--on);color:#fff;border-radius:14px;box-shadow:var(--sh)}#hsc button{all:unset;cursor:pointer;font-size:13px;line-height:1.4;color:#fff}#hsc .t{padding:8px 4px 8px 14px}#hsc .x{padding:8px 13px;font-size:15px;opacity:.85;align-self:stretch;display:flex;align-items:center}#hsc .x:hover{opacity:1}@media(max-width:767px){#hsc{left:12px;right:78px;transform:none;max-width:none}}.hsl button{display:block;width:100%;text-align:left;font:inherit;line-height:1.45;padding:8px 12px;margin:0 0 6px;border:1px solid #e3e6ea;border-radius:12px;background:#fff;cursor:pointer}.hsl button:hover{background:#f5f6f8}.hslg{margin:10px 0 6px}.hslg:first-child{margin-top:0}.hslg a{cursor:pointer;color:inherit}.hslg a .sm{color:#3E6FD8}#toast.act{pointer-events:auto;cursor:pointer}#toast.act::after{content:' ›';font-weight:700}
 .maplibregl-popup-content{border-radius:14px;font:13px 'Noto Sans Thai',sans-serif;box-shadow:var(--sh);padding:12px 14px}
 .maplibregl-popup-content a{color:#1B2A5E}
 .hpop{line-height:1.55;font-size:13px}.hpop b{color:#1B2A5E}.hpt{display:flex;align-items:center;gap:7px;font-weight:800;font-size:15px;color:#1f6fe5;margin:0 18px 6px 0}.hpt i{width:11px;height:11px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.25)}.hpg{display:inline-block;margin-top:6px;font-weight:700}
@@ -2553,7 +2553,12 @@ let HSRF={type:'FeatureCollection',features:[]},HSRT=0;
 function setupHR(){map.addSource('hsring',{type:'geojson',data:HSRF,cluster:true,clusterRadius:30,clusterMaxZoom:13});
  map.addLayer({id:'hsring',type:'circle',source:'hsring',paint:{'circle-radius':['step',['coalesce',['get','point_count'],1],17,2,20,10,23],'circle-color':'rgba(217,58,31,.1)','circle-stroke-color':'#D93A1F','circle-stroke-width':3,'circle-pitch-alignment':'map'}})}
 function hsRing(P){HSRF={type:'FeatureCollection',features:P.map(([la,lo],i)=>({type:'Feature',properties:{i},geometry:{type:'Point',coordinates:[lo,la]}}))};
- const s=map.getSource('hsring');s&&s.setData(HSRF);clearTimeout(HSRT);if(P.length)HSRT=setTimeout(()=>hsRing([]),3e5)}
+ const s=map.getSource('hsring');s&&s.setData(HSRF);clearTimeout(HSRT);if(P.length)HSRT=setTimeout(()=>hsRing([]),18e5);else hsChip(null)}
+/* ป้ายค้างของลิงก์แจ้งเตือน (ผู้ใช้ขอ 5 พ.ย. 69 — ป้าย toast หายเมื่อแตะ/ซูม/ปิดรายการ กลับไปดูรายการไม่ได้): อยู่จนกด ✕ หรือครบ 30 นาที (พร้อมวงแดง)
+   แตะข้อความ = เปิดรายการซ้ำได้เรื่อยๆ · มือถือวางชิดซ้ายเว้นคอลัมน์ปุ่มขวา · เดสก์ท็อปกลางพื้นที่แผนที่ (--lw) */
+const HSC=document.createElement('div');HSC.id='hsc';HSC.hidden=true;HSC.innerHTML='<button class="t" type="button"></button><button class="x" type="button" aria-label="ปิดและล้างวงล้อม">✕</button>';document.body.append(HSC);
+HSC.querySelector('.x').onclick=()=>hsRing([]);
+function hsChip(t,fn){HSC.hidden=!t;if(!t)return;HSC.querySelector('.t').textContent=t;HSC.querySelector('.t').onclick=fn}
 // เว้นขอบตอนซูมจากลิงก์ (ผู้ใช้ขอ 5 พ.ย. 69 — วงขวาสุดถูกคอลัมน์ปุ่มบนมือถือบัง): กันป้ายด้านบน + รัศมีวง + คอลัมน์ปุ่มขวา
 const linkPad=()=>{const p=homePad();if(innerWidth<=767){p.top=Math.max(p.top,100);p.right=Math.max(p.right,95);p.left=Math.max(p.left,45)}else p.top=Math.max(p.top,75);return p};
 // จุดที่ไม่อยู่ใน HS (เก่ากว่า 48 ชม.) หาจากจุดสะสม AD (ทุกดวงตั้งแต่ต้นปีงบ) ห่าง ≤0.004° → แปลงเป็นรูปเดียวกับ HS ให้แสดงรายการ/เปิดแผงรายละเอียดได้
@@ -2562,7 +2567,7 @@ const hsAD=(la,lo)=>{const r=AD.reduce((m,x)=>{const d=Math.hypot(x.la-la,x.lo-l
 function hsLink(P){hsRing(P);const H=P.map(([la,lo])=>HS.reduce((m,x)=>{const d=Math.hypot(x.lat-la,x.lon-lo);return d<m.d?{d,h:x}:m},{d:.004,h:null}).h||hsAD(la,lo)),A={};
  const b=new maplibregl.LngLatBounds();P.forEach(([la,lo])=>b.extend([lo,la]));map.fitBounds(b,{padding:linkPad(),maxZoom:13,duration:0});
  H.forEach((h,i)=>{const n=hsArea(h,P[i]);A[n]=(A[n]||0)+1});
- toast('จุดความร้อน '+P.length+' จุด · '+Object.entries(A).sort((a,b)=>b[1]-a[1]).map(([n,c])=>n+' '+c).join(' · ')+' · แตะดูรายการ',()=>hsList(P,H),15000)}
+ hsChip('จุดความร้อน '+P.length+' จุด · '+Object.entries(A).sort((a,b)=>b[1]-a[1]).map(([n,c])=>n+' '+c).join(' · ')+' · ดูรายการ ›',()=>hsList(P,H))}
 const hsArea=(h,p)=>{const g=h?(h.geo||(h.geo=geoAt(h.lon,h.lat))):geoAt(p[1],p[0]);return g.cons?paShort(g.cons.properties.name):'นอกพื้นที่อนุรักษ์'};
 // รายการแยกตามพื้นที่อนุรักษ์ (ผู้ใช้ขอ 5 พ.ย. 69 — เลือกดูตามพื้นที่ที่สนใจ): หัวกลุ่ม = พื้นที่ + จำนวน + สถานีฯ ที่รับผิดชอบ · แถว = เวลา ดาวเทียม ต./อ./จ.
 //  แตะหัวกลุ่ม = ซูมดูจุดของพื้นที่นั้น · แตะแถว = เปิดแผงรายละเอียด (จุดเก่าก็เปิดได้ — ข้อมูลจาก AD)
