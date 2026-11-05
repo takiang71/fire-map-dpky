@@ -1084,8 +1084,17 @@ T = อุณหภูมิสูงสุด °C, RH = ความชื้�
  const links=[...tl.querySelectorAll('a')],map=new Map(links.map(a=>[a.getAttribute('href').slice(1),a]));
  // เลื่อนเฉพาะกล่องสารบัญให้เห็นหัวข้อที่กำลังอ่าน — ห้ามใช้ scrollIntoView: Chrome จะหยุดการเลื่อนแบบนุ่มของหน้าที่กำลังทำงาน (กดสารบัญ/กลับบนสุดแล้วหยุดกลางทาง)
  const toc=tl.closest('.toc');function tocShow(a){if(!toc||toc.scrollHeight<=toc.clientHeight)return;const r=a.getBoundingClientRect(),c=toc.getBoundingClientRect();if(r.top<c.top+8)toc.scrollTop+=r.top-c.top-8;else if(r.bottom>c.bottom-8)toc.scrollTop+=r.bottom-c.bottom+8}
- const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.remove('on'));const a=map.get(e.target.id);if(a){a.classList.add('on');const p=a.closest('ol').closest('li');p&&p.firstElementChild.classList.add('on');tocShow(a)}}})},{rootMargin:'0px 0px -75% 0px'});
- document.querySelectorAll('section.s,h3[id]').forEach(x=>io.observe(x));
+ /* หัวข้อปัจจุบัน = หัวข้อสุดท้ายที่ขอบบนเลื่อนผ่านเส้น 80 px จากบนจอ (ดูจากตำแหน่งจริงทุกครั้ง ไม่อิงลำดับเหตุการณ์ของ IntersectionObserver — แบบเดิมตอนเลื่อนขึ้นไฮไลต์หัวข้อก่อนหน้า) ·
+    กดสารบัญ = จำหัวข้อที่กด (pin) จนกว่าผู้ใช้เลื่อนเอง เพราะหัวข้อท้ายหน้าเลื่อนไปชิดบนไม่ได้ · ท้ายหน้าสุด = หัวข้อสุดท้ายที่เห็น */
+ const IT=[...document.querySelectorAll('section.s,h3[id]')].filter(x=>map.has(x.id));let pin=null,rq=0,last=null;
+ function mark(id){const a=map.get(id);if(!a||id===last)return;last=id;links.forEach(x=>x.classList.remove('on'));a.classList.add('on');const p=a.closest('ol').closest('li');p&&p.firstElementChild.classList.add('on');tocShow(a)}
+ function spy(){rq=0;if(pin){mark(pin);return}let cur=IT[0];const bot=innerHeight+scrollY>=document.documentElement.scrollHeight-2;
+  for(const x of IT){if(x.closest('.hidden'))continue;const t=x.getBoundingClientRect().top;if(t<=80||bot&&t<innerHeight*.6)cur=x;else if(!bot)break}
+  if(cur)mark(cur.id)}
+ const sp=()=>{if(!rq)rq=requestAnimationFrame(spy)};addEventListener('scroll',sp,{passive:true});addEventListener('resize',sp);
+ const unpin=()=>{if(pin){pin=null;sp()}};['wheel','touchstart','keydown','mousedown'].forEach(ev=>addEventListener(ev,unpin,{passive:true}));
+ document.addEventListener('click',e=>{const a=e.target.closest('a[href^="#"]');if(!a)return;const id=a.getAttribute('href').slice(1);pin=map.has(id)?id:null;if(!pin)sp();else mark(pin)});
+ spy();
  const q=document.getElementById('q'),nr=document.getElementById('nores');
  let tm;q.addEventListener('input',()=>{clearTimeout(tm);tm=setTimeout(()=>{const v=q.value.trim().toLowerCase();let any=0;
   S.forEach((s,i)=>{const hit=!v||s.textContent.toLowerCase().includes(v);s.classList.toggle('hidden',!hit);tl.children[i].classList.toggle('hidden',!hit);if(hit)any++});
