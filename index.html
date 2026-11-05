@@ -212,7 +212,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 @media(max-width:767px){#ulm{left:8px;right:8px;width:auto;top:auto;bottom:0;max-height:62vh;border-radius:22px 22px 0 0;padding-bottom:env(safe-area-inset-bottom)}#ulm[hidden]{transform:translateY(calc(100% + 16px))}#ulm.drawing{max-height:40vh}#ulm.drawing.form{max-height:min(62vh,calc(100vh - 140px))}.uldf textarea{min-height:40px}.uldf>p.sm{display:none}
  body.ulon #left{display:none}body.ulon .maplibregl-ctrl-bottom-right{bottom:calc(10px + env(safe-area-inset-bottom))!important}.ultb button{min-height:46px}.ula .row2{grid-template-columns:1fr}}
 #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--on);color:#fff;border-radius:12px;padding:8px 16px;font-size:13px;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s}
-#toast.show{opacity:1}.hsl button{display:block;width:100%;text-align:left;font:inherit;line-height:1.45;padding:8px 12px;margin:0 0 6px;border:1px solid #e3e6ea;border-radius:12px;background:#fff;cursor:pointer}.hsl button:hover{background:#f5f6f8}#toast.act{pointer-events:auto;cursor:pointer}#toast.act::after{content:' ›';font-weight:700}
+#toast.show{opacity:1}.hsl button{display:block;width:100%;text-align:left;font:inherit;line-height:1.45;padding:8px 12px;margin:0 0 6px;border:1px solid #e3e6ea;border-radius:12px;background:#fff;cursor:pointer}.hsl button:hover{background:#f5f6f8}.hslg{margin:10px 0 6px}.hslg:first-child{margin-top:0}.hslg a{cursor:pointer;color:inherit}.hslg a .sm{color:#3E6FD8}#toast.act{pointer-events:auto;cursor:pointer}#toast.act::after{content:' ›';font-weight:700}
 .maplibregl-popup-content{border-radius:14px;font:13px 'Noto Sans Thai',sans-serif;box-shadow:var(--sh);padding:12px 14px}
 .maplibregl-popup-content a{color:#1B2A5E}
 .hpop{line-height:1.55;font-size:13px}.hpop b{color:#1B2A5E}.hpt{display:flex;align-items:center;gap:7px;font-weight:800;font-size:15px;color:#1f6fe5;margin:0 18px 6px 0}.hpt i{width:11px;height:11px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.25)}.hpg{display:inline-block;margin-top:6px;font-weight:700}
@@ -2552,23 +2552,34 @@ function setupHR(){map.addSource('hsring',{type:'geojson',data:HSRF,cluster:true
  map.addLayer({id:'hsring',type:'circle',source:'hsring',paint:{'circle-radius':['step',['coalesce',['get','point_count'],1],17,2,20,10,23],'circle-color':'rgba(217,58,31,.1)','circle-stroke-color':'#D93A1F','circle-stroke-width':3,'circle-pitch-alignment':'map'}})}
 function hsRing(P){HSRF={type:'FeatureCollection',features:P.map(([la,lo],i)=>({type:'Feature',properties:{i},geometry:{type:'Point',coordinates:[lo,la]}}))};
  const s=map.getSource('hsring');s&&s.setData(HSRF);clearTimeout(HSRT);if(P.length)HSRT=setTimeout(()=>hsRing([]),3e5)}
-function hsLink(P){hsRing(P);const H=P.map(([la,lo])=>HS.reduce((m,x)=>{const d=Math.hypot(x.lat-la,x.lon-lo);return d<m.d?{d,h:x}:m},{d:.004,h:null}).h),A={};
- const b=new maplibregl.LngLatBounds();P.forEach(([la,lo])=>b.extend([lo,la]));map.fitBounds(b,{padding:homePad(),maxZoom:13,duration:0});
- H.forEach((h,i)=>{const g=h?(h.geo||(h.geo=geoAt(h.lon,h.lat))):geoAt(P[i][1],P[i][0]),n=g.cons?paShort(g.cons.properties.name):'นอกพื้นที่อนุรักษ์';A[n]=(A[n]||0)+1});
+// เว้นขอบตอนซูมจากลิงก์ (ผู้ใช้ขอ 5 พ.ย. 69 — วงขวาสุดถูกคอลัมน์ปุ่มบนมือถือบัง): กันป้ายด้านบน + รัศมีวง + คอลัมน์ปุ่มขวา
+const linkPad=()=>{const p=homePad();if(innerWidth<=767){p.top=Math.max(p.top,100);p.right=Math.max(p.right,95);p.left=Math.max(p.left,45)}else p.top=Math.max(p.top,75);return p};
+// จุดที่ไม่อยู่ใน HS (เก่ากว่า 48 ชม.) หาจากจุดสะสม AD (ทุกดวงตั้งแต่ต้นปีงบ) ห่าง ≤0.004° → แปลงเป็นรูปเดียวกับ HS ให้แสดงรายการ/เปิดแผงรายละเอียดได้
+const hsAD=(la,lo)=>{const r=AD.reduce((m,x)=>{const d=Math.hypot(x.la-la,x.lo-lo);return d<m.d?{d,r:x}:m},{d:.004,r:null}).r;if(!r)return null;const[tb,am]=String(r.tm||'').split('|');
+ return{lat:r.la,lon:r.lo,t:r.d*864e5+(Math.floor(r.t/100)*60+r.t%100)*6e4-7*36e5,sat:SATN[r.sat]||r.sat,conf:r.cf==='high'?'h':r.cf==='low'?'l':'n',prov:r.pv||'ไม่ระบุ',amp:am||r.am||'ไม่ระบุ',tam:tb||'ไม่ระบุ',ns:'api',old:true}};
+function hsLink(P){hsRing(P);const H=P.map(([la,lo])=>HS.reduce((m,x)=>{const d=Math.hypot(x.lat-la,x.lon-lo);return d<m.d?{d,h:x}:m},{d:.004,h:null}).h||hsAD(la,lo)),A={};
+ const b=new maplibregl.LngLatBounds();P.forEach(([la,lo])=>b.extend([lo,la]));map.fitBounds(b,{padding:linkPad(),maxZoom:13,duration:0});
+ H.forEach((h,i)=>{const n=hsArea(h,P[i]);A[n]=(A[n]||0)+1});
  toast('จุดความร้อน '+P.length+' จุด · '+Object.entries(A).sort((a,b)=>b[1]-a[1]).map(([n,c])=>n+' '+c).join(' · ')+' · แตะดูรายการ',()=>hsList(P,H),15000)}
-function hsList(P,H){const tf=t=>new Date(t).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'})+' น.',
-  I=P.map((p,i)=>i).sort((a,b)=>(H[b]?H[b].t:0)-(H[a]?H[a].t:0));
- openModal('จุดความร้อนจากการแจ้งเตือน ('+P.length+' จุด)','<div class="hsl">'+I.map(i=>{const h=H[i],g=h&&(h.geo||(h.geo=geoAt(h.lon,h.lat)));
-  return h?`<button data-i="${i}"><b>${tf(h.t)}</b> ${esc(h.sat)}<br><span class="sm">${g&&g.cons?esc(paShort(g.cons.properties.name))+' · ':''}ต.${esc(h.tam)} อ.${esc(h.amp)} จ.${esc(h.prov)}</span></button>`
-   :`<button data-i="${i}">ตำแหน่ง ${P[i][0].toFixed(4)}, ${P[i][1].toFixed(4)}<br><span class="sm">เก่ากว่า 48 ชม. แล้ว — แตะเพื่อซูมไปที่ตำแหน่ง</span></button>`}).join('')+'</div><div class="sm">แตะรายการเพื่อเปิดรายละเอียดจุด (โมเดลไฟ ลม ความลาดชัน)</div>');
- $('#md-b').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,h=H[i];closeModal();MOVED=true;if(h)openDetail(h);else map.jumpTo({center:[P[i][1],P[i][0]],zoom:13})})}
+const hsArea=(h,p)=>{const g=h?(h.geo||(h.geo=geoAt(h.lon,h.lat))):geoAt(p[1],p[0]);return g.cons?paShort(g.cons.properties.name):'นอกพื้นที่อนุรักษ์'};
+// รายการแยกตามพื้นที่อนุรักษ์ (ผู้ใช้ขอ 5 พ.ย. 69 — เลือกดูตามพื้นที่ที่สนใจ): หัวกลุ่ม = พื้นที่ + จำนวน + สถานีฯ ที่รับผิดชอบ · แถว = เวลา ดาวเทียม ต./อ./จ.
+//  แตะหัวกลุ่ม = ซูมดูจุดของพื้นที่นั้น · แตะแถว = เปิดแผงรายละเอียด (จุดเก่าก็เปิดได้ — ข้อมูลจาก AD)
+function hsList(P,H){const tf=t=>new Date(t).toLocaleString('th-TH',{day:'numeric',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'})+' น.',G={};
+ P.forEach((p,i)=>{const n=hsArea(H[i],p);(G[n]=G[n]||[]).push(i)});
+ const stOf=I=>{const c={};I.forEach(i=>{const p=P[i],g=geoAt(p[1],p[0]);{const m=(g.resp||[]).find(f=>!/พื้นที่รอง/.test(f.properties.station))||(g.resp||[])[0],n=m?m.properties.station.replace(' (พื้นที่รอง)',''):'ไม่มี';c[n]=(c[n]||0)+1}});return Object.entries(c).sort((x,y)=>y[1]-x[1]).map(([n,v])=>esc(stLab(n))+(Object.keys(c).length>1?' '+v:'')).join(' · ')};
+ const row=i=>{const h=H[i],p=P[i];return h?'<button data-i="'+i+'"><b>'+tf(h.t)+'</b> '+esc(h.sat)+(h.old?' <span class="sm">(เก่ากว่า 48 ชม.)</span>':'')+'<br><span class="sm">ต.'+esc(h.tam)+' อ.'+esc(h.amp)+' จ.'+esc(h.prov)+'</span></button>'
+  :'<button data-i="'+i+'">ตำแหน่ง '+p[0].toFixed(4)+', '+p[1].toFixed(4)+'<br><span class="sm">ไม่พบในฐานข้อมูล — แตะเพื่อซูมไปที่ตำแหน่ง</span></button>'};
+ openModal('จุดความร้อนจากการแจ้งเตือน ('+P.length+' จุด)','<div class="hsl">'+Object.entries(G).sort((a,b)=>b[1].length-a[1].length).map(([n,I])=>{I.sort((a,b)=>(H[b]?H[b].t:0)-(H[a]?H[a].t:0));
+  return '<div class="hslg"><a data-g="'+I.join(',')+'"><b>'+esc(n)+'</b> · '+I.length+' จุด <span class="sm">ซูมดู ›</span></a><div class="sm">'+stOf(I)+'</div></div>'+I.map(row).join('')}).join('')+'</div><div class="sm">แตะจุดเพื่อเปิดรายละเอียด (โมเดลไฟ ลม ความลาดชัน) · แตะชื่อพื้นที่เพื่อซูมดูเฉพาะพื้นที่นั้น</div>');
+ $('#md-b').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,h=H[i];closeModal();MOVED=true;if(h){map.jumpTo({center:[h.lon,h.lat],zoom:Math.max(map.getZoom(),12)});openDetail(h)}else map.jumpTo({center:[P[i][1],P[i][0]],zoom:13})});
+ $('#md-b').querySelectorAll('[data-g]').forEach(a=>a.onclick=()=>{const I=a.dataset.g.split(',').map(Number),b=new maplibregl.LngLatBounds();I.forEach(i=>b.extend([P[i][1],P[i][0]]));closeModal();MOVED=true;map.fitBounds(b,{padding:linkPad(),maxZoom:14,duration:dur(800)})})}
 // ?burn= : เปิดชั้น + เลือกรอบ (รอบที่ยังไม่มีในข้อมูล = bnDefault ถอยไปปีงบปัจจุบันเอง) · เดสก์ท็อปเปิดแผงชั้นข้อมูลที่กล่องพื้นที่เผาไหม้ (ไร่/รายพื้นที่) · ซูมกรอบของรอยเผาตามปุ่มดงใหญ่
 async function bnLink(k){BNK=k;S.burn=true;if(innerWidth>767){closeDetail();$('#right').classList.add('open')}apply();sync();
  try{const I=await bnIndex(),D=await bnData(bnDefault(I)),R=D.R.filter(o=>!(S.xdy&&o.dy)),lat=y=>Math.atan(Math.sinh(Math.PI*(1-2*y)))*180/Math.PI;
   if(innerWidth>767)setTimeout(()=>$('#bnbox').scrollIntoView({block:'center'}),300);
   if(!R.length)return toast('ไม่พบรอยเผาไหม้ในรอบนี้');
   const b=R.reduce((m,o)=>[Math.min(m[0],o.bb[0]),Math.min(m[1],o.bb[1]),Math.max(m[2],o.bb[2]),Math.max(m[3],o.bb[3])],[1,1,0,0]);
-  map.fitBounds([[b[0]*360-180,lat(b[3])],[b[2]*360-180,lat(b[1])]],{padding:homePad(),maxZoom:13,duration:0});
+  map.fitBounds([[b[0]*360-180,lat(b[3])],[b[2]*360-180,lat(b[1])]],{padding:linkPad(),maxZoom:13,duration:0});
   // ป้ายบอกไร่ + จำนวนพื้นที่อนุรักษ์ (ผู้ใช้ขอ 5 พ.ย. 69) · มือถือไม่เปิดแผงเอง (บังแผนที่) → แตะป้ายเพื่อเปิดแผงที่ตัวเลขรายพื้นที่
   const ra=R.reduce((s,o)=>s+o.n*BNPX,0),na=new Set(R.map(o=>D.I.ar[o.a]).filter(a=>a&&!/^นอกพื้นที่อนุรักษ์/.test(a))).size,
    m='พื้นที่เผาไหม้ '+(/^fy/.test(D.k)?'ปีงบ '+D.k.slice(2)+' สะสม':'รอบ '+bnLab(D.ps[0]))+' · '+(ra>0&&ra<1?'<1':nf(ra))+' ไร่'+(na?' · '+na+' พื้นที่อนุรักษ์':'');
