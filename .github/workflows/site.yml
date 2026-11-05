@@ -38,7 +38,7 @@ jobs:
           LINE_GROUP_ID: ${{ vars.LINE_GROUP_ID }}
           LINE_MAX_DAY: ${{ vars.LINE_MAX_DAY }}
           LINE_RESERVE: ${{ vars.LINE_RESERVE }}
-          # สรุปประจำวัน เวลาไทย HH:MM (ไม่ตั้ง = 07:30, "off" = ปิด)
+          # สรุปประจำวัน เวลาไทย HH:MM (ไม่ตั้ง = 05:30, "off" = ปิด)
           LINE_DAILY: ${{ vars.LINE_DAILY }}
           # การ์ดพื้นที่เผาไหม้เมื่อมีรอบใหม่ ("off" = ปิด)
           LINE_BURN: ${{ vars.LINE_BURN }}
@@ -47,7 +47,7 @@ jobs:
         env:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT_ID: ${{ vars.TG_CHAT_ID || secrets.TG_CHAT_ID }}
-          # สรุปประจำวัน เวลาไทย HH:MM (ไม่ตั้ง = 07:30, "off" = ปิด)
+          # สรุปประจำวัน เวลาไทย HH:MM (ไม่ตั้ง = 05:30, "off" = ปิด)
           TG_DAILY: ${{ vars.TG_DAILY }}
           # ข้อความพื้นที่เผาไหม้เมื่อมีรอบใหม่ ("off" = ปิด)
           TG_BURN: ${{ vars.TG_BURN }}

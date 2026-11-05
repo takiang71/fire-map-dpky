@@ -7,7 +7,7 @@
 //  - เขียน _site/notify.json ใหม่ให้ deploy ไปพร้อมหน้าเว็บ · ไม่มีสถานะเดิม (ครั้งแรก/อ่านไม่ได้) = บันทึกจุดปัจจุบันว่าแจ้งแล้วโดยไม่ส่ง กันส่งจุดเก่าทั้งชุด
 //  - push เข้ากลุ่มนับโควตาตามจำนวนสมาชิก (กลุ่ม 20 คน = 20 ข้อความ/ครั้ง) จึงตรวจโควตาที่เหลือก่อนส่งทุกครั้ง และจำกัดจำนวนครั้งต่อวัน (LINE_MAX_DAY)
 //  - ไม่ตั้ง LINE_TOKEN/LINE_GROUP_ID = ข้าม (แต่ยังเขียน notify.json เพื่อเก็บสถานะ)
-//  - สรุปประจำวัน: รอบแรกที่ถึงเวลา LINE_DAILY (ค่าเริ่มต้น 07:30 น. ไทย, "off" = ปิด) push การ์ดสรุปแบบเดียวกับคำตอบ "สรุป" วันละครั้ง (st.daily = วันที่ส่งแล้ว)
+//  - สรุปประจำวัน: รอบแรกที่ถึงเวลา LINE_DAILY (ค่าเริ่มต้น 05:30 น. ไทย, "off" = ปิด) push การ์ดสรุปแบบเดียวกับคำตอบ "สรุป" วันละครั้ง (st.daily = วันที่ส่งแล้ว)
 //    ส่งได้ภายใน 4 ชม. หลังเวลาที่ตั้ง (เลยนั้นข้ามวันนี้) · รอบที่เพิ่งส่งแจ้งเตือนไปจะรอรอบถัดไป (ครั้งละ 1 ข้อความ) · ไม่นับใน LINE_MAX_DAY
 //    --daily = ส่งสรุปประจำวันเข้ากลุ่มทันที 1 ครั้ง (ทดสอบ · ไม่แตะ notify.json)
 //  - พื้นที่เผาไหม้: เมื่อ _site/burn_summary.json (build_site.js) เป็นรอบใหม่กว่าที่เคยส่ง (st.burn) และมีรอยเผา ≥ 1 ไร่ → push การ์ด burnCard() 1 ใบ
@@ -21,7 +21,7 @@ const SITE = process.env.SITE_URL || 'https://takiang71.github.io/fire-map-dpky/
 const TOKEN = process.env.LINE_TOKEN, GROUP = process.env.LINE_GROUP_ID;
 const MAX_DAY = +(process.env.LINE_MAX_DAY || 4);      // ส่งได้ไม่เกินกี่ครั้งต่อวัน
 const RESERVE = +(process.env.LINE_RESERVE || 0);      // เก็บโควตาไว้ไม่ใช้ (ข้อความ)
-const DAILY = /^\d{1,2}:\d{2}$/.test(process.env.LINE_DAILY || '') ? process.env.LINE_DAILY : /^(off|0|no)$/i.test(process.env.LINE_DAILY || '') ? null : '07:30';
+const DAILY = /^\d{1,2}:\d{2}$/.test(process.env.LINE_DAILY || '') ? process.env.LINE_DAILY : /^(off|0|no)$/i.test(process.env.LINE_DAILY || '') ? null : '05:30';
 const DAILY_WIN_H = 4;
 const BURN = !/^(off|0|no)$/i.test(process.env.LINE_BURN || ''), API = process.env.LINE_API || 'https://api.line.me';
 const MAX_AGE_H = 12;                                 // ไม่แจ้งจุดที่สแกนนานกว่านี้ (API เติมข้อมูลย้อนหลังได้ เช่น 24–27 ต.ค. 69)

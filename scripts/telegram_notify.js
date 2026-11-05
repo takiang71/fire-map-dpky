@@ -7,7 +7,7 @@
 //  - ข้อความเป็นตัวอักษร HTML (Telegram ไม่มีการ์ดแบบ Flex) + ปุ่มลิงก์ใต้ข้อความ (inline keyboard) · แตะเวลาของจุด = เปิด Google Maps
 //  - TG_CHAT_ID ใส่ได้หลายห้อง คั่นด้วยจุลภาค (กลุ่ม/supergroup = เลขติดลบ, channel = -100… หรือ @ชื่อช่อง) · กลุ่มที่ถูกอัปเกรดเป็น supergroup
 //    Telegram ตอบรหัสใหม่มา → ส่งซ้ำที่รหัสใหม่ทันทีและบันทึกไว้ใน tg_notify.json ช่อง tg.migrate (ต้องแก้ TG_CHAT_ID เอง)
-//  - สรุปประจำวัน TG_DAILY (เวลาไทย HH:MM ค่าเริ่มต้น 07:30, "off" = ปิด) วันละครั้ง ภายใน 4 ชม. หลังเวลาที่ตั้ง
+//  - สรุปประจำวัน TG_DAILY (เวลาไทย HH:MM ค่าเริ่มต้น 05:30, "off" = ปิด) วันละครั้ง ภายใน 4 ชม. หลังเวลาที่ตั้ง
 //  - พื้นที่เผาไหม้รอบใหม่ (burn_summary.json) ≥ 1 ไร่ → ส่ง 1 ข้อความ (รอบแรก/ไม่มีรอยเผา/เก่ากว่า 30 วัน = จำไว้ไม่ส่ง) · TG_BURN=off = ปิด
 //  - ทดสอบ: --preview พิมพ์ข้อความทุกแบบออกจอ (ไม่ส่ง ไม่ต้องมี token) · --test-push / --daily / --burn ส่งเข้าห้องจริง 1 ครั้ง (ไม่แตะ tg_notify.json)
 //    --chats = แสดงรหัสห้องที่บอทอยู่ (จาก getUpdates — เชิญบอทเข้ากลุ่มแล้วพิมพ์อะไรก็ได้ในกลุ่มก่อน) · TG_API = เปลี่ยนปลายทาง (เซิร์ฟเวอร์จำลอง)
@@ -19,7 +19,7 @@ const SITE = process.env.SITE_URL || 'https://takiang71.github.io/fire-map-dpky/
 const IDS = (process.env.TG_CHAT_ID || '').replace(/["'`]/g, ' ').split(/[\s,;]+/).filter(Boolean), isId = x => /^-?\d{5,}$|^@\w{4,}$/.test(x);
 const TOKEN = (process.env.TG_TOKEN || '').trim(), CHATS = [...new Set(IDS.filter(isId))], BADID = IDS.filter(x => !isId(x));
 const API = process.env.TG_API || 'https://api.telegram.org';
-const DAILY = /^\d{1,2}:\d{2}$/.test(process.env.TG_DAILY || '') ? process.env.TG_DAILY : /^(off|0|no)$/i.test(process.env.TG_DAILY || '') ? null : '07:30';
+const DAILY = /^\d{1,2}:\d{2}$/.test(process.env.TG_DAILY || '') ? process.env.TG_DAILY : /^(off|0|no)$/i.test(process.env.TG_DAILY || '') ? null : '05:30';
 const DAILY_WIN_H = 4, BURN = !/^(off|0|no)$/i.test(process.env.TG_BURN || '');
 // Telegram รับข้อความไม่เกิน 4,096 ตัวอักษร "หลังแปลง HTML" (URL ในลิงก์ไม่นับ) · จำกัดจำนวนลิงก์/ตัวหนาต่อข้อความไว้ที่ 90 กันเพดาน entity ~100
 const MAX_AGE_H = 12, KEEP_H = 72, MAXLEN = 3900, MAXENT = 90;
