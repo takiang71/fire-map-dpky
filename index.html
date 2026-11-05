@@ -212,7 +212,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 @media(max-width:767px){#ulm{left:8px;right:8px;width:auto;top:auto;bottom:0;max-height:62vh;border-radius:22px 22px 0 0;padding-bottom:env(safe-area-inset-bottom)}#ulm[hidden]{transform:translateY(calc(100% + 16px))}#ulm.drawing{max-height:40vh}#ulm.drawing.form{max-height:min(62vh,calc(100vh - 140px))}.uldf textarea{min-height:40px}.uldf>p.sm{display:none}
  body.ulon #left{display:none}body.ulon .maplibregl-ctrl-bottom-right{bottom:calc(10px + env(safe-area-inset-bottom))!important}.ultb button{min-height:46px}.ula .row2{grid-template-columns:1fr}}
 #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--on);color:#fff;border-radius:12px;padding:8px 16px;font-size:13px;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s}
-#toast.show{opacity:1}
+#toast.show{opacity:1}#toast.act{pointer-events:auto;cursor:pointer}#toast.act::after{content:' ›';font-weight:700}
 .maplibregl-popup-content{border-radius:14px;font:13px 'Noto Sans Thai',sans-serif;box-shadow:var(--sh);padding:12px 14px}
 .maplibregl-popup-content a{color:#1B2A5E}
 .hpop{line-height:1.55;font-size:13px}.hpop b{color:#1B2A5E}.hpt{display:flex;align-items:center;gap:7px;font-weight:800;font-size:15px;color:#1f6fe5;margin:0 18px 6px 0}.hpt i{width:11px;height:11px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.25)}.hpg{display:inline-block;margin-top:6px;font-weight:700}
@@ -823,7 +823,8 @@ const areaHtml=g=>{let s='';if(g.cons)s+=`<b>${esc(g.cons.properties.name)}</b><
 /* ---------- สถานะ + จำค่าที่ผู้ใช้เลือก ---------- */
 let S={base:'natural',img:'google',d3:false,hot:true,prov:false,cons:true,resp:false,stn:false,wpt:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,demo:false,water:true,road:true,wind:false,pm:false,dry:false,wx:false,rad:false,wyl:false,wyo:'wind',wyop:60,hist:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',rep:false,rpm:2,hcd:1,hcg:2,hcr:200};
 try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;if(S.base==='road')S.base='detail';
-const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2200)};
+const toast=(m,fn,ms)=>{const t=$('#toast');t.textContent=m;t.classList.add('show');t.classList.toggle('act',!!fn);t.onclick=fn?()=>{t.classList.remove('show','act');fn()}:null;
+ clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show','act'),ms||2200)}; // fn = แตะป้ายแล้วทำ (ป้ายค้างนานขึ้น)
 const thTime=d=>new Date(d).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'});
 
 /* ---------- แผนที่ ---------- */
@@ -1256,6 +1257,9 @@ map.on('click',e=>{
  if(f){openDetail(HS.find(x=>x.id===f.properties.id));return}
  const fp=PM!=='24'&&map.getLayer('fypt')&&map.queryRenderedFeatures(e.point,{layers:['fypt']})[0];
  if(fp){const p=fp.properties,[lo,la]=fp.geometry.coordinates;new maplibregl.Popup({maxWidth:'260px'}).setLngLat([lo,la]).setHTML(`<b>จุดความร้อนสะสมปีงบ ${fyOfDay(p.d)}</b><br>${dShort(p.d)} เวลา ${hhmmTh(p.t)} น. · ${esc(SATN[p.sat]||p.sat)}${p.fm?'<br><span class="sm">ที่มา: NASA FIRMS (ระบบไทยขัดข้องวันนั้น)</span>':''}<br>${p.tam?'ต.'+esc(p.tam)+' ':''}${p.amp?'อ.'+esc(p.amp)+' ':''}${p.prov?'จ.'+esc(p.prov):''}<br><span class="sm">พิกัด ${la.toFixed(5)}, ${lo.toFixed(5)}</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${la},${lo}">เปิดใน Google Maps</a>`).addTo(map);return}
+ const br=S.burn&&map.getLayer('bnring')&&map.queryRenderedFeatures(e.point,{layers:['bnring']})[0]; // วงล้อมรอยเผา = ซูมไปที่กลุ่ม
+ if(br&&br.properties.cluster){MOVED=true;map.getSource('bnring').getClusterExpansionZoom(br.properties.cluster_id).then(z=>map.easeTo({center:br.geometry.coordinates,zoom:z+.3,duration:dur(800)}));return}
+ if(br&&BNRC[br.properties.i]){MOVED=true;map.fitBounds(BNRC[br.properties.i],{padding:homePad(),maxZoom:15,duration:dur(900)});return}
  const hc=(S.hcl||S.hgp||S.har)&&map.queryRenderedFeatures(e.point,{layers:['hcs-m','hcg-i','hcc-c','hca-f'].filter(id=>map.getLayer(id))})[0];
  if(HCS&&!(hc&&/^hc[sc]-[mc]$/.test(hc.layer.id))){hcSpider(null);if(!hc)return} // แตะที่ว่างขณะกระจายจุด = ยุบกลับ
  if(hc){hcPop(hc,e.lngLat);return}
@@ -1736,7 +1740,26 @@ maplibregl.addProtocol('burn',async p=>{
  return{data:await (await bnBlob(c)).arrayBuffer()}});
 const bnURL=()=>'burn://{z}/{x}/{y}?k='+(BNK||'none')+'&x='+(S.xdy?1:0)+'&h='+(BNH?1:0);
 function setupBN(){map.addSource('burn',{type:'raster',tiles:[bnURL()],tileSize:256,minzoom:5,maxzoom:16,bounds:BNB});
- map.addLayer({id:'burn',type:'raster',source:'burn',layout:{visibility:'none'},paint:{'raster-opacity':.92,'raster-fade-duration':0}},'cons-l')}
+ map.addLayer({id:'burn',type:'raster',source:'burn',layout:{visibility:'none'},paint:{'raster-opacity':.92,'raster-fade-duration':0}},'cons-l');
+ map.addSource('bnring',{type:'geojson',data:BNRF,cluster:true,clusterRadius:30,clusterMaxZoom:14,clusterProperties:{zm:['max',['get','zm']]}});
+ map.addLayer({id:'bnring',type:'circle',source:'bnring',layout:{visibility:S.burn?'visible':'none'},filter:bnRingF(),
+  paint:{'circle-radius':['step',['coalesce',['get','point_count'],1],13,2,16,10,19],'circle-color':'rgba(232,84,28,.14)','circle-stroke-color':'#e8541c','circle-stroke-width':2.5,'circle-pitch-alignment':'map'}})}
+/* วงล้อมรอยเผาเมื่อซูมไกล (ผู้ใช้ขอ 5 พ.ย. 69 — รอยเล็กเห็นเป็นจุดจิ๋วจนดูไม่ออกว่าไหม้ตรงไหน):
+   รวมแถวพิกเซลที่ห่างกันไม่เกิน ~600 ม. เป็นกลุ่ม → วงกลมขนาดคงที่บนจอกลางกลุ่ม · แสดงเฉพาะเมื่อกลุ่มเล็กกว่า ~10 px บนจอ (zm = ซูมที่กลุ่มกว้าง 10 px) ซูมใกล้แล้วหายเอง
+   แตะวง = ซูมไปที่กลุ่ม (ตัวจัดการคลิกหลัก) · ตามปุ่มดงใหญ่ · BNRC = กรอบของแต่ละกลุ่ม
+   วงที่ใกล้กันบนจอ (≤30 px) รวมเป็นวงเดียวแบบ cluster (วงใหญ่ขึ้นตามจำนวน) — โหมดสะสมทั้งปีงบเคยมีวงซ้อนกัน ~170 วง · แตะวงรวม = ซูมจนแยก */
+let BNRF={type:'FeatureCollection',features:[]},BNRC=[];
+const bnRingF=()=>['>',['get','zm'],map.getZoom()];
+function bnRingSet(D){const R=D?D.R.filter(o=>!(S.xdy&&o.dy)):[],lat=y=>Math.atan(Math.sinh(Math.PI*(1-2*y)))*180/Math.PI,cs=600/40075017/Math.cos(14*Math.PI/180),
+  C=new Map(),P={},fd=k=>P[k]===k?k:(P[k]=fd(P[k])),un=(a,b)=>{a=fd(a);b=fd(b);if(a!==b)P[a]=b};
+ R.forEach(o=>{const k=Math.floor((o.bb[0]+o.bb[2])/2/cs)+'|'+Math.floor((o.bb[1]+o.bb[3])/2/cs);(C.get(k)||C.set(k,[]).get(k)).push(o);P[k]=P[k]||k});
+ for(const k of C.keys()){const [x,y]=k.split('|').map(Number);for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){const n=(x+dx)+'|'+(y+dy);if(C.has(n))un(k,n)}}
+ const G={};for(const [k,L] of C){const g=G[fd(k)]||(G[fd(k)]={b:[1,1,0,0],n:0});L.forEach(o=>{g.n+=o.n;g.b=[Math.min(g.b[0],o.bb[0]),Math.min(g.b[1],o.bb[1]),Math.max(g.b[2],o.bb[2]),Math.max(g.b[3],o.bb[3])]})}
+ BNRC=[];BNRF={type:'FeatureCollection',features:Object.values(G).map((g,i)=>{const b=g.b,la=lat((b[1]+b[3])/2),w=Math.max((b[2]-b[0]),(b[3]-b[1]))*40075017*Math.cos(la*Math.PI/180);
+  BNRC[i]=[[b[0]*360-180,lat(b[3])],[b[2]*360-180,lat(b[1])]];
+  return{type:'Feature',properties:{i,rai:g.n*BNPX,zm:Math.min(15,Math.log2(10*78271.517*Math.cos(la*Math.PI/180)/Math.max(w,20)))},geometry:{type:'Point',coordinates:[(b[0]+b[2])/2*360-180,la]}}})};
+ const s=map.getSource('bnring');s&&s.setData(BNRF)}
+let bnRZ=0;map.on('zoom',()=>{if(!bnRZ)bnRZ=requestAnimationFrame(()=>{bnRZ=0;map.getLayer('bnring')&&map.setFilter('bnring',bnRingF())})});
 /* ---------- พื้นที่เผาซ้ำซาก (ผู้ใช้ขอ 2 พ.ย. 69): พิกเซล 20 ม. ที่พบรอยเผาไหม้มากกว่า 1 ปีงบ จากทุกรอบของระบบตามรอยเผา (b4 + แยกประเภท)
    scripts/burn_rep.js รวมเป็น data/burn/rep.json (mask = บิตปีงบที่ไหม้, cl = ประเภทจากชุดแยกประเภทรอบล่าสุด) · วาดไทล์เองผ่าน addProtocol('brep')
    S.rpm = จำนวนปีงบขั้นต่ำที่แสดง (2 = ไหม้ซ้ำ, 3, 1 = ทุกพื้นที่ที่เคยไหม้) · ปุ่มดงใหญ่มีผลกับแผนที่และตัวเลข · ใช้ var เพราะ apply() ถูกเรียกก่อนบรรทัดนี้ */
@@ -1939,7 +1962,7 @@ $('#hc-a').addEventListener('click',e=>{const b=e.target.closest('.hci');if(!b||
  const B=new maplibregl.LngLatBounds(g.ring[0],g.ring[0]);g.ring.forEach(c=>B.extend(c));MOVED=true;map.fitBounds(B,{padding:homePad(),maxZoom:13,duration:dur(1100)});
  if(innerWidth<=700)$('#right').classList.remove('open');map.once('moveend',()=>hcPop({layer:{id:'hcg-i'},properties:{k:'i',i:g.i-1}},g.ign.c))});
 async function LB(){ // เรียกจาก apply() และเมื่อเปลี่ยนช่วงเวลา/ปุ่มดงใหญ่
- const on=!!S.burn,vis=b=>map.getLayer('burn')&&map.setLayoutProperty('burn','visibility',b?'visible':'none');$('#bnbox').hidden=!on;
+ const on=!!S.burn,vis=b=>['burn','bnring'].forEach(id=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',b?'visible':'none'));$('#bnbox').hidden=!on;
  if(!on){vis(false);return}
  const I=await bnIndex();
  if(!I.periods.length){$('#bn-a').innerHTML='<span class="sm">ดึงข้อมูลพื้นที่เผาไหม้ไม่สำเร็จ'+(I.err?' ('+esc(I.err)+')':'')+'</span>';vis(false);return}
@@ -1949,7 +1972,7 @@ async function LB(){ // เรียกจาก apply() และเมื่�
  const C=bnIsC(BNK);$('#bn-lg').innerHTML=(C?I.cn.map((n,i)=>`<div><i style="background:${BCC[i]}"></i>${esc(n)}</div>`).join(''):'<div><i style="background:#f5a623"></i>พบ 1 ครั้ง</div><div><i style="background:#e8541c"></i>2 ครั้ง</div><div><i style="background:#a3171b"></i>3 ครั้งขึ้นไป</div>')+(BNH?'<div><i style="background:'+BNV+'"></i>ไม่พบจุดความร้อน</div>':'');
  const s=map.getSource('burn'),u=bnURL();if(s&&s.tiles&&s.tiles[0]!==u)s.setTiles([u]);vis(true);
  const k=BNK,F=bnFYk(I,k);$('#bn-a').innerHTML='<span class="sm">กำลังโหลด…</span>';
- try{const [D,DF]=await Promise.all([bnData(k),bnData((C?'cfy':'fy')+F)]);if(k!==BNK)return;BNCUR=D;bnStats(D,DF,F);bnRpNote()}
+ try{const [D,DF]=await Promise.all([bnData(k),bnData((C?'cfy':'fy')+F)]);if(k!==BNK)return;BNCUR=D;bnRingSet(D);bnStats(D,DF,F);bnRpNote()}
  catch(e){$('#bn-a').innerHTML='<span class="sm">โหลดข้อมูลไม่สำเร็จ ('+esc(e.message)+')</span>'}}
 function bnSel(I){const sel=$('#bn-s'),fys=[...new Set(I.periods.map(bnFY))].sort((a,b)=>b-a),opt=(v,t)=>`<option value="${v}">${esc(t)}</option>`,
   ss=I.cls.filter(p=>p.p.length>6).reverse(),ms=I.cls.filter(p=>p.p.length===6).reverse();
@@ -2524,7 +2547,10 @@ async function bnLink(k){BNK=k;S.burn=true;if(innerWidth>767){closeDetail();$('#
   if(!R.length)return toast('ไม่พบรอยเผาไหม้ในรอบนี้');
   const b=R.reduce((m,o)=>[Math.min(m[0],o.bb[0]),Math.min(m[1],o.bb[1]),Math.max(m[2],o.bb[2]),Math.max(m[3],o.bb[3])],[1,1,0,0]);
   map.fitBounds([[b[0]*360-180,lat(b[3])],[b[2]*360-180,lat(b[1])]],{padding:homePad(),maxZoom:13,duration:0});
-  toast('พื้นที่เผาไหม้ '+(/^fy/.test(D.k)?'ปีงบ '+D.k.slice(2)+' สะสม':'รอบ '+bnLab(D.ps[0])))}
+  // ป้ายบอกไร่ + จำนวนพื้นที่อนุรักษ์ (ผู้ใช้ขอ 5 พ.ย. 69) · มือถือไม่เปิดแผงเอง (บังแผนที่) → แตะป้ายเพื่อเปิดแผงที่ตัวเลขรายพื้นที่
+  const ra=R.reduce((s,o)=>s+o.n*BNPX,0),na=new Set(R.map(o=>D.I.ar[o.a]).filter(a=>a&&!/^นอกพื้นที่อนุรักษ์/.test(a))).size,
+   m='พื้นที่เผาไหม้ '+(/^fy/.test(D.k)?'ปีงบ '+D.k.slice(2)+' สะสม':'รอบ '+bnLab(D.ps[0]))+' · '+(ra>0&&ra<1?'<1':nf(ra))+' ไร่'+(na?' · '+na+' พื้นที่อนุรักษ์':'');
+  innerWidth>767?toast(m,null,5000):toast(m+' · แตะดูรายละเอียด',()=>{closeDetail();$('#right').classList.add('open');sync();setTimeout(()=>$('#bnbox').scrollIntoView({block:'start'}),350)},9000)}
  catch(e){toast('โหลดพื้นที่เผาไหม้ไม่สำเร็จ')}}
 sync();deepLink(load(true));consInfo();respLegend();
 function fitTitle(){const h1=$('#left h1'),m=$('.h1m');if(!h1||!m)return;h1.style.fontSize='';let fs=parseFloat(getComputedStyle(h1).fontSize);while(m.scrollWidth>m.clientWidth+1&&fs>15){fs-=1;h1.style.fontSize=fs+'px'}}
