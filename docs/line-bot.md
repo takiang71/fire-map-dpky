@@ -97,7 +97,7 @@ node scripts/build_site.js
 LINE_TOKEN=<token> node scripts/line_notify.js --validate
 ```
 
-## 6. (แนะนำมาก) ให้ workflow รันทุก 10 นาทีจริง
+## 6. (แนะนำมาก) ให้ workflow รันทุก 5 นาทีจริง
 
 ตัวตั้งเวลาของ GitHub เองรันจริงแค่ทุก 2–5 ชม. แจ้งเตือนจึงจะช้าตามไปด้วย แก้โดยให้ cron-job.org (ฟรี) สั่งรันแทน
 
@@ -107,7 +107,7 @@ LINE_TOKEN=<token> node scripts/line_notify.js --validate
    - กดสร้าง แล้วคัดลอก token ไว้
 2. **สมัคร https://cron-job.org → Create cronjob**
    - URL: `https://api.github.com/repos/takiang71/fire-map-dpky/actions/workflows/site.yml/dispatches`
-   - Schedule: ทุก 10 นาที
+   - Schedule: ทุก 5 นาที (ตั้งแล้ว 5 พ.ย. 69 · เดิม 10 นาที · ถี่สุดได้ 1 นาที แต่ไม่แนะนำ: ต้นทางช้า 20–40 นาทีหลังสแกนอยู่แล้ว และเรียก API ต้นทางถี่เกินจำเป็น)
    - แท็บ Advanced:
      - Request method: **POST**
      - Request body: `{"ref":"main"}`
@@ -176,7 +176,7 @@ workflow `sync` (เก็บจุดความร้อนสะสม + พ
 6. กด **CREATE** (หรือ SAVE) บันทึกงาน
 
 **ค. ตรวจหลังตั้ง**
-- หน้า Cronjobs จะมี 2 งาน: `fire-map site` (ทุก 10 นาที) และ `fire-map sync` (วันละ 4 ครั้ง)
+- หน้า Cronjobs จะมี 2 งาน: `fire-map site` (ทุก 5 นาที) และ `fire-map sync` (วันละ 4 ครั้ง)
 - วันถัดไปเปิดงาน `fire-map sync` → **HISTORY** ควรมี 204 ทุกรอบ และหน้า Actions ของ sync มีรอบตามเวลา
 - หน้า Actions อาจมีรอบที่ GitHub รันเองตามตาราง (Scheduled) ปนอยู่ด้วย เป็นเรื่องปกติ ถ้ารันซ้อนกันจะต่อคิว ไม่ชนกัน และไม่ทำให้ข้อมูลซ้ำ
 - งานรันนานได้ถึง ~45 นาทีเฉพาะตอนที่ระบบตามรอยเผาออกข้อมูลเชื้อเพลิงเดือนใหม่ (ไฟล์ใหญ่ ต้นทางช้า) รอบปกติไม่ถึง 2 นาที

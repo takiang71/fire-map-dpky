@@ -1,5 +1,5 @@
 # เผยแพร่หน้าเว็บขึ้น GitHub Pages พร้อม live.json (จุดความร้อน 48 ชม. กรองเฉพาะกลุ่มป่าแล้ว) และ air4thai.json
-# ตั้งไว้ทุก 10 นาที แต่ GitHub รันจริงแค่ทุก 2–5 ชม. → ให้ cron-job.org เรียก workflow_dispatch ทุก 10 นาทีแทน (docs/line-bot.md ข้อ 6) + ทุกครั้งที่ push
+# ตั้งไว้ทุก 10 นาที แต่ GitHub รันจริงแค่ทุก 2–5 ชม. → ให้ cron-job.org เรียก workflow_dispatch ทุก 5 นาทีแทน (docs/line-bot.md ข้อ 6) + ทุกครั้งที่ push
 name: site
 on:
   schedule:
