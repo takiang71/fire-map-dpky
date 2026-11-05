@@ -1,4 +1,4 @@
-// ข้อมูลการท่องเที่ยวและสัตว์ป่าของอุทยานแห่งชาติ จากรายงาน Power BI สาธารณะของกรมอุทยานฯ 8 ฉบับ (ผู้ใช้ขอ 5 พ.ย. 69)
+// ข้อมูลการท่องเที่ยวและสัตว์ป่าของอุทยานแห่งชาติ จากรายงาน Power BI สาธารณะของกรมอุทยานฯ 9 ฉบับ (ผู้ใช้ขอ 5 พ.ย. 69)
 // รายเดือน/รายปีงบต่ออุทยาน (REPORTS):
 //   vis = "ระบบรายงานจำนวนนักท่องเที่ยวในอุทยานแห่งชาติ" ตาราง Tourist (ไทย/ต่างชาติ)
 //   rev = "ระบบรายงานการจัดเก็บเงินรายได้อุทยานแห่งชาติ" ตาราง Income
@@ -10,6 +10,7 @@
 //           (ตำแหน่งที่พบเสือโคร่ง/ช้าง/กระทิงเสี่ยงต่อการล่า แม้ต้นทางจะเผยแพร่อยู่แล้ว)
 //   dark  = "อุทยานแห่งชาติและวนอุทยานท้องฟ้ามืด" — อุทยานท้องฟ้ามืด + สถานที่ดูดาว
 //   wsr   = "ระบบรายงานการดำเนินงานในพื้นที่เขตรักษาพันธุ์สัตว์ป่าและเขตห้ามล่าสัตว์ป่า" — ดงใหญ่: นักท่องเที่ยว รายได้ จุดศึกษาธรรมชาติ
+//   hec   = "ระบบรายงานการแก้ไขปัญหาช้างป่าและสัตว์ป่าที่สร้างผลกระทบต่อราษฎรนอกพื้นที่ป่าอนุรักษ์" — ช้างป่าออกนอกพื้นที่ ผู้บาดเจ็บ/เสียชีวิต (จำนวนเท่านั้น) เครือข่ายเฝ้าระวัง อำเภอที่มีปัญหา
 // → data/tourism.json เฉพาะพื้นที่ในกลุ่มป่า + ยอดทั้งประเทศ/อันดับ
 // รายงานเผยแพร่แบบ Publish to web — อ่านผ่าน querydata ที่หน้ารายงานใช้เอง (ไม่ต้องล็อกอิน/คีย์ แต่ไม่ใช่ API ทางการ:
 // ถ้า Microsoft เปลี่ยนรูปแบบหรือเจ้าของปิดการเผยแพร่ ฉบับนั้นจะล้ม → คงข้อมูลเดิมของฉบับนั้นไว้ และจบด้วย exit 1)
@@ -41,6 +42,7 @@ const R_CLOSE = 'eyJrIjoiN2ZlNzc2NzAtYWJmOC00NWM1LTk4YzAtZDNmMGIwNmQ3NjkyIiwidCI
 const R_WILD = 'eyJrIjoiYmZkZDA5ZTgtZmIwNi00NzRiLWJhZGItNzQwYzE2ODRiMTgzIiwidCI6ImVjOGI5MWM3LTMxMDctNGU5Zi1iMzRmLTY3MmRkZmE5Y2NlMSIsImMiOjEwfQ==';
 const R_DARK = 'eyJrIjoiNDZiZGQzZWYtOGUwZC00MTlhLWFhNzMtZTQ4MjM5N2NkOGY3IiwidCI6ImVjOGI5MWM3LTMxMDctNGU5Zi1iMzRmLTY3MmRkZmE5Y2NlMSIsImMiOjEwfQ==';
 const R_WSR = 'eyJrIjoiMWYxMTdiOWUtZGY4MC00N2QyLWFiNTAtYmFlNDJiZjlhYTQ2IiwidCI6ImVjOGI5MWM3LTMxMDctNGU5Zi1iMzRmLTY3MmRkZmE5Y2NlMSIsImMiOjEwfQ==';
+const R_HEC = 'eyJrIjoiYjc1ZmZkOGItYWQ2MC00MjM1LThkMTAtMDE4MzBiYmZjNzFjIiwidCI6ImVjOGI5MWM3LTMxMDctNGU5Zi1iMzRmLTY3MmRkZmE5Y2NlMSIsImMiOjEwfQ==';
 // พื้นที่อนุรักษ์ในกลุ่มป่า (ชื่อเต็มในรายงานสัตว์ป่า/ท้องฟ้ามืด) → รหัส KB
 const FULL = { 'อุทยานแห่งชาติเขาใหญ่': 'ky', 'อุทยานแห่งชาติทับลาน': 'tl', 'อุทยานแห่งชาติปางสีดา': 'ps', 'อุทยานแห่งชาติตาพระยา': 'tp', 'เขตรักษาพันธุ์สัตว์ป่าดงใหญ่': 'dy' };
 const WIN = 30000; // เพดานแถวต่อคำขอของบริการ (ขอมากกว่านี้ก็ได้แค่ 30,000)
@@ -197,11 +199,33 @@ const EXTRAS = {
     if (!Object.keys(dy.vis).length) throw new Error('wsr: ไม่พบดงใหญ่');
     return { obj: { ...C.meta, dy, nat, sites }, log: 'ดงใหญ่ นักท่องเที่ยว ' + Object.keys(dy.vis).join(',') + ' · รายได้ ' + Object.keys(dy.rev).join(',') + ' · จุดศึกษาธรรมชาติ ' + sites.length };
   },
+  // ช้างป่ากับชุมชน (รายงานการแก้ไขปัญหาช้างป่าและสัตว์ป่าที่สร้างผลกระทบต่อราษฎร) เฉพาะกลุ่มป่าดงพญาเย็น-เขาใหญ่
+  // units[ชื่อสั้น] = {t ประเภท, out:{ปีงบ:[ออกนอกพื้นที่, ไม่เสียหาย, เสียหาย]}, hurt:{ปีงบ:[บาดเจ็บ, เสียชีวิต]}, net:{ปีงบ:[เครือข่าย, สมาชิก]}, dist:{ปีงบ:['อำเภอ|จังหวัด']}}
+  // · pop [ต่ำ, สูง] ประชากรช้างป่าทั้งกลุ่มป่า · nat {ปีงบ:{out, dmg, hurt, dead}} ทั้งประเทศ
+  // **เหตุช้างทำร้ายราษฎรเก็บเฉพาะจำนวนต่อพื้นที่/ปี** — ไม่เก็บวันที่ เพศ หมู่บ้านของผู้ประสบเหตุ
+  async hec() {
+    const C = await connect(R_HEC, 'ระบบรายงานการแก้ไขปัญหาช้างป่าและสัตว์ป่าที่สร้างผลกระทบต่อราษฎรนอกพื้นที่ป่าอนุรักษ์'), G = 'ดงพญาเย็น-เขาใหญ่', W = { 'กลุ่มป่า': [G] };
+    const short = s => String(s || '').trim().replace(/^(อุทยานแห่งชาติ|เขตรักษาพันธุ์สัตว์ป่า|เขตห้ามล่าสัตว์ป่า)/, '').trim();
+    const typ = s => (String(s || '').match(/^(อุทยานแห่งชาติ|เขตรักษาพันธุ์สัตว์ป่า|เขตห้ามล่าสัตว์ป่า)/) || [])[1] || '';
+    const units = {}, U = (n, t) => { const k = short(n); const u = (units[k] ??= { t: '', out: {}, hurt: {}, net: {}, dist: {} }); if (t && !u.t) u.t = t; return u };
+    const pop = (await C.q('จำนวนช้างป่า', ['กลุ่มป่า', 'จำนวน', 'จำนวนสูงสุด'])).find(r => r[0] === G);
+    const out = await C.q('ช้างป่าออกนอกพื้นที่', ['ปีงบประมาณ', 'กลุ่มป่า', 'หน่วยงาน', 'ออกนอกพื้นที่(ครั้ง)', 'ไม่เสียหาย (ครั้ง)', 'เสียหาย (ครั้ง)']);
+    const nat = {};
+    for (const [fy, g, u, a, b, c] of out) { if (!fy) continue; const N = (nat[fy] ??= { out: 0, dmg: 0, hurt: 0, dead: 0 }); N.out += +a || 0; N.dmg += +c || 0; if (g === G) { const o = U(u, typ(u)).out; const p = (o[fy] ??= [0, 0, 0]); p[0] += +a || 0; p[1] += +b || 0; p[2] += +c || 0 } }
+    const hurt = await C.q('ช้างป่าทำร้ายราษฎร', ['ปีงบประมาณ', 'กลุ่มป่า', 'สถานะ', 'พื้นที่รับผิดชอบ'], { measure: 'CountP' });
+    for (const [fy, g, st, u, n] of hurt) { if (!fy) continue; const i = st === 'เสียชีวิต' ? 1 : 0; (nat[fy] ??= { out: 0, dmg: 0, hurt: 0, dead: 0 })[i ? 'dead' : 'hurt'] += +n || 0; if (g === G) { const h = U(u, typ(u)).hurt; (h[fy] ??= [0, 0])[i] += +n || 0 } }
+    const net = await C.q('เครือข่ายช้างป่า', ['ปีงบประมาณ', 'ประเภท', 'ชื่อพื้นที่อนุรักษ์', 'ชื่อเครือข่าย', 'หมู่บ้าน', 'หมู่ที่', 'ตำบล', 'จำนวนสมาชิก'], { where: W });
+    for (const [fy, t, n, , , , , m] of net) { if (!fy) continue; const x = (U(n, t).net[fy] ??= [0, 0]); x[0]++; x[1] += +m || 0 }
+    const dist = await C.q('พื้นที่มีปัญหาช้างป่า', ['ปีงบประมาณ', 'พื้นที่อนุรักษ์', 'อำเภอ', 'จังหวัด'], { where: W });
+    for (const [fy, u, a, p] of dist) if (fy && a) { const d = (U(u, typ(u)).dist[fy] ??= []); const k = String(a).trim() + '|' + String(p).trim().replace('นคคราชสีมา', 'นครราชสีมา'); if (!d.includes(k)) d.push(k) }
+    if (!Object.keys(units).length) throw new Error('hec: ไม่พบกลุ่มป่า ' + G);
+    return { obj: { ...C.meta, pop: pop ? [+pop[1], +pop[2]] : null, nat, units }, log: Object.keys(units).length + ' พื้นที่ · ปีงบ ' + Object.keys(nat).sort().join(',') };
+  },
 };
 
 (async () => {
   const old = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')) : null;
-  const out = { v: 3, mon: MON, names: PARKS, vis: null, rev: null, veh: null, was: null, close: null, wild: null, dark: null, wsr: null, parks: Object.fromEntries(Object.keys(PARKS).map(k => [k, {}])) };
+  const out = { v: 3, mon: MON, names: PARKS, vis: null, rev: null, veh: null, was: null, close: null, wild: null, dark: null, wsr: null, hec: null, parks: Object.fromEntries(Object.keys(PARKS).map(k => [k, {}])) };
   let bad = 0;
   for (const [k, cfg] of Object.entries(REPORTS)) {
     try {
