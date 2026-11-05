@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write   # push สถานะการแจ้งเตือนไป branch state
   pages: write
   id-token: write
 
@@ -29,6 +29,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      # สถานะการแจ้งเตือนรอบก่อน (จุดที่แจ้งแล้ว / สรุปประจำวันส่งแล้วหรือยัง) จาก branch state → .state/ (scripts/lib/state.js)
+      # เดิมอ่านกลับจากหน้าเว็บอย่างเดียว — 6 พ.ย. 69 Pages ค้างทั้งที่ deploy สำเร็จ ทำให้สรุปประจำวันส่งซ้ำทุก 5 นาที
+      - name: load state
+        run: |
+          mkdir -p .state
+          if git fetch -q --depth=1 origin state; then
+            for f in notify.json tg_notify.json health.json; do git show FETCH_HEAD:$f > .state/$f 2>/dev/null || rm -f .state/$f; done
+          else echo "ยังไม่มี branch state"; fi
+          ls -l .state
       # ถ้าดึงข้อมูลไม่สำเร็จก็ยังเผยแพร่หน้าเว็บ (หน้าเว็บจะถอยไปดึง API ตรงเอง)
       - run: node scripts/build_site.js || true
       # แจ้งเตือนจุดใหม่เข้ากลุ่ม LINE (docs/line-bot.md) — ไม่ตั้ง secret ก็ยังเก็บสถานะ notify.json ไว้
@@ -58,6 +67,17 @@ jobs:
           LINE_ADMIN_ID: ${{ vars.LINE_ADMIN_ID }}
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_ADMIN_ID: ${{ vars.TG_ADMIN_ID || secrets.TG_ADMIN_ID }}
+      # เก็บสถานะรอบนี้ไว้ที่ branch state (commit เดียว force push — ไม่สะสมประวัติ, push ด้วย GITHUB_TOKEN ไม่ปลุก workflow อื่น)
+      - name: save state
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/st" && cd "$RUNNER_TEMP/st"
+          n=0; for f in notify.json tg_notify.json health.json; do if [ -f "$GITHUB_WORKSPACE/_site/$f" ]; then cp "$GITHUB_WORKSPACE/_site/$f" .; n=$((n+1)); fi; done
+          [ "$n" -gt 0 ] || { echo "ไม่มีไฟล์สถานะ"; exit 0; }
+          git init -q -b state
+          git add -A
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm "state $(date -u +%FT%TZ)"
+          for i in 1 2 3; do git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" state && break; sleep 5; done
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -197,11 +197,7 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
   }
 
   // --- รอบปกติ ---
-  let st = null;
-  try {
-    const r = await fetch(SITE + 'tg_notify.json?t=' + now, { signal: AbortSignal.timeout(20e3) });
-    if (r.ok) st = await r.json(); else console.log('ยังไม่มี tg_notify.json บนเว็บ (HTTP ' + r.status + ')');
-  } catch (e) { console.log('อ่าน tg_notify.json ไม่ได้:', e.message) }
+  let st = await require('./lib/state').loadState('tg_notify.json', SITE, now);
   const seed = !st || !st.sent, on = !!(TOKEN && CHATS.length);
   st = seed ? { sent: {}, log: [] } : st;
   for (const k in st.migrate || {}) if (CHATS.includes(k)) MIG[k] = st.migrate[k];

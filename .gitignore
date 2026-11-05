@@ -17,3 +17,6 @@ data/โครงการจัดทำข้อมูล*.rar
 .firms_key
 # รายงานของ firms_audit.js (สร้างใหม่ได้)
 data/firms_audit.csv
+
+# สถานะการแจ้งเตือนที่ workflow site ดึงจาก branch state (scripts/lib/state.js)
+.state/

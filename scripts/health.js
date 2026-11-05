@@ -20,11 +20,13 @@ const ACTIONS = 'https://github.com/takiang71/fire-map-dpky/actions';
 const H = 36e5, REMIND = 12 * H;
 // เรื่องที่ตรวจ: ชื่อ + ต้องเป็นต่อเนื่องนานเท่าไรจึงแจ้ง (กันขัดข้องชั่วคราว)
 const CHECKS = { api: ['ดึงจุดความร้อนจาก API ไม่ได้', H], src: ['ระบบต้นทางไม่อัปเดต', 0], sync: ['sync จุดความร้อนไม่ทำงาน', 0], gap: ['ข้อมูลสะสมค้าง', 0], line: ['LINE ใช้งานไม่ได้', H],
-  tg: ['Telegram ใช้งานไม่ได้', H], tgm: ['กลุ่ม Telegram ถูกอัปเกรดเป็น supergroup', 0] };
+  tg: ['Telegram ใช้งานไม่ได้', H], tgm: ['กลุ่ม Telegram ถูกอัปเกรดเป็น supergroup', 0],
+  pages: ['หน้าเว็บ (GitHub Pages) ไม่อัปเดต', 0] };
 const now = +process.env.HEALTH_NOW || Date.now();
 const thTime = ms => { const d = new Date(ms + 7 * H); return `${d.getUTCDate()}/${d.getUTCMonth() + 1} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')} น.` };
 const hrs = ms => (ms / H).toFixed(ms < 10 * H ? 1 : 0);
 const readJ = f => { try { return JSON.parse(fs.readFileSync(f, 'utf8')) } catch (e) { return null } };
+const { loadState } = require('./lib/state');
 const getJ = async f => { try { const r = await fetch(SITE + f + '?t=' + now, { signal: AbortSignal.timeout(20e3) }); return r.ok ? await r.json() : null } catch (e) { return null } };
 
 async function line(p, body) {
@@ -52,7 +54,7 @@ async function send(text, to = { line: 1, tg: 1 }) {
 }
 
 // ปัญหาที่พบตอนนี้ { key: ข้อความ }
-function problems() {
+function problems(pg) {
   const P = {}, live = readJ(path.join(OUT, 'live.json')), nt = readJ(path.join(OUT, 'notify.json'));
   if (!live) P.api = 'สร้าง live.json ไม่ได้ (API ไม่ตอบหรือผิดพลาด)';
   else if (!live.meta || !live.meta.nation_total) P.api = 'API ตอบว่างทั้งประเทศ (48 ชม. ไม่มีจุดเลย = น่าจะขัดข้อง)';
@@ -70,21 +72,24 @@ function problems() {
   const tn = readJ(path.join(OUT, 'tg_notify.json'));
   if (tn && tn.tg && tn.tg.ok === 0) P.tg = tn.tg.why || 'ตรวจบอท/ห้องไม่ผ่าน';
   if (tn && tn.migrate && Object.keys(tn.migrate).length) P.tgm = 'แก้ GitHub Variable TG_CHAT_ID: ' + Object.entries(tn.migrate).map(([a, b]) => `${a} → ${b}`).join(', ') + ' (ระหว่างนี้ระบบส่งไปที่รหัสใหม่ให้เอง)';
+  // Pages ค้างทั้งที่ deploy สำเร็จ (6 พ.ย. 69) — หน้าเว็บถอยไปดึง API ตรงได้ แต่ live.json/summary.json บนเว็บ (Worker LINE ใช้) จะเก่า
+  const pu = pg && pg.meta && Date.parse(pg.meta.generated);
+  if (pu && now - pu > H) P.pages = `live.json บนเว็บสร้างเมื่อ ${thTime(pu)} (${hrs(now - pu)} ชม.) ทั้งที่ workflow site รันปกติ — deploy ขึ้นสำเร็จแต่ Pages ไม่เปลี่ยน`;
   return P;
 }
 
 (async () => {
   if (process.argv.includes('--site')) {
-    const nt = await getJ('notify.json'), up = nt && Date.parse(nt.updated);
+    const nt = await loadState('notify.json', SITE, now), up = nt && Date.parse(nt.updated);
     if (up && now - up <= 90 * 60e3) { console.log('site ปกติ (notify.json อัปเดต', thTime(up) + ')'); return }
     const msg = `⚠️ ระบบแผนที่ไฟป่า: หน้าเว็บ/การแจ้งเตือนไม่อัปเดต\n• ${up ? `notify.json อัปเดตล่าสุด ${thTime(up)} (${hrs(now - up)} ชม.)` : 'อ่าน notify.json บนเว็บไม่ได้'}\nตรวจ workflow site และงาน cron-job.org "fire-map site"\n${ACTIONS}`;
     try { console.log(await send(msg) ? 'ส่งแล้ว' : 'ไม่ได้ส่ง') } catch (e) { console.log('ส่งไม่สำเร็จ:', e.message) }
     return;
   }
 
-  const st = (await getJ('health.json')) || { checks: {}, log: [] };
+  const st = (await loadState('health.json', SITE, now)) || { checks: {}, log: [] };
   st.checks = st.checks || {};
-  const P = problems(), bad = [], ok = [];
+  const P = problems(await getJ('live.json')), bad = [], ok = [];
   // ตั้ง/เปลี่ยน LINE_ADMIN_ID / TG_ADMIN_ID → ส่งข้อความยืนยันทางนั้น 1 ครั้ง (health.json เป็นสาธารณะ จึงเก็บแค่แฮชของรหัส)
   const hash = v => v && require('crypto').createHash('sha256').update(v).digest('hex').slice(0, 12), aid = hash(ADMIN), tid = hash(TADMIN);
   const hello = () => { const n = Object.keys(P).length; return `✅ ตั้งค่าแจ้งเตือนผู้ดูแลเรียบร้อย\nบอทจะส่งข้อความถึงคุณคนเดียวเมื่อระบบแผนที่ไฟป่าเสีย (API/sync/ระบบต้นทาง/LINE/Telegram/หน้าเว็บหยุด) และเมื่อกลับมาปกติ\nสถานะตอนนี้: ${n ? `มีปัญหา ${n} เรื่อง (จะแจ้งแยก)` : 'ปกติ'}` };

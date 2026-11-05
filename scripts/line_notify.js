@@ -97,11 +97,7 @@ async function quotaOk() {
   }
 
   // สถานะเดิมจากเว็บ (cache-bust เพราะ Pages แคช ~10 นาที)
-  let st = null;
-  try {
-    const r = await fetch(SITE + 'notify.json?t=' + now, { signal: AbortSignal.timeout(20e3) });
-    if (r.ok) st = await r.json(); else console.log('ยังไม่มี notify.json บนเว็บ (HTTP ' + r.status + ')');
-  } catch (e) { console.log('อ่าน notify.json ไม่ได้:', e.message) }
+  let st = await require('./lib/state').loadState('notify.json', SITE, now);
   const seed = !st || !st.sent;
   st = seed ? { sent: {}, days: {}, log: [] } : st;
 
