@@ -1,6 +1,7 @@
-// นักท่องเที่ยวและเงินรายได้อุทยานแห่งชาติรายเดือน จากรายงาน Power BI สาธารณะ 2 ฉบับ (ผู้ใช้ขอ 5 พ.ย. 69)
+// นักท่องเที่ยว เงินรายได้ และยานพาหนะที่เข้าอุทยานแห่งชาติรายเดือน จากรายงาน Power BI สาธารณะ 3 ฉบับ (ผู้ใช้ขอ 5 พ.ย. 69)
 //   vis = "ระบบรายงานจำนวนนักท่องเที่ยวในอุทยานแห่งชาติ" ตาราง Tourist (ไทย/ต่างชาติ)
 //   rev = "ระบบรายงานการจัดเก็บเงินรายได้อุทยานแห่งชาติ" ตาราง Income
+//   veh = "ระบบรายงานจำนวนยานพาหนะที่เข้าอุทยานแห่งชาติ" ตาราง จำนวนยานพาหนะ
 // → data/tourism.json เฉพาะ 4 อุทยานในกลุ่มป่า (รายเดือน) + ยอดทั้งประเทศ/อันดับรายปีงบ
 // รายงานเผยแพร่แบบ Publish to web — อ่านผ่าน querydata ที่หน้ารายงานใช้เอง (ไม่ต้องล็อกอิน/คีย์ แต่ไม่ใช่ API ทางการ:
 // ถ้า Microsoft เปลี่ยนรูปแบบหรือเจ้าของปิดการเผยแพร่ ฉบับนั้นจะล้ม → คงข้อมูลเดิมของฉบับนั้นไว้ และจบด้วย exit 1)
@@ -20,6 +21,8 @@ const REPORTS = {
     ent: 'Tourist', fy: 'ปีงบประมาณ', park: 'ชื่ออุทยาน', mon: 'เดือน', val: 'จำนวน', kind: 'ประเภทนักท่องเที่ยว', kinds: { 'ไทย': 'th', 'ต่างชาติ': 'fo' } },
   rev: { r: 'eyJrIjoiNDcwMmI2ZGItZThkMi00ZmExLWJhZjEtYWJiNGFhODU3NzM0IiwidCI6ImVjOGI5MWM3LTMxMDctNGU5Zi1iMzRmLTY3MmRkZmE5Y2NlMSIsImMiOjEwfQ==', src: 'ระบบรายงานการจัดเก็บเงินรายได้อุทยานแห่งชาติ',
     ent: 'Income', fy: 'ปีงบประมาณ', park: 'ชื่ออุทยานแห่งชาติ', mon: 'เดือน', val: 'เงินรายได้' },
+  veh: { r: 'eyJrIjoiODRiNzRkNmUtMWU3Ni00NjI0LWI3ZGItMWQ4MGI5MDE0MjUxIiwidCI6ImVjOGI5MWM3LTMxMDctNGU5Zi1iMzRmLTY3MmRkZmE5Y2NlMSIsImMiOjEwfQ==', src: 'ระบบรายงานจำนวนยานพาหนะที่เข้าอุทยานแห่งชาติ',
+    ent: 'จำนวนยานพาหนะ', fy: 'ปีงบประมาณ', park: 'อุทยานแห่งชาติ', mon: 'เดือน', val: 'จำนวน' },
 };
 const WIN = 30000; // เพดานแถวต่อคำขอของบริการ (ขอมากกว่านี้ก็ได้แค่ 30,000)
 
@@ -75,7 +78,9 @@ async function report(cfg) {
   const parks = {};
   for (const r of mrows) {
     const [fy, p, m] = r, v = Math.round(r[r.length - 1] || 0), mi = MON.indexOf(m);
-    const id = Object.keys(PARKS).find(k => PARKS[k] === p); if (!fy || !id || mi < 0) continue;
+    const id = Object.keys(PARKS).find(k => PARKS[k] === p);
+    if (mi < 0 && v) throw new Error(cfg.ent + ': ไม่รู้จักชื่อเดือน "' + m + '"');
+    if (!fy || !id || mi < 0) continue;
     const key = cfg.kind ? cfg.kinds[r[3]] : 'n'; if (!key) continue;
     ((((parks[id] ??= {})[key] ??= {})[fy]) ??= Array(12).fill(0))[mi] += v;
   }
@@ -94,7 +99,7 @@ async function report(cfg) {
 
 (async () => {
   const old = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')) : null;
-  const out = { v: 2, mon: MON, names: PARKS, vis: null, rev: null, parks: Object.fromEntries(Object.keys(PARKS).map(k => [k, {}])) };
+  const out = { v: 2, mon: MON, names: PARKS, vis: null, rev: null, veh: null, parks: Object.fromEntries(Object.keys(PARKS).map(k => [k, {}])) };
   let bad = 0;
   for (const [k, cfg] of Object.entries(REPORTS)) {
     try {
