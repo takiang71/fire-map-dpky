@@ -226,7 +226,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .hpop{line-height:1.55;font-size:13px}.hpop b{color:#1B2A5E}.hpt{display:flex;align-items:center;gap:7px;font-weight:800;font-size:15px;color:#1f6fe5;margin:0 18px 6px 0}.hpt i{width:11px;height:11px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.25)}.hpg{display:inline-block;margin-top:6px;font-weight:700}
 .fsm{cursor:pointer;display:flex;flex-direction:column;align-items:center;background:none;border:0;box-shadow:none}.fsm svg{width:26px;height:26px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.45))}.fsm span{display:none;font:700 12px 'Noto Sans Thai',sans-serif;margin-top:1px;white-space:nowrap;text-shadow:0 0 2px #fff,0 0 3px #fff,0 0 4px #fff,0 0 6px #fff}.z9 .fsm span{display:block}
 .rgm{cursor:pointer;display:flex;flex-direction:column;align-items:center}.rgm svg{width:19px;height:19px;filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.45))}.rgm span{display:none;font:700 11px 'Noto Sans Thai',sans-serif;white-space:nowrap;text-shadow:0 0 2px #fff,0 0 3px #fff,0 0 4px #fff}.z11 .rgm span{display:block}
-.rgl span{display:inline-flex;align-items:center;gap:4px;margin-right:10px}.rgl svg{width:14px;height:14px}
+.rgl span{display:inline-flex;align-items:center;gap:4px;margin-right:10px;white-space:nowrap}.rgl svg{width:14px;height:14px;flex:none}
 .wpm{cursor:pointer;display:flex;flex-direction:column;align-items:center}.wpm svg{width:18px;height:18px;filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.45))}.wpm span{display:none;font:700 11px 'Noto Sans Thai',sans-serif;color:#b3121f;white-space:nowrap;text-shadow:0 0 2px #fff,0 0 3px #fff,0 0 4px #fff}.z11 .wpm span{display:block}
 #grab{display:none}
 @media(max-width:767px){
@@ -609,7 +609,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div class="row" data-tip="ตำแหน่งตามไฟล์ KMZ ของผู้ใช้ · ซูมเข้าเพื่อดูชื่อสถานีฯ"><svg class="i" style="color:#2a6fdb" viewBox="0 0 24 24"><path d="M12 3l8 3.5v5.5c0 4.5-3.5 7.5-8 9-4.500-1.500-8-4.500-8-9V6.500z"/></svg><b>สถานีควบคุมไฟป่า</b><span class="tag">8 แห่ง</span><button class="sw" data-k="stn" role="switch" aria-label="สถานีควบคุมไฟป่า"></button></div>
   <div class="row" data-tip="จุดเฝ้าระวังไฟป่า ปี 2569 ตามไฟล์ KMZ ของผู้ใช้ · ซูมเข้าเพื่อดูรหัสจุด"><svg class="i" viewBox="0 0 24 24"><path d="M12 2.5l2.8 6.2 6.7.6-5.1 4.5 1.5 6.7L12 17l-5.9 3.5 1.5-6.7-5.1-4.5 6.7-.6z" style="fill:#e11d2e;stroke:#3b0a0f"/></svg><b>จุดเฝ้าระวังไฟป่า</b><span class="tag" id="c-wpt">–</span><button class="sw" data-k="wpt" role="switch" aria-label="จุดเฝ้าระวังไฟป่า"></button></div>
   <div class="row" data-tip="ที่ทำการ หน่วยพิทักษ์ จุดสกัด และฐานเฉพาะกิจ ของ 4 อุทยานและดงใหญ่ (shapefile ที่ผู้ใช้ส่ง) · ซูมเข้าเพื่อดูชื่อ" data-tipel="rgr-lg"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" style="fill:#2f7d32;stroke:#fff"/><path d="M12 7.3l1.5 3.1 3.4.5-2.5 2.4.6 3.4-3-1.6-3 1.6.6-3.4-2.5-2.4 3.4-.5z" style="fill:#fff;stroke:none"/></svg><b>หน่วยพิทักษ์ จุดสกัด ฐานเฉพาะกิจ</b><span class="tag" id="c-rgr">85 แห่ง</span><button class="sw" data-k="rgr" role="switch" aria-label="หน่วยพิทักษ์ จุดสกัด และฐานเฉพาะกิจ"></button></div>
-  <div id="rgr-lg" class="rgl" hidden></div>
+  <div id="rgr-lg" hidden></div>
 
   <h3>แนวเขตการปกครอง</h3>
   <div class="row" data-tip="แนวเขต 77 จังหวัด กรมการปกครอง (OCHA HDX, 2565)"><svg class="i" viewBox="0 0 24 24"><path d="M3 12h18"/></svg><b>จังหวัด</b><button class="sw" data-k="prov" role="switch" aria-label="เส้นแนวเขตจังหวัด"></button></div>
@@ -2704,9 +2704,10 @@ const RG_URL=BN_BASE.replace(/burn\/$/,'ranger.json'),
   'จุดสกัด':{c:'#d97706',s:'M6.5 10.5h11v3h-11zM8.5 13.5v4M15.5 13.5v4M9.5 10.5l2-3M13.5 10.5l2-3'},'ฐานเฉพาะกิจ':{c:'#7b3fa0',s:'M8.5 17.5v-11M8.5 6.5h7l-1.8 2.6 1.8 2.6h-7'}};
 let RGP=null;
 function rgIcon(t){const k=RGT[t]||RGT['หน่วยพิทักษ์'];return`<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${k.c}" stroke="#fff" stroke-width="1.6"/>${k.f?`<path d="${k.f}" fill="#fff"/>`:`<path d="${k.s}" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>`}</svg>`}
+{const lg=$('#rgr-lg');if(lg)lg.innerHTML=`<div class="rgl">${Object.keys(RGT).map(t=>`<span>${rgIcon(t)}${t}</span>`).join('')}</div>`}
 function rgLoad(){if(RGP)return RGP;return RGP=fetch(RG_URL).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(j=>{
  const T={};j.features.forEach(f=>T[f.properties.t]=(T[f.properties.t]||0)+1);$('#c-rgr').textContent=j.features.length+' แห่ง';
- const lg=$('#rgr-lg');if(lg)lg.innerHTML=Object.keys(RGT).filter(t=>T[t]).map(t=>`<span>${rgIcon(t)}${t} ${T[t]}</span>`).join('');
+ const lg=$('#rgr-lg');if(lg)lg.innerHTML=`<div class="rgl">${Object.keys(RGT).filter(t=>T[t]).map(t=>`<span>${rgIcon(t)}${t} ${T[t]}</span>`).join('')}</div>`;/* ห่อด้วย .rgl เพราะป้าย #tt คัดลอกแค่ innerHTML */
  window.RGM=j.features.map(f=>{const p=f.properties,[lo,la]=f.geometry.coordinates,el=document.createElement('div');el.className='rgm';el.setAttribute('role','button');el.setAttribute('aria-label',p.n);
   el.innerHTML=rgIcon(p.t)+`<span style="color:${(RGT[p.t]||{}).c||'#333'}">${esc(p.s)}</span>`;
   el.addEventListener('click',ev=>{ev.stopPropagation();const ad=[p.tam&&'ต.'+p.tam,p.amp&&'อ.'+p.amp,p.prov&&'จ.'+p.prov].filter(Boolean).join(' ');
