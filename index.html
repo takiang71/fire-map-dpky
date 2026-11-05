@@ -2816,7 +2816,7 @@ function ftBox(a){const s=ftSum(a),T=s.reduce((x,y)=>x+y,0);if(!T)return'<p clas
  return`<div class="kb-sb">${o.map(k=>`<i style="width:${s[k]/T*100}%;background:${FT.col[k]}" title="${esc(FT.cn[k])} ${nf(s[k]/T*100,1)}%"></i>`).join('')}</div><div class="kb-lgd">${o.filter(k=>s[k]/T>=.003).map(k=>`<span><i style="background:${FT.col[k]}"></i>${esc(FT.cn[k])}<em>${nf(s[k]/T*100,s[k]/T<.1?1:0)}%</em></span>`).join('')}</div><p class="sm" style="margin:8px 0 0">ป่าไม้ในแนวเขต ≈ ${nf(T)} ไร่ · ชนิดป่า กรมป่าไม้ 2561 (shapefile กริด 50 ม.)</p>`}
 function ftFill(a){const e=$('#kb-ftb');if(!e)return;const go=()=>{const x=$('#kb-ftb');if(x&&KBI===(a?a.id:KBI))x.innerHTML=ftBox(a)};FT?go():ftLoad().then(go).catch(()=>{const x=$('#kb-ftb');if(x)x.innerHTML='<p class="sm">โหลดข้อมูลชนิดป่าไม่ได้</p>'})}
 // ---------- นักท่องเที่ยวและเงินรายได้อุทยานแห่งชาติ (data/tourism.json จาก scripts/sync_tourism.js — รายงาน Power BI สาธารณะ 2 ฉบับ, ผู้ใช้ขอ 5 พ.ย. 69) โหลดครั้งแรกที่ใช้
-// โหมด TM: v = นักท่องเที่ยว (ไทย+ต่างชาติ) / r = เงินรายได้ / c = ยานพาหนะที่เข้าอุทยาน — ปุ่มสลับ [data-im] ในการ์ด
+// โหมด TM: v = นักท่องเที่ยว (ไทย+ต่างชาติ) / r = เงินรายได้ / c = ยานพาหนะที่เข้าอุทยาน / w = ขยะ (รายปีงบ, wasBox/wasAll) — ปุ่มสลับ [data-im] ในการ์ด
 let INC=null,INCP=null,TM='v';const INC_URL=BN_BASE.replace(/burn\/$/,'tourism.json'),INCC='#1f8a5b',INCB='#9aa5b8';
 function incLoad(){return INCP||(INCP=fetch(INC_URL,{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(j=>INC=j).catch(e=>{INCP=null;throw e}))}
 // ปีงบปัจจุบันและดัชนีเดือนในปีงบ (เวลาไทย, 0 = ต.ค.)
@@ -2831,14 +2831,41 @@ const isum=(a,n=12)=>a?a.slice(0,n).reduce((x,y)=>x+y,0):0,Z12=()=>Array(12).fil
 const IM={v:{k:'vis',t:'นักท่องเที่ยว',f:kon,s:(id,fy)=>{const p=INC.parks[id].vis;if(!p)return Z12();const a=p.th[fy],b=p.fo[fy];return a||b?Z12().map((_,i)=>(a?a[i]:0)+(b?b[i]:0)):Z12()},
   u:mx=>mx>=1e6?[1e6,'ล้านคน']:mx>=1e4?[1e3,'พันคน']:[1,'คน']},
  r:{k:'rev',t:'รายได้',f:baht,s:(id,fy)=>{const p=INC.parks[id].rev;return(p&&p.n[fy])||Z12()},u:mx=>mx>=1e6?[1e6,'ล้านบาท']:[1e3,'พันบาท']},
+ w:{k:'was',t:'ขยะ'},
  c:{k:'veh',t:'ยานพาหนะ',f:kan,s:(id,fy)=>{const p=INC.parks[id].veh;return(p&&p.n[fy])||Z12()},u:mx=>mx>=1e4?[1e3,'พันคัน']:[1,'คัน']}};
-const IMK=['v','r','c'],tmOf=()=>INC[IM[TM].k]?TM:IMK.find(k=>INC[IM[k].k])||'v';
+const IMK=['v','r','c','w'],tmOf=()=>INC[IM[TM].k]?TM:IMK.find(k=>INC[IM[k].k])||'v';
 // กราฟแท่งคู่รายเดือน: b = ปีงบก่อน (เทา) / a = ปีงบนี้ ถึงเดือน last
 function bars2(a,b,lb,last,fy,f){const n=a.length,W=420,w=W/n,bw=(w-8)/2,mx=Math.max(1,...b,...a.slice(0,last+1));
  return`<svg viewBox="0 0 ${W} 118" role="img" aria-label="รายเดือน ปีงบ ${fy} เทียบปีงบ ${fy-1}">${a.map((x,i)=>{const hb=Math.round(b[i]/mx*84),ha=Math.round(x/mx*84);
   return`<rect x="${i*w+4}" y="${92-hb}" width="${bw}" height="${Math.max(hb,b[i]?2:0)}" rx="3" fill="${INCB}"><title>${lb[i]} ${fy-1}: ${f(b[i])}</title></rect>${i<=last?`<rect x="${i*w+4+bw}" y="${92-ha}" width="${bw}" height="${Math.max(ha,x?2:0)}" rx="3" fill="${INCC}"><title>${lb[i]} ${fy}: ${f(x)}</title></rect>`:''}<text x="${i*w+w/2}" y="109" text-anchor="middle" font-size="10.5" fill="#6b7280">${lb[i]}</text>`}).join('')}<line x1="0" x2="${W}" y1="92.5" y2="92.5" stroke="#e3e6ee"/></svg>`}
 function incSeg(m){return`<div class="kb-sg" role="group" aria-label="เลือกข้อมูล">${IMK.filter(k=>INC[IM[k].k]).map(k=>`<button data-im="${k}" aria-pressed="${k===m}">${IM[k].t}</button>`).join('')}</div>`}
+// ขยะ (โหมด w): รายปีงบเท่านั้น แยกประเภท (กก.) — ปีงบที่ทุกประเภทเป็น 0 = อุทยานไม่ได้รายงาน
+const WT=[['g','ขยะทั่วไป','#6b7280'],['r','ขยะรีไซเคิล','#2a7fc0'],['o','ขยะอินทรีย์','#5a9a2a'],['h','ขยะอันตราย','#c0301c'],['x','อื่นๆ','#c9a227']],
+ wtot=(P,fy)=>WT.reduce((s,[k])=>s+((P[k]||{})[fy]||0),0),
+ kg=x=>x>=1000?nf(x/1000,x>=1e5?0:1)+' ตัน':nf(x,0)+' กก.',
+ wpct=(a,b)=>!b?'–':`<b class="${a>b?'dn':'up'}">${a>=b?'▲':'▼'} ${nf(Math.abs(a/b-1)*100,0)}%</b>`, // ขยะเพิ่ม = แดง
+ wkpp=(id,fy)=>{const v=INC.vis?isum(IM.v.s(id,fy)):0,w=wtot(INC.parks[id].was||{},fy);return v&&w?w/v:0};
+// แท่งซ้อนรายปีงบ
+function sbars(lb,S){const n=lb.length,W=420,w=W/n,bw=Math.min(56,w-14),T=lb.map((_,i)=>S.reduce((s,x)=>s+x.v[i],0)),mx=Math.max(1,...T);
+ return`<svg viewBox="0 0 ${W} 118" role="img" aria-label="ปริมาณขยะรายปีงบ">${lb.map((l,i)=>{let y=92;const x0=i*w+(w-bw)/2;
+  return S.map(x=>{const h=x.v[i]/mx*80;if(h<=0)return'';y-=h;return`<rect x="${x0}" y="${y}" width="${bw}" height="${Math.max(h,1)}" fill="${x.c}"><title>${l} ${x.n}: ${kg(x.v[i])}</title></rect>`}).join('')+`<text x="${i*w+w/2}" y="${y-4}" text-anchor="middle" font-size="10.5" fill="#4b5563">${T[i]?kg(T[i]):'ไม่มีรายงาน'}</text><text x="${i*w+w/2}" y="109" text-anchor="middle" font-size="10.5" fill="#6b7280">${l}</text>`}).join('')}<line x1="0" x2="${W}" y1="92.5" y2="92.5" stroke="#e3e6ee"/></svg>`}
+function wasBox(id){const P=INC.parks[id].was,D=INC.was;if(!P)return'<p class="sm">ไม่มีข้อมูลขยะของพื้นที่นี้</p>';
+ const ys=D.fys,has=ys.filter(y=>wtot(P,y)>0),lf=has[has.length-1];if(!lf)return'<p class="sm">อุทยานนี้ยังไม่มีรายงานปริมาณขยะ</p>';
+ const pf=String(lf-1),t=wtot(P,lf),tp=wtot(P,pf),sep=((P.r||{})[lf]||0)+((P.o||{})[lf]||0),k=wkpp(id,lf),rk=P.rk[lf],nn=(D.nat[lf]||{}).n,
+  S=WT.filter(([c])=>ys.some(y=>(P[c]||{})[y])).map(([c,n,col])=>({n,c:col,v:ys.map(y=>(P[c]||{})[y]||0)}));
+ return`<div class="kb-st g"><div><b>${kg(t)}</b><span>ปีงบ ${lf}${rk?` · อันดับ ${rk} จาก ${nn} อุทยาน`:''}</span></div>
+ <div><b>${tp?wpct(t,tp):'–'}</b><span>${tp?`เทียบปีงบ ${pf} (${kg(tp)})`:`ปีงบ ${pf} ไม่มีรายงาน`}</span></div>
+ <div><b>${nf(sep/t*100,0)}%</b><span>คัดแยกได้ (รีไซเคิล + อินทรีย์) ปีงบ ${lf}</span></div>
+ <div><b>${k?nf(k,2)+' กก.':'–'}</b><span>ขยะต่อนักท่องเที่ยว 1 คน ปีงบ ${lf}</span></div></div>
+ <div class="kb-ch"><div class="t">ปริมาณขยะรายปีงบประมาณ แยกประเภท</div>${sbars(ys,S)}<div class="kb-lgd">${S.map(x=>`<span><i style="background:${x.c}"></i>${x.n}<em>${kg(x.v[ys.indexOf(lf)])}</em></span>`).join('')}</div></div>
+ <p class="sm" style="margin:6px 0 0">ข้อมูลรายปีงบเท่านั้น (ไม่มีรายเดือน) · ตัวเลขในคำอธิบายสี = ปีงบ ${lf} · ปีงบที่ไม่มีรายงานแสดงเป็น "ไม่มีรายงาน" · ที่มา: ${iSrc(D)}</p>`}
+function wasAll(){const D=INC.was,lf=D.fys[D.fys.length-1],pf=String(lf-1),n=D.nat[lf]||{},ids=Object.keys(INC.parks);let s1=0;
+ const rows=ids.map(id=>{const a=AR.find(x=>x.id===id),P=INC.parks[id].was||{},t=wtot(P,lf),tp=wtot(P,pf),sep=((P.r||{})[lf]||0)+((P.o||{})[lf]||0),k=wkpp(id,lf);s1+=t;
+  return`<tr data-tab="${id}"><td><i style="background:${a?a.c:'#999'}"></i>${esc(a?a.s:INC.names[id])}</td><td>${t?nf(t,0):'ไม่มีรายงาน'}</td><td>${(P.rk||{})[lf]||'–'}</td><td>${t&&tp?wpct(t,tp):'–'}</td><td>${t?nf(sep/t*100,0)+'%':'–'}</td><td>${k?nf(k,2):'–'}</td></tr>`}).join('');
+ return`<div class="kb-it"><table><thead><tr><th>อุทยานแห่งชาติ</th><th>ขยะปีงบ ${lf} (กก.)</th><th>อันดับประเทศ</th><th>เทียบปีงบ ${pf}</th><th>คัดแยกได้</th><th>กก./คน</th></tr></thead><tbody>${rows}<tr class="tt"><td>รวม 4 อุทยาน</td><td>${nf(s1,0)}</td><td></td><td></td><td></td><td></td></tr></tbody></table></div>
+ <p class="sm" style="margin:8px 0 0">ปีงบ ${lf} รวม 4 อุทยาน = ${n.sum?nf(s1/n.sum*100,1):'–'}% ของขยะในอุทยานแห่งชาติทั้งประเทศ (${n.sum?kg(n.sum):'–'} จาก ${n.n||'–'} อุทยาน) · คัดแยกได้ = รีไซเคิล + อินทรีย์ · กก./คน = ขยะ ÷ นักท่องเที่ยวปีงบเดียวกัน · ข้อมูลรายปีงบ ล่าสุดปีงบ ${lf} · ที่มา: ${iSrc(D)} · แตะแถวเพื่อดูรายพื้นที่</p>`}
 function incBox(id){if(!INC.parks[id])return'<p class="sm">ไม่มีข้อมูลของพื้นที่นี้ (มีเฉพาะอุทยานแห่งชาติ)</p>';
+ if(tmOf()==='w')return incSeg('w')+wasBox(id);
  const m=tmOf(),M=IM[m],D=INC[M.k],{fy,mi}=incNow(),pf=String(fy-1),cur=M.s(id,fy),prv=M.s(id,pf),
   done=D.fys.filter(y=>y<fy),tot=done.map(y=>isum(M.s(id,y))),pk=tot.indexOf(Math.max(...tot)),
   U=M.u(Math.max(...tot)),fmt=x=>{const y=x/U[0];return nf(y,U[0]>1&&y<10?1:0)},
@@ -2854,12 +2881,12 @@ function incBox(id){if(!INC.parks[id])return'<p class="sm">ไม่มีข้
  <div class="kb-ch"><div class="t">${M.t}รายเดือน ปีงบ ${fy} เทียบ ${pf}</div>${bars2(cur,prv,MON,mi,+fy,M.f)}<div class="kb-lgd"><span><i style="background:${INCC}"></i>ปีงบ ${fy}</span><span><i style="background:${INCB}"></i>ปีงบ ${pf}</span></div></div>
  <p class="sm" style="margin:6px 0 0">เดือนที่${M.t}สูงสุด (เฉลี่ย ${l3.length} ปีงบล่าสุด): ${top.map(i=>MON[i]).join(' ')} · ที่มา: ${iSrc(D)}</p>`}
 // ตารางเทียบ 4 อุทยาน (แท็บภาพรวม)
-function incAll(){const m=tmOf(),M=IM[m],D=INC[M.k],{fy,mi}=incNow(),pf=String(fy-1),ids=Object.keys(INC.parks),n=D.nat[pf]||{},u={v:'คน',r:'บาท',c:'คัน'}[m];let s1=0,s2=0;
+function incAll(){if(tmOf()==='w')return incSeg('w')+wasAll();const m=tmOf(),M=IM[m],D=INC[M.k],{fy,mi}=incNow(),pf=String(fy-1),ids=Object.keys(INC.parks),n=D.nat[pf]||{},u={v:'คน',r:'บาท',c:'คัน'}[m];let s1=0,s2=0;
  const rows=ids.map(id=>{const a=AR.find(x=>x.id===id),t=isum(M.s(id,pf)),c=isum(M.s(id,fy),mi+1);s1+=t;s2+=c;
   return`<tr data-tab="${id}"><td><i style="background:${a?a.c:'#999'}"></i>${esc(a?a.s:INC.names[id])}</td><td>${nf(t)}</td><td>${INC.parks[id][M.k].rk[pf]||'–'}</td><td>${nf(c)}</td><td>${mi?ipct(isum(M.s(id,fy),mi),isum(M.s(id,pf),mi)):'–'}</td></tr>`}).join('');
  return incSeg(m)+`<div class="kb-it"><table><thead><tr><th>อุทยานแห่งชาติ</th><th>${M.t}ทั้งปีงบ ${pf} (${u})</th><th>อันดับประเทศ</th><th>ปีงบ ${fy} ถึง ${MON[mi]} (${u})</th><th>${mi?(mi>1?'ต.ค.–'+MON[mi-1]:'ต.ค.')+' เทียบปีก่อน':'เทียบปีก่อน'}</th></tr></thead><tbody>${rows}<tr class="tt"><td>รวม 4 อุทยาน</td><td>${nf(s1)}</td><td></td><td>${nf(s2)}</td><td></td></tr></tbody></table></div>
  <p class="sm" style="margin:8px 0 0">ปีงบ ${pf} รวม 4 อุทยาน = ${n.sum?nf(s1/n.sum*100,1):'–'}% ของ${M.t}อุทยานแห่งชาติทั้งประเทศ (${n.sum?M.f(n.sum):'–'} จาก ${n.n||'–'} อุทยาน) · อันดับเรียงตามยอดทั้งปีงบ · ${MON[mi]} ยังไม่ครบเดือน · ไม่มีข้อมูลเขตรักษาพันธุ์สัตว์ป่า/เขตห้ามล่าสัตว์ป่า · ที่มา: ${iSrc(D)} · แตะแถวเพื่อดูรายพื้นที่</p>`}
-function incCard(a){if(a&&!['ky','tl','ps','tp'].includes(a.id))return'';return card('coin',a?'การท่องเที่ยว':'การท่องเที่ยว 4 อุทยานแห่งชาติ','<div id="kb-inc"><p class="sm">กำลังโหลดข้อมูลการท่องเที่ยว…</p></div>',{bg:'#e6f4ec',c:INCC,sm:'นักท่องเที่ยว · รายได้ · ยานพาหนะ'})}
+function incCard(a){if(a&&!['ky','tl','ps','tp'].includes(a.id))return'';return card('coin',a?'การท่องเที่ยว':'การท่องเที่ยว 4 อุทยานแห่งชาติ','<div id="kb-inc"><p class="sm">กำลังโหลดข้อมูลการท่องเที่ยว…</p></div>',{bg:'#e6f4ec',c:INCC,sm:'นักท่องเที่ยว · รายได้ · ยานพาหนะ · ขยะ'})}
 function incFill(a){if(!$('#kb-inc'))return;const id=KBI,go=()=>{const x=$('#kb-inc');if(x&&KBI===id)x.innerHTML=a?incBox(a.id):incAll()};
  INC?go():incLoad().then(go).catch(()=>{const x=$('#kb-inc');if(x)x.innerHTML='<p class="sm">โหลดข้อมูลการท่องเที่ยวไม่ได้</p>'})}
 function hero(a){const f=a.c&&fOf(a),rai=f?f.properties.rai:GEO.cons.features.reduce((s,f)=>s+f.properties.rai,0),

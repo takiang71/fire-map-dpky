@@ -1,7 +1,8 @@
-// นักท่องเที่ยว เงินรายได้ และยานพาหนะที่เข้าอุทยานแห่งชาติรายเดือน จากรายงาน Power BI สาธารณะ 3 ฉบับ (ผู้ใช้ขอ 5 พ.ย. 69)
+// นักท่องเที่ยว เงินรายได้ ยานพาหนะ (รายเดือน) และปริมาณขยะ (รายปีงบ) ของอุทยานแห่งชาติ จากรายงาน Power BI สาธารณะ 4 ฉบับ (ผู้ใช้ขอ 5 พ.ย. 69)
 //   vis = "ระบบรายงานจำนวนนักท่องเที่ยวในอุทยานแห่งชาติ" ตาราง Tourist (ไทย/ต่างชาติ)
 //   rev = "ระบบรายงานการจัดเก็บเงินรายได้อุทยานแห่งชาติ" ตาราง Income
 //   veh = "ระบบรายงานจำนวนยานพาหนะที่เข้าอุทยานแห่งชาติ" ตาราง จำนวนยานพาหนะ
+//   was = "ระบบการรายงานปริมาณขยะในอุทยานแห่งชาติ" ตาราง แยกปี (รายปีงบ ไม่มีรายเดือน, กก. แยก 5 ประเภท)
 // → data/tourism.json เฉพาะ 4 อุทยานในกลุ่มป่า (รายเดือน) + ยอดทั้งประเทศ/อันดับรายปีงบ
 // รายงานเผยแพร่แบบ Publish to web — อ่านผ่าน querydata ที่หน้ารายงานใช้เอง (ไม่ต้องล็อกอิน/คีย์ แต่ไม่ใช่ API ทางการ:
 // ถ้า Microsoft เปลี่ยนรูปแบบหรือเจ้าของปิดการเผยแพร่ ฉบับนั้นจะล้ม → คงข้อมูลเดิมของฉบับนั้นไว้ และจบด้วย exit 1)
@@ -23,6 +24,10 @@ const REPORTS = {
     ent: 'Income', fy: 'ปีงบประมาณ', park: 'ชื่ออุทยานแห่งชาติ', mon: 'เดือน', val: 'เงินรายได้' },
   veh: { r: 'eyJrIjoiODRiNzRkNmUtMWU3Ni00NjI0LWI3ZGItMWQ4MGI5MDE0MjUxIiwidCI6ImVjOGI5MWM3LTMxMDctNGU5Zi1iMzRmLTY3MmRkZmE5Y2NlMSIsImMiOjEwfQ==', src: 'ระบบรายงานจำนวนยานพาหนะที่เข้าอุทยานแห่งชาติ',
     ent: 'จำนวนยานพาหนะ', fy: 'ปีงบประมาณ', park: 'อุทยานแห่งชาติ', mon: 'เดือน', val: 'จำนวน' },
+  // mon: null = รายปีงบ → parks[id][ประเภท][ปีงบ] เป็นตัวเลขเดียว (กก.)
+  was: { r: 'eyJrIjoiZTAwOGY2MjgtY2M4MC00NWU2LWE0Y2EtZmQ4OTFhMDZhNDVkIiwidCI6ImVjOGI5MWM3LTMxMDctNGU5Zi1iMzRmLTY3MmRkZmE5Y2NlMSIsImMiOjEwfQ==', src: 'ระบบการรายงานปริมาณขยะในอุทยานแห่งชาติ',
+    ent: 'แยกปี', fy: 'ปีงบประมาณ', park: 'อุทยานแห่งชาติ', mon: null, val: 'ปริมาณขยะ(กิโลกรัม)', kind: 'ประเภทขยะ',
+    kinds: { 'ขยะทั่วไป': 'g', 'ขยะรีไซเคิล': 'r', 'ขยะอินทรีย์': 'o', 'ขยะอันตราย': 'h', 'อื่นๆ': 'x' } },
 };
 const WIN = 30000; // เพดานแถวต่อคำขอของบริการ (ขอมากกว่านี้ก็ได้แค่ 30,000)
 
@@ -71,14 +76,21 @@ async function report(cfg) {
     if (rows.length >= WIN) throw new Error(cfg.ent + ': ผลถึงเพดาน ' + WIN + ' แถว (ข้อมูลอาจไม่ครบ)');
     return rows;
   };
-  // 1) รายเดือน (แยกประเภทนักท่องเที่ยวถ้ามี) เฉพาะ 4 อุทยาน  2) ยอดรายปีงบทุกอุทยาน (หาอันดับ/ยอดทั้งประเทศ)
+  // 1) รายเดือน (หรือรายปีงบเมื่อไม่มีเดือน) แยกประเภทถ้ามี เฉพาะ 4 อุทยาน  2) ยอดรายปีงบทุกอุทยาน (หาอันดับ/ยอดทั้งประเทศ)
+  // ค่าบางแถวมาเป็นข้อความทศนิยม ('4433.7999…') จึงแปลงด้วย Number ก่อนรวม
   const where = [{ Condition: { In: { Expressions: [ce(cfg.park)], Values: Object.values(PARKS).map(p => [{ Literal: { Value: `'${p}'` } }]) } } }];
-  const mrows = await q([col(cfg.fy), col(cfg.park), col(cfg.mon), ...(cfg.kind ? [col(cfg.kind)] : []), sum], where);
+  const mrows = await q([col(cfg.fy), col(cfg.park), ...(cfg.mon ? [col(cfg.mon)] : []), ...(cfg.kind ? [col(cfg.kind)] : []), sum], where);
   const yrows = await q([col(cfg.fy), col(cfg.park), sum]);
   const parks = {};
   for (const r of mrows) {
-    const [fy, p, m] = r, v = Math.round(r[r.length - 1] || 0), mi = MON.indexOf(m);
-    const id = Object.keys(PARKS).find(k => PARKS[k] === p);
+    const id = Object.keys(PARKS).find(k => PARKS[k] === r[1]);
+    if (!cfg.mon) {
+      const [fy, , kd] = r, v = Number(r[r.length - 1]) || 0, key = cfg.kind ? cfg.kinds[kd] : 'n';
+      if (cfg.kind && !key && v) throw new Error(cfg.ent + ': ไม่รู้จักประเภท "' + kd + '"');
+      if (fy && id && key) ((parks[id] ??= {})[key] ??= {})[fy] = Math.round((((parks[id][key][fy]) || 0) + v) * 10) / 10;
+      continue;
+    }
+    const [fy, , m] = r, v = Math.round(Number(r[r.length - 1]) || 0), mi = MON.indexOf(m);
     if (mi < 0 && v) throw new Error(cfg.ent + ': ไม่รู้จักชื่อเดือน "' + m + '"');
     if (!fy || !id || mi < 0) continue;
     const key = cfg.kind ? cfg.kinds[r[3]] : 'n'; if (!key) continue;
@@ -86,7 +98,7 @@ async function report(cfg) {
   }
   for (const id of Object.keys(PARKS)) if (!parks[id]) throw new Error(cfg.ent + ': ไม่พบอุทยาน ' + PARKS[id]);
   const tot = {};
-  for (const [fy, p, v] of yrows) if (fy && p) (tot[fy] ??= {})[p] = (tot[fy][p] || 0) + (v || 0);
+  for (const [fy, p, v] of yrows) if (fy && p) (tot[fy] ??= {})[p] = (tot[fy][p] || 0) + (Number(v) || 0);
   const fys = Object.keys(tot).sort();
   const nat = {}; for (const fy of fys) { const v = Object.values(tot[fy]); nat[fy] = { sum: Math.round(v.reduce((a, b) => a + b, 0)), n: v.filter(x => x > 0).length } }
   for (const [id, n] of Object.entries(PARKS)) {
@@ -99,14 +111,14 @@ async function report(cfg) {
 
 (async () => {
   const old = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')) : null;
-  const out = { v: 2, mon: MON, names: PARKS, vis: null, rev: null, veh: null, parks: Object.fromEntries(Object.keys(PARKS).map(k => [k, {}])) };
+  const out = { v: 2, mon: MON, names: PARKS, vis: null, rev: null, veh: null, was: null, parks: Object.fromEntries(Object.keys(PARKS).map(k => [k, {}])) };
   let bad = 0;
   for (const [k, cfg] of Object.entries(REPORTS)) {
     try {
       const r = await report(cfg);
       out[k] = r.meta; for (const id in r.parks) out.parks[id][k] = r.parks[id];
       const last = r.meta.fys[r.meta.fys.length - 1], pf = String(last - 1);
-      const s = id => Object.entries(r.parks[id]).filter(([q, x]) => q !== 'rk' && x[pf]).map(([, x]) => x).reduce((a, x) => a + x[pf].reduce((p, q) => p + q, 0), 0);
+      const s = id => Math.round(Object.entries(r.parks[id]).filter(([q, x]) => q !== 'rk' && x[pf]).map(([, x]) => x[pf]).reduce((a, x) => a + (Array.isArray(x) ? x.reduce((p, q) => p + q, 0) : x), 0));
       console.log(`${k}: ${r.rows} แถว ปีงบ ${r.meta.fys[0]}–${last} · ปีงบ ${pf} ` + Object.keys(PARKS).map(id => PARKS[id] + ' ' + s(id).toLocaleString()).join(' / '));
     } catch (e) {
       bad++; console.error(k + ': ' + e.message);
