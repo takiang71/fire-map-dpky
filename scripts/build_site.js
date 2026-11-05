@@ -75,8 +75,8 @@ function summary(L) {
   if (fs.existsSync(path.join(ROOT, 'data', 'admin.json'))) fs.copyFileSync(path.join(ROOT, 'data', 'admin.json'), path.join(OUT, 'data', 'admin.json'));
   // นักท่องเที่ยวและเงินรายได้อุทยานแห่งชาติ (scripts/sync_tourism.js) — การ์ดในหน้าความสำคัญ
   if (fs.existsSync(path.join(ROOT, 'data', 'tourism.json'))) fs.copyFileSync(path.join(ROOT, 'data', 'tourism.json'), path.join(OUT, 'data', 'tourism.json'));
-  // หน่วยพิทักษ์ จุดสกัด ฐานเฉพาะกิจ (scripts/import_rangers.js)
-  if (fs.existsSync(path.join(ROOT, 'data', 'ranger.json'))) fs.copyFileSync(path.join(ROOT, 'data', 'ranger.json'), path.join(OUT, 'data', 'ranger.json'));
+  // หน่วยพิทักษ์ จุดสกัด ฐานเฉพาะกิจ + ฐานป้องกันรักษาป่า (scripts/import_rangers.js)
+  for (const f of ['ranger.json', 'fbase.json']) if (fs.existsSync(path.join(ROOT, 'data', f))) fs.copyFileSync(path.join(ROOT, 'data', f), path.join(OUT, 'data', f));
   if (fs.existsSync(path.join(ROOT, 'data', 'prov.json'))) fs.copyFileSync(path.join(ROOT, 'data', 'prov.json'), path.join(OUT, 'data', 'prov.json'));
   // ชนิดป่า (scripts/build_ftype.js)
   if (fs.existsSync(path.join(ROOT, 'data', 'ftype', 'ftype.json'))) { fs.mkdirSync(path.join(OUT, 'data', 'ftype'), { recursive: true }); fs.copyFileSync(path.join(ROOT, 'data', 'ftype', 'ftype.json'), path.join(OUT, 'data', 'ftype', 'ftype.json')) }
