@@ -2504,17 +2504,28 @@ map.once('style.load',hRender);fitHome(false);
 // ลิงก์ตรงจากปุ่มในการ์ด LINE (ผู้ใช้ขอ 3 พ.ย. 69 — เดิมปุ่มแค่เปิดหน้าแรก):
 //  ?hs=ละติจูด,ลองจิจูด = เปิดแผงรายละเอียดจุดนั้น (จุดใน HS ห่าง ≤ ~400 ม.; เกิน 48 ชม. แล้วซูมไปตำแหน่ง + วงแหวน)
 //  ?bb=ตะวันตก,ใต้,ตะวันออก,เหนือ = ซูมกรอบของหลายจุด · ?ar=<รหัส ky tl ps tp dy ks kc เดียวกับหน้าความสำคัญ> = ซูมพื้นที่อนุรักษ์
+//  ?burn=<รหัสรอบ เช่น 20261022_20261028 | fy2570 | c202603> = เปิดชั้นพื้นที่เผาไหม้ เลือกรอบนั้น แล้วซูมกรอบของรอยเผา (ข้อความ Telegram/LINE ผู้ใช้ขอ 5 พ.ย. 69)
 const LNK={ky:'อุทยานแห่งชาติเขาใหญ่',tl:'อุทยานแห่งชาติทับลาน',ps:'อุทยานแห่งชาติปางสีดา',tp:'อุทยานแห่งชาติตาพระยา',dy:'เขตรักษาพันธุ์สัตว์ป่าดงใหญ่',ks:'เตรียมประกาศเป็นเขตห้ามล่าสัตว์ป่าโคกสูง',kc:'เตรียมประกาศเป็นเขตห้ามล่าสัตว์ป่าเขาฉกรรจ์'};
 async function deepLink(LD){
  const q=new URLSearchParams(location.search),num=k=>{const a=(q.get(k)||'').split(',').map(parseFloat);return a.every(isFinite)?a:[]};
- const hs=num('hs'),bb=num('bb'),ar=LNK[q.get('ar')];if(hs.length!==2&&bb.length!==4&&!ar)return;
+ const hs=num('hs'),bb=num('bb'),ar=LNK[q.get('ar')],bn=/^(fy\d{4}|c\d{6}(_\d{6})?|\d{8}_\d{8})$/.test(q.get('burn')||'')?q.get('burn'):null;if(hs.length!==2&&bb.length!==4&&!ar&&!bn)return;
  try{await LD}catch(e){}if(!map.isStyleLoaded())await new Promise(r=>map.once('idle',r));MOVED=true;
  if(hs.length===2){const[la,lo]=hs,h=HS.reduce((m,x)=>{const d=Math.hypot(x.lat-la,x.lon-lo);return d<m.d?{d,h:x}:m},{d:.004,h:null}).h;if(h)return openDetail(h);
   const r=map.getSource('ring');r&&r.setData({type:'FeatureCollection',features:[{type:'Feature',properties:{},geometry:{type:'Point',coordinates:[lo,la]}}]});
   map.jumpTo({center:[lo,la],zoom:12.5});return toast('จุดนี้เก่ากว่า 48 ชม. แล้ว — แสดงตำแหน่งที่พบ')}
+ if(bn)return bnLink(bn);
  if(bb.length===4)return map.fitBounds([[bb[0],bb[1]],[bb[2],bb[3]]],{padding:homePad(),maxZoom:13,duration:0});
  const f=GEO.cons.features.find(f=>f.properties.name===ar);if(!f)return;const b=new maplibregl.LngLatBounds();f.geometry.coordinates.forEach(p=>p[0].forEach(c=>b.extend(c)));
  map.fitBounds(b,{padding:homePad(),duration:0});toast('ซูมไปยัง '+ar.replace(/^เตรียมประกาศเป็น/,''))}
+// ?burn= : เปิดชั้น + เลือกรอบ (รอบที่ยังไม่มีในข้อมูล = bnDefault ถอยไปปีงบปัจจุบันเอง) · เดสก์ท็อปเปิดแผงชั้นข้อมูลที่กล่องพื้นที่เผาไหม้ (ไร่/รายพื้นที่) · ซูมกรอบของรอยเผาตามปุ่มดงใหญ่
+async function bnLink(k){BNK=k;S.burn=true;if(innerWidth>767){closeDetail();$('#right').classList.add('open')}apply();sync();
+ try{const I=await bnIndex(),D=await bnData(bnDefault(I)),R=D.R.filter(o=>!(S.xdy&&o.dy)),lat=y=>Math.atan(Math.sinh(Math.PI*(1-2*y)))*180/Math.PI;
+  if(innerWidth>767)setTimeout(()=>$('#bnbox').scrollIntoView({block:'center'}),300);
+  if(!R.length)return toast('ไม่พบรอยเผาไหม้ในรอบนี้');
+  const b=R.reduce((m,o)=>[Math.min(m[0],o.bb[0]),Math.min(m[1],o.bb[1]),Math.max(m[2],o.bb[2]),Math.max(m[3],o.bb[3])],[1,1,0,0]);
+  map.fitBounds([[b[0]*360-180,lat(b[3])],[b[2]*360-180,lat(b[1])]],{padding:homePad(),maxZoom:13,duration:0});
+  toast('พื้นที่เผาไหม้ '+(/^fy/.test(D.k)?'ปีงบ '+D.k.slice(2)+' สะสม':'รอบ '+bnLab(D.ps[0])))}
+ catch(e){toast('โหลดพื้นที่เผาไหม้ไม่สำเร็จ')}}
 sync();deepLink(load(true));consInfo();respLegend();
 function fitTitle(){const h1=$('#left h1'),m=$('.h1m');if(!h1||!m)return;h1.style.fontSize='';let fs=parseFloat(getComputedStyle(h1).fontSize);while(m.scrollWidth>m.clientWidth+1&&fs>15){fs-=1;h1.style.fontSize=fs+'px'}}
 fitTitle();addEventListener('resize',fitTitle);
