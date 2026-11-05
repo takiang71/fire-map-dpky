@@ -381,6 +381,8 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 .kb-tr b{display:block;font-size:14px}.kb-tr small{display:block;font-size:12px;color:var(--mut);line-height:1.5}
 .kb-st{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}
 .kb-st div{border:1px solid #eee3df;border-radius:14px;padding:7px 10px;background:#fffaf8}.kb-st b{display:block;font-size:19px;font-weight:800;color:#c0301c;line-height:1.25}.kb-st span{display:block;font-size:11px;color:var(--mut);line-height:1.3}
+.kb-it{overflow-x:auto}.kb-it table{width:100%;border-collapse:collapse;font-size:13px}.kb-it th{font-size:11.5px;color:var(--mut);font-weight:600;text-align:right;padding:6px 8px;border-bottom:1px solid #e3e6ee;vertical-align:bottom}.kb-it td{text-align:right;padding:7px 8px;border-bottom:1px solid #f0f2f0;white-space:nowrap}.kb-it th:first-child,.kb-it td:first-child{text-align:left}.kb-it tr[data-tab]{cursor:pointer}.kb-it tr[data-tab]:hover{background:#f1f6f2}.kb-it td i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}.kb-it tr.tt td{font-weight:700;border-bottom:0}
+#kb .kb-st.g div{border-color:#dcebe2;background:#f5fbf7}#kb .kb-st.g b{color:#14532d}#kb .up,#kb .kb-st.g b.up{color:#1f8a5b}#kb .dn,#kb .kb-st.g b.dn{color:#c0301c}
 .kb-ch{margin:2px 0 10px}.kb-ch svg{display:block;width:100%;height:auto}.kb-ch .t{font-size:12.5px;font-weight:600;color:var(--kg);margin-bottom:2px}
 .kb-ar{display:grid;gap:2px}
 .kb-ar button{display:grid;grid-template-columns:12px minmax(0,1fr) auto;align-items:center;gap:4px 10px;border:0;background:none;text-align:left;border-radius:12px;padding:7px 8px;font-size:13.5px}
@@ -2695,7 +2697,7 @@ const KBT={wf:['น้ำตก','#2a7fc0'],vp:['จุดชมวิว','#e07
  KBI0='data/tour/',
  IUCN={CR:['#c0301c','ใกล้สูญพันธุ์อย่างยิ่ง (CR)'],EN:['#e0662a','ใกล้สูญพันธุ์ (EN)'],VU:['#d9a21b','มีแนวโน้มใกล้สูญพันธุ์ (VU)']},
  WHS='มรดกโลก 2548',
- IC={star:'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z',clock:'M12 7v5l3 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z',tree:'M12 2l5 7h-3l4 6h-5v7h-2v-7H6l4-6H7z',
+ IC={coin:'M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.5 8h3.8a2 2 0 010 4H9.5zm0 4h4.3a2 2 0 010 4H9.5zm0-4v8M11.5 6.5V8m0 8v1.5',star:'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z',clock:'M12 7v5l3 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z',tree:'M12 2l5 7h-3l4 6h-5v7h-2v-7H6l4-6H7z',
   paw:'M7.5 9.5a1.5 2 0 103 0 1.5 2 0 10-3 0M13.5 9.5a1.5 2 0 103 0 1.5 2 0 10-3 0M4.5 13a1.3 1.7 0 102.6 0 1.3 1.7 0 10-2.6 0M17 13a1.3 1.7 0 102.6 0 1.3 1.7 0 10-2.6 0M12 14c-3 0-5 3-5 5 0 1.5 1.5 2 2.5 1.6S11 20 12 20s1.5.2 2.5.6S17 20.5 17 19c0-2-2-5-5-5z',
   pin:'M12 21s-7-6.2-7-11a7 7 0 0114 0c0 4.8-7 11-7 11zM12 8.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3z',fire:'M12 3s5 4.5 5 10a5 5 0 01-10 0c0-2.5 1.5-4 1.5-4s.5 2 2 2c0-4 1.5-8 1.5-8z',
   shield:'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',heart:'M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z',globe:'M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18',grid:'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z'};
@@ -2794,10 +2796,10 @@ const ic=(k,bg,c)=>`<i${bg?` style="--ic:${bg};--icc:${c}"`:''}><svg viewBox="0 
  card=(k,t,body,o={})=>`<div class="kb-card"${o.id?` id="${o.id}"`:''}><h3>${ic(k,o.bg,o.c)}${t}${o.sm?`<small>${o.sm}</small>`:''}</h3>${body}</div>`,
  lis=a=>`<ul class="kb-li">${a.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`,
  bbOf=fs=>{let b=[180,90,-180,-90];fs.forEach(f=>f.geometry.coordinates.forEach(p=>p[0].forEach(([x,y])=>{b=[Math.min(b[0],x),Math.min(b[1],y),Math.max(b[2],x),Math.max(b[3],y)]})));return b};
-// กราฟแท่ง SVG (ค่าบนแท่ง ป้ายใต้แท่ง) — hi = ดัชนีที่เน้นสี
-function bars(v,lb,col,hi){const n=v.length,W=420,w=W/n,H=118,mx=Math.max(1,...v);
+// กราฟแท่ง SVG (ค่าบนแท่ง ป้ายใต้แท่ง) — hi = ดัชนีที่เน้นสี, fmt = รูปแบบตัวเลขบนแท่ง (ค่าเริ่มต้น nf)
+function bars(v,lb,col,hi,fmt){const n=v.length,W=420,w=W/n,H=118,mx=Math.max(1,...v);
  return`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(lb.map((l,i)=>l+' '+v[i]).join(', '))}">${v.map((x,i)=>{const h=Math.round(x/mx*76),y=92-h,on=hi&&hi.includes(i);
-  return`<rect x="${i*w+5}" y="${y}" width="${w-10}" height="${Math.max(h,x?2:0)}" rx="4" fill="${on?col:col+'73'}"/><text x="${i*w+w/2}" y="${y-4}" text-anchor="middle" font-size="10.5" fill="#4b5563" font-weight="${on?700:400}">${x?nf(x):''}</text><text x="${i*w+w/2}" y="109" text-anchor="middle" font-size="10.5" fill="#6b7280">${lb[i]}</text>`}).join('')}<line x1="0" x2="${W}" y1="92.5" y2="92.5" stroke="#e3e6ee"/></svg>`}
+  return`<rect x="${i*w+5}" y="${y}" width="${w-10}" height="${Math.max(h,x?2:0)}" rx="4" fill="${on?col:col+'73'}"/><text x="${i*w+w/2}" y="${y-4}" text-anchor="middle" font-size="10.5" fill="#4b5563" font-weight="${on?700:400}">${x?(fmt||nf)(x):''}</text><text x="${i*w+w/2}" y="109" text-anchor="middle" font-size="10.5" fill="#6b7280">${lb[i]}</text>`}).join('')}<line x1="0" x2="${W}" y1="92.5" y2="92.5" stroke="#e3e6ee"/></svg>`}
 // จุดความร้อนย้อนหลัง (HD = กรมอุทยานฯ Suomi NPP, ไม่รวมจุดจัดการเชื้อเพลิง/ไม่พบไฟ เหมือนการ์ดหลัก)
 function hot(a){const L=HD.filter(r=>fuOK(r)&&(!a||arKey(DIC.ar[r.ar])===arKey(a.n))),fys=[...new Set(HD.map(r=>r.fy))].sort(),by=fys.map(y=>L.filter(r=>r.fy===y).length),mo=MON.map((_,i)=>L.filter(r=>r.mo===i).length);return{L,fys,by,mo}}
 function fireCard(a){const{L,fys,by,mo}=hot(a),pk=by.indexOf(Math.max(...by)),pm=mo.indexOf(Math.max(...mo)),top=[...mo.keys()].sort((x,y)=>mo[y]-mo[x]).slice(0,3);
@@ -2812,6 +2814,42 @@ function ftSum(a){const j=FT,s=new Array(j.cn.length).fill(0);for(const k in j.s
 function ftBox(a){const s=ftSum(a),T=s.reduce((x,y)=>x+y,0);if(!T)return'<p class="sm">ไม่มีข้อมูลชนิดป่า</p>';const o=[...s.keys()].filter(k=>s[k]>0).sort((x,y)=>s[y]-s[x]);
  return`<div class="kb-sb">${o.map(k=>`<i style="width:${s[k]/T*100}%;background:${FT.col[k]}" title="${esc(FT.cn[k])} ${nf(s[k]/T*100,1)}%"></i>`).join('')}</div><div class="kb-lgd">${o.filter(k=>s[k]/T>=.003).map(k=>`<span><i style="background:${FT.col[k]}"></i>${esc(FT.cn[k])}<em>${nf(s[k]/T*100,s[k]/T<.1?1:0)}%</em></span>`).join('')}</div><p class="sm" style="margin:8px 0 0">ป่าไม้ในแนวเขต ≈ ${nf(T)} ไร่ · ชนิดป่า กรมป่าไม้ 2561 (shapefile กริด 50 ม.)</p>`}
 function ftFill(a){const e=$('#kb-ftb');if(!e)return;const go=()=>{const x=$('#kb-ftb');if(x&&KBI===(a?a.id:KBI))x.innerHTML=ftBox(a)};FT?go():ftLoad().then(go).catch(()=>{const x=$('#kb-ftb');if(x)x.innerHTML='<p class="sm">โหลดข้อมูลชนิดป่าไม่ได้</p>'})}
+// ---------- เงินรายได้อุทยานแห่งชาติ (data/income.json จาก scripts/sync_income.js — รายงาน Power BI "ระบบรายงานการจัดเก็บเงินรายได้อุทยานแห่งชาติ", ผู้ใช้ขอ 5 พ.ย. 69) โหลดครั้งแรกที่ใช้
+let INC=null,INCP=null;const INC_URL=BN_BASE.replace(/burn\/$/,'income.json'),INCC='#1f8a5b',INCB='#9aa5b8';
+function incLoad(){return INCP||(INCP=fetch(INC_URL,{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(j=>INC=j).catch(e=>{INCP=null;throw e}))}
+// ปีงบปัจจุบันและดัชนีเดือนในปีงบ (เวลาไทย, 0 = ต.ค.)
+function incNow(){const d=new Date(Date.now()+7*36e5),m=d.getUTCMonth();return{fy:String(d.getUTCFullYear()+543+(m>=9?1:0)),mi:(m+3)%12}}
+const isum=(a,n=12)=>a?a.slice(0,n).reduce((x,y)=>x+y,0):0,
+ baht=x=>x>=1e6?nf(x/1e6,x>=1e8?0:x>=1e7?1:2)+' ล้านบาท':nf(x)+' บาท',
+ ipct=(a,b)=>!b?(a?'<b class="up">▲ ใหม่</b>':'–'):`<b class="${a>=b?'up':'dn'}">${a>=b?'▲':'▼'} ${nf(Math.abs(a/b-1)*100,0)}%</b>`,
+ iDate=()=>{try{return new Date(INC.refresh+'Z').toLocaleString('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'})+' น.'}catch(e){return''}};
+// กราฟแท่งคู่รายเดือน: b = ปีงบก่อน (เทา) / a = ปีงบนี้ ถึงเดือน last
+function bars2(a,b,lb,last,fy){const n=a.length,W=420,w=W/n,bw=(w-8)/2,mx=Math.max(1,...b,...a.slice(0,last+1));
+ return`<svg viewBox="0 0 ${W} 118" role="img" aria-label="รายได้รายเดือน ปีงบ ${fy} เทียบปีงบ ${fy-1}">${a.map((x,i)=>{const hb=Math.round(b[i]/mx*84),ha=Math.round(x/mx*84);
+  return`<rect x="${i*w+4}" y="${92-hb}" width="${bw}" height="${Math.max(hb,b[i]?2:0)}" rx="3" fill="${INCB}"><title>${lb[i]} ${fy-1}: ${nf(b[i])} บาท</title></rect>${i<=last?`<rect x="${i*w+4+bw}" y="${92-ha}" width="${bw}" height="${Math.max(ha,x?2:0)}" rx="3" fill="${INCC}"><title>${lb[i]} ${fy}: ${nf(x)} บาท</title></rect>`:''}<text x="${i*w+w/2}" y="109" text-anchor="middle" font-size="10.5" fill="#6b7280">${lb[i]}</text>`}).join('')}<line x1="0" x2="${W}" y1="92.5" y2="92.5" stroke="#e3e6ee"/></svg>`}
+function incBox(id){const P=INC.parks[id];if(!P)return'<p class="sm">ไม่มีข้อมูลรายได้ของพื้นที่นี้ (มีเฉพาะอุทยานแห่งชาติ)</p>';
+ const{fy,mi}=incNow(),pf=String(fy-1),cur=P.fy[fy]||Array(12).fill(0),prv=P.fy[pf]||Array(12).fill(0),
+  done=INC.fys.filter(y=>y<fy),tot=done.map(y=>isum(P.fy[y])),pk=tot.indexOf(Math.max(...tot)),
+  U=Math.max(...tot)>=1e6?[1e6,'ล้านบาท']:[1e3,'พันบาท'],fmt=x=>{const y=x/U[0];return nf(y,y<10?1:0)},
+  l3=done.slice(-3),avg=MON.map((_,i)=>l3.reduce((s,y)=>s+(P.fy[y]||[])[i]||0,0)),top=[...avg.keys()].sort((x,y)=>avg[y]-avg[x]).slice(0,3),
+  ys=INC.fys,v=ys.map(y=>isum(P.fy[y])),hi=[ys.indexOf(done[pk])];
+ const rk=P.rk[pf],nn=(INC.nat[pf]||{}).n;
+ return`<div class="kb-st g"><div><b>${baht(isum(cur,mi+1))}</b><span>ปีงบ ${fy} (ต.ค.–${MON[mi]}) · ${MON[mi]} ยังไม่ครบเดือน</span></div>
+ <div><b>${mi?ipct(isum(cur,mi),isum(prv,mi)):'–'}</b><span>${mi?`${mi>1?'ต.ค.–'+MON[mi-1]:'ต.ค.'} เทียบช่วงเดียวกันปีงบ ${pf}`:'รอเดือนแรกของปีงบครบ'}</span></div>
+ <div><b>${baht(isum(prv))}</b><span>ทั้งปีงบ ${pf}${rk?` · อันดับ ${rk} จาก ${nn} อุทยาน`:''}</span></div>
+ <div><b>${done[pk]}</b><span>ปีงบที่รายได้สูงสุด (${baht(tot[pk])})</span></div></div>
+ <div class="kb-ch"><div class="t">รายได้รายปีงบประมาณ (${U[1]}) — ปีงบ ${fy} ยังไม่ครบปี</div>${bars(v,ys.map(y=>String(y%100)+(y===fy?'*':'')),INCC,hi,fmt)}</div>
+ <div class="kb-ch"><div class="t">รายเดือน ปีงบ ${fy} เทียบ ${pf}</div>${bars2(cur,prv,MON,mi,+fy)}<div class="kb-lgd"><span><i style="background:${INCC}"></i>ปีงบ ${fy}</span><span><i style="background:${INCB}"></i>ปีงบ ${pf}</span></div></div>
+ <p class="sm" style="margin:6px 0 0">เดือนที่รายได้สูงสุด (เฉลี่ย ${l3.length} ปีงบล่าสุด): ${top.map(i=>MON[i]).join(' ')} · ที่มา: <a href="${esc(INC.url)}" target="_blank" rel="noopener">ระบบรายงานการจัดเก็บเงินรายได้อุทยานแห่งชาติ</a> (Power BI) · ต้นทางอัปเดต ${iDate()}</p>`}
+// ตารางเทียบ 4 อุทยาน (แท็บภาพรวม)
+function incAll(){const{fy,mi}=incNow(),pf=String(fy-1),ids=Object.keys(INC.parks),n=INC.nat[pf]||{};let s1=0,s2=0;
+ const rows=ids.map(id=>{const P=INC.parks[id],a=AR.find(x=>x.id===id),t=isum(P.fy[pf]),c=isum(P.fy[fy],mi+1);s1+=t;s2+=c;
+  return`<tr data-tab="${id}"><td><i style="background:${a?a.c:'#999'}"></i>${esc(a?a.s:P.n)}</td><td>${nf(t)}</td><td>${P.rk[pf]||'–'}</td><td>${nf(c)}</td><td>${mi?ipct(isum(P.fy[fy],mi),isum(P.fy[pf],mi)):'–'}</td></tr>`}).join('');
+ return`<div class="kb-it"><table><thead><tr><th>อุทยานแห่งชาติ</th><th>ทั้งปีงบ ${pf} (บาท)</th><th>อันดับประเทศ</th><th>ปีงบ ${fy} ถึง ${MON[mi]} (บาท)</th><th>${mi?(mi>1?'ต.ค.–'+MON[mi-1]:'ต.ค.')+' เทียบปีก่อน':'เทียบปีก่อน'}</th></tr></thead><tbody>${rows}<tr class="tt"><td>รวม 4 อุทยาน</td><td>${nf(s1)}</td><td></td><td>${nf(s2)}</td><td></td></tr></tbody></table></div>
+ <p class="sm" style="margin:8px 0 0">ปีงบ ${pf} รวม 4 อุทยาน = ${n.sum?nf(s1/n.sum*100,1):'–'}% ของรายได้อุทยานแห่งชาติทั้งประเทศ (${n.sum?baht(n.sum):'–'} จาก ${n.n||'–'} อุทยาน) · อันดับเรียงตามรายได้ทั้งปีงบ · ${MON[mi]} ยังไม่ครบเดือน · ไม่มีข้อมูลเขตรักษาพันธุ์สัตว์ป่า/เขตห้ามล่าสัตว์ป่า · ที่มา: <a href="${esc(INC.url)}" target="_blank" rel="noopener">ระบบรายงานการจัดเก็บเงินรายได้อุทยานแห่งชาติ</a> (Power BI) · ต้นทางอัปเดต ${iDate()} · แตะแถวเพื่อดูรายพื้นที่</p>`}
+function incCard(a){if(a&&!['ky','tl','ps','tp'].includes(a.id))return'';return card('coin',a?'รายได้จากการท่องเที่ยว':'รายได้จากการท่องเที่ยว 4 อุทยานแห่งชาติ','<div id="kb-inc"><p class="sm">กำลังโหลดข้อมูลรายได้…</p></div>',{bg:'#e6f4ec',c:INCC,sm:'เงินรายได้อุทยานแห่งชาติ'})}
+function incFill(a){if(!$('#kb-inc'))return;const id=KBI,go=()=>{const x=$('#kb-inc');if(x&&KBI===id)x.innerHTML=a?incBox(a.id):incAll()};
+ INC?go():incLoad().then(go).catch(()=>{const x=$('#kb-inc');if(x)x.innerHTML='<p class="sm">โหลดข้อมูลรายได้ไม่ได้</p>'})}
 function hero(a){const f=a.c&&fOf(a),rai=f?f.properties.rai:GEO.cons.features.reduce((s,f)=>s+f.properties.rai,0),
   k=a.id==='all'?a.kpi:a.id==='ft'?null:[[nf(rai),'ไร่ ตามแนวเขต'],[nf(rai/625),'ตร.กม.'],...a.kpi];
  return`<div class="kb-tags"><span class="kb-tag">${esc(a.kd||(f?f.properties.kindTh:''))}</span>${a.tags.map(([t,au])=>`<span class="kb-tag${au?' au':''}">${au?'★ ':''}${esc(t)}</span>`).join('')}</div><h2>${esc(a.sn||a.n)}</h2><div class="kb-en">${esc(a.en)}</div><p>${esc(a.lead)}</p>${k?`<div class="kb-kpi">${k.map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join('')}</div>`:'<div class="kb-kpi" id="kb-ftk"></div>'}
@@ -2820,13 +2858,14 @@ function tourCard(a){const t=a.tour;if(!t.length)return'';let n=0;const no=t.fil
  return card('pin','แหล่งท่องเที่ยวและจุดน่าสนใจ',`<div class="kb-tr">${t.map((x,i)=>{const p=x[2]!=null,o=x[5]||{};p&&n++;return`<button data-ti="${i}"${p?'':' disabled'}><span class="n${p?'':' x'}" style="${p?`background:${KBT[x[1]][1]}`:''}">${p?n:'·'}</span><span><b>${esc(x[0])}</b><small>${KBT[x[1]][0]}${o.a?' · '+esc(o.a):''}${x[4]?' · '+esc(x[4]):''}${o.t?' · เปิด '+esc(o.t):''}${p?'':' · ไม่มีพิกัดบนแผนที่'}</small></span></button>`}).join('')}</div>${no?`<p class="sm" style="margin:10px 0 0">พิกัด กิจกรรม เวลาเปิด และขีดความสามารถรองรับ: สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี) ${no} แห่ง${ot?` · อีก ${ot} แห่งพิกัดโดยประมาณจาก OpenStreetMap`:''}</p>`:''}`,{bg:'#e8f0fb',c:'#2a7fc0',sm:'แตะเพื่อดูตำแหน่ง'})}
 function faunaCard(a){if(!a.fauna.length)return card('paw','สัตว์ป่า','<p>ยังไม่มีข้อมูลการสำรวจสัตว์ป่าที่เผยแพร่สำหรับพื้นที่นี้</p>',{bg:'#f4ecfb',c:'#7b5bb6'});
  return card('paw','สัตว์ป่าเด่น',`<div class="kb-fa">${a.fauna.map(([n,d,s])=>`<div><b>${esc(n)}${s?`<span class="kb-iu" style="background:${IUCN[s][0]}" title="IUCN Red List: ${IUCN[s][1]}">${s}</span>`:''}</b>${d?`<small>${esc(d)}</small>`:''}</div>`).join('')}</div><p class="sm" style="margin:10px 0 0">ป้ายสี = สถานะใน IUCN Red List: <b style="color:${IUCN.CR[0]}">CR</b> ใกล้สูญพันธุ์อย่างยิ่ง · <b style="color:${IUCN.EN[0]}">EN</b> ใกล้สูญพันธุ์ · <b style="color:${IUCN.VU[0]}">VU</b> มีแนวโน้มใกล้สูญพันธุ์</p>`,{bg:'#f4ecfb',c:'#7b5bb6'})}
-function areaCards(a){return card('star','ความสำคัญของพื้นที่',lis(a.imp),{bg:'#fff4dc',c:'#c98a1a'})+`<div class="kb-two">${card('clock','ประวัติความเป็นมา',`<div class="kb-tl">${a.hist.map(([w,t])=>`<div><b>${esc(w)}</b>${esc(t)}</div>`).join('')}</div>`)}${card('tree','ทรัพยากรป่าไม้',`<p>${esc(a.forest)}</p><div id="kb-ftb"><p class="sm">กำลังโหลดชนิดป่า…</p></div>${a.plants.length?`<div class="kb-chips" style="margin-top:10px">${a.plants.map(p=>`<span class="kb-chip">${esc(p)}</span>`).join('')}</div>`:''}`)}</div>`+faunaCard(a)+tourCard(a)+fireCard(a)}
+function areaCards(a){return card('star','ความสำคัญของพื้นที่',lis(a.imp),{bg:'#fff4dc',c:'#c98a1a'})+`<div class="kb-two">${card('clock','ประวัติความเป็นมา',`<div class="kb-tl">${a.hist.map(([w,t])=>`<div><b>${esc(w)}</b>${esc(t)}</div>`).join('')}</div>`)}${card('tree','ทรัพยากรป่าไม้',`<p>${esc(a.forest)}</p><div id="kb-ftb"><p class="sm">กำลังโหลดชนิดป่า…</p></div>${a.plants.length?`<div class="kb-chips" style="margin-top:10px">${a.plants.map(p=>`<span class="kb-chip">${esc(p)}</span>`).join('')}</div>`:''}`)}</div>`+faunaCard(a)+tourCard(a)+incCard(a)+fireCard(a)}
 function allCards(a){const{L}=hot(null),tot=GEO.cons.features.reduce((s,f)=>s+f.properties.rai,0),mx=Math.max(...AR.map(x=>fOf(x).properties.rai)),hc=x=>L.filter(r=>arKey(DIC.ar[r.ar])===arKey(x.n)).length;
  return card('star','ความสำคัญของกลุ่มป่า',lis(a.imp),{bg:'#fff4dc',c:'#c98a1a'})
  +card('globe','ความหลากหลายทางชีวภาพ (ตามเอกสารมรดกโลก)',`<div class="kb-big"><div><b>112</b><span>ชนิดสัตว์เลี้ยงลูกด้วยนม (รวมชะนี 2 ชนิด)</span></div><div><b>392</b><span>ชนิดนก รวมนกเงือก 4 ชนิด</span></div><div><b>200+</b><span>ชนิดสัตว์เลื้อยคลานและสะเทินน้ำสะเทินบก</span></div><div><b>2,500</b><span>ชนิดพรรณพืช (พืชเฉพาะถิ่น 16 ชนิด)</span></div></div>`,{bg:'#e6f4ec',c:'#1f8a5b'})
  +card('grid','พื้นที่อนุรักษ์ในระบบนี้',`<div class="kb-ar">${AR.map(x=>{const r=fOf(x).properties.rai;return`<button data-tab="${x.id}"><i style="background:${x.c}"></i><span>${esc(x.sn||x.n)}${x.tags.some(t=>t[1])?' <span class="sm" style="color:#b7862a">★ มรดกโลก</span>':''}</span><em>${nf(r)} ไร่ · จุดความร้อน ${nf(hc(x))}</em><u><s style="width:${r/mx*100}%;background:${x.c}"></s></u></button>`}).join('')}</div><p class="sm" style="margin:8px 0 0">รวม ${nf(tot)} ไร่ ตามแนวเขต KMZ · จุดความร้อน = ปีงบ 2561–2569 (กรมอุทยานฯ) · แตะชื่อเพื่อดูรายละเอียด</p>`,{bg:'#eef0fb',c:'#1B2A5E'})
  +`<div class="kb-two">${card('clock','เส้นทางการอนุรักษ์',`<div class="kb-tl">${a.hist.map(([w,t])=>`<div><b>${esc(w)}</b>${esc(t)}</div>`).join('')}</div>`)}${card('shield','ภัยคุกคามสำคัญ',lis(a.threat),{bg:'#fdece6',c:'#c0301c'})}</div>`
  +card('tree','ทรัพยากรป่าไม้',`<p>ป่าดิบแล้งเป็นป่าหลักของกลุ่มป่า สลับป่าเบญจพรรณ ป่าเต็งรัง ป่าดิบชื้น ป่าดิบเขาบนยอดสูง และทุ่งหญ้า</p><div id="kb-ftb"><p class="sm">กำลังโหลดชนิดป่า…</p></div>`)
+ +incCard(null)
  +fireCard(null)
  +card('heart','ร่วมปกป้องผืนป่า',`${lis(['ไม่จุดไฟหรือเผาขยะ เศษพืชในป่าและพื้นที่ติดป่า โดยเฉพาะช่วง ม.ค.–เม.ย.','ทิ้งก้นบุหรี่และดับกองไฟให้สนิททุกครั้ง','พบไฟป่าหรือการลักลอบตัดไม้ ล่าสัตว์ แจ้งสายด่วนกรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช 1362','ขับรถช้าและให้ทางสัตว์ป่า ไม่ให้อาหารสัตว์ป่า','นำขยะกลับออกมาทุกชิ้น'])}<div class="kb-hot"><b>1362</b><span>สายด่วนกรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช<br>แจ้งไฟป่า · การลักลอบ · สัตว์ป่าเดือดร้อน</span></div>`,{bg:'#fdeef3',c:'#d0658c'})}
 function ftCards(){const{mo}=hot(null),top=[...mo.keys()].sort((x,y)=>mo[y]-mo[x]).slice(0,4);
@@ -2883,7 +2922,7 @@ function kbTab(id){KBI=id;const a=KB.find(x=>x.id===id);
  $$('#kb-nav button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===id));const nb=$(`#kb-nav button[data-tab="${id}"]`);if(nb)nb.scrollIntoView({block:'nearest',inline:'center'});
  const h=$('#kb-hero');h.style.setProperty('--h1',a.h[0]);h.style.setProperty('--h2',a.h[1]);h.innerHTML=hero(a);
  $('#kb-c').innerHTML=id==='all'?allCards(a):id==='ft'?ftCards():areaCards(a);$('#kb-body').scrollTop=0;
- if(id==='ft'){KMF=true;ftTypes()}ftFill(a.c?a:null);kmShow()}
+ if(id==='ft'){KMF=true;ftTypes()}ftFill(a.c?a:null);incFill(a.c?a:null);kmShow()}
 function kbOpen(id){$('#kb').hidden=false;if(!$('#kb-nav').childElementCount)$('#kb-nav').innerHTML=KB.map(a=>`<button role="tab" data-tab="${a.id}" aria-selected="false">${a.c?`<i style="background:${a.c}"></i>`:''}${esc(a.s)}</button>`).join('');
  $('#kb-src').innerHTML='ข้อมูลเรียบเรียงจาก UNESCO World Heritage Centre, กรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช และวิกิพีเดีย · ขนาดพื้นที่จากแนวเขต KMZ ในระบบนี้ (อาจต่างจากตัวเลขในราชกิจจานุเบกษาเล็กน้อย) · ชนิดป่า: กรมป่าไม้ 2561 (shapefile โครงการจัดทำข้อมูลสภาพพื้นที่ป่าไม้ ปี 2560–2561) · จุดความร้อน: กรมอุทยานฯ (Suomi NPP) ปีงบ 2561–2569 ไม่รวมจุดที่จัดการเชื้อเพลิง/ตรวจสอบแล้วไม่พบไฟ · แหล่งท่องเที่ยว: พิกัด กิจกรรม เวลาเปิด ขีดความสามารถรองรับ และภาพ จากสำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี) ส่วนจุดอื่นพิกัดโดยประมาณจาก © OpenStreetMap · สถานะสัตว์: IUCN Red List';
  requestAnimationFrame(()=>kbTab(id||KBI));$('#kb-x').focus()}
