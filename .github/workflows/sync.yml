@@ -38,15 +38,15 @@ jobs:
       - run: node scripts/sync_fuel.js
         timeout-minutes: 45
         continue-on-error: true
-      # เงินรายได้อุทยานแห่งชาติรายเดือน (รายงาน Power BI สาธารณะ) → data/income.json เขียนเฉพาะเมื่อเปลี่ยน
-      - run: node scripts/sync_income.js
+      # นักท่องเที่ยวและเงินรายได้อุทยานแห่งชาติรายเดือน (รายงาน Power BI สาธารณะ 2 ฉบับ) → data/tourism.json เขียนเฉพาะเมื่อเปลี่ยน
+      - run: node scripts/sync_tourism.js
         timeout-minutes: 5
         continue-on-error: true
       - name: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html data/hotspots_api.json data/burn data/fuel data/income.json "data/FY2569_SNPP_ทั้งกลุ่มป่า.csv"
+          git add index.html data/hotspots_api.json data/burn data/fuel data/tourism.json "data/FY2569_SNPP_ทั้งกลุ่มป่า.csv"
           if git diff --cached --quiet; then echo "ไม่มีข้อมูลใหม่"; exit 0; fi
           git commit -m "sync: จุดความร้อนสะสม $(TZ=Asia/Bangkok date '+%Y-%m-%d %H:%M')"
           git pull --rebase

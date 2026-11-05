@@ -73,8 +73,8 @@ function summary(L) {
   for (const d of ['burn', 'fuel', 'tour']) if (fs.existsSync(path.join(ROOT, 'data', d))) fs.cpSync(path.join(ROOT, 'data', d), path.join(OUT, 'data', d), { recursive: true });
   // แนวเขตอำเภอ/ตำบล (scripts/build_admin.js) — หน้าเว็บโหลดเมื่อใช้
   if (fs.existsSync(path.join(ROOT, 'data', 'admin.json'))) fs.copyFileSync(path.join(ROOT, 'data', 'admin.json'), path.join(OUT, 'data', 'admin.json'));
-  // เงินรายได้อุทยานแห่งชาติ (scripts/sync_income.js) — การ์ดรายได้ในหน้าความสำคัญ
-  if (fs.existsSync(path.join(ROOT, 'data', 'income.json'))) fs.copyFileSync(path.join(ROOT, 'data', 'income.json'), path.join(OUT, 'data', 'income.json'));
+  // นักท่องเที่ยวและเงินรายได้อุทยานแห่งชาติ (scripts/sync_tourism.js) — การ์ดในหน้าความสำคัญ
+  if (fs.existsSync(path.join(ROOT, 'data', 'tourism.json'))) fs.copyFileSync(path.join(ROOT, 'data', 'tourism.json'), path.join(OUT, 'data', 'tourism.json'));
   if (fs.existsSync(path.join(ROOT, 'data', 'prov.json'))) fs.copyFileSync(path.join(ROOT, 'data', 'prov.json'), path.join(OUT, 'data', 'prov.json'));
   // ชนิดป่า (scripts/build_ftype.js)
   if (fs.existsSync(path.join(ROOT, 'data', 'ftype', 'ftype.json'))) { fs.mkdirSync(path.join(OUT, 'data', 'ftype'), { recursive: true }); fs.copyFileSync(path.join(ROOT, 'data', 'ftype', 'ftype.json'), path.join(OUT, 'data', 'ftype', 'ftype.json')) }
