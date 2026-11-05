@@ -91,7 +91,8 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
   // ป้ายปุ่มสั้น: ปุ่มครึ่งจอบนมือถือตัด "ดู 5 จุดบนแผนที่" เป็น "ดู 5 จุดบนแผนท…" (ผู้ใช้ส่งภาพ 3 พ.ย. 69)
   const mapBtn = L => { const c = L.map(f => f.geometry.coordinates), r = v => v.toFixed(4);
     if (c.length === 1) return ['📍 ดูจุดนี้', `${SITE}?hs=${c[0][1].toFixed(5)},${c[0][0].toFixed(5)}`];
-    const x = c.map(p => p[0]), y = c.map(p => p[1]); return [`📍 ดู ${c.length} จุด`, `${SITE}?bb=${r(Math.min(...x))},${r(Math.min(...y))},${r(Math.max(...x))},${r(Math.max(...y))}`] };
+    // &pts= = พิกัดทุกจุดในข้อความ → หน้าเว็บวงล้อมเฉพาะจุดเหล่านี้ + ป้ายแตะดูรายการ (hsLink ใน index.html, 5 พ.ย. 69) · ≤40 จุด ให้ลิงก์ไม่ยาวเกิน
+    const x = c.map(p => p[0]), y = c.map(p => p[1]); return [`📍 ดู ${c.length} จุด`, `${SITE}?bb=${r(Math.min(...x))},${r(Math.min(...y))},${r(Math.max(...x))},${r(Math.max(...y))}&pts=${c.slice(0, 40).map(p => r(p[1]) + ',' + r(p[0])).join(';')}`] };
   // ยอดสะสมจาก summary.json (ไม่รวมดงใหญ่ — ชุดเดียวกับการ์ด LINE) · ปีก่อน = ทั้งปีงบ (pfull)
   const A = Object.entries(sum && sum.areas || {}).filter(([k]) => !EX.test(k));
   const tot = pick => A.filter(([k]) => pick(k)).reduce((o, [, v]) => { o.fy += v.fy; o.pfull += v.pfull; for (const l of ['pv', 'am', 'tm']) for (const k in v[l] || {}) o[l][k] = (o[l][k] || 0) + v[l][k]; return o }, { fy: 0, pfull: 0, pv: {}, am: {}, tm: {} });
