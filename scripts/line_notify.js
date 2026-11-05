@@ -5,7 +5,7 @@
 //  - ไม่แจ้งเตือนจุดใน ขสป.ดงใหญ่ / พื้นที่รับผิดชอบสถานีฯ ดงใหญ่ (excluded)
 //  - อ่าน _site/live.json (จุด 48 ชม. ในแนวเขต) เทียบกับสถานะเดิม notify.json ที่เผยแพร่ไว้บนเว็บ (ไม่ต้อง commit) → ส่งเฉพาะจุดที่ยังไม่เคยแจ้ง
 //  - เขียน _site/notify.json ใหม่ให้ deploy ไปพร้อมหน้าเว็บ · ไม่มีสถานะเดิม (ครั้งแรก/อ่านไม่ได้) = บันทึกจุดปัจจุบันว่าแจ้งแล้วโดยไม่ส่ง กันส่งจุดเก่าทั้งชุด
-//  - push เข้ากลุ่มนับโควตาตามจำนวนสมาชิก (กลุ่ม 20 คน = 20 ข้อความ/ครั้ง) จึงตรวจโควตาที่เหลือก่อนส่งทุกครั้ง และจำกัดจำนวนครั้งต่อวัน (LINE_MAX_DAY)
+//  - push เข้ากลุ่มนับโควตาตามจำนวนสมาชิก (กลุ่ม 20 คน = 20 ข้อความ/ครั้ง) จึงตรวจโควตาที่เหลือก่อนส่งทุกครั้ง · ไม่จำกัดครั้งต่อวัน (ผู้ใช้ขอ 5 พ.ย. 69 ให้ตามการตรวจพบของดาวเทียม — ตั้ง LINE_MAX_DAY = จำนวน เพื่อจำกัดได้)
 //  - ไม่ตั้ง LINE_TOKEN/LINE_GROUP_ID = ข้าม (แต่ยังเขียน notify.json เพื่อเก็บสถานะ)
 //  - สรุปประจำวัน: รอบแรกที่ถึงเวลา LINE_DAILY (ค่าเริ่มต้น 05:30 น. ไทย, "off" = ปิด) push การ์ดสรุปแบบเดียวกับคำตอบ "สรุป" วันละครั้ง (st.daily = วันที่ส่งแล้ว)
 //    ส่งได้ภายใน 4 ชม. หลังเวลาที่ตั้ง (เลยนั้นข้ามวันนี้) · รอบที่เพิ่งส่งแจ้งเตือนไปจะรอรอบถัดไป (ครั้งละ 1 ข้อความ) · ไม่นับใน LINE_MAX_DAY
@@ -19,7 +19,7 @@ const fs = require('fs'), path = require('path'), { pathToFileURL } = require('u
 const ROOT = path.join(__dirname, '..'), OUT = path.join(ROOT, '_site');
 const SITE = process.env.SITE_URL || 'https://takiang71.github.io/fire-map-dpky/';
 const TOKEN = process.env.LINE_TOKEN, GROUP = process.env.LINE_GROUP_ID;
-const MAX_DAY = +(process.env.LINE_MAX_DAY || 4);      // ส่งได้ไม่เกินกี่ครั้งต่อวัน
+const MAX_DAY = +(process.env.LINE_MAX_DAY || 0);      // ส่งได้ไม่เกินกี่ครั้งต่อวัน (0/ไม่ตั้ง = ไม่จำกัด; เดิมค่าเริ่มต้น 4)
 const RESERVE = +(process.env.LINE_RESERVE || 0);      // เก็บโควตาไว้ไม่ใช้ (ข้อความ)
 const DAILY = /^\d{1,2}:\d{2}$/.test(process.env.LINE_DAILY || '') ? process.env.LINE_DAILY : /^(off|0|no)$/i.test(process.env.LINE_DAILY || '') ? null : '05:30';
 const DAILY_WIN_H = 4;
@@ -114,7 +114,7 @@ async function quotaOk() {
   if (seed) rec = { why: 'เริ่มเก็บสถานะ (ไม่ส่ง)', n: pts.length };
   else if (!fresh.length) rec = null;
   else if (!TOKEN || !GROUP) rec = { why: 'ยังไม่ตั้ง LINE_TOKEN/LINE_GROUP_ID', n: fresh.length };
-  else if ((st.days[today] || 0) >= MAX_DAY) rec = { why: `ครบ ${MAX_DAY} ครั้งของวันนี้แล้ว`, n: fresh.length };
+  else if (MAX_DAY > 0 && (st.days[today] || 0) >= MAX_DAY) rec = { why: `ครบ ${MAX_DAY} ครั้งของวันนี้แล้ว`, n: fresh.length };
   else try {
     const q = await quotaOk();
     if (!q.ok) rec = { why: `โควตาไม่พอ (เหลือ ${q.left} ต้องใช้ ${q.members})`, n: fresh.length };
