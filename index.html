@@ -21,6 +21,12 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 /* แผงซ้ายบน */
 #left{position:fixed;top:env(safe-area-inset-top);left:0;width:min(420px,100%);max-height:calc(100% - 12px);overflow:auto;padding:16px 24px 16px max(16px,env(safe-area-inset-left));pointer-events:none;z-index:5;scrollbar-width:none}
 #left>*{pointer-events:auto}
+#hlg{position:fixed;z-index:4;right:max(12px,env(safe-area-inset-right));bottom:calc(88px + env(safe-area-inset-bottom));padding:7px 12px 7px 9px;border-radius:14px;background:var(--glass);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 1px 4px rgba(20,30,60,.15);font-size:12px;color:var(--ink);display:grid;gap:1px;min-width:150px}
+#hlg[hidden]{display:none}#hlg>b{font-size:11px;font-weight:600;color:var(--mut);margin:0 0 2px 3px}
+#hlg>div{display:flex;align-items:center;gap:6px;line-height:20px}#hlg span{flex:1;white-space:nowrap}#hlg em{font-style:normal;font-weight:700;color:var(--navy);min-width:16px;text-align:right}
+#hlg i{width:20px;height:20px;flex:none;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--c) 55%,transparent) 0,transparent 70%)}
+#hlg svg{width:13px;height:13px;fill:var(--c);stroke:var(--c);stroke-width:1.5;stroke-linejoin:round}
+body.wyon #hlg{opacity:.92}
 /* --lw = ความกว้างที่แผงซ้ายกินพื้นที่แผนที่ (เดสก์ท็อป 420 / มือถือหรือพับแผงแล้ว 0) ใช้จัดกลางป้ายวันที่ภาพ แถบอ้างอิง ป้ายคำแนะนำ */
 :root{--lw:420px}body.lc{--lw:0px}
 /* ปุ่มพับแผงซ้ายไปด้านข้าง (เดสก์ท็อป) */
@@ -237,6 +243,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 #dp.open{display:flex}.ib{width:34px;height:34px;box-shadow:none}
 .dt{font-size:20px;font-weight:800;color:var(--navy);line-height:1.3;margin:2px 0 10px}
 .big{display:flex;justify-content:space-between;gap:12px}.big>div{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}.big b{font-size:34px;font-weight:800;line-height:1}.big small{font-size:12px;color:var(--mut)}
+#d-age{display:contents}.big:has(#d-age){flex-wrap:wrap;row-gap:10px}.big:has(#d-age)>div:first-child{flex-wrap:nowrap}#d-age.dd b{font-size:28px} /* อายุจุด: วัน ชม. นาที (ผู้ใช้ขอ 5 พ.ย. 69) */
 .kv{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;font-size:13px;margin:8px 0}.kv span{display:block;font-size:11px;color:var(--mut)}.kv b{font-weight:600}
 hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 .peach{background:#fff3e6;border:1px solid #f4c9a0;border-radius:18px;padding:12px;margin:10px 0}
@@ -514,9 +521,6 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <h3>ไฟป่า</h3>
   <div class="row" data-tip="ดาวเทียม VIIRS 375 ม. (NOAA-20, NOAA-21, Suomi NPP) จาก Land Fire Alerts Thailand (WFSRU/ThaiREN) · แสดง 48 ชม. ล่าสุด เฉพาะในแนวเขตกลุ่มป่า · ดึงข้อมูลใหม่อัตโนมัติทุก 5 นาทีขณะเปิดดู"><svg class="i" style="color:var(--fire)" viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg><b>จุดความร้อน</b><button class="sw" data-k="hot" role="switch" aria-label="จุดความร้อน"></button></div>
   <div class="sats" data-sats role="group" aria-label="เลือกดาวเทียมที่แสดง" style="margin:0 0 6px"></div>
-  <div class="row sub"><svg class="i" style="color:#e0301e" viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg><span>ภายใน 6 ชม.</span><em id="c-r"></em></div>
-  <div class="row sub"><svg class="i" style="color:#f08a1c" viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg><span>6-24 ชม.</span><em id="c-o"></em></div>
-  <div class="row sub"><svg class="i" style="color:#9a6a4a" viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg><span>เก่ากว่า 24 ชม.</span><em id="c-b"></em></div>
   <button class="lk" id="rf">↻ ดึงข้อมูลใหม่</button>
   <div class="row" data-tip="Hotspot Cluster · จุดความร้อนวันเดียวกัน (เวลาไทย) ที่ห่างกันไม่เกินระยะที่กำหนด (ค่าเริ่มต้น 1 กม.) ต่อเนื่องกันเป็นลูกโซ่ = 1 กอง · วงกลมอยู่กลางกอง ตัวเลข = จำนวนจุด · แดง = วันล่าสุด ไล่ไปเหลือง = วันเก่า · ใช้จุดทุกดวงตามปุ่มดาวเทียมและปุ่มดงใหญ่ · แตะวงกลมเพื่อดูรายละเอียด · ดับเบิลคลิกที่กองเพื่อกระจายจุดทั้งหมดออก"><svg class="i" viewBox="0 0 24 24"><circle cx="8" cy="9" r="3.2" style="fill:#d93a1f;stroke:#fff"/><circle cx="15.5" cy="12.5" r="4" style="fill:#f08a1c;stroke:#fff"/><circle cx="9" cy="17.5" r="2.6" style="fill:#f5c542;stroke:#fff"/></svg><b>กองจุดความร้อนรายวัน</b><span class="tag">Cluster</span><button class="sw" data-k="hcl" role="switch" aria-label="กองจุดความร้อนรายวัน"></button></div>
   <div class="row" data-tip="Hotspot Group · รวมจุดที่ห่างกันไม่เกินระยะที่กำหนด และเกิดห่างกันไม่เกินจำนวนวันที่กำหนด (ค่าเริ่มต้น 1 กม. · 2 วัน) เป็นไฟเหตุการณ์เดียวกัน (เส้นประ = ขอบเขตกอง) · จุดเริ่มต้นของไฟ = จุดที่ดาวเทียมพบเป็นรอบแรกของกอง ใช้ระบุแหล่งที่มาของความร้อน · เส้นลูกศร = ทิศการลามรายวันจากจุดเริ่มต้น · แตะจุดเริ่มต้นเพื่อดูรายละเอียด"><svg class="i" viewBox="0 0 24 24"><path d="M8 16l8-8" style="stroke:#5c1209;stroke-width:2"/><path d="M16 8l-4 .5M16 8l-.5 4" style="stroke:#5c1209;stroke-width:2"/><circle cx="7" cy="17" r="4.5" style="fill:#d93a1f;stroke:#5c1209;stroke-width:1.5"/><circle cx="7" cy="17" r="1.5" style="fill:#fff;stroke:none"/></svg><b>กองจุดความร้อนรวม + จุดเริ่มต้นไฟ</b><span class="tag">Group</span><button class="sw" data-k="hgp" role="switch" aria-label="กองจุดความร้อนรวมและจุดเริ่มต้นของไฟ"></button></div>
@@ -609,7 +613,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <button class="cb ib" id="d-x" aria-label="ปิดแผง"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
  <div class="rb">
   <div class="dt" id="d-name"></div><div class="sm" id="d-nmn" style="margin:-6px 0 8px"></div><div class="sm" id="d-pa" style="margin:-2px 0 10px;line-height:1.5"></div>
-  <div class="big"><div><svg class="i" style="color:var(--fire);width:26px;height:26px" viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg><b id="d-age"></b><small>ชั่วโมงที่แล้ว</small></div><div><small>ความแรงไฟ</small><b id="d-frp"></b><small>MW</small></div></div>
+  <div class="big"><div><svg class="i" style="color:var(--fire);width:26px;height:26px" viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg><span id="d-age"></span><small>ที่แล้ว</small></div><div><small>ความแรงไฟ</small><b id="d-frp"></b><small>MW</small></div></div>
   <hr class="l"><div class="kv"><div><span id="d-tl">เวลาที่ตรวจพบ</span><b id="d-t"></b></div><div><span>ความเชื่อมั่น</span><b id="d-cf"></b></div><div><span>พิกัด</span><b id="d-ll"></b></div><div><span>UTM</span><b id="d-utm"></b></div><div><span>ความสูง</span><b id="d-el">–</b></div><div><span>ความลาดชัน</span><b id="d-sl" title="จากแบบจำลองความสูง (Terrarium) เฉลี่ยรอบจุด ~150 ม. · ใช้ในการคาดการณ์การลามของไฟ (ปรับเองได้ที่ ปรับค่า)">–</b></div><div><span>สภาพอากาศ</span><b id="d-wx" style="font-weight:400;font-size:12px">ค่าตัวอย่าง</b></div></div>
   <div class="cream" id="hx" style="margin:0 0 10px"><b style="font-size:13px">ประวัติในบริเวณนี้ <span class="sm">(ข้อมูลย้อนหลังปีงบ <span id="hx-r"></span>)</span></b>
    <div class="tb" id="hx-t" style="margin-top:6px"></div><div class="sm" style="margin:8px 0 2px">จำนวนจุดในรัศมี 2 กม. แยกตามปีงบประมาณ</div><div class="vc" id="hx-b" style="height:84px"></div>
@@ -635,7 +639,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
     <div class="wh"><small>ฝุ่น PM2.5 ที่ปลดปล่อย</small><b id="k-p"></b> <em>ตัน</em><small id="k-p2"></small></div></div>
    <div class="lg" id="lg"></div>
    <div class="wh"><div style="display:flex;justify-content:space-between;font-size:12.5px"><span>ความชื้นสมดุลเชื้อเพลิงตาย (EMC)</span><b id="e-v"></b></div><div class="bar"><i id="e-b"></i></div><div class="sm" id="e-t"></div></div>
-   <div class="lv" id="lv"><h5 id="lv-h"></h5><div id="lv-b"></div><div class="wh" style="margin-top:8px" id="lv-c"></div></div>
+   <div class="lv" id="lv"><h5 id="lv-h"></h5><div id="lv-b"></div><div class="wh" style="margin-top:8px" id="lv-c" hidden></div></div>
    <h4 style="margin:12px 0 6px;border-top:1px solid #f4c9a0;padding-top:10px">ประเมินผลกระทบสิ่งแวดล้อมและพื้นที่ใต้ลม</h4>
    <div class="tb" id="tb"></div>
    <div class="wh" style="margin-top:10px"><b style="font-size:13px">พื้นที่ใต้ลมที่เสี่ยงได้รับผลกระทบ (ไฟลาม / กลุ่มควัน):</b><div class="tb" id="dw" style="margin-top:6px"></div><div class="sm" style="margin-top:6px">พิกัดพร้อมชื่อตำบล อำเภอ จังหวัด (แนวเขตกรมการปกครอง) · จุดที่อยู่นอก 18 จังหวัดรอบกลุ่มป่าแสดงเฉพาะพิกัด</div></div>
@@ -663,6 +667,8 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
  <div class="wyb-m" id="wyb-m" role="group" aria-label="ควบคุมด้วย" title="ควบคุมด้วยแผนที่: ซูมลื่น แตะจุดความร้อน/แนวเขตได้ตามปกติ · ควบคุมด้วย Windy: เลื่อน/แตะดูค่าบนภาพ Windy · ล้อเมาส์ซูมแบบ Windy ขั้นละ 2 เท่า (ปุ่ม + − ซูมทีละขั้น) แผนที่และแนวเขตเลื่อนตามเมื่อ Windy วาดเสร็จ"><button data-m="0" aria-pressed="true">แผนที่</button><button data-m="1" aria-pressed="false">Windy</button></div>
  <button class="cb ib" id="wyb-f" aria-label="เปิดแบบเต็มจอ" title="เปิดแบบเต็มจอ (มีตารางพยากรณ์รายชั่วโมง)"><svg class="i" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
  <button class="cb ib" id="wyb-x" aria-label="ปิดชั้นสภาพอากาศ"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+<!-- สัญลักษณ์อายุจุดความร้อน (ผู้ใช้ขอ 5 พ.ย. 69 ย้ายออกจากแผงชั้นข้อมูลมาไว้บนแผนที่ ขวาล่างเหนือปุ่มควบคุม) · ไอคอน = เปลวไฟ + วงเรืองแสงแบบบนแผนที่ · ตัวเลข = จำนวนจุดที่แสดงอยู่ -->
+<div id="hlg" role="group" aria-label="สัญลักษณ์อายุจุดความร้อน"><b>อายุจุดความร้อน</b><div><i style="--c:#e0301e"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><span>ภายใน 6 ชม.</span><em id="c-r"></em></div><div><i style="--c:#f08a1c"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><span>6–12 ชม.</span><em id="c-o"></em></div><div><i style="--c:#e8b020"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><span>12–24 ชม.</span><em id="c-y"></em></div><div><i style="--c:#9a6a4a;opacity:.6"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><span>เก่ากว่า 24 ชม.</span><em id="c-b"></em></div></div>
 <nav id="ctl" aria-label="ปุ่มควบคุมแผนที่">
  <button class="cb" id="bLoc" aria-label="ตำแหน่งของฉัน"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
  <button class="cb" id="bLay" aria-label="ชั้นข้อมูล"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"/></svg></button>
@@ -793,7 +799,7 @@ function hsrcShow(){const e=document.getElementById('hsrc');if(!e)return;const f
  e.innerHTML=f.live?`Land Fire Alerts Thailand (WFSRU/ThaiREN) · VIIRS 375 ม. · ${f.sats.join(', ')||'–'} · ${f.sys?`<span title="เวลาที่ระบบต้นทางประมวลผลข้อมูลล่าสุด (Last update ในหน้าแรกของ Land Fire Alerts Thailand) — เวลาที่ดาวเทียมสแกนดูได้ในแผงรายละเอียดจุด">ระบบต้นทางอัปเดต ${fm(f.sys)}</span>`:`สแกนล่าสุดทั้งประเทศ ${f.lastAll?fm(f.lastAll):'–'} <span title="ไม่พบเวลาอัปเดตของระบบต้นทาง จึงแสดงเวลาที่ดาวเทียมสแกนล่าสุดแทน">(ไม่พบเวลาอัปเดตของระบบ)</span>`} · ในกลุ่มป่าฯ ${f.inArea??0} จุด${f.msg?`<br><b style="color:#c0392b">⚠ ${esc(f.msg)}</b>`:''}`
   :`<b style="color:#c0392b">⚠ ดึงข้อมูลจริงไม่สำเร็จ</b>: ${esc(f.msg||'กำลังดึงข้อมูล…')}`;
  const nd=HS.filter(x=>x.demo).length;if(S.demo&&nd)e.innerHTML+=` · <b style="color:#b45309">+ จุดตัวอย่าง ${nd} จุด (ไม่ใช่ข้อมูลจริง)</b>`}
-const ageH=h=>(loadedAt-h.t)/H, grp=h=>ageH(h)<6?'r':ageH(h)<24?'o':'b';
+const ageH=h=>(loadedAt-h.t)/H, grp=h=>ageH(h)<6?'r':ageH(h)<12?'o':ageH(h)<24?'y':'b'; // 4 ระดับ (ผู้ใช้เพิ่ม 6–12 ชม. 5 พ.ย. 69)
 /* ---------- แนวเขตจริงจากไฟล์ KMZ ของผู้ใช้ (ลดจุดให้เบาลงแล้ว ~12 ม.) ---------- */
 const GEO=JSON.parse(document.getElementById('geo').textContent);
 let CF=GEO.cons;
@@ -892,7 +898,7 @@ function sheetFit(){const R=document.documentElement,B=document.body,k=$('#ctl')
 sheetFit();addEventListener('resize',sheetFit);
 const map=new maplibregl.Map({container:'map',style:sty(),bounds:HOME,fitBoundsOptions:{padding:homePad()},attributionControl:false,maxPitch:75,preserveDrawingBuffer:true}); // preserveDrawingBuffer: ให้ดึงภาพแผนที่ใส่รายงานได้
 
-const COL={r:'#e0301e',o:'#f08a1c',b:'#9a6a4a'}, GL=['match',['get','g'],'r',COL.r,'o',COL.o,COL.b];
+const COL={r:'#e0301e',o:'#f08a1c',y:'#e8b020',b:'#9a6a4a'}, GL=['match',['get','g'],'r',COL.r,'o',COL.o,'y',COL.y,COL.b];
 
 function flame(c){ // วาดไอคอนเปลวไฟลง canvas
  const cv=document.createElement('canvas');cv.width=cv.height=48;const x=cv.getContext('2d');x.scale(2,2);
@@ -959,7 +965,7 @@ function setup(){ // เรียกทุกครั้งที่สลั�
 }
 function apply(){
  const set=(id,b)=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',b?'visible':'none');
- set('hot-glow',S.hot&&!S.d3);set('hot-icon',S.hot&&!S.d3);set('hot-cl',S.hot&&!S.d3);set('hot-cn',S.hot&&!S.d3);set('hot-3d',S.hot&&S.d3);set('cons-f',S.cons);set('cons-l',S.cons);set('resp-f',S.resp);set('resp-l',S.resp);if(window.FSM)FSM.forEach(m=>m.getElement().style.display=S.stn?'':'none');if(window.WPM)WPM.forEach(m=>m.getElement().style.display=S.wpt?'':'none');
+ {const e=document.getElementById('hlg');if(e){e.hidden=!S.hot;try{hlgPos()}catch(x){}}}set('hot-glow',S.hot&&!S.d3);set('hot-icon',S.hot&&!S.d3);set('hot-cl',S.hot&&!S.d3);set('hot-cn',S.hot&&!S.d3);set('hot-3d',S.hot&&S.d3);set('cons-f',S.cons);set('cons-l',S.cons);set('resp-f',S.resp);set('resp-l',S.resp);if(window.FSM)FSM.forEach(m=>m.getElement().style.display=S.stn?'':'none');if(window.WPM)WPM.forEach(m=>m.getElement().style.display=S.wpt?'':'none');
  ((map.getStyle()||{}).layers||[]).forEach(l=>{const s=l['source-layer'];if(!s)return;
   if(/^park$|protected|national_park/.test(s)){set(l.id,false);return}
   if(/boundary/.test(s))set(l.id,S.prov);else if(/water/.test(s))set(l.id,S.water);else if(/transportation|aeroway/.test(s))set(l.id,S.road)});
@@ -1004,7 +1010,7 @@ function renderLeft(){
  $('#stats').innerHTML=`<b>${n24}</b><span>จุดความร้อน 24 ชม. ล่าสุด</span><b>${PA.length}</b><span>พื้นที่อนุรักษ์ที่พบจุดความร้อน</span>${PA.length?`<div class="sl">${PA.map(([n,c])=>`<span class="zl" data-z="pa|${esc(n)}" title="${esc(n)} · คลิกเพื่อซูม"><b>${c}</b> ${esc(paShort(n))}</span>`).join('')}</div>`:''}
   <b>${tp[1]}</b><span>${tp[1]?`<a class="zl" data-z="pv|${esc(tp[0])}">จุดในจังหวัด${esc(tp[0])}</a>`:'จุดในจังหวัด–'} พบมากที่สุด</span><b>${ta[1]}</b><span>${ta[1]?`<a class="zl" data-z="am|${esc(ta[0])}">จุดในอำเภอ${esc(ta[0].split('|')[0])}</a>`:'จุดในอำเภอ–'} พบมากที่สุด</span><b>${tt[1]}</b><span>${tt[1]?`<a class="zl" data-z="tm|${esc(tt[0])}">จุดในตำบล${esc(tt[0].split('|')[0])}</a>`:'จุดในตำบล–'} พบมากที่สุด</span>`;
  $$('.tm').forEach(e=>e.textContent=thTime(loadedAt));
- ['r','o','b'].forEach(g=>$('#c-'+g).textContent=HS.filter(h=>grp(h)===g).length);
+ ['r','o','y','b'].forEach(g=>$('#c-'+g).textContent=HS.filter(h=>grp(h)===g).length);
  renderCard();satBtns();
 }
 /* ปุ่มเลือกดาวเทียม (มีสองชุด: การ์ดซ้าย + แผงชั้นข้อมูล ใช้สถานะเดียวกัน) · ตัวเลข = จุดสะสมตั้งแต่ 1 ต.ค. ของปีงบปัจจุบันของดาวเทียมนั้น (ผู้ใช้ขอ 2 พ.ย. 69 — เดิมจุดใน 24 ชม.) ชุดเดียวกับตาราง "ปีงบ" */
@@ -1420,7 +1426,7 @@ function openDetail(h){
  const u=utm(h.lat,h.lon),a=ageH(h);
  tx('d-sat',(h.demo?'จุดความร้อนตัวอย่าง (ไม่ใช่ข้อมูลจริง) · ':'จุดความร้อน · ')+h.sat);tx('d-name',h.ns==='unk'?'ไม่ทราบชื่อพื้นที่ · '+h.lat.toFixed(4)+', '+h.lon.toFixed(4):'ตำบล'+h.tam+' อำเภอ'+h.amp+' จังหวัด'+h.prov);fillHist(h);{const e=document.getElementById('d-pa'),g=geoAt(h.lon,h.lat);h.geo=g;if(e){e.style.display='block';
  e.innerHTML=(g.cons?`พื้นที่อนุรักษ์: <b>${esc(g.cons.properties.name)}</b>`:'พื้นที่อนุรักษ์: <b>อยู่นอกแนวเขต</b>')+(h.live&&h.pa&&(!g.cons||g.cons.properties.name.indexOf(h.pa.replace(/^อุทยานแห่งชาติ|^เขตรักษาพันธุ์สัตว์ป่า/,''))<0)?` <span style="opacity:.75">(API: ${esc(h.pa)})</span>`:'')
- +(g.resp.length?'<br>'+g.resp.map(r=>`สถานีฯ ที่รับผิดชอบ: <b>${esc(r.properties.station.replace(/^สถานีควบคุมไฟป่า/,''))}</b> · ${esc(r.properties.paro)}${r.properties.ftype?' · ชนิดป่า '+esc(r.properties.ftype):''}`).join('<br>'):'<br>สถานีฯ ที่รับผิดชอบ: <b>ไม่อยู่ในพื้นที่รับผิดชอบตามไฟล์</b>')}}fuelAuto1(null);tx('d-age',nf(a,1));tx('d-frp',h.frp==null?'–':nf(h.frp,1));
+ +(g.resp.length?'<br>'+g.resp.map(r=>`สถานีฯ ที่รับผิดชอบ: <b>${esc(r.properties.station.replace(/^สถานีควบคุมไฟป่า/,''))}</b> · ${esc(r.properties.paro)}${r.properties.ftype?' · ชนิดป่า '+esc(r.properties.ftype):''}`).join('<br>'):'<br>สถานีฯ ที่รับผิดชอบ: <b>ไม่อยู่ในพื้นที่รับผิดชอบตามไฟล์</b>')}}fuelAuto1(null);{const m=Math.max(0,Math.round(a*60)),d=Math.floor(m/1440),hh=Math.floor(m%1440/60),mi=m%60,P=[];if(d)P.push([d,'วัน']);if(d||hh)P.push([hh,'ชม.']);P.push([mi,'นาที']);tx('d-age',P.map(([v,u])=>`<b>${v}</b><small>${u}</small>`).join(''));$('#d-age').classList.toggle('dd',!!d)}tx('d-frp',h.frp==null?'–':nf(h.frp,1));
  tx('d-tl',h.live?'เวลาที่ดาวเทียมสแกน':'เวลาที่ตรวจพบ');tx('d-t',new Date(h.t).toLocaleString('th-TH',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'})+' น.');tx('d-cf',h.conf==='h'?'สูง':h.conf==='l'?'ต่ำ':'ปกติ');
  tx('d-ll',h.lat.toFixed(5)+', '+h.lon.toFixed(5));tx('d-utm','UTM '+u.z+'N · E '+nf(u.E)+' N '+nf(u.N));tx('d-el','–');tx('d-sl','กำลังคำนวณ…');tx('d-wx','ค่าตัวอย่าง (กำลังดึง…)');
  slopeAt(h.lon,h.lat).then(r=>{if(CUR!==h)return;tx('d-sl',nf(r.s,1)+'° · ลาดลงไป'+dn(r.asp).replace(/ \(.*$/,''));P.asp=r.s>=1?r.asp:null;if(!slManual)P.sl=Math.min(40,Math.round(r.s));syncSl();upd()}).catch(()=>{if(CUR===h)tx('d-sl','– (ใช้ค่าเริ่มต้น 4°)')});
@@ -2412,6 +2418,17 @@ function pbPlay(){if(PB.tm)return pbStop();if(!PB.days.length)return toast('ไ�
  PB.tm=setInterval(()=>{if(PB.i>=PB.days.length-1){pbStop();return}PB.i++;$('#pb-s').value=PB.i;hMap(hfilt())},Math.round(450/PB.sp))}
 function pbExit(){pbStop();PB.on=false;hMap(hfilt())}
 // แผงลอยวางระหว่างการ์ดซ้ายกับปุ่มควบคุมแผนที่ ถ้าที่ไม่พอวางเหนือปุ่มควบคุมแทน
+/* ตำแหน่งกล่องสัญลักษณ์อายุจุด: ชิดขวาเหนือแถวปุ่มควบคุม (มือถือ: เหนือแผ่นล่าง) · แผงขวาเปิด = ไปทางซ้ายของแผง · ชนแถบเล่นย้อน/แถบ Windy = ยกขึ้นเหนือแถบ */
+function hlgPos(){const e=$('#hlg');if(!e||e.hidden)return;const W=innerWidth,H=innerHeight,mob=W<768;let r=12,b;
+ if(mob){b=Math.round(H-$('#left').getBoundingClientRect().top)+8;const c=$('#ctl').getBoundingClientRect();if(c.height&&c.bottom>H-b-130)r=Math.round(W-c.left)+8} // มือถือ: ซ้ายของคอลัมน์ปุ่มขวาบน
+ else{const c=$('#ctl').getBoundingClientRect();b=Math.round(H-c.top)+10;const P=[$('#right').classList.contains('open')&&$('#right'),!$('#ulm').hidden&&$('#ulm'),$('#dp').classList.contains('open')&&$('#dp')].find(x=>x);if(P)r=W-P.offsetLeft+12}
+ if(mob&&b>H*.75)b=Math.round(H*.4); // แผ่นล่างถูกลากขึ้นเต็ม: ไม่ตามขึ้นไปบนสุด (แผ่นบังอยู่แล้ว)
+ e.style.right=r+'px';e.style.bottom=b+'px';const w=e.offsetWidth,hh=e.offsetHeight,x0=W-r-w,x1=W-r;
+ ['#pbf','#wyb'].forEach(q=>{const f=$(q);if(!f||f.hidden)return;const q1=f.getBoundingClientRect();if(q1.right>x0&&q1.left<x1&&q1.top<H-b&&q1.bottom>H-b-hh)b=Math.round(H-q1.top)+8});
+ e.style.bottom=b+'px'}
+{let q=0;const run=()=>{if(!q)q=requestAnimationFrame(()=>{q=0;hlgPos()})};addEventListener('resize',run);
+ const mo=new MutationObserver(run);mo.observe($('#right'),{attributes:true,attributeFilter:['class']});mo.observe($('#dp'),{attributes:true,attributeFilter:['class']});mo.observe($('#ulm'),{attributes:true,attributeFilter:['hidden']});
+ ['#pbf','#wyb'].forEach(x=>mo.observe($(x),{attributes:true,attributeFilter:['hidden','style','class']}));if(window.ResizeObserver)new ResizeObserver(run).observe($('#left'));setTimeout(run,0)}
 function pbPos(){const f=$('#pbf');if(f.hidden)return;const W=innerWidth,mob=W<768,c=$('#ctl').getBoundingClientRect(),hc=$('#hcard');
  let l=mob||!HOPEN||hc.hidden?12:hc.getBoundingClientRect().right+12,r=mob?12:W-c.left+12,b='';
  if(W-l-r<(mob?220:420)){r=12;if(!mob)b=(innerHeight-c.top+10)+'px';else l=12}

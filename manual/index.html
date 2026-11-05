@@ -251,7 +251,8 @@ mark{background:#ffe58a;border-radius:3px}
 <table>
 <tr><th>สัญลักษณ์</th><th>ความหมาย</th></tr>
 <tr><td><span class="sw dot" style="background:#e0301e"></span> แดง</td><td>ตรวจพบภายใน 6 ชม.</td></tr>
-<tr><td><span class="sw dot" style="background:#f08a1c"></span> ส้ม</td><td>6–24 ชม.</td></tr>
+<tr><td><span class="sw dot" style="background:#f08a1c"></span> ส้ม</td><td>6–12 ชม.</td></tr>
+<tr><td><span class="sw dot" style="background:#e8b020"></span> เหลือง</td><td>12–24 ชม.</td></tr>
 <tr><td><span class="sw dot" style="background:#9a6a4a"></span> น้ำตาล</td><td>เก่ากว่า 24 ชม. (แสดงถึง 48 ชม.)</td></tr>
 <tr><td><span class="sw dot" style="background:#f6a04d;border:2px solid #d9701e"></span> วงส้ม</td><td>จุดสะสมปีงบ (เมื่อเลือกแท็บ "จุดสะสมปีงบ" ในการ์ด)</td></tr>
 <tr><td><span class="sw dot" style="background:#ffd84a"></span> วงเหลือง</td><td>จุดความร้อนของวันที่ภาพดาวเทียมย้อนหลังที่เลือกอยู่</td></tr>
@@ -338,7 +339,7 @@ mark{background:#ffe58a;border-radius:3px}
 <h4><svg class="i" style="color:var(--fire)" viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg>จุดความร้อน <span class="tag">ค่าเริ่มต้น: เปิด</span></h4>
 <figure><img src="img/sw_hot.jpg" width="1280" height="760" alt="จุดความร้อนบนแผนที่และกล่องตั้งค่า" loading="lazy"><figcaption>จุดความร้อน 48 ชม. (ภาพนี้เปิดจุดความร้อนตัวอย่าง) พร้อมปุ่มดาวเทียมและจำนวนจุดตามอายุในแผงด้านขวา</figcaption></figure>
 <ul>
- <li>แสดงจุด VIIRS <b>48 ชม. ล่าสุด</b> เฉพาะในแนวเขต สีตามอายุ: <span class="sw dot" style="background:#e0301e"></span>ภายใน 6 ชม. <span class="sw dot" style="background:#f08a1c"></span>6–24 ชม. <span class="sw dot" style="background:#9a6a4a"></span>เก่ากว่า 24 ชม. · จุดใหม่มีวงเรืองแสงรอบจุด</li>
+ <li>แสดงจุด VIIRS <b>48 ชม. ล่าสุด</b> เฉพาะในแนวเขต สีตามอายุ: <span class="sw dot" style="background:#e0301e"></span>ภายใน 6 ชม. <span class="sw dot" style="background:#f08a1c"></span>6–12 ชม. <span class="sw dot" style="background:#e8b020"></span>12–24 ชม. <span class="sw dot" style="background:#9a6a4a"></span>เก่ากว่า 24 ชม. · จุดใหม่มีวงเรืองแสงรอบจุด · กล่อง <b>อายุจุดความร้อน</b> ขวาล่างเหนือปุ่มควบคุมบอกสัญลักษณ์และจำนวนจุดแต่ละช่วง (ซ่อนเมื่อปิดชั้นนี้)</li>
  <li><b>ปุ่มดาวเทียม</b> (NOAA-20 / NOAA-21) ใต้สวิตช์ = ชุดเดียวกับในการ์ด ตัวเลขบนปุ่ม = จุดสะสมปีงบของดวงนั้น · ตัวเลขขวาของแต่ละแถวอายุ = จำนวนจุดบนแผนที่ขณะนี้</li>
  <li><span class="btnl">↻ ดึงข้อมูลใหม่</span> ดึงทันที (ปกติดึงเองทุก 5 นาที)</li>
  <li><b>คลิกจุด</b> → <a href="#detail">แผงรายละเอียด</a> · ชี้เมาส์ → ป้ายเวลาและดาวเทียม</li>
@@ -562,7 +563,7 @@ mark{background:#ffe58a;border-radius:3px}
 <ul>
  <li>ปุ่มด้านบน: <span class="cb"><svg class="i" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 10-3-3M3 12h16a3 3 0 11-3 3M3 16h7"/></svg></span><b>ลม</b> (เปิดชั้น Windy แล้วซูมไปที่จุด) · <span class="cb"><svg class="i" viewBox="0 0 24 24"><path d="M9 9h10v10H9zM5 15V5h10"/></svg></span><b>คัดลอก</b>พิกัดและลิงก์ · <span class="cb"><svg class="i" viewBox="0 0 24 24"><path d="M5 12l14-7-5 14-2-6z"/></svg></span><b>นำทาง</b>ด้วย Google Maps · <span class="cb"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></span><b>ปิด</b></li>
  <li><b>ชื่อพื้นที่</b> ตำบล อำเภอ จังหวัด · พื้นที่อนุรักษ์ · สถานีฯ ที่รับผิดชอบ</li>
- <li><b>อายุ</b> (ชั่วโมงที่แล้ว) · <b>ความแรงไฟ (FRP, MW)</b> — API ไทยไม่ส่งค่า FRP จึงแสดง "–" สำหรับจุดจริง</li>
+ <li><b>อายุ</b> (ชม. นาที ที่แล้ว · เกิน 24 ชม. = วัน ชม. นาที) · <b>ความแรงไฟ (FRP, MW)</b> — API ไทยไม่ส่งค่า FRP จึงแสดง "–" สำหรับจุดจริง</li>
  <li><b>เวลาที่ตรวจพบ</b> = เวลาที่ดาวเทียมสแกน (เวลาไทย) · <b>ความเชื่อมั่น</b> (ต่ำ/ปกติ/สูง) · <b>พิกัด</b> ทศนิยม และ <b>UTM</b> · <b>ความสูง</b> และ<b>ความลาดชัน</b>พร้อมทิศลาด (จากแบบจำลองความสูง)</li>
 </ul>
 <h3>ประวัติในบริเวณนี้</h3>
