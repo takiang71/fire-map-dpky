@@ -326,6 +326,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 .kc .ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;background:var(--cb);color:var(--c)}.kc .ic svg{width:17px;height:17px}
 .kc>div{min-width:0}.kc span{display:block;font-size:10.5px;color:var(--mut);line-height:1.25}.kc b{display:block;font-size:21px;line-height:1.15;color:var(--navy);font-weight:800}.kc b.t{font-size:14px;line-height:1.25}.kc small{display:block;font-size:10.5px;color:var(--mut);line-height:1.25}
 .hh{flex-wrap:wrap;gap:6px 6px}.ht{flex:1;font-size:15px;font-weight:800;color:var(--navy)}.hh>.hsub{flex:0 0 100%;margin-top:-2px}
+.hsp{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--navy);cursor:pointer;white-space:nowrap}.hsp .sw{width:32px;height:18px}.hsp .sw::after{width:14px;height:14px}.hsp .sw[aria-checked=true]::after{transform:translateX(14px)}
 .hp{min-height:32px;padding:0 10px;border:1px solid var(--line);background:var(--bg);border-radius:99px;font-size:12.5px;display:inline-flex;align-items:center;gap:5px;color:var(--navy);font-weight:600}.hp svg{width:15px;height:15px}
 .kp .nm{font-size:13px;line-height:1.3;font-weight:800;margin:0 0 2px}.kp .lb{font-weight:600;color:var(--mut);font-size:10.5px;line-height:1.25}.kp .six{display:flex;flex-direction:column}
 /* หน้ากระดาน "ความสำคัญ" (#kb) — ความรู้รายพื้นที่อนุรักษ์ + แผนที่ประกอบ */
@@ -511,7 +512,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div class="pbt"><button id="p-tbl"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></svg>ตารางรายละเอียด</button><button id="p-csv"><svg class="i" viewBox="0 0 24 24"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 20h14"/></svg>ดาวน์โหลด CSV</button><button id="p-pdf"><svg class="i" viewBox="0 0 24 24"><path d="M7 8V3h10v5M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg>รายงาน PDF</button></div>
  </div>
 <div class="card hc" id="hcard" hidden aria-label="สถิติจุดความร้อนย้อนหลัง">
-  <div class="hh"><b class="ht" id="h-ttl">สถิติจุดความร้อนย้อนหลัง</b><button class="hp" id="h-fit" aria-label="ซูมไปที่ข้อมูลที่กรอง" title="ซูมไปที่ข้อมูลที่กรอง"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4M11 8v6M8 11h6"/></svg>ซูม</button><button class="hp" id="h-rs" hidden aria-label="รีเซ็ตตัวกรอง">รีเซ็ต</button><button class="cb ib" id="h-x" aria-label="ปิดการ์ดสถิติ"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="seg htab" id="h-tab" role="group" aria-label="ชุดข้อมูลสถิติย้อนหลัง"><button data-v="hs"><svg class="i" viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.5 2-2 2 1-3 0-6-1-8z" style="fill:#e8541c;stroke:none"/></svg>จุดความร้อน</button><button data-v="xt"><svg class="i" viewBox="0 0 24 24"><path d="M12 3s6 7 6 11a6 6 0 01-12 0c0-4 6-11 6-11z" style="fill:#5b8def;stroke:none"/></svg>การดับไฟป่า</button></div><div class="sm hsub"><span class="hs-only">ข้อมูลจากดาวเทียม ตัวชี้วัดกรมอุทยานฯ Suomi NPP (ตั้งแต่ 2 พ.ย. 69 ใช้ NOAA-20) ระบบ VIIRS · <span id="h-rng"></span></span><span class="xt-only">ข้อมูลการดับไฟป่าจากรายงานสถิติดับไฟรวม อส. · <span id="x-rng"></span></span><span class="wa-only">จุดความร้อนทุกดาวเทียม VIIRS · อยู่นอกแนวเขตกลุ่มป่า · <span id="w-rng"></span></span></div></div>
+  <div class="hh"><b class="ht" id="h-ttl">สถิติจุดความร้อนย้อนหลัง</b><label class="hsp" title="แสดง/ซ่อนจุดของการ์ดนี้บนแผนที่"><button class="sw" id="h-sp" role="switch" aria-label="แสดงจุดบนแผนที่"></button>แสดงจุด</label><button class="hp" id="h-fit" aria-label="ซูมไปที่ข้อมูลที่กรอง" title="ซูมไปที่ข้อมูลที่กรอง"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4M11 8v6M8 11h6"/></svg>ซูม</button><button class="hp" id="h-rs" hidden aria-label="รีเซ็ตตัวกรอง">รีเซ็ต</button><button class="cb ib" id="h-x" aria-label="ปิดการ์ดสถิติ"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="seg htab" id="h-tab" role="group" aria-label="ชุดข้อมูลสถิติย้อนหลัง"><button data-v="hs"><svg class="i" viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.5 2-2 2 1-3 0-6-1-8z" style="fill:#e8541c;stroke:none"/></svg>จุดความร้อน</button><button data-v="xt"><svg class="i" viewBox="0 0 24 24"><path d="M12 3s6 7 6 11a6 6 0 01-12 0c0-4 6-11 6-11z" style="fill:#5b8def;stroke:none"/></svg>การดับไฟป่า</button></div><div class="sm hsub"><span class="hs-only">ข้อมูลจากดาวเทียม ตัวชี้วัดกรมอุทยานฯ Suomi NPP (ตั้งแต่ 2 พ.ย. 69 ใช้ NOAA-20) ระบบ VIIRS · <span id="h-rng"></span></span><span class="xt-only">ข้อมูลการดับไฟป่าจากรายงานสถิติดับไฟรวม อส. · <span id="x-rng"></span></span><span class="wa-only">จุดความร้อนทุกดาวเทียม VIIRS · อยู่นอกแนวเขตกลุ่มป่า · <span id="w-rng"></span></span></div></div>
   <div class="hs-only" id="hsb"><div class="seg" id="h-per" role="group" aria-label="ช่วงปีงบที่แสดง"><button data-v="3">3 ปีย้อนหลัง</button><button data-v="5">5 ปีย้อนหลัง</button><button data-v="0">ทุกปี</button></div><div class="sm" id="h-pern"></div>
   <div class="sats xdy" data-xdy></div>
   <div class="kp" id="h-kp"></div>
@@ -564,7 +565,6 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   </div>
   <div class="wa-only" id="wab">
   <select id="w-sel" hidden aria-label="เลือกพื้นที่เฝ้าระวัง"></select>
-  <div class="dmr"><button class="sw" id="w-sp" role="switch" aria-label="แสดงสถิติจุดความร้อนย้อนหลังบนแผนที่"></button><span>แสดง<b>สถิติจุดความร้อน</b>ย้อนหลังบนแผนที่ (ตามตัวกรองด้านล่าง)</span></div>
   <div class="hq" style="margin-top:6px"><b>ติดตามรายวัน</b><span class="sm" id="w-upd"></span></div>
   <div class="kp w2" id="w-lv"></div>
   <div id="w-d30"></div>
@@ -934,7 +934,7 @@ const areaHtml=g=>{let s='';if(g.cons)s+=`<b>${esc(g.cons.properties.name)}</b><
  return s||'<span class="sm">อยู่นอกพื้นที่อนุรักษ์และพื้นที่รับผิดชอบไฟป่าตามไฟล์แนวเขต</span><br>'};
 
 /* ---------- สถานะ + จำค่าที่ผู้ใช้เลือก ---------- */
-let S={base:'natural',img:'google',d3:false,hot:true,prov:false,cons:true,resp:false,stn:false,wpt:false,rgr:false,fbs:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,wch:true,wst:false,wsp:false,demo:false,water:true,road:true,wind:false,pm:false,dry:false,wx:false,rad:false,wyl:false,wyo:'wind',wyop:60,hist:false,xt:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',rep:false,rpm:2,hcd:1,hcg:2,hcr:200};
+let S={base:'natural',img:'google',d3:false,hot:true,prov:false,cons:true,resp:false,stn:false,wpt:false,rgr:false,fbs:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,wch:true,wst:false,wsp:true,demo:false,water:true,road:true,wind:false,pm:false,dry:false,wx:false,rad:false,wyl:false,wyo:'wind',wyop:60,hist:false,xt:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',rep:false,rpm:2,hcd:1,hcg:2,hcr:200};
 try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;S.wst=false;if(S.base==='road')S.base='detail';
 const toast=(m,fn,ms)=>{const t=$('#toast');t.textContent=m;t.classList.add('show');t.classList.toggle('act',!!fn);t.onclick=fn?()=>{t.classList.remove('show','act');fn()}:null;
  clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show','act'),ms||2200)}; // fn = แตะป้ายแล้วทำ (ป้ายค้างนานขึ้น)
@@ -1080,7 +1080,7 @@ function apply(){
  L3();L4();try{LX()}catch(e){}try{LW()}catch(e){}LB();LR();LF();LFT();LA();LP();try{LC()}catch(e){}sync();
 }
 function sync(){
- $$('.sw[data-k]').forEach(b=>b.setAttribute('aria-checked',!!S[b.dataset.k]));
+ $$('.sw[data-k]').forEach(b=>b.setAttribute('aria-checked',!!S[b.dataset.k]));try{if(HOPEN){if(HTAB==='hs')HSP.hs=!!S.hist;else if(HTAB==='xt')HSP.xt=!!S.xt}hspSync()}catch(e){}
  $$('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.b===S.base));
  const im=$('#imgsrc'),k=imgOf();im.hidden=S.base!=='sat';$$('#imgsrc button').forEach(b=>{b.setAttribute('aria-pressed',b.dataset.i===k);b.title=IMG[b.dataset.i].src()});
  $('#seg [data-b="sat"]').dataset.src=IMG[k].src();$('#attr-b').textContent=S.base==='sat'?IMG[k].cr:S.base==='natural'?'© Esri':'© OpenFreeMap';itUI();imgDate();
@@ -2559,13 +2559,14 @@ function pbOpen(){$('#pbf').hidden=false;pbPos();hRender()}
 function pbClose(){pbExit();$('#pbf').hidden=true}
 addEventListener('resize',pbPos);
 /* --- เปิด/ปิดการ์ด --- */
-let HTAB='hs'; // แท็บการ์ดสถิติย้อนหลัง: hs = จุดความร้อน · xt = การดับไฟป่า (ผู้ใช้ขอ 5 พ.ย. 69)
+let HTAB='hs';const HSP={hs:true,xt:true}; // สวิตช์ "แสดงจุด" บนหัวการ์ด (ค่าเริ่มต้นเปิด) — wa ใช้ S.wsp
+const hspOn=()=>HTAB==='wa'?!!S.wsp:HTAB==='xt'?!!S.xt:!!S.hist,hspSync=()=>{const b=document.getElementById('h-sp');if(b)b.setAttribute('aria-checked',HOPEN&&hspOn())}; // แท็บการ์ดสถิติย้อนหลัง: hs = จุดความร้อน · xt = การดับไฟป่า (ผู้ใช้ขอ 5 พ.ย. 69)
 function hOpen(play,tab){if(play)tab='hs';HOPEN=true;$('#left').classList.add('hm');$('#pcard').hidden=true;$('#hcard').hidden=false;hTab(tab||HTAB);
- if(play)pbOpen()}
+ if(play){if(!S.hist){S.hist=HSP.hs=true;apply();hspSync()}pbOpen()}} // เล่นย้อนต้องเห็นจุด
 function hTab(t){HTAB=t;const x=t==='xt',w=t==='wa';$('#hcard').classList.toggle('xtm',x);$('#hcard').classList.toggle('wam',w);tx('h-ttl',x?'สถิติการดับไฟป่าย้อนหลัง':w?'พื้นที่เฝ้าระวังพิเศษ':'สถิติจุดความร้อนย้อนหลัง');$$('#h-tab button').forEach(b=>b.classList.toggle('on',b.dataset.v===t));$('#hcard').scrollTop=0;
- if(w){pbClose();S.hist=false;S.xt=false;S.wst=true;apply();wtRender();if(!hTab.wd){hTab.wd=1;wtFit()}}
- else if(x){pbClose();S.hist=false;S.wst=false;S.xt=true;apply();xtRender();if(!hTab.xd){hTab.xd=1;xtFit()}}
- else{S.xt=false;S.wst=false;S.hist=true;apply();if(!hOpen.done)hDef();hRender();if(!hOpen.done){hOpen.done=1;hFit()}}
+ if(w){pbClose();S.hist=false;S.xt=false;S.wst=true;apply();hspSync();wtRender();if(!hTab.wd){hTab.wd=1;wtFit()}}
+ else if(x){pbClose();S.hist=false;S.wst=false;S.xt=HSP.xt;apply();hspSync();xtRender();if(!hTab.xd){hTab.xd=1;xtFit()}}
+ else{S.xt=false;S.wst=false;S.hist=HSP.hs;apply();hspSync();if(!hOpen.done)hDef();hRender();if(!hOpen.done){hOpen.done=1;hFit()}}
  try{moreFit()}catch(e){}}
 function hClose(){HOPEN=false;pbClose();$('#left').classList.remove('hm');$('#hcard').hidden=true;$('#pcard').hidden=false;$('#bHide').setAttribute('aria-pressed',true);S.hist=false;S.xt=false;S.wst=false;apply()} // ปิดการ์ด = ซ่อนจุดความร้อนย้อนหลังด้วย
 
@@ -2592,6 +2593,7 @@ $('#h-per').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;HF.fy.
 $$('#h-md button').forEach(b=>b.onclick=()=>{HM.mode=b.dataset.v;hRender()});$$('#h-co button').forEach(b=>b.onclick=()=>{HM.color=b.dataset.v;hRender()});
 $$('#pb-w button').forEach(b=>b.onclick=()=>{PB.w=+b.dataset.v;hRender()});$$('#pb-sp button').forEach(b=>b.onclick=()=>{PB.sp=+b.dataset.v;if(PB.tm){pbStop();pbPlay()}hRender()});
 $('#pb-p').onclick=pbPlay;$('#pb-x').onclick=pbClose;$('#pb-o').onclick=pbOpen;$('#pb-s').oninput=e=>{PB.i=+e.target.value;PB.on=true;pbStop();hMap(hfilt())};
+$('#h-sp').onclick=e=>{e.preventDefault();e.stopPropagation();const v=!hspOn();if(HTAB==='wa')S.wsp=v;else if(HTAB==='xt')S.xt=HSP.xt=v;else S.hist=HSP.hs=v;apply();hspSync()};
 $('#h-fit').onclick=()=>HTAB==='xt'?xtFit():HTAB==='wa'?wtFit():hFit();
 /* --- ตารางรายละเอียด · CSV · รายงาน PDF ของสถิติย้อนหลัง (ตามตัวกรองปัจจุบัน hfilt) --- */
 const HFN={fy:'ปีงบ',mo:'เดือน',sb:'สบอ.',ar:'พื้นที่อนุรักษ์',st:'สถานีฯ',pv:'จังหวัด',am:'อำเภอ',tm:'ตำบล',ld:'ประเภทพื้นที่',hg:'ช่วงเวลา',fu:'การจัดการเชื้อเพลิง'};
@@ -2912,7 +2914,6 @@ function wtPopup(r){if(!r)return;if(r.src===2&&r.h){MOVED=true;return openDetail
 $('#wab').addEventListener('click',e=>{const c=e.target.closest('[data-wi]');if(c){const r=WR[+c.dataset.wi];if(!r)return;MOVED=true;if(r.src===2&&r.h)return openDetail(r.h);map.flyTo({center:[r.lo,r.la],zoom:13,duration:dur(1200)});map.once('moveend',()=>wtPopup(r));return}
  const b=e.target.closest('[data-wk]');if(!b)return;const k=b.dataset.wk,v=Number(b.dataset.wv);WFL[k].has(v)?WFL[k].delete(v):WFL[k].add(v);wtRender()});
 $$('#w-md button').forEach(b=>b.onclick=()=>{WM.mode=b.dataset.v;wtRender()});$$('#w-co button').forEach(b=>b.onclick=()=>{WM.color=b.dataset.v;wtRender()});
-{const b=$('#w-sp'),u=()=>b.setAttribute('aria-checked',!!S.wsp);u();b.onclick=e=>{e.stopPropagation();S.wsp=!S.wsp;u();LW()}} /* สวิตช์สถิติจุดความร้อนบนแผนที่ (ไม่ใช้ data-k — #hcard จับ data-k เป็นตัวกรองสถิติ) */
 $('#w-sel').onchange=e=>{WSEL=e.target.value;wDef();wtRender();wtFit()};
 $('#wch-z').onclick=wchZoom;$('#wch-o').onclick=()=>hOpen(false,'wa');$('#p-wch').onclick=()=>hOpen(false,'wa');
 /* ตาราง · CSV · รายงาน PDF (ตามตัวกรอง WFL) */
