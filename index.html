@@ -1382,7 +1382,7 @@ map.on('click',e=>{
  const wcl=(S.wst||wHs())&&map.getLayer('wtc-cl')&&map.queryRenderedFeatures(e.point,{layers:['wtc-cl']})[0];if(wcl){map.getSource('wtc').getClusterExpansionZoom(wcl.properties.cluster_id).then(z=>map.easeTo({center:wcl.geometry.coordinates,zoom:z+.5,duration:dur(800)}));return}
  const wtf=(S.wst||wHs())&&map.queryRenderedFeatures(e.point,{layers:['wt-c','wtc-p'].filter(id=>map.getLayer(id))})[0];if(wtf){wtPopup(WR[wtf.properties.i]);return}
  const fp=PM!=='24'&&map.getLayer('fypt')&&map.queryRenderedFeatures(e.point,{layers:['fypt']})[0];
- if(fp){const p=fp.properties,[lo,la]=fp.geometry.coordinates;new maplibregl.Popup({maxWidth:'260px'}).setLngLat([lo,la]).setHTML(`<b>จุดความร้อนสะสมปีงบ ${fyOfDay(p.d)}</b><br>${dShort(p.d)} เวลา ${hhmmTh(p.t)} น. · ${esc(SATN[p.sat]||p.sat)}${p.fm?'<br><span class="sm">ที่มา: NASA FIRMS (ระบบไทยขัดข้องวันนั้น)</span>':''}<br>${p.tam?'ต.'+esc(p.tam)+' ':''}${p.amp?'อ.'+esc(p.amp)+' ':''}${p.prov?'จ.'+esc(p.prov):''}<br><span class="sm">พิกัด ${la.toFixed(5)}, ${lo.toFixed(5)}</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${la},${lo}">เปิดใน Google Maps</a>`).addTo(map);return}
+ if(fp){const p=fp.properties,[lo,la]=fp.geometry.coordinates;ftFill(new maplibregl.Popup({maxWidth:'260px'}).setLngLat([lo,la]).setHTML(`<b>จุดความร้อนสะสมปีงบ ${fyOfDay(p.d)}</b><br>${dShort(p.d)} เวลา ${hhmmTh(p.t)} น. · ${esc(SATN[p.sat]||p.sat)}${p.fm?'<br><span class="sm">ที่มา: NASA FIRMS (ระบบไทยขัดข้องวันนั้น)</span>':''}<br>${p.tam?'ต.'+esc(p.tam)+' ':''}${p.amp?'อ.'+esc(p.amp)+' ':''}${p.prov?'จ.'+esc(p.prov):''}${ftRow(lo,la)}<span class="sm">พิกัด ${la.toFixed(5)}, ${lo.toFixed(5)}</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${la},${lo}">เปิดใน Google Maps</a>`).addTo(map));return}
  const hr=HSRF.features.length&&map.getLayer('hsring')&&map.queryRenderedFeatures(e.point,{layers:['hsring']})[0]; // วงล้อมจุดจากลิงก์แจ้งเตือน
  if(hr&&hr.properties.cluster){map.getSource('hsring').getClusterExpansionZoom(hr.properties.cluster_id).then(z=>map.easeTo({center:hr.geometry.coordinates,zoom:z+.3,duration:dur(800)}));return}
  if(hr){const [lo,la]=hr.geometry.coordinates,h=HS.find(x=>Math.hypot(x.lat-la,x.lon-lo)<.004)||hsAD(la,lo);if(h){MOVED=true;openDetail(h);return}} // จุดเก่ากว่า 48 ชม. หาใน AD (ผู้ใช้แจ้ง 5 พ.ย. 69: แตะวงแล้วได้แค่ป๊อปอัปตำแหน่ง)
@@ -1547,7 +1547,7 @@ function openDetail(h){
  const u=utm(h.lat,h.lon),a=ageH(h);
  tx('d-sat',(h.demo?'จุดความร้อนตัวอย่าง (ไม่ใช่ข้อมูลจริง) · ':'จุดความร้อน · ')+h.sat);tx('d-name',h.ns==='unk'?'ไม่ทราบชื่อพื้นที่ · '+h.lat.toFixed(4)+', '+h.lon.toFixed(4):'ตำบล'+h.tam+' อำเภอ'+h.amp+' จังหวัด'+h.prov);fillHist(h);{const e=document.getElementById('d-pa'),g=geoAt(h.lon,h.lat);h.geo=g;if(e){e.style.display='block';
  e.innerHTML=(h.wa||watchAt(h.lon,h.lat)?`พื้นที่เฝ้าระวังพิเศษ: <b>${esc((WAR.find(x=>x.id===(h.wa||watchAt(h.lon,h.lat)))||{}).n)}</b><br>`:'')+(g.cons?`พื้นที่อนุรักษ์: <b>${esc(g.cons.properties.name)}</b>`:'พื้นที่อนุรักษ์: <b>อยู่นอกแนวเขต</b>')+(h.live&&h.pa&&(!g.cons||g.cons.properties.name.indexOf(h.pa.replace(/^อุทยานแห่งชาติ|^เขตรักษาพันธุ์สัตว์ป่า/,''))<0)?` <span style="opacity:.75">(API: ${esc(h.pa)})</span>`:'')
- +(g.resp.length?'<br>'+g.resp.map(r=>`สถานีฯ ที่รับผิดชอบ: <b>${esc(r.properties.station.replace(/^สถานีควบคุมไฟป่า/,''))}</b> · ${esc(r.properties.paro)}${r.properties.ftype?' · ชนิดป่า '+esc(r.properties.ftype):''}`).join('<br>'):'<br>สถานีฯ ที่รับผิดชอบ: <b>ไม่อยู่ในพื้นที่รับผิดชอบตามไฟล์</b>')}}fuelAuto1(null);{const m=Math.max(0,Math.round(a*60)),d=Math.floor(m/1440),hh=Math.floor(m%1440/60),mi=m%60,P=[];if(d)P.push([d,'วัน']);if(d||hh)P.push([hh,'ชม.']);P.push([mi,'นาที']);tx('d-age',P.map(([v,u])=>`<b>${v}</b><small>${u}</small>`).join(''));$('#d-age').classList.toggle('dd',!!d)}tx('d-frp',h.frp==null?'–':nf(h.frp,1));
+ +(g.resp.length?'<br>'+g.resp.map(r=>`สถานีฯ ที่รับผิดชอบ: <b>${esc(r.properties.station.replace(/^สถานีควบคุมไฟป่า/,''))}</b> · ${esc(r.properties.paro)}`).join('<br>'):'<br>สถานีฯ ที่รับผิดชอบ: <b>ไม่อยู่ในพื้นที่รับผิดชอบตามไฟล์</b>')+'<br>'+ftRow(h.lon,h.lat,'span');ftFill(e)}}fuelAuto1(null);{const m=Math.max(0,Math.round(a*60)),d=Math.floor(m/1440),hh=Math.floor(m%1440/60),mi=m%60,P=[];if(d)P.push([d,'วัน']);if(d||hh)P.push([hh,'ชม.']);P.push([mi,'นาที']);tx('d-age',P.map(([v,u])=>`<b>${v}</b><small>${u}</small>`).join(''));$('#d-age').classList.toggle('dd',!!d)}tx('d-frp',h.frp==null?'–':nf(h.frp,1));
  tx('d-tl',h.live?'เวลาที่ดาวเทียมสแกน':'เวลาที่ตรวจพบ');tx('d-t',new Date(h.t).toLocaleString('th-TH',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'})+' น.');tx('d-cf',h.conf==='h'?'สูง':h.conf==='l'?'ต่ำ':'ปกติ');
  tx('d-ll',h.lat.toFixed(5)+', '+h.lon.toFixed(5));tx('d-utm','UTM '+u.z+'N · E '+nf(u.E)+' N '+nf(u.N));tx('d-el','–');tx('d-sl','กำลังคำนวณ…');tx('d-wx','ค่าตัวอย่าง (กำลังดึง…)');
  slopeAt(h.lon,h.lat).then(r=>{if(CUR!==h)return;tx('d-sl',nf(r.s,1)+'° · ลาดลงไป'+dn(r.asp).replace(/ \(.*$/,''));P.asp=r.s>=1?r.asp:null;if(!slManual)P.sl=Math.min(40,Math.round(r.s));syncSl();upd()}).catch(()=>{if(CUR===h)tx('d-sl','– (ใช้ค่าเริ่มต้น 4°)')});
@@ -2267,6 +2267,11 @@ function ftUTM(lon,lat,zone){const A=6378137,F=1/298.257223563,K0=.9996,E2=F*(2-
 const ftRaw=(lon,lat)=>{const j=FT;if(!j)return 0;const [E,N]=ftUTM(lon,lat,j.z),x=Math.floor((E-j.x0)/j.px),y=Math.floor((j.y0-N)/j.px);return x<0||y<0||x>=j.w||y>=j.h?0:j.g[y*j.w+x]};
 // ชนิดป่าที่จุด → {k ชนิด, n ชื่อ, e ระดับการเติม, inb อยู่ในแนวเขต} หรือ null (ไม่ใช่ป่า/ยังไม่โหลด)
 const ftAt=(lon,lat)=>{const v=ftRaw(lon,lat),k=v&15;return k?{k,n:FT.cn[k],e:v>>4&3,inb:v>=128}:null};
+// ป๊อปอัปจุดความร้อน: บรรทัด "ชนิดป่า" จากชั้นชนิดป่า (กรมป่าไม้ 2561) ที่พิกัดจุด — ใส่ ftRow() ใน HTML แล้วเรียก ftFill(popup) หลัง addTo (ผู้ใช้ขอ 6 พ.ย. 69)
+const ftIn=(lon,lat)=>{const j=FT;if(!j)return false;const [E,N]=ftUTM(lon,lat,j.z),x=Math.floor((E-j.x0)/j.px),y=Math.floor((j.y0-N)/j.px);return x>=0&&y>=0&&x<j.w&&y<j.h};
+const ftRow=(lon,lat,tg='div')=>`<${tg} class="fpr" data-lo="${lon}" data-la="${lat}"><b>ชนิดป่า:</b> <span class="sm">กำลังโหลด…</span></${tg}>`;
+function ftFill(pop){const root=pop&&pop.getElement?pop.getElement():pop,el=root&&root.querySelector('.fpr');if(!el)return;const s=el.querySelector('span'),lo=+el.dataset.lo,la=+el.dataset.la;
+ ftLoad().then(()=>{const f=ftAt(lo,la);s.className='';s.innerHTML=f?ftTxt(f):ftIn(lo,la)?'ไม่ใช่พื้นที่ป่าไม้':'<span class="sm">ไม่มีข้อมูล (นอกขอบเขตชั้นข้อมูล)</span>';s.title='ชั้นข้อมูลชนิดป่า กรมป่าไม้ ปี 2561'}).catch(()=>{s.textContent='โหลดชั้นข้อมูลไม่ได้'})}
 const ftTxt=f=>f?`<b style="color:${FT.col[f.k]}">■</b> ${esc(f.n)}${f.e?' <span class="sm">(ประมาณจาก'+(f.e===1?'ผืนป่าเดียวกัน':'ป่าใกล้สุด')+')</span>':''}`:'';
 // ไทล์วาดเองต่อพิกเซล (เมอร์เคเตอร์ → UTM → กริด) เฉพาะเซลล์ในแนวเขต
 maplibregl.addProtocol('ftype',async p=>{const m=p.url.match(/^ftype:\/\/(\d+)\/(\d+)\/(\d+)/),z=+m[1],tx=+m[2],ty=+m[3],j=await ftLoad(),c=bnCanvas(),g=c.getContext('2d'),W=256*2**z;
@@ -2503,14 +2508,14 @@ function setup4(){const dotPaint={'circle-radius':['interpolate',['linear'],['zo
 function L4(){const set=(id,b)=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',b?'visible':'none');set('hist-h',S.hist&&HM.mode==='heat');set('hist-c',S.hist&&HM.mode==='pt');['histc-cl','histc-n','histc-p'].forEach(id=>set(id,S.hist&&HM.mode==='cl'))}
 function histPopup(f){const r=HD[f.properties.i];if(!r)return;const hh=Math.floor(r.t/100),tm=String(hh).padStart(2,'0')+':'+String(r.t%100).padStart(2,'0'),day=hh>=6&&hh<18;
  const[ta,am]=DIC.tm[r.tm].split('|'),st=DIC.st[r.st],row=(k,v)=>`<div><b>${k}:</b> ${v}</div>`;
- new maplibregl.Popup({maxWidth:'300px'}).setLngLat([r.lo,r.la]).setHTML(`<div class="hpop"><div class="hpt"><i style="background:${fyColor(r.fy)}"></i>จุดความร้อน ปีงบฯ ${r.fy}</div>`
+ ftFill(new maplibregl.Popup({maxWidth:'300px'}).setLngLat([r.lo,r.la]).setHTML(`<div class="hpop"><div class="hpt"><i style="background:${fyColor(r.fy)}"></i>จุดความร้อน ปีงบฯ ${r.fy}</div>`
  +row('วันที่',`${hDate(r.d)} (${tm} น.) ${day?'☀️ กลางวัน':'🌙 กลางคืน'}`)
  +row('พื้นที่',`ต.${esc(ta)}${am?' อ.'+esc(am):''} จ.${esc(DIC.pv[r.pv])}`)
  +row('ป่าอนุรักษ์',esc(DIC.ar[r.ar]))+row('สบอ.',esc(DIC.sb[r.sb]))
  +row('สถานีดับไฟป่า',st==='ไม่มี'?'ไม่มีสถานีรับผิดชอบ':esc(st))
- +row('ประเภทป่า',esc(DIC.ld[r.ld]))+row('การจัดการเชื้อเพลิง',esc(DIC.fu[r.fu]))
+ +row('ประเภทป่า',esc(DIC.ld[r.ld]))+ftRow(r.lo,r.la)+row('การจัดการเชื้อเพลิง',esc(DIC.fu[r.fu]))
  +row('พิกัด',r.la.toFixed(5)+', '+r.lo.toFixed(5))
- +`<a class="hpg" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${r.la},${r.lo}">🗺️ เปิด Google Maps</a></div>`).addTo(map)}
+ +`<a class="hpg" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${r.la},${r.lo}">🗺️ เปิด Google Maps</a></div>`).addTo(map))}
 /* เส้นแนวเขตพื้นที่รับผิดชอบสถานีฯ ต้นฉบับ KMZ เป็นเส้นหักช่วงละ 100–300 ม. มีคลื่นเล็กๆ ดูหยาบ (ผู้ใช้แจ้ง 4 พ.ย. 69 แล้วขอให้เรียบกว่าการตัดมุม)
    → ซอยเส้นทุก RSM ม. แล้วเฉลี่ยถ่วงน้ำหนักแบบเกาส์ ±RSK จุด (σ ≈ 120 ม.) แบบวนรอบวง · ลบคลื่นที่สั้นกว่า ~300 ม. (เส้นขยับจากเดิม ≤ ~50 ม.) · วงเล็ก (จุดน้อย) ลดหน้าต่างลงกันหด
    ใช้แสดงผลเท่านั้น — GEO.resp/geoAt ใช้เส้นเดิม */
@@ -2909,12 +2914,12 @@ function wtRender(){wBuild();const F=wfilt(),fys=wfyList(),a=wArea();
  $$('#w-md button').forEach(b=>b.classList.toggle('on',b.dataset.v===WM.mode));$$('#w-co button').forEach(b=>b.classList.toggle('on',b.dataset.v===WM.color));
  wtMap(F)}
 function wtPopup(r){if(!r)return;if(r.src===2&&r.h){MOVED=true;return openDetail(r.h)}const row=(k,v)=>`<div><b>${k}:</b> ${v}</div>`,[t,a,p]=WD.tm[r.tm].split('|');
- new maplibregl.Popup({maxWidth:'320px'}).setLngLat([r.lo,r.la]).setHTML(`<div class="hpop"><div class="hpt"><i style="background:${fyColor(r.fy)};border:1.5px solid #3b2f00"></i>จุดความร้อน ปีงบฯ ${r.fy} · ${esc(wArea().s)}</div>`
+ ftFill(new maplibregl.Popup({maxWidth:'320px'}).setLngLat([r.lo,r.la]).setHTML(`<div class="hpop"><div class="hpt"><i style="background:${fyColor(r.fy)};border:1.5px solid #3b2f00"></i>จุดความร้อน ปีงบฯ ${r.fy} · ${esc(wArea().s)}</div>`
  +row('วันที่ เวลา',`${hDate(r.d)} ${hhmmTh(r.t)} น.`)+row('ดาวเทียม',esc(WSL[r.sat]))+(r.cf?row('ความเชื่อมั่น',esc(r.cf)):'')
- +row('พื้นที่',`ต.${esc(t||'-')} อ.${esc(a||'-')} จ.${esc(p||'-')}`)+(r.src===0?row('ประเภทพื้นที่',esc(WD.ty[r.ty]))+row('ชื่อพื้นที่',esc(WD.nm[r.nm]))+row('พื้นที่ป่า',WFO[r.fo]):'')
+ +row('พื้นที่',`ต.${esc(t||'-')} อ.${esc(a||'-')} จ.${esc(p||'-')}`)+(r.src===0?row('ประเภทพื้นที่',esc(WD.ty[r.ty]))+row('ชื่อพื้นที่',esc(WD.nm[r.nm]))+row('พื้นที่ป่า',WFO[r.fo]):'')+ftRow(r.lo,r.la)
  +row('แหล่งข้อมูล',r.src===0?'ไฟล์ข้อมูลย้อนหลังของพื้นที่':r.fm?'NASA FIRMS (ระบบไทยขัดข้องวันนั้น)':'Land Fire Alerts Thailand (API)')
  +row('ละติจูด, ลองจิจูด',r.la.toFixed(5)+', '+r.lo.toFixed(5))
- +`<a class="hpg" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${r.la},${r.lo}">🗺️ เปิด Google Maps</a></div>`).addTo(map)}
+ +`<a class="hpg" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${r.la},${r.lo}">🗺️ เปิด Google Maps</a></div>`).addTo(map))}
 $('#wab').addEventListener('click',e=>{const c=e.target.closest('[data-wi]');if(c){const r=WR[+c.dataset.wi];if(!r)return;MOVED=true;if(r.src===2&&r.h)return openDetail(r.h);map.flyTo({center:[r.lo,r.la],zoom:13,duration:dur(1200)});map.once('moveend',()=>wtPopup(r));return}
  const b=e.target.closest('[data-wk]');if(!b)return;const k=b.dataset.wk,v=Number(b.dataset.wv);WFL[k].has(v)?WFL[k].delete(v):WFL[k].add(v);wtRender()});
 $$('#w-md button').forEach(b=>b.onclick=()=>{WM.mode=b.dataset.v;wtRender()});$$('#w-co button').forEach(b=>b.onclick=()=>{WM.color=b.dataset.v;wtRender()});
