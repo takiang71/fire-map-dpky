@@ -61,9 +61,10 @@ for (const pm of kh.split('<Placemark').slice(1)) {
     ix('nm', a.NAME || 'ไม่ระบุ'), ix('ty', a.TYPE || a.OWN || 'ไม่ระบุ'), /^y/i.test(a.FOREST || '') ? 1 : 0, ai, +a['ลำด'] || 0]);
 }
 rows.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-// ช่วงปีงบของไฟล์ย้อนหลังตามชื่อไฟล์ (เช่น "hotspot_2561 to 2569") หรือ --fy 2561-2569 — กราฟรายปีแสดงปีที่ไม่มีจุดเป็น 0 และใช้หาค่าเฉลี่ยต่อปี
-const fm = (arg('--fy') || path.basename(files[1])).match(/(25\d\d)\s*(?:to|-|–)\s*(25\d\d)/i);
-areas.push({ id: ID, n: NAME, s: SHORT, rai, src: [path.basename(files[0]), path.basename(files[1])], ...(fm ? { fy: [+fm[1], +fm[2]] } : {}), bb: bb.map(v => +v.toFixed(5)), c: polys });
+// ช่วงปีงบของไฟล์ย้อนหลังตามชื่อไฟล์ (เช่น "hotspot_2561 to 2569" หรือ "Hotspot_61ถึง69") หรือ --fy 2561-2569 — กราฟรายปีแสดงปีที่ไม่มีจุดเป็น 0 และใช้หาค่าเฉลี่ยต่อปี
+// รับทั้ง "2561 to 2569" และ "61ถึง69" (ปี 2 หลัก = 25xx)
+const fm = ((arg('--fy') || path.basename(files[1])).match(/(?<!\d)(?:25)?(\d\d)\s*(?:to|-|–|ถึง)\s*(?:25)?(\d\d)(?!\d)/i) || []).slice(1).map(v => 2500 + +v);
+areas.push({ id: ID, n: NAME, s: SHORT, rai, src: [path.basename(files[0]), path.basename(files[1])], ...(fm.length ? { fy: fm } : {}), bb: bb.map(v => +v.toFixed(5)), c: polys });
 W = { v: 1, upd: new Date().toISOString().slice(0, 10), areas, ...D, r: [...keep, ...rows].sort((a, b) => a[0] - b[0] || a[1] - b[1]) };
 fs.writeFileSync(OUT, JSON.stringify(W));
 
