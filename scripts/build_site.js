@@ -9,7 +9,7 @@
 //  - air4thai.json  สถานีวัดฝุ่น Air4Thai (ต้นทางไม่เปิด CORS จึงดึงไว้ให้ที่นี่)
 // ถ้าดึงส่วนไหนไม่สำเร็จ จะไม่สร้างไฟล์นั้น หน้าเว็บจะถอยไปดึงจาก API ตรงเอง
 const fs = require('fs'), path = require('path');
-const { ROOT, H, where, block } = require('./lib/area');
+const { ROOT, H, where, block, watchAt } = require('./lib/area');
 const { air4thai } = require('./lib/air4thai');
 
 const OUT = path.join(ROOT, '_site');
@@ -20,6 +20,7 @@ async function sysUpdate() {
     return m ? new Date(Date.UTC(+m[3], +m[2] - 1, +m[1], +m[4] - 7, +m[5])).toISOString() : null } catch (e) { return null }
 }
 const th = ms => new Date(ms + 7 * 36e5).toISOString().slice(0, 19); // เวลาไทยรูปแบบที่ API รับ
+let WLIVE = null; // จุด 48 ชม. ในพื้นที่เฝ้าระวังเป็นพิเศษ (เติมใน live())
 
 async function live() {
   const n = Date.now(), url = `${API}?start_date=${encodeURIComponent(th(n - 48 * 36e5))}&end_date=${encodeURIComponent(th(n))}&reserved_only=0&protected_only=0`;
@@ -27,11 +28,15 @@ async function live() {
     const r = await fetch(url, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(120e3) });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const j = await r.json(), all = j.features || [];
-    const keep = all.filter(f => {
+    const keep = [];
+    WLIVE = [];
+    for (const f of all) {
       const w = f.geometry && where(f.geometry.coordinates[0], f.geometry.coordinates[1]);
-      if (w) Object.assign(f.properties || (f.properties = {}), { _ar: w.ar, _st: w.st });
-      return !!w;
-    });
+      if (w) { Object.assign(f.properties || (f.properties = {}), { _ar: w.ar, _st: w.st }); keep.push(f) }
+      // พื้นที่เฝ้าระวังเป็นพิเศษ (นอกแนวเขตกลุ่มป่า) → watch.json แยกไฟล์ ไม่ปนใน live.json (หน้าเว็บ/LINE/Worker เดิมนับยอดกลุ่มป่าจาก live.json)
+      const wa = f.geometry && watchAt(f.geometry.coordinates[0], f.geometry.coordinates[1]);
+      if (wa) WLIVE.push({ ...f, properties: { ...f.properties, _w: wa } });
+    }
     const last = all.reduce((m, f) => (f.properties && f.properties.full_date > m ? f.properties.full_date : m), '');
     return { type: 'FeatureCollection', meta: { generated: new Date().toISOString(), nation_total: all.length, nation_last: last || null, sys_update: await sysUpdate() }, features: keep };
   } catch (e) {
@@ -63,6 +68,37 @@ function summary(L) {
   return { generated: new Date().toISOString(), fy: F, ind: SATN[indSat(T)], adata_to: j.to, day: T - s, total: seen.size, ar, st, areas };
 }
 
+// --- พื้นที่เฝ้าระวังเป็นพิเศษ (ผู้ใช้ขอ 6 พ.ย. 69: โรงเรียนนายร้อยพระจุลจอมเกล้า) → watch.json ---
+// จุดสะสมนับ "ทุกดาวเทียม" ตามแบบไฟล์ข้อมูลย้อนหลังที่ผู้ใช้ส่ง (มีทั้ง S/N20/N21 ในปีเดียวกัน) — ไม่ใช่ดาวเทียมตัวชี้วัดแบบยอดกลุ่มป่า
+// ปีงบที่ไฟล์ย้อนหลัง (wdata, import_watch.js) ครอบคลุม ใช้ไฟล์นั้น · ปีงบหลังจากนั้นใช้ API (wadata จาก sync_hotspots.js) + จุด 48 ชม. ที่ยังไม่อยู่ใน wadata
+function watchSum(W) {
+  const wd = block('wdata'); if (!wd) return null;
+  const Hh = JSON.parse(wd[1].split('<\\/').join('</')), wa = block('wadata'), A = wa ? JSON.parse(wa[1]) : { r: [], ids: [], sat: [], tm: [], to: null };
+  const T = Math.floor((Date.now() + 7 * 36e5) / 864e5), x = new Date(T * 864e5), F = x.getUTCFullYear() + 543 + (x.getUTCMonth() >= 9 ? 1 : 0);
+  const fyOf = d => { const y = new Date(d * 864e5); return y.getUTCFullYear() + 543 + (y.getUTCMonth() >= 9 ? 1 : 0) }, s = Date.UTC(F - 544, 9, 1) / 864e5, sp = Date.UTC(F - 545, 9, 1) / 864e5;
+  const mi = d => (new Date(d * 864e5).getUTCMonth() + 3) % 12, hmax = Math.max(0, ...Hh.r.map(r => fyOf(r[0])));
+  const to = A.to ? Date.UTC(+A.to.slice(0, 4), +A.to.slice(5, 7) - 1, +A.to.slice(8, 10)) / 864e5 : -1, now = Date.now();
+  const HSN = { S: 'SNPP', N20: 'NOAA20', N21: 'NOAA21' };
+  return { generated: new Date().toISOString(), fy: F, hist_to: hmax, api_to: A.to, areas: Hh.areas.map((a, ai) => {
+    const o = { id: a.id, n: a.n, s: a.s, rai: a.rai, bb: a.bb, fy: 0, prv: 0, pfull: 0, m: Array(12).fill(0), pm: Array(12).fill(0), sat: {}, tm: {}, h24: 0, h48: 0, last: null };
+    const seen = new Set(), cur = (d, t, la, lo, sat, tm) => { const k = hKey(d, t, la, lo); if (seen.has(k)) return; seen.add(k); o.fy++; o.m[mi(d)]++; const sk = satKey(sat); o.sat[sk] = (o.sat[sk] || 0) + 1; if (tm) o.tm[tm] = (o.tm[tm] || 0) + 1 };
+    const prev = d => { o.pfull++; o.pm[mi(d)]++; if (d - sp <= T - s) o.prv++ };
+    // ปีงบนี้ (ปกติอยู่หลังช่วงไฟล์ย้อนหลัง) — ถ้าไฟล์ย้อนหลังครอบปีงบนี้ ใช้ไฟล์
+    if (F <= hmax) for (const r of Hh.r) { if (r[9] === ai && r[0] >= s && r[0] <= T) cur(r[0], r[1], r[2] / 1e5, r[3] / 1e5, HSN[Hh.sat[r[4]]] || Hh.sat[r[4]], Hh.tm[r[5]]) }
+    else {
+      for (const r of A.r) if (A.ids[r[7]] === a.id && r[0] >= s && r[0] <= T) cur(r[0], r[1], r[2] / 1e5, r[3] / 1e5, A.sat[r[4]], A.tm[r[6]]);
+      for (const f of W || []) { const p = f.properties; if (p._w !== a.id) continue; const fd = String(p.full_date || ''), d = Date.UTC(+fd.slice(0, 4), +fd.slice(5, 7) - 1, +fd.slice(8, 10)) / 864e5, [lo, la] = f.geometry.coordinates;
+        if (d > to && d >= s) cur(d, +fd.slice(11, 13) * 100 + +fd.slice(14, 16), la, lo, p.satellite_name, [p.subdistrict_name_th, p.district_name_th, p.province_name_th].join('|')) }
+    }
+    if (F - 1 <= hmax) { for (const r of Hh.r) if (r[9] === ai && r[0] >= sp && r[0] < s) prev(r[0]) }
+    else for (const r of A.r) if (A.ids[r[7]] === a.id && r[0] >= sp && r[0] < s) prev(r[0]);
+    for (const f of W || []) { const p = f.properties; if (p._w !== a.id) continue; const t = Date.parse(String(p.full_date).replace(' ', 'T') + '+07:00'); if (now - t < 24 * 36e5) o.h24++; if (now - t < 48 * 36e5) o.h48++; if (!o.last || t > o.last.t) o.last = { t, sat: p.satellite_name, tm: [p.subdistrict_name_th, p.district_name_th, p.province_name_th].join('|') } }
+    if (!o.last) { const L = A.r.filter(r => A.ids[r[7]] === a.id).sort((p, q) => q[0] - p[0] || q[1] - p[1])[0]; if (L) o.last = { t: Date.UTC(1970, 0, 1 + L[0], Math.floor(L[1] / 100) - 7, L[1] % 100), sat: A.sat[L[4]], tm: A.tm[L[6]] } }
+    o.src = { cur: F <= hmax ? 'hist' : 'api', prev: F - 1 <= hmax ? 'hist' : 'api' };
+    return o;
+  }) };
+}
+
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   fs.copyFileSync(H, path.join(OUT, 'index.html'));
@@ -89,6 +125,11 @@ function summary(L) {
     fs.writeFileSync(path.join(OUT, 'live.json'), JSON.stringify(L));
     console.log(`live.json: ในแนวเขต ${L.features.length} จาก ${L.meta.nation_total} จุดทั้งประเทศ · สแกนล่าสุด ${L.meta.nation_last}`);
   } catch (e) { ok = false; console.log('live.json ไม่สำเร็จ:', e.message) }
+  try {
+    const WS = watchSum(WLIVE);
+    if (WS) { fs.writeFileSync(path.join(OUT, 'watch.json'), JSON.stringify({ type: 'FeatureCollection', meta: { generated: new Date().toISOString(), ok: !!WLIVE }, features: WLIVE || [], sum: WS }));
+      console.log('watch.json:', WS.areas.map(a => `${a.s} 48 ชม. ${(WLIVE || []).filter(f => f.properties._w === a.id).length} จุด · ปีงบ ${WS.fy} ${a.fy} จุด (ปีก่อน ${a.pfull})`).join(' · ')) }
+  } catch (e) { console.log('watch.json ไม่สำเร็จ:', e.message) }
   try {
     const S = summary(L);
     if (S) { fs.writeFileSync(path.join(OUT, 'summary.json'), JSON.stringify(S)); console.log(`summary.json: ปีงบ ${S.fy} ${S.ind} ${S.total} จุด`) }

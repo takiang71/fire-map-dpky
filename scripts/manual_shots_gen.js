@@ -49,6 +49,7 @@ job('sw_cons', `await lay();row('cons');${go('101.95,14.25', 8.9)}`, { after: 40
 job('sw_resp', `await lay();set('resp',true);await W(1500);row('resp');${go('101.95,14.25', 9.0)}`, { after: 5000 });
 job('sw_stn', `await lay();set('stn',true);set('resp',true);await W(1500);row('stn');${go('101.55,14.25', 10.8)}`, { after: 6000 });
 job('sw_wpt', `await lay();set('wpt',true);await W(1500);row('wpt');${go('101.42,14.22', 11.2)}`, { after: 6000 });
+job('sw_wch', `await lay();set('wch',true);await W(1500);row('wch');document.querySelector('#right .rb').scrollTop-=45;${go('101.16,14.32', 11.2)}`, { after: 6000 });
 job('sw_adm', `await lay();set('prov',true);set('amp',true);set('tam',true);await W(3000);row('prov');${go('101.50,14.10', 10.0)}`, { after: 7000 });
 job('sw_road', `await lay();document.querySelector('[data-b=detail]').click();await W(4000);row('water');${go('101.42,14.19', 12.6)}`, { after: 8000 });
 

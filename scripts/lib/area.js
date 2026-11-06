@@ -29,4 +29,12 @@ function where(lon, lat) {
 // สบอ. แยกตามจังหวัดที่เกิดจุด (ผู้ใช้กำหนด) · จังหวัดอื่น/ไม่ระบุ ใช้ตามแนวเขต
 const SBP = { 'ปราจีนบุรี': 'สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)', 'นครนายก': 'สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)', 'สระแก้ว': 'สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)', 'สระบุรี': 'สำนักบริหารพื้นที่อนุรักษ์ที่ 1 สาขาสระบุรี', 'นครราชสีมา': 'สำนักบริหารพื้นที่อนุรักษ์ที่ 7 (นครราชสีมา)', 'บุรีรัมย์': 'สำนักบริหารพื้นที่อนุรักษ์ที่ 7 (นครราชสีมา)' };
 
-module.exports = { ROOT, H, html, block, GEO, where, SBP };
+// พื้นที่เฝ้าระวังเป็นพิเศษ (scripts/import_watch.js → บล็อก wdata) — อยู่นอกแนวเขตกลุ่มป่า จึงแยกจาก where() ไม่ให้ปนยอดของกลุ่มป่า
+// watchAt(lon, lat) → รหัสพื้นที่ (เช่น 'jpr') หรือ null
+const wb = block('wdata'), WATCH = wb ? JSON.parse(wb[1].split('<\\/').join('</')).areas : [];
+function watchAt(lon, lat) {
+  for (const a of WATCH) if (lon >= a.bb[0] && lon <= a.bb[2] && lat >= a.bb[1] && lat <= a.bb[3] && a.c.some(p => inside([lon, lat], p[0]) && !p.slice(1).some(r => inside([lon, lat], r)))) return a.id;
+  return null;
+}
+
+module.exports = { ROOT, H, html, block, GEO, where, SBP, WATCH, watchAt };

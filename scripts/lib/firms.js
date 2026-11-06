@@ -4,7 +4,7 @@
 //    เลือกชุด NRT ถ้าครอบช่วงวัน ไม่งั้นใช้ SP (ชุดผ่านการตรวจแล้ว) ตาม /api/data_availability
 //  วันที่/เวลาแปลงเป็นเวลาไทยแบบเดียวกับ API ไทย (d = วันนับจาก 1970-01-01, t = HHMM)
 const fs = require('fs'), path = require('path');
-const { where } = require('./area');
+const { where, watchAt } = require('./area');
 const { admIndex } = require('./burnsum');
 
 const ROOT = path.join(__dirname, '..', '..');
@@ -55,11 +55,11 @@ function parse(text, sat) {
   for (const l of L.slice(1)) {
     const v = l.split(','); if (v.length < h.length) continue;
     const la = +v[iLa], lo = +v[iLo]; if (!(lo > BOX[0] && lo < BOX[2] && la > BOX[1] && la < BOX[3])) continue;
-    const w = where(lo, la); if (!w) continue;
+    const w = where(lo, la), wa = watchAt(lo, la); if (!w && !wa) continue;
     const tt = v[iT].padStart(4, '0'), x = new Date(Date.parse(`${v[iD]}T${tt.slice(0, 2)}:${tt.slice(2, 4)}:00Z`) + 7 * 36e5), a = ADM && ADM(lo, la);
     const cf = { n: 'nominal', l: 'low', h: 'high' }[v[iC]] || v[iC].trim();
     const r = { d: Math.floor(x / 864e5), t: x.getUTCHours() * 100 + x.getUTCMinutes(), la: Math.round(la * 1e5), lo: Math.round(lo * 1e5), sat, cf,
-      pv: a ? a.p : 'ไม่ระบุ', am: a ? a.a : 'ไม่ระบุ', tm: a ? a.t : 'ไม่ระบุ', ...w, src: 'firms' };
+      pv: a ? a.p : 'ไม่ระบุ', am: a ? a.a : 'ไม่ระบุ', tm: a ? a.t : 'ไม่ระบุ', ...(w || {}), ...(wa ? { wa } : {}), src: 'firms' };
     r.uid = `firms|${r.d}|${r.t}|${r.la}|${r.lo}|${sat}`; out.push(r);
   }
   return out;

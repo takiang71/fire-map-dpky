@@ -70,7 +70,7 @@ const areaLink = (L, id) => { if (!L.length) return [`?ar=${id}`, 'ดูพื�
 const btn = (label, action) => ({ type: 'button', style: 'link', height: 'sm', action: { label, ...action } });
 // ป้ายปุ่มไม่มีไอคอน: LINE บน PC ตัด "🔥 เผาไหม้" เป็น "🔥 เผาไ…" (3 พ.ย. 69)
 const menuFooter = site => B('horizontal', [btn('สรุป', { type: 'message', text: 'สรุป' }), btn('เผาไหม้', { type: 'message', text: 'เผาไหม้' }), btn('แผนที่', { type: 'uri', uri: site })], { paddingAll: '0px' });
-export const quickReply = site => ({ items: [['📊 สรุป', 'สรุป'], ['🔥 เผาไหม้', 'เผาไหม้'], ['❓ วิธีใช้', 'ช่วยเหลือ']].map(([label, text]) => ({ type: 'action', action: { type: 'message', label, text } })).concat([{ type: 'action', action: { type: 'uri', label: '🗺️ แผนที่', uri: site } }]) });
+export const quickReply = site => ({ items: [['📊 สรุป', 'สรุป'], ['🔥 เผาไหม้', 'เผาไหม้'], ['🎯 เฝ้าระวัง', 'เฝ้าระวัง'], ['❓ วิธีใช้', 'ช่วยเหลือ']].map(([label, text]) => ({ type: 'action', action: { type: 'message', label, text } })).concat([{ type: 'action', action: { type: 'uri', label: '🗺️ แผนที่', uri: site } }]) });
 
 // live = live.json, sum = summary.json, fresh = จุดใหม่ที่จะแจ้งเตือน (null = โหมดสรุป แสดงจุด 24 ชม. แทน)
 // LINE จำกัด JSON ของ carousel ไม่เกิน 50 KB → ถ้าเกิน 48,000 ไบต์ (UTF-8: อักษรไทยตัวละ 3 ไบต์) ลดจำนวนจุดที่แสดงต่อการ์ดลง
@@ -158,6 +158,42 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
   return { type: 'flex', altText, contents: { type: 'carousel', contents: [overview, ...cards] }, quickReply: quickReply(site) };
 }
 
+// การ์ดพื้นที่เฝ้าระวังเป็นพิเศษ (ผู้ใช้ขอ 6 พ.ย. 69 — โรงเรียนนายร้อยพระจุลจอมเกล้า อยู่นอกแนวเขตกลุ่มป่า) · w = watch.json จาก build_site.js
+// 1 ใบต่อพื้นที่ (หลายพื้นที่ = carousel) · line_notify.js ส่งเป็นข้อความที่ 2 ใน push เดียวกับการ์ดจุดความร้อน (LINE นับโควตาต่อครั้งที่ส่ง ไม่ใช่ต่อข้อความ)
+// fresh = จุดใหม่ในพื้นที่ (โหมดแจ้งเตือน แสดงเฉพาะพื้นที่ที่มีจุดใหม่) · null = สรุป (จุด 24 ชม.) · ยอดสะสมนับทุกดาวเทียม ตามแบบไฟล์ข้อมูลย้อนหลังของพื้นที่
+export function watchCard(w, { fresh = null, site = SITE0, now = Date.now(), daily = false, test = false, per = 6 } = {}) {
+  const S = w && w.sum; if (!S || !S.areas || !S.areas.length) return null;
+  const alert = !!fresh, F = S.fy, AMB = '#8A6100', feats = (w.features || []).filter(f => f.geometry && f.properties && f.properties.full_date);
+  const of = (L, id) => (L || []).filter(f => f.properties._w === id).sort((x, y) => thMs(y.properties.full_date) - thMs(x.properties.full_date));
+  const A = S.areas.filter(a => !alert || of(fresh, a.id).length);
+  if (!A.length) return null;
+  const bub = a => {
+    const L = alert ? of(fresh, a.id) : of(feats, a.id).filter(f => now - thMs(f.properties.full_date) < 24 * 36e5), [t, c] = dPct(a.fy, a.pfull), [tm] = topN(a.tm, 1), r = v => v.toFixed(4);
+    const q = L.length ? `?wa=${a.id}&pts=${L.slice(0, 12).map(f => r(f.geometry.coordinates[1]) + ',' + r(f.geometry.coordinates[0])).join(';')}` : `?wa=${a.id}`;
+    return {
+      type: 'bubble', size: 'mega',
+      header: B('vertical', [T(`🎯 พื้นที่เฝ้าระวังพิเศษ${daily ? ' · สรุปประจำวัน' : ''}`, { color: '#FFFFFF', size: 'md', weight: 'bold', wrap: true }), T(`${a.n} · ${dateTh(now)} ${hm(now)} น.`, { color: '#FFFFFFDD', size: 'xxs', wrap: true })], { backgroundColor: AMB, paddingAll: '10px' }),
+      body: B('vertical', [
+        ...(alert ? [B('vertical', [T(`${test ? '🧪 ทดสอบ · ' : ''}🔥 พบจุดความร้อนใหม่ ${L.length} จุด`, { color: '#FFFFFF', weight: 'bold', size: 'xs', wrap: true })], { backgroundColor: RED, cornerRadius: 'md', paddingAll: '6px' })] : []),
+        B('horizontal', [tile(a.h24, 'จุดใน 24 ชม.', a.h24 ? RED : '#222222'), tile(a.fy, `สะสมปีงบ ${F}`), tile(a.pfull, `ทั้งปีงบ ${F - 1}`, BLUE)], { spacing: 'sm', margin: alert ? 'sm' : 'none' }),
+        T('x', { size: 'xxs', margin: 'sm', wrap: true, contents: [{ type: 'span', text: t + ' ', color: c, weight: 'bold' }, { type: 'span', text: `ปีงบ ${F} เทียบทั้งปีงบ ${F - 1}`, color: MUT }] }),
+        ...(tm ? [T(`พบมากสุด ต.${tm[0].split('|')[0]} อ.${tm[0].split('|')[1] || '-'} ${tm[1]} จุด`, { size: 'xxs', color: '#444444', wrap: true, margin: 'sm' })] : []),
+        sub('รายเดือน', [[RED, String(F)], [BLUE, String(F - 1)]]),
+        ...months(a.m, a.pm),
+        sub(alert ? 'จุดใหม่รอบนี้ (แตะเพื่อเปิดแผนที่)' : 'จุดใน 24 ชม. (แตะเพื่อเปิดแผนที่)'),
+        ...(L.length ? L.slice(0, per).map(ptRow) : [T('ไม่พบจุดความร้อนใน 24 ชม.', { size: 'xxs', color: '#2E7D32', margin: 'sm' })]),
+        ...(L.length > per ? [T(`…และอีก ${L.length - per} จุด`, { size: 'xxs', color: MUT })] : []),
+        T(`พื้นที่ ${Math.round(a.rai).toLocaleString('en-US')} ไร่ · นับทุกดาวเทียม (SNPP/NOAA-20/NOAA-21)${a.src && a.src.prev === 'hist' ? ` · ปีงบ ${F - 1} จากไฟล์ข้อมูลย้อนหลังของพื้นที่` : ''}`, { size: 'xxs', color: MUT, margin: 'sm', wrap: true }),
+      ], { paddingAll: '10px' }),
+      footer: footer(site, q, L.length > 1 ? `ดู ${L.length} จุดบนแผนที่` : L.length ? 'ดูจุดนี้บนแผนที่' : 'ดูพื้นที่บนแผนที่'),
+    };
+  };
+  const B1 = A.map(bub), n = alert ? A.reduce((s, a) => s + of(fresh, a.id).length, 0) : 0;
+  const altText = ((test ? '[ทดสอบ] ' : '') + (alert ? `🎯 พื้นที่เฝ้าระวังพิเศษ ${A.map(a => a.s).join(', ')}: พบจุดความร้อนใหม่ ${n} จุด`
+    : `🎯 พื้นที่เฝ้าระวังพิเศษ ${A.map(a => `${a.s} 24 ชม. ${a.h24} จุด · สะสมปีงบ ${F} ${a.fy} จุด`).join(' · ')}`)).slice(0, 390);
+  return { type: 'flex', altText, contents: B1.length === 1 ? B1[0] : { type: 'carousel', contents: B1 }, quickReply: quickReply(site) };
+}
+
 // การ์ดพื้นที่เผาไหม้รอบล่าสุด (bs = burn_summary.json จาก scripts/lib/burnsum.js) — line_notify.js push เมื่อมีรอบใหม่ · คำสั่ง "เผาไหม้" ตอบด้วยการ์ดนี้
 // carousel 7 ใบ แบบเดียวกับการ์ดจุดความร้อน: ใบ 1 ภาพรวม (ไทล์ จังหวัด/อำเภอ/ตำบลที่ไหม้มากสุด — ผู้ใช้ขอ 30 ต.ค. 69) · ใบ 2–7 รายพื้นที่อนุรักษ์ (ที่มีรอยเผารอบนี้ขึ้นก่อน)
 // ไม่รวมดงใหญ่ (ตัดมาแล้วใน burnsum.js) · ทุกใบต้องสั้นพอดีจอมือถือ
@@ -230,6 +266,7 @@ const HELP = ['🤖 บอทแจ้งเตือนจุดความร
   '• แจ้งเตือนอัตโนมัติเมื่อพบจุดความร้อนใหม่ใน 6 พื้นที่อนุรักษ์ (ไม่รวม ขสป.ดงใหญ่) ทุกดาวเทียม VIIRS',
   '• พิมพ์ "สรุป" — การ์ดสรุปทั้งปี + รายพื้นที่',
   '• พิมพ์ "เผาไหม้" — พื้นที่เผาไหม้รอบล่าสุด (ระบบตามรอยเผา ราย 7 วัน) · บอทส่งให้เองเมื่อมีรอบใหม่ที่มีรอยเผา',
+  '• พิมพ์ "เฝ้าระวัง" — พื้นที่เฝ้าระวังพิเศษ (โรงเรียนนายร้อยพระจุลจอมเกล้า) · บอทแจ้งเตือนเองเมื่อพบจุดใหม่ในพื้นที่นี้',
   '• พิมพ์ "ช่วยเหลือ" — ข้อความนี้',
   '• ไม่ต้องพิมพ์เอง: แตะปุ่มลัดเหนือช่องพิมพ์ (ขึ้นหลังข้อความบอท) หรือปุ่มท้ายการ์ดใบแรก 📊 สรุป · 🔥 เผาไหม้ · 🗺️ แผนที่',
   '', 'การแจ้งเตือนอัตโนมัติใช้โควตาข้อความฟรีของ LINE ตามจำนวนสมาชิกกลุ่ม ถ้าโควตาเดือนนี้หมด บอทจะหยุดแจ้งเตือนเอง แต่ยังตอบ "สรุป" ได้ตลอด'].join('\n');
@@ -237,7 +274,7 @@ const HELP = ['🤖 บอทแจ้งเตือนจุดความร
 async function reply(env, token, msg) {
   const r = await fetch('https://api.line.me/v2/bot/message/reply', {
     method: 'POST', headers: { Authorization: 'Bearer ' + env.LINE_TOKEN, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ replyToken: token, messages: [{ quickReply: quickReply(env.SITE_URL || SITE0), ...(typeof msg === 'string' ? { type: 'text', text: msg.slice(0, 4900) } : msg) }] }),
+    body: JSON.stringify({ replyToken: token, messages: [].concat(msg).filter(Boolean).map(m => ({ quickReply: quickReply(env.SITE_URL || SITE0), ...(typeof m === 'string' ? { type: 'text', text: m.slice(0, 4900) } : m) })) }),
   });
   if (!r.ok) console.log('reply', r.status, await r.text());
 }
@@ -248,8 +285,13 @@ export async function handle(env, ev) {
   if (ev.type !== 'message' || !ev.message || ev.message.type !== 'text') return;
   const t = ev.message.text.trim();
   if (/^(สรุป|summary)/i.test(t)) {
-    const [live, sum] = await Promise.all([getJ(site, 'live.json'), getJ(site, 'summary.json')]);
-    return reply(env, ev.replyToken, sum ? carousel({ live, sum, site }) : `อ่านข้อมูลสรุปไม่ได้ในขณะนี้ — เปิดแผนที่: ${site}`);
+    const [live, sum, w] = await Promise.all([getJ(site, 'live.json'), getJ(site, 'summary.json'), getJ(site, 'watch.json')]);
+    return reply(env, ev.replyToken, sum ? [carousel({ live, sum, site }), watchCard(w, { site })] : `อ่านข้อมูลสรุปไม่ได้ในขณะนี้ — เปิดแผนที่: ${site}`);
+  }
+  // พื้นที่เฝ้าระวังเป็นพิเศษ (โรงเรียนนายร้อยพระจุลจอมเกล้า) — การ์ดเดียว
+  if (/^(เฝ้าระวัง|จปร|watch)/i.test(t)) {
+    const w = await getJ(site, 'watch.json'), m = watchCard(w, { site });
+    return reply(env, ev.replyToken, m || `อ่านข้อมูลพื้นที่เฝ้าระวังพิเศษไม่ได้ในขณะนี้ — เปิดแผนที่: ${site}`);
   }
   if (/^(เผาไหม้|รอยเผา|burn)/i.test(t)) {
     const bs = await getJ(site, 'burn_summary.json');

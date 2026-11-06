@@ -9,6 +9,8 @@
 //    Telegram ตอบรหัสใหม่มา → ส่งซ้ำที่รหัสใหม่ทันทีและบันทึกไว้ใน tg_notify.json ช่อง tg.migrate (ต้องแก้ TG_CHAT_ID เอง)
 //  - สรุปประจำวัน TG_DAILY (เวลาไทย HH:MM ค่าเริ่มต้น 05:30, "off" = ปิด) วันละครั้ง ภายใน 4 ชม. หลังเวลาที่ตั้ง
 //  - พื้นที่เผาไหม้รอบใหม่ (burn_summary.json) ≥ 1 ไร่ → ส่ง 1 ข้อความ (รอบแรก/ไม่มีรอยเผา/เก่ากว่า 30 วัน = จำไว้ไม่ส่ง) · TG_BURN=off = ปิด
+//  - พื้นที่เฝ้าระวังเป็นพิเศษ (โรงเรียนนายร้อยพระจุลจอมเกล้า — ผู้ใช้ขอ 6 พ.ย. 69): จุดใหม่ใน _site/watch.json (กติกาเดียวกัน) → ข้อความแยก 1 ข้อความ/รอบ
+//    สรุปประจำวันมีหัวข้อพื้นที่เฝ้าระวังต่อท้าย · --watch = ส่งข้อความพื้นที่เฝ้าระวังทดสอบ 1 ครั้ง
 //  - ทดสอบ: --preview พิมพ์ข้อความทุกแบบออกจอ (ไม่ส่ง ไม่ต้องมี token) · --test-push / --daily / --burn ส่งเข้าห้องจริง 1 ครั้ง (ไม่แตะ tg_notify.json)
 //    --chats = แสดงรหัสห้องที่บอทอยู่ (จาก getUpdates — เชิญบอทเข้ากลุ่มแล้วพิมพ์อะไรก็ได้ในกลุ่มก่อน) · TG_API = เปลี่ยนปลายทาง (เซิร์ฟเวอร์จำลอง)
 const fs = require('fs'), path = require('path'), { pathToFileURL } = require('url');
@@ -77,6 +79,9 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
   try { live = JSON.parse(fs.readFileSync(path.join(OUT, 'live.json'), 'utf8')) } catch (e) { console.log('ไม่มี live.json — ข้าม'); return }
   try { sum = JSON.parse(fs.readFileSync(path.join(OUT, 'summary.json'), 'utf8')) } catch (e) { }
   try { bsum = JSON.parse(fs.readFileSync(path.join(OUT, 'burn_summary.json'), 'utf8')) } catch (e) { }
+  let wjs = null;
+  try { wjs = JSON.parse(fs.readFileSync(path.join(OUT, 'watch.json'), 'utf8')) } catch (e) { }
+  const WA = (wjs && wjs.sum && wjs.sum.areas) || [], wpts = ((wjs && wjs.features) || []).filter(f => f.geometry && f.properties && f.properties.full_date);
 
   // --- ตัวสร้างข้อความ ---
   const arS = k => (AREAS.find(a => a.k === k) || {}).s || (k && k !== OUTA ? k : 'นอกเขตอนุรักษ์');
@@ -139,6 +144,9 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
       ...(all.fy ? [`📍 พบมากสุด: ${tops(all)}`] : []),
       ...(h24.length ? ['', '<b>จุดใน 24 ชม.</b>', `<blockquote expandable>${list(byNew(h24), per * 2, true).join('\n')}</blockquote>`] : []),
       '<i>ไม่รวม ขสป.ดงใหญ่ · ปีก่อนไม่รวมจุดจัดการเชื้อเพลิง/ไม่พบไฟ</i>',
+      // พื้นที่เฝ้าระวังเป็นพิเศษ (นอกแนวเขตกลุ่มป่า) — ต่อท้ายสรุปประจำวัน
+      ...WA.flatMap(a => ['', ...wLines(a), ...(() => { const P = byNew(wpts.filter(f => f.properties._w === a.id && now - thMs(f.properties.full_date) < 24 * 36e5)); return P.length ? [`<blockquote expandable>${list(P, per).join('\n')}</blockquote>`] : [] })()]),
+      ...(WA.length ? ['<i>พื้นที่เฝ้าระวังพิเศษนับทุกดาวเทียม</i>'] : []),
     ].join('\n'), strict);
     return msgOf(text, [[['🗺️ เปิดแผนที่ไฟป่า', SITE]]]);
   };
@@ -162,11 +170,27 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
     return msgOf(text, [[['🔥 ดูพื้นที่เผาไหม้บนแผนที่', `${SITE}?burn=${bs.p}`]]], { disable_notification: true });
   };
 
+  // พื้นที่เฝ้าระวังเป็นพิเศษ: fresh = จุดใหม่ (แจ้งเตือน) · null = สรุป (จุด 24 ชม.) · ยอดสะสมนับทุกดาวเทียม (ตามแบบไฟล์ข้อมูลย้อนหลังของพื้นที่)
+  const wLines = a => [`🎯 <b>${esc(a.n)}</b> (${esc(a.s)})`, `📊 ปีงบ ${wjs.sum.fy % 100} สะสม <b>${a.fy}</b> | ทั้งปีงบ ${(wjs.sum.fy - 1) % 100}: ${a.pfull}  ${dPct(a.fy, a.pfull)}`, `🕐 จุดใน 24 ชม.: ${a.h24} จุด`,
+    ...(top1(a.tm) ? [`📍 พบมากสุด: ต.${esc(top1(a.tm)[0].split('|')[0])} ${top1(a.tm)[1]} จุด`] : [])];
+  const watchMsg = (fresh, test = false, strict = false) => {
+    const A = WA.filter(a => !fresh || fresh.some(f => f.properties._w === a.id)), L = fresh || wpts.filter(f => now - thMs(f.properties.full_date) < 24 * 36e5);
+    if (!A.length) return null;
+    const text = fit(per => [
+      `${test ? '🧪 <b>ทดสอบ</b> · ' : ''}🎯 <b>พื้นที่เฝ้าระวังพิเศษ${fresh ? ` · พบจุดความร้อนใหม่ ${fresh.length} จุด` : ''}</b>`,
+      `${dateTh(now)} ${hm(now)} น.`,
+      ...A.flatMap(a => { const P = byNew(L.filter(f => f.properties._w === a.id)); return ['', ...wLines(a), ...(P.length ? ['', fresh ? '<b>จุดใหม่</b>' : '<b>จุดใน 24 ชม.</b>', ...list(P, per)] : [])] }),
+      '', '<i>นับทุกดาวเทียม (SNPP/NOAA-20/NOAA-21) · อยู่นอกแนวเขตกลุ่มป่า จึงไม่รวมในยอดของกลุ่มป่า</i>',
+    ].join('\n'), strict);
+    const r4 = v => v.toFixed(4), id = A[0].id, P = L.filter(f => f.properties._w === id).slice(0, 40);
+    return msgOf(text, [[[P.length ? `📍 ดู ${P.length} จุด` : '🎯 ดูพื้นที่', `${SITE}?wa=${id}${P.length ? '&pts=' + P.map(f => r4(f.geometry.coordinates[1]) + ',' + r4(f.geometry.coordinates[0])).join(';') : ''}`], ['🗺️ แผนที่ไฟป่า', SITE]]]);
+  };
+
   // --- โหมดทดสอบ ---
   const A0 = process.argv;
   if (A0.includes('--preview')) {
     const ex = pts.slice(-3).length ? pts.slice(-3) : live.features.slice(0, 3);
-    for (const [n, m] of [['แจ้งเตือน', ex.length ? alertMsg(ex) : null], ['สรุปประจำวัน', dailyMsg()], ['พื้นที่เผาไหม้', bsum ? burnMsg(bsum) : null]]) if (m) console.log(`===== ${n} (${m.text.length} ตัวอักษร) =====\n${m.text}\n[ปุ่ม] ${m.reply_markup.inline_keyboard.flat().map(b => b.text + ' → ' + b.url).join('  |  ')}\n`);
+    for (const [n, m] of [['แจ้งเตือน', ex.length ? alertMsg(ex) : null], ['สรุปประจำวัน', dailyMsg()], ['พื้นที่เผาไหม้', bsum ? burnMsg(bsum) : null], ['พื้นที่เฝ้าระวังพิเศษ', watchMsg(null)], ['พื้นที่เฝ้าระวังพิเศษ (แจ้งเตือน)', wpts.length ? watchMsg(wpts.slice(0, 3)) : null]]) if (m) console.log(`===== ${n} (${m.text.length} ตัวอักษร) =====\n${m.text}\n[ปุ่ม] ${m.reply_markup.inline_keyboard.flat().map(b => b.text + ' → ' + b.url).join('  |  ')}\n`);
     return;
   }
   if (A0.includes('--chats')) {
@@ -178,11 +202,12 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
     if (!Object.keys(C).length) console.log('ไม่พบห้อง — เชิญบอทเข้ากลุ่ม (หรือตั้งเป็นผู้ดูแล channel) แล้วพิมพ์ /start@' + me.username + ' ในกลุ่ม จากนั้นรันใหม่');
     return;
   }
-  const testMode = ['--test-push', '--daily', '--burn'].find(a => A0.includes(a));
+  const testMode = ['--test-push', '--daily', '--burn', '--watch'].find(a => A0.includes(a));
   if (testMode) {
     if (!TOKEN || !CHATS.length) { console.log('ต้องตั้ง TG_TOKEN และ TG_CHAT_ID'); process.exitCode = 1; return }
     let m;
     if (testMode === '--daily') m = dailyMsg;
+    else if (testMode === '--watch') { if (!watchMsg(null)) { console.log('ไม่มี _site/watch.json — รัน node scripts/build_site.js ก่อน'); process.exitCode = 1; return } m = s => watchMsg(null, true, s) }
     else if (testMode === '--burn') { if (!bsum) { console.log('ไม่มี _site/burn_summary.json — รัน node scripts/build_site.js ก่อน'); process.exitCode = 1; return } m = () => burnMsg(bsum, true) }
     else {   // จุดจริงล่าสุด 5 จุดจาก adata (แบบเดียวกับ line_notify.js --test-push)
       const { block } = require('./lib/area'), j = JSON.parse(block('adata')[1]), iso = d => new Date(d * 864e5).toISOString().slice(0, 10);
@@ -192,7 +217,7 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
       m = s => alertMsg(ex, true, s);
     }
     const r = await sendB(m);
-    console.log(`ส่ง${{ '--daily': 'สรุปประจำวัน', '--burn': 'พื้นที่เผาไหม้', '--test-push': 'แจ้งเตือนทดสอบ' }[testMode]}แล้ว ${r.ok}/${CHATS.length} ห้อง${r.err ? ' · ไม่สำเร็จ: ' + r.err : ''}${Object.keys(MIG).length ? ' · ⚠ กลุ่มถูกอัปเกรด แก้ TG_CHAT_ID เป็น ' + JSON.stringify(MIG) : ''}`);
+    console.log(`ส่ง${{ '--daily': 'สรุปประจำวัน', '--burn': 'พื้นที่เผาไหม้', '--test-push': 'แจ้งเตือนทดสอบ', '--watch': 'พื้นที่เฝ้าระวังพิเศษ' }[testMode]}แล้ว ${r.ok}/${CHATS.length} ห้อง${r.err ? ' · ไม่สำเร็จ: ' + r.err : ''}${Object.keys(MIG).length ? ' · ⚠ กลุ่มถูกอัปเกรด แก้ TG_CHAT_ID เป็น ' + JSON.stringify(MIG) : ''}`);
     return;
   }
 
@@ -209,11 +234,18 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
   const fresh = pts.filter(f => !(idOf(f) in st.sent) && now - thMs(f.properties.full_date) < MAX_AGE_H * 36e5)
     .sort((a, b) => thMs(a.properties.full_date) - thMs(b.properties.full_date));
   all48.forEach(f => { if (!(idOf(f) in st.sent)) st.sent[idOf(f)] = now });
+  const wfresh = wpts.filter(f => !(idOf(f) in st.sent) && now - thMs(f.properties.full_date) < MAX_AGE_H * 36e5).sort((a, b) => thMs(a.properties.full_date) - thMs(b.properties.full_date));
+  wpts.forEach(f => { if (!(idOf(f) in st.sent)) st.sent[idOf(f)] = now });
   if (seed) log({ why: 'เริ่มเก็บสถานะ (ไม่ส่ง)', n: all48.length });
   else if (fresh.length) {
     if (!on) log({ why: off, n: fresh.length });
     else try { log({ ok: 1, n: fresh.length, ...await sendB(s => alertMsg(fresh, false, s)) }) } catch (e) { log({ why: 'ส่งไม่สำเร็จ: ' + e.message.slice(0, 300), n: fresh.length }) }
   } else console.log('Telegram: ไม่มีจุดใหม่');
+  // พื้นที่เฝ้าระวังเป็นพิเศษ — ข้อความแยก
+  if (!seed && wfresh.length) {
+    if (!on) log({ watch: 1, why: off, n: wfresh.length });
+    else try { log({ watch: 1, ok: 1, n: wfresh.length, ...await sendB(s => watchMsg(wfresh, false, s)) }) } catch (e) { log({ watch: 1, why: 'ส่งไม่สำเร็จ: ' + e.message.slice(0, 300), n: wfresh.length }) }
+  }
 
   // สรุปประจำวัน (ส่งไม่สำเร็จ = ลองรอบถัดไปภายในช่วงเวลา)
   const tmin = (() => { const d = new Date(now + 7 * 36e5); return d.getUTCHours() * 60 + d.getUTCMinutes() })();

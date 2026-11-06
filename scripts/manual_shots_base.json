@@ -86,6 +86,16 @@
   "q": 76
  },
  {
+  "name": "stats_wa",
+  "url": "http://localhost:8000/",
+  "w": 1440,
+  "h": 860,
+  "wait": 12000,
+  "js": "hOpen(false,'wa')",
+  "after": 5000,
+  "q": 70
+ },
+ {
   "name": "table",
   "url": "http://localhost:8000/",
   "w": 1440,

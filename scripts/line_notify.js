@@ -13,6 +13,9 @@
 //  - พื้นที่เผาไหม้: เมื่อ _site/burn_summary.json (build_site.js) เป็นรอบใหม่กว่าที่เคยส่ง (st.burn) และมีรอยเผา ≥ 1 ไร่ → push การ์ด burnCard() 1 ใบ
 //    รอบแรก = จำรอบปัจจุบันโดยไม่ส่ง · รอบที่ไม่มีรอยเผา/เก่ากว่า 30 วัน = จำไว้โดยไม่ส่ง · รอบที่เพิ่งส่งแจ้งเตือน/สรุปประจำวันไปจะรอรอบถัดไป · ไม่นับใน LINE_MAX_DAY
 //    LINE_BURN=off = ปิด · --burn = ส่งการ์ดพื้นที่เผาไหม้รอบล่าสุดเข้ากลุ่มทันที 1 ครั้ง (ทดสอบ · ไม่แตะ notify.json)
+//  - พื้นที่เฝ้าระวังเป็นพิเศษ (โรงเรียนนายร้อยพระจุลจอมเกล้า — ผู้ใช้ขอ 6 พ.ย. 69): จุดใหม่ใน _site/watch.json (กติกาเดียวกัน ≤12 ชม., จำใน st.sent ชุดเดียวกัน)
+//    → watchCard() เป็นข้อความที่ 2 ใน push เดียวกับการ์ดจุดความร้อน (หรือข้อความเดียวถ้ามีจุดใหม่เฉพาะพื้นที่นี้) · สรุปประจำวันแนบการ์ดนี้ด้วย
+//    LINE นับโควตาต่อครั้งที่ push × สมาชิก ไม่ใช่ต่อข้อความ จึงไม่เสียโควตาเพิ่ม · --watch = ส่งการ์ดพื้นที่เฝ้าระวังเข้ากลุ่ม 1 ครั้ง (ทดสอบ)
 //  - LINE_API = เปลี่ยนปลายทาง API (ใช้ทดสอบกับเซิร์ฟเวอร์จำลอง) ค่าเริ่มต้น https://api.line.me
 const fs = require('fs'), path = require('path'), { pathToFileURL } = require('url');
 
@@ -52,16 +55,18 @@ async function quotaOk() {
 
 (async () => {
   const now = Date.now(), today = thDate(now);
-  const { carousel, excluded, burnCard } = await import(pathToFileURL(path.join(ROOT, 'worker', 'line-webhook.mjs')).href);
+  const { carousel, excluded, burnCard, watchCard } = await import(pathToFileURL(path.join(ROOT, 'worker', 'line-webhook.mjs')).href);
   let live, sum = null;
   try { live = JSON.parse(fs.readFileSync(path.join(OUT, 'live.json'), 'utf8')) } catch (e) { console.log('ไม่มี live.json — ข้าม'); return }
   try { sum = JSON.parse(fs.readFileSync(path.join(OUT, 'summary.json'), 'utf8')) } catch (e) { }
-  let bsum = null;
+  let bsum = null, wjs = null;
   try { bsum = JSON.parse(fs.readFileSync(path.join(OUT, 'burn_summary.json'), 'utf8')) } catch (e) { }
+  try { wjs = JSON.parse(fs.readFileSync(path.join(OUT, 'watch.json'), 'utf8')) } catch (e) { }
+  const wmsg = (fresh, daily = false, test = false) => watchCard(wjs, { fresh, site: SITE, now, daily, test });
   const msg = (fresh, q, daily = false) => carousel({ live, sum, fresh, site: SITE, now, daily, quotaLeft: q && isFinite(q.left) ? Math.max(0, Math.floor((q.left - q.members) / q.members)) : null });
   if (process.argv.includes('--validate')) {
     const ex = live.features.slice(0, 3);
-    for (const [n, m] of [['แจ้งเตือน', msg(ex, null)], ['สรุป', msg(null, null)], ['สรุปประจำวัน', msg(null, null, true)], ...(bsum ? [['พื้นที่เผาไหม้', burnCard(bsum, { site: SITE })]] : [])]) {
+    for (const [n, m] of [['แจ้งเตือน', msg(ex, null)], ['สรุป', msg(null, null)], ['สรุปประจำวัน', msg(null, null, true)], ...(bsum ? [['พื้นที่เผาไหม้', burnCard(bsum, { site: SITE })]] : []), ...(wmsg(null) ? [['พื้นที่เฝ้าระวังพิเศษ', wmsg(null)], ['พื้นที่เฝ้าระวังพิเศษ (แจ้งเตือน)', wmsg((wjs.features || []).slice(0, 3).length ? wjs.features.slice(0, 3) : null) || wmsg(null)]] : [])]) {
       try { await line('/v2/bot/message/validate/push', { messages: [m] }); console.log(n, ': รูปแบบถูกต้อง', JSON.stringify(m).length, 'ไบต์') } catch (e) { console.log(n, ': ไม่ผ่าน', e.message); process.exitCode = 1 }
     }
     return;
@@ -87,11 +92,21 @@ async function quotaOk() {
     console.log(`ส่งการ์ดพื้นที่เผาไหม้ทดสอบแล้ว (รอบ ${bsum.p} · สมาชิก ${q.members} คน · โควตาเหลือ ${q.left - q.members})`);
     return;
   }
+  if (process.argv.includes('--watch')) {
+    if (!TOKEN || !GROUP) { console.log('ต้องตั้ง LINE_TOKEN และ LINE_GROUP_ID'); process.exitCode = 1; return }
+    const m = wmsg(null, false, true);
+    if (!m) { console.log('ไม่มี _site/watch.json — รัน node scripts/build_site.js ก่อน'); process.exitCode = 1; return }
+    const q = await quotaOk();
+    if (!q.ok) { console.log('โควตาไม่พอ:', JSON.stringify(q)); process.exitCode = 1; return }
+    await line('/v2/bot/message/push', { to: GROUP, messages: [m] });
+    console.log(`ส่งการ์ดพื้นที่เฝ้าระวังพิเศษแล้ว (สมาชิก ${q.members} คน · โควตาเหลือ ${q.left - q.members})`);
+    return;
+  }
   if (process.argv.includes('--daily')) {
     if (!TOKEN || !GROUP) { console.log('ต้องตั้ง LINE_TOKEN และ LINE_GROUP_ID'); process.exitCode = 1; return }
     const q = await quotaOk();
     if (!q.ok) { console.log('โควตาไม่พอ:', JSON.stringify(q)); process.exitCode = 1; return }
-    await line('/v2/bot/message/push', { to: GROUP, messages: [msg(null, q, true)] });
+    await line('/v2/bot/message/push', { to: GROUP, messages: [msg(null, q, true), wmsg(null, true)].filter(Boolean) });
     console.log(`ส่งสรุปประจำวันแล้ว (สมาชิก ${q.members} คน · โควตาเหลือ ${q.left - q.members})`);
     return;
   }
@@ -105,21 +120,28 @@ async function quotaOk() {
   const fresh = pts.filter(f => !(idOf(f) in st.sent) && !excluded(f.properties) && now - thMs(f.properties.full_date) < MAX_AGE_H * 36e5)
     .sort((a, b) => thMs(a.properties.full_date) - thMs(b.properties.full_date));
   pts.forEach(f => { if (!(idOf(f) in st.sent)) st.sent[idOf(f)] = now });
+  // พื้นที่เฝ้าระวังเป็นพิเศษ (watch.json) — จำใน st.sent ชุดเดียวกัน (unique_id ไม่ซ้ำกับจุดในกลุ่มป่า)
+  const wpts = ((wjs && wjs.features) || []).filter(f => f.geometry && f.properties && f.properties.full_date);
+  const wfresh = wpts.filter(f => !(idOf(f) in st.sent) && now - thMs(f.properties.full_date) < MAX_AGE_H * 36e5);
+  wpts.forEach(f => { if (!(idOf(f) in st.sent)) st.sent[idOf(f)] = now });
+  const nAll = fresh.length + wfresh.length;
 
   let rec = null;
-  if (seed) rec = { why: 'เริ่มเก็บสถานะ (ไม่ส่ง)', n: pts.length };
-  else if (!fresh.length) rec = null;
-  else if (!TOKEN || !GROUP) rec = { why: 'ยังไม่ตั้ง LINE_TOKEN/LINE_GROUP_ID', n: fresh.length };
-  else if (MAX_DAY > 0 && (st.days[today] || 0) >= MAX_DAY) rec = { why: `ครบ ${MAX_DAY} ครั้งของวันนี้แล้ว`, n: fresh.length };
+  const wn = wfresh.length ? { w: wfresh.length } : {};
+  if (seed) rec = { why: 'เริ่มเก็บสถานะ (ไม่ส่ง)', n: pts.length + wpts.length };
+  else if (!nAll) rec = null;
+  else if (!TOKEN || !GROUP) rec = { why: 'ยังไม่ตั้ง LINE_TOKEN/LINE_GROUP_ID', n: fresh.length, ...wn };
+  else if (MAX_DAY > 0 && (st.days[today] || 0) >= MAX_DAY) rec = { why: `ครบ ${MAX_DAY} ครั้งของวันนี้แล้ว`, n: fresh.length, ...wn };
   else try {
     const q = await quotaOk();
-    if (!q.ok) rec = { why: `โควตาไม่พอ (เหลือ ${q.left} ต้องใช้ ${q.members})`, n: fresh.length };
+    if (!q.ok) rec = { why: `โควตาไม่พอ (เหลือ ${q.left} ต้องใช้ ${q.members})`, n: fresh.length, ...wn };
     else {
-      await line('/v2/bot/message/push', { to: GROUP, messages: [msg(fresh, q)] });
+      // การ์ดกลุ่มป่า (ถ้ามีจุดใหม่) + การ์ดพื้นที่เฝ้าระวัง (ถ้ามีจุดใหม่) ใน push เดียว
+      await line('/v2/bot/message/push', { to: GROUP, messages: [fresh.length ? msg(fresh, q) : null, wfresh.length ? wmsg(wfresh) : null].filter(Boolean) });
       st.days[today] = (st.days[today] || 0) + 1;
-      rec = { ok: 1, n: fresh.length, members: q.members, left: q.left };
+      rec = { ok: 1, n: fresh.length, ...wn, members: q.members, left: q.left };
     }
-  } catch (e) { rec = { why: 'ส่งไม่สำเร็จ: ' + e.message, n: fresh.length } }
+  } catch (e) { rec = { why: 'ส่งไม่สำเร็จ: ' + e.message, n: fresh.length, ...wn } }
 
   // สรุปประจำวัน (ข้ามรอบที่เพิ่งส่งแจ้งเตือน · โควตาไม่พอ = ข้ามทั้งวัน · ส่งไม่สำเร็จ = ลองรอบถัดไป)
   let drec = null;
@@ -129,7 +151,7 @@ async function quotaOk() {
     const q = await quotaOk();
     if (!q.ok) { drec = { daily: 1, why: `โควตาไม่พอ (เหลือ ${q.left} ต้องใช้ ${q.members})` }; st.daily = today }
     else {
-      await line('/v2/bot/message/push', { to: GROUP, messages: [msg(null, q, true)] });
+      await line('/v2/bot/message/push', { to: GROUP, messages: [msg(null, q, true), wmsg(null, true)].filter(Boolean) });
       st.daily = today;
       drec = { daily: 1, ok: 1, members: q.members, left: q.left };
     }

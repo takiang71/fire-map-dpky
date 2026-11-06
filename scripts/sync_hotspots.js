@@ -6,6 +6,8 @@
 //  - API ขัดข้อง (ทั้งประเทศ 0 จุด / ขาดบางดาวเทียม / ดึงไม่สำเร็จ) ในช่วง 7 วันล่าสุด → เติมจาก NASA FIRMS (ไฟล์ 7 วันสาธารณะ ไม่ต้องใช้ key)
 //    ติดป้าย src='firms' และลบทิ้งเมื่อ API กลับมามีดาวเทียมนั้นในวันนั้น · ตรวจ 30 ต.ค. 69: 28–29 ต.ค. ตรงกับ API 197/197 จุด (ห่าง ~70 ม., เวลา ±3 นาที, ความเชื่อมั่นและตำบลตรง)
 //  - ผลลัพธ์: data/hotspots_api.json + ฝังลง index.html (<script type="application/json" id="adata">)
+//    + จุดใน "พื้นที่เฝ้าระวังเป็นพิเศษ" (watchAt, นอกแนวเขตกลุ่มป่า เช่น โรงเรียนนายร้อยพระจุลจอมเกล้า — ผู้ใช้ขอ 6 พ.ย. 69) เก็บในที่เดียวกัน (ช่อง wa) แต่ฝังแยกเป็นบล็อก wadata ไม่ปนกับ adata
+//      วันที่ยังไม่เคยดึงพร้อมตัวกรองพื้นที่เฝ้าระวัง (store.wdays) ถูกดึงใหม่ทั้งหมดครั้งเดียว (เพิ่มพื้นที่ใหม่ = ลบ wdays ทิ้งแล้วรันใหม่)
 //    + data/FY2569_SNPP_ทั้งกลุ่มป่า.csv (จุด Suomi NPP ปีงบ 2569 ทั้งหมด พร้อมคอลัมน์ว่าอยู่ในข้อมูลกรมอุทยานฯ หรือไม่)
 const fs = require('fs'), path = require('path');
 
@@ -30,7 +32,7 @@ process.on('exit', () => { try { fs.unlinkSync(LOCK) } catch (e) {} });
 // เขียนแบบไฟล์ชั่วคราวแล้วเปลี่ยนชื่อ เพื่อไม่ให้ไฟล์ขาดครึ่งถ้าถูกเปิด/ปิดเครื่องระหว่างเขียน
 const writeSafe = (f, s) => { fs.writeFileSync(f + '.tmp', s); fs.renameSync(f + '.tmp', f) };
 
-const { html, block, GEO, where, SBP } = require('./lib/area');
+const { html, block, GEO, where, SBP, WATCH, watchAt } = require('./lib/area');
 const HDATA = JSON.parse(block('hdata')[1]);
 
 // --- วันที่ (วันตามเวลาไทย นับจาก 1970-01-01 แบบเดียวกับ hdata) ---
@@ -46,12 +48,12 @@ async function fetchDay(d) {
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const j = await r.json(), out = [];
     for (const f of j.features || []) {
-      const p = f.properties || {}, [lon, lat] = f.geometry.coordinates, w = where(lon, lat);
-      if (!w || !p.full_date) continue;
+      const p = f.properties || {}, [lon, lat] = f.geometry.coordinates, w = where(lon, lat), wa = watchAt(lon, lat);
+      if ((!w && !wa) || !p.full_date) continue;
       out.push({ d: dayOf(p.full_date), t: +p.full_date.slice(11, 13) * 100 + +p.full_date.slice(14, 16), la: Math.round(lat * 1e5), lo: Math.round(lon * 1e5),
         sat: String(p.satellite_name || 'ไม่ระบุ').trim(), cf: String(p.confidence || 'ไม่ระบุ').trim(),
         pv: (p.province_name_th || 'ไม่ระบุ').trim(), am: (p.district_name_th || 'ไม่ระบุ').trim(), tm: (p.subdistrict_name_th || 'ไม่ระบุ').trim(),
-        ...w, uid: String(p.unique_id || '') });
+        ...(w || {}), ...(wa ? { wa } : {}), uid: String(p.unique_id || '') });
     }
     return { n: (j.features || []).length, out, sats: new Set((j.features || []).map(f => String((f.properties || {}).satellite_name || '').trim())) };
   } catch (e) {
@@ -67,10 +69,11 @@ const SATS = ['SNPP', 'NOAA20', 'NOAA21'], SNPP_END = Date.UTC(2026, 10, 2) / 86
 // --- ข้อมูลเดิม ---
 let store = { days: {}, recs: [] };
 if (fs.existsSync(OUT)) store = JSON.parse(fs.readFileSync(OUT, 'utf8')).raw || store;
+store.wdays = store.wdays || {}; // วันที่ดึงแล้วพร้อมกรองพื้นที่เฝ้าระวังเป็นพิเศษ
 
 (async () => {
-  const todo = [];
-  for (let d = dayOf(FROM); d <= today; d++) if (!(d in store.days) || d > today - REFETCH) todo.push(d);
+  const todo = [], days0 = new Set(Object.keys(store.days).map(Number));
+  for (let d = dayOf(FROM); d <= today; d++) if (!(d in store.days) || !(d in store.wdays) || d > today - REFETCH) todo.push(d);
   console.log(`ดึง ${todo.length} วัน (${todo.length ? isoOf(todo[0]) + ' → ' + isoOf(todo[todo.length - 1]) : '-'})`);
   const got = {}, fail = [], empty = [], apiSats = {};
   let i = 0, done = 0, nat = 0;
@@ -86,12 +89,14 @@ if (fs.existsSync(OUT)) store = JSON.parse(fs.readFileSync(OUT, 'utf8')).raw || 
   const fetched = new Set(Object.keys(got).map(Number));
   const byId = new Map(store.recs.map(r => [r.uid || `${r.d}|${r.t}|${r.la}|${r.lo}|${r.sat}`, r]));
   for (const d of fetched) {
-    for (const r of got[d]) byId.set(r.uid || `${r.d}|${r.t}|${r.la}|${r.lo}|${r.sat}`, r);
-    if (d < today) store.days[d] = 0; // วันนี้ยังไม่ครบ ไม่บันทึกว่าเสร็จ
+    const wOnly = days0.has(d) && d <= today - REFETCH; // วันเก่าที่ดึงซ้ำเพื่อพื้นที่เฝ้าระวังเท่านั้น → รับเฉพาะจุดในพื้นที่เฝ้าระวัง (ไม่แตะจุดของกลุ่มป่า)
+    for (const r of got[d]) if (!wOnly || (r.wa && !r.ar)) byId.set(r.uid || `${r.d}|${r.t}|${r.la}|${r.lo}|${r.sat}`, r);
+    if (d < today) { store.days[d] = 0; store.wdays[d] = 1 } // วันนี้ยังไม่ครบ ไม่บันทึกว่าเสร็จ
   }
   // --- เติมจาก NASA FIRMS เฉพาะวัน/ดาวเทียมที่ API ไม่มี ---
   for (const [k, r] of byId) if (r.src === 'firms' && apiSats[r.d] && apiSats[r.d].has(r.sat)) byId.delete(k); // API กลับมาแล้ว ใช้ของ API
-  const need = todo.filter(d => d < today).map(d => [d, SATS.filter(s => (s !== 'SNPP' || d <= SNPP_END) && !(apiSats[d] && apiSats[d].has(s)))]).filter(x => x[1].length);
+  // เติม FIRMS เฉพาะวันที่ดึงตามรอบปกติ (ยังไม่เคยดึง/ดึงซ้ำ 7 วันล่าสุด) — วันเก่าที่ดึงซ้ำเพียงเพื่อเก็บจุดพื้นที่เฝ้าระวัง (wdays) ไม่เติม ไม่ให้ยอดย้อนหลังของกลุ่มป่าเปลี่ยน
+  const need = todo.filter(d => d < today && (!days0.has(d) || d > today - REFETCH)).map(d => [d, SATS.filter(s => (s !== 'SNPP' || d <= SNPP_END) && !(apiSats[d] && apiSats[d].has(s)))]).filter(x => x[1].length);
   if (need.length) {
     const old = [...byId.values()].filter(r => r.src !== 'firms'), F = [], skip = [];
     const add = L => { let n = 0; for (const r of L) { const m = need.find(x => x[0] === r.d); if (!m || !m[1].includes(r.sat) || old.some(o => FM.same(o, r))) continue; byId.set(r.uid, r); n++ } return n };
@@ -129,7 +134,7 @@ if (fs.existsSync(OUT)) store = JSON.parse(fs.readFileSync(OUT, 'utf8')).raw || 
   const mins = t => Math.floor(t / 100) * 60 + t % 100;
   // จับคู่แบบหนึ่งต่อหนึ่ง (จุดใกล้สุดก่อน) เฉพาะ Suomi NPP — พิกเซล VIIRS ห่างกันแค่ ~375 ม. จึงห้ามจุดเดียวจับหลายจุด
   const pairs = [];
-  store.recs.forEach((r, ri) => { r.dnp = 0; if (r.sat !== 'SNPP') return; hd.forEach((a, ai) => { if (a[0] === r.d && Math.abs(mins(a[1]) - mins(r.t)) <= 10) { const dd = Math.hypot(a[2] - r.la, a[3] - r.lo); if (dd < 400) pairs.push([dd, ri, ai]) } }) });
+  store.recs.forEach((r, ri) => { r.dnp = 0; if (r.sat !== 'SNPP' || !r.ar) return; hd.forEach((a, ai) => { if (a[0] === r.d && Math.abs(mins(a[1]) - mins(r.t)) <= 10) { const dd = Math.hypot(a[2] - r.la, a[3] - r.lo); if (dd < 400) pairs.push([dd, ri, ai]) } }) });
   const usedR = new Set(), usedA = new Set();
   for (const [, ri, ai] of pairs.sort((x, y) => x[0] - y[0])) if (!usedR.has(ri) && !usedA.has(ai)) { usedR.add(ri); usedA.add(ai); store.recs[ri].dnp = 1 }
   if (hd.length > usedA.size) console.log('จุดของกรมอุทยานฯ ที่ไม่พบใน API', hd.length - usedA.size, 'จุด');
@@ -140,24 +145,37 @@ if (fs.existsSync(OUT)) store = JSON.parse(fs.readFileSync(OUT, 'utf8')).raw || 
   const last = Math.max(-1, ...Object.keys(store.days).map(Number));
   const enc = {
     v: 1, upd: new Date().toISOString(), from: FROM, to: last >= 0 ? isoOf(last) : null, ...D,
-    r: store.recs.map(r => [r.d, r.t, r.la, r.lo, ix('sat', r.sat), ix('cf', r.cf), ix('pv', r.pv), ix('am', r.am), ix('tm', r.tm + '|' + r.am), ix('ar', r.ar), ix('st', r.st), ix('sb', SBP[r.pv] || r.sb), r.dnp].concat(r.src === 'firms' ? [1] : [])),
+    r: store.recs.filter(r => r.ar).map(r => [r.d, r.t, r.la, r.lo, ix('sat', r.sat), ix('cf', r.cf), ix('pv', r.pv), ix('am', r.am), ix('tm', r.tm + '|' + r.am), ix('ar', r.ar), ix('st', r.st), ix('sb', SBP[r.pv] || r.sb), r.dnp].concat(r.src === 'firms' ? [1] : [])),
   };
   writeSafe(OUT, JSON.stringify({ enc, raw: store }));
   const s = JSON.stringify(enc);
   let h = fs.readFileSync(H, 'utf8');
   if (block('adata')) h = h.replace(/(<script type="application\/json" id="adata">)[\s\S]*?(<\/script>)/, (_, a, b) => a + s + b);
   else h = h.replace(/(<script type="application\/json" id="hdata">[\s\S]*?<\/script>)/, m => m + '\n<script type="application/json" id="adata">' + s + '</script>');
+  // พื้นที่เฝ้าระวังเป็นพิเศษ → บล็อก wadata (หน้าเว็บ: แท็บ "พื้นที่เฝ้าระวังพิเศษ" ในการ์ดสถิติ · build_site: watch.json)
+  //   {v, upd, from, to, ids[], sat[], cf[], tm[] ("ตำบล|อำเภอ|จังหวัด"), r:[[day, hhmm, lat*1e5, lon*1e5, sat, cf, tm, พื้นที่ (ดัชนีใน ids), 1=NASA FIRMS]]}
+  if (WATCH.length) {
+    const WD = { sat: [], cf: [], tm: [] }, wi = (k, v) => { let n = WD[k].indexOf(v); if (n < 0) { n = WD[k].length; WD[k].push(v) } return n }, ids = WATCH.map(a => a.id);
+    const wl = Math.max(-1, ...Object.keys(store.wdays).map(Number));
+    const wenc = { v: 1, upd: enc.upd, from: FROM, to: wl >= 0 ? isoOf(Math.min(wl, last)) : null, ids, ...WD,
+      r: store.recs.filter(r => r.wa && ids.includes(r.wa)).map(r => [r.d, r.t, r.la, r.lo, wi('sat', r.sat), wi('cf', r.cf), wi('tm', [r.tm, r.am, r.pv].join('|')), ids.indexOf(r.wa)].concat(r.src === 'firms' ? [1] : [])) };
+    const ws = JSON.stringify(wenc);
+    if (/<script type="application\/json" id="wadata">/.test(h)) h = h.replace(/(<script type="application\/json" id="wadata">)[\s\S]*?(<\/script>)/, (_, a, b) => a + ws + b);
+    else h = h.replace(/(<script type="application\/json" id="wdata">[\s\S]*?<\/script>)/, m => m + '\n<script type="application/json" id="wadata">' + ws + '</script>');
+    const wc = {}; wenc.r.forEach(r => { const k = ids[r[7]] + ' ' + WD.sat[r[4]]; wc[k] = (wc[k] || 0) + 1 });
+    console.log('พื้นที่เฝ้าระวังเป็นพิเศษ', wenc.r.length, 'จุด', wc);
+  }
   writeSafe(H, h);
 
   // CSV ปีงบ 2569 เฉพาะ Suomi NPP (ทั้งพื้นที่กลุ่มป่า)
-  const f69 = store.recs.filter(r => r.d >= dayOf('2025-10-01') && r.d <= dayOf('2026-09-30') && r.sat === 'SNPP');
+  const f69 = store.recs.filter(r => r.ar && r.d >= dayOf('2025-10-01') && r.d <= dayOf('2026-09-30') && r.sat === 'SNPP');
   const q = v => /[",\n]/.test(v) ? `"${String(v).replace(/"/g, '""')}"` : v;
   const csv = ['วันที่,เวลา,ดาวเทียม,ความเชื่อมั่น,ละติจูด,ลองจิจูด,ตำบล,อำเภอ,จังหวัด,พื้นที่อนุรักษ์,สถานีควบคุมไฟป่า,สำนักบริหารพื้นที่อนุรักษ์,อยู่ในข้อมูลกรมอุทยานฯ']
     .concat(f69.map(r => [isoOf(r.d), String(r.t).padStart(4, '0').replace(/(..)$/, ':$1'), 'Suomi NPP', r.cf, (r.la / 1e5).toFixed(5), (r.lo / 1e5).toFixed(5), r.tm, r.am, r.pv, r.ar, r.st, SBP[r.pv] || r.sb, r.dnp ? 'ใช่' : 'ไม่ใช่'].map(q).join(',')));
   fs.writeFileSync(path.join(ROOT, 'data', 'FY2569_SNPP_ทั้งกลุ่มป่า.csv'), '﻿' + csv.join('\r\n'));
 
-  const cnt = {}; store.recs.forEach(r => { const k = (r.d >= dayOf('2026-10-01') ? '2570' : '2569') + ' ' + r.sat; cnt[k] = (cnt[k] || 0) + 1 });
-  console.log('ในแนวเขต', store.recs.length, 'จุด', cnt, '· ฝังใน index.html', (s.length / 1024).toFixed(1), 'KB');
+  const cnt = {}; store.recs.filter(r => r.ar).forEach(r => { const k = (r.d >= dayOf('2026-10-01') ? '2570' : '2569') + ' ' + r.sat; cnt[k] = (cnt[k] || 0) + 1 });
+  console.log('ในแนวเขต', store.recs.filter(r => r.ar).length, 'จุด', cnt, '· ฝังใน index.html', (s.length / 1024).toFixed(1), 'KB');
   console.log('ปีงบ 2569 SNPP', f69.length, 'จุด · ตรงกับข้อมูลกรมอุทยานฯ', f69.filter(r => r.dnp).length, 'จาก', hd.filter(a => a[0] <= dayOf('2026-09-30')).length);
   if (empty.length) console.log('API ตอบว่างทั้งประเทศ', empty.length, 'วัน (คงข้อมูลเดิม รอบหน้าดึงใหม่):', empty.join(', '));
   if (fail.length) { console.log('ดึงไม่สำเร็จ', fail.length, 'วัน (รันใหม่จะลองวันเหล่านี้อีก):', fail.slice(0, 5)); process.exitCode = 1 }
