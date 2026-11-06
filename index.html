@@ -1379,8 +1379,8 @@ map.on('click',e=>{
  const f=map.getLayer('hot-icon')&&map.queryRenderedFeatures(e.point,{layers:['hot-icon','hot-3d']})[0];
  if(f){openDetail(HS.find(x=>x.id===f.properties.id));return}
  const wl=map.getLayer('wlv-icon')&&map.getLayoutProperty('wlv-icon','visibility')==='visible'&&map.queryRenderedFeatures(e.point,{layers:['wlv-icon']})[0];if(wl&&WLAST[wl.properties.i]){openDetail(WLAST[wl.properties.i]);return} // จุด 48 ชม. ในพื้นที่เฝ้าระวังพิเศษ
- const wcl=S.wst&&map.getLayer('wtc-cl')&&map.queryRenderedFeatures(e.point,{layers:['wtc-cl']})[0];if(wcl){map.getSource('wtc').getClusterExpansionZoom(wcl.properties.cluster_id).then(z=>map.easeTo({center:wcl.geometry.coordinates,zoom:z+.5,duration:dur(800)}));return}
- const wtf=S.wst&&map.queryRenderedFeatures(e.point,{layers:['wt-c','wtc-p'].filter(id=>map.getLayer(id))})[0];if(wtf){wtPopup(WR[wtf.properties.i]);return}
+ const wcl=(S.wst||wHs())&&map.getLayer('wtc-cl')&&map.queryRenderedFeatures(e.point,{layers:['wtc-cl']})[0];if(wcl){map.getSource('wtc').getClusterExpansionZoom(wcl.properties.cluster_id).then(z=>map.easeTo({center:wcl.geometry.coordinates,zoom:z+.5,duration:dur(800)}));return}
+ const wtf=(S.wst||wHs())&&map.queryRenderedFeatures(e.point,{layers:['wt-c','wtc-p'].filter(id=>map.getLayer(id))})[0];if(wtf){wtPopup(WR[wtf.properties.i]);return}
  const fp=PM!=='24'&&map.getLayer('fypt')&&map.queryRenderedFeatures(e.point,{layers:['fypt']})[0];
  if(fp){const p=fp.properties,[lo,la]=fp.geometry.coordinates;new maplibregl.Popup({maxWidth:'260px'}).setLngLat([lo,la]).setHTML(`<b>จุดความร้อนสะสมปีงบ ${fyOfDay(p.d)}</b><br>${dShort(p.d)} เวลา ${hhmmTh(p.t)} น. · ${esc(SATN[p.sat]||p.sat)}${p.fm?'<br><span class="sm">ที่มา: NASA FIRMS (ระบบไทยขัดข้องวันนั้น)</span>':''}<br>${p.tam?'ต.'+esc(p.tam)+' ':''}${p.amp?'อ.'+esc(p.amp)+' ':''}${p.prov?'จ.'+esc(p.prov):''}<br><span class="sm">พิกัด ${la.toFixed(5)}, ${lo.toFixed(5)}</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${la},${lo}">เปิดใน Google Maps</a>`).addTo(map);return}
  const hr=HSRF.features.length&&map.getLayer('hsring')&&map.queryRenderedFeatures(e.point,{layers:['hsring']})[0]; // วงล้อมจุดจากลิงก์แจ้งเตือน
@@ -2878,8 +2878,12 @@ function setupWT(){if(!WAR.length)return;WFC=wFC();const bf=map.getLayer('hot-gl
  map.addLayer({id:'wlv-glow',type:'circle',source:'wlv',layout:{visibility:'none'},paint:{'circle-color':GL,'circle-radius':['interpolate',['linear'],['zoom'],6,10,12,26],'circle-blur':.9,'circle-opacity':['match',['get','g'],'b',.3,.6]}});
  map.addLayer({id:'wlv-icon',type:'symbol',source:'wlv',layout:{visibility:'none','icon-image':['concat','f-',['get','g']],'icon-size':['interpolate',['linear'],['zoom'],6,.55,12,.9],'icon-allow-overlap':true},paint:{'icon-opacity':['match',['get','g'],'b',.6,1]}});
  LW()}
-function LW(){if(!WAR.length)return;const set=(id,b)=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',b?'visible':'none'),on=S.wch||S.wst;
- ['wch-f','wch-l'].forEach(id=>set(id,on));const sp=S.wst&&S.wsp;set('wt-h',sp&&WM.mode==='heat');set('wt-c',sp&&WM.mode==='pt');['wtc-cl','wtc-n','wtc-p'].forEach(id=>set(id,sp&&WM.mode==='cl'));/* จุดย้อนหลังแสดงเมื่อเปิดสวิตช์ในการ์ด (S.wsp ค่าเริ่มต้นปิด) */
+const wHs=()=>{try{return HOPEN&&HTAB==='hs'&&!!S.hist&&!PB.on}catch(e){return false}}; /* การ์ดสถิติกลุ่มป่า แท็บจุดความร้อน เปิดอยู่และสวิตช์แสดงจุดเปิด (ไม่ระหว่างเล่นย้อน) */
+function wHsMap(){if(!WAR.length||!wHs())return;if(!WR.length)wBuild();wtMap(WR.filter(r=>r.wa===WSEL&&(!HF.fy.size||HF.fy.has(r.fy))&&(!HF.mo.size||HF.mo.has(r.mo))))} /* กรองตามปีงบ/เดือนที่เลือกในการ์ดสถิติ */
+{const f0=hRender;hRender=function(){const v=f0.apply(this,arguments);try{wHsMap()}catch(e){}return v}}
+{const m0=hMap;hMap=function(){const v=m0.apply(this,arguments);try{LW()}catch(e){}return v}} /* เล่นย้อน (PB.on) ซ่อนจุดพื้นที่เฝ้าระวัง · จบแล้วแสดงคืน */
+function LW(){if(!WAR.length)return;const set=(id,b)=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',b?'visible':'none'),hs=wHs(),on=S.wch||S.wst||hs;
+ ['wch-f','wch-l'].forEach(id=>set(id,on));const sp=(S.wst&&S.wsp)||hs;set('wt-h',sp&&WM.mode==='heat');set('wt-c',sp&&WM.mode==='pt');['wtc-cl','wtc-n','wtc-p'].forEach(id=>set(id,sp&&WM.mode==='cl'));/* จุดย้อนหลังแสดงเมื่อเปิดสวิตช์ในการ์ด (S.wsp ค่าเริ่มต้นปิด) */
  set('wlv-glow',S.hot&&on&&!S.d3);set('wlv-icon',S.hot&&on&&!S.d3);
  const b=document.getElementById('wchbox');if(b)b.hidden=!S.wch;wchInfo()}
 /* บรรทัดสรุปในแผงชั้นข้อมูล + ป้ายในการ์ดจุดความร้อน (ติดตามรายวัน) */
