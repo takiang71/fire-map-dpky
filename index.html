@@ -1954,14 +1954,20 @@ $('#rpseg').onclick=e=>{const b=e.target.closest('button');if(!b)return;S.rpm=+b
    ใช้ var เพราะ apply() ถูกเรียกก่อนบรรทัดนี้ทำงาน */
 var HCD=1000,HCG=2,HCR=200,HCC=null,HCK=null,HCN={'48':'48 ชม. ล่าสุด','7':'7 วันล่าสุด','30':'30 วันล่าสุด'};
 const hcMs=(d,t)=>d*864e5+Math.floor(t/100)*36e5+t%100*6e4-7*36e5; // วัน+เวลาไทย → ms (UTC)
+// วันแรกที่ adata ดึงครบ (from = 1 ต.ค. 68) — ก่อนวันนี้ใช้จุดกรมอุทยานฯ (HD) · ไม่ใช้วันของจุด AD แรกสุด (จุดแรกอาจเกิดหลังวันเริ่ม ทำให้ปนจุด HD ต้นปีงบ 2569)
+function hcA0(){if(hcA0.v==null){let v=NaN;try{v=Math.floor(dNum(JSON.parse(document.getElementById('adata').textContent).from))}catch(e){}hcA0.v=isFinite(v)?v:AD.length?AD.reduce((m,r)=>Math.min(m,r.d),1e9):1e9}return hcA0.v}
 function hcRange(){const T0=thDay(),F=fyOfDay(T0),p=S.hcp||'7';
  if(p==='48')return{ms:Date.now()-48*36e5,d0:T0-2,d1:T0,lab:HCN[p]};
  if(p==='fy')return{d0:fy0(F),d1:T0,lab:'ปีงบ '+F+' (ตั้งแต่ 1 ต.ค.)'};
  if(p==='fyp')return{d0:fy0(F-1),d1:fy0(F)-1,lab:'ปีงบ '+(F-1)};
+ const y=/^y(\d{4})$/.exec(p);if(y){const Y=+y[1];return{d0:fy0(Y),d1:fy0(Y+1)-1,lab:'ปีงบ '+Y+(fy0(Y)<hcA0()?' (Suomi NPP จากกรมอุทยานฯ ไม่รวมจุดจัดการเชื้อเพลิง/ไม่พบไฟ)':'')}} // ปีงบย้อนหลังทุกปีที่มีข้อมูล (ผู้ใช้ขอ 7 พ.ย. 69)
  const n=+p||7;return{d0:T0-n+1,d1:T0,lab:HCN[p]||n+' วันล่าสุด'}}
 function hcPts(R){const L=[],seen=new Set(),ok=(d,ms)=>R.ms?ms>=R.ms:d>=R.d0&&d<=R.d1;
  AD.forEach(r=>{const ms=hcMs(r.d,r.t);if(!ok(r.d,ms))return;seen.add(hKey(r.d,r.t,r.la,r.lo));if(!xAD(r)||!satOn(r.sat))return;
   const[tb,am]=String(r.tm||'').split('|');L.push({la:r.la,lo:r.lo,d:r.d,t:r.t,ms,sat:r.sat,tam:tb||'',amp:am||r.am||'',prov:r.pv||''})});
+ // ก่อนวันแรกของ AD (1 ต.ค. 68) ใช้จุดกรมอุทยานฯ (HD = Suomi NPP อย่างเดียว) ไม่รวมจุดจัดการเชื้อเพลิง/ตรวจสอบแล้วไม่พบไฟ (fuOK — กติกาเดียวกับการ์ด/สถิติ) · ตามปุ่มดงใหญ่
+ try{if(!R.ms&&satOn('SNPP')){const a0=hcA0();if(R.d0<a0)HD.forEach(r=>{if(r.d<R.d0||r.d>R.d1||r.d>=a0||!fuOK(r)||!xHD(r))return;
+  const[tb,am]=String(DIC.tm[r.tm]||'').split('|');L.push({la:r.la,lo:r.lo,d:r.d,t:r.t,ms:hcMs(r.d,r.t),sat:'SNPP',tam:tb||'',amp:am||DIC.am[r.am]||'',prov:DIC.pv[r.pv]||''})})}}catch(e){}
  LIVE.forEach(h=>{const x=new Date(h.t+7*36e5),d=Math.floor(x/864e5),t=x.getUTCHours()*100+x.getUTCMinutes(),k=hKey(d,t,h.lat,h.lon);if(seen.has(k)||!ok(d,h.t))return;seen.add(k);
   const s=satKey(h.sat);if(!xLive(h)||!satOn(s))return;L.push({la:h.lat,lo:h.lon,d,t,ms:h.t,sat:s,tam:h.tam||'',amp:h.amp||'',prov:h.prov||''})});
  // พื้นที่เฝ้าระวังพิเศษ (ผู้ใช้ขอ 7 พ.ย. 69): จุดของ WR (ปีงบที่มีไฟล์ย้อนหลัง = ไฟล์, หลังจากนั้น = API + 48 ชม.) ตามปุ่มดาวเทียม · เปิดเมื่อชั้นพื้นที่เฝ้าระวังเปิด
@@ -1988,7 +1994,7 @@ const hcMid=L=>{let la=0,lo=0;L.forEach(p=>{la+=p.la;lo+=p.lo});return[lo/L.leng
 // เงื่อนไขการจัดกองที่ผู้ใช้กำหนดในกล่อง #hcbox (บันทึกค่าเริ่มต้นได้) — นอกช่วงที่ยอมรับใช้ค่าขอบ
 const hcV=(v,lo,hi,df)=>{v=parseFloat(v);return isFinite(v)?Math.min(hi,Math.max(lo,v)):df};
 function hcCalc(){HCD=Math.round(hcV(S.hcd,.1,10,1)*1000);HCG=Math.round(hcV(S.hcg,0,30,2));HCR=Math.round(hcV(S.hcr,50,2000,200));
- const R=hcRange(),k=[S.hcp,R.d0,R.d1,loadedAt,AD.length,LIVE.length,!!S.xdy,!!S.wch,(typeof WR!=='undefined'?WR.length:0),satList().map(satOn).join(),HCD,HCG,HCR].join('|');if(HCC&&HCC.k===k)return HCC;
+ const R=hcRange(),k=[S.hcp,R.d0,R.d1,loadedAt,AD.length,LIVE.length,(typeof HD!=='undefined'?HD.length:0),!!S.xdy,!!S.wch,(typeof WR!=='undefined'?WR.length:0),satList().map(satOn).join(),HCD,HCG,HCR].join('|');if(HCC&&HCC.k===k)return HCC;
  const P=hcPts(R),C=hcLink(P,0).map(L=>{const c=hcMid(L);return{L,d:L[0].d,n:L.length,c,t0:L[0].t,t1:L[L.length-1].t,sats:[...new Set(L.map(p=>p.sat))],at:hcNear(L,c)}});
  C.forEach((c,i)=>c.L.forEach(p=>p.c=i));
  const G=hcLink(P,HCG).map(L=>{L.sort((a,b)=>a.ms-b.ms);const f=L[0],I=L.filter(p=>p.sat===f.sat&&p.ms-f.ms<=15*6e4),ic=hcMid(I),days=[...new Set(L.map(p=>p.d))].sort((a,b)=>a-b),
@@ -2066,8 +2072,10 @@ document.addEventListener('click',e=>{const b=e.target.closest('.hcsp');if(b)hcB
 const hcIn=()=>{clearTimeout(hcIn.t);hcIn.t=setTimeout(()=>{S.hcd=hcV($('#hc-d').value,.1,10,1);S.hcg=Math.round(hcV($('#hc-g').value,0,30,2));S.hcr=Math.round(hcV($('#hc-r').value,50,2000,200));LC()},350)};
 ['#hc-d','#hc-g','#hc-r'].forEach(id=>{const el=$(id);el.addEventListener('input',hcIn);el.addEventListener('change',()=>{hcIn();const[lo,hi,df]=id==='#hc-d'?[.1,10,1]:id==='#hc-g'?[0,30,2]:[50,2000,200];el.value=id==='#hc-d'?hcV(el.value,lo,hi,df):Math.round(hcV(el.value,lo,hi,df))})});
 $('#hc-0').onclick=()=>{S.hcd=1;S.hcg=2;S.hcr=200;LC()};
-function hcBox(H){const sel=$('#hc-s'),T0=thDay(),F=fyOfDay(T0),pv=AD.some(r=>r.d>=fy0(F-1)&&r.d<fy0(F)),
-  O=[['48',HCN['48']],['7',HCN['7']],['30',HCN['30']],['fy','ปีงบ '+F+' (ตั้งแต่ 1 ต.ค.)']].concat(pv?[['fyp','ปีงบ '+(F-1)+' ทั้งปี']]:[]);
+function hcBox(H){const sel=$('#hc-s'),T0=thDay(),F=fyOfDay(T0),a0=hcA0(),ys=new Set();
+ AD.forEach(r=>ys.add(fyOfDay(r.d)));try{HD.forEach(r=>{if(r.d<a0)ys.add(r.fy)})}catch(e){}
+ // ปีงบก่อนหน้าทุกปีที่มีข้อมูล ใหม่ → เก่า (ปีงบก่อน 1 ปีคงค่า fyp เดิม ให้ค่าเริ่มต้นที่บันทึกไว้ยังใช้ได้) · ปีก่อน AD = จุดกรมอุทยานฯ SNPP
+ const O=[['48',HCN['48']],['7',HCN['7']],['30',HCN['30']],['fy','ปีงบ '+F+' (ตั้งแต่ 1 ต.ค.)']].concat([...ys].filter(Y=>Y<F).sort((a,b)=>b-a).map(Y=>[Y===F-1?'fyp':'y'+Y,'ปีงบ '+Y+' ทั้งปี'+(fy0(Y)<a0?' (SNPP กรมอุทยานฯ)':'')]));
  if(sel.dataset.k!==O.join()){sel.innerHTML=O.map(([v,t])=>`<option value="${v}">${esc(t)}</option>`).join('');sel.dataset.k=O.join()}sel.value=S.hcp||'7';
  [['#hc-d',HCD/1000],['#hc-g',HCG],['#hc-r',HCR]].forEach(([id,v])=>{const el=$(id);if(document.activeElement!==el)el.value=v});$('#hc-0').hidden=HCD===1000&&HCG===2&&HCR===200;
  const rai=H.G.reduce((s,g)=>s+g.rai,0),top=H.G.filter(g=>g.n>1).slice(0,5),mm=d=>dShort(d);
