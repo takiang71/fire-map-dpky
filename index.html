@@ -2543,7 +2543,7 @@ function homePad(){if(innerWidth<=767){const l=$('#left'),h=Math.min(innerHeight
  const L=$('#left'),R=[$('#right'),$('#ulm')].find(e=>e&&(e.id==='right'?e.classList.contains('open'):!e.hidden)),lx=document.body.classList.contains('lc')||!L?0:L.offsetLeft+L.offsetWidth-24;
  return{top:60,bottom:100,left:lx+60,right:R?innerWidth-R.offsetLeft+60:60}}
 // เปิด/ปิดแผงซ้ายหรือแผงชั้นข้อมูลโดยผู้ใช้ = จัดกลุ่มป่ากลางพื้นที่ที่เหลือ (มือถือแผงเป็นแผ่นล่าง ไม่จัด) · ไม่เรียกตอนแผงปิดเองเพราะเปิดรายละเอียดจุด
-function panFit(){if(innerWidth>767)try{fitHome(true)}catch(e){}} // เว้นด้านซ้ายให้การ์ด เพื่อให้กลุ่มป่าอยู่กลางพื้นที่ว่างด้านขวา
+function panFit(){if(innerWidth>767)try{if(HOPEN&&HTAB==='wa')wFocus(true);else fitHome(true)}catch(e){}} /* การ์ดพื้นที่เฝ้าระวังพิเศษเปิดอยู่ = จัดพื้นที่เฝ้าระวังกลางที่ว่าง (ผู้ใช้ขอ 7 พ.ย. 69) */ // เว้นด้านซ้ายให้การ์ด เพื่อให้กลุ่มป่าอยู่กลางพื้นที่ว่างด้านขวา
 function hFit(){const F=hfilt();if(!F.length)return toast('ไม่มีข้อมูลตามตัวกรอง');const b=new maplibregl.LngLatBounds([F[0].lo,F[0].la],[F[0].lo,F[0].la]);F.forEach(r=>b.extend([r.lo,r.la]));map.fitBounds(b,{padding:homePad(),maxZoom:11,duration:dur(1000)})}
 const histBounds=()=>{let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const r of HD){a=Math.min(a,r.lo);b=Math.min(b,r.la);c=Math.max(c,r.lo);d=Math.max(d,r.la)}a=Math.min(a,CB[0]);b=Math.min(b,CB[1]);c=Math.max(c,CB[2]);d=Math.max(d,CB[3]);return[[a,b],[c,d]]};
 let MOVED=false;function fitHome(anim){map.fitBounds(histBounds(),{padding:homePad(),maxZoom:11,bearing:0,pitch:S.d3?60:0,duration:anim?dur(1200):0})}
@@ -2581,7 +2581,7 @@ const hspOn=()=>HTAB==='wa'?!!S.wsp:HTAB==='xt'?!!S.xt:!!S.hist,hspSync=()=>{con
 function hOpen(play,tab){if(play)tab='hs';HOPEN=true;$('#left').classList.add('hm');$('#pcard').hidden=true;$('#hcard').hidden=false;hTab(tab||HTAB);
  if(play){if(!S.hist){S.hist=HSP.hs=true;apply();hspSync()}pbOpen()}} // เล่นย้อนต้องเห็นจุด
 function hTab(t){HTAB=t;const x=t==='xt',w=t==='wa';$('#hcard').classList.toggle('xtm',x);$('#hcard').classList.toggle('wam',w);tx('h-ttl',x?'สถิติการดับไฟป่าย้อนหลัง':w?'พื้นที่เฝ้าระวังพิเศษ':'สถิติจุดความร้อนย้อนหลัง');$$('#h-tab button').forEach(b=>b.classList.toggle('on',b.dataset.v===t));$('#hcard').scrollTop=0;
- if(w){pbClose();S.hist=false;S.xt=false;S.wst=true;apply();hspSync();wtRender();if(!hTab.wd){hTab.wd=1;wtFit()}}
+ if(w){pbClose();S.hist=false;S.xt=false;S.wst=true;apply();hspSync();wtRender();wFocus(true)} /* เข้าเมนูพื้นที่เฝ้าระวังพิเศษทุกครั้ง = ซูมไปที่พื้นที่ */
  else if(x){pbClose();S.hist=false;S.wst=false;S.xt=HSP.xt;apply();hspSync();xtRender();if(!hTab.xd){hTab.xd=1;xtFit()}}
  else{S.xt=false;S.wst=false;S.hist=HSP.hs;apply();hspSync();if(!hOpen.done)hDef();hRender();if(!hOpen.done){hOpen.done=1;hFit()}}
  try{moreFit()}catch(e){}}
@@ -2922,6 +2922,7 @@ function wchInfo(){const a=WAR[0];if(!a)return;const T=thDay(),F=fyOfDay(T),now=
  const t=document.getElementById('wch-t');if(t)t.textContent=L.length?L.length+' จุด 48 ชม.':nf(a.rai)+' ไร่';
  const e=document.getElementById('wch-a');if(e)e.innerHTML=`<div class="sm" style="margin:2px 0 4px">${esc(a.n)} ${nf(a.rai)} ไร่ · อยู่นอกแนวเขตกลุ่มป่า (ไม่รวมในยอดของกลุ่มป่า)</div><div>จุดใน 24 ชม. <b style="color:${n24?'#c0392b':'inherit'}">${n24}</b> · 48 ชม. <b>${L.length}</b> · สะสมปีงบ ${F} <b>${c}</b> · ทั้งปีงบ ${F-1} ${p}</div><div class="sm">นับทุกดาวเทียม · แจ้งเตือนจุดใหม่ทาง LINE/Telegram</div>`;
  const pc=document.getElementById('p-wch');if(pc){pc.hidden=false;pc.innerHTML=`<svg class="i" viewBox="0 0 24 24"><path d="M12 3l8 3.5v5.5c0 4.5-3.5 7.5-8 9-4.5-1.5-8-4.5-8-9V6.5z" style="fill:#ffd000;stroke:#6b5200"/></svg><span>พื้นที่เฝ้าระวังพิเศษ <b>${esc(a.s)}</b> · 24 ชม. <b class="${n24?'hot':''}">${n24}</b> จุด · สะสมปีงบ ${F} <b>${c}</b></span><em>›</em>`}}
+function wFocus(anim){const a=wArea();if(!a)return;MOVED=true;map.fitBounds([[a.bb[0],a.bb[1]],[a.bb[2],a.bb[3]]],{padding:homePad(),maxZoom:13,bearing:0,pitch:S.d3?60:0,duration:anim?dur(1000):0})} /* แนวเขตพื้นที่เฝ้าระวังกลางพื้นที่ว่างระหว่างแผง */
 function wtFit(){const F=wfilt(),a=wArea();MOVED=true;if(!F.length&&!a)return;const b=new maplibregl.LngLatBounds([a.bb[0],a.bb[1]],[a.bb[2],a.bb[3]]);F.forEach(r=>b.extend([r.lo,r.la]));map.fitBounds(b,{padding:homePad(),maxZoom:13,duration:dur(1000)})}
 function wchZoom(){const a=WAR[0];if(!a)return;MOVED=true;map.fitBounds([[a.bb[0],a.bb[1]],[a.bb[2],a.bb[3]]],{padding:homePad(),maxZoom:13,duration:dur(1000)})}
 function wtRender(){wBuild();const F=wfilt(),fys=wfyList(),a=wArea();
