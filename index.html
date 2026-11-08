@@ -22,11 +22,15 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 #left{position:fixed;top:env(safe-area-inset-top);left:0;width:min(420px,100%);max-height:calc(100% - 12px);overflow:auto;padding:16px 24px 16px max(16px,env(safe-area-inset-left));pointer-events:none;z-index:5;scrollbar-width:none}
 #left>*{pointer-events:auto}
 #hlg{position:fixed;z-index:4;right:max(12px,env(safe-area-inset-right));bottom:calc(88px + env(safe-area-inset-bottom));padding:7px 12px 7px 9px;border-radius:14px;background:var(--glass);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 1px 4px rgba(20,30,60,.15);font-size:12px;color:var(--ink);display:grid;gap:1px;min-width:150px}
-#hlg[hidden],#hlg.px{display:none}#hlg>b{font-size:11px;font-weight:600;color:var(--mut);margin:0 0 2px 3px}
+#hlg[hidden],#hlg.px{display:none!important}#hlg>b{font-size:11px;font-weight:600;color:var(--mut);margin:0 0 2px 3px}
 #hlg>div{display:flex;align-items:center;gap:6px;line-height:20px}#hlg span{flex:1;white-space:nowrap}#hlg em{font-style:normal;font-weight:700;color:var(--navy);min-width:16px;text-align:right}
 #hlg i{width:20px;height:20px;flex:none;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--c) 55%,transparent) 0,transparent 70%)}
 #hlg svg{width:13px;height:13px;fill:var(--c);stroke:var(--c);stroke-width:1.5;stroke-linejoin:round}
 body.wyon #hlg{opacity:.92}
+#hlg .hlt{display:none}
+#hlg.mb{touch-action:none;user-select:none;-webkit-user-select:none;cursor:pointer;transition:transform .2s ease,opacity .2s}
+#hlg.mb.cp{display:flex;gap:6px;min-width:0;padding:4px 10px 4px 6px;border-radius:99px}#hlg.mb.cp>b,#hlg.mb.cp span{display:none}#hlg.mb.cp>div{gap:2px}#hlg.mb.cp em{min-width:8px}
+#hlg.mb.hd{min-width:0;padding:5px 8px 5px 6px;border-radius:99px 0 0 99px}#hlg.mb.hd>b,#hlg.mb.hd>div:not(.hlt){display:none}#hlg.mb.hd>.hlt{display:flex;align-items:center;gap:3px;line-height:20px}
 /* --lw = ความกว้างที่แผงซ้ายกินพื้นที่แผนที่ (เดสก์ท็อป 420 / มือถือหรือพับแผงแล้ว 0) ใช้จัดกลางป้ายวันที่ภาพ แถบอ้างอิง ป้ายคำแนะนำ */
 :root{--lw:420px}body.lc{--lw:0px}
 /* ปุ่มพับแผงซ้ายไปด้านข้าง (เดสก์ท็อป) */
@@ -155,9 +159,10 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 #ctl{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:calc(36px + env(safe-area-inset-bottom));display:flex;gap:8px;align-items:flex-end;z-index:7}
 .cb{width:42px;height:42px;display:grid;place-items:center;border:0;background:var(--bg);border-radius:12px;box-shadow:var(--sh)}
 .cb.on{background:var(--on);color:#fff}
+.myloc{width:22px;height:22px;position:relative;cursor:pointer}.myloc i{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;display:block}.myloc .mld{width:16px;height:16px;background:#1a73e8;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)}.myloc .mlp{width:16px;height:16px;background:#1a73e8;animation:mlp 2s ease-out infinite;pointer-events:none}.myloc .mla{background:rgba(26,115,232,.13);border:1px solid rgba(26,115,232,.45);pointer-events:none}@keyframes mlp{0%{opacity:.6;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(3.2)}}@media(prefers-reduced-motion:reduce){.myloc .mlp{animation:none;opacity:0}}
 .zm{display:flex;flex-direction:row;gap:8px}
 
-#attr{position:fixed;left:50%;transform:translateX(-50%);bottom:0;max-width:calc(100% - 20px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:2px 10px calc(2px + env(safe-area-inset-bottom));font-size:10px;line-height:1.4;color:var(--mut);background:var(--glass);border-radius:8px 8px 0 0;z-index:4}
+#attr{position:fixed;left:50%;transform:translateX(-50%);bottom:env(safe-area-inset-bottom,0px);max-width:calc(100% - 20px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:2px 10px;font-size:10px;line-height:1.4;color:var(--mut);background:var(--glass);border-radius:8px 8px min(8px,env(safe-area-inset-bottom,0px)) min(8px,env(safe-area-inset-bottom,0px));z-index:4} /* iPad มีแถบโฮม: เดิมเติม padding ล่างตาม safe-area แถบจึงหนา (ผู้ใช้แจ้ง 8 พ.ย. 69) → ยกแถบขึ้นเหนือแถบโฮมแทน */
 /* เดสก์ท็อป: ทั้งแผงเลื่อนรวมกัน จบห่างขอบล่าง 12 px · ขณะแสดงการ์ดจุดความร้อน (การ์ดสุดท้าย กว้างเต็มเนื้อแผง x 16 ถึงขอบขวา−24 มุม 20) mask ขอบล่างของแผงเป็นมุมมนของการ์ด → ท้ายการ์ดมนเสมอไม่ว่าเลื่อนถึงไหน · แถบอ้างอิงข้อมูลอยู่กลางพื้นที่ขวาของแผงซ้าย ไม่ทับการ์ด */
 @media(min-width:768px){#left:not(.hm){max-height:100%;padding-top:12px;padding-bottom:12px}#left:not(.hm):has(>#pcard:not([hidden])){-webkit-mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);-webkit-mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;-webkit-mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;-webkit-mask-repeat:no-repeat;mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;mask-repeat:no-repeat}#attr{left:calc(50% + var(--lw) / 2);max-width:calc(100% - var(--lw) - 20px)}#left>#pcard{width:auto}#left>#bDev{width:100%}}
 .maplibregl-ctrl-bottom-right{bottom:calc(86px + env(safe-area-inset-bottom))!important;right:max(6px,env(safe-area-inset-right))!important}
@@ -762,7 +767,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
  <button class="cb ib" id="wyb-f" aria-label="เปิดแบบเต็มจอ" title="เปิดแบบเต็มจอ (มีตารางพยากรณ์รายชั่วโมง)"><svg class="i" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
  <button class="cb ib" id="wyb-x" aria-label="ปิดชั้นสภาพอากาศ"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
 <!-- สัญลักษณ์อายุจุดความร้อน (ผู้ใช้ขอ 5 พ.ย. 69 ย้ายออกจากแผงชั้นข้อมูลมาไว้บนแผนที่ ขวาล่างเหนือปุ่มควบคุม) · ไอคอน = เปลวไฟ + วงเรืองแสงแบบบนแผนที่ · ตัวเลข = จำนวนจุดที่แสดงอยู่ -->
-<div id="hlg" role="group" aria-label="สัญลักษณ์อายุจุดความร้อน"><b>อายุจุดความร้อน</b><div><i style="--c:#e0301e"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><span>ภายใน 6 ชม.</span><em id="c-r"></em></div><div><i style="--c:#f08a1c"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><span>6–12 ชม.</span><em id="c-o"></em></div><div><i style="--c:#e8b020"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><span>12–24 ชม.</span><em id="c-y"></em></div><div><i style="--c:#9a6a4a;opacity:.6"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><span>เก่ากว่า 24 ชม.</span><em id="c-b"></em></div></div>
+<div id="hlg" role="group" aria-label="สัญลักษณ์อายุจุดความร้อน"><b>อายุจุดความร้อน</b><div><i style="--c:#e0301e"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><span>ภายใน 6 ชม.</span><em id="c-r"></em></div><div><i style="--c:#f08a1c"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><span>6–12 ชม.</span><em id="c-o"></em></div><div><i style="--c:#e8b020"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><span>12–24 ชม.</span><em id="c-y"></em></div><div><i style="--c:#9a6a4a;opacity:.6"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><span>เก่ากว่า 24 ชม.</span><em id="c-b"></em></div><div class="hlt"><i style="--c:#e0301e"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><em id="c-t"></em></div></div>
 <nav id="ctl" aria-label="ปุ่มควบคุมแผนที่">
  <button class="cb" id="bLoc" aria-label="ตำแหน่งของฉัน"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
  <button class="cb" id="bLay" aria-label="ชั้นข้อมูล"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"/></svg></button>
@@ -1119,7 +1124,7 @@ function renderLeft(){
  $('#stats').innerHTML=`<b>${n24}</b><span>จุดความร้อน 24 ชม. ล่าสุด</span><b>${PA.length}</b><span>พื้นที่อนุรักษ์ที่พบจุดความร้อน</span>${PA.length?`<div class="sl">${PA.map(([n,c])=>`<span class="zl" data-z="pa|${esc(n)}" title="${esc(n)} · คลิกเพื่อซูม"><b>${c}</b> ${esc(paShort(n))}</span>`).join('')}</div>`:''}
   <b>${tp[1]}</b><span>${tp[1]?`<a class="zl" data-z="pv|${esc(tp[0])}">จุดในจังหวัด${esc(tp[0])}</a>`:'จุดในจังหวัด–'} พบมากที่สุด</span><b>${ta[1]}</b><span>${ta[1]?`<a class="zl" data-z="am|${esc(ta[0])}">จุดในอำเภอ${esc(ta[0].split('|')[0])}</a>`:'จุดในอำเภอ–'} พบมากที่สุด</span><b>${tt[1]}</b><span>${tt[1]?`<a class="zl" data-z="tm|${esc(tt[0])}">จุดในตำบล${esc(tt[0].split('|')[0])}</a>`:'จุดในตำบล–'} พบมากที่สุด</span>`;
  $$('.tm').forEach(e=>e.textContent=thTime(loadedAt));
- ['r','o','y','b'].forEach(g=>$('#c-'+g).textContent=HS.filter(h=>grp(h)===g).length+(S.wch&&typeof WLAST!=='undefined'?WLAST.filter(h=>grp(h)===g&&satOn(satKey(h.sat))).length:0)); // + จุดในพื้นที่เฝ้าระวังพิเศษที่แสดงบนแผนที่
+ ['r','o','y','b'].forEach(g=>$('#c-'+g).textContent=HS.filter(h=>grp(h)===g).length+(S.wch&&typeof WLAST!=='undefined'?WLAST.filter(h=>grp(h)===g&&satOn(satKey(h.sat))).length:0));{const t=$('#c-t');if(t)t.textContent=['r','o','y','b'].reduce((a,k)=>a+(+$('#c-'+k).textContent||0),0)} // + จุดในพื้นที่เฝ้าระวังพิเศษที่แสดงบนแผนที่
  renderCard();satBtns();
 }
 /* ปุ่มเลือกดาวเทียม (มีสองชุด: การ์ดซ้าย + แผงชั้นข้อมูล ใช้สถานะเดียวกัน) · ตัวเลข = จุดสะสมตั้งแต่ 1 ต.ค. ของปีงบปัจจุบันของดาวเทียมนั้น (ผู้ใช้ขอ 2 พ.ย. 69 — เดิมจุดใน 24 ชม.) ชุดเดียวกับตาราง "ปีงบ" */
@@ -1287,7 +1292,7 @@ function openTable(){openModal('ตารางรายละเอียดจ
  $('#dt-rg').onclick=e=>{const b=e.target.closest('button');if(b){DT.rg=b.dataset.v;dtRender()}};$('#dt-sat').onclick=e=>{const b=e.target.closest('button');if(b){DT.sat=b.dataset.v;dtRender()}};
  $('#dt-csv').onclick=dtCSV;$('#dt-pdf').onclick=printReport;afShow();dtRender()}
 function dtRender(){const SL=dtSats();if(DT.sat!=='all'&&!SL.includes(DT.sat))DT.sat='all';
- $('#dt-sat').innerHTML=[['all','ตามปุ่มดาวเทียม'],...SL.map(k=>[k,k==='ind'?'ตัวชี้วัด':SATN[k]])].map(([k,l])=>`<button data-v="${k}"${k==='ind'?' title="ชุดเดียวกับยอดสะสมปีงบในการ์ด: '+(indSpan(fyOfDay(thDay()))?indNote:'ตัวชี้วัด '+indName(thDay()))+'"':''}>${l}</button>`).join('');
+ $('#dt-sat').innerHTML=[['all','ทุกดาวเทียม'],...SL.map(k=>[k,k==='ind'?'ตัวชี้วัด':SATN[k]])].map(([k,l])=>`<button data-v="${k}"${k==='ind'?' title="ชุดเดียวกับยอดสะสมปีงบในการ์ด: '+(indSpan(fyOfDay(thDay()))?indNote:'ตัวชี้วัด '+indName(thDay()))+'"':''}>${l}</button>`).join('');
  $$('#dt-rg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===DT.rg));$$('#dt-sat button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===DT.sat));
  const R=dtRows(),M=300;$('#dt-sum').innerHTML=`<b>${nf(R.length)}</b> จุด · ${esc(dtLabel())}${R.length?' · '+dtSum(R):''}${R.some(r=>r.demo)?' · <span style="color:#8a4200">มีจุดตัวอย่าง '+R.filter(r=>r.demo).length+' จุด</span>':''}`;
  $('#dt-w').innerHTML=R.length?`<table class="dt"><thead><tr><th>#</th><th>วันที่ เวลา</th><th>ดาวเทียม</th><th>ความเชื่อมั่น</th><th>ตำบล / อำเภอ / จังหวัด</th><th>พื้นที่อนุรักษ์</th><th>สถานีฯ ไฟป่า</th><th>พิกัด</th></tr></thead><tbody>${R.slice(0,M).map((r,i)=>`<tr data-i="${i}"${r.demo?' class="dm" title="จุดตัวอย่าง"':''}><td class="n">${i+1}</td><td class="n">${dShort(r.d)} ${hhmmTh(r.t)}</td><td>${SATN[r.sat]||esc(r.sat)}</td><td>${esc(r.cf)}</td><td>${esc([r.tm,r.am,r.pv].filter(v=>v&&v!=='ไม่ระบุ').join(' / ')||'ไม่ระบุ')}</td><td>${esc(paShort(r.ar))}</td><td>${esc(r.st.replace(/^สถานีควบคุมไฟป่า\s*/,''))}</td><td class="n">${r.la.toFixed(4)}, ${r.lo.toFixed(4)}</td></tr>`).join('')}</tbody></table>${R.length>M?`<div class="sm" style="padding:6px 8px">แสดง ${M} จาก ${nf(R.length)} จุด · ดาวน์โหลด CSV เพื่อดูทั้งหมด</div>`:''}`:'<div class="sm" style="padding:12px">ไม่พบจุดความร้อนในช่วงนี้</div>';
@@ -1352,7 +1357,24 @@ $('#bLay').onclick=()=>{closeDetail();$('#right').classList.toggle('open');sync(
 $('#xr').onclick=()=>{$('#right').classList.remove('open');sync();panFit()};
 $('#zi').onclick=()=>wlZoom(1);$('#zo').onclick=()=>wlZoom(-1);$('#bN').onclick=()=>map.resetNorth();
 $('#bHome').onclick=()=>fitHome(true);
-$('#bLoc').onclick=()=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>map.flyTo({center:[p.coords.longitude,p.coords.latitude],zoom:11,duration:dur(1500)}),()=>toast('ไม่สามารถระบุตำแหน่งได้ กรุณาอนุญาตการเข้าถึงตำแหน่ง')):toast('อุปกรณ์ไม่รองรับการระบุตำแหน่ง');
+// ตำแหน่งของฉัน (ผู้ใช้แจ้ง 8 พ.ย. 69: กดแล้วไม่มีสัญลักษณ์) — จุดฟ้า + วงความแม่นยำ ติดตามต่อเนื่องจนกดปิด
+// กดครั้งแรก = เริ่มติดตาม+บินไป · กดเมื่อเปิดอยู่: แผนที่ไม่ได้อยู่ที่ตำแหน่ง = บินกลับ, อยู่แล้ว = ปิด · แตะจุด = ป๊อปอัปตำแหน่ง (ข้อมูลเดียวกับแตะแผนที่)
+const LOC={w:null,m:null,p:null,fly:false};
+function locAccPx(){if(!LOC.m||!LOC.p)return;const[lo,la,acc]=LOC.p,mpp=40075016.686*Math.cos(la*Math.PI/180)/(512*Math.pow(2,map.getZoom())),d=Math.min(3000,Math.max(0,2*acc/mpp)),c=LOC.m.getElement().querySelector('.mla');c.style.width=c.style.height=d+'px';c.style.display=d<20?'none':''}
+function locStop(msg){if(LOC.w!=null)navigator.geolocation.clearWatch(LOC.w);LOC.w=null;if(LOC.m)LOC.m.remove();LOC.m=null;LOC.p=null;$('#bLoc').classList.remove('on');$('#bLoc').setAttribute('aria-pressed','false');if(msg)toast(msg)}
+function locGo(){if(!LOC.p)return;const[lo,la,acc]=LOC.p;map.flyTo({center:[lo,la],zoom:Math.max(map.getZoom(),acc>2000?11:acc>300?13:15),duration:dur(1500),padding:homePad()})}
+function locFix(p){const c=p.coords;LOC.p=[c.longitude,c.latitude,c.accuracy||0];
+ if(!LOC.m){const el=document.createElement('div');el.className='myloc';el.innerHTML='<i class="mla"></i><i class="mlp"></i><i class="mld"></i>';el.title='ตำแหน่งของฉัน';
+  el.addEventListener('click',ev=>{ev.stopPropagation();if(!LOC.p)return;const ll=maplibregl.LngLat.convert(LOC.p);map.fire('click',{lngLat:ll,point:map.project(ll),originalEvent:ev});
+   const pc=[...document.querySelectorAll('.maplibregl-popup-content')].pop();if(pc)pc.insertAdjacentHTML('afterbegin',`<b style="color:#1a73e8">ตำแหน่งของฉัน</b> <span class="sm">ความแม่นยำ ±${nf(Math.round(LOC.p[2]))} ม.</span><br>`)});
+  LOC.m=new maplibregl.Marker({element:el,anchor:'center'}).setLngLat(LOC.p).addTo(map)}
+ else LOC.m.setLngLat(LOC.p);locAccPx();if(LOC.fly){LOC.fly=false;locGo()}}
+map.on('zoom',locAccPx);
+$('#bLoc').onclick=()=>{if(!navigator.geolocation)return toast('อุปกรณ์ไม่รองรับการระบุตำแหน่ง');
+ if(LOC.w!=null){if(!LOC.p)return;const a=map.project(LOC.p),pd=homePad(),W=map.getContainer().clientWidth,H=map.getContainer().clientHeight;
+  const here=Math.hypot(a.x-(pd.left+(W-pd.left-pd.right)/2),a.y-(pd.top+(H-pd.top-pd.bottom)/2))<40&&map.getZoom()>=10.5;return here?locStop('ปิดการแสดงตำแหน่งของฉันแล้ว'):locGo()}
+ $('#bLoc').classList.add('on');$('#bLoc').setAttribute('aria-pressed','true');LOC.fly=true;toast('กำลังหาตำแหน่งของคุณ…');
+ LOC.w=navigator.geolocation.watchPosition(locFix,er=>{if(LOC.p&&er.code!==1)return;locStop(er.code===1?'ไม่ได้รับอนุญาตให้เข้าถึงตำแหน่ง กรุณาอนุญาตในการตั้งค่าเบราว์เซอร์':'ไม่สามารถระบุตำแหน่งได้ ลองใหม่อีกครั้ง')},{enableHighAccuracy:true,maximumAge:10000,timeout:20000})};
 function set3d(b){if(b&&S.wyl)return toast('ปิดชั้นสภาพอากาศ Windy ก่อนใช้มุมมอง 3 มิติ (ภาพ Windy เอียงตามไม่ได้)');S.d3=b;apply();map.easeTo({pitch:b?60:0,duration:dur(900)})}
 $('#b3d').onclick=()=>set3d(!S.d3);
 $('#stats').addEventListener('click',e=>{const t=e.target.closest('.zl');if(t)zoomTo(t.dataset.z)});
@@ -2557,10 +2579,22 @@ function pbPlay(){if(PB.tm)return pbStop();if(!PB.days.length)return toast('ไ�
 function pbExit(){pbStop();PB.on=false;hMap(hfilt())}
 // แผงลอยวางระหว่างการ์ดซ้ายกับปุ่มควบคุมแผนที่ ถ้าที่ไม่พอวางเหนือปุ่มควบคุมแทน
 /* ตำแหน่งกล่องสัญลักษณ์อายุจุด: ชิดขวาเหนือแถวปุ่มควบคุม (มือถือ: เหนือแผ่นล่าง) · แผงขวาเปิด = ไปทางซ้ายของแผง · ชนแถบเล่นย้อน/แถบ Windy = ยกขึ้นเหนือแถบ */
+// มือถือ (ผู้ใช้แจ้ง 8 พ.ย. 69 กล่องใหญ่บังแผนที่): ค่าเริ่มต้นย่อเป็นแถวเดียว (ไอคอน+ตัวเลข) · แตะ = ขยาย/ย่อ · ปัดขวา = ซ่อนเป็นแท็บเล็กชิดขอบ · แตะแท็บ/ปัดซ้าย = กลับมา · จำสถานะ
+let HLGM='cp';try{const v=localStorage.getItem('fm-hlg');if(v==='full'||v==='cp'||v==='hd')HLGM=v}catch(x){}
+function hlgSet(m){HLGM=m;try{localStorage.setItem('fm-hlg',m)}catch(x){}hlgPos()}
+{const e=$('#hlg');let p0=null;
+ e.addEventListener('pointerdown',v=>{if(!e.classList.contains('mb'))return;p0={x:v.clientX,y:v.clientY,id:v.pointerId};try{e.setPointerCapture(v.pointerId)}catch(x){}});
+ e.addEventListener('pointermove',v=>{if(!p0||v.pointerId!==p0.id)return;const dx=v.clientX-p0.x;if(HLGM!=='hd'&&dx>0)e.style.transform='translateX('+dx+'px)';else if(HLGM==='hd'&&dx<0)e.style.transform='translateX('+Math.max(dx,-40)+'px)'});
+ const up=v=>{if(!p0||v.pointerId!==p0.id)return;const dx=v.clientX-p0.x,dy=v.clientY-p0.y;p0=null;e.style.transform='';if(v.type==='pointercancel')return;
+  if(Math.abs(dx)<8&&Math.abs(dy)<8)return hlgSet(HLGM==='hd'?'cp':HLGM==='cp'?'full':'cp');
+  if(dx>40&&HLGM!=='hd'){hlgSet('hd');toast('ซ่อนกล่องอายุจุดความร้อนแล้ว · แตะแท็บที่ขอบขวาเพื่อแสดง')}else if(dx<-30&&HLGM==='hd')hlgSet('cp')};
+ e.addEventListener('pointerup',up);e.addEventListener('pointercancel',up)}
 function hlgPos(){const e=$('#hlg');if(!e||e.hidden)return;const W=innerWidth,H=innerHeight,mob=W<768;let r=12,b;
+ e.classList.toggle('mb',mob);['cp','hd'].forEach(k=>e.classList.toggle(k,mob&&HLGM===k));if(mob){e.setAttribute('role','button');e.setAttribute('aria-expanded',String(HLGM==='full'));e.title=HLGM==='hd'?'แตะเพื่อแสดงอายุจุดความร้อน':'แตะเพื่อ'+(HLGM==='cp'?'ขยาย':'ย่อ')+' · ปัดขวาเพื่อซ่อน'}else{e.setAttribute('role','group');e.removeAttribute('aria-expanded');e.removeAttribute('title')}
+ {const t=$('#c-t');if(t)t.textContent=['r','o','y','b'].reduce((a,k)=>a+(+($('#c-'+k).textContent)||0),0)}
  const PO=$('#right').classList.contains('open')||!$('#ulm').hidden||$('#dp').classList.contains('open');e.classList.toggle('px',PO);if(PO)return; // แผงขวาเปิด = ซ่อนกล่อง เพิ่มพื้นที่แผนที่ (ผู้ใช้ขอ 5 พ.ย. 69)
- if(mob){b=Math.round(H-$('#left').getBoundingClientRect().top)+8;const c=$('#ctl').getBoundingClientRect();if(c.height&&c.bottom>H-b-130)r=Math.round(W-c.left)+8} // มือถือ: ซ้ายของคอลัมน์ปุ่มขวาบน
- else{const c=$('#ctl').getBoundingClientRect();b=Math.round(H-c.top)+10}
+ if(mob){b=Math.round(H-$('#left').getBoundingClientRect().top)+8;const c=$('#ctl').getBoundingClientRect(),hd=HLGM==='hd';if(hd)r=0;if(c.height&&c.bottom>H-b-(hd?40:HLGM==='cp'?44:130))r=Math.round(W-c.left)+8;e.style.borderRadius=hd&&r>0?'99px':''} // มือถือ: ซ้ายของคอลัมน์ปุ่มขวาบน
+ else{e.style.borderRadius='';const c=$('#ctl').getBoundingClientRect();b=Math.round(H-c.top)+10}
  if(mob&&b>H*.75)b=Math.round(H*.4); // แผ่นล่างถูกลากขึ้นเต็ม: ไม่ตามขึ้นไปบนสุด (แผ่นบังอยู่แล้ว)
  e.style.right=r+'px';e.style.bottom=b+'px';const w=e.offsetWidth,hh=e.offsetHeight,x0=W-r-w,x1=W-r;
  ['#pbf','#wyb'].forEach(q=>{const f=$(q);if(!f||f.hidden)return;const q1=f.getBoundingClientRect();if(q1.right>x0&&q1.left<x1&&q1.top<H-b&&q1.bottom>H-b-hh)b=Math.round(H-q1.top)+8});
@@ -3483,15 +3517,19 @@ function visCard(a){const L=KBP.lodge[a.id],Fe=KBP.fee[a.id],C=KBP.cc[a.id];if(!
  const lod=L?`<div class="kb-st g" style="margin-top:4px"><div><b>${nf(L[0])} หลัง</b><span>บ้านพัก</span></div><div><b>${nf(L[1])} หลัง</b><span>ค่ายพักแรม</span></div><div><b>${nf(L[2])} หลัง</b><span>ที่พักรวม</span></div><div><b>${nf(L[3])} คน</b><span>พักได้สูงสุด</span></div></div>`:'';
  const cc=C?`<div class="kb-ch" style="margin-top:6px"><div class="t">ขีดความสามารถรองรับนักท่องเที่ยว (Carrying Capacity)</div><div class="kb-it"><table><thead><tr><th>บริเวณ</th><th>ไป-กลับ (คน/ช่วงเวลา)</th><th>พักค้างคืน (คน)</th></tr></thead><tbody>${C.map(r=>`<tr><td style="white-space:normal">${esc(r[0])}</td><td>${r[1]!=null?nf(r[1]):'–'}</td><td>${r[2]!=null?nf(r[2]):'–'}</td></tr>`).join('')}</tbody></table></div></div>`:'';
  return card('tkt','ข้อมูลสำหรับนักท่องเที่ยว',`<div class="kb-two" style="margin:0">${fee}${veh}</div>${L?'<div class="kb-ch"><div class="t">ที่พักของอุทยาน</div>'+lod+'</div>':''}${cc}<p class="sm" style="margin:6px 0 0">ข้อมูลกรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช (ที่พักของ ${KBP.lodgeN} อุทยาน · อัตราค่าบริการ · ขีดความสามารถรองรับ) นำเข้า 5 พ.ย. 2569 · อัตราอาจเปลี่ยน ตรวจสอบกับอุทยานก่อนเดินทาง</p>`,{bg:'#eef0fb',c:'#1B2A5E',sm:'ค่าเข้า · ที่พัก · การรองรับ'})}
+// แท็บภาพรวม: ที่พักของ 4 อุทยาน (แตะแถว = แท็บพื้นที่)
+function visAll(){const ids=AR.map(x=>x.id).filter(id=>KBP.lodge[id]);if(!ids.length)return'';const t=[0,0,0,0];
+ const rows=ids.map(id=>{const a=AR.find(x=>x.id===id),L=KBP.lodge[id];L.forEach((v,i)=>t[i]+=v);return`<tr data-tab="${id}"><td><i style="background:${a?a.c:'#999'}"></i>${esc(a?a.s:id)}</td><td>${nf(L[0])}</td><td>${nf(L[1])}</td><td>${nf(L[2])}</td><td>${nf(L[3])}</td></tr>`}).join('');
+ return card('tkt','ข้อมูลสำหรับนักท่องเที่ยว',`<div class="kb-ch" style="margin-top:0"><div class="t">ที่พักของอุทยานแห่งชาติ</div><div class="kb-it"><table><thead><tr><th>อุทยานแห่งชาติ</th><th>บ้านพัก (หลัง)</th><th>ค่ายพักแรม (หลัง)</th><th>รวม (หลัง)</th><th>พักได้ (คน)</th></tr></thead><tbody>${rows}<tr class="tt"><td>รวม ${ids.length} อุทยาน</td><td>${nf(t[0])}</td><td>${nf(t[1])}</td><td>${nf(t[2])}</td><td>${nf(t[3])}</td></tr></tbody></table></div></div><p class="sm" style="margin:6px 0 0">ข้อมูลกรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช นำเข้า 5 พ.ย. 2569 · ค่าเข้า ค่ายานพาหนะ และขีดความสามารถรองรับ ดูในแท็บรายพื้นที่ · แตะแถวเพื่อดูรายพื้นที่</p>`,{bg:'#eef0fb',c:'#1B2A5E',sm:'ที่พัก 4 อุทยาน'})}
 // ประชากรเสือโคร่ง (2567) และช้างป่า (ปีงบ 2568) ของพื้นที่ — ใส่ในการ์ดสัตว์ป่า
 function popBox(a){const T=KBP.tiger,E=KBP.ele[a.id],h=[];const nm=ids=>ids.map(i=>(AR.find(x=>x.id===i)||{}).s||i).join(' ');
  if(T&&T.ids.includes(a.id))h.push(`<div><b>${T.min===T.max?nf(T.max):nf(T.min)+'–'+nf(T.max)} ตัว</b><span>เสือโคร่ง สำรวจปี ${T.y} · นับรวมผืนป่า${esc(nm(T.ids))} · ${esc(T.note)}</span></div>`);
  if(E&&KBP.ele.ky&&KBP.ele.ky[0])h.push(`<div><b>${esc(KBP.ele.ky[0])} ตัว</b><span>ช้างป่า ปีงบ 2568 · นับรวมทั้งกลุ่มป่าดงพญาเย็น–เขาใหญ่ (เขาใหญ่ ทับลาน ปางสีดา ตาพระยา ดงใหญ่ และเขตห้ามล่าสัตว์ป่าในกลุ่มป่า) ไม่มีตัวเลขแยกรายพื้นที่</span></div>`);
  return h.length?`<div class="kb-ch" style="margin-top:12px"><div class="t">ประชากรสัตว์ป่าสำคัญ (กรมอุทยานฯ)</div><div class="kb-pop">${h.join('')}</div></div>`:''}
-// แท็บภาพรวม: ประชากรสัตว์ป่าสำคัญ + ที่พักรวม 4 อุทยาน
-function popAll(){const T=KBP.tiger,ky=KBP.ele.ky,[lo,hi,n]=KBP.eleNat,nm=ids=>ids.map(i=>(AR.find(x=>x.id===i)||{}).s||i).join(' '),L=Object.values(KBP.lodge),sl=k=>L.reduce((s,x)=>s+x[k],0);
+// แท็บภาพรวม: ประชากรสัตว์ป่าสำคัญ (ที่พักย้ายไป visAll — ผู้ใช้แจ้ง 8 พ.ย. 69 ว่าวางผิดการ์ด)
+function popAll(){const T=KBP.tiger,ky=KBP.ele.ky,[lo,hi,n]=KBP.eleNat,nm=ids=>ids.map(i=>(AR.find(x=>x.id===i)||{}).s||i).join(' ');
  const kr=ky&&ky[0]?ky[0].split('–').map(Number):null;
- return card('paw','ประชากรสัตว์ป่าสำคัญ',`<div class="kb-pop">${T?`<div><b>${nf(T.max)} ตัว</b><span>เสือโคร่ง สำรวจปี ${T.y} ในผืนป่า${esc(nm(T.ids))} (${esc(T.note)})</span></div>`:''}${kr?`<div><b>${esc(ky[0])} ตัว</b><span>ช้างป่าทั้งกลุ่มป่าดงพญาเย็น–เขาใหญ่ ปีงบ 2568 ≈ ${nf(kr[0]/lo*100,0)}–${nf((kr[1]||kr[0])/hi*100,0)}% ของช้างป่าในพื้นที่อนุรักษ์ทั้งประเทศ (${nf(lo)}–${nf(hi)} ตัว จาก ${n} พื้นที่)</span></div>`:''}<div><b>${nf(sl(2))} หลัง</b><span>ที่พักของ 4 อุทยานแห่งชาติ พักได้ ${nf(sl(3))} คน</span></div></div><p class="sm" style="margin:8px 0 0">ช้างป่า 450–560 ตัว เป็นยอดรวมทั้งกลุ่มป่า (ตารางปีงบ 2568 ลงไว้ที่เขาใหญ่ และรายงานแก้ไขปัญหาช้างป่าระบุว่า “จำนวนรวมกับ” ทุกพื้นที่ในกลุ่มป่า) · ข้อมูลกรมอุทยานฯ นำเข้า 5 พ.ย. 2569</p>`,{bg:'#f4ecfb',c:'#7b5bb6'})}
+ return card('paw','ประชากรสัตว์ป่าสำคัญ',`<div class="kb-pop">${T?`<div><b>${nf(T.max)} ตัว</b><span>เสือโคร่ง สำรวจปี ${T.y} ในผืนป่า${esc(nm(T.ids))} (${esc(T.note)})</span></div>`:''}${kr?`<div><b>${esc(ky[0])} ตัว</b><span>ช้างป่าทั้งกลุ่มป่าดงพญาเย็น–เขาใหญ่ ปีงบ 2568 ≈ ${nf(kr[0]/lo*100,0)}–${nf((kr[1]||kr[0])/hi*100,0)}% ของช้างป่าในพื้นที่อนุรักษ์ทั้งประเทศ (${nf(lo)}–${nf(hi)} ตัว จาก ${n} พื้นที่)</span></div>`:''}</div><p class="sm" style="margin:8px 0 0">ช้างป่า 450–560 ตัว เป็นยอดรวมทั้งกลุ่มป่า (ตารางปีงบ 2568 ลงไว้ที่เขาใหญ่ และรายงานแก้ไขปัญหาช้างป่าระบุว่า “จำนวนรวมกับ” ทุกพื้นที่ในกลุ่มป่า) · ข้อมูลกรมอุทยานฯ นำเข้า 5 พ.ย. 2569</p>`,{bg:'#f4ecfb',c:'#7b5bb6'})}
 function hero(a){const f=a.c&&fOf(a),rai=f?f.properties.rai:GEO.cons.features.reduce((s,f)=>s+f.properties.rai,0),
   k=a.id==='all'?a.kpi:a.id==='ft'?null:[[nf(rai),'ไร่ ตามแนวเขต'],[nf(rai/625),'ตร.กม.'],...a.kpi];
  return`<div class="kb-tags"><span class="kb-tag">${esc(a.kd||(f?f.properties.kindTh:''))}</span>${a.tags.map(([t,au])=>`<span class="kb-tag${au?' au':''}">${au?'★ ':''}${esc(t)}</span>`).join('')}</div><h2>${esc(a.sn||a.n)}</h2><div class="kb-en">${esc(a.en)}</div><p>${esc(a.lead)}</p>${k?`<div class="kb-kpi">${k.map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join('')}</div>`:'<div class="kb-kpi" id="kb-ftk"></div>'}
@@ -3513,6 +3551,7 @@ function allCards(a){const{L}=hot(null),tot=GEO.cons.features.reduce((s,f)=>s+f.
  +popAll()
  +hecCard(null)
  +incCard(null)
+ +visAll()
  +fireCard(null)
  +card('heart','ร่วมปกป้องผืนป่า',`${lis(['ไม่จุดไฟหรือเผาขยะ เศษพืชในป่าและพื้นที่ติดป่า โดยเฉพาะช่วง ม.ค.–เม.ย.','ทิ้งก้นบุหรี่และดับกองไฟให้สนิททุกครั้ง','พบไฟป่าหรือการลักลอบตัดไม้ ล่าสัตว์ แจ้งสายด่วนกรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช 1362','ขับรถช้าและให้ทางสัตว์ป่า ไม่ให้อาหารสัตว์ป่า','นำขยะกลับออกมาทุกชิ้น'])}<div class="kb-hot"><b>1362</b><span>สายด่วนกรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช<br>แจ้งไฟป่า · การลักลอบ · สัตว์ป่าเดือดร้อน</span></div>`,{bg:'#fdeef3',c:'#d0658c'})}
 function ftCards(){const{mo}=hot(null),top=[...mo.keys()].sort((x,y)=>mo[y]-mo[x]).slice(0,4);
