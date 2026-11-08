@@ -168,12 +168,13 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .maplibregl-ctrl-bottom-right{bottom:calc(86px + env(safe-area-inset-bottom))!important;right:max(6px,env(safe-area-inset-right))!important}
 /* เครื่องมือวัดระยะทาง/พื้นที่ (#bMs) */
 #map.msr .maplibregl-canvas-container.maplibregl-interactive{cursor:crosshair}#map.msr .fsm,#map.msr .wpm,#map.msr .stm{pointer-events:none}
-#msr{position:fixed;z-index:8;top:calc(56px + env(safe-area-inset-top));left:calc(50% + var(--lw) / 2);transform:translateX(-50%);width:min(330px,calc(100vw - 24px));padding:8px 12px 12px;border-radius:16px}#msr[hidden],#mhud[hidden]{display:none}
+#msr{position:fixed;z-index:8;top:calc(12px + env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));width:min(300px,calc(100vw - 24px));padding:7px 12px 10px;border-radius:16px} /* เดสก์ท็อป: ขวาบนเสมอขอบบนของแผงซ้าย · แผงขวาเปิด = ถัดจากแผงออกมา (msPos) */#msr[hidden],#mhud[hidden]{display:none}
 .msh{display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:2px}.msh b{flex:1;color:var(--navy)}.msh .i{color:#0b6bcb}
 .msrw{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:2px 0}.msrw span{flex:none;color:var(--mut)}.msrw b{min-width:0;text-align:right}.msrw.mbig b{font-size:16px;color:var(--navy)}.msrw.msub b{color:var(--navy)}
-.msa{font-size:19px;font-weight:800;color:var(--navy);margin:2px 0 4px}
-.msl{display:grid;grid-template-columns:auto 1fr;gap:1px 10px;font-size:12px;max-height:120px;overflow:auto;margin-top:4px;border-top:1px solid var(--line);padding-top:4px}.msl span{color:var(--mut)}.msl b{text-align:right;font-weight:600}
-.msbt{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.msbt .btn{min-height:32px;padding:0 10px;box-shadow:none;border:1px solid var(--line);font-size:12.5px}
+.msa{font-size:17px;font-weight:800;color:var(--navy);margin:0 0 3px;line-height:1.35}
+.msk{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:1px 8px;font-size:12px;align-items:baseline;line-height:1.5}.msk span{color:var(--mut);white-space:nowrap}.msk b{text-align:right;white-space:nowrap;font-weight:700}.msk b.w{grid-column:span 3}
+.msl{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:1px 8px;font-size:12px;max-height:84px;overflow:auto;margin-top:4px;border-top:1px solid var(--line);padding-top:4px}.msl span{color:var(--mut)}.msl b{text-align:right;font-weight:600}
+.msbt{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.msbt .btn{min-height:28px;padding:0 10px;box-shadow:none;border:1px solid var(--line);font-size:12px}#msr .sm{font-size:11.5px;line-height:1.45;margin-top:3px}
 #mhud{position:fixed;z-index:59;pointer-events:none;background:rgba(24,31,48,.92);color:#fff;border-radius:10px;padding:6px 10px;font-size:12px;line-height:1.45;max-width:270px;box-shadow:0 6px 20px rgba(0,0,0,.25)}#mhud b{display:block;font-size:14px}#mhud span{display:block;color:#cfd6e6}#mhud i{display:block;font-style:normal;color:#a9bfff;font-size:11.5px;margin-top:2px}
 .msv{width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #0b6bcb;color:#0b3b75;font:800 11px/18px 'Noto Sans Thai',sans-serif;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.35)}.msv.m1{background:#0b6bcb;color:#fff;border-color:#fff}.msv.hot{box-shadow:0 0 0 7px rgba(11,107,203,.35),0 1px 3px rgba(0,0,0,.35)}.msv{cursor:grab;touch-action:none}.msv::before{content:'';position:absolute;inset:-8px;border-radius:50%}.msv.drag{cursor:grabbing;box-shadow:0 0 0 8px rgba(11,107,203,.3),0 2px 6px rgba(0,0,0,.4)}body.mstc .msv::before{inset:-14px}
 #mcross{position:fixed;z-index:5;width:48px;height:48px;margin:-24px 0 0 -24px;pointer-events:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}#mcross[hidden]{display:none}#mcross svg{display:block;width:100%;height:100%}#mcross.hot g g:last-child circle{stroke:#0b6bcb}
@@ -206,6 +207,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .uldf{font-size:12.5px;padding-bottom:10px}.uldf .msrw{padding:1px 0}.uldf input[type=text],.uldf textarea,.uldf select,.ula input[type=text],.ula input[type=password],.ula textarea,.ula select{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;padding:6px 9px;font:13px 'Noto Sans Thai',sans-serif;background:var(--bg);color:var(--ink)}.uldf textarea,.ula textarea{min-height:52px;resize:vertical}
 .uldf .lb{display:block;font-size:11.5px;color:var(--mut);margin:6px 0 2px}
 .ulsw{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.ulsw button{width:24px;height:24px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line);cursor:pointer;padding:0}.ulsw button[aria-pressed=true]{box-shadow:0 0 0 2px var(--navy)}.ulsw input[type=color]{width:30px;height:26px;border:0;padding:0;background:none;cursor:pointer}
+.udco{margin:2px 0 8px;font-size:12.5px}.udco summary{cursor:pointer;color:#0b6bcb;font-weight:600;font-size:12.5px}.udco .seg{margin:6px 0}.udco .seg button{min-height:30px}.udco textarea{width:100%;box-sizing:border-box;min-height:62px;border:1px solid var(--line);border-radius:10px;padding:6px 9px;font:12.5px/1.45 ui-monospace,Consolas,monospace;resize:vertical}.udco select{border:1px solid var(--line);border-radius:8px;padding:3px 6px;font:12.5px 'Noto Sans Thai',sans-serif;margin-left:6px}.udco .err{color:#b42318;font-size:12px;white-space:pre-line}.udco .sm{font-size:11.5px;margin:4px 0}
 .ulkv{display:grid;grid-template-columns:1fr 1.4fr 22px;gap:4px;margin-top:4px}.ulkv input{min-width:0;border:1px solid var(--line);border-radius:8px;padding:4px 6px;font:12px 'Noto Sans Thai',sans-serif}.ulkv button{border:0;background:none;color:var(--mut);cursor:pointer;font-size:15px;padding:0}
 .ulst{font-size:12.5px;color:var(--mut);margin:0 0 6px}.ulst b{color:var(--navy)}
 .udm{width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid #0b6bcb;opacity:.75;cursor:copy;touch-action:none;box-shadow:0 1px 2px rgba(0,0,0,.3)}.udm::before{content:'';position:absolute;inset:-8px;border-radius:50%}body.mstc .udm::before{inset:-12px}.udm:hover{opacity:1}
@@ -3705,18 +3707,34 @@ function msLive(i){const P=MS.pts,n=P.length;msGeo();
  if(MS.closed){const A=msArea(P);h+=`<span>พื้นที่ ${msRai(A)}</span>`}else if(n>1)h+=`<span>ระยะรวม ${msDS(msLen(P))}</span>`;
  const p=map.project(P[i]),r=map.getContainer().getBoundingClientRect();msHudPut(h+'<i>ปล่อยเพื่อวางจุด</i>',r.left+p.x,r.top+p.y,msTouch())}
 /* แผงผล #msr */
+const msDL=m=>m<1000?msNf(m,1)+' ม.':msNf(m/1000,3)+' กม.'; // ระยะละเอียดถึงเมตร (แผงผล)
 function msPanel(){const b=$('#ms-b'),P=MS.pts,n=P.length,tc=msTouch(),L=msLen(P,MS.closed);let h='';
- const row=(k,v,c)=>`<div class="msrw${c?' '+c:''}"><span>${k}</span><b>${v}</b></div>`;
- if(MS.done&&MS.closed){const A=msArea(P);h=`<div class="msa">${msRai(A)}</div>`+row('ตารางเมตร',msM2(A))+row('ตารางกิโลเมตร',msK2(A))+row('เส้นรอบรูป',msDF(L))+row('จำนวนจุด',n+' จุด')}
- else if(MS.done){h=row('ระยะทางรวม',msNf(L,1)+' ม.','mbig')+row('',msNf(L/1000,3)+' กม.','mbig')+row('จำนวนจุด',n+' จุด · '+(n-1)+' ช่วง');
+ const kv=(...a)=>'<div class="msk">'+a.map(([k,v,w])=>`<span>${k}</span><b${w?' class="w"':''}>${v}</b>`).join('')+'</div>'; // ตาราง 2 คู่ต่อแถว (กระชับ ผู้ใช้ขอ 8 พ.ย. 69)
+ if(MS.done&&MS.closed){const A=msArea(P);h=`<div class="msa">${msRai(A)}</div>`+kv(['ตร.ม.',msNf(A,A<10000?1:0)],['ตร.กม.',msK2(A).replace(' ตร.กม.','')],['เส้นรอบรูป',msDL(L)],['จำนวนจุด',n])}
+ else if(MS.done){h=`<div class="msa">${msDL(L)}</div>`+kv(['เมตร',msNf(L,1)],['จำนวนจุด',n+' · '+(n-1)+' ช่วง']);
   if(n>2)h+='<div class="msl">'+P.slice(1).map((p,i)=>`<span>${i+1}→${i+2}</span><b>${msDS(msDist(P[i],p))}</b>`).join('')+'</div>'}
  else if(!n)h=`<div class="sm">${tc?'เลื่อนแผนที่ให้กากบาทตรงตำแหน่ง แล้วกด + เพิ่มจุด (หรือแตะบนแผนที่)':'คลิกบนแผนที่เพื่อวางจุดวัดจุดที่ 1'}</div>`;
- else{h=row('ระยะทางรวม',n>1?msDF(L):'—')+row('จำนวนจุด',n+' จุด');if(n>2)h+=row('ถ้าปิดเป็นรูป',msRai(msArea(P)),'msub');
-  h+=`<div class="sm">${tc?'เลื่อนแผนที่ให้กากบาทตรงตำแหน่ง แล้วกด + เพิ่มจุด · ลากจุดเพื่อย้าย':'คลิกเพื่อเพิ่มจุด · ดับเบิลคลิกเพื่อจบ'+(n>2?' · คลิกจุดที่ 1 เพื่อปิดรูป':'')+' · ลากจุดเพื่อย้าย'}</div>`}
- if(MS.done)h+=`<div class="sm">ลากจุดเพื่อปรับตำแหน่ง ผลจะคำนวณใหม่ทันที</div>`;
+ else{h=kv(['ระยะรวม',n>1?msDL(L):'—'],['จำนวนจุด',n]);if(n>2)h+=kv(['ถ้าปิดเป็นรูป',msRai(msArea(P)),1]);
+  if(tc)h+='<div class="sm">เลื่อนแผนที่ให้กากบาทตรงตำแหน่ง แล้วกด + เพิ่มจุด · ลากจุดเพื่อย้าย</div>'} // เมาส์มีคำแนะนำใน HUD แล้ว
  const B=[];if(!MS.done&&tc)B.push('<button class="btn pri" data-ms="a">+ เพิ่มจุด</button>');if(!MS.done&&n)B.push('<button class="btn" data-ms="u">↶ ย้อนจุด</button>');if(!MS.done&&n>1)B.push('<button class="btn" data-ms="f">จบ</button>');
  if(!MS.done&&n>2)B.push('<button class="btn" data-ms="c">ปิดรูปพื้นที่</button>');if(MS.done)B.push('<button class="btn" data-ms="n">วัดใหม่</button><button class="btn" data-ms="y">คัดลอกผล</button>');else if(n)B.push('<button class="btn" data-ms="r">ล้าง</button>');
- b.innerHTML=h+(B.length?'<div class="msbt">'+B.join('')+'</div>':'');$('#ms-t').textContent=MS.done?(MS.closed?'ขนาดพื้นที่':'ระยะทาง'):'วัดระยะทางและพื้นที่'}
+ b.innerHTML=h+(B.length?'<div class="msbt">'+B.join('')+'</div>':'');$('#ms-t').textContent=MS.done?(MS.closed?'ขนาดพื้นที่':'ระยะทาง'):'วัดระยะทางและพื้นที่';
+ $('#msr').title=MS.done?'ลากจุดเพื่อปรับตำแหน่ง ผลคำนวณใหม่ทันที':''}
+/* ตำแหน่งแผงผล (เดสก์ท็อป): ขวาบน · แผงขวา (ชั้นข้อมูล/เครื่องมือวาด/รายละเอียดจุด) เปิด = ถัดจากแผงออกมา (ผู้ใช้ขอ 8 พ.ย. 69) · ตำแหน่งตามเลย์เอาต์ offsetLeft ไม่นับ transform ระหว่างเลื่อน */
+const RPAN=[['#right','open'],['#dp','open'],['#ulm']],rpOn=([q,c])=>{const p=$(q);return p&&(c?p.classList.contains(c):!p.hidden)&&p.offsetWidth>0};
+function msPos(){const e=$('#msr');if(!e||e.hidden)return;if(innerWidth<=767){e.style.right=e.style.width='';return}
+ let r=12;RPAN.forEach(x=>{if(rpOn(x)){const p=$(x[0]);r=Math.max(r,innerWidth-p.offsetLeft+12)}});
+ const l=$('#left'),lr=l&&!document.body.classList.contains('lc')&&l.offsetWidth?l.offsetLeft+l.offsetWidth:0,av=innerWidth-r-lr-12;
+ e.style.right=r+'px';e.style.width=(av<300?Math.max(240,av):300)+'px'}
+['#right','#dp','#ulm'].forEach(q=>{const p=$(q);if(p)new MutationObserver(msPos).observe(p,{attributes:true,attributeFilter:['class','hidden']})});
+addEventListener('resize',msPos);
+/* จุดเล็งกลางพื้นที่แผนที่ที่มองเห็น (ไม่นับแผงซ้าย/ขวาบนเดสก์ท็อป-แท็บเล็ต) · ถ้าแผงของเครื่องมือ tp บังจุดกลาง เลื่อนไปกลางส่วนที่เหลือ (ผู้ใช้แจ้ง 8 พ.ย. 69 ว่ากากบาทไม่อยู่กลางจอบนมือถือ/แท็บเล็ต) */
+function crossPt(tp){const m=map.getContainer().getBoundingClientRect();let x0=Math.max(0,m.left),x1=Math.min(innerWidth,m.right),y0=Math.max(0,m.top),y1=Math.min(innerHeight,m.bottom);
+ if(innerWidth>767){const l=$('#left'),lr=l&&l.offsetWidth&&!document.body.classList.contains('lc')?l.getBoundingClientRect().right:0;if(lr>x0+20&&lr<x1-200)x0=lr;
+  RPAN.forEach(x=>{if(rpOn(x)){const q=$(x[0]).getBoundingClientRect().left;if(q>x0+200)x1=Math.min(x1,q)}})}
+ let x=(x0+x1)/2,y=(y0+y1)/2;const r=tp&&!tp.hidden&&tp.getBoundingClientRect();
+ if(r&&r.width&&x>r.left-30&&x<r.right+30&&y>r.top-40&&y<r.bottom+40)y=r.top+r.height/2<(y0+y1)/2?(r.bottom+y1)/2:(y0+r.top)/2;
+ return{x,y,pt:{x:x-m.left,y:y-m.top}}}
 function msText(){const P=MS.pts,L=msLen(P,MS.closed),pt=P.map((p,i)=>`${i+1}. ${p[1].toFixed(6)}, ${p[0].toFixed(6)}`).join('\n');
  if(MS.closed){const A=msArea(P);return`พื้นที่ ${msRai(A)}\n${msM2(A)} · ${msK2(A)}\nเส้นรอบรูป ${msDF(L)}\nพิกัดจุด (ละติจูด, ลองจิจูด)\n${pt}`}
  return`ระยะทางรวม ${msDF(L)}\nพิกัดจุด (ละติจูด, ลองจิจูด)\n${pt}`}
@@ -3731,7 +3749,7 @@ function msHudTxt(tc){const P=MS.pts,n=P.length,k=tc?'กด + เพิ่ม�
 function msHud(e){if(!MS.on||!e||msTouch()||MS.drag!=null){if(!msTouch())$('#mhud').hidden=true;return}
  msHudPut(MS.done?'<i>คลิกเพื่อเริ่มวัดใหม่ · ลากจุดเพื่อย้าย · Esc ปิดเครื่องมือ</i>':msHudTxt(0),e.originalEvent.clientX,e.originalEvent.clientY)}
 /* กากบาทกลางพื้นที่แผนที่ที่มองเห็น (เฉพาะอุปกรณ์ไม่มีเมาส์ชี้) — เลื่อนแผนที่ให้ตรงเป้าแล้วกด + เพิ่มจุด */
-function msCrossPt(){const pb=$('#msr').getBoundingClientRect().bottom,r=map.getContainer().getBoundingClientRect(),x=innerWidth/2,y=(Math.max(pb,r.top)+Math.min(innerHeight,r.bottom))/2;return{x,y,pt:{x:x-r.left,y:y-r.top}}}
+const msCrossPt=()=>crossPt($('#msr'));
 function msCross(){const X=$('#mcross'),on=MS.on&&msTouch()&&!MS.done;X.hidden=!on;if(!on){if(msTouch())$('#mhud').hidden=true;return}
  const c=msCrossPt(),P=MS.pts,n=P.length;X.style.left=c.x+'px';X.style.top=c.y+'px';
  const s=n>2&&msNear(P[0],c.pt,22);if(s!==MS.snap){MS.snap=s;const m=MS.mk[0];m&&m.getElement().classList.toggle('hot',s)}X.classList.toggle('hot',s);
@@ -3744,7 +3762,7 @@ function msReset(){MS.pts=[];MS.done=MS.closed=MS.snap=false;MS.cur=null;msDraw(
 function msAdd(ll,pt,r){const P=MS.pts,n=P.length; // ll=[lon,lat], pt=จุดบนจอ, r=ระยะดูดเข้าจุดที่ 1 (px)
  if(MS.done)msReset();else if(n>2&&msNear(P[0],pt,r))return msFinish(1);else if(n&&msNear(P[n-1],pt,5))return; // ซ้ำจุดล่าสุด = คลิกที่สองของดับเบิลคลิก
  MS.pts.push(ll);MS.cur=ll;msDraw(1)}
-function msSet(on){if(on===MS.on)return;MS.on=on;if(on&&typeof UD!=='undefined'&&UD.m)udSet(null);if(on&&map.getSource('dem'))msLayers();const b=$('#bMs');b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);$('#map').classList.toggle('msr',on);document.body.classList.toggle('msron',on);$('#msr').hidden=!on;
+function msSet(on){if(on===MS.on)return;MS.on=on;if(on&&typeof UD!=='undefined'&&UD.m)udSet(null);if(on&&map.getSource('dem'))msLayers();const b=$('#bMs');b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);$('#map').classList.toggle('msr',on);document.body.classList.toggle('msron',on);$('#msr').hidden=!on;msPos();
  if(on){MS.dz=map.doubleClickZoom.isEnabled();map.doubleClickZoom.disable();$$('.maplibregl-popup').forEach(p=>p.remove());if(typeof hcSpider==='function'&&typeof HCS!=='undefined'&&HCS)hcSpider(null);msReset()}
  else{if(MS.dz)map.doubleClickZoom.enable();MS.pts=[];MS.done=MS.closed=MS.snap=false;MS.cur=null;MS.drag=null;msGeo();MS.mk.forEach(m=>m.remove());MS.bd.forEach(m=>m.remove());MS.mk=[];MS.bd=[];$('#mhud').hidden=true;msCross()}}
 function msBusy(){return MS.on||typeof udBusy==='function'&&udBusy()} // เครื่องมือวาด (#bUl) จัดการคลิกเองด้วย
@@ -4073,7 +4091,7 @@ async function toSHP(L,crs,zname){const fn=crsFwd(crs),P=fn?(p=>fn(p[0],p[1])):(
   S.forEach(([k2,t,suf])=>{const A=grp[k2],nm=one?k:k+'_'+suf,{shp,shx}=shpW(A.map(a=>a[0]),t);
    const db=dbfW(A.map(a=>a[1]));db.F.forEach(f=>{if(f.n!==f.k)cut.push(nm+'.dbf: '+f.n+' = '+f.k)});files.push({name:nm+'.shp',data:shp},{name:nm+'.shx',data:shx},{name:nm+'.dbf',data:db},{name:nm+'.prj',data:fn?prjUTM(+crs-32600):PRJ[4326]},{name:nm+'.cpg',data:'UTF-8'})})}
  if(!files.length)throw Error('ไม่มีวัตถุให้ส่งออก');if(cut.length)files.push({name:'ชื่อคอลัมน์เต็ม.txt',data:'\ufeffDBF จำกัดชื่อคอลัมน์ 10 ไบต์ (ภาษาไทย ~3 ตัวอักษร) — ชื่อในไฟล์ = ชื่อเต็ม\r\n'+cut.join('\r\n')+'\r\n'});return zip(files)}
-return{load,unzip,zip,toKML,toKMZ,toSHP,toGeoJSON,toGPX,toCSV,toWKT,bbox,readSHP,readDBF,readKML,readGPX,readCSV,readJSON,crsWkt,crsCode,utm,utmFwd,TM,WGS,toW,EV30,IND75,dec,wkt,rings,ra}})();
+return{dms,load,unzip,zip,toKML,toKMZ,toSHP,toGeoJSON,toGPX,toCSV,toWKT,bbox,readSHP,readDBF,readKML,readGPX,readCSV,readJSON,crsWkt,crsCode,utm,utmFwd,TM,WGS,toW,EV30,IND75,dec,wkt,rings,ra}})();
 </script>
 <script>
 /* ===== เครื่องมือวาด (ปักหมุด/เส้นทาง/รูปหลายเหลี่ยม) + Layer Manager + ชั้นข้อมูลจากเซิร์ฟเวอร์ (ปุ่ม #bUl, ผู้ใช้ขอ 4 พ.ย. 69) =====
@@ -4225,9 +4243,39 @@ function udGeom(){const P=UD.pts;return UD.m==='pt'?{type:'Point',coordinates:P[
 function udMeasHtml(){const n=UD.pts.length;if(UD.m==='at'&&UD.g0)return ulMeas(UD.g0);if(!n)return[];if(UD.form)return ulMeas(udGeom());
  if(UD.m==='ln')return[['ระยะทาง',n>1?msDF(msLen(UD.pts)):'—'],['จำนวนจุด',n+' จุด']];
  if(UD.m==='pg')return[['เส้นรอบรูป',n>1?msDF(msLen(UD.pts,n>2)):'—'],['พื้นที่',n>2?msRai(msArea(UD.pts)):'—']];return[]}
-function udMeasure(){const el=$('#ud-ms');if(el)el.innerHTML=udMeasHtml().map(([a,b])=>`<div class="msrw"><span>${a}</span><b>${b}</b></div>`).join('')}
+function udMeasure(){const t=UD.form&&$('#ud-ct');if(t&&document.activeElement!==t)t.value=udCoFmt(UD.pts);const el=$('#ud-ms');if(el)el.innerHTML=udMeasHtml().map(([a,b])=>`<div class="msrw"><span>${a}</span><b>${b}</b></div>`).join('')}
 const udTxt=(s,n)=>String(s==null?'':s).replace(/"/g,'&quot;').replace(/</g,'&lt;');
 function udKV(){const el=$('#ud-kv');if(!el)return;el.innerHTML=UD.kv.map(([a,b],i)=>`<input data-kv="${i}" data-j="0" value="${udTxt(a)}" placeholder="หัวข้อ" aria-label="หัวข้อ"><input data-kv="${i}" data-j="1" value="${udTxt(b)}" placeholder="ค่า" aria-label="ค่า"><button data-kvx="${i}" aria-label="ลบรายการ">×</button>`).join('')}
+/* ป้อนพิกัดเอง (ผู้ใช้ขอ 8 พ.ย. 69): ละติจูด/ลองจิจูด (ทศนิยมหรือองศา ลิปดา ฟิลิปดา) หรือ UTM 47N/48N บรรทัดละ 1 จุด · ขณะวาด = เพิ่มต่อท้าย · หลังจบ = แทนที่ทั้งหมด (แก้ตัวเลขในกล่อง) */
+const UDCO=Object.assign({f:'ll',z:47},ulLS('fm-udco')||{});
+function udCoFmt(P){return P.map(p=>UDCO.f==='ll'?p[1].toFixed(6)+', '+p[0].toFixed(6):GIO.utmFwd(UDCO.z).fwd(p[0],p[1]).map(v=>Math.round(v)).join(' ')).join('\n')}
+function udCoParse(t){const P=[],E=[];String(t).split(/\r?\n|;/).map(x=>x.trim()).filter(Boolean).forEach((x,i)=>{const no='บรรทัด '+(i+1)+': ';
+  if(UDCO.f==='ll'){let q=x.includes(',')?x.split(','):x.split(/\s+/);if(q.length!==2){E.push(no+'ต้องมี 2 ค่า ละติจูด, ลองจิจูด');return}
+   let la=GIO.dms(q[0]),lo=GIO.dms(q[1]);if(!isFinite(la)||!isFinite(lo)){E.push(no+'อ่านตัวเลขไม่ได้');return}
+   if(Math.abs(la)>90||la>=97&&la<=106&&lo>=5&&lo<=21)[la,lo]=[lo,la]; // ใส่สลับ
+   if(Math.abs(la)>90||Math.abs(lo)>180){E.push(no+'ค่าอยู่นอกช่วงละติจูด/ลองจิจูด');return}P.push([lo,la])}
+  else{const n=(x.replace(/(?<=\d),(?=\d{3}(?!\d))/g,'').match(/\d+(?:\.\d+)?/g)||[]).map(Number);let z=UDCO.z,e,y;
+   if(n.length===3&&n[0]>=1&&n[0]<=60){z=n[0];e=n[1];y=n[2]}else if(n.length===2){e=n[0];y=n[1]}else{E.push(no+'ต้องมี 2 ค่า E N (หรือ โซน E N)');return}
+   if(e<100000||e>900000||y<0||y>9400000){E.push(no+'ค่า E ต้องอยู่ระหว่าง 100,000–900,000 และ N เป็นเมตรจากเส้นศูนย์สูตร');return}P.push(GIO.utm(z)(e,y))}});
+ return{P,E}}
+function udCoBox(){if(!UD.m||UD.m==='at')return'';const f=UD.form,lab=UD.m==='pt'?(f?'แก้พิกัดหมุด':'ปักหมุดตามพิกัด'):f?'แก้พิกัดทุกจุด':'เพิ่มจุดตามพิกัด';
+ const ex=UDCO.f==='ll'?'14.412345, 101.512345\n14°24\'44"N, 101°30\'44"E':'812345 1612345\n48 188000 1600000  (ระบุโซนหน้าค่าได้)';
+ return`<details class="udco" id="ud-co"${UD.co?' open':''}><summary>ป้อนพิกัดเอง</summary>
+  <div class="seg" role="group" aria-label="รูปแบบพิกัด"><button data-cf="ll" aria-pressed="${UDCO.f==='ll'}"${UDCO.f==='ll'?' class="on"':''}>ละติจูด, ลองจิจูด</button><button data-cf="utm" aria-pressed="${UDCO.f==='utm'}"${UDCO.f==='utm'?' class="on"':''}>UTM (E N)</button></div>
+  ${UDCO.f==='utm'?`<label style="font-size:12px">โซน<select id="ud-cz"><option value="47"${UDCO.z==47?' selected':''}>47N (ตะวันตกของ 102°)</option><option value="48"${UDCO.z==48?' selected':''}>48N (ตะวันออกของ 102°)</option></select></label> <span class="sm">WGS84</span>`:''}
+  <textarea id="ud-ct" spellcheck="false" aria-label="พิกัด บรรทัดละ 1 จุด" placeholder="${esc(ex)}">${udTxt(f?udCoFmt(UD.pts):UD.ct||'')}</textarea>
+  <div class="sm">${UD.m==='pt'?'1 บรรทัด':'บรรทัดละ 1 จุด เรียงตามลำดับ'}${f?' · แก้ตัวเลขแล้วกดปุ่ม':''}</div><div class="err" id="ud-ce"></div>
+  <div class="msbt" style="margin-top:4px"><button class="btn pri" data-ua="co">${lab}</button></div></details>`}
+function udCoGo(){const{P,E}=udCoParse(($('#ud-ct')||{}).value||''),e=$('#ud-ce');if(E.length){e.textContent=E.slice(0,4).join('\n')+(E.length>4?'\n…อีก '+(E.length-4)+' บรรทัด':'');return}
+ if(!P.length){e.textContent='ยังไม่ได้ใส่พิกัด';return}const m=UD.m;let Q=P;
+ if(m==='pg'&&Q.length>1){const a=Q[0],b=Q[Q.length-1];if(Math.abs(a[0]-b[0])<1e-9&&Math.abs(a[1]-b[1])<1e-9)Q=Q.slice(0,-1)} // ใส่จุดปิดซ้ำจุดแรกมา
+ if(m==='pt'){if(Q.length>1){e.textContent='ปักหมุดได้ทีละ 1 จุด — ใส่พิกัดบรรทัดเดียว';return}UD.pts=[Q[0]];UD.form=true}
+ else if(UD.form){if(m==='ln'&&Q.length<2||m==='pg'&&Q.length<3){e.textContent=m==='pg'?'รูปหลายเหลี่ยมต้องมีอย่างน้อย 3 จุด':'เส้นทางต้องมีอย่างน้อย 2 จุด';return}UD.pts=Q.map(p=>p.slice())}
+ else{UD.pts.push(...Q.map(p=>p.slice()));UD.ct=''}
+ UD.co=true;udMarks();udGeo();udPanel();udCross();
+ const b=GIO.bbox([{geometry:{type:'MultiPoint',coordinates:UD.pts}}]),v=map.getBounds();
+ if(b&&!(v.contains([b[0],b[1]])&&v.contains([b[2],b[3]])))b[0]===b[2]&&b[1]===b[3]?map.easeTo({center:[b[0],b[1]],zoom:Math.max(map.getZoom(),14),duration:dur(700)}):map.fitBounds([[b[0],b[1]],[b[2],b[3]]],{padding:homePad(),maxZoom:16,duration:dur(700)});
+ toast(m==='pt'?'ปักหมุดตามพิกัดแล้ว':(UD.form?'ปรับตามพิกัดแล้ว ':'เพิ่ม '+Q.length+' จุดแล้ว ')+'(รวม '+UD.pts.length+' จุด)')}
 function udPanel(){const d=$('#ul-d'),tc=msTouch(),n=UD.pts.length;$('#ulm').classList.toggle('form',!!UD.m&&UD.form);$('#ul-t').textContent=UD.m?(UD.ed?'แก้ไข':'วาด')+UDN[UD.m]:'เครื่องมือวาดและชั้นข้อมูล';
  if(!UD.m){d.innerHTML='';return}
  if(!UD.form){let h='';
@@ -4235,9 +4283,9 @@ function udPanel(){const d=$('#ul-d'),tc=msTouch(),n=UD.pts.length;$('#ulm').cla
   else h=`<div class="uldf"><div id="ud-ms"></div><p class="ulst" style="margin-top:4px">${!n?(tc?'เลื่อนแผนที่ให้กากบาทตรงจุดเริ่มต้น แล้วกด <b>+ เพิ่มจุด</b>':'<b>คลิกบนแผนที่</b>เพื่อวางจุดแรก'):tc?'กด + เพิ่มจุด ทีละจุด แล้วกด <b>จบ</b>':'คลิกเพิ่มจุด · <b>ดับเบิลคลิก</b>หรือ Enter เพื่อจบ'+(UD.m==='pg'&&n>2?' · คลิกจุดที่ 1 เพื่อปิดรูป':'')+' · Backspace ย้อนจุด'}</p></div>`;
   const B=[];if(tc)B.push(`<button class="btn pri" data-ua="add">${UD.m==='pt'?'ปักหมุดที่กากบาท':'+ เพิ่มจุด'}</button>`);if(n&&UD.m!=='pt')B.push('<button class="btn" data-ua="undo">↶ ย้อนจุด</button>');
   if(UD.m==='ln'&&n>1||UD.m==='pg'&&n>2)B.push('<button class="btn" data-ua="fin">จบ</button>');B.push('<button class="btn" data-ua="stop">ยกเลิก</button>');
-  d.innerHTML=h+`<div class="msbt" style="margin:0 0 10px">${B.join('')}</div>`;udMeasure();return}
+  d.innerHTML=h+`<div class="msbt" style="margin:0 0 8px">${B.join('')}</div>`+udCoBox();udMeasure();return}
  const loc=UL.L,opts=loc.map(l=>`<option value="${l.id}"${l.id===(UD.tg||UL.tg)?' selected':''}>${esc(l.name)}</option>`).join('')+'<option value="+">'+(loc.length?'+ ชั้นใหม่…':'ชั้นข้อมูลของฉัน (สร้างใหม่)')+'</option>';
- d.innerHTML=`<div class="uldf"><div id="ud-ms"></div>
+ d.innerHTML=`<div class="uldf"><div id="ud-ms"></div>${udCoBox()}
   <label class="lb" for="ud-n">ชื่อ</label><input type="text" id="ud-n" maxlength="200" value="${udTxt(UD.nm)}" placeholder="เช่น จุดเฝ้าระวัง, แนวกันไฟ, พื้นที่ไหม้">
   <label class="lb" for="ud-ds">รายละเอียด</label><textarea id="ud-ds" maxlength="4000" placeholder="ไม่บังคับ">${udTxt(UD.ds)}</textarea>
   <span class="lb">สี</span><div class="ulsw" id="ud-c">${ULC.map(c=>`<button data-c="${c}" style="background:${c}" aria-label="สี ${c}" aria-pressed="${c===UD.c}"></button>`).join('')}<input type="color" id="ud-cc" value="${esc(UD.c)}" aria-label="เลือกสีเอง"></div>
@@ -4255,21 +4303,21 @@ function udSaveF(){const g=udGeom();if(!g)return;let l;
  if(!l.vis)l.vis=true;ulSave(l);const k='l'+l.id,m=UD.m,ed=UD.ed;
  if(ed)udSet(null);else{udClear();UD.form=false;UD.nm='';UD.ds='';UD.kv=[];udGeo();udPanel();udCross()}
  ulRender(k);ulList();toast(ed?'บันทึกการแก้ไขแล้ว':`บันทึก${UDN[m]}ลงชั้น "${l.name}" แล้ว`)}
-$('#ul-d').addEventListener('input',e=>{const t=e.target;if(t.id==='ud-n')UD.nm=t.value;else if(t.id==='ud-ds')UD.ds=t.value;else if(t.dataset.kv!=null)UD.kv[+t.dataset.kv][+t.dataset.j]=t.value;
+$('#ul-d').addEventListener('toggle',e=>{if(e.target.id==='ud-co')UD.co=e.target.open},true);
+$('#ul-d').addEventListener('input',e=>{const t=e.target;if(t.id==='ud-ct'&&!UD.form)UD.ct=t.value;if(t.id==='ud-n')UD.nm=t.value;else if(t.id==='ud-ds')UD.ds=t.value;else if(t.dataset.kv!=null)UD.kv[+t.dataset.kv][+t.dataset.j]=t.value;
  else if(t.id==='ud-cc'){UD.c=t.value;udCol()}});
-$('#ul-d').addEventListener('change',e=>{if(e.target.id==='ud-tg'){const v=e.target.value;if(v!=='+'){UD.tg=v;const l=UL.L.find(x=>x.id===v);if(l&&!UD.ed){UD.c=l.color;udCol()}}else UD.tg='+'}});
+$('#ul-d').addEventListener('change',e=>{if(e.target.id==='ud-cz'){UDCO.z=+e.target.value;ulLS('fm-udco',UDCO);if(UD.form){const t=$('#ud-ct');if(t)t.value=udCoFmt(UD.pts)}return}if(e.target.id==='ud-tg'){const v=e.target.value;if(v!=='+'){UD.tg=v;const l=UL.L.find(x=>x.id===v);if(l&&!UD.ed){UD.c=l.color;udCol()}}else UD.tg='+'}});
 function udCol(){$$('#ud-c [data-c]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===UD.c));const cc=$('#ud-cc');if(cc&&cc.value!==UD.c)cc.value=UD.c;udMarks();udGeo()}
-$('#ul-d').addEventListener('click',e=>{const c=e.target.closest('[data-c]');if(c){UD.c=c.dataset.c;udCol();return}
+$('#ul-d').addEventListener('click',e=>{const cf=e.target.closest('[data-cf]');if(cf){UDCO.f=cf.dataset.cf;ulLS('fm-udco',UDCO);UD.co=true;if(!UD.form)UD.ct='';udPanel();return}
+ const c=e.target.closest('[data-c]');if(c){UD.c=c.dataset.c;udCol();return}
  const x=e.target.closest('[data-kvx]');if(x){UD.kv.splice(+x.dataset.kvx,1);udKV();return}
  const b=e.target.closest('[data-ua]');if(!b)return;const a=b.dataset.ua;
  if(a==='add'){const c=udCrossPt(),l=map.unproject([c.pt.x,c.pt.y]);udAdd(UD.snap?UD.pts[0]:[l.lng,l.lat],c.pt,22)}
  else if(a==='undo'){UD.pts.pop();UD.snap=false;udMarks();udGeo();udPanel()}else if(a==='fin')udFinish();else if(a==='stop')udSet(null);
  else if(a==='redo'){const m=UD.m;udClear();UD.form=false;udGeo();udPanel();udCross()}else if(a==='save')udSaveF();
- else if(a==='del'){const{k,fid}=UD.ed;udSet(null);ulDelF(k,fid)}else if(a==='kv+'){UD.kv.push(['','']);udKV();const i=$$('#ud-kv input');i.length&&i[i.length-2].focus()}});
-/* กากบาทบนจอสัมผัส: กลางพื้นที่แผนที่ที่ไม่ถูกแผงบัง */
-function udCrossPt(){const r=$('#ulm').getBoundingClientRect(),m=map.getContainer().getBoundingClientRect();let x=innerWidth/2,y;
- if(r.top>innerHeight/2)y=(m.top+r.top)/2;else{y=(m.top+m.bottom)/2;const lw=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--lw'))||0;x=(lw+r.left)/2}
- return{x,y,pt:{x:x-m.left,y:y-m.top}}}
+ else if(a==='co')udCoGo();else if(a==='del'){const{k,fid}=UD.ed;udSet(null);ulDelF(k,fid)}else if(a==='kv+'){UD.kv.push(['','']);udKV();const i=$$('#ud-kv input');i.length&&i[i.length-2].focus()}});
+/* กากบาทบนจอสัมผัส: กลางพื้นที่แผนที่ที่ไม่ถูกแผงบัง (crossPt ร่วมกับเครื่องมือวัด) */
+const udCrossPt=()=>crossPt($('#ulm'));
 function udCross(){if(MS.on)return;const X=$('#mcross'),on=!!UD.m&&!UD.form&&msTouch();X.hidden=!on;if(!on)return;const c=udCrossPt(),P=UD.pts,n=P.length;X.style.left=c.x+'px';X.style.top=c.y+'px';
  const s=UD.m==='pg'&&n>2&&msNear(P[0],c.pt,22);if(s!==UD.snap){UD.snap=s;const m=UD.mk[0];m&&m.getElement().classList.toggle('hot',s)}X.classList.toggle('hot',s);
  const l=map.unproject([c.pt.x,c.pt.y]);UD.cur=s?P[0]:[l.lng,l.lat];if(n)udGeo();if(n&&UD.m!=='pt'&&UD.drag==null){const d=msDist(P[n-1],UD.cur);msHudPut(`<b>${msDF(d)}</b><span>จากจุดที่ ${n}${UD.m==='pg'&&n>1?' · พื้นที่ '+msRai(msArea(P.concat(s?[]:[UD.cur]))):''}</span>`,c.x,c.y,1)}else $('#mhud').hidden=true}
