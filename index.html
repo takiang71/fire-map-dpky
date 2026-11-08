@@ -2586,9 +2586,9 @@ function hlgSet(m){HLGM=m;try{localStorage.setItem('fm-hlg',m)}catch(x){}hlgPos(
  e.addEventListener('pointerdown',v=>{if(!e.classList.contains('mb'))return;p0={x:v.clientX,y:v.clientY,id:v.pointerId};try{e.setPointerCapture(v.pointerId)}catch(x){}});
  e.addEventListener('pointermove',v=>{if(!p0||v.pointerId!==p0.id)return;const dx=v.clientX-p0.x;if(HLGM!=='hd'&&dx>0)e.style.transform='translateX('+dx+'px)';else if(HLGM==='hd'&&dx<0)e.style.transform='translateX('+Math.max(dx,-40)+'px)'});
  const up=v=>{if(!p0||v.pointerId!==p0.id)return;const dx=v.clientX-p0.x,dy=v.clientY-p0.y;p0=null;e.style.transform='';if(v.type==='pointercancel')return;
-  if(Math.abs(dx)<8&&Math.abs(dy)<8)return hlgSet(HLGM==='hd'?'cp':HLGM==='cp'?'full':'cp');
+  if(Math.abs(dx)<8&&Math.abs(dy)<8)return; // แตะ = จัดการใน click (เดิมย่อตอน pointerup กล่องหดก่อน click → click ตกลงแผนที่ เด้งป๊อปอัปตำแหน่ง ผู้ใช้แจ้ง 8 พ.ย. 69)
   if(dx>40&&HLGM!=='hd'){hlgSet('hd');toast('ซ่อนกล่องอายุจุดความร้อนแล้ว · แตะแท็บที่ขอบขวาเพื่อแสดง')}else if(dx<-30&&HLGM==='hd')hlgSet('cp')};
- e.addEventListener('pointerup',up);e.addEventListener('pointercancel',up)}
+ e.addEventListener('pointerup',up);e.addEventListener('pointercancel',up);e.addEventListener('click',v=>{if(!e.classList.contains('mb'))return;v.stopPropagation();v.preventDefault();hlgSet(HLGM==='hd'?'cp':HLGM==='cp'?'full':'cp')})}
 function hlgPos(){const e=$('#hlg');if(!e||e.hidden)return;const W=innerWidth,H=innerHeight,mob=W<768;let r=12,b;
  e.classList.toggle('mb',mob);['cp','hd'].forEach(k=>e.classList.toggle(k,mob&&HLGM===k));if(mob){e.setAttribute('role','button');e.setAttribute('aria-expanded',String(HLGM==='full'));e.title=HLGM==='hd'?'แตะเพื่อแสดงอายุจุดความร้อน':'แตะเพื่อ'+(HLGM==='cp'?'ขยาย':'ย่อ')+' · ปัดขวาเพื่อซ่อน'}else{e.setAttribute('role','group');e.removeAttribute('aria-expanded');e.removeAttribute('title')}
  {const t=$('#c-t');if(t)t.textContent=['r','o','y','b'].reduce((a,k)=>a+(+($('#c-'+k).textContent)||0),0)}
