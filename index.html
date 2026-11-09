@@ -180,6 +180,20 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 #mcross{position:fixed;z-index:5;width:48px;height:48px;margin:-24px 0 0 -24px;pointer-events:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}#mcross[hidden]{display:none}#mcross svg{display:block;width:100%;height:100%}#mcross.hot g g:last-child circle{stroke:#0b6bcb}
 .msbt .btn.pri{background:#0b6bcb;border-color:#0b6bcb;color:#fff;font-weight:700}
 .msb{background:#0b3b75;color:#fff;font:700 11px/1.55 'Noto Sans Thai',sans-serif;padding:0 7px;border-radius:99px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3)}.msb.hd{opacity:0}
+/* เครื่องมือวิเคราะห์ภูมิประเทศ (#bTr) ใช้แผง #msr (คลาส tr) */
+#msr.tr{max-height:calc(100vh - 110px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow:auto}
+.trtb{display:flex;gap:5px;margin:4px 0 6px}.trtb button{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:48px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:600 11.5px/1.25 'Noto Sans Thai',sans-serif;cursor:pointer;padding:4px 2px}.trtb .i{width:20px;height:20px}.trtb button[aria-pressed=true]{background:#0b6bcb;border-color:#0b6bcb;color:#fff}
+.trp{display:flex;align-items:center;gap:6px;font-size:12.5px;margin:5px 0}.trp>span:first-child,.trp>label{color:var(--mut);white-space:nowrap}
+.trin{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}.trin button{width:30px;border:0;background:#f3f5f9;font-size:16px;cursor:pointer;color:var(--ink)}.trin input{width:44px;border:0;text-align:center;font:700 14px 'Noto Sans Thai',sans-serif;-moz-appearance:textfield;appearance:textfield;padding:4px 0;background:var(--bg);color:var(--ink)}.trin input::-webkit-inner-spin-button,.trin input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.trsg{display:flex;flex:1}.trsg button{flex:1;min-height:28px;border:1px solid var(--line);background:var(--bg);font:600 12px 'Noto Sans Thai',sans-serif;margin-left:-1px;cursor:pointer;color:var(--ink);padding:0 4px}.trsg button:first-child{border-radius:8px 0 0 8px;margin:0}.trsg button:last-child{border-radius:0 8px 8px 0}.trsg button[aria-pressed=true]{background:var(--sel);color:var(--navy);font-weight:800}
+.trn{font-size:11.5px;line-height:1.45;color:var(--mut);margin-top:4px}
+.trst{font-size:12.5px;color:var(--navy);display:flex;align-items:center;gap:7px;margin:4px 0}.trsp{width:13px;height:13px;border:2px solid #b9cbe6;border-top-color:#0b6bcb;border-radius:50%;animation:trsp .8s linear infinite;flex:none}@keyframes trsp{to{transform:rotate(1turn)}}
+.trlg{display:grid;gap:2px;margin-top:5px;font-size:11.5px;min-width:0;flex:1}.trlg>div{display:grid;grid-template-columns:12px 50px minmax(20px,1fr) 38px auto;gap:5px;align-items:center}
+.trlg i{width:12px;height:12px;border-radius:3px;border:1px solid rgba(0,0,0,.12)}.trlg span{white-space:nowrap}.trlg s{height:8px;background:#eef1f6;border-radius:4px;overflow:hidden;text-decoration:none}.trlg u{display:block;height:100%;border-radius:4px;text-decoration:none}.trlg em{font-style:normal;font-weight:700;text-align:right;white-space:nowrap}.trlg small{font-size:11px;color:var(--mut);white-space:nowrap;text-align:right;min-width:50px}
+.trag{display:flex;gap:8px;align-items:center}.trro{width:120px;height:106px;flex:none}
+.trcl{display:flex;align-items:center;gap:8px;font-size:12px;margin-top:4px}.trcl i{width:26px;height:0;border-top:1.6px solid #f5b301;box-shadow:0 0 0 .6px rgba(45,30,0,.45)}.trcl.ix i{border-top-width:3px}
+.trop input{flex:1;min-width:0}
+@media(max-width:767px){#msr.tr{max-height:48vh}.trtb button{min-height:42px;font-size:11px}}
 @media(max-width:767px){#msr{top:calc(12px + env(safe-area-inset-top));left:12px;right:66px;width:auto;transform:none;padding:6px 10px 8px}#msr .sm{display:none}.msa{font-size:16px}.msl{max-height:60px}.msbt{margin-top:6px}.msbt .btn{min-height:30px;padding:0 9px;font-size:12px}
  body.msron #left{display:none}body.msron .maplibregl-ctrl-bottom-right{bottom:calc(10px + env(safe-area-inset-bottom))!important} /* ขณะวัดซ่อนแผ่นล่าง ให้เห็นแผนที่เต็มจอ */}
 /* เครื่องมือวาด + Layer Manager (#bUl, #ulm) — ช่องเดียวกับแผงชั้นข้อมูล #right (เปิดทีละแผง) */
@@ -777,6 +791,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
  <button class="cb" id="bLay" aria-label="ชั้นข้อมูล"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"/></svg></button>
  <button class="cb" id="bMs" aria-label="วัดระยะทางและพื้นที่" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><path d="M3 16.5L16.5 3 21 7.5 7.5 21zM7 12.5l2 2M10 9.5l2.5 2.5M13 6.5l2 2"/></svg></button>
  <button class="cb" id="bUl" aria-label="วาดและจัดการชั้นข้อมูล" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M14.5 21.5l1-3.5 5-5 2.5 2.5-5 5z"/><path d="M3 13l9 5 2-1.1"/></svg></button>
+ <button class="cb" id="bTr" aria-label="วิเคราะห์ภูมิประเทศ (เส้นชั้นความสูง ความลาดชัน ทิศด้านลาด)" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><path d="M3 8c3-3 6 1 9-1.5S18 4 21 6M3 13c3-3 6 1 9-1.5s6-2.5 9-.5M3 18c3-3 6 1 9-1.5s6-2.5 9-.5"/></svg></button>
  <div class="zm"><button class="cb" id="zi" aria-label="ซูมเข้า"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><button class="cb" id="zo" aria-label="ซูมออก"><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button></div>
  <button class="cb" id="b3d" aria-label="โหมด 3 มิติ"><svg class="i" viewBox="0 0 24 24"><path d="M3 20l6-10 4 6 3-4 5 8z"/></svg></button>
  <button class="cb" id="bN" aria-label="รีเซ็ตทิศเหนือ"><svg class="i" id="cmp" viewBox="0 0 24 24"><path d="M12 3l4 9H8zM12 21l-4-9h8z" /></svg></button>
@@ -1054,6 +1069,7 @@ function setup(){ // เรียกทุกครั้งที่สลั�
  map.addLayer({id:'resp-l',type:'line',source:'resp',layout:{'line-join':'round'},paint:{'line-color':['get','sc'],'line-width':2.4,'line-dasharray':[3,1.6]}});
  setupBN();setupRP();setupFU();setupFT();setupAD();setupPV();setup3();setup4();try{setupXT()}catch(e){console.warn('setupXT',e)}try{setupWT()}catch(e){console.warn('setupWT',e)}setupHC();setupHR();
  if(typeof ulLayers==='function')ulLayers(); // ชั้นข้อมูลของผู้ใช้ (สคริปต์ท้ายไฟล์)
+ if(typeof trLayers==='function')trLayers(); // วิเคราะห์ภูมิประเทศ (สคริปต์ท้ายไฟล์)
  if(typeof msLayers==='function')msLayers(); // เครื่องมือวัด (สคริปต์ท้ายไฟล์) — บนสุด
  map.addSource('fx',{type:'geojson',data:FXD});
  map.addLayer({id:'fx-cf',type:'fill',source:'fx',filter:['==',['get','k'],'cone'],paint:{'fill-color':'#6b7280','fill-opacity':.16}});
@@ -3663,7 +3679,7 @@ function msRai(m2){const w=Math.round(m2/4*10)/10,r=Math.floor(w/400),g=Math.flo
 const msM2=m2=>msNf(m2,m2<10000?1:0)+' ตร.ม.',msK2=m2=>{const k=m2/1e6;return msNf(k,k>=10?2:k>=.1?3:k>=.001?4:6)+' ตร.กม.'};
 /* ชั้นบนแผนที่ (setup() เรียกทุกครั้งที่สลับแผนที่ฐาน) */
 function msLayers(){if(map.getSource('msr'))return;map.addSource('msr',{type:'geojson',data:MSE});
- map.addLayer({id:'msr-f',type:'fill',source:'msr',filter:['==',['get','k'],'f'],paint:{'fill-color':MSC,'fill-opacity':.18}});
+ map.addLayer({id:'msr-f',type:'fill',source:'msr',filter:['==',['get','k'],'f'],paint:{'fill-color':MSC,'fill-opacity':typeof TR!=='undefined'&&TR.R?0:.18}});
  map.addLayer({id:'msr-c',type:'line',source:'msr',filter:['!=',['get','k'],'f'],layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#fff','line-width':5,'line-opacity':.9}});
  map.addLayer({id:'msr-l',type:'line',source:'msr',filter:['==',['get','k'],'l'],layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':MSC,'line-width':2.6}});
  map.addLayer({id:'msr-v',type:'line',source:'msr',filter:['==',['get','k'],'v'],layout:{'line-cap':'butt'},paint:{'line-color':MSC,'line-width':2.4,'line-dasharray':[2,1.6]}});
@@ -3694,7 +3710,7 @@ function msVx(i){const P=MS.pts,el=document.createElement('div');el.className='m
  const m=new maplibregl.Marker({element:el,draggable:true}).setLngLat(P[i]).addTo(map);
  m.on('dragstart',()=>{MS.drag=i;el.classList.add('drag');$('#mhud').hidden=true});
  m.on('drag',()=>{const l=m.getLngLat();MS.pts[i]=[l.lng,l.lat];msLive(i)});
- m.on('dragend',()=>{const l=m.getLngLat();MS.pts[i]=[l.lng,l.lat];MS.drag=null;MS.dt=Date.now();el.classList.remove('drag');msDraw(1);$('#mhud').hidden=true;msCross()});
+ m.on('dragend',()=>{const l=m.getLngLat();MS.pts[i]=[l.lng,l.lat];MS.drag=null;MS.dt=Date.now();el.classList.remove('drag');msDraw(1);$('#mhud').hidden=true;msCross();if(MS.tr&&MS.done)trRun()});
  return m}
 function msMarks(){MS.mk.forEach(m=>m.remove());MS.bd.forEach(m=>m.remove());MS.mk=[];MS.bd=[];const P=MS.pts,n=P.length;
  const seg=(a,b)=>{const m=msMk('msb',msDS(msDist(P[a],P[b])),msInterp(P[a],P[b],2)[1]);m._ab=[a,b];MS.bd.push(m)};
@@ -3710,7 +3726,7 @@ function msLive(i){const P=MS.pts,n=P.length;msGeo();
  const p=map.project(P[i]),r=map.getContainer().getBoundingClientRect();msHudPut(h+'<i>ปล่อยเพื่อวางจุด</i>',r.left+p.x,r.top+p.y,msTouch())}
 /* แผงผล #msr */
 const msDL=m=>m<1000?msNf(m,1)+' ม.':msNf(m/1000,3)+' กม.'; // ระยะละเอียดถึงเมตร (แผงผล)
-function msPanel(){const b=$('#ms-b'),P=MS.pts,n=P.length,tc=msTouch(),L=msLen(P,MS.closed);let h='';
+function msPanel(){if(MS.tr)return trPanel();const b=$('#ms-b'),P=MS.pts,n=P.length,tc=msTouch(),L=msLen(P,MS.closed);let h='';
  const kv=(...a)=>'<div class="msk">'+a.map(([k,v,w])=>`<span>${k}</span><b${w?' class="w"':''}>${v}</b>`).join('')+'</div>'; // ตาราง 2 คู่ต่อแถว (กระชับ ผู้ใช้ขอ 8 พ.ย. 69)
  if(MS.done&&MS.closed){const A=msArea(P);h=`<div class="msa">${msRai(A)}</div>`+kv(['ตร.ม.',msNf(A,A<10000?1:0)],['ตร.กม.',msK2(A).replace(' ตร.กม.','')],['เส้นรอบรูป',msDL(L)],['จำนวนจุด',n])}
  else if(MS.done){h=`<div class="msa">${msDL(L)}</div>`+kv(['เมตร',msNf(L,1)],['จำนวนจุด',n+' · '+(n-1)+' ช่วง']);
@@ -3719,7 +3735,7 @@ function msPanel(){const b=$('#ms-b'),P=MS.pts,n=P.length,tc=msTouch(),L=msLen(P
  else{h=kv(['ระยะรวม',n>1?msDL(L):'—'],['จำนวนจุด',n]);if(n>2)h+=kv(['ถ้าปิดเป็นรูป',msRai(msArea(P)),1]);
   if(tc)h+='<div class="sm">เลื่อนแผนที่ให้กากบาทตรงตำแหน่ง แล้วกด + เพิ่มจุด · ลากจุดเพื่อย้าย</div>'} // เมาส์มีคำแนะนำใน HUD แล้ว
  const B=[];if(!MS.done&&tc)B.push('<button class="btn pri" data-ms="a">+ เพิ่มจุด</button>');if(!MS.done&&n)B.push('<button class="btn" data-ms="u">↶ ย้อนจุด</button>');if(!MS.done&&n>1)B.push('<button class="btn" data-ms="f">จบ</button>');
- if(!MS.done&&n>2)B.push('<button class="btn" data-ms="c">ปิดรูปพื้นที่</button>');if(MS.done)B.push('<button class="btn" data-ms="n">วัดใหม่</button><button class="btn" data-ms="y">คัดลอกผล</button>');else if(n)B.push('<button class="btn" data-ms="r">ล้าง</button>');
+ if(!MS.done&&n>2)B.push('<button class="btn" data-ms="c">ปิดรูปพื้นที่</button>');if(MS.done)B.push('<button class="btn" data-ms="n">วัดใหม่</button><button class="btn" data-ms="y">คัดลอกผล</button>'+(MS.closed?'<button class="btn" data-ms="t" title="เส้นชั้นความสูง ความลาดชัน ทิศด้านลาด ในพื้นที่นี้">วิเคราะห์ภูมิประเทศ</button>':''));else if(n)B.push('<button class="btn" data-ms="r">ล้าง</button>');
  b.innerHTML=h+(B.length?'<div class="msbt">'+B.join('')+'</div>':'');$('#ms-t').textContent=MS.done?(MS.closed?'ขนาดพื้นที่':'ระยะทาง'):'วัดระยะทางและพื้นที่';
  $('#msr').title=MS.done?'ลากจุดเพื่อปรับตำแหน่ง ผลคำนวณใหม่ทันที':''}
 /* ตำแหน่งแผงผล (เดสก์ท็อป): ขวาบน · แผงขวา (ชั้นข้อมูล/เครื่องมือวาด/รายละเอียดจุด) เปิด = ถัดจากแผงออกมา (ผู้ใช้ขอ 8 พ.ย. 69) · ตำแหน่งตามเลย์เอาต์ offsetLeft ไม่นับ transform ระหว่างเลื่อน */
@@ -3727,7 +3743,7 @@ const RPAN=[['#right','open'],['#dp','open'],['#ulm']],rpOn=([q,c])=>{const p=$(
 function msPos(){const e=$('#msr');if(!e||e.hidden)return;if(innerWidth<=767){e.style.right=e.style.width='';return}
  let r=12;RPAN.forEach(x=>{if(rpOn(x)){const p=$(x[0]);r=Math.max(r,innerWidth-p.offsetLeft+12)}});
  const l=$('#left'),lr=l&&!document.body.classList.contains('lc')&&l.offsetWidth?l.offsetLeft+l.offsetWidth:0,av=innerWidth-r-lr-12;
- e.style.right=r+'px';e.style.width=(av<300?Math.max(240,av):300)+'px'}
+ e.style.right=r+'px';const w0=MS.tr?330:300;e.style.width=(av<w0?Math.max(240,av):w0)+'px'}
 ['#right','#dp','#ulm'].forEach(q=>{const p=$(q);if(p)new MutationObserver(msPos).observe(p,{attributes:true,attributeFilter:['class','hidden']})});
 addEventListener('resize',msPos);
 /* จุดเล็งกลางพื้นที่แผนที่ที่มองเห็น (ไม่นับแผงซ้าย/ขวาบนเดสก์ท็อป-แท็บเล็ต) · ถ้าแผงของเครื่องมือ tp บังจุดกลาง เลื่อนไปกลางส่วนที่เหลือ (ผู้ใช้แจ้ง 8 พ.ย. 69 ว่ากากบาทไม่อยู่กลางจอบนมือถือ/แท็บเล็ต) */
@@ -3740,7 +3756,7 @@ function crossPt(tp){const{m,x0,x1,y0,y1}=visArea();
  let x=(x0+x1)/2,y=(y0+y1)/2;const r=tp&&!tp.hidden&&tp.getBoundingClientRect();
  if(r&&r.width&&x>r.left-30&&x<r.right+30&&y>r.top-40&&y<r.bottom+40)y=r.top+r.height/2<(y0+y1)/2?(r.bottom+y1)/2:(y0+r.top)/2;
  return{x,y,pt:{x:x-m.left,y:y-m.top}}}
-function msText(){const P=MS.pts,L=msLen(P,MS.closed),pt=ulPtList(P); // พิกัด UTM เป็นหลัก (งานป่าไม้ — ผู้ใช้ขอ 8 พ.ย. 69)
+function msText(){if(MS.tr)return trText();const P=MS.pts,L=msLen(P,MS.closed),pt=ulPtList(P); // พิกัด UTM เป็นหลัก (งานป่าไม้ — ผู้ใช้ขอ 8 พ.ย. 69)
  if(MS.closed){const A=msArea(P);return`พื้นที่ ${msRai(A)}\n${msM2(A)} · ${msK2(A)}\nเส้นรอบรูป ${msDF(L)}\n${pt}`}
  return`ระยะทางรวม ${msDF(L)}\n${pt}`}
 /* HUD: ลอยตามเคอร์เซอร์ (เมาส์) หรือใต้กากบาท (จอสัมผัส) */
@@ -3750,8 +3766,8 @@ function msHudPut(h,x,y,below){const H=$('#mhud');H.innerHTML=h;H.hidden=false;c
 function msHudTxt(tc){const P=MS.pts,n=P.length,k=tc?'กด + เพิ่มจุด':'คลิก';
  if(!n)return tc?'<b>เลื่อนแผนที่ให้กากบาทตรงจุดเริ่มต้น</b><i>แล้วกด + เพิ่มจุด</i>':'<b>คลิกเพื่อวางจุดที่ 1</b><i>Esc ปิดเครื่องมือ</i>';
  if(MS.snap){const A=msArea(P);return`<b>${msRai(A)}</b><span>${msM2(A)} · ${msK2(A)}</span><i>${k}เพื่อปิดเป็นรูปพื้นที่</i>`}
- const d=msDist(P[n-1],MS.cur),L=msLen(P)+d;return`<b>${msDF(d)}</b><span>จากจุดที่ ${n}${n>1?' · รวม '+msDS(L):''}</span><i>${tc?'กด + เพิ่มจุด · จบ เมื่อครบ':'คลิกเพื่อเพิ่มจุดวัด · ดับเบิลคลิกเพื่อจบ'}${n>2?'<br>'+(tc?'เล็งกากบาทที่จุดที่ 1 เพื่อปิดรูปพื้นที่':'ชี้ที่จุดที่ 1 เพื่อปิดเป็นรูปพื้นที่'):''}</i>`}
-function msHud(e){if(!MS.on||!e||msTouch()||MS.drag!=null){if(!msTouch())$('#mhud').hidden=true;return}
+ const d=msDist(P[n-1],MS.cur),L=msLen(P)+d;return`<b>${msDF(d)}</b><span>จากจุดที่ ${n}${n>1?' · รวม '+msDS(L):''}</span><i>${tc?'กด + เพิ่มจุด · จบ เมื่อครบ':(MS.tr?'คลิกเพื่อเพิ่มจุดขอบเขต · ดับเบิลคลิกเพื่อปิดรูป':'คลิกเพื่อเพิ่มจุดวัด · ดับเบิลคลิกเพื่อจบ')}${n>2?'<br>'+(tc?'เล็งกากบาทที่จุดที่ 1 เพื่อปิดรูปพื้นที่':'ชี้ที่จุดที่ 1 เพื่อปิดเป็นรูปพื้นที่'):''}</i>`}
+function msHud(e){if(MS.on&&MS.tr&&MS.done&&e&&!msTouch()&&MS.drag==null)return trProbe(e);if(!MS.on||!e||msTouch()||MS.drag!=null){if(!msTouch())$('#mhud').hidden=true;return}
  msHudPut(MS.done?'<i>คลิกเพื่อเริ่มวัดใหม่ · ลากจุดเพื่อย้าย · Esc ปิดเครื่องมือ</i>':msHudTxt(0),e.originalEvent.clientX,e.originalEvent.clientY)}
 /* กากบาทกลางพื้นที่แผนที่ที่มองเห็น (เฉพาะอุปกรณ์ไม่มีเมาส์ชี้) — เลื่อนแผนที่ให้ตรงเป้าแล้วกด + เพิ่มจุด */
 const msCrossPt=()=>crossPt($('#msr'));
@@ -3761,22 +3777,25 @@ function msCross(){const X=$('#mcross'),on=MS.on&&msTouch()&&!MS.done;X.hidden=!
  const l=map.unproject([c.pt.x,c.pt.y]);MS.cur=s?P[0]:[l.lng,l.lat];if(n)msGeo();if(MS.drag==null)msHudPut(msHudTxt(1),c.x,c.y,1)}
 function msDraw(full){msGeo();if(full){msMarks();msPanel();msTop();msCross()}}
 const msNear=(ll,pt,r)=>{const p=map.project(ll);return Math.hypot(p.x-pt.x,p.y-pt.y)<=r};
-function msFinish(close){const n=MS.pts.length;if(MS.done)return;if(close?n<3:n<2){toast(close?'ต้องมีอย่างน้อย 3 จุดจึงปิดเป็นรูปพื้นที่ได้':'ต้องมีอย่างน้อย 2 จุด');return}
- MS.done=true;MS.closed=!!close;MS.snap=false;MS.cur=null;MS.t=Date.now();msDraw(1);$('#mhud').hidden=true}
-function msReset(){MS.pts=[];MS.done=MS.closed=MS.snap=false;MS.cur=null;msDraw(1)}
+function msFinish(close){const n=MS.pts.length;if(MS.done)return;if(MS.tr)close=1; // วิเคราะห์ภูมิประเทศ: จบ = ปิดรูปเสมอif(close?n<3:n<2){toast(close?'ต้องมีอย่างน้อย 3 จุดจึงปิดเป็นรูปพื้นที่ได้':'ต้องมีอย่างน้อย 2 จุด');return}
+ MS.done=true;MS.closed=!!close;MS.snap=false;MS.cur=null;MS.t=Date.now();if(MS.tr){TR.R=null;trDraw()}msDraw(1);$('#mhud').hidden=true;if(MS.tr)trRun()}
+function msReset(){MS.pts=[];MS.done=MS.closed=MS.snap=false;MS.cur=null;if(MS.tr)trClear();msDraw(1)}
 function msAdd(ll,pt,r){const P=MS.pts,n=P.length; // ll=[lon,lat], pt=จุดบนจอ, r=ระยะดูดเข้าจุดที่ 1 (px)
  if(MS.done)msReset();else if(n>2&&msNear(P[0],pt,r))return msFinish(1);else if(n&&msNear(P[n-1],pt,5))return; // ซ้ำจุดล่าสุด = คลิกที่สองของดับเบิลคลิก
  MS.pts.push(ll);MS.cur=ll;msDraw(1)}
-function msSet(on){if(on===MS.on)return;MS.on=on;if(on&&typeof UD!=='undefined'&&UD.m)udSet(null);if(on&&map.getSource('dem'))msLayers();const b=$('#bMs');b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);$('#map').classList.toggle('msr',on);document.body.classList.toggle('msron',on);$('#msr').hidden=!on;msPos();
+function msSet(on,tr){tr=!!tr;if(on===MS.on&&(!on||tr===MS.tr))return;if(on&&MS.on)msSet(false);MS.on=on;if(on)MS.tr=tr;if(on&&typeof UD!=='undefined'&&UD.m)udSet(null);if(on&&map.getSource('dem')){if(typeof trLayers==='function')trLayers();msLayers()}
+ [['#bMs',on&&!MS.tr],['#bTr',on&&MS.tr]].forEach(([q,v])=>{const b=$(q);if(b){b.classList.toggle('on',v);b.setAttribute('aria-pressed',v)}}); // MS.tr = โหมดวิเคราะห์ภูมิประเทศ (ใช้กลไกวาดรูปของเครื่องมือวัด)
+ const R=$('#msr');R.classList.toggle('tr',on&&MS.tr);const hi=R.querySelector('.msh svg');if(hi&&on)hi.innerHTML=MS.tr?'<path d="M3 8c3-3 6 1 9-1.5S18 4 21 6M3 13c3-3 6 1 9-1.5s6-2.5 9-.5M3 18c3-3 6 1 9-1.5s6-2.5 9-.5"/>':'<path d="M3 16.5L16.5 3 21 7.5 7.5 21zM7 12.5l2 2M10 9.5l2.5 2.5M13 6.5l2 2"/>';R.setAttribute('aria-label',on&&MS.tr?'เครื่องมือวิเคราะห์ภูมิประเทศ':'ผลการวัดระยะทางและพื้นที่');
+ $('#map').classList.toggle('msr',on);document.body.classList.toggle('msron',on);R.hidden=!on;msPos();
  if(on){MS.dz=map.doubleClickZoom.isEnabled();map.doubleClickZoom.disable();$$('.maplibregl-popup').forEach(p=>p.remove());if(typeof hcSpider==='function'&&typeof HCS!=='undefined'&&HCS)hcSpider(null);msReset()}
- else{if(MS.dz)map.doubleClickZoom.enable();MS.pts=[];MS.done=MS.closed=MS.snap=false;MS.cur=null;MS.drag=null;msGeo();MS.mk.forEach(m=>m.remove());MS.bd.forEach(m=>m.remove());MS.mk=[];MS.bd=[];$('#mhud').hidden=true;msCross()}}
+ else{if(MS.dz)map.doubleClickZoom.enable();MS.pts=[];MS.done=MS.closed=MS.snap=false;MS.cur=null;MS.drag=null;msGeo();MS.mk.forEach(m=>m.remove());MS.bd.forEach(m=>m.remove());MS.mk=[];MS.bd=[];$('#mhud').hidden=true;msCross();if(MS.tr&&typeof trClear==='function')trClear();MS.tr=false}}
 function msBusy(){return MS.on||typeof udBusy==='function'&&udBusy()} // เครื่องมือวาด (#bUl) จัดการคลิกเองด้วย
-$('#bMs').onclick=()=>msSet(!MS.on);$('#ms-x').onclick=()=>msSet(false);
+$('#bMs').onclick=()=>msSet(!(MS.on&&!MS.tr));$('#ms-x').onclick=()=>msSet(false);
 $('#ms-b').addEventListener('click',e=>{const k=e.target.closest('[data-ms]');if(!k)return;const a=k.dataset.ms;
  if(a==='a'){const c=msCrossPt(),l=map.unproject([c.pt.x,c.pt.y]);msAdd(MS.snap?MS.pts[0]:[l.lng,l.lat],c.pt,22)}
- else if(a==='u'){MS.pts.pop();MS.snap=false;msDraw(1)}else if(a==='f')msFinish(0);else if(a==='c')msFinish(1);else if(a==='r'||a==='n')msReset();
+ else if(a==='t')trUse(MS.pts.slice());else if(a==='u'){MS.pts.pop();MS.snap=false;msDraw(1)}else if(a==='f')msFinish(0);else if(a==='c')msFinish(1);else if(a==='r'||a==='n')msReset();
  else if(a==='y'){const t=msText();(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('คัดลอกผลการวัดแล้ว'),()=>toast('คัดลอกไม่ได้ในเบราว์เซอร์นี้'))}});
-map.on('click',e=>{if(!MS.on||Date.now()-MS.dt<350)return;
+map.on('click',e=>{if(!MS.on||Date.now()-MS.dt<350)return;if(MS.tr&&MS.done){trProbe(e,msTouch());return} // วิเคราะห์ภูมิประเทศ: คลิก/แตะ = ค่า ณ จุด
  if(MS.done&&Date.now()-MS.t<450)return; // คลิกที่สองของดับเบิลคลิกที่เพิ่งจบ — ไม่เริ่มใหม่
  msAdd([e.lngLat.lng,e.lngLat.lat],e.point,12);msHud(e)});
 map.on('dblclick',e=>{if(!MS.on)return;e.preventDefault();if(!MS.done)msFinish(0)});
@@ -3790,6 +3809,214 @@ addEventListener('resize',()=>{if(MS.on)msCross()});
 addEventListener('keydown',e=>{if(!MS.on||/INPUT|SELECT|TEXTAREA/.test((document.activeElement||{}).tagName||''))return;
  if(e.key==='Escape')msSet(false);else if((e.key==='Backspace'||e.key==='Delete')&&!MS.done&&MS.pts.length){e.preventDefault();MS.pts.pop();MS.snap=false;msDraw(1)}else if(e.key==='Enter'&&!MS.done){e.preventDefault();msFinish(0)}});
 if(map.getSource('dem'))msLayers(); // สไตล์โหลดเสร็จก่อนสคริปต์นี้ทำงาน (setup() ข้ามไปแล้ว)
+</script>
+<script>
+/* ===== เครื่องมือวิเคราะห์ภูมิประเทศ (ปุ่ม #bTr, ผู้ใช้ขอ 9 พ.ย. 69) — เส้นชั้นความสูง / ความลาดชัน / ทิศด้านลาด
+   ขอบเขต = รูปหลายเหลี่ยมที่วาดด้วยกลไกของเครื่องมือวัด (MS.tr — แผงผล #msr เป็นแผงของเครื่องมือนี้) หรือพื้นที่ที่มองเห็น / รูปจากเครื่องมือวัด / รูปในชั้นข้อมูลของฉัน
+   ข้อมูลความสูง = Terrarium (AWS · ชุดเดียวกับมุมมอง 3 มิติและ slopeAt) ซูม ≤13 (~18.5 ม./พิกเซลที่ละติจูด 14°) ต้นทางในไทยละเอียดราว 30 ม. — เลือกละเอียดกว่านั้น = ประมาณค่าแบบ bilinear
+   ตารางคำนวณวางตามพิกัดเมอร์เคเตอร์ของซูม DEM (ภาพ raster ตรงกับแผนที่) · ระยะจริงต่อช่อง = ขนาดช่อง × ม./พิกเซล ณ ละติจูดของแถว
+   ความลาดชัน/ทิศด้านลาด = วิธี Horn 3×3 บนตารางที่ความละเอียดที่เลือก (ช่องใหญ่กว่าพิกเซล DEM = เฉลี่ยพิกเซลในช่อง) · ทิศด้านลาด = ทิศที่ลาดลง (ลาดชัน <2° = ราบ)
+   เส้นชั้นความสูง = marching squares บนตาราง DEM ที่ทำให้เรียบ (เกาส์ [1 4 6 4 1]/16) — เส้นไม่ตัดกัน · เส้นหนัก = ทุก 5 ช่วง */
+const TR={t:'c',iv:10,res:30,pu:'d',op:.75,q:0,R:null,st:'',C:[],hud:0};
+try{Object.assign(TR,JSON.parse(localStorage.getItem('fm-tr')||'{}'),{q:0,R:null,st:'',C:[],hud:0})}catch(e){}
+const trKeep=()=>{try{localStorage.setItem('fm-tr',JSON.stringify({t:TR.t,iv:TR.iv,res:TR.res,pu:TR.pu,op:TR.op}))}catch(e){}};
+const TRRES=[10,20,30,50,100],TRMAXT=64,TRMAXC=1.5e6,TRMAXCC=1.2e6,TRMAXV=4e5,TRMAXA=25e9,TRFLAT=2;
+const TRSL=[[0,5,'#1a9850','ราบถึงลาดน้อย'],[5,10,'#91cf60','ลาดเล็กน้อย'],[10,15,'#d9ef8b','ลาดปานกลาง'],[15,20,'#fee08b','ค่อนข้างชัน'],[20,30,'#fc8d59','ชัน'],[30,45,'#d73027','ชันมาก'],[45,90,'#7f0000','สูงชัน']];
+const TRAS=[['ราบ','#b4b4b4','ราบ (ลาดชันน้อยกว่า 2°)'],['น.','#ff0000','เหนือ'],['ตอ.น.','#ffa600','ตะวันออกเฉียงเหนือ'],['ตอ.','#ffff00','ตะวันออก'],['ตอ.ต.','#00e600','ตะวันออกเฉียงใต้'],['ต.','#00ffff','ใต้'],['ตต.ต.','#00a6ff','ตะวันตกเฉียงใต้'],['ตต.','#0000ff','ตะวันตก'],['ตต.น.','#ff00ff','ตะวันตกเฉียงเหนือ']];
+const TRT=[['c','เส้นชั้นความสูง','<svg class="i" viewBox="0 0 24 24"><path d="M3 8c3-3 6 1 9-1.5S18 4 21 6M3 13c3-3 6 1 9-1.5s6-2.5 9-.5M3 18c3-3 6 1 9-1.5s6-2.5 9-.5"/></svg>'],
+ ['s','ความลาดชัน','<svg class="i" viewBox="0 0 24 24"><path d="M3 20h18L21 6z"/><path d="M15 20a6 6 0 00-1.2-3.6"/></svg>'],
+ ['a','ทิศด้านลาด','<svg class="i" viewBox="0 0 24 24"><path d="M4 4h16v16H4zM4 4l16 16M20 4L4 20"/></svg>']];
+const trSc=s=>{for(let i=0;i<TRSL.length;i++)if(s<TRSL[i][1])return i;return TRSL.length-1};
+const trAc=(s,a)=>s<TRFLAT?0:1+Math.floor(((a+22.5)%360)/45);
+const trPct=d=>Math.tan(d*Math.PI/180)*100;
+const trSlTxt=d=>TR.pu==='p'?msNf(trPct(d),0)+'%':msNf(d,1)+'°';
+const trSlLab=i=>{const[a,b]=TRSL[i];if(TR.pu==='p')return i===TRSL.length-1?'> '+msNf(trPct(a),0)+'%':msNf(trPct(a),0)+'–'+msNf(trPct(b),0)+'%';return i===TRSL.length-1?'> '+a+'°':a+'–'+b+'°'};
+const trDir=a=>TRAS[1+Math.floor(((a+22.5)%360)/45)][2];
+const trIc=k=>TRT.find(x=>x[0]===k)[2];
+/* พิกัดเมอร์เคเตอร์ (พิกเซลโลกของซูม z) */
+const trW=z=>256*2**z,trX=(lo,z)=>(lo+180)/360*trW(z),trY=(la,z)=>(1-Math.log(Math.tan(Math.PI/4+la*Math.PI/360))/Math.PI)/2*trW(z);
+const trLo=(X,z)=>X/trW(z)*360-180,trLa=(Y,z)=>Math.atan(Math.sinh(Math.PI*(1-2*Y/trW(z))))*180/Math.PI;
+const trMpp=(z,la)=>40075017*Math.cos(la*Math.PI/180)/trW(z);
+const TRNICE=[10,15,20,25,30,40,50,60,75,100,125,150,200,250,300,400,500,750,1000];
+/* ตารางความสูงในกรอบของรูป (+ขอบ 1 ช่อง) · res=0 = ขนาดพิกเซล DEM */
+async function trGrid(P,res,q,prog){const R=msPath(P,1);let lo0=180,lo1=-180,la0=90,la1=-90;R.forEach(([x,y])=>{lo0=Math.min(lo0,x);lo1=Math.max(lo1,x);la0=Math.min(la0,y);la1=Math.max(la1,y)});
+ const lat=(la0+la1)/2,nt=z=>{const c=Math.ceil(trX(lo1,z)/256)-Math.floor(trX(lo0,z)/256)+2,r=Math.ceil(trY(la0,z)/256)-Math.floor(trY(la1,z)/256)+2;return c*r};
+ let z=13;while(z>8&&nt(z)>TRMAXT)z--;
+ const mpp=trMpp(z,lat),cap=res?TRMAXC:TRMAXCC;let r=res||mpp,X0=trX(lo0,z),X1=trX(lo1,z),Y0=trY(la1,z),Y1=trY(la0,z),c=r/mpp;
+ const cells=c=>(Math.ceil((X1-X0)/c)+2)*(Math.ceil((Y1-Y0)/c)+2);
+ if(cells(c)>cap){const need=r*Math.sqrt(cells(c)/cap);r=res?TRNICE.find(x=>x>=need)||Math.ceil(need/100)*100:need;c=r/mpp;while(cells(c)>cap){r*=1.1;c=r/mpp}}
+ const W=Math.ceil((X1-X0)/c)+2,H=Math.ceil((Y1-Y0)/c)+2,Ox=X0-c,Oy=Y0-c;
+ // โหลดแผ่น DEM ที่ครอบตาราง
+ const tx0=Math.floor((Ox-1)/256),tx1=Math.floor((Ox+W*c+1)/256),ty0=Math.floor((Oy-1)/256),ty1=Math.floor((Oy+H*c+1)/256),L=[],T=new Map();
+ for(let y=ty0;y<=ty1;y++)for(let x=tx0;x<=tx1;x++)if(y>=0&&y<2**z)L.push([x,y]);let n=0;prog&&prog(0,L.length);
+ await Promise.all(L.map(([x,y])=>demTile(z,((x%2**z)+2**z)%2**z,y).then(a=>{T.set(x*1e6+y,a);n++;if(q===TR.q)prog&&prog(n,L.length)})));
+ if(q!==TR.q)return null;
+ const px=(x,y)=>{const t=T.get((x>>8)*1e6+(y>>8));return t?t[(y&255)*256+(x&255)]:NaN};
+ const bil=(X,Y)=>{X-=.5;Y-=.5;const x=Math.floor(X),y=Math.floor(Y),fx=X-x,fy=Y-y;return px(x,y)*(1-fx)*(1-fy)+px(x+1,y)*fx*(1-fy)+px(x,y+1)*(1-fx)*fy+px(x+1,y+1)*fx*fy};
+ const E=new Float32Array(W*H),ns=c>1.5?Math.min(4,Math.ceil(c)):1; // ช่องใหญ่กว่าพิกเซล DEM = เฉลี่ย ns×ns จุดในช่อง
+ for(let j=0;j<H;j++)for(let i=0;i<W;i++){let s=0;if(ns===1)s=bil(Ox+(i+.5)*c,Oy+(j+.5)*c);else{for(let b=0;b<ns;b++)for(let a=0;a<ns;a++)s+=bil(Ox+(i+(a+.5)/ns)*c,Oy+(j+(b+.5)/ns)*c);s/=ns*ns}E[j*W+i]=s}
+ // หน้ากากในรูป: กลางช่องอยู่ในรูป (scanline คู่-คี่)
+ const M=new Uint8Array(W*H),V=R.map(([x,y])=>[(trX(x,z)-Ox)/c,(trY(y,z)-Oy)/c]);let nin=0;
+ for(let j=0;j<H;j++){const yc=j+.5,xs=[];for(let k=0;k<V.length;k++){const a=V[k],b=V[(k+1)%V.length];if((a[1]>yc)!==(b[1]>yc))xs.push(a[0]+(yc-a[1])/(b[1]-a[1])*(b[0]-a[0]))}
+  xs.sort((a,b)=>a-b);for(let k=0;k+1<xs.length;k+=2){const i0=Math.max(0,Math.ceil(xs[k]-.5)),i1=Math.min(W-1,Math.floor(xs[k+1]-.5));for(let i=i0;i<=i1;i++){M[j*W+i]=1;nin++}}}
+ const ar=new Float64Array(H);for(let j=0;j<H;j++){const m=c*trMpp(z,trLa(Oy+(j+.5)*c,z));ar[j]=m*m} // ตร.ม. ต่อช่องของแถว
+ return{z,c,W,H,Ox,Oy,E,M,ar,r,mpp,nin,nt:L.length}}
+function trSA(G){const{W,H,E,M,c,z,Oy}=G,S=new Float32Array(W*H).fill(NaN),A=new Float32Array(W*H).fill(NaN);
+ for(let j=1;j<H-1;j++){const m=c*trMpp(z,trLa(Oy+(j+.5)*c,z));for(let i=1;i<W-1;i++){const k=j*W+i;if(!M[k])continue;const h=trHorn(E,k,W,m);S[k]=h[0];A[k]=h[1]}}
+ G.S=S;G.A=A}
+function trHorn(E,k,W,m){const a=E[k-W-1],b=E[k-W],c=E[k-W+1],d=E[k-1],f=E[k+1],g=E[k+W-1],h=E[k+W],i=E[k+W+1];
+ const dx=((c+2*f+i)-(a+2*d+g))/(8*m),dy=((g+2*h+i)-(a+2*b+c))/(8*m); // dx ไปทางตะวันออก, dy ไปทางใต้
+ return[Math.atan(Math.hypot(dx,dy))*180/Math.PI,(Math.atan2(-dx,dy)*180/Math.PI+360)%360]}
+/* สถิติความสูงในรูป */
+function trElev(G){const{E,M,ar,W}=G;let mn=Infinity,mx=-Infinity,s=0,w=0,a=0;for(let k=0;k<E.length;k++){if(!M[k]||isNaN(E[k]))continue;const e=E[k],q=ar[(k/W)|0];if(e<mn)mn=e;if(e>mx)mx=e;s+=e*q;w+=q}return{mn,mx,av:w?s/w:NaN,a:w}}
+/* ภาพ raster ความลาดชัน/ทิศด้านลาด → canvas + สถิติรายชั้น */
+function trRaster(G,t){const{W,H,M,S,A,ar}=G,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d'),im=g.createImageData(W,H),d=im.data;
+ const N=t==='s'?TRSL.length:TRAS.length,cnt=new Float64Array(N),rgb=(t==='s'?TRSL.map(x=>x[2]):TRAS.map(x=>x[1])).map(h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)));let sw=0,ss=0,smx=0;
+ for(let j=0;j<H;j++)for(let i=0;i<W;i++){const k=j*W+i;if(!M[k]||isNaN(S[k]))continue;const s=S[k],ci=t==='s'?trSc(s):trAc(s,A[k]),q=ar[j],o=k*4;cnt[ci]+=q;sw+=q;ss+=s*q;if(s>smx)smx=s;d[o]=rgb[ci][0];d[o+1]=rgb[ci][1];d[o+2]=rgb[ci][2];d[o+3]=255}
+ g.putImageData(im,0,0);return{cv,cnt:[...cnt],sw,sm:sw?ss/sw:NaN,smx}}
+const trCorners=G=>{const{Ox,Oy,c,W,H,z}=G,x0=trLo(Ox,z),x1=trLo(Ox+W*c,z),y0=trLa(Oy,z),y1=trLa(Oy+H*c,z);return[[x0,y0],[x1,y0],[x1,y1],[x0,y1]]};
+/* เส้นชั้นความสูง (marching squares + ต่อปลายเส้นตามรหัสขอบ) */
+function trContours(G,iv){const{W,H,E,M,Ox,Oy,c,z}=G,Es=new Float32Array(W*H),tmp=new Float32Array(W*H),K=[1,4,6,4,1];
+ const blur=(src,dst,dx)=>{for(let j=0;j<H;j++)for(let i=0;i<W;i++){let s=0,w=0;for(let q=-2;q<=2;q++){const x=dx?i+q:i,y=dx?j:j+q;if(x<0||y<0||x>=W||y>=H)continue;const v=src[y*W+x];if(isNaN(v))continue;s+=v*K[q+2];w+=K[q+2]}dst[j*W+i]=w?s/w:NaN}};
+ blur(E,tmp,1);blur(tmp,Es,0);
+ const el=trElev(G),k0=Math.ceil(el.mn/iv),k1=Math.floor(el.mx/iv),NL=Math.max(1,k1-k0+1),pts=new Map(),segs=[];
+ if(!(k1>=k0))return{F:[],el,nl:0,len:0};
+ // จุดตัดบนขอบ: h(i,j) = ขอบแนวนอน (i,j)-(i+1,j) · v(i,j) = ขอบแนวตั้ง (i,j)-(i,j+1)
+ const ept=(e,L)=>{const n=e>>1,i=n%W,j=(n-i)/W,a=Es[n],b=e&1?Es[n+W]:Es[n+1],t=(L-a)/(b-a);return e&1?[i,j+t]:[i+t,j]};
+ for(let j=0;j<H-1;j++)for(let i=0;i<W-1;i++){const n=j*W+i;if(!(M[n]||M[n+1]||M[n+W]||M[n+W+1]))continue;
+  const tl=Es[n],tr=Es[n+1],bl=Es[n+W],br=Es[n+W+1];if(isNaN(tl)||isNaN(tr)||isNaN(bl)||isNaN(br))continue;
+  const lo=Math.min(tl,tr,bl,br),hi=Math.max(tl,tr,bl,br),ka=Math.max(k0,Math.floor(lo/iv)+1),kb=Math.min(k1,Math.floor(hi/iv));
+  const T=2*n,R=2*(n+1)+1,B=2*(n+W),Lf=2*n+1;
+  for(let k=ka;k<=kb;k++){const L=k*iv,cs=(tl>=L?8:0)|(tr>=L?4:0)|(br>=L?2:0)|(bl>=L?1:0);if(!cs||cs===15)continue;let S;
+   switch(cs){case 1:case 14:S=[[Lf,B]];break;case 2:case 13:S=[[B,R]];break;case 3:case 12:S=[[Lf,R]];break;case 4:case 11:S=[[T,R]];break;case 6:case 9:S=[[T,B]];break;case 7:case 8:S=[[Lf,T]];break;
+    case 5:S=(tl+tr+bl+br)/4>=L?[[Lf,T],[B,R]]:[[Lf,B],[T,R]];break;case 10:S=(tl+tr+bl+br)/4>=L?[[T,R],[Lf,B]]:[[Lf,T],[B,R]];break}
+   const ki=k-k0;S.forEach(([a,b])=>{const A=a*NL+ki,Bk=b*NL+ki;if(!pts.has(A))pts.set(A,ept(a,L));if(!pts.has(Bk))pts.set(Bk,ept(b,L));segs.push(A,Bk)})}}
+ // ต่อส่วนเส้นเป็นเส้นยาว
+ const adj=new Map(),ns=segs.length/2;for(let s=0;s<ns;s++)for(const p of[segs[2*s],segs[2*s+1]]){const a=adj.get(p);if(a)a.push(s);else adj.set(p,[s])}
+ const used=new Uint8Array(ns),F=[];let nv=0,len=0;
+ const walk=s0=>{let s=s0,p=adj.get(segs[2*s]).length===1||adj.get(segs[2*s+1]).length!==1?segs[2*s]:segs[2*s+1];const L=[p];
+  while(s>=0&&!used[s]){used[s]=1;const q=segs[2*s]===p?segs[2*s+1]:segs[2*s];L.push(q);p=q;const a=adj.get(p);s=-1;for(const x of a)if(!used[x]){s=x;break}}return L};
+ const emit=L=>{if(L.length<2)return;const k=L[0]%NL+k0,e=k*iv,C=L.map(id=>{const[x,y]=pts.get(id),X=Ox+(x+.5)*c,Y=Oy+(y+.5)*c;return[+trLo(X,z).toFixed(6),+trLa(Y,z).toFixed(6)]});
+  for(let i=1;i<L.length;i++){const[a,b]=pts.get(L[i-1]),[p,q]=pts.get(L[i]);len+=Math.hypot(p-a,q-b)*c*trMpp(z,C[i][1])}
+  nv+=C.length;F.push({type:'Feature',properties:{e,ix:k%5===0?1:0},geometry:{type:'LineString',coordinates:C}})};
+ for(let s=0;s<ns;s++)if(!used[s]&&(adj.get(segs[2*s]).length===1||adj.get(segs[2*s+1]).length===1)){emit(walk(s));if(nv>TRMAXV)break} // เส้นเปิดก่อน
+ if(nv<=TRMAXV)for(let s=0;s<ns;s++)if(!used[s]){emit(walk(s));if(nv>TRMAXV)break} // เส้นวงปิด
+ return{F,el,nl:new Set(F.map(f=>f.properties.e)).size,len,over:nv>TRMAXV}}
+/* ชั้นบนแผนที่ */
+const TRE={type:'FeatureCollection',features:[]},TR0='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+function trLayers(){if(!map.getSource('dem')||map.getSource('trc'))return;const bf=map.getLayer('hot-glow')?'hot-glow':undefined;
+ map.addSource('trc',{type:'geojson',data:TRE});map.addSource('tri',{type:'image',url:TR0,coordinates:[[100,15],[100.0001,15],[100.0001,14.9999],[100,14.9999]]});
+ map.addLayer({id:'tri',type:'raster',source:'tri',layout:{visibility:'none'},paint:{'raster-opacity':TR.op,'raster-fade-duration':0}},bf);
+ map.addLayer({id:'trc-h',type:'line',source:'trc',layout:{'line-join':'round','line-cap':'round'},paint:{'line-color':'rgba(45,30,0,.45)','line-width':['case',['==',['get','ix'],1],3.6,2.4]}},bf);
+ map.addLayer({id:'trc-l',type:'line',source:'trc',layout:{'line-join':'round','line-cap':'round'},paint:{'line-color':'#f5b301','line-width':['case',['==',['get','ix'],1],2.2,1.1]}},bf);
+ if(map.getStyle().glyphs)map.addLayer({id:'trc-t',type:'symbol',source:'trc',layout:{'symbol-placement':'line','symbol-spacing':260,'text-field':['step',['zoom'],['case',['==',['get','ix'],1],['to-string',['get','e']],''],13.5,['to-string',['get','e']]],'text-font':['Noto Sans Bold'],'text-size':11,'text-max-angle':35,'text-keep-upright':true,'text-padding':4},paint:{'text-color':'#4a3200','text-halo-color':'#fff','text-halo-width':1.6}},bf);
+ trDraw()}
+function trDraw(){const s=map.getSource('trc');if(!s)return;const R=TR.R;if(map.getLayer('msr-f'))map.setPaintProperty('msr-f','fill-opacity',R?0:.18); // ผลวิเคราะห์อยู่แล้ว = ไม่ระบายสีฟ้าทับ (สีเพี้ยน)
+ const vis=(id,on)=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',on?'visible':'none');
+ s.setData(R&&R.t==='c'?{type:'FeatureCollection',features:R.F}:TRE);['trc-h','trc-l','trc-t'].forEach(id=>vis(id,R&&R.t==='c'));
+ if(R&&R.t!=='c'&&R.url){map.getSource('tri').updateImage({url:R.url,coordinates:R.co});map.setPaintProperty('tri','raster-opacity',TR.op);vis('tri',1)}else vis('tri',0)}
+function trClear(){TR.q++;TR.R=null;TR.st='';trDraw()}
+/* วิเคราะห์ (แคชตารางล่าสุด 3 ชุดตามรูป+ความละเอียด) */
+let TRT0=0;const trLater=()=>{clearTimeout(TRT0);TRT0=setTimeout(trRun,350)};
+async function trRun(){clearTimeout(TRT0);if(!MS.on||!MS.tr||!MS.done||MS.pts.length<3)return;const q=++TR.q,P=MS.pts.slice(),t=TR.t,A=msArea(P);
+ if(A>TRMAXA){TR.R=null;TR.st=`พื้นที่ใหญ่เกินไป (${msNf(A/1e6,0)} ตร.กม.) วิเคราะห์ได้ไม่เกิน ${msNf(TRMAXA/1e6,0)} ตร.กม.`;trDraw();trRes();return}
+ TR.st='กำลังเตรียมข้อมูลความสูง…';trRes();
+ try{const res=t==='c'?0:TR.res,key=JSON.stringify(P)+'|'+res;let G=TR.C.find(g=>g.key===key);
+  if(!G){G=await trGrid(P,res,q,(a,b)=>{if(q===TR.q&&b>1){TR.st=`กำลังโหลดข้อมูลความสูง ${a}/${b} แผ่น…`;trRes()}});if(!G||q!==TR.q)return;G.key=key;TR.C.unshift(G);TR.C.length=Math.min(TR.C.length,3)}
+  await new Promise(r=>setTimeout(r,0));if(q!==TR.q)return;
+  if(!G.nin)throw new Error('พื้นที่เล็กเกินไปสำหรับความละเอียดนี้');
+  const R={t,G,A,P,el:trElev(G)};
+  if(t==='c'){const iv=TR.iv,C=trContours(G,iv);Object.assign(R,C,{iv});if(C.over)throw new Error('เส้นชั้นความสูงมากเกินไป ลองเพิ่มระยะห่างเส้นหรือวาดพื้นที่ให้เล็กลง')}
+  else{if(!G.S)trSA(G);const X=trRaster(G,t);Object.assign(R,X,{url:X.cv.toDataURL('image/png'),co:trCorners(G)})}
+  if(q!==TR.q)return;TR.R=R;TR.st='';trDraw();trRes()}
+ catch(e){if(q!==TR.q)return;TR.R=null;TR.st=e.message||'วิเคราะห์ไม่ได้';trDraw();trRes()}}
+/* แผง */
+function trPanel(){const b=$('#ms-b'),n=MS.pts.length,tc=msTouch();$('#ms-t').textContent='วิเคราะห์ภูมิประเทศ';$('#msr').title='';
+ let h=`<div class="trtb" role="group" aria-label="เลือกเครื่องมือ">${TRT.map(([k,nm,ic])=>`<button data-tr="t" data-v="${k}" aria-pressed="${TR.t===k}">${ic}<span>${nm}</span></button>`).join('')}</div>`;
+ if(TR.t==='c')h+=`<div class="trp"><label for="tr-iv">ระยะห่างเส้น</label><span class="trin"><button data-tr="iv" data-v="-1" aria-label="ลดระยะห่าง">−</button><input id="tr-iv" type="number" min="1" max="20" step="1" inputmode="numeric" value="${TR.iv}" aria-label="ระยะห่างเส้นชั้นความสูง (เมตร) 1–20"><button data-tr="iv" data-v="1" aria-label="เพิ่มระยะห่าง">+</button></span><span>ม. (1–20)</span></div>`;
+ else h+=`<div class="trp"><span>ความละเอียด</span><div class="trsg" role="group" aria-label="ความละเอียด (เมตร)">${TRRES.map(r=>`<button data-tr="res" data-v="${r}" aria-pressed="${TR.res===r}">${r}</button>`).join('')}</div><span>ม.</span></div>`
+  +(TR.t==='s'?`<div class="trp"><span>หน่วย</span><div class="trsg" role="group" aria-label="หน่วยความลาดชัน"><button data-tr="pu" data-v="d" aria-pressed="${TR.pu==='d'}">องศา</button><button data-tr="pu" data-v="p" aria-pressed="${TR.pu==='p'}">เปอร์เซ็นต์</button></div></div>`:'');
+ if(!MS.done){h+=`<div class="trn">${n?'':'<b>ขอบเขตพื้นที่:</b> '}${tc?'เลื่อนแผนที่ให้กากบาทตรงมุมของพื้นที่ แล้วกด + เพิ่มจุด · เล็งที่จุดที่ 1 เพื่อปิดรูป':'คลิกทีละจุดรอบพื้นที่ที่ต้องการ · คลิกจุดที่ 1 หรือดับเบิลคลิกเพื่อปิดรูปและวิเคราะห์'}</div>`;
+  if(n>2)h+=`<div class="msk"><span>พื้นที่</span><b class="w">${msRai(msArea(MS.pts))}</b></div>`;
+  const B=[];if(tc)B.push('<button class="btn pri" data-ms="a">+ เพิ่มจุด</button>');if(n)B.push('<button class="btn" data-ms="u">↶ ย้อนจุด</button>');if(n>2)B.push('<button class="btn pri" data-ms="c">ปิดรูปและวิเคราะห์</button>');
+  B.push('<button class="btn" data-tr="view" title="ใช้กรอบพื้นที่แผนที่ที่มองเห็นอยู่เป็นขอบเขต">ใช้พื้นที่ที่มองเห็น</button>');if(n)B.push('<button class="btn" data-ms="r">ล้าง</button>');
+  h+='<div class="msbt">'+B.join('')+'</div>'}
+ else h+='<div id="tr-r" aria-live="polite"></div>';
+ b.innerHTML=h;if(MS.done)trRes()}
+function trBars(rows){return'<div class="trlg">'+rows.map(([c,l,p,v,t])=>`<div title="${esc(t||l)}"><i style="background:${c}"></i><span>${l}</span><s><u style="width:${Math.max(p>0?1.5:0,p)}%;background:${c}"></u></s><em>${!p?'0':p>=.05?msNf(p,p<10?1:0):'<0.1'}%</em>${v!=null?`<small>${v}</small>`:''}</div>`).join('')+'</div>'}
+const trRaiS=m2=>{const r=m2/1600;return msNf(r,r<10&&r>0?1:0)+' ไร่'};
+function trRose(cnt,sw){const s=cnt.slice(1),mx=Math.max(...s,1e-9),R=46,C=56;let p='';
+ s.forEach((v,i)=>{const r=8+(R-8)*Math.sqrt(v/mx),a0=(i*45-22.5-90)*Math.PI/180,a1=(i*45+22.5-90)*Math.PI/180;
+  p+=`<path d="M${C},${C}L${(C+r*Math.cos(a0)).toFixed(1)},${(C+r*Math.sin(a0)).toFixed(1)}A${r.toFixed(1)},${r.toFixed(1)} 0 0 1 ${(C+r*Math.cos(a1)).toFixed(1)},${(C+r*Math.sin(a1)).toFixed(1)}Z" fill="${TRAS[i+1][1]}" stroke="#fff" stroke-width=".8"><title>${TRAS[i+1][2]} ${msNf(sw?v/sw*100:0,1)}%</title></path>`});
+ return`<svg class="trro" viewBox="-10 -2 132 116" role="img" aria-label="แผนภาพสัดส่วนทิศด้านลาด"><circle cx="${C}" cy="${C}" r="${R}" fill="none" stroke="#d5d9e2" stroke-dasharray="2 2"/>${p}<circle cx="${C}" cy="${C}" r="${(8*Math.sqrt(sw?cnt[0]/sw:0)+2).toFixed(1)}" fill="${TRAS[0][1]}" stroke="#fff"/><g font-size="9" font-weight="700" fill="#4a5568" text-anchor="middle"><text x="${C}" y="8">น.</text><text x="${C}" y="110">ต.</text><text x="114" y="${C+3}">ตอ.</text><text x="-1" y="${C+3}">ตต.</text></g></svg>`}
+function trRes(){const e=$('#tr-r');if(!e||!MS.tr)return;const R=TR.R;let h='';
+ const kv=(...a)=>'<div class="msk">'+a.map(([k,v,w])=>`<span>${k}</span><b${w?' class="w"':''}>${v}</b>`).join('')+'</div>';
+ if(TR.st&&!R)h=`<div class="trst">${/^กำลัง/.test(TR.st)?'<i class="trsp"></i>':''}${esc(TR.st)}</div>`;
+ else if(R){const G=R.G,el=R.el,rs=msNf(G.r,Number.isInteger(G.r)||G.r>=20?0:1),dem=msNf(G.mpp,0);
+  if(TR.st)h+=`<div class="trst"><i class="trsp"></i>${esc(TR.st)}</div>`;
+  h+=kv(['พื้นที่',msRai(R.A),1],['ความสูง',isFinite(el.mn)?msNf(el.mn,0)+'–'+msNf(el.mx,0)+' ม.':'—'],['ต่างระดับ',isFinite(el.mn)?msNf(el.mx-el.mn,0)+' ม.':'—']);
+  if(R.t==='c'){h+=kv(['ความสูงเฉลี่ย',msNf(el.av,0)+' ม.'],['จำนวนระดับ',msNf(R.nl,0)+' ระดับ'],['ความยาวเส้นรวม',msDS(R.len),1]);
+   h+=`<div class="trcl"><i></i><span>เส้นชั้นความสูง ทุก ${R.iv} ม.</span></div><div class="trcl ix"><i></i><span>เส้นหนัก ทุก ${R.iv*5} ม. (มีตัวเลขกำกับ)</span></div>`;
+   h+=`<div class="trn">ตารางคำนวณ ~${rs} ม.${R.iv<5?' · ข้อมูลความสูงต้นทางละเอียดราว 30 ม. เส้นถี่กว่า 5 ม. เป็นค่าประมาณ':''}</div>`}
+  else if(R.t==='s'){h+=kv(['ลาดชันเฉลี่ย',trSlTxt(R.sm)],['สูงสุด',trSlTxt(R.smx)]);
+   h+=trBars(TRSL.map((x,i)=>[x[2],trSlLab(i),R.sw?R.cnt[i]/R.sw*100:0,trRaiS(R.cnt[i]),x[3]+' '+trSlLab(i)]));
+   h+=`<div class="trn">ความละเอียด ${rs} ม.${G.r<30?' (ละเอียดกว่าข้อมูลต้นทาง ~30 ม. = ค่าประมาณ)':''} · ${TR.pu==='p'?'เปอร์เซ็นต์ = ระยะตั้ง/ระยะราบ × 100':'องศาจากแนวราบ'}</div>`}
+  else{const s=R.cnt.slice(1),im=s.indexOf(Math.max(...s));h+=kv(['ด้านลาดส่วนใหญ่',R.sw?TRAS[im+1][2]+' '+msNf(s[im]/R.sw*100,0)+'%':'—',1]);
+   h+=`<div class="trag">${trRose(R.cnt,R.sw)}${trBars(TRAS.map((x,i)=>[x[1],x[0],R.sw?R.cnt[i]/R.sw*100:0,null,x[2]]))}</div>`;
+   h+=`<div class="trn">ทิศด้านลาด = ทิศที่พื้นลาดลง (ด้านที่หันหน้าไป) · ความละเอียด ${rs} ม.</div>`}
+  if(R.t!=='c')h+=`<div class="trp trop"><label for="tr-op">ความทึบ</label><input type="range" id="tr-op" min="20" max="100" step="5" value="${Math.round(TR.op*100)}"><span id="tr-opv">${Math.round(TR.op*100)}%</span></div>`;
+  if(G.mpp>25)h+=`<div class="trn">พื้นที่ใหญ่: ใช้ข้อมูลความสูงหยาบลงเป็น ~${dem} ม./พิกเซล</div>`;
+  h+=`<div class="trn">${msTouch()?'แตะ':'ชี้'}บนแผนที่เพื่อดูความสูง ลาดชัน และทิศด้านลาด ณ จุดนั้น · ลากจุดมุมเพื่อปรับขอบเขต</div>`}
+ const B=['<button class="btn" data-ms="n">วาดพื้นที่ใหม่</button>','<button class="btn" data-tr="view">ใช้พื้นที่ที่มองเห็น</button>'];
+ if(R){B.push('<button class="btn" data-ms="y">คัดลอกผล</button>');B.push(R.t==='c'?'<button class="btn pri" data-tr="save" title="บันทึกเส้นลงชั้นข้อมูลของฉัน (ส่งออกเป็น KMZ/Shapefile/GeoJSON ได้จากเครื่องมือวาดและชั้นข้อมูล)">บันทึกเส้นเป็นชั้นข้อมูล</button>':'<button class="btn" data-tr="png" title="ภาพ PNG พร้อมไฟล์อ้างอิงพิกัด (.pgw .prj — EPSG:3857) เปิดใน QGIS/ArcGIS ได้">ดาวน์โหลดภาพ</button>')}
+ e.innerHTML=h+'<div class="msbt">'+B.join('')+'</div>'}
+function trText(){const R=TR.R;if(!R)return'';const el=R.el,nm=TRT.find(x=>x[0]===R.t)[1],o=[`วิเคราะห์ภูมิประเทศ — ${nm}`,`พื้นที่ ${msRai(R.A)} (${msK2(R.A)})`];
+ if(isFinite(el.mn))o.push(`ความสูง ${msNf(el.mn,0)}–${msNf(el.mx,0)} ม. · เฉลี่ย ${msNf(el.av,0)} ม. · ต่างระดับ ${msNf(el.mx-el.mn,0)} ม.`);
+ if(R.t==='c')o.push(`เส้นชั้นความสูงทุก ${R.iv} ม. (เส้นหนักทุก ${R.iv*5} ม.) ${R.nl} ระดับ ยาวรวม ${msDS(R.len)}`);
+ else if(R.t==='s'){o.push(`ลาดชันเฉลี่ย ${trSlTxt(R.sm)} · สูงสุด ${trSlTxt(R.smx)} (ความละเอียด ${msNf(R.G.r,0)} ม.)`);TRSL.forEach((x,i)=>o.push(`  ${trSlLab(i)} ${x[3]}: ${msNf(R.sw?R.cnt[i]/R.sw*100:0,1)}% (${trRaiS(R.cnt[i])})`))}
+ else{o.push(`ทิศด้านลาด (ความละเอียด ${msNf(R.G.r,0)} ม.)`);TRAS.forEach((x,i)=>o.push(`  ${x[2]}: ${msNf(R.sw?R.cnt[i]/R.sw*100:0,1)}%`))}
+ o.push('ข้อมูลความสูง: Terrarium/Mapzen (AWS) ต้นทางในไทยละเอียดราว 30 ม.');o.push('ขอบเขต:\n'+(typeof ulPtList==='function'?ulPtList(R.P):R.P.map(p=>p[1].toFixed(6)+', '+p[0].toFixed(6)).join('\n')));return o.join('\n')}
+/* ค่า ณ จุด (ชี้/แตะ) จากตารางของผลล่าสุด */
+function trAt(lon,lat){const R=TR.R;if(!R)return null;const G=R.G,{z,c,W,H,Ox,Oy,E}=G,i=Math.floor((trX(lon,z)-Ox)/c),j=Math.floor((trY(lat,z)-Oy)/c);
+ if(i<1||j<1||i>=W-1||j>=H-1)return null;const k=j*W+i,h=trHorn(E,k,W,c*trMpp(z,lat));return{e:E[k],s:h[0],a:h[1],in:!!G.M[k]}}
+function trHudHtml(v){return`<b>ความสูง ${msNf(v.e,0)} ม.</b><span>ลาดชัน ${msNf(v.s,1)}° (${msNf(trPct(v.s),0)}%)</span><span>${v.s<TRFLAT?'พื้นราบ':'ด้านลาดหันไปทิศ'+trDir(v.a)+' ('+msNf(v.a,0)+'°)'}</span>${v.in?'':'<i>อยู่นอกขอบเขตที่วิเคราะห์</i>'}`}
+function trProbe(e,tap){const v=trAt(e.lngLat.lng,e.lngLat.lat),H=$('#mhud');if(!v||isNaN(v.e)){H.hidden=true;return}
+ msHudPut(trHudHtml(v),e.originalEvent.clientX,e.originalEvent.clientY,tap);if(tap){clearTimeout(TR.hud);TR.hud=setTimeout(()=>{H.hidden=true},4000)}}
+/* ขอบเขตจากที่อื่น: พื้นที่ที่มองเห็น / รูปจากเครื่องมือวัด / รูปในชั้นข้อมูลของฉัน */
+function trUse(P,fit){if(!MS.on||!MS.tr)msSet(true,1);if(P.length>2&&P[0][0]===P[P.length-1][0]&&P[0][1]===P[P.length-1][1])P=P.slice(0,-1);
+ if(P.length>120){let t=1e-6;let Q=P;while(Q.length>120&&t<1){Q=trDP(P,t);t*=2}P=Q}
+ MS.pts=P.map(p=>[p[0],p[1]]);MS.done=false;MS.closed=false;MS.snap=false;msFinish(1);
+ if(fit){const b=GIO.bbox([{type:'Feature',geometry:{type:'Polygon',coordinates:[P.concat([P[0]])]}}]);if(b){const pd=Object.assign({},homePad()),r=$('#msr').getBoundingClientRect(); // เว้นแผงของเครื่องมือนี้
+  if(innerWidth>767)pd.right=Math.max(pd.right,innerWidth-r.left+24);else pd.top=Math.max(pd.top,r.bottom+16);map.fitBounds([[b[0],b[1]],[b[2],b[3]]],{padding:pd,maxZoom:16,duration:dur(700)})}}}
+function trDP(P,t){const d=(p,a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],L=dx*dx+dy*dy;if(!L)return Math.hypot(p[0]-a[0],p[1]-a[1]);const u=Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/L));return Math.hypot(p[0]-a[0]-u*dx,p[1]-a[1]-u*dy)};
+ const keep=new Uint8Array(P.length);keep[0]=keep[P.length-1]=1;const st=[[0,P.length-1]];while(st.length){const[a,b]=st.pop();let m=-1,mi=0;for(let i=a+1;i<b;i++){const x=d(P[i],P[a],P[b]);if(x>m){m=x;mi=i}}if(m>t){keep[mi]=1;st.push([a,mi],[mi,b])}}
+ return P.filter((p,i)=>keep[i])}
+function trView(){const{m,x0,x1,y0,y1}=visArea(),r=$('#msr').getBoundingClientRect(),mob=innerWidth<=767;let t=y0;if(mob&&r.height)t=Math.max(t,r.bottom);
+ const px=(x1-x0)*.08,py=(y1-t)*.08,X0=x0+px-m.left,X1=x1-px-m.left,Y0=t+py-m.top,Y1=y1-py-m.top;
+ if(X1-X0<40||Y1-Y0<40){toast('พื้นที่แผนที่ที่มองเห็นเล็กเกินไป');return}
+ trUse([[X0,Y0],[X1,Y0],[X1,Y1],[X0,Y1]].map(p=>{const l=map.unproject(p);return[l.lng,l.lat]}))}
+function trSave(){const R=TR.R;if(!R||R.t!=='c'||!R.F.length){toast('ยังไม่มีเส้นชั้นความสูง');return}
+ const fc={type:'FeatureCollection',features:R.F.map(f=>({type:'Feature',properties:{_id:ulId(),name:f.properties.e+' ม.','ความสูง_ม':f.properties.e,'เส้นหนัก':f.properties.ix?'ใช่':'ไม่'},geometry:f.geometry}))};
+ const l=ulNewL(`เส้นชั้นความสูง ทุก ${R.iv} ม.`,fc,{src:'terrain',color:'#c98a00'});ulRender('l'+l.id);if(typeof ulList==='function')ulList();
+ toast(`บันทึก ${msNf(R.F.length,0)} เส้นลงชั้นข้อมูลของฉันแล้ว · แตะเพื่อเปิดรายการชั้นข้อมูล`,()=>{msSet(false);ulOpen(true);panFit()},6000)}
+async function trPng(){const R=TR.R;if(!R||!R.cv)return;const G=R.G,{z,c,Ox,Oy}=G,Rr=6378137,wm=2*Math.PI*Rr/trW(z),s=c*wm,x=(Ox+c/2)*wm-Math.PI*Rr,y=Math.PI*Rr-(Oy+c/2)*wm;
+ const png=new Uint8Array(await (await new Promise(r=>R.cv.toBlob(r,'image/png'))).arrayBuffer()),nm=(R.t==='s'?'slope':'aspect')+'_'+msNf(G.r,0).replace(/,/g,'')+'m';
+ const prj='PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]';
+ const lg=(R.t==='s'?TRSL.map((x,i)=>`${x[2]}\t${trSlLab(i)}\t${x[3]}\t${msNf(R.sw?R.cnt[i]/R.sw*100:0,1)}%`):TRAS.map((x,i)=>`${x[1]}\t${x[2]}\t${msNf(R.sw?R.cnt[i]/R.sw*100:0,1)}%`)).join('\r\n');
+ ulDl(await GIO.zip([{name:nm+'.png',data:png},{name:nm+'.pgw',data:[s,0,0,-s,x,y].map(v=>v.toFixed(6)).join('\r\n')+'\r\n'},{name:nm+'.prj',data:prj},{name:nm+'_สัญลักษณ์.txt',data:'﻿'+trText()+'\r\n\r\nสี\r\n'+lg+'\r\n'}]),nm+'.zip');toast('ดาวน์โหลดภาพ '+nm+'.zip แล้ว')}
+/* ตัวจัดการปุ่มในแผง */
+$('#ms-b').addEventListener('click',e=>{const k=e.target.closest('[data-tr]');if(!k||!MS.tr)return;const a=k.dataset.tr,v=k.dataset.v;
+ if(a==='t'){if(TR.t===v)return;TR.t=v;trKeep();msPanel();if(MS.done){TR.R=null;trDraw();trRun()}}
+ else if(a==='iv'){TR.iv=Math.max(1,Math.min(20,TR.iv+(+v)));trKeep();$('#tr-iv').value=TR.iv;if(MS.done)trLater()}
+ else if(a==='res'){TR.res=+v;trKeep();$$('#ms-b [data-tr=res]').forEach(x=>x.setAttribute('aria-pressed',x===k));if(MS.done)trRun()}
+ else if(a==='pu'){TR.pu=v;trKeep();$$('#ms-b [data-tr=pu]').forEach(x=>x.setAttribute('aria-pressed',x===k));trRes()}
+ else if(a==='view')trView();else if(a==='save')trSave();else if(a==='png')trPng().catch(()=>toast('สร้างไฟล์ภาพไม่ได้'))});
+$('#ms-b').addEventListener('input',e=>{if(!MS.tr)return;const t=e.target;
+ if(t.id==='tr-iv'){const v=Math.round(+t.value);if(v>=1&&v<=20&&v!==TR.iv){TR.iv=v;trKeep();if(MS.done)trLater()}}
+ else if(t.id==='tr-op'){TR.op=+t.value/100;trKeep();$('#tr-opv').textContent=t.value+'%';if(map.getLayer('tri'))map.setPaintProperty('tri','raster-opacity',TR.op)}});
+$('#ms-b').addEventListener('change',e=>{if(MS.tr&&e.target.id==='tr-iv'){const v=Math.max(1,Math.min(20,Math.round(+e.target.value)||TR.iv));e.target.value=v;if(v!==TR.iv){TR.iv=v;trKeep();if(MS.done)trRun()}}});
+$('#bTr').onclick=()=>msSet(!(MS.on&&MS.tr),1);
+if(map.getSource('dem'))trLayers();
 </script>
 <script>
 /* ===== GIO: อ่าน/เขียนไฟล์ภูมิสารสนเทศในเบราว์เซอร์ (ไม่ใช้ไลบรารีภายนอก ยกเว้น proj4 จาก cdnjs เมื่อเจอระบบพิกัดแปลก) =====
@@ -4252,12 +4479,13 @@ function ulPop(k,fid,ll){const x=ulFind(k,fid);if(!x||!x.f)return;const{e,f}=x,p
  const ms=ulMeas(g,p._z).map(([a,b])=>`<tr><td>${a}</td><td><b>${b}</b></td></tr>`).join('');
  const at=pt?g.coordinates:[ll.lng,ll.lat];
  const h=`<div class="ulpp"><div class="ulpt"><i class="uldot" style="background:${esc(p._c||e.color)}"></i>${esc(e.name)}${e.srv?' · เซิร์ฟเวอร์':''}</div><b class="ulnm">${nm!=null&&nm!==''?esc(nm):'<span class="sm">ไม่มีชื่อ</span>'}</b>${ds?`<div class="ulds">${esc(ulDesc(ds))}</div>`:''}
-  <div class="ulpw"><table>${ms}${rows}</table></div><div class="ulpb"><a data-u="s">แชร์</a><a data-u="z">ซูม</a>${loc?'<a data-u="e">แก้ไข</a><a data-u="x" style="color:#b42318">ลบ</a>':''}<a data-u="c">คัดลอกพิกัด</a>${pt?`<a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${g.coordinates[1]},${g.coordinates[0]}">นำทาง</a>`:''}</div></div>`;
+  <div class="ulpw"><table>${ms}${rows}</table></div><div class="ulpb"><a data-u="s">แชร์</a><a data-u="z">ซูม</a>${loc?'<a data-u="e">แก้ไข</a><a data-u="x" style="color:#b42318">ลบ</a>':''}<a data-u="c">คัดลอกพิกัด</a>${/Polygon/.test(g.type)?'<a data-u="t">วิเคราะห์ภูมิประเทศ</a>':''}${pt?`<a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${g.coordinates[1]},${g.coordinates[0]}">นำทาง</a>`:''}</div></div>`;
  if(ULP)ULP.remove();ULP=new maplibregl.Popup({maxWidth:'300px',offset:pt&&!UL.mm[k]?{bottom:[0,-30],'bottom-left':[0,-30],'bottom-right':[0,-30],top:[0,4],left:[12,-14],right:[-12,-14]}:8}).setLngLat(at).setHTML(h).addTo(map);
  const pop=ULP;ulSel(f);pop.on('close',()=>{if(ULP===pop){ULP=null;ulSel(null)}});
  pop.getElement().addEventListener('click',ev=>{const a=ev.target.closest('[data-u]');if(!a)return;const u=a.dataset.u;
   if(u==='z')ulZoom(f);else if(u==='e'){pop.remove();ulOpen(true);udEdit(k,fid)}else if(u==='x'){pop.remove();ulDelF(k,fid)}
   else if(u==='s'){pop.remove();ulShare(k,fid)}
+  else if(u==='t'){pop.remove();const R=g.type==='Polygon'?g.coordinates[0]:g.coordinates.map(p=>p[0]).sort((a,b)=>msArea(b)-msArea(a))[0];if(innerWidth<=767&&UL.open)ulOpen(false);trUse(R,1)} // รูปหลายส่วน = ส่วนที่ใหญ่สุด (ไม่นับรู)
   else if(u==='c'){const t=ulCoordTxt(g,p._z);(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('คัดลอกพิกัดแล้ว'),()=>toast(t))}})}
 function ulZoom(x){const b=GIO.bbox(x.features?x.features:[x]);if(!b)return;if(b[0]===b[2]&&b[1]===b[3])map.easeTo({center:[b[0],b[1]],zoom:Math.max(map.getZoom(),14),duration:dur(700)});else map.fitBounds([[b[0],b[1]],[b[2],b[3]]],{padding:homePad(),maxZoom:16,duration:dur(700)})}
 function ulDelF(k,fid){const l=UL.L.find(x=>'l'+x.id===k);if(!l)return;const f=l.fc.features.find(x=>x.properties._id===fid),nm=f&&f.properties.name;
