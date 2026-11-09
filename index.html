@@ -467,7 +467,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 @media print{#kb{display:none!important}}
 /* พิมพ์แผนที่ (#pm) — หน้ากระดาษจำลองขนาดจริง 96 dpi ย่อ/ขยายด้วย transform (ซ้าย เลื่อนได้) + แผงตั้งค่าขวา (หัวแผงอยู่ในแผง ไม่มีแถบบน — ผู้ใช้ขอ 9 พ.ย. 69 ให้ที่แผนที่มากขึ้น) */
 #pm{position:fixed;inset:0;z-index:46;display:flex;flex-direction:column;background:#e6e9ef;color:var(--ink);outline:none}#pm[hidden]{display:none}body.pmon{overflow:hidden}
-.pmb{flex:1;display:flex;min-height:0}.pmv{flex:1;position:relative;min-width:0}.pmsc{position:absolute;inset:0;overflow:auto}.pmsz{position:relative}
+.pmb{flex:1;display:flex;min-height:0}.pmv{flex:1;display:flex;flex-direction:column;min-width:0}.pmsc{flex:1;position:relative;overflow:auto;min-height:0}.pmsz{position:relative}
 .pmpg{position:absolute;background:#fff;box-shadow:0 6px 30px rgba(0,0,0,.25);transform-origin:0 0;--iv:1}
 .pmm{position:absolute;background:#f4f4f4}.pmc{position:absolute;left:0;top:0;pointer-events:none}.pmo{position:absolute;inset:0;pointer-events:none}
 .pme{position:absolute;pointer-events:auto;cursor:move;touch-action:none;box-sizing:border-box}.pme:hover{outline:calc(1px*var(--iv)) dashed rgba(11,107,203,.7);outline-offset:calc(2px*var(--iv))}.pme.sel{outline:calc(2px*var(--iv)) dashed #0b6bcb;outline-offset:calc(2px*var(--iv))}
@@ -478,11 +478,12 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 .pmh.nw{left:calc(-8px*var(--iv));top:calc(-8px*var(--iv));cursor:nwse-resize}.pmh.ne{right:calc(-8px*var(--iv));top:calc(-8px*var(--iv));cursor:nesw-resize}.pmh.sw{left:calc(-8px*var(--iv));bottom:calc(-8px*var(--iv));cursor:nesw-resize}.pmh.se{right:calc(-8px*var(--iv));bottom:calc(-8px*var(--iv));cursor:nwse-resize}
 .pmh.w,.pmh.e{top:50%;margin-top:calc(-6px*var(--iv));cursor:ew-resize}.pmh.w{left:calc(-8px*var(--iv))}.pmh.e{right:calc(-8px*var(--iv))}
 .pmdel{position:absolute;right:calc(-10px*var(--iv));top:calc(-28px*var(--iv));width:calc(22px*var(--iv));height:calc(22px*var(--iv));border-radius:50%;background:#d93a1f;color:#fff;font:700 calc(12px*var(--iv))/calc(22px*var(--iv)) sans-serif;text-align:center;cursor:pointer;pointer-events:auto;box-shadow:0 1px 4px rgba(0,0,0,.3)}
-.pmzt{position:absolute;right:12px;bottom:12px;display:flex;align-items:center;gap:4px;background:#fff;border-radius:14px;box-shadow:0 4px 18px rgba(0,0,0,.18);padding:4px 6px;font-size:11.5px;color:var(--mut)}.pmzt .cb{width:34px;height:34px;box-shadow:none;border:1px solid var(--line);border-radius:10px}.pmzt i{width:1px;height:24px;background:var(--line);margin:0 4px}.pmzt span{padding:0 2px}
-.pmzv{min-width:52px;height:34px;border:1px solid var(--line);border-radius:10px;background:var(--bg);font:700 12px 'Noto Sans Thai',sans-serif;color:var(--navy);cursor:pointer}
-.pmhint{position:absolute;left:12px;bottom:12px;max-width:calc(100% - 430px);font-size:11.5px;color:#556;background:rgba(255,255,255,.9);padding:4px 12px;border-radius:12px;pointer-events:none}
+.pmzt{display:flex;align-items:center;gap:3px}.pmzt i{width:1px;height:20px;background:var(--line);margin:0 3px}
+.pmzb{width:28px;height:28px;display:grid;place-items:center;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);cursor:pointer;padding:0}.pmzb .i{width:16px;height:16px}.pmzb:hover{background:var(--sel)}
+.pmzv{min-width:44px;height:28px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font:700 11.5px 'Noto Sans Thai',sans-serif;color:var(--navy);cursor:pointer;padding:0 4px}
+.pmhint{flex:none;font-size:11px;line-height:1.5;color:#5a6274;padding:3px 12px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-top:1px solid #d6dbe4;background:#eef1f5}
 .pms{width:340px;flex:none;display:flex;flex-direction:column;background:#fff;border-left:1px solid var(--line);min-height:0}
-.pmhd{display:flex;align-items:center;gap:8px;padding:8px 10px 8px 14px;border-bottom:1px solid var(--line)}.pmhd b{flex:1;font-size:15px;color:var(--navy)}.pmic{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#1f8a5b,#0d3b2c);color:#fff;display:grid;place-items:center}.pmic .i{width:18px;height:18px}
+.pmhd{display:flex;align-items:center;gap:6px;padding:7px 8px 7px 14px;border-bottom:1px solid var(--line)}.pmhd b{flex:1;font-size:14.5px;color:var(--navy);white-space:nowrap}.pmhd #pm-x{flex:none}.pmic{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#1f8a5b,#0d3b2c);color:#fff;display:grid;place-items:center}.pmic .i{width:18px;height:18px}
 .pmsb{flex:1;overflow:auto;padding:0 14px 12px}.pmft{flex:none;border-top:1px solid var(--line);padding:6px 14px 10px;background:#fafbfc}
 .pmsb section{border-bottom:1px solid var(--line);padding:9px 0}.pmsb section:last-child{border:0}.pms h4{margin:2px 0 6px;font-size:13.5px;color:var(--navy)}
 .pms textarea,.pms input:not([type=checkbox]):not([type=color]):not([type=range]),.pms select{width:100%;box-sizing:border-box;font:13px 'Noto Sans Thai',sans-serif;border:1px solid var(--line);border-radius:8px;padding:5px 8px;background:var(--bg);color:var(--ink)}.pms textarea{resize:vertical}
@@ -496,7 +497,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 .pmbt{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.pmbt .btn,.pmsb section>.btn{min-height:32px;padding:0 12px;box-shadow:none;border:1px solid var(--line);font-size:12.5px}.pmft .pmbt{margin:4px 0 0}.pmft .btn{flex:1;padding:0 6px!important;min-width:0}
 .pmsy{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:6px 0}.pmsy button{border:1px solid var(--line);background:var(--bg);border-radius:8px;height:32px;cursor:pointer;color:#c0392b;display:grid;place-items:center;padding:0}.pmsy svg{width:19px;height:19px}
 .pmadd summary{cursor:pointer;font-size:12.5px;color:#0b6bcb;margin-top:4px}
-@media(max-width:820px){.pmb{flex-direction:column}.pmv{flex:none;height:52vh}.pms{width:auto;border-left:0;border-top:1px solid var(--line);flex:1}.pmhint{display:none}.pmzt{right:8px;bottom:8px}.pmzt span{display:none}}
+@media(max-width:820px){.pmb{flex-direction:column}.pmv{flex:none;height:52vh}.pms{width:auto;border-left:0;border-top:1px solid var(--line);flex:1}.pmhint{display:none}}
 @media(max-width:767px){#bPm{display:none}}
 
 /* หน้าพยากรณ์อากาศ Windy (#wy) — ใช้ .kb-top/.kb-nav ร่วมกับหน้าความสำคัญ */
@@ -4289,11 +4290,11 @@ const PMEN={title:'ชื่อแผนที่',sub:'คำอธิบาย
 const PMRZ={title:'we',sub:'we',info:'we',sbar:'we',leg:'c',inset:'c',map:'c',north:'q',t:'we',s:'q',g:'c'}; // we = ปรับความกว้าง, c = 4 มุม, q = ขนาดเท่ากันทุกด้าน
 const PMBASE=[['cur','ตามแผนที่หลัก'],['natural','ธรรมชาติ'],['flat','เรียบ'],['sat','ดาวเทียม'],['detail','ถนน/ชุมชน'],['dark','โทนมืด'],['none','ไม่มี (พื้นขาว)']];
 let PZ=1;
-function pmHtml(){return`<div class="pmb"><div class="pmv"><div class="pmsc" id="pm-sc0"><div class="pmsz" id="pm-sz0"><div class="pmpg" id="pm-pg"><div class="pmm" id="pm-m"></div><canvas class="pmc" id="pm-c"></canvas><div class="pmo" id="pm-o2"></div></div></div></div>
- <div class="pmzt" role="toolbar" aria-label="ซูม"><span>หน้ากระดาษ</span><button class="cb" data-z="-" aria-label="ย่อหน้ากระดาษ" title="ย่อหน้ากระดาษ"><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button><button class="pmzv" data-z="0" id="pm-zv" title="พอดีจอ">100%</button><button class="cb" data-z="+" aria-label="ขยายหน้ากระดาษ" title="ขยายหน้ากระดาษ"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
-  <i></i><span>แผนที่</span><button class="cb" data-mz="+" aria-label="ซูมแผนที่เข้า" title="ซูมแผนที่ในกรอบเข้า"><svg class="i" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21M10.5 7.5v6M7.5 10.5h6"/></svg></button><button class="cb" data-mz="-" aria-label="ซูมแผนที่ออก" title="ซูมแผนที่ในกรอบออก"><svg class="i" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21M7.5 10.5h6"/></svg></button></div>
- <div class="pmhint">ลาก/ซูมภายในกรอบ = เลือกพื้นที่แผนที่ · ลากองค์ประกอบ/ขอบกรอบ = ย้าย · จุดที่มุม = ปรับขนาด · Delete = ลบ</div></div>
- <div class="pms"><div class="pmhd"><span class="pmic"><svg class="i" viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg></span><b id="pm-t">พิมพ์แผนที่</b><button class="cb ib" id="pm-x" aria-label="ปิดหน้าพิมพ์แผนที่" title="ปิด (Esc)"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+function pmHtml(){const zb=(a,v,l,p)=>`<button class="pmzb" data-${a}="${v}" aria-label="${l}" title="${l}"><svg class="i" viewBox="0 0 24 24"><path d="${p}"/></svg></button>`;
+ return`<div class="pmb"><div class="pmv"><div class="pmsc" id="pm-sc0"><div class="pmsz" id="pm-sz0"><div class="pmpg" id="pm-pg"><div class="pmm" id="pm-m"></div><canvas class="pmc" id="pm-c"></canvas><div class="pmo" id="pm-o2"></div></div></div></div>
+ <div class="pmhint" title="ลาก/ซูมภายในกรอบ = เลือกพื้นที่แผนที่ · ลากองค์ประกอบหรือขอบกรอบแผนที่ = ย้าย · ลากจุดที่มุม/ขอบ = ปรับขนาด · Delete = ลบ · ลูกศร = เลื่อนทีละ 0.5 มม. · Ctrl+ล้อเมาส์ = ซูมหน้ากระดาษ">ลาก/ซูมในกรอบ = เลือกพื้นที่ · ลากองค์ประกอบ/ขอบกรอบ = ย้าย · จุดที่มุม = ปรับขนาด · Delete = ลบ · Ctrl+ล้อ = ซูมหน้ากระดาษ</div></div>
+ <div class="pms"><div class="pmhd"><b id="pm-t">พิมพ์แผนที่</b><div class="pmzt" role="toolbar" aria-label="ซูม">${zb('z','-','ย่อหน้ากระดาษ','M5 12h14')}<button class="pmzv" data-z="0" id="pm-zv" title="ขนาดหน้ากระดาษ (กด = พอดีจอ)">100%</button>${zb('z','+','ขยายหน้ากระดาษ','M12 5v14M5 12h14')}<i></i>${zb('mz','+','ซูมแผนที่ในกรอบเข้า','M15.5 15.5L21 21M10.5 7.5v6M7.5 10.5h6M10.5 4a6.5 6.5 0 110 13 6.5 6.5 0 010-13z')}${zb('mz','-','ซูมแผนที่ในกรอบออก','M15.5 15.5L21 21M7.5 10.5h6M10.5 4a6.5 6.5 0 110 13 6.5 6.5 0 010-13z')}</div>
+ <button class="cb ib" id="pm-x" aria-label="ปิดหน้าพิมพ์แผนที่" title="ปิด (Esc)"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
  <div class="pmsb" id="pm-s"></div><div class="pmft" id="pm-ft"></div></div></div>`}
 function pmPanel(){const s=$('#pm-s'),o=(v,t,c)=>`<option value="${v}"${c?' selected':''}>${t}</option>`,sg=(n,A)=>`<div class="trsg" data-pk="${n}">${A.map(([v,t])=>`<button data-v="${v}" aria-pressed="${String(PP[n])===String(v)}">${t}</button>`).join('')}</div>`,ck=(n,t)=>`<label class="pmck"><input type="checkbox" data-pc="${n}"${PP[n]?' checked':''}> ${t}</label>`;
  s.innerHTML=`<section><h4>กระดาษ</h4><div class="pmr"><select id="pm-sz">${Object.keys(PMSZ).map(k=>o(k,k+' ('+PMSZ[k][0]+'×'+PMSZ[k][1]+' มม.)',PP.sz===k)).join('')}</select>${sg('or',[['p','แนวตั้ง'],['l','แนวนอน']])}</div></section>
@@ -4316,9 +4317,9 @@ function pmEls(){const e=$('#pm-els');if(!e)return;const E=pmL().E,row=(k,t,can)
  e.innerHTML=`<h4>องค์ประกอบบนแผ่นแผนที่</h4><div class="pmels">${Object.entries(PMEN).map(([k,t])=>row(k,t,k!=='map')).join('')}${row('frame','กรอบรอบแผ่น',1)}${PP.items.map((it,i)=>row('i'+i,it.t==='s'?'สัญลักษณ์: '+PMSYM[it.k][0]:it.t==='g'?'รูปภาพ':'ข้อความ: '+esc(String(it.tx).split('\n')[0].slice(0,24)),0)).join('')}</div>
   <div class="pmbt"><button class="btn" id="pm-at">+ กล่องข้อความ</button><button class="btn" id="pm-ai">+ รูปภาพ/โลโก้</button><button class="btn" id="pm-tp" title="จัดตำแหน่งองค์ประกอบใหม่ตามแม่แบบของกระดาษนี้">จัดหน้าตามแม่แบบ</button></div><input type="file" id="pm-if" accept="image/*" hidden>
   <div class="pmsy" aria-label="เพิ่มสัญลักษณ์">${Object.entries(PMSYM).map(([k,v])=>`<button data-sy="${k}" title="เพิ่ม${v[0]}" aria-label="เพิ่มสัญลักษณ์${v[0]}"><svg viewBox="0 0 24 24"><path d="${v[1]}" fill="currentColor" fill-rule="evenodd"/></svg></button>`).join('')}</div><div id="pm-ed"></div>`;pmEd()}
-const pmEl=k=>k==null?null:k[0]==='i'?PP.items[+k.slice(1)]:pmL().E[k];
+const pmEl=k=>k==null?null:/^i\d/.test(k)?PP.items[+k.slice(1)]:pmL().E[k];
 function pmEd(){const e=$('#pm-ed');if(!e)return;const k=PMSEL,it=pmEl(k);if(!it){e.innerHTML='<div class="trn">แตะองค์ประกอบบนหน้ากระดาษเพื่อเลือก · ลากเพื่อย้าย · ลากจุดที่มุม/ขอบเพื่อปรับขนาด · ดับเบิลคลิกข้อความเพื่อแก้</div>';return}
- const rg=(a,mn,mx,st,v,lb)=>`<span>${lb}</span><input type="range" data-ie="${a}" min="${mn}" max="${mx}" step="${st}" value="${v}">`,dl=`<button class="btn dng" data-ie="del">ลบ${k==='map'?'':''}</button>`,hd=`<div class="pmedh">${k[0]==='i'?(it.t==='s'?'สัญลักษณ์':it.t==='g'?'รูปภาพ':'กล่องข้อความ'):PMEN[k]||'กรอบรอบแผ่น'}</div>`;
+ const rg=(a,mn,mx,st,v,lb)=>`<span>${lb}</span><input type="range" data-ie="${a}" min="${mn}" max="${mx}" step="${st}" value="${v}">`,dl=`<button class="btn dng" data-ie="del">ลบ${k==='map'?'':''}</button>`,hd=`<div class="pmedh">${/^i\d/.test(k)?(it.t==='s'?'สัญลักษณ์':it.t==='g'?'รูปภาพ':'กล่องข้อความ'):PMEN[k]||'กรอบรอบแผ่น'}</div>`;
  const al=v=>`<div class="trsg" data-al>${[['left','ชิดซ้าย'],['center','กึ่งกลาง'],['right','ชิดขวา']].map(([a,t])=>`<button data-v="${a}" aria-pressed="${(v||'left')===a}">${t}</button>`).join('')}</div>`;
  let h='';if(k==='map')h='<div class="trn">ลากขอบกรอบเพื่อย้าย · ลากมุมเพื่อปรับขนาด · ลาก/ซูมภายในกรอบเพื่อเลือกพื้นที่ (มาตราส่วนคงเดิมเมื่อปรับขนาดกรอบ)</div>';
  else if(k==='title'||k==='sub')h=`<div class="pmr">${rg('fs',1.5,18,.1,it.fs,'ขนาดตัวอักษร')}</div>${al(it.al)}<div class="pmbt">${dl}</div>`;
@@ -4329,7 +4330,7 @@ function pmEd(){const e=$('#pm-ed');if(!e)return;const k=PMSEL,it=pmEl(k);if(!it
  else h=`<textarea data-ie="tx" rows="3">${esc(it.tx)}</textarea><div class="pmr"><input type="color" data-ie="c" value="${it.c}">${rg('s',1.5,18,.1,it.s,'ขนาด')}</div><div class="pmr"><label class="pmck"><input type="checkbox" data-ie="b"${it.b?' checked':''}> ตัวหนา</label><label class="pmck"><input type="checkbox" data-ie="bg"${it.bg?' checked':''}> กรอบพื้นขาว</label></div>${al(it.al)}<div class="pmbt">${dl}</div>`;
  e.innerHTML=hd+h}
 function pmSel(k){if(PMSEL===k)return;PMSEL=k;pmEls();pmRedraw()}
-function pmDel(k){if(k==null||k==='map')return;if(k[0]==='i')PP.items.splice(+k.slice(1),1);else{const e=pmL().E[k];if(e)e.hid=1}PMSEL=null;pmKeep();pmEls();pmRedraw()}
+function pmDel(k){if(k==null||k==='map')return;if(/^i\d/.test(k))PP.items.splice(+k.slice(1),1);else{const e=pmL().E[k];if(e)e.hid=1}PMSEL=null;pmKeep();pmEls();pmRedraw()}
 function pmLegList(){const e=$('#pm-lg');if(!e)return;e.innerHTML=PMLEG.length?PMLEG.map(i=>`<div class="pmlr"><input type="checkbox" data-lo="${esc(i.id)}"${PP.legOff[i.id]?'':' checked'} aria-label="แสดง"><i class="pmsw" style="${i.k==='img'?`background:url('${i.src}') center/contain no-repeat`:i.k==='line'?`border-top:${Math.max(2,(i.w||2))}px ${i.d?'dashed':'solid'} ${i.c};height:0;margin-top:6px`:i.k==='dot'||i.k==='ring'?`border-radius:50%;width:10px;margin:0 6px;${i.k==='dot'?'background:'+i.c:'border:2px solid '+i.c}`:'background:'+i.c}"></i><input data-ll="${esc(i.id)}" value="${esc(PP.legLab[i.id]||i.l)}">${i.x?`<button data-lx="${esc(i.id)}" aria-label="ลบ">✕</button>`:''}</div>`).join(''):'<div class="trn">ยังไม่มีชั้นข้อมูลที่แสดงอยู่ในกรอบ (เพิ่มรายการเองได้)</div>'}
 function pmScIn(){const i=$('#pm-sc');if(i&&PMAP&&document.activeElement!==i)i.value=msNf(Math.round(pmScale()/10)*10,0)}
 /* วาดหน้าจัดพิมพ์ใหม่ (เลื่อนแผนที่/แก้ค่า/ลากองค์ประกอบ) */
@@ -4345,15 +4346,25 @@ function pmOvl(B){const bx=[];Object.keys(PMEN).forEach(k=>{if(B[k])bx.push([k,B
  $('#pm-o2').innerHTML=bx.map(([k,b,rz])=>{const sel=PMSEL===k,st=`left:${b.x*PXMM}px;top:${b.y*PXMM}px;width:${b.w*PXMM}px;height:${b.h*PXMM}px`,
   H=sel?(rz==='we'?['w','e']:rz==='q'?['se']:['nw','ne','sw','se']).map(h=>`<i class="pmh ${h}" data-h="${h}"></i>`).join('')+(k!=='map'?'<b class="pmdel" data-del title="ลบ (Delete)">✕</b>':''):'';
   return k==='map'?`<div class="pme pmmap${sel?' sel':''}" data-e="map" style="${st}"><s data-mv class="t"></s><s data-mv class="b"></s><s data-mv class="l"></s><s data-mv class="r"></s><span class="pmtag" data-mv>⠿ ${sel?'ลากเพื่อย้ายกรอบแผนที่':'กรอบแผนที่'}</span>${H}</div>`
-  :`<div class="pme${sel?' sel':''}" data-e="${k}" data-mv style="${st}" title="${k[0]==='i'?'':PMEN[k]}">${H}</div>`}).join('')}
+  :`<div class="pme${sel?' sel':''}" data-e="${k}" data-mv style="${st}" title="${/^i\d/.test(k)?'':PMEN[k]}">${H}</div>`}).join('')}
 /* แผนที่ในหน้าจัดพิมพ์ — แผนที่ฐานเลือกได้ (ชั้นข้อมูลคงเดิม) */
-async function pmStyle(){const m=map.getStyle();delete m.terrain;m.layers=m.layers.filter(l=>l.type!=='custom');const b=PP.base||'cur';if(b==='cur')return m;let B;
- try{if(b==='none')B={version:8,sources:{},layers:[{id:'pm-bg',type:'background',paint:{'background-color':'#ffffff'}}]};else{const v=b==='sat'?ras(IMG[imgOf()].u(),IMG[imgOf()].mz):STY[b];B=typeof v==='string'?await(await fetch(v)).json():JSON.parse(JSON.stringify(v))}}
- catch(e){toast('โหลดแผนที่ฐานไม่ได้ ใช้ตามแผนที่หลัก');return m}
- const bl=new Set(BASEL),L=m.layers.filter(l=>!bl.has(l.id)),ids=new Set(L.map(l=>l.id));if(b==='natural')L.unshift({id:'hs',type:'hillshade',source:'dem',paint:{'hillshade-exaggeration':.45,'hillshade-shadow-color':'#3d4a3a'}});
- const used=new Set(L.map(l=>l.source).filter(Boolean)),src={};for(const k in B.sources)src[(used.has(k)?'pm_':'')+k]=B.sources[k];for(const k in m.sources)if(used.has(k))src[k]=m.sources[k];
- const BL=B.layers.map(l=>{l=Object.assign({},l);if(ids.has(l.id)||l.id==='hs')l.id='pm_'+l.id;if(l.source&&used.has(l.source))l.source='pm_'+l.source;return l});
- return{version:8,glyphs:B.glyphs||m.glyphs,sprite:B.sprite||m.sprite,sources:src,layers:BL.concat(L)}}
+/* แผนที่ในหน้าจัดพิมพ์ = สไตล์ชั้นข้อมูลอย่างเดียว (ตัดชั้นฐาน BASEL) แล้วใส่ชั้นฐานแยกด้วย pmSetBase → เปลี่ยนแผนที่ฐานได้ทันทีโดยไม่โหลดชั้นข้อมูล (geojson ใหญ่) ใหม่ */
+function pmStyle(){const m=map.getStyle(),bl=new Set(BASEL);delete m.terrain;m.layers=m.layers.filter(l=>l.type!=='custom'&&!bl.has(l.id));const used=new Set(m.layers.map(l=>l.source).filter(Boolean));used.add('dem');
+ for(const k in m.sources)if(!used.has(k))delete m.sources[k];if(!m.layers.length)m.layers=[{id:'pm-nodata',type:'background',paint:{'background-opacity':0}}];return m}
+async function pmBaseDef(b){if(b==='cur'){const m=map.getStyle(),bl=new Set(BASEL),L=m.layers.filter(l=>bl.has(l.id)&&l.id!=='hs'),u=new Set(L.map(l=>l.source)),src={};for(const k in m.sources)if(u.has(k))src[k]=m.sources[k];return{sources:src,layers:L,sprite:m.sprite,hs:S.base==='natural'}}
+ if(b==='none')return{sources:{},layers:[{id:'bg',type:'background',paint:{'background-color':'#ffffff'}}]};
+ const v=b==='sat'?ras(IMG[imgOf()].u(),IMG[imgOf()].mz):STY[b],B=typeof v==='string'?(PMBC[v]||(PMBC[v]=await(await fetch(v)).json())):JSON.parse(JSON.stringify(v));return{sources:B.sources,layers:JSON.parse(JSON.stringify(B.layers)),sprite:B.sprite,hs:b==='natural'}}
+const PMBC={};let PMBL=[],PMBS=[],PMBQ=0;
+async function pmSetBase(){if(!PMAP)return;const q=++PMBQ,st=$('#pm-st');let R;if(st)st.innerHTML='<span class="trst"><i class="trsp"></i>กำลังโหลดแผนที่ฐาน…</span>';
+ try{R=await pmBaseDef(PP.base||'cur')}catch(e){if(st)st.textContent='';toast('โหลดแผนที่ฐานไม่ได้ (ตรวจการเชื่อมต่ออินเทอร์เน็ต)');return}if(q!==PMBQ||!PMAP)return;
+ PMBL.forEach(id=>{if(PMAP.getLayer(id))PMAP.removeLayer(id)});PMBS.forEach(id=>{try{if(PMAP.getSource(id))PMAP.removeSource(id)}catch(e){}});PMBL=[];PMBS=[];
+ const ord=PMAP.getLayersOrder?PMAP.getLayersOrder():PMAP.style._order,first=ord[0];
+ for(const k in R.sources){const id='pmb_'+k;try{PMAP.addSource(id,R.sources[k]);PMBS.push(id)}catch(e){}}
+ R.layers.forEach(l=>{const n=Object.assign({},l,{id:'pmb_'+l.id});if(l.source)n.source='pmb_'+l.source;try{PMAP.addLayer(n,first);PMBL.push(n.id)}catch(e){}});
+ if(R.hs&&PMAP.getSource('dem')){PMAP.addLayer({id:'pmb_hs',type:'hillshade',source:'dem',paint:{'hillshade-exaggeration':.45,'hillshade-shadow-color':'#3d4a3a'}},first);PMBL.push('pmb_hs')}
+ if(R.sprite&&PMAP.setSprite)try{PMAP.setSprite(R.sprite)}catch(e){}
+ PMAP.once('idle',()=>{if(q===PMBQ&&st&&/แผนที่ฐาน/.test(st.textContent))st.textContent=''});pmRedraw()}
+function pmRestyle(){PMBL=[];PMBS=[];PMAP.setStyle(pmStyle(),{diff:false});PMAP.once('style.load',pmSetBase)}
 function pmImgMiss(m){m.on('styleimagemissing',e=>{try{if(m.hasImage(e.id))return;const im=map.style.getImage(e.id);if(!im)return;m.addImage(e.id,{width:im.data.width,height:im.data.height,data:new Uint8Array(im.data.data)},{pixelRatio:im.pixelRatio,sdf:im.sdf})}catch(x){}})}
 let PMK=[];function pmMarks(){PMK.forEach(m=>m.remove());PMK=[];[window.FSM,window.WPM,window.RGM,window.FBM].forEach(A=>(A||[]).forEach(m=>{const e=m.getElement();if(e.style.display==='none')return;const c=e.cloneNode(true);c.style.pointerEvents='none';
  PMK.push(new maplibregl.Marker({element:c,anchor:m._anchor||'center',offset:m.getOffset()}).setLngLat(m.getLngLat()).addTo(PMAP))}));pmZc()}
@@ -4362,10 +4373,10 @@ function pmView(){const{m,x0,x1,y0,y1}=visArea(),b=new maplibregl.LngLatBounds()
 async function pmOpen(){let o=$('#pm');if(!o){o=document.createElement('div');o.id='pm';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');o.setAttribute('aria-labelledby','pm-t');o.innerHTML=pmHtml();document.body.appendChild(o);pmBind()}
  o.hidden=false;document.body.classList.add('pmon');if(PP.subA)PP.sub=pmSub();PMLEG=await pmLegAuto();
  try{await document.fonts.load(`700 20px ${PMF}`);await document.fonts.load(`400 20px ${PMF}`)}catch(e){}
- pmPanel();const M=pmL().E.map;Object.assign($('#pm-m').style,{left:M.x*PXMM+'px',top:M.y*PXMM+'px',width:Math.round(M.w*PXMM)+'px',height:Math.round(M.h*PXMM)+'px'});const st=await pmStyle();
+ pmPanel();const M=pmL().E.map;Object.assign($('#pm-m').style,{left:M.x*PXMM+'px',top:M.y*PXMM+'px',width:Math.round(M.w*PXMM)+'px',height:Math.round(M.h*PXMM)+'px'});const st=pmStyle();
  if(!PMAP){PMAP=new maplibregl.Map({container:'pm-m',style:st,center:map.getCenter(),zoom:map.getZoom(),bearing:0,pitch:0,dragRotate:false,pitchWithRotate:false,touchPitch:false,attributionControl:false,preserveDrawingBuffer:true,maxPitch:0,fadeDuration:0});
-  PMAP.touchZoomRotate.disableRotation();pmImgMiss(PMAP);PMAP.on('move',()=>{pmZc();pmRedraw()});PMAP.on('moveend',async()=>{const n=JSON.stringify(PMLEG.map(i=>i.id));PMLEG=await pmLegAuto();if(JSON.stringify(PMLEG.map(i=>i.id))!==n)pmLegList();pmRedraw()});PMAP.once('load',()=>{pmView();pmMarks();pmRedraw()})}
- else{PMAP.setStyle(st,{diff:false});PMAP.resize();pmView();pmMarks()}pmRedraw();setTimeout(pmRedraw,60)}
+  PMAP.touchZoomRotate.disableRotation();pmImgMiss(PMAP);PMAP.on('move',()=>{pmZc();pmRedraw()});PMAP.on('moveend',async()=>{const n=JSON.stringify(PMLEG.map(i=>i.id));PMLEG=await pmLegAuto();if(JSON.stringify(PMLEG.map(i=>i.id))!==n)pmLegList();pmRedraw()});PMAP.once('load',()=>{pmView();pmMarks();pmSetBase();pmRedraw()})}
+ else{pmRestyle();PMAP.resize();pmView();pmMarks()}pmRedraw();setTimeout(pmRedraw,60)}
 function pmClose(){const o=$('#pm');if(o)o.hidden=true;document.body.classList.remove('pmon');pmKeep()}
 function pmSet(k,v){PP[k]=v;pmKeep();pmRedraw()}
 function pmZoom(f){const sc=$('#pm-sc0'),cx=(sc.scrollLeft+sc.clientWidth/2)/sc.scrollWidth,cy=(sc.scrollTop+sc.clientHeight/2)/sc.scrollHeight;PZ=f===0?1:Math.max(.5,Math.min(8,PZ*f));pmRedraw0();sc.scrollLeft=cx*sc.scrollWidth-sc.clientWidth/2;sc.scrollTop=cy*sc.scrollHeight-sc.clientHeight/2}
@@ -4382,7 +4393,7 @@ function pmBind(){const o=$('#pm');$('#pm-x').onclick=pmClose;addEventListener('
   else if(t.dataset.ie){const it=pmEl(PMSEL);if(!it)return;const k=t.dataset.ie;if(k==='tx'||k==='c')it[k]=t.value;else if(k==='s'||k==='r'||k==='fs')it[k]=+t.value;else if(k==='b'||k==='bg')it[k]=t.checked;pmKeep();pmRedraw();if(k==='tx')pmEls2()}});
  o.addEventListener('change',async e=>{const t=e.target;
   if(t.id==='pm-sz')pmSet('sz',t.value);else if(t.id==='pm-dpi'){PP.dpi=+t.value;pmKeep()}else if(t.id==='pm-zn')pmSet('zone',t.value);
-  else if(t.id==='pm-bs'){PP.base=t.value;pmKeep();PMAP.setStyle(await pmStyle(),{diff:false});pmRedraw()}
+  else if(t.id==='pm-bs'){PP.base=t.value;pmKeep();pmSetBase()}
   else if(t.id==='pm-sc'||t.id==='pm-scp'){const v=+String(t.value).replace(/[^\d.]/g,'');if(t.id==='pm-scp')t.value='';if(v>=500&&v<=1e8){PMAP.setZoom(pmZoomFor(v));pmRedraw()}}
   else if(t.dataset.pc){PP[t.dataset.pc]=t.checked?1:0;pmKeep();pmRedraw()}
   else if(t.dataset.eh){const E=pmL().E,k=t.dataset.eh;E[k]=E[k]||{};E[k].hid=t.checked?0:1;pmKeep();pmRedraw()}
@@ -4394,7 +4405,7 @@ function pmBind(){const o=$('#pm');$('#pm-x').onclick=pmClose;addEventListener('
   if(t.dataset.es){pmSel(t.dataset.es);return}
   const al=t.closest('[data-al]');if(al&&t.dataset.v){const it=pmEl(PMSEL);if(it){it.al=t.dataset.v;[...al.querySelectorAll('button')].forEach(b=>b.setAttribute('aria-pressed',b===t));pmKeep();pmRedraw()}return}
   const g=t.closest('[data-pk]');if(g&&t.dataset.v){PP[g.dataset.pk]=t.dataset.v;[...g.querySelectorAll('button')].forEach(b=>b.setAttribute('aria-pressed',b===t));pmKeep();if(g.dataset.pk==='or')PMSEL=null,pmEls();pmRedraw();return}
-  if(t.id==='pm-v0'){pmView();PMAP.setStyle(await pmStyle(),{diff:false});pmMarks();PMLEG=await pmLegAuto();pmLegList();pmRedraw();return}
+  if(t.id==='pm-v0'){pmView();pmRestyle();pmMarks();PMLEG=await pmLegAuto();pmLegList();pmRedraw();return}
   if(t.id==='pm-la'){const l=$('#pm-ll').value.trim();if(!l){$('#pm-ll').focus();return}PP.legX.push({id:'x'+Date.now(),k:$('#pm-lk').value,c:$('#pm-lc').value,l});pmKeep();PMLEG=await pmLegAuto();pmLegList();$('#pm-ll').value='';pmRedraw();return}
   if(t.dataset.lx){PP.legX=PP.legX.filter(x=>x.id!==t.dataset.lx);pmKeep();PMLEG=await pmLegAuto();pmLegList();pmRedraw();return}
   if(t.id==='pm-ai'){$('#pm-if').click();return}
@@ -4402,7 +4413,7 @@ function pmBind(){const o=$('#pm');$('#pm-x').onclick=pmClose;addEventListener('
   if(t.id==='pm-at'||t.dataset.sy){const L=pmL(),M=L.E.map;PP.items.push(t.dataset.sy?{t:'s',k:t.dataset.sy,x:M.x+M.w/2,y:M.y+M.h/2,s:8*L.u,c:t.dataset.sy==='drop'?'#1f78d1':t.dataset.sy==='fire'?'#e0301e':'#c0392b',r:0}:{t:'t',tx:'ข้อความ',x:M.x+6*L.u,y:M.y+6*L.u,w:50*L.u,s:3.4*L.u,c:'#111',b:1,bg:1});PMSEL='i'+(PP.items.length-1);pmKeep();pmEls();pmRedraw();return}
   if(t.dataset.ie==='del'){pmDel(PMSEL);return}
   if(t.dataset.ie==='ratio'){const it=pmEl(PMSEL);if(it&&it.ar){it.h=it.w/it.ar;pmKeep();pmRedraw()}return}
-  if(t.id==='pm-rs'){if(!confirm('คืนค่าเริ่มต้นของหน้าจัดพิมพ์ทั้งหมด (หัวแผนที่ ข้อความ ตำแหน่งองค์ประกอบ กล่องข้อความ/สัญลักษณ์/รูปภาพ)?'))return;PP=JSON.parse(JSON.stringify(PPD));PP.sub=pmSub();PMSEL=null;pmKeep();PMLEG=await pmLegAuto();pmPanel();PMAP.setStyle(await pmStyle(),{diff:false});pmRedraw();return}
+  if(t.id==='pm-rs'){if(!confirm('คืนค่าเริ่มต้นของหน้าจัดพิมพ์ทั้งหมด (หัวแผนที่ ข้อความ ตำแหน่งองค์ประกอบ กล่องข้อความ/สัญลักษณ์/รูปภาพ)?'))return;PP=JSON.parse(JSON.stringify(PPD));PP.sub=pmSub();PMSEL=null;pmKeep();PMLEG=await pmLegAuto();pmPanel();pmRestyle();pmRedraw();return}
   if(t.dataset.out)pmOut(t.dataset.out)});
  // ลาก/ปรับขนาดองค์ประกอบ (ฟังที่ window ระหว่างลาก เพราะกล่องถูกสร้างใหม่ทุกเฟรม)
  const ov=$('#pm-o2');let D=null;
@@ -4419,7 +4430,7 @@ function pmBind(){const o=$('#pm');$('#pm-x').onclick=pmClose;addEventListener('
   if(e.target.closest('[data-del]')){e.preventDefault();e.stopPropagation();pmDel(k);return}
   const h=e.target.closest('[data-h]');if(!h&&!e.target.closest('[data-mv]'))return;e.preventDefault();e.stopPropagation();o.focus({preventScroll:true});pmSel(k);
   D={k,h:h&&h.dataset.h,x:e.clientX,y:e.clientY,o:JSON.parse(JSON.stringify(pmEl(k)))};if(k==='map'&&!D.h){const E=pmL().E,M=E.map;D.att=['north','sbar'].filter(n=>{const q=E[n];if(!q||q.hid)return 0;const w=q.w||q.s;return q.x>=M.x-1&&q.y>=M.y-1&&q.x+w<=M.x+M.w+1&&q.y<=M.y+M.h+1}).map(n=>[n,{x:E[n].x,y:E[n].y}])}addEventListener('pointermove',mv);addEventListener('pointerup',up);addEventListener('pointercancel',up)});
- ov.addEventListener('dblclick',e=>{const el=e.target.closest('.pme');if(!el)return;const k=el.dataset.e,f={title:'pm-ti',sub:'pm-su',info:'pm-nt',leg:'pm-lg'}[k];const i=f?$('#'+f):k[0]==='i'?$('#pm-ed textarea'):null;if(i){i.scrollIntoView({block:'center'});if(i.focus)i.focus()}});
+ ov.addEventListener('dblclick',e=>{const el=e.target.closest('.pme');if(!el)return;const k=el.dataset.e,f={title:'pm-ti',sub:'pm-su',info:'pm-nt',leg:'pm-lg'}[k];const i=f?$('#'+f):/^i\d/.test(k)?$('#pm-ed textarea'):null;if(i){i.scrollIntoView({block:'center'});if(i.focus)i.focus()}});
  $('#pm-sc0').addEventListener('pointerdown',e=>{if(!e.target.closest('.pme')&&!e.target.closest('#pm-m')&&PMSEL!=null){PMSEL=null;pmEls();pmRedraw()}});
  $('#pm-sc0').addEventListener('wheel',e=>{if(!e.ctrlKey||e.target.closest('#pm-m'))return;e.preventDefault();pmZoom(e.deltaY<0?1.15:1/1.15)},{passive:false});
  o.tabIndex=-1}
