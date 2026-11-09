@@ -221,7 +221,8 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .ula .tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}.ula .tabs button{border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:4px 14px;font:600 13px 'Noto Sans Thai',sans-serif;cursor:pointer;color:var(--ink)}.ula .tabs button[aria-pressed=true]{background:var(--navy);border-color:var(--navy);color:#fff}
 .ula table{width:100%;border-collapse:collapse;font-size:12.5px}.ula th{text-align:left;color:var(--mut);font-weight:600;border-bottom:1px solid var(--line);padding:4px 6px}.ula td{border-bottom:1px solid var(--line);padding:5px 6px;vertical-align:top}.ula td .sm{display:block}
 .ula fieldset{border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:8px 0}.ula legend{font-size:12px;color:var(--mut);padding:0 4px}.ula label{display:flex;align-items:center;gap:6px;font-size:13px;margin:3px 0}.ula label.blk{display:block;margin:6px 0 2px;font-size:12px;color:var(--mut)}
-.ulsh textarea{min-height:150px;font:12.5px/1.5 'Noto Sans Thai',sans-serif}.ulshi{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#f5f6fa;min-height:60px;display:flex;align-items:center;justify-content:center}.ulshi img{display:block;width:100%;height:auto;max-height:260px;object-fit:contain}.ulsh .acts .btn{min-height:34px}.ulsh .btn.ln{background:#06c755;border-color:#06c755;color:#fff;font-weight:700}
+.ulsh textarea{min-height:150px;font:12.5px/1.5 'Noto Sans Thai',sans-serif}.ulshi{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#f5f6fa;min-height:60px;display:flex;align-items:center;justify-content:center}.ulshi img{display:block;width:100%;height:auto;max-height:260px;object-fit:contain}.ulsh .acts .btn{min-height:34px}.shln{margin-top:10px;padding:10px 12px;border-radius:12px;background:#e9f9ef;border:1px solid #b9ecc9;font-size:12.5px}.shln[hidden]{display:none}.shln>b{display:block;color:#057a37;margin-bottom:2px}.shln ol{margin:6px 0;padding-left:20px}.shln li{margin:4px 0}.shln .btn{min-height:30px;font-size:12px;margin:0 4px}.shln kbd{font:11px ui-monospace,Consolas,monospace;border:1px solid #c9ccd6;border-bottom-width:2px;border-radius:4px;padding:0 4px;background:#fff}
+.ulsh .btn.ln{background:#06c755;border-color:#06c755;color:#fff;font-weight:700}
 .ula .chk{display:flex;flex-wrap:wrap;gap:2px 14px}.ula .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ula .acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.ula .err{color:#b42318;font-size:12.5px;min-height:1em;margin-top:6px}
 .ula .pill{display:inline-block;font-size:11px;border-radius:99px;padding:0 7px;background:#eef0f6;color:var(--navy);margin:1px 2px 1px 0}.ula .pill.all{background:#e3f4e6;color:#1e6b31}.ula .pill.off{background:#fde8e6;color:#b42318}
 #map.udr .maplibregl-canvas-container.maplibregl-interactive{cursor:crosshair}#map.udr .fsm,#map.udr .wpm,#map.udr .stm{pointer-events:none}
@@ -4202,11 +4203,18 @@ async function ulShot(f){const b=GIO.bbox([f]);if(!b)return null;ulSel(f);
  g.fillText(`${p.name||ULKIND(f.geometry.type)} · UTM ${ulUTs(c[0],c[1],p._z)} · แผนที่สถานการณ์ไฟป่า สบอ.1`,Math.round(10*k),Math.round(sh+fh/2),o.width-Math.round(20*k));
  return new Promise(r=>{try{o.toBlob(r,'image/png')}catch(e){r(null)}})}
 const ulFn=s=>String(s||'ตำแหน่ง').replace(/[\\/:*?"<>|]+/g,'_').slice(0,60);
+const ulMob=()=>/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||navigator.maxTouchPoints>1&&/Mac/.test(navigator.platform); // iPadOS รายงานตัวเป็น Mac
+const ulClipTxt=(t,m)=>(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast(m),()=>{const e=$('#sh-t');if(e){e.focus();e.select()}toast('กด Ctrl+C เพื่อคัดลอกข้อความที่เลือกไว้')});
 function ulShare(k,fid){const x=ulFind(k,fid);if(!x||!x.f)return;const f=x.f,t0=ulShareTxt(f),nm=f.properties.name||ULKIND(f.geometry.type),ns=!!navigator.share;let img=null;
  openModal('แชร์'+ULKIND(f.geometry.type),`<div class="ula ulsh"><div class="ulshi" id="sh-i"><span class="sm">กำลังสร้างภาพแผนที่…</span></div>
   <label class="blk" for="sh-t">ข้อความ (แก้ได้ก่อนส่ง · พิกัด UTM เป็นหลัก)</label><textarea id="sh-t" spellcheck="false">${esc(t0)}</textarea>
   <div class="acts">${ns?'<button class="btn pri" data-sh="os">แชร์…</button>':''}<button class="btn ln" data-sh="line">LINE</button><button class="btn" data-sh="fb">Facebook</button><button class="btn" data-sh="tg">Telegram</button><button class="btn" data-sh="mail">อีเมล</button><button class="btn" data-sh="cp">คัดลอกข้อความ</button></div>
   <div class="acts"><button class="btn" data-sh="png">ดาวน์โหลดภาพแผนที่</button><button class="btn" data-sh="kmz">ดาวน์โหลด KMZ</button></div>
+  <div class="shln" id="sh-ln" hidden><b>ส่งเข้า LINE บนคอมพิวเตอร์ (LINE PC)</b><span class="sm">LINE PC รับลิงก์แชร์อัตโนมัติไม่ได้ จึงใช้คัดลอกแล้ววาง:</span>
+   <ol><li>เปิดห้องแชตหรือกลุ่มใน LINE PC <button class="btn" data-sh="lnapp">เปิดโปรแกรม LINE</button></li>
+   <li><button class="btn ln" data-sh="lnimg">คัดลอกภาพแผนที่</button> แล้วกด <kbd>Ctrl</kbd>+<kbd>V</kbd> ในช่องพิมพ์ของ LINE แล้วกดส่ง</li>
+   <li><button class="btn ln" data-sh="lntxt">คัดลอกข้อความ</button> แล้วกด <kbd>Ctrl</kbd>+<kbd>V</kbd> แล้วกดส่ง</li></ol>
+   <span class="sm">หรือ <a data-sh="lnweb" role="button" tabindex="0" style="cursor:pointer">แชร์ลิงก์ผ่าน LINE บนเว็บ</a> (ต้องเข้าสู่ระบบ LINE ในเบราว์เซอร์ ส่งได้เฉพาะลิงก์แผนที่)</span></div>
   ${ns?'<label style="margin-top:8px"><input type="checkbox" id="sh-a" checked> แนบภาพแผนที่เมื่อกด แชร์…</label>':''}
   <p class="sm" style="margin:8px 0 0">${ns?'แชร์… = เลือกแอปในเครื่อง (LINE, Messenger, อีเมล ฯลฯ) ส่งได้ทั้งข้อความและภาพ · ':''}LINE/Telegram/อีเมล ส่งข้อความพร้อมลิงก์ · Facebook แชร์ได้เฉพาะลิงก์แผนที่ · ไฟล์ KMZ เปิดใน Google Earth ได้ ดาวน์โหลดแล้วแนบเอง</p></div>`);
  const T=()=>$('#sh-t').value,box=$('#sh-i'),cv=k=>{const b=GIO.bbox([f]);return ulSite()+'?bb='+(b[0]===b[2]?[b[0]-.01,b[1]-.01,b[2]+.01,b[3]+.01]:b).map(v=>v.toFixed(4)).join(',')};
@@ -4214,11 +4222,16 @@ function ulShare(k,fid){const x=ulFind(k,fid);if(!x||!x.f)return;const f=x.f,t0=
  $('#md-b').onclick=async e=>{const a=e.target.closest('[data-sh]');if(!a)return;const w=a.dataset.sh,t=T();
   if(w==='os'){const d={title:nm,text:t};const fl=img&&$('#sh-a')&&$('#sh-a').checked?[new File([img],ulFn(nm)+'.png',{type:'image/png'})]:null;if(fl&&navigator.canShare&&navigator.canShare({files:fl}))d.files=fl;
    try{await navigator.share(d)}catch(er){if(er&&er.name!=='AbortError'){if(d.files){delete d.files;try{await navigator.share(d)}catch(e2){}}else toast('แชร์ไม่ได้: '+er.message)}}}
-  else if(w==='line')open('https://line.me/R/share?text='+encodeURIComponent(t),'_blank','noopener');
+  else if(w==='line'){if(ulMob()){open('https://line.me/R/share?text='+encodeURIComponent(t),'_blank','noopener');return} // มือถือ: เปิดแอป LINE หน้าเลือกห้อง
+   const p=$('#sh-ln');p.hidden=false;p.scrollIntoView({block:'nearest'});ulClipTxt(t,'คัดลอกข้อความแล้ว — วางใน LINE PC ด้วย Ctrl+V')} // คอมพิวเตอร์: LINE PC ไม่รองรับลิงก์แชร์ (ผู้ใช้แจ้ง 9 พ.ย. 69) → คัดลอกแล้ววาง
+  else if(w==='lntxt')ulClipTxt(t,'คัดลอกข้อความแล้ว — วางใน LINE ด้วย Ctrl+V');
+  else if(w==='lnimg'){if(!img){toast('ภาพแผนที่ยังไม่พร้อม รอสักครู่');return}try{await navigator.clipboard.write([new ClipboardItem({'image/png':img})]);toast('คัดลอกภาพแล้ว — วางใน LINE ด้วย Ctrl+V')}catch(er){toast('เบราว์เซอร์นี้คัดลอกภาพไม่ได้ — ใช้ปุ่มดาวน์โหลดภาพแล้วลากไฟล์ใส่ LINE แทน')}}
+  else if(w==='lnapp'){const a=document.createElement('a');a.href='line://';document.body.appendChild(a);a.click();a.remove()}
+  else if(w==='lnweb')open('https://social-plugins.line.me/lineit/share?url='+encodeURIComponent(cv()),'_blank','noopener');
   else if(w==='fb')open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(cv()),'_blank','noopener');
   else if(w==='tg')open('https://t.me/share/url?url='+encodeURIComponent(cv())+'&text='+encodeURIComponent(t),'_blank','noopener');
   else if(w==='mail')location.href='mailto:?subject='+encodeURIComponent(nm)+'&body='+encodeURIComponent(t);
-  else if(w==='cp')(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('คัดลอกข้อความแล้ว'),()=>{$('#sh-t').select();toast('กด Ctrl+C เพื่อคัดลอก')});
+  else if(w==='cp')ulClipTxt(t,'คัดลอกข้อความแล้ว');
   else if(w==='png'){if(img)ulDl(img,ulFn(nm)+'.png');else toast('ภาพแผนที่ยังไม่พร้อม')}
   else if(w==='kmz')ulDl(await GIO.toKMZ([{name:x.e.name,color:x.e.color,fc:{type:'FeatureCollection',features:[f]}}],nm),ulFn(nm)+'.kmz')}}
 const ulTypes=fc=>{let p=0,l=0,a=0;fc.features.forEach(f=>{const t=f.geometry.type;if(/Point/.test(t))p++;else if(/Line/.test(t))l++;else a++});return[p&&'หมุด '+p,l&&'เส้น '+l,a&&'พื้นที่ '+a].filter(Boolean).join(' · ')||'ว่าง'};
