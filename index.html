@@ -180,6 +180,17 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 #mcross{position:fixed;z-index:5;width:48px;height:48px;margin:-24px 0 0 -24px;pointer-events:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}#mcross[hidden]{display:none}#mcross svg{display:block;width:100%;height:100%}#mcross.hot g g:last-child circle{stroke:#0b6bcb}
 .msbt .btn.pri{background:#0b6bcb;border-color:#0b6bcb;color:#fff;font-weight:700}
 .msb{background:#0b3b75;color:#fff;font:700 11px/1.55 'Noto Sans Thai',sans-serif;padding:0 7px;border-radius:99px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3)}.msb.hd{opacity:0}
+/* ระดับความสูง/โปรไฟล์ (#ms-el แผงวัด, #ud-el ฟอร์มวาด, #el-pop ป๊อปอัปชั้นข้อมูลของฉัน) */
+#msr{max-height:calc(100vh - 110px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow:auto}
+.elbx{margin-top:6px;border-top:1px solid var(--line);padding-top:6px;font-size:12px;text-align:left}.elw{opacity:.5;transition:opacity .2s}
+.elhd{display:flex;align-items:center;gap:6px;margin-bottom:2px}.elhd b{flex:1;color:var(--navy);font-size:12.5px}.elhd button{border:0;background:none;cursor:pointer;color:var(--mut);padding:3px;display:grid;border-radius:6px}.elhd button:hover{background:#eef1f6;color:var(--navy)}.elhd .i{width:16px;height:16px}
+.elch{display:block;width:100%;height:auto;touch-action:pan-y;cursor:crosshair;user-select:none;-webkit-user-select:none}
+.elk3{display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:0 8px;margin-top:4px;line-height:1.55}.elk3 i{font-style:normal;color:var(--mut);text-align:right;font-size:11px}.elk3 span{color:var(--mut);white-space:nowrap}.elk3 b{text-align:right;font-weight:700}
+.elkv{display:grid;grid-template-columns:auto 1fr;gap:0 8px;line-height:1.55}.elkv span{color:var(--mut);white-space:nowrap}.elkv b{text-align:right;font-weight:700}
+.eln{font-size:10.5px;color:var(--mut);margin-top:3px;line-height:1.4}
+.elmk{width:14px;height:14px;border-radius:50%;background:#0b6bcb;border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.45);pointer-events:none}
+.elbig .elbx{border:0;margin:0;padding:0;font-size:13px}.elbig .elk3,.elbig .elkv{max-width:560px}.elbig .eln{font-size:11.5px}
+@media(max-width:767px){#msr{max-height:55vh}}
 /* เครื่องมือวิเคราะห์ภูมิประเทศ (#bTr) ใช้แผง #msr (คลาส tr) */
 #msr.tr{max-height:calc(100vh - 110px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow:auto}
 .trtb{display:flex;gap:5px;margin:4px 0 6px}.trtb button{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:48px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:600 11.5px/1.25 'Noto Sans Thai',sans-serif;cursor:pointer;padding:4px 2px}.trtb .i{width:20px;height:20px}.trtb button[aria-pressed=true]{background:#0b6bcb;border-color:#0b6bcb;color:#fff}
@@ -3736,7 +3747,7 @@ function msPanel(){if(MS.tr)return trPanel();const b=$('#ms-b'),P=MS.pts,n=P.len
   if(tc)h+='<div class="sm">เลื่อนแผนที่ให้กากบาทตรงตำแหน่ง แล้วกด + เพิ่มจุด · ลากจุดเพื่อย้าย</div>'} // เมาส์มีคำแนะนำใน HUD แล้ว
  const B=[];if(!MS.done&&tc)B.push('<button class="btn pri" data-ms="a">+ เพิ่มจุด</button>');if(!MS.done&&n)B.push('<button class="btn" data-ms="u">↶ ย้อนจุด</button>');if(!MS.done&&n>1)B.push('<button class="btn" data-ms="f">จบ</button>');
  if(!MS.done&&n>2)B.push('<button class="btn" data-ms="c">ปิดรูปพื้นที่</button>');if(MS.done)B.push('<button class="btn" data-ms="n">วัดใหม่</button><button class="btn" data-ms="y">คัดลอกผล</button>'+(MS.closed?'<button class="btn" data-ms="t" title="เส้นชั้นความสูง ความลาดชัน ทิศด้านลาด ในพื้นที่นี้">วิเคราะห์ภูมิประเทศ</button>':''));else if(n)B.push('<button class="btn" data-ms="r">ล้าง</button>');
- b.innerHTML=h+(B.length?'<div class="msbt">'+B.join('')+'</div>':'');$('#ms-t').textContent=MS.done?(MS.closed?'ขนาดพื้นที่':'ระยะทาง'):'วัดระยะทางและพื้นที่';
+ if(MS.done)h+='<div id="ms-el"></div>';b.innerHTML=h+(B.length?'<div class="msbt">'+B.join('')+'</div>':'');if(MS.done&&typeof elFill==='function')elFill('ms-el',MS.closed?{type:'Polygon',coordinates:[P.concat([P[0]])]}:{type:'LineString',coordinates:P});$('#ms-t').textContent=MS.done?(MS.closed?'ขนาดพื้นที่':'ระยะทาง'):'วัดระยะทางและพื้นที่';
  $('#msr').title=MS.done?'ลากจุดเพื่อปรับตำแหน่ง ผลคำนวณใหม่ทันที':''}
 /* ตำแหน่งแผงผล (เดสก์ท็อป): ขวาบน · แผงขวา (ชั้นข้อมูล/เครื่องมือวาด/รายละเอียดจุด) เปิด = ถัดจากแผงออกมา (ผู้ใช้ขอ 8 พ.ย. 69) · ตำแหน่งตามเลย์เอาต์ offsetLeft ไม่นับ transform ระหว่างเลื่อน */
 const RPAN=[['#right','open'],['#dp','open'],['#ulm']],rpOn=([q,c])=>{const p=$(q);return p&&(c?p.classList.contains(c):!p.hidden)&&p.offsetWidth>0};
@@ -3839,10 +3850,10 @@ const trLo=(X,z)=>X/trW(z)*360-180,trLa=(Y,z)=>Math.atan(Math.sinh(Math.PI*(1-2*
 const trMpp=(z,la)=>40075017*Math.cos(la*Math.PI/180)/trW(z);
 const TRNICE=[10,15,20,25,30,40,50,60,75,100,125,150,200,250,300,400,500,750,1000];
 /* ตารางความสูงในกรอบของรูป (+ขอบ 1 ช่อง) · res=0 = ขนาดพิกเซล DEM */
-async function trGrid(P,res,q,prog){const R=msPath(P,1);let lo0=180,lo1=-180,la0=90,la1=-90;R.forEach(([x,y])=>{lo0=Math.min(lo0,x);lo1=Math.max(lo1,x);la0=Math.min(la0,y);la1=Math.max(la1,y)});
+async function trGrid(P,res,q,prog,cp){const R=msPath(P,1);let lo0=180,lo1=-180,la0=90,la1=-90;R.forEach(([x,y])=>{lo0=Math.min(lo0,x);lo1=Math.max(lo1,x);la0=Math.min(la0,y);la1=Math.max(la1,y)});
  const lat=(la0+la1)/2,nt=z=>{const c=Math.ceil(trX(lo1,z)/256)-Math.floor(trX(lo0,z)/256)+2,r=Math.ceil(trY(la0,z)/256)-Math.floor(trY(la1,z)/256)+2;return c*r};
  let z=13;while(z>8&&nt(z)>TRMAXT)z--;
- const mpp=trMpp(z,lat),cap=res?TRMAXC:TRMAXCC;let r=res||mpp,X0=trX(lo0,z),X1=trX(lo1,z),Y0=trY(la1,z),Y1=trY(la0,z),c=r/mpp;
+ const mpp=trMpp(z,lat),cap=cp||(res?TRMAXC:TRMAXCC);let r=res||mpp,X0=trX(lo0,z),X1=trX(lo1,z),Y0=trY(la1,z),Y1=trY(la0,z),c=r/mpp;
  const cells=c=>(Math.ceil((X1-X0)/c)+2)*(Math.ceil((Y1-Y0)/c)+2);
  if(cells(c)>cap){const need=r*Math.sqrt(cells(c)/cap);r=res?TRNICE.find(x=>x>=need)||Math.ceil(need/100)*100:need;c=r/mpp;while(cells(c)>cap){r*=1.1;c=r/mpp}}
  const W=Math.ceil((X1-X0)/c)+2,H=Math.ceil((Y1-Y0)/c)+2,Ox=X0-c,Oy=Y0-c;
@@ -3850,7 +3861,7 @@ async function trGrid(P,res,q,prog){const R=msPath(P,1);let lo0=180,lo1=-180,la0
  const tx0=Math.floor((Ox-1)/256),tx1=Math.floor((Ox+W*c+1)/256),ty0=Math.floor((Oy-1)/256),ty1=Math.floor((Oy+H*c+1)/256),L=[],T=new Map();
  for(let y=ty0;y<=ty1;y++)for(let x=tx0;x<=tx1;x++)if(y>=0&&y<2**z)L.push([x,y]);let n=0;prog&&prog(0,L.length);
  await Promise.all(L.map(([x,y])=>demTile(z,((x%2**z)+2**z)%2**z,y).then(a=>{T.set(x*1e6+y,a);n++;if(q===TR.q)prog&&prog(n,L.length)})));
- if(q!==TR.q)return null;
+ if(q!=null&&q!==TR.q)return null;
  const px=(x,y)=>{const t=T.get((x>>8)*1e6+(y>>8));return t?t[(y&255)*256+(x&255)]:NaN};
  const bil=(X,Y)=>{X-=.5;Y-=.5;const x=Math.floor(X),y=Math.floor(Y),fx=X-x,fy=Y-y;return px(x,y)*(1-fx)*(1-fy)+px(x+1,y)*fx*(1-fy)+px(x,y+1)*(1-fx)*fy+px(x+1,y+1)*fx*fy};
  const E=new Float32Array(W*H),ns=c>1.5?Math.min(4,Math.ceil(c)):1; // ช่องใหญ่กว่าพิกเซล DEM = เฉลี่ย ns×ns จุดในช่อง
@@ -4017,6 +4028,73 @@ $('#ms-b').addEventListener('input',e=>{if(!MS.tr)return;const t=e.target;
 $('#ms-b').addEventListener('change',e=>{if(MS.tr&&e.target.id==='tr-iv'){const v=Math.max(1,Math.min(20,Math.round(+e.target.value)||TR.iv));e.target.value=v;if(v!==TR.iv){TR.iv=v;trKeep();if(MS.done)trRun()}}});
 $('#bTr').onclick=()=>msSet(!(MS.on&&MS.tr),1);
 if(map.getSource('dem'))trLayers();
+</script>
+<script>
+/* ===== ระดับความสูง/โปรไฟล์ความสูง (ผู้ใช้ขอ 9 พ.ย. 69 ตามแนวทาง Google Earth "การวัดขั้นสูง") =====
+   ใช้ในแผงผลเครื่องมือวัด (#ms-el) · ฟอร์มหลังวาด (#ud-el) · ป๊อปอัปวัตถุในชั้นข้อมูลของฉัน (#el-pop)
+   หมุด = ความสูงพื้นดิน + ลาดชัน/ทิศด้านลาด (Horn 3×3 พิกเซล) · เส้นทาง = กราฟโปรไฟล์ (ชี้/แตะดูค่า + จุดบนแผนที่, ขยายเต็มจอ) + ต่ำสุด/มัธยฐาน/สูงสุด ของความสูงและความลาดชันตามแนวเส้น + ขึ้น/ลงสะสม
+   พื้นที่ = ต่ำสุด/มัธยฐาน/สูงสุด ของความสูงและความลาดชันทุกช่องในรูป (trGrid ของเครื่องมือวิเคราะห์ภูมิประเทศ) · ข้อมูล Terrarium ซูม ≤13 (ต้นทาง ~30 ม.) = ค่าประมาณ */
+const ELC=new Map(),ELP={},ELT={};let ELN=0,ELM=null;
+async function elVals(XY,z){const T=new Map(),need=new Set();
+ XY.forEach(([X,Y])=>{const x=Math.floor(X-.5),y=Math.floor(Y-.5);for(const a of[x,x+1])for(const b of[y,y+1])need.add((a>>8)*1e6+(b>>8))});
+ await Promise.all([...need].map(k=>{const tx=Math.floor(k/1e6),ty=k-tx*1e6;return ty<0||ty>=2**z?null:demTile(z,((tx%2**z)+2**z)%2**z,ty).then(a=>T.set(k,a))}));
+ const px=(x,y)=>{const t=T.get((x>>8)*1e6+(y>>8));return t?t[(y&255)*256+(x&255)]:NaN};
+ return XY.map(([X,Y])=>{X-=.5;Y-=.5;const x=Math.floor(X),y=Math.floor(Y),fx=X-x,fy=Y-y;return px(x,y)*(1-fx)*(1-fy)+px(x+1,y)*fx*(1-fy)+px(x,y+1)*(1-fx)*fy+px(x+1,y+1)*fx*fy})}
+async function elPt(lo,la){const z=13,X=trX(lo,z),Y=trY(la,z),m=trMpp(z,la),V=await elVals([-1,0,1].flatMap(j=>[-1,0,1].map(i=>[X+i,Y+j])),z),h=trHorn(V,4,3,m);return{t:'pt',e:V[4],s:h[0],a:h[1],z}}
+const elMed=a=>{const s=Float64Array.from(a.filter(v=>!isNaN(v))).sort();return s.length?{mn:s[0],md:s.length%2?s[s.length>>1]:(s[s.length/2-1]+s[s.length/2])/2,mx:s[s.length-1]}:null};
+async function elLine(P){const n=P.length;if(n<2)return null;const D=[0];for(let i=1;i<n;i++)D.push(D[i-1]+msDist(P[i-1],P[i]));const L=D[n-1];if(!(L>0))return null;
+ const z=L<15e3?13:L<4e4?12:L<1e5?11:10,N=Math.max(2,Math.min(400,Math.ceil(L/5)+1)),ll=[],d=[];let s=1;
+ for(let k=0;k<N;k++){const t=L*k/(N-1);while(s<n-1&&D[s]<t)s++;const a=P[s-1],b=P[s],sl=D[s]-D[s-1],f=sl?(t-D[s-1])/sl:0,q=[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f];ll.push([q[0],q[1]]);d.push(t)}
+ const e=await elVals(ll.map(([x,y])=>[trX(x,z),trY(y,z)]),z),span=Math.max(30,2*trMpp(z,P[0][1])),S=[];let up=0,dn=0;
+ for(let i=1;i<N;i++){const x=e[i]-e[i-1];if(x>0)up+=x;else dn-=x}
+ for(let i=0;i<N;i++){let h=i,j=i;while(h>0&&d[i]-d[h]<span/2)h--;while(j<N-1&&d[j]-d[i]<span/2)j++;if(d[j]>d[h])S.push(Math.atan(Math.abs(e[j]-e[h])/(d[j]-d[h]))*180/Math.PI)}
+ return{t:'ln',L,d,e,ll,E:elMed(e),S:elMed(S),up,dn,z}}
+async function elPoly(R){R=ulOpen0(R);if(R.length<3)return null;let G=null;try{G=await trGrid(R,0,null,null,3e5)}catch(e){}
+ if(G&&G.nin>=4){trSA(G);const E=[],S=[];for(let k=0;k<G.M.length;k++)if(G.M[k]){E.push(G.E[k]);S.push(G.S[k])}return{t:'pg',E:elMed(E),S:elMed(S),r:G.r,z:G.z}}
+ const c=R.reduce((s,p)=>[s[0]+p[0]/R.length,s[1]+p[1]/R.length],[0,0]),z=13,V=await elVals(R.concat([c]).map(([x,y])=>[trX(x,z),trY(y,z)]),z),p=await elPt(c[0],c[1]); // รูปเล็กกว่าช่องข้อมูล = จุดยอด + จุดกลาง
+ return{t:'pg',E:elMed(V),S:{mn:p.s,md:p.s,mx:p.s},r:trMpp(z,c[1]),z,sm:1}}
+function elCalc(g){if(!g||!g.coordinates)return Promise.resolve(null);const t=g.type,c=g.coordinates,k=t+':'+JSON.stringify(c);if(ELC.has(k))return ELC.get(k);let p;
+ if(t==='Point')p=elPt(c[0],c[1]);else if(t==='LineString')p=elLine(c);else if(t==='MultiLineString')p=elLine(c.slice().sort((a,b)=>msLen(b)-msLen(a))[0]).then(r=>r&&Object.assign(r,{part:c.length>1}));
+ else if(t==='Polygon')p=elPoly(c[0]).then(r=>r&&Object.assign(r,{hole:c.length>1}));else if(t==='MultiPolygon')p=elPoly(c.map(q=>q[0]).sort((a,b)=>msArea(ulOpen0(b))-msArea(ulOpen0(a)))[0]).then(r=>r&&Object.assign(r,{part:c.length>1}));else p=Promise.resolve(null);
+ p=p.catch(()=>({err:1}));ELC.set(k,p);p.then(r=>{p.v=r});if(ELC.size>40)ELC.delete(ELC.keys().next().value);return p}
+/* กราฟโปรไฟล์ (SVG) */
+const elM=v=>msNf(v,Math.abs(v)<100&&v%1?1:0)+' ม.';
+function elChart(R,W,H){const pl=W>400?56:46,pr=10,pt=10,pb=22,iw=W-pl-pr,ih=H-pt-pb,e=R.e,{mn,mx}=R.E;let lo=mn,hi=mx;if(hi-lo<4){const c=(hi+lo)/2;lo=c-2;hi=c+2}const pd=(hi-lo)*.08;lo-=pd;hi+=pd;
+ const X=x=>pl+x/R.L*iw,Y=v=>pt+(hi-v)/(hi-lo)*ih,id='elg'+(++ELN),pts=R.d.map((x,i)=>X(x).toFixed(1)+','+Y(e[i]).toFixed(1));
+ const yt=[mx,(mn+mx)/2,mn].map(v=>`<line x1="${pl}" x2="${W-pr}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="#e3e7ef"/><text x="${pl-5}" y="${(Y(v)+3.5).toFixed(1)}" text-anchor="end">${msNf(v,mx-mn<20?1:0)} ม.</text>`).join('');
+ const xt=[0,R.L/2,R.L].map((x,i)=>`<text x="${X(x).toFixed(1)}" y="${H-6}" text-anchor="${['start','middle','end'][i]}">${x?msDS(x):'0 ม.'}</text>`).join('');
+ return`<svg class="elch" viewBox="0 0 ${W} ${H}" data-pl="${pl}" data-iw="${iw}" role="img" aria-label="กราฟโปรไฟล์ระดับความสูง ${msNf(mn,0)}–${msNf(mx,0)} ม. ระยะ ${msDS(R.L)}"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b8ee8" stop-opacity=".55"/><stop offset="1" stop-color="#3b8ee8" stop-opacity=".04"/></linearGradient></defs>
+ <g font-size="${W>400?11:9.5}" fill="#6b7385">${yt}${xt}</g><path d="M${X(0).toFixed(1)},${pt+ih}L${pts.join('L')}L${X(R.L).toFixed(1)},${pt+ih}Z" fill="url(#${id})"/><polyline points="${pts.join(' ')}" fill="none" stroke="#0b6bcb" stroke-width="${W>400?2.2:1.8}" stroke-linejoin="round"/>
+ <g class="elcu" visibility="hidden"><line y1="${pt}" y2="${pt+ih}" stroke="#0b3b75" stroke-dasharray="3 2"/><circle r="4" fill="#0b6bcb" stroke="#fff" stroke-width="1.5"/><rect rx="5" height="${W>400?34:30}" fill="rgba(24,31,48,.92)"/><text fill="#fff" font-size="${W>400?11.5:10}" font-weight="700"></text><text fill="#cfd6e6" font-size="${W>400?10.5:9}"></text></g>
+ <rect x="${pl}" y="${pt}" width="${iw}" height="${ih}" fill="transparent"/></svg>`}
+function elBind(root,R){const sv=root&&root.querySelector('svg.elch');if(!sv||!R||R.t!=='ln')return;const g=sv.querySelector('.elcu'),[ln,ci,bx,t1,t2]=g.children,pl=+sv.dataset.pl,iw=+sv.dataset.iw,vb=sv.viewBox.baseVal,big=vb.width>400;
+ const mv=ev=>{const r=sv.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width*vb.width,f=Math.max(0,Math.min(1,(x-pl)/iw)),i=Math.round(f*(R.d.length-1)),X=pl+R.d[i]/R.L*iw;
+  const y=+sv.querySelector('polyline').getAttribute('points').split(' ')[i].split(',')[1];g.setAttribute('visibility','visible');ln.setAttribute('x1',X);ln.setAttribute('x2',X);ci.setAttribute('cx',X);ci.setAttribute('cy',y);
+  t1.textContent=elM(R.e[i]);t2.textContent=R.d[i]?msDS(R.d[i]):'0 ม.';const w=Math.max(t1.getComputedTextLength(),t2.getComputedTextLength())+14,bxX=X+w+8>vb.width?X-w-8:X+8,by=Math.max(2,Math.min(y-(big?40:36),vb.height-60));
+  bx.setAttribute('x',bxX);bx.setAttribute('y',by);bx.setAttribute('width',w);t1.setAttribute('x',bxX+7);t1.setAttribute('y',by+(big?14:12.5));t2.setAttribute('x',bxX+7);t2.setAttribute('y',by+(big?28:25));
+  if(!ELM){const el=document.createElement('div');el.className='elmk';ELM=new maplibregl.Marker({element:el})}ELM.setLngLat(R.ll[i]).addTo(map)};
+ const lv=()=>{g.setAttribute('visibility','hidden');if(ELM)ELM.remove()};
+ sv.addEventListener('pointermove',mv);sv.addEventListener('pointerdown',mv);sv.addEventListener('pointerleave',lv);sv.addEventListener('pointercancel',lv)}
+const elRng=(o,f)=>o?`${f(o.mn)} · ${f(o.md)} · ${f(o.mx)}`:'—';
+const elDeg=v=>msNf(v,v<10?1:0)+'°';
+function elHtml(R,big){if(!R)return'';if(R.err)return'<div class="elbx"><div class="eln">โหลดข้อมูลความสูงไม่ได้ (ต้องต่ออินเทอร์เน็ต)</div></div>';
+ const ex='<button type="button" data-elx aria-label="ขยายกราฟ" title="ขยายกราฟ"><svg class="i" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>';
+ const kv=r=>'<div class="elkv">'+r.map(([a,b,t])=>`<span${t?` title="${t}"`:''}>${a}</span><b>${b}</b>`).join('')+'</div>',note=`<div class="eln">ค่าประมาณจากแบบจำลองความสูง (ข้อมูลต้นทาง ~30 ม.)${R.part?' · คิดเฉพาะส่วนที่'+(R.t==='ln'?'ยาว':'ใหญ่')+'ที่สุด':''}${R.hole?' · ไม่หักรูในรูป':''}</div>`;
+ if(R.t==='pt')return`<div class="elbx"><div class="elhd"><b>ระดับความสูง</b></div>`+kv([['ความสูงพื้นดิน',elM(R.e)],['ลาดชัน',isNaN(R.s)?'—':elDeg(R.s)+' ('+msNf(trPct(R.s),0)+'%)'],['ด้านลาดหันไปทิศ',isNaN(R.s)?'—':R.s<TRFLAT?'ราบ':trDir(R.a)]])+note+'</div>';
+ if(R.t==='pg')return`<div class="elbx"><div class="elhd"><b>ระดับความสูงในพื้นที่</b></div><div class="elk3"><span></span><i>ต่ำสุด</i><i>มัธยฐาน</i><i>สูงสุด</i><span>ความสูง (ม.)</span>${R.E?[R.E.mn,R.E.md,R.E.mx].map(v=>`<b>${msNf(v,0)}</b>`).join(''):'<b>—</b><b></b><b></b>'}<span>ลาดชัน</span>${R.S?[R.S.mn,R.S.md,R.S.mx].map(v=>`<b>${elDeg(v)}</b>`).join(''):'<b>—</b><b></b><b></b>'}</div>`
+  +kv([['ต่างระดับ',R.E?msNf(R.E.mx-R.E.mn,0)+' ม.':'—']])+note.replace('</div>',R.sm?' · พื้นที่เล็กกว่าช่องข้อมูล ใช้ค่าที่มุมรูป':' · ทุกช่อง ~'+msNf(R.r,0)+' ม. ในรูป</div>');
+ return`<div class="elbx"><div class="elhd"><b>โปรไฟล์ระดับความสูง</b>${big?'':ex}</div>${elChart(R,big?640:300,big?260:118)}<div class="elk3"><span></span><i>ต่ำสุด</i><i>มัธยฐาน</i><i>สูงสุด</i><span>ความสูง (ม.)</span>${[R.E.mn,R.E.md,R.E.mx].map(v=>`<b>${msNf(v,0)}</b>`).join('')}<span title="ความชันตามแนวเส้นทาง เฉลี่ยช่วงละ ≥30 ม.">ลาดชัน</span>${R.S?[R.S.mn,R.S.md,R.S.mx].map(v=>`<b>${elDeg(v)}</b>`).join(''):'<b>—</b><b></b><b></b>'}</div>`
+  +kv([['ต้นทาง → ปลายทาง',msNf(R.e[0],0)+' → '+msNf(R.e[R.e.length-1],0)+' ม.'],['ขึ้นสะสม / ลงสะสม','+'+msNf(R.up,0)+' / −'+msNf(R.dn,0)+' ม.','ผลรวมช่วงที่ขึ้นและลงตามแนวเส้นทาง']])+note+(big?'':`<div class="eln">${msTouch()?'แตะ/ลาก':'ชี้'}บนกราฟเพื่อดูความสูงและตำแหน่งบนแผนที่</div>`)+'</div>'}
+/* เติมลงกล่อง id (หน่วง 350 ms ระหว่างลากจุด · ค่าเดิมแสดงจางไว้ระหว่างคำนวณ) */
+function elFill(id,g){const el=document.getElementById(id);if(!el)return;const k=g&&g.coordinates?g.type+':'+JSON.stringify(g.coordinates):'';el.dataset.k=k;
+ if(!k||g.type==='MultiPoint'){el.innerHTML='';return}
+ const c=ELC.get(k),put=R=>{const e=document.getElementById(id);if(!e||e.dataset.k!==k)return;e.classList.remove('elw');e.innerHTML=ELP[id]=elHtml(R);e._R=R;elBind(e,R);const b=e.querySelector('[data-elx]');if(b)b.onclick=()=>elBig(R);
+  const pp=e.closest('.maplibregl-popup');if(pp)requestAnimationFrame(()=>{const r=pp.getBoundingClientRect(),m=map.getContainer().getBoundingClientRect(),t=r.top-m.top-10,bt=m.bottom-r.bottom-10,c=$('#ctl'),cl=innerWidth<768&&c&&!document.body.classList.contains('ctlh')?c.getBoundingClientRect().left-6:m.right-6;
+   let dx=r.right-cl;dx=dx>0?Math.min(dx,Math.max(0,r.left-m.left-6)):0;const dy=t<0?t:bt<0&&t+bt>0?-bt:0;if(dx||dy)map.panBy([dx,dy],{duration:dur(300)})})}; // ป๊อปอัปสูงขึ้นจนล้นจอ/ทับคอลัมน์ปุ่มบนมือถือ = เลื่อนแผนที่ให้เห็นทั้งป๊อปอัป
+ if(c&&c.v!==undefined){put(c.v);return}
+ if(ELP[id]){el.innerHTML=ELP[id];el.classList.add('elw')}else el.innerHTML='<div class="elbx"><div class="trst"><i class="trsp"></i>กำลังโหลดข้อมูลความสูง…</div></div>';
+ clearTimeout(ELT[id]);ELT[id]=setTimeout(()=>elCalc(g).then(put),c?0:350)}
+function elBig(R){openModal('โปรไฟล์ระดับความสูง · '+msDS(R.L),'<div class="elbig">'+elHtml(R,1)+'</div>',1);elBind($('#md-b'),R)}
 </script>
 <script>
 /* ===== GIO: อ่าน/เขียนไฟล์ภูมิสารสนเทศในเบราว์เซอร์ (ไม่ใช้ไลบรารีภายนอก ยกเว้น proj4 จาก cdnjs เมื่อเจอระบบพิกัดแปลก) =====
@@ -4479,9 +4557,9 @@ function ulPop(k,fid,ll){const x=ulFind(k,fid);if(!x||!x.f)return;const{e,f}=x,p
  const ms=ulMeas(g,p._z).map(([a,b])=>`<tr><td>${a}</td><td><b>${b}</b></td></tr>`).join('');
  const at=pt?g.coordinates:[ll.lng,ll.lat];
  const h=`<div class="ulpp"><div class="ulpt"><i class="uldot" style="background:${esc(p._c||e.color)}"></i>${esc(e.name)}${e.srv?' · เซิร์ฟเวอร์':''}</div><b class="ulnm">${nm!=null&&nm!==''?esc(nm):'<span class="sm">ไม่มีชื่อ</span>'}</b>${ds?`<div class="ulds">${esc(ulDesc(ds))}</div>`:''}
-  <div class="ulpw"><table>${ms}${rows}</table></div><div class="ulpb"><a data-u="s">แชร์</a><a data-u="z">ซูม</a>${loc?'<a data-u="e">แก้ไข</a><a data-u="x" style="color:#b42318">ลบ</a>':''}<a data-u="c">คัดลอกพิกัด</a>${/Polygon/.test(g.type)?'<a data-u="t">วิเคราะห์ภูมิประเทศ</a>':''}${pt?`<a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${g.coordinates[1]},${g.coordinates[0]}">นำทาง</a>`:''}</div></div>`;
+  <div class="ulpw"><table>${ms}${rows}</table></div><div id="el-pop"></div><div class="ulpb"><a data-u="s">แชร์</a><a data-u="z">ซูม</a>${loc?'<a data-u="e">แก้ไข</a><a data-u="x" style="color:#b42318">ลบ</a>':''}<a data-u="c">คัดลอกพิกัด</a>${/Polygon/.test(g.type)?'<a data-u="t">วิเคราะห์ภูมิประเทศ</a>':''}${pt?`<a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${g.coordinates[1]},${g.coordinates[0]}">นำทาง</a>`:''}</div></div>`;
  if(ULP)ULP.remove();ULP=new maplibregl.Popup({maxWidth:'300px',offset:pt&&!UL.mm[k]?{bottom:[0,-30],'bottom-left':[0,-30],'bottom-right':[0,-30],top:[0,4],left:[12,-14],right:[-12,-14]}:8}).setLngLat(at).setHTML(h).addTo(map);
- const pop=ULP;ulSel(f);pop.on('close',()=>{if(ULP===pop){ULP=null;ulSel(null)}});
+ const pop=ULP;ulSel(f);if(typeof elFill==='function')elFill('el-pop',g);pop.on('close',()=>{if(ULP===pop){ULP=null;ulSel(null)}});
  pop.getElement().addEventListener('click',ev=>{const a=ev.target.closest('[data-u]');if(!a)return;const u=a.dataset.u;
   if(u==='z')ulZoom(f);else if(u==='e'){pop.remove();ulOpen(true);udEdit(k,fid)}else if(u==='x'){pop.remove();ulDelF(k,fid)}
   else if(u==='s'){pop.remove();ulShare(k,fid)}
@@ -4538,7 +4616,7 @@ function udGeom(){const P=UD.pts;return UD.m==='pt'?{type:'Point',coordinates:P[
 function udMeasHtml(){const n=UD.pts.length;if(UD.m==='at'&&UD.g0)return ulMeas(UD.g0);if(!n)return[];if(UD.form)return ulMeas(udGeom(),UD.cz);
  if(UD.m==='ln')return[['ระยะทาง',n>1?msDF(msLen(UD.pts)):'—'],['จำนวนจุด',n+' จุด']];
  if(UD.m==='pg')return[['เส้นรอบรูป',n>1?msDF(msLen(UD.pts,n>2)):'—'],['พื้นที่',n>2?msRai(msArea(UD.pts)):'—']];return[]}
-function udMeasure(){const t=UD.form&&$('#ud-ct');if(t&&document.activeElement!==t)t.value=udCoFmt(UD.pts);const el=$('#ud-ms');if(el)el.innerHTML=udMeasHtml().map(([a,b])=>`<div class="msrw"><span>${a}</span><b>${b}</b></div>`).join('')}
+function udMeasure(){const t=UD.form&&$('#ud-ct');if(t&&document.activeElement!==t)t.value=udCoFmt(UD.pts);const el=$('#ud-ms');if(el)el.innerHTML=udMeasHtml().map(([a,b])=>`<div class="msrw"><span>${a}</span><b>${b}</b></div>`).join('');if(UD.form&&typeof elFill==='function')elFill('ud-el',udGeom())}
 const udTxt=(s,n)=>String(s==null?'':s).replace(/"/g,'&quot;').replace(/</g,'&lt;');
 function udKV(){const el=$('#ud-kv');if(!el)return;el.innerHTML=UD.kv.map(([a,b],i)=>`<input data-kv="${i}" data-j="0" value="${udTxt(a)}" placeholder="หัวข้อ" aria-label="หัวข้อ"><input data-kv="${i}" data-j="1" value="${udTxt(b)}" placeholder="ค่า" aria-label="ค่า"><button data-kvx="${i}" aria-label="ลบรายการ">×</button>`).join('')}
 /* ป้อนพิกัดเอง (ผู้ใช้ขอ 8 พ.ย. 69): ละติจูด/ลองจิจูด (ทศนิยมหรือองศา ลิปดา ฟิลิปดา) หรือ UTM 47N/48N บรรทัดละ 1 จุด · ขณะวาด = เพิ่มต่อท้าย · หลังจบ = แทนที่ทั้งหมด (แก้ตัวเลขในกล่อง) */
@@ -4582,7 +4660,7 @@ function udPanel(){const d=$('#ul-d'),tc=msTouch(),n=UD.pts.length;$('#ulm').cla
   if(UD.m==='ln'&&n>1||UD.m==='pg'&&n>2)B.push('<button class="btn" data-ua="fin">จบ</button>');B.push('<button class="btn" data-ua="stop">ยกเลิก</button>');
   d.innerHTML=h+`<div class="msbt" style="margin:0 0 8px">${B.join('')}</div>`+udCoBox();udMeasure();return}
  const loc=UL.L,opts=loc.map(l=>`<option value="${l.id}"${l.id===(UD.tg||UL.tg)?' selected':''}>${esc(l.name)}</option>`).join('')+'<option value="+">'+(loc.length?'+ ชั้นใหม่…':'ชั้นข้อมูลของฉัน (สร้างใหม่)')+'</option>';
- d.innerHTML=`<div class="uldf"><div id="ud-ms"></div>${udCoBox()}
+ d.innerHTML=`<div class="uldf"><div id="ud-ms"></div><div id="ud-el"></div>${udCoBox()}
   <label class="lb" for="ud-n">ชื่อ</label><input type="text" id="ud-n" maxlength="200" value="${udTxt(UD.nm)}" placeholder="เช่น จุดเฝ้าระวัง, แนวกันไฟ, พื้นที่ไหม้">
   <label class="lb" for="ud-ds">รายละเอียด</label><textarea id="ud-ds" maxlength="4000" placeholder="ไม่บังคับ">${udTxt(UD.ds)}</textarea>
   <span class="lb">สี</span><div class="ulsw" id="ud-c">${ULC.map(c=>`<button data-c="${c}" style="background:${c}" aria-label="สี ${c}" aria-pressed="${c===UD.c}"></button>`).join('')}<input type="color" id="ud-cc" value="${esc(UD.c)}" aria-label="เลือกสีเอง"></div>
