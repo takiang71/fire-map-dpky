@@ -161,6 +161,8 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .cb.on{background:var(--on);color:#fff}
 .myloc{width:22px;height:22px;position:relative;cursor:pointer}.myloc i{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;display:block}.myloc .mld{width:16px;height:16px;background:#1a73e8;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)}.myloc .mlp{width:16px;height:16px;background:#1a73e8;animation:mlp 2s ease-out infinite;pointer-events:none}.myloc .mla{background:rgba(26,115,232,.13);border:1px solid rgba(26,115,232,.45);pointer-events:none}@keyframes mlp{0%{opacity:.6;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(3.2)}}@media(prefers-reduced-motion:reduce){.myloc .mlp{animation:none;opacity:0}}
 .zm{display:flex;flex-direction:row;gap:8px}
+/* ปุ่มเครื่องมือรวม (ผู้ใช้ขอ 10 พ.ย. 69 — มือถือคอลัมน์ปุ่ม 10 ปุ่มยาวจนแผ่นล่างเหลือน้อย): เดสก์ท็อปแสดงเรียงเหมือนเดิม (display:contents), มือถือซ่อนใน #ctx เปิดด้วย #bTo */
+.tw,.ctx{display:contents}#bTo{display:none}#ctl>.zm{order:1}#b3d{order:2}#ctl>#bN,#ctl>#bHome{order:3}
 
 #attr{position:fixed;left:50%;transform:translateX(-50%);bottom:env(safe-area-inset-bottom,0px);max-width:calc(100% - 20px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:2px 10px;font-size:10px;line-height:1.4;color:var(--mut);background:var(--glass);border-radius:8px 8px min(8px,env(safe-area-inset-bottom,0px)) min(8px,env(safe-area-inset-bottom,0px));z-index:4} /* iPad มีแถบโฮม: เดิมเติม padding ล่างตาม safe-area แถบจึงหนา (ผู้ใช้แจ้ง 8 พ.ย. 69) → ยกแถบขึ้นเหนือแถบโฮมแทน */
 /* เดสก์ท็อป: ทั้งแผงเลื่อนรวมกัน จบห่างขอบล่าง 12 px · ขณะแสดงการ์ดจุดความร้อน (การ์ดสุดท้าย กว้างเต็มเนื้อแผง x 16 ถึงขอบขวา−24 มุม 20) mask ขอบล่างของแผงเป็นมุมมนของการ์ด → ท้ายการ์ดมนเสมอไม่ว่าเลื่อนถึงไหน · แถบอ้างอิงข้อมูลอยู่กลางพื้นที่ขวาของแผงซ้าย ไม่ทับการ์ด */
@@ -272,6 +274,8 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
  /* แผ่นล่างใดๆ ถูกเปิด/ลากขึ้นสูงเกินขอบล่างของคอลัมน์ปุ่ม = ซ่อนปุ่มควบคุม (ctlFit ตั้ง body.ctlh) — แต่ละแผ่นมีปุ่มปิด/ลากลงเองได้ */
  body.ctlh #ctl{display:none}
  .zm{flex-direction:column}
+ .tw{display:block;position:relative}#bTo{display:grid}#bTo[aria-expanded=true],#bTo.act{background:var(--sel,#e6eef9)}#bTo.act::after{content:'';position:absolute;top:5px;right:5px;width:8px;height:8px;border-radius:50%;background:#e0301e;box-shadow:0 0 0 2px #fff}
+ .ctx{display:none;position:absolute;right:calc(100% + 8px);top:0;flex-direction:row-reverse;gap:8px}body.ctlx .ctx{display:flex}.ctx #b3d{order:0}
  #right{left:8px;right:8px;width:auto;top:auto;bottom:0;max-height:70vh;border-radius:22px 22px 0 0;transform:translateY(calc(100% + 16px))}
  #attr{display:none}
  .maplibregl-ctrl-bottom-right{bottom:calc(var(--sh0,34vh) + 6px)!important;right:auto!important;left:0!important}
@@ -836,12 +840,14 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 <nav id="ctl" aria-label="ปุ่มควบคุมแผนที่">
  <button class="cb" id="bLoc" aria-label="ตำแหน่งของฉัน"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
  <button class="cb" id="bLay" aria-label="ชั้นข้อมูล"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"/></svg></button>
+ <div class="tw"><button class="cb" id="bTo" aria-label="เครื่องมือแผนที่" aria-expanded="false" aria-controls="ctx"><svg class="i" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg></button><div class="ctx" id="ctx" role="group" aria-label="เครื่องมือแผนที่">
  <button class="cb" id="bMs" aria-label="วัดระยะทางและพื้นที่" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><path d="M3 16.5L16.5 3 21 7.5 7.5 21zM7 12.5l2 2M10 9.5l2.5 2.5M13 6.5l2 2"/></svg></button>
  <button class="cb" id="bUl" aria-label="วาดและจัดการชั้นข้อมูล" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M14.5 21.5l1-3.5 5-5 2.5 2.5-5 5z"/><path d="M3 13l9 5 2-1.1"/></svg></button>
  <button class="cb" id="bTr" aria-label="วิเคราะห์ภูมิประเทศ" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><path d="M3 8c3-3 6 1 9-1.5S18 4 21 6M3 13c3-3 6 1 9-1.5s6-2.5 9-.5M3 18c3-3 6 1 9-1.5s6-2.5 9-.5"/></svg></button>
  <button class="cb" id="bPm" aria-label="พิมพ์แผนที่"><svg class="i" viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg></button>
- <div class="zm"><button class="cb" id="zi" aria-label="ซูมเข้า"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><button class="cb" id="zo" aria-label="ซูมออก"><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button></div>
  <button class="cb" id="b3d" aria-label="โหมด 3 มิติ"><svg class="i" viewBox="0 0 24 24"><path d="M3 20l6-10 4 6 3-4 5 8z"/></svg></button>
+ </div></div>
+ <div class="zm"><button class="cb" id="zi" aria-label="ซูมเข้า"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><button class="cb" id="zo" aria-label="ซูมออก"><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button></div>
  <button class="cb" id="bN" aria-label="รีเซ็ตทิศเหนือ"><svg class="i" id="cmp" viewBox="0 0 24 24"><path d="M12 3l4 9H8zM12 21l-4-9h8z" /></svg></button>
  <button class="cb" id="bHome" aria-label="กลับมุมมองเริ่มต้น"><svg class="i" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/></svg></button>
 </nav>
@@ -1073,7 +1079,14 @@ async function imgDate(){const el=$('#imgdate'),q=++imgQ;if(!el)return;el.hidden
   IMC[key]=t;if(q===imgQ)el.textContent=t}
  catch(e){if(q===imgQ)el.textContent='อ่านวันที่ภาพไม่ได้'}}
 /* มือถือ: ความสูงปกติของแผ่นล่าง (--sh0) = ขอบบนชิดใต้คอลัมน์ปุ่มควบคุม 8 px (ผู้ใช้ขอ 2 พ.ย. 69) ใช้ร่วมกับแถบลอย/มาตราส่วนที่วางเหนือแผ่น · จอเตี้ยจนแผ่นต่ำกว่า 30% ใช้ 34vh เดิม (ปุ่มจะซ่อนเมื่อทับ) · คำนวณก่อนสร้างแผนที่ เพราะ homePad ใช้ความสูงแผ่น */
-function sheetFit(){const R=document.documentElement,B=document.body,k=$('#ctl');if(innerWidth>767||!k){R.style.removeProperty('--sh0');return}const had=B.classList.contains('ctlh');if(had)B.classList.remove('ctlh');const h=Math.floor(innerHeight-k.getBoundingClientRect().bottom-8);if(had)B.classList.add('ctlh');if(h>=innerHeight*.3)R.style.setProperty('--sh0',h+'px');else R.style.removeProperty('--sh0')}
+/* แถบเครื่องมือมือถือ: กด #bTo = แสดงปุ่มเครื่องมือเป็นแถวทางซ้าย · เลือกเครื่องมือ/แตะนอกแถบ/เปลี่ยนเป็นจอกว้าง = ปิด · มีเครื่องมือทำงานอยู่ = จุดแดงบน #bTo */
+function ctxSet(on){document.body.classList.toggle('ctlx',on);const b=$('#bTo');if(b)b.setAttribute('aria-expanded',on)}
+function ctxMark(){const b=$('#bTo');if(b)b.classList.toggle('act',!![...document.querySelectorAll('#ctx [aria-pressed=true]')].length)}
+document.addEventListener('click',e=>{const t=e.target;if(t.closest&&t.closest('#bTo')){ctxSet(!document.body.classList.contains('ctlx'));return}
+ if(t.closest&&t.closest('#ctx .cb')){setTimeout(()=>{ctxSet(false);ctxMark()},0);return}if(document.body.classList.contains('ctlx')&&!(t.closest&&t.closest('#ctl')))ctxSet(false)},true);
+addEventListener('resize',()=>{if(innerWidth>767)ctxSet(false)});
+new MutationObserver(ctxMark).observe(document.documentElement,{subtree:true,attributes:true,attributeFilter:['aria-pressed']});
+function sheetFit(){const R=document.documentElement,B=document.body,k=$('#ctl');if(innerWidth>767||!k){R.style.removeProperty('--sh0');return}const had=B.classList.contains('ctlh');if(had)B.classList.remove('ctlh');const h=Math.min(Math.floor(innerHeight-k.getBoundingClientRect().bottom-8),Math.round(innerHeight*.44));if(had)B.classList.add('ctlh');if(h>=innerHeight*.3)R.style.setProperty('--sh0',h+'px');else R.style.removeProperty('--sh0')}
 sheetFit();addEventListener('resize',sheetFit);
 const map=new maplibregl.Map({container:'map',style:sty(),bounds:HOME,fitBoundsOptions:{padding:homePad()},attributionControl:false,maxPitch:75,preserveDrawingBuffer:true}); // preserveDrawingBuffer: ให้ดึงภาพแผนที่ใส่รายงานได้
 
