@@ -82,5 +82,18 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
+      # Pages บางครั้งยังถือว่ารอบก่อน "กำลัง deploy" อยู่หลังรอบนั้นจบแล้ว (เจอ 10 พ.ย. 69: push ตามหลังรอบ cron
+      # → "Deployment request failed … due to in progress deployment" ติดกัน 2 รอบ หน้าเว็บช้าไป ~15 นาที) → รอแล้วลองใหม่ในรอบเดียวกัน
       - id: deployment
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+      - if: steps.deployment.outcome == 'failure'
+        run: sleep 60
+      - id: deployment2
+        if: steps.deployment.outcome == 'failure'
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+      - if: steps.deployment.outcome == 'failure' && steps.deployment2.outcome == 'failure'
+        run: sleep 120
+      - if: steps.deployment.outcome == 'failure' && steps.deployment2.outcome == 'failure'
         uses: actions/deploy-pages@v4
