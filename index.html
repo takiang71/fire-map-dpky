@@ -1424,7 +1424,7 @@ $('#grab').onclick=()=>$('#left').classList.toggle('up');
 $('#bLay').onclick=()=>{closeDetail();$('#right').classList.toggle('open');sync();panFit()};
 $('#xr').onclick=()=>{$('#right').classList.remove('open');sync();panFit()};
 $('#zi').onclick=()=>wlZoom(1);$('#zo').onclick=()=>wlZoom(-1);$('#bN').onclick=()=>map.resetNorth();
-$('#bHome').onclick=()=>fitHome(true);
+$('#bHome').onclick=()=>{MOVED=false;fitHome(true)};
 // ตำแหน่งของฉัน (ผู้ใช้แจ้ง 8 พ.ย. 69: กดแล้วไม่มีสัญลักษณ์) — จุดฟ้า + วงความแม่นยำ ติดตามต่อเนื่องจนกดปิด
 // กดครั้งแรก = เริ่มติดตาม+บินไป · กดเมื่อเปิดอยู่: แผนที่ไม่ได้อยู่ที่ตำแหน่ง = บินกลับ, อยู่แล้ว = ปิด · แตะจุด = ป๊อปอัปตำแหน่ง (ข้อมูลเดียวกับแตะแผนที่)
 const LOC={w:null,m:null,p:null,fly:false};
@@ -2633,7 +2633,19 @@ function homePad(){if(innerWidth<=767){const l=$('#left'),h=Math.min(innerHeight
  const L=$('#left'),R=[$('#right'),$('#ulm')].find(e=>e&&(e.id==='right'?e.classList.contains('open'):!e.hidden)),lx=document.body.classList.contains('lc')||!L?0:L.offsetLeft+L.offsetWidth-24;
  return{top:60,bottom:100,left:lx+60,right:R?innerWidth-R.offsetLeft+60:60}}
 // เปิด/ปิดแผงซ้ายหรือแผงชั้นข้อมูลโดยผู้ใช้ = จัดกลุ่มป่ากลางพื้นที่ที่เหลือ (มือถือแผงเป็นแผ่นล่าง ไม่จัด) · ไม่เรียกตอนแผงปิดเองเพราะเปิดรายละเอียดจุด
-function panFit(){if(innerWidth>767)try{if(HOPEN&&HTAB==='wa')wFocus(true);else fitHome(true)}catch(e){}} /* การ์ดพื้นที่เฝ้าระวังพิเศษเปิดอยู่ = จัดพื้นที่เฝ้าระวังกลางที่ว่าง (ผู้ใช้ขอ 7 พ.ย. 69) */ // เว้นด้านซ้ายให้การ์ด เพื่อให้กลุ่มป่าอยู่กลางพื้นที่ว่างด้านขวา
+/* ผู้ใช้ซูม/เลื่อนแผนที่เองแล้ว (MOVED) = ไม่กลับไปมุมมองทั้งกลุ่มป่า (ผู้ใช้ขอ 10 พ.ย. 69):
+   จุดโฟกัส FOC = กลางพื้นที่ว่างระหว่างแผง (อัปเดตทุก moveend) · เปิดแผง = คงภาพเดิม (เลื่อนเฉพาะเมื่อแผงบังจุดโฟกัส)
+   · ปิด/ซ่อนแผง = เลื่อนจุดโฟกัสไปกลางพื้นที่ว่างใหม่ ซูมเท่าเดิม */
+let FOC=null,GAPW=0;
+function gapC(){const p=homePad(),W=map.getContainer().clientWidth,H=map.getContainer().clientHeight;return{x:(p.left+W-p.right)/2,y:(p.top+H-p.bottom)/2,w:W-p.left-p.right,x0:p.left-60,x1:W-p.right+60}}
+function focSet(){if(innerWidth<=767)return;const g=gapC();FOC=map.unproject([g.x,g.y]);GAPW=g.w}
+map.on('moveend',focSet);
+function panFit(){if(innerWidth>767)try{
+ if(!MOVED||!FOC){if(HOPEN&&HTAB==='wa')wFocus(true);else fitHome(true);return}
+ const g=gapC(),P=map.project(FOC),wide=g.w>=GAPW-1;GAPW=g.w;
+ if(!wide&&P.x>=g.x0+40&&P.x<=g.x1-40)return; /* เปิดแผงแล้วจุดโฟกัสยังมองเห็น = คงภาพเดิม */
+ const dx=P.x-g.x,dy=P.y-g.y;if(Math.abs(dx)<2&&Math.abs(dy)<2)return;const f=FOC;map.panBy([dx,dy],{duration:dur(700)});map.once('moveend',()=>{FOC=f})
+}catch(e){}} /* การ์ดพื้นที่เฝ้าระวังพิเศษเปิดอยู่ = จัดพื้นที่เฝ้าระวังกลางที่ว่าง (ผู้ใช้ขอ 7 พ.ย. 69) */ // เว้นด้านซ้ายให้การ์ด เพื่อให้กลุ่มป่าอยู่กลางพื้นที่ว่างด้านขวา
 function hFit(){const F=hfilt();if(!F.length)return toast('ไม่มีข้อมูลตามตัวกรอง');const b=new maplibregl.LngLatBounds([F[0].lo,F[0].la],[F[0].lo,F[0].la]);F.forEach(r=>b.extend([r.lo,r.la]));map.fitBounds(b,{padding:homePad(),maxZoom:11,duration:dur(1000)})}
 const histBounds=()=>{let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const r of HD){a=Math.min(a,r.lo);b=Math.min(b,r.la);c=Math.max(c,r.lo);d=Math.max(d,r.la)}a=Math.min(a,CB[0]);b=Math.min(b,CB[1]);c=Math.max(c,CB[2]);d=Math.max(d,CB[3]);return[[a,b],[c,d]]};
 let MOVED=false;function fitHome(anim){map.fitBounds(histBounds(),{padding:homePad(),maxZoom:11,bearing:0,pitch:S.d3?60:0,duration:anim?dur(1200):0})}
