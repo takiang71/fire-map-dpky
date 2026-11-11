@@ -26,6 +26,7 @@ let WLIVE = null; // จุด 48 ชม. ในพื้นที่เฝ้�
 // ใช้ไฟล์ CSV 7 วันสาธารณะ (ไม่ต้องใช้ key, ล่าช้ากว่าสแกน ~3 ชม.) เฉพาะดาวเทียมที่ขาด · ไม่เติมจุดที่ API มีอยู่แล้ว (FM.same) · unique_id = "firms|…" คงที่ทุกรอบ
 // meta.firms = { sats, n (จุดที่เติมในแนวเขต), box (จุดของดวงนั้นในกรอบกลุ่มป่า 48 ชม. ทั้งในและนอกแนวเขต), why } → หน้าเว็บขึ้นป้าย / health.js แจ้งผู้ดูแล
 const FM = require('./lib/firms');
+const { featDups } = require('./lib/dedup');
 const SNPP_END = Date.UTC(2026, 10, 2, 13); // SNPP หยุดส่งข้อมูลถาวร 2 พ.ย. 2569 20:00 น. ไทย
 const SATS = () => Date.now() < SNPP_END ? ['SNPP', 'NOAA20', 'NOAA21'] : ['NOAA20', 'NOAA21'];
 const pad2 = n => String(n).padStart(2, '0');
@@ -71,7 +72,7 @@ async function apiLive() {
   for (let k = 1; ; k++) try {
     const r = await fetch(url, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(120e3) });
     if (!r.ok) throw new Error('HTTP ' + r.status);
-    const j = await r.json(), all = j.features || [];
+    const j = await r.json(), raw = j.features || [], D = featDups(raw), all = raw.filter((f, i) => !D.has(i)); // ตัดคู่แฝดของรอบดาวเทียมที่ API ส่งซ้ำ (scripts/lib/dedup.js)
     const keep = [];
     WLIVE = [];
     for (const f of all) {
@@ -83,7 +84,7 @@ async function apiLive() {
     }
     const last = all.reduce((m, f) => (f.properties && f.properties.full_date > m ? f.properties.full_date : m), ''), sats = {};
     for (const f of all) { const k = satKey(f.properties && f.properties.satellite_name); sats[k] = (sats[k] || 0) + 1 } // จุดทั้งประเทศต่อดาวเทียม (หาดวงที่ขาด)
-    return { type: 'FeatureCollection', meta: { generated: new Date().toISOString(), nation_total: all.length, nation_last: last || null, sys_update: await sysUpdate(), sats }, features: keep };
+    return { type: 'FeatureCollection', meta: { generated: new Date().toISOString(), nation_total: all.length, nation_last: last || null, sys_update: await sysUpdate(), sats, ...(D.size ? { dup: D.size } : {}) }, features: keep };
   } catch (e) {
     if (k >= 3) throw e;
     await new Promise(r => setTimeout(r, 5000 * k));

@@ -1,5 +1,6 @@
 // เก็บสะสมจุดความร้อนจริงรายวันจาก Land Fire Alerts Thailand (WFSRU/ThaiREN) เฉพาะในแนวเขตกลุ่มป่า
-// ใช้: node scripts/sync_hotspots.js [--from YYYY-MM-DD] [--refetch N]
+// ใช้: node scripts/sync_hotspots.js [--from YYYY-MM-DD] [--refetch N] [--dedup-all]
+//  --dedup-all = ดึงทุกวันตั้งแต่ --from ใหม่เพื่อตัดระเบียนซ้ำของ API ย้อนหลัง (รวมจุดเดิม + ลบคู่แฝด ไม่เติม FIRMS วันเก่า) ~10 นาที
 //  - ครั้งแรกดึงตั้งแต่ 1 ต.ค. 2568 (ต้นปีงบ 2569) ทีละวัน · ครั้งต่อไปดึงเฉพาะวันที่ยังไม่มี + ดึงซ้ำ N วันล่าสุด (ค่าเริ่มต้น 7)
 //    API ต้นทางเคยตอบว่าง/ไม่ครบย้อนหลังหลายวันแล้วค่อยเติมทีหลัง (24–27 ต.ค. 69) จึงดึงซ้ำเป็นสัปดาห์ และรวมจุดเดิมกับจุดใหม่ (ไม่ลบจุดเดิม)
 //  - API ส่งทั้งประเทศ (ช่วงพีค ~1 MB/วัน) สคริปต์กรองเหลือเฉพาะจุดในพื้นที่อนุรักษ์/พื้นที่รับผิดชอบ (GEO ใน index.html)
@@ -15,7 +16,8 @@ const ROOT = path.join(__dirname, '..');
 const H = path.join(ROOT, 'index.html'), OUT = path.join(ROOT, 'data', 'hotspots_api.json');
 const API = 'https://wildlandfire.thairen.net.th/landfirealertsmap_thailand/api/alerts';
 const arg = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null };
-const FROM = arg('--from') || '2025-10-01', REFETCH = +(arg('--refetch') || 7), CONC = 3;
+const FROM = arg('--from') || '2025-10-01', REFETCH = +(arg('--refetch') || 7), CONC = 3, ALL = process.argv.includes('--dedup-all');
+const { featDups } = require('./lib/dedup'); // ระเบียนซ้ำทั้งรอบดาวเทียมของ API (พ.ย. 68 – มี.ค. 69)
 
 // บันทึกผลลง data/sync.log ด้วย (ตั้งรันอัตโนมัติผ่าน Task Scheduler จะไม่มีหน้าจอให้ดู) · ตัดให้เหลือ ~200 KB
 const LOG = path.join(ROOT, 'data', 'sync.log');
@@ -46,16 +48,17 @@ async function fetchDay(d) {
   for (let k = 1; ; k++) try {
     const r = await fetch(url, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(180e3) });
     if (!r.ok) throw new Error('HTTP ' + r.status);
-    const j = await r.json(), out = [];
-    for (const f of j.features || []) {
+    const j = await r.json(), out = [], D = featDups(j.features || []), dup = new Set();
+    for (const [i, f] of (j.features || []).entries()) {
       const p = f.properties || {}, [lon, lat] = f.geometry.coordinates, w = where(lon, lat), wa = watchAt(lon, lat);
       if ((!w && !wa) || !p.full_date) continue;
+      if (D.has(i)) { dup.add(String(p.unique_id || '')); continue } // คู่แฝดของจุดอื่นในรอบเดียวกัน (scripts/lib/dedup.js)
       out.push({ d: dayOf(p.full_date), t: +p.full_date.slice(11, 13) * 100 + +p.full_date.slice(14, 16), la: Math.round(lat * 1e5), lo: Math.round(lon * 1e5),
         sat: String(p.satellite_name || 'ไม่ระบุ').trim(), cf: String(p.confidence || 'ไม่ระบุ').trim(),
         pv: (p.province_name_th || 'ไม่ระบุ').trim(), am: (p.district_name_th || 'ไม่ระบุ').trim(), tm: (p.subdistrict_name_th || 'ไม่ระบุ').trim(),
         ...(w || {}), ...(wa ? { wa } : {}), uid: String(p.unique_id || '') });
     }
-    return { n: (j.features || []).length, out, sats: new Set((j.features || []).map(f => String((f.properties || {}).satellite_name || '').trim())) };
+    return { n: (j.features || []).length, out, dup, nd: D.size, sats: new Set((j.features || []).map(f => String((f.properties || {}).satellite_name || '').trim())) };
   } catch (e) {
     if (k >= 3) throw new Error(`${s}: ${e.message}`);
     await new Promise(r => setTimeout(r, 3000 * k));
@@ -73,24 +76,27 @@ store.wdays = store.wdays || {}; // วันที่ดึงแล้วพ�
 
 (async () => {
   const todo = [], days0 = new Set(Object.keys(store.days).map(Number));
-  for (let d = dayOf(FROM); d <= today; d++) if (!(d in store.days) || !(d in store.wdays) || d > today - REFETCH) todo.push(d);
+  for (let d = dayOf(FROM); d <= today; d++) if (ALL || !(d in store.days) || !(d in store.wdays) || d > today - REFETCH) todo.push(d);
   console.log(`ดึง ${todo.length} วัน (${todo.length ? isoOf(todo[0]) + ' → ' + isoOf(todo[todo.length - 1]) : '-'})`);
-  const got = {}, fail = [], empty = [], apiSats = {};
+  const got = {}, fail = [], empty = [], apiSats = {}, dupOf = {};
+  let ndup = 0;
   let i = 0, done = 0, nat = 0;
   await Promise.all(Array.from({ length: CONC }, async () => {
     while (i < todo.length) {
       const d = todo[i++];
       // ทั้งประเทศ 0 จุด = API ขัดข้องบ่อยกว่าไม่มีไฟจริง (เคยตอบว่างย้อนหลังหลายวัน 27 ต.ค. 69) → คงข้อมูลเดิมไว้ ไม่บันทึกว่าเสร็จ รอบหน้าดึงใหม่
-      try { const r = await fetchDay(d); apiSats[d] = r.sats; if (r.n) got[d] = r.out; else empty.push(isoOf(d)); nat += r.n } catch (e) { fail.push(e.message) }
+      try { const r = await fetchDay(d); apiSats[d] = r.sats; if (r.n) { got[d] = r.out; dupOf[d] = r.dup; ndup += r.nd } else empty.push(isoOf(d)); nat += r.n } catch (e) { fail.push(e.message) }
       if (++done % 20 === 0 || done === todo.length) console.log(`  ${done}/${todo.length} วัน · ทั้งประเทศ ${nat} จุด`);
     }
   }));
   // รวมจุดของวันที่ดึงสำเร็จกับจุดเดิม กันซ้ำด้วย unique_id — ไม่แทนที่ทั้งวัน เพราะ API อาจตอบไม่ครบ (เช่น 27 ต.ค. 69 มีแค่ NOAA-21) แล้วจุดเดิมที่ครบกว่าจะหาย
   const fetched = new Set(Object.keys(got).map(Number));
+  let ndel = 0;
   const byId = new Map(store.recs.map(r => [r.uid || `${r.d}|${r.t}|${r.la}|${r.lo}|${r.sat}`, r]));
   for (const d of fetched) {
-    const wOnly = days0.has(d) && d <= today - REFETCH; // วันเก่าที่ดึงซ้ำเพื่อพื้นที่เฝ้าระวังเท่านั้น → รับเฉพาะจุดในพื้นที่เฝ้าระวัง (ไม่แตะจุดของกลุ่มป่า)
+    const wOnly = !ALL && days0.has(d) && d <= today - REFETCH; // วันเก่าที่ดึงซ้ำเพื่อพื้นที่เฝ้าระวังเท่านั้น → รับเฉพาะจุดในพื้นที่เฝ้าระวัง (ไม่แตะจุดของกลุ่มป่า)
     for (const r of got[d]) if (!wOnly || (r.wa && !r.ar)) byId.set(r.uid || `${r.d}|${r.t}|${r.la}|${r.lo}|${r.sat}`, r);
+    for (const u of dupOf[d]) if (u && byId.delete(u)) ndel++; // คู่แฝดที่เคยเก็บไว้ (รวมวันเก่าที่ดึงซ้ำ) → ลบ
     if (d < today) { store.days[d] = 0; store.wdays[d] = 1 } // วันนี้ยังไม่ครบ ไม่บันทึกว่าเสร็จ
   }
   // --- เติมจาก NASA FIRMS เฉพาะวัน/ดาวเทียมที่ API ไม่มี ---
@@ -110,22 +116,10 @@ store.wdays = store.wdays || {}; // วันที่ดึงแล้วพ�
     }
     console.log('API ขาดข้อมูล', need.length, 'วัน (' + need.slice(0, 8).map(([d, m]) => isoOf(d) + ' ' + m.join('/')).join(', ') + (need.length > 8 ? ', …' : '') + ') → เติมจาก NASA FIRMS', F.reduce((a, b) => a + b, 0), 'จุด' + (skip.length ? ' · ' + skip.join(', ') : ''));
   }
-  // --- ตัดจุดซ้ำของ API ไทย (ผู้ใช้สั่ง 30 ต.ค. 69) ---
-  // API มีจุดเดียวกัน 2 ระเบียน (unique_id ต่างกัน) เวลาต่าง 1–3 นาที ห่าง <150 หน่วย (~165 ม.) เช่น 12:39/12:40 — พบ ธ.ค. 68–มี.ค. 69 ราว 82 คู่
-  // FIRMS ไม่มีซ้ำแบบนี้ (จุดใกล้กันจริงใน FIRMS เวลาเดียวกันเสมอ) · จับคู่ใกล้สุดก่อนแบบหนึ่งต่อหนึ่ง เก็บระเบียนเวลาช้ากว่า (ตรงกับ FIRMS 62 จาก 81 คู่)
-  // ทำกับที่เก็บทั้งหมดทุกรอบ (ดึงซ้ำ 7 วันจะได้ระเบียนซ้ำกลับมา แล้วถูกตัดอีก) · ไม่แตะ hdata (Excel กรมอุทยานฯ)
-  {
-    const mn = t => Math.floor(t / 100) * 60 + t % 100, G = new Map(), P = [], drop = new Set();
-    for (const [k, r] of byId) if (r.src !== 'firms') { const g = r.d + '|' + r.sat; if (!G.has(g)) G.set(g, []); G.get(g).push([k, r]) }
-    for (const L of G.values()) for (let i = 0; i < L.length; i++) for (let j = 0; j < L.length; j++) {
-      const a = L[i][1], b = L[j][1], dt = mn(b.t) - mn(a.t);
-      if (dt >= 1 && dt <= 3) { const dd = Math.hypot(a.la - b.la, a.lo - b.lo); if (dd < 150) P.push([dd, L[i][0], L[j][0]]) } // a = เวลาเร็วกว่า
-    }
-    const used = new Set();
-    for (const [, ka, kb] of P.sort((x, y) => x[0] - y[0])) if (!used.has(ka) && !used.has(kb)) { used.add(ka); used.add(kb); drop.add(ka) }
-    for (const k of drop) byId.delete(k);
-    if (drop.size) console.log('ตัดจุดซ้ำของ API', drop.size, 'จุด');
-  }
+  // --- ตัดจุดซ้ำของ API ไทย (ผู้ใช้สั่ง 30 ต.ค. 69 · เปลี่ยนวิธี 11 พ.ย. 69) ---
+  // API ส่งทั้งรอบดาวเทียมมาสองชุด (พ.ย. 68 – 4 มี.ค. 69) → ตรวจทั้งประเทศรายรอบใน fetchDay (scripts/lib/dedup.js) แล้วลบคู่แฝดด้านบน
+  // เกณฑ์เดิม (ในแนวเขต เวลาต่าง 1–3 นาที ห่าง <150 หน่วย) ไม่จับคู่แฝดเวลาเดียวกัน — ตรวจกับ FIRMS แล้วเหลือเกิน 62 จุด · ไม่แตะ hdata (Excel กรมอุทยานฯ)
+  if (ndup || ndel) console.log(`ระเบียนซ้ำของ API ทั้งประเทศ ${ndup} จุด · ลบจากที่เก็บ ${ndel} จุด`);
   store.recs = [...byId.values()].sort((a, b) => a.d - b.d || a.t - b.t || a.la - b.la);
   for (const r of store.recs) if (r.d in store.days && fetched.has(r.d)) store.days[r.d]++;
 
