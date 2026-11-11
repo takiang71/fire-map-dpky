@@ -21,7 +21,7 @@ const H = 36e5, REMIND = 12 * H;
 // เรื่องที่ตรวจ: ชื่อ + ต้องเป็นต่อเนื่องนานเท่าไรจึงแจ้ง (กันขัดข้องชั่วคราว)
 const CHECKS = { api: ['ดึงจุดความร้อนจาก API ไม่ได้', H], src: ['ระบบต้นทางไม่อัปเดต', 0], sync: ['sync จุดความร้อนไม่ทำงาน', 0], gap: ['ข้อมูลสะสมค้าง', 0], line: ['LINE ใช้งานไม่ได้', H],
   tg: ['Telegram ใช้งานไม่ได้', H], tgm: ['กลุ่ม Telegram ถูกอัปเกรดเป็น supergroup', 0],
-  pages: ['หน้าเว็บ (GitHub Pages) ไม่อัปเดต', 0] };
+  pages: ['หน้าเว็บ (GitHub Pages) ไม่อัปเดต', 0], ci: ['หน้าเว็บฉบับใหม่ไม่ผ่านการตรวจ', 0] };
 const now = +process.env.HEALTH_NOW || Date.now();
 const thTime = ms => { const d = new Date(ms + 7 * H); return `${d.getUTCDate()}/${d.getUTCMonth() + 1} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')} น.` };
 const hrs = ms => (ms / H).toFixed(ms < 10 * H ? 1 : 0);
@@ -75,6 +75,9 @@ function problems(pg) {
   // Pages ค้างทั้งที่ deploy สำเร็จ (6 พ.ย. 69) — หน้าเว็บถอยไปดึง API ตรงได้ แต่ live.json/summary.json บนเว็บ (Worker LINE ใช้) จะเก่า
   const pu = pg && pg.meta && Date.parse(pg.meta.generated);
   if (pu && now - pu > H) P.pages = `live.json บนเว็บสร้างเมื่อ ${thTime(pu)} (${hrs(now - pu)} ชม.) ทั้งที่ workflow site รันปกติ — deploy ขึ้นสำเร็จแต่ Pages ไม่เปลี่ยน`;
+  // ผลตรวจหน้าเว็บก่อน deploy (scripts/check_site.js --ci)
+  const ck = readJ(path.join(OUT, 'check.json'));
+  if (ck && ck.ok === false) P.ci = `${String(ck.errs && ck.errs[0] || '').split(' | ')[0].slice(0, 220)}${ck.errs && ck.errs.length > 1 ? ` (+อีก ${ck.errs.length - 1})` : ''} — ${ck.fallback ? 'หน้าเว็บยังใช้ฉบับก่อนหน้า ข้อมูลจุดความร้อนยังอัปเดตตามปกติ' : 'ดึงฉบับก่อนหน้าไม่ได้ ฉบับใหม่ขึ้นเว็บไปแล้ว'} · ดู log ขั้น check site`;
   return P;
 }
 

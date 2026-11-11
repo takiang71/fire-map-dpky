@@ -40,6 +40,12 @@ jobs:
           ls -l .state
       # ถ้าดึงข้อมูลไม่สำเร็จก็ยังเผยแพร่หน้าเว็บ (หน้าเว็บจะถอยไปดึง API ตรงเอง)
       - run: node scripts/build_site.js || true
+      # ตรวจหน้าเว็บก่อนขึ้น Pages (scripts/check_site.js): syntax ทุก <script> + เปิดใน Chrome headless เดสก์ท็อป/มือถือ กดปุ่มหลัก นับ error
+      # ไม่ผ่าน = ใช้ index.html ฉบับบนเว็บแทน (ข้อมูลอื่นยังขึ้นปกติ) + health.js แจ้งผู้ดูแล · index.html ตรงกับรอบที่ตรวจแล้ว = ใช้ผลเดิม ไม่เปิด Chrome
+      - name: check site
+        continue-on-error: true
+        timeout-minutes: 6
+        run: node scripts/check_site.js _site --ci
       # แจ้งเตือนจุดใหม่เข้ากลุ่ม LINE (docs/line-bot.md) — ไม่ตั้ง secret ก็ยังเก็บสถานะ notify.json ไว้
       - run: node scripts/line_notify.js || true
         env:
