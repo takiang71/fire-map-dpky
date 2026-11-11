@@ -28,6 +28,7 @@ const MAX_AGE_H = 12, KEEP_H = 72, MAXLEN = 3900, MAXENT = 90;
 const SATN = { SNPP: 'Suomi NPP', NOAA20: 'NOAA-20', NOAA21: 'NOAA-21' };
 const satKey = s => { s = String(s == null ? '' : s); return /21/.test(s) ? 'NOAA21' : /20/.test(s) ? 'NOAA20' : /npp|suomi/i.test(s) ? 'SNPP' : s };
 const thMs = fd => Date.parse(String(fd).replace(' ', 'T') + '+07:00');
+const NR = require('./lib/near'); // กันแจ้งซ้ำเมื่อจุดเดียวกันมาจาก NASA FIRMS / API ไทย หรือ API ไทยมีระเบียนซ้ำ
 const idOf = f => { const p = f.properties, [lo, la] = f.geometry.coordinates; return String(p.unique_id || `${p.full_date}|${la.toFixed(4)}|${lo.toFixed(4)}|${satKey(p.satellite_name)}`) };
 const thDate = ms => new Date(ms + 7 * 36e5).toISOString().slice(0, 10);
 const hm = ms => new Date(ms + 7 * 36e5).toISOString().slice(11, 16);
@@ -90,7 +91,7 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
   // เวลาตัวหนาให้แยกจุดง่าย · ลิงก์บรรทัดใหม่ · NBSP หลังไอคอน กัน Telegram ตัดบรรทัดระหว่างอีโมจิกับคำ (ผู้ใช้ส่งภาพ 🔥 ค้างท้ายบรรทัด 3 พ.ย. 69)
   const hsUrl = f => { const [lo, la] = f.geometry.coordinates; return `${SITE}?hs=${la.toFixed(5)},${lo.toFixed(5)}` };
   const ptLine = (f, ar = false) => { const p = f.properties, t = thMs(p.full_date);
-    return `• <b>${hm(t)} น. ${dTh(t)}</b> ${esc(SATN[satKey(p.satellite_name)] || p.satellite_name)}${ar ? ' · ' + esc(arS(p._ar)) : ''} · ต.${esc(p.subdistrict_name_th || '-')} อ.${esc(p.district_name_th || '-')} จ.${esc(p.province_name_th || '-')}${p._st ? ' · ' + esc(stShort(p._st)) : ''}
+    return `• <b>${hm(t)} น. ${dTh(t)}</b> ${esc(SATN[satKey(p.satellite_name)] || p.satellite_name)}${p._src === 'firms' ? ' (NASA FIRMS)' : ''}${ar ? ' · ' + esc(arS(p._ar)) : ''} · ต.${esc(p.subdistrict_name_th || '-')} อ.${esc(p.district_name_th || '-')} จ.${esc(p.province_name_th || '-')}${p._st ? ' · ' + esc(stShort(p._st)) : ''}
    📍 <a href="${gm(f)}">Google Maps</a>  ·  🔥 <a href="${hsUrl(f)}">แผนที่ไฟป่า</a>` };
   // ปุ่มแผนที่ของชุดจุด (ลิงก์ตรงแบบเดียวกับการ์ด LINE): 1 จุด = เปิดจุดนั้น, หลายจุด = ซูมกรอบ
   // ป้ายปุ่มสั้น: ปุ่มครึ่งจอบนมือถือตัด "ดู 5 จุดบนแผนที่" เป็น "ดู 5 จุดบนแผนท…" (ผู้ใช้ส่งภาพ 3 พ.ย. 69)
@@ -231,11 +232,11 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
   const off = `ยังไม่ตั้ง ${!TOKEN ? 'TG_TOKEN ' : ''}${!CHATS.length ? 'TG_CHAT_ID' : ''}`.trim();
 
   const all48 = live.features.filter(f => f.geometry && f.properties && f.properties.full_date);
-  const fresh = pts.filter(f => !(idOf(f) in st.sent) && now - thMs(f.properties.full_date) < MAX_AGE_H * 36e5)
+  const fresh = pts.filter(f => NR.isNew(st, f, idOf) && now - thMs(f.properties.full_date) < MAX_AGE_H * 36e5)
     .sort((a, b) => thMs(a.properties.full_date) - thMs(b.properties.full_date));
-  all48.forEach(f => { if (!(idOf(f) in st.sent)) st.sent[idOf(f)] = now });
-  const wfresh = wpts.filter(f => !(idOf(f) in st.sent) && now - thMs(f.properties.full_date) < MAX_AGE_H * 36e5).sort((a, b) => thMs(a.properties.full_date) - thMs(b.properties.full_date));
-  wpts.forEach(f => { if (!(idOf(f) in st.sent)) st.sent[idOf(f)] = now });
+  all48.forEach(f => NR.remember(st, f, idOf, now));
+  const wfresh = wpts.filter(f => NR.isNew(st, f, idOf) && now - thMs(f.properties.full_date) < MAX_AGE_H * 36e5).sort((a, b) => thMs(a.properties.full_date) - thMs(b.properties.full_date));
+  wpts.forEach(f => NR.remember(st, f, idOf, now));
   if (seed) log({ why: 'เริ่มเก็บสถานะ (ไม่ส่ง)', n: all48.length });
   else if (fresh.length) {
     if (!on) log({ why: off, n: fresh.length });
@@ -277,6 +278,7 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
     } catch (e) { st.tg = { ok: 0, why: e.message.slice(0, 200), at: new Date(now).toISOString() } }
   }
   for (const k in st.sent) if (now - st.sent[k] > KEEP_H * 36e5) delete st.sent[k];
+  NR.prune(st, now, KEEP_H);
   st.updated = new Date(now).toISOString();
   if (fs.existsSync(OUT)) fs.writeFileSync(path.join(OUT, 'tg_notify.json'), JSON.stringify(st));
 })();

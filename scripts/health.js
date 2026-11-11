@@ -58,7 +58,9 @@ async function send(text, to = { line: 1, tg: 1 }) {
 function problems(pg) {
   const P = {}, live = readJ(path.join(OUT, 'live.json')), nt = readJ(path.join(OUT, 'notify.json'));
   if (!live) P.api = 'สร้าง live.json ไม่ได้ (API ไม่ตอบหรือผิดพลาด)';
-  else if (!live.meta || !live.meta.nation_total) P.api = 'API ตอบว่างทั้งประเทศ (48 ชม. ไม่มีจุดเลย = น่าจะขัดข้อง)';
+  else if (!live.meta || !live.meta.nation_total) P.api = live.meta && live.meta.firms ? `${live.meta.firms.why} — ${live.meta.firms.err ? 'NASA FIRMS ก็ดึงไม่ได้' : `ใช้จุดจาก NASA FIRMS แทน (${live.meta.firms.n} จุดในแนวเขต, ล่าช้า ~3 ชม.)`}` : 'API ตอบว่างทั้งประเทศ (48 ชม. ไม่มีจุดเลย = น่าจะขัดข้อง)';
+  // API มีข้อมูลแต่ขาดบางดาวเทียม — แจ้งเฉพาะเมื่อ NASA FIRMS พบจุดของดวงนั้นในกรอบกลุ่มป่า (ไม่งั้นอาจแค่ไม่มีไฟ เช่น หน้าฝน)
+  else if (live.meta.firms && Object.values(live.meta.firms.box || {}).some(v => v > 0)) P.api = `${live.meta.firms.why} แต่ NASA FIRMS พบ (${Object.entries(live.meta.firms.box).map(([s, v]) => s + ' ' + v).join(', ')} จุดในกรอบกลุ่มป่า) — เติมจาก FIRMS ${live.meta.firms.n} จุดในแนวเขต`;
   const su = live && live.meta && live.meta.sys_update && Date.parse(live.meta.sys_update);
   if (su && now - su > 18 * H) P.src = `Land Fire Alerts อัปเดตล่าสุด ${thTime(su)} (${hrs(now - su)} ชม.)`;
   let a = null; try { a = JSON.parse(fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').match(/id="adata">([\s\S]*?)<\/script>/)[1]) } catch (e) { }

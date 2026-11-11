@@ -13,7 +13,7 @@ const { ROOT, H, where, block, watchAt } = require('./lib/area');
 const { air4thai } = require('./lib/air4thai');
 
 const OUT = path.join(ROOT, '_site');
-const API = 'https://wildlandfire.thairen.net.th/landfirealertsmap_thailand/api/alerts';
+const API = process.env.HOTSPOT_API || 'https://wildlandfire.thairen.net.th/landfirealertsmap_thailand/api/alerts'; // HOTSPOT_API = ทดสอบกับเซิร์ฟเวอร์จำลอง
 // เวลา "Last update" ของระบบต้นทาง อยู่ในหน้าแรก (HTML) เป็นเวลาไทย เช่น "Last update : 30/10/2026 - 13h47" → meta.sys_update (ISO) ใน live.json
 async function sysUpdate() {
   try { const h = await (await fetch(API.replace(/api\/alerts$/, ''), { signal: AbortSignal.timeout(30e3) })).text(), m = /Last update\s*:\s*(\d{1,2})\/(\d{1,2})\/(\d{4})\s*-\s*(\d{1,2})h(\d{2})/i.exec(h);
@@ -22,7 +22,51 @@ async function sysUpdate() {
 const th = ms => new Date(ms + 7 * 36e5).toISOString().slice(0, 19); // เวลาไทยรูปแบบที่ API รับ
 let WLIVE = null; // จุด 48 ชม. ในพื้นที่เฝ้าระวังเป็นพิเศษ (เติมใน live())
 
+// --- สำรองด้วย NASA FIRMS (ผู้ใช้ขอ 11 พ.ย. 69): API ไทยดึงไม่ได้ / ตอบว่างทั้งประเทศ / ไม่มีดาวเทียมบางดวงใน 48 ชม. ---
+// ใช้ไฟล์ CSV 7 วันสาธารณะ (ไม่ต้องใช้ key, ล่าช้ากว่าสแกน ~3 ชม.) เฉพาะดาวเทียมที่ขาด · ไม่เติมจุดที่ API มีอยู่แล้ว (FM.same) · unique_id = "firms|…" คงที่ทุกรอบ
+// meta.firms = { sats, n (จุดที่เติมในแนวเขต), box (จุดของดวงนั้นในกรอบกลุ่มป่า 48 ชม. ทั้งในและนอกแนวเขต), why } → หน้าเว็บขึ้นป้าย / health.js แจ้งผู้ดูแล
+const FM = require('./lib/firms');
+const SNPP_END = Date.UTC(2026, 10, 2, 13); // SNPP หยุดส่งข้อมูลถาวร 2 พ.ย. 2569 20:00 น. ไทย
+const SATS = () => Date.now() < SNPP_END ? ['SNPP', 'NOAA20', 'NOAA21'] : ['NOAA20', 'NOAA21'];
+const pad2 = n => String(n).padStart(2, '0');
+const fmMs = r => Date.UTC(1970, 0, 1 + r.d, Math.floor(r.t / 100) - 7, r.t % 100);
+const fRec = f => { const p = f.properties, fd = String(p.full_date || ''), [lo, la] = f.geometry.coordinates;
+  return { d: Date.UTC(+fd.slice(0, 4), +fd.slice(5, 7) - 1, +fd.slice(8, 10)) / 864e5, t: +fd.slice(11, 13) * 100 + +fd.slice(14, 16), la: Math.round(la * 1e5), lo: Math.round(lo * 1e5), sat: satKey(p.satellite_name) } };
+function fmFeat(r) {
+  const nm = v => v && v !== 'ไม่ระบุ' ? v : null;
+  return { type: 'Feature', geometry: { type: 'Point', coordinates: [r.lo / 1e5, r.la / 1e5] }, properties: {
+    confidence: r.cf, full_date: `${new Date(r.d * 864e5).toISOString().slice(0, 10)} ${pad2(Math.floor(r.t / 100))}:${pad2(r.t % 100)}:00`, satellite_name: r.sat,
+    province_name_th: nm(r.pv), district_name_th: nm(r.am), subdistrict_name_th: nm(r.tm), protected_area_name_th: r.ar && r.ar !== 'นอกพื้นที่อนุรักษ์' ? r.ar : null,
+    unique_id: r.uid, _ar: r.ar, _st: r.st, _src: 'firms' } };
+}
 async function live() {
+  let L = null, err = null;
+  try { L = await apiLive() } catch (e) { err = e.message; console.log('API ไทยดึงไม่สำเร็จ:', err) }
+  const need = SATS().filter(s => !(L && L.meta.sats[s]));
+  if (!need.length) return L;
+  const why = err ? 'API ดึงไม่สำเร็จ: ' + err : !L.meta.nation_total ? 'API ตอบว่างทั้งประเทศ' : `API ไม่มีดาวเทียม ${need.map(s => SATN[s]).join('/')} ใน 48 ชม.`;
+  const since = Date.now() - 48 * 36e5, stat = { since, n: {} };
+  let R;
+  try { R = await FM.recent(need, stat) } catch (e) {
+    console.log('NASA FIRMS ไม่สำเร็จ:', e.message);
+    if (!L) throw new Error(err);
+    L.meta.firms = { sats: need, n: 0, why, err: e.message }; return L;
+  }
+  if (!L) { L = { type: 'FeatureCollection', meta: { generated: new Date().toISOString(), nation_total: 0, nation_last: null, sys_update: await sysUpdate(), sats: {} }, features: [] }; WLIVE = [] }
+  const ex = L.features.concat(WLIVE).map(fRec);
+  let n = 0;
+  for (const r of R) {
+    const t = fmMs(r); if (t < since || t > Date.now() + 6e5 || ex.some(e => FM.same(e, r))) continue;
+    ex.push(r); const f = fmFeat(r);
+    if (r.ar) { L.features.push(f); n++ }
+    if (r.wa) WLIVE.push({ ...f, properties: { ...f.properties, _w: r.wa } });
+  }
+  L.meta.firms = { sats: need, n, box: stat.n, why };
+  console.log(`${why} → เติมจาก NASA FIRMS ${n} จุดในแนวเขต (${need.join('/')} ในกรอบกลุ่มป่า 48 ชม.: ${need.map(s => s + ' ' + (stat.n[s] || 0)).join(', ')})`);
+  return L;
+}
+
+async function apiLive() {
   const n = Date.now(), url = `${API}?start_date=${encodeURIComponent(th(n - 48 * 36e5))}&end_date=${encodeURIComponent(th(n))}&reserved_only=0&protected_only=0`;
   for (let k = 1; ; k++) try {
     const r = await fetch(url, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(120e3) });
@@ -37,8 +81,9 @@ async function live() {
       const wa = f.geometry && watchAt(f.geometry.coordinates[0], f.geometry.coordinates[1]);
       if (wa) WLIVE.push({ ...f, properties: { ...f.properties, _w: wa } });
     }
-    const last = all.reduce((m, f) => (f.properties && f.properties.full_date > m ? f.properties.full_date : m), '');
-    return { type: 'FeatureCollection', meta: { generated: new Date().toISOString(), nation_total: all.length, nation_last: last || null, sys_update: await sysUpdate() }, features: keep };
+    const last = all.reduce((m, f) => (f.properties && f.properties.full_date > m ? f.properties.full_date : m), ''), sats = {};
+    for (const f of all) { const k = satKey(f.properties && f.properties.satellite_name); sats[k] = (sats[k] || 0) + 1 } // จุดทั้งประเทศต่อดาวเทียม (หาดวงที่ขาด)
+    return { type: 'FeatureCollection', meta: { generated: new Date().toISOString(), nation_total: all.length, nation_last: last || null, sys_update: await sysUpdate(), sats }, features: keep };
   } catch (e) {
     if (k >= 3) throw e;
     await new Promise(r => setTimeout(r, 5000 * k));

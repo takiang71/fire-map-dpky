@@ -48,15 +48,19 @@ async function get(url, label, log) {
 
 // CSV → จุดในแนวเขต (รูปแบบเดียวกับ fetchDay ใน sync_hotspots.js + src:'firms')
 let ADM;
-function parse(text, sat) {
+// stat (ไม่บังคับ) = { since: ms, n: {} } → นับจุดของดาวเทียมนี้ในกรอบ BOX ที่สแกนตั้งแต่ since ทั้งในและนอกแนวเขต (ใช้ตัดสินว่า API ไทยขาดดาวเทียมนี้จริง)
+function parse(text, sat, stat) {
   if (ADM === undefined) ADM = admIndex();
   const L = text.split('\n'), h = L[0].split(','), c = n => h.indexOf(n), out = [];
   const iLa = c('latitude'), iLo = c('longitude'), iD = c('acq_date'), iT = c('acq_time'), iC = c('confidence');
+  if (stat) stat.n[sat] = stat.n[sat] || 0;
   for (const l of L.slice(1)) {
     const v = l.split(','); if (v.length < h.length) continue;
     const la = +v[iLa], lo = +v[iLo]; if (!(lo > BOX[0] && lo < BOX[2] && la > BOX[1] && la < BOX[3])) continue;
+    const tt = v[iT].padStart(4, '0'), utc = Date.parse(`${v[iD]}T${tt.slice(0, 2)}:${tt.slice(2, 4)}:00Z`);
+    if (stat && utc >= stat.since) stat.n[sat]++;
     const w = where(lo, la), wa = watchAt(lo, la); if (!w && !wa) continue;
-    const tt = v[iT].padStart(4, '0'), x = new Date(Date.parse(`${v[iD]}T${tt.slice(0, 2)}:${tt.slice(2, 4)}:00Z`) + 7 * 36e5), a = ADM && ADM(lo, la);
+    const x = new Date(utc + 7 * 36e5), a = ADM && ADM(lo, la);
     const cf = { n: 'nominal', l: 'low', h: 'high' }[v[iC]] || v[iC].trim();
     const r = { d: Math.floor(x / 864e5), t: x.getUTCHours() * 100 + x.getUTCMinutes(), la: Math.round(la * 1e5), lo: Math.round(lo * 1e5), sat, cf,
       pv: a ? a.p : 'ไม่ระบุ', am: a ? a.a : 'ไม่ระบุ', tm: a ? a.t : 'ไม่ระบุ', ...(w || {}), ...(wa ? { wa } : {}), src: 'firms' };
@@ -65,9 +69,10 @@ function parse(text, sat) {
   return out;
 }
 
-async function recent() {
-  const out = [];
-  for (const [sat, p] of Object.entries(PUB)) out.push(...parse(await get(`${BASE}/data/active_fire/${p}_SouthEast_Asia_7d.csv`, 'FIRMS ' + sat), sat));
+// sats = ดาวเทียมที่ต้องการ (ค่าเริ่มต้นทุกดวง) · stat ดู parse() · FIRMS_PUB = ปลายทางแทน (ทดสอบกับเซิร์ฟเวอร์จำลอง)
+async function recent(sats = Object.keys(PUB), stat) {
+  const out = [], base = process.env.FIRMS_PUB || `${BASE}/data/active_fire`;
+  for (const sat of sats) if (PUB[sat]) out.push(...parse(await get(`${base}/${PUB[sat]}_SouthEast_Asia_7d.csv`, 'FIRMS ' + sat), sat, stat));
   return out;
 }
 

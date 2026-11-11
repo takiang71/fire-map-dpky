@@ -31,6 +31,7 @@ const MAX_AGE_H = 12;                                 // ไม่แจ้ง�
 const KEEP_H = 72;
 const satKey = s => { s = String(s == null ? '' : s); return /21/.test(s) ? 'NOAA21' : /20/.test(s) ? 'NOAA20' : /npp|suomi/i.test(s) ? 'SNPP' : s };
 const thMs = fd => Date.parse(String(fd).replace(' ', 'T') + '+07:00'); // full_date เป็นเวลาไทย
+const NR = require('./lib/near'); // กันแจ้งซ้ำเมื่อจุดเดียวกันมาจาก NASA FIRMS / API ไทย หรือ API ไทยมีระเบียนซ้ำ
 const idOf = f => { const p = f.properties, [lo, la] = f.geometry.coordinates; return String(p.unique_id || `${p.full_date}|${la.toFixed(4)}|${lo.toFixed(4)}|${satKey(p.satellite_name)}`) };
 const thDate = ms => new Date(ms + 7 * 36e5).toISOString().slice(0, 10);
 
@@ -117,13 +118,13 @@ async function quotaOk() {
   st = seed ? { sent: {}, days: {}, log: [] } : st;
 
   const pts = live.features.filter(f => f.geometry && f.properties && f.properties.full_date);
-  const fresh = pts.filter(f => !(idOf(f) in st.sent) && !excluded(f.properties) && now - thMs(f.properties.full_date) < MAX_AGE_H * 36e5)
+  const fresh = pts.filter(f => NR.isNew(st, f, idOf) && !excluded(f.properties) && now - thMs(f.properties.full_date) < MAX_AGE_H * 36e5)
     .sort((a, b) => thMs(a.properties.full_date) - thMs(b.properties.full_date));
-  pts.forEach(f => { if (!(idOf(f) in st.sent)) st.sent[idOf(f)] = now });
+  pts.forEach(f => NR.remember(st, f, idOf, now));
   // พื้นที่เฝ้าระวังเป็นพิเศษ (watch.json) — จำใน st.sent ชุดเดียวกัน (unique_id ไม่ซ้ำกับจุดในกลุ่มป่า)
   const wpts = ((wjs && wjs.features) || []).filter(f => f.geometry && f.properties && f.properties.full_date);
-  const wfresh = wpts.filter(f => !(idOf(f) in st.sent) && now - thMs(f.properties.full_date) < MAX_AGE_H * 36e5);
-  wpts.forEach(f => { if (!(idOf(f) in st.sent)) st.sent[idOf(f)] = now });
+  const wfresh = wpts.filter(f => NR.isNew(st, f, idOf) && now - thMs(f.properties.full_date) < MAX_AGE_H * 36e5);
+  wpts.forEach(f => NR.remember(st, f, idOf, now));
   const nAll = fresh.length + wfresh.length;
 
   let rec = null;
@@ -184,6 +185,7 @@ async function quotaOk() {
   if (drec) { st.log = [{ t: new Date(now).toISOString(), ...drec }, ...(st.log || [])].slice(0, 50); console.log('LINE สรุปประจำวัน:', JSON.stringify(drec)) }
   if (brec) { st.log = [{ t: new Date(now).toISOString(), ...brec }, ...(st.log || [])].slice(0, 50); console.log('LINE พื้นที่เผาไหม้:', JSON.stringify(brec)) }
   for (const k in st.sent) if (now - st.sent[k] > KEEP_H * 36e5) delete st.sent[k];
+  NR.prune(st, now, KEEP_H);
   for (const d in st.days) if (d < thDate(now - 7 * 864e5)) delete st.days[d];
   st.updated = new Date(now).toISOString();
   fs.writeFileSync(path.join(OUT, 'notify.json'), JSON.stringify(st));
