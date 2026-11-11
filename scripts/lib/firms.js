@@ -37,7 +37,8 @@ async function get(url, label, log) {
   for (let k = 1; ; k++) try {
     const r = await fetch(url, { signal: AbortSignal.timeout(180e3) });
     const t = await r.text();
-    if (/Invalid MAP_KEY/i.test(t) && key() && await waitQuota(key(), log)) { k--; continue }
+    // เกินโควตา: FIRMS ตอบ "Invalid MAP_KEY" หรือ HTTP 400 "Exceeding allowed transaction limit" (พบ 11 พ.ย. 69 ตอนดึงย้อนหลังสองงานพร้อมกัน)
+    if (/Invalid MAP_KEY|Exceeding allowed transaction limit/i.test(t) && key() && await waitQuota(key(), log)) { k--; continue }
     if (!r.ok || /^(Invalid|Error)/i.test(t)) throw new Error(`HTTP ${r.status} ${t.slice(0, 80).trim()}`);
     return t;
   } catch (e) {

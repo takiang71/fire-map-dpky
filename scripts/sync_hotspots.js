@@ -1,7 +1,7 @@
 // เก็บสะสมจุดความร้อนจริงรายวันจาก Land Fire Alerts Thailand (WFSRU/ThaiREN) เฉพาะในแนวเขตกลุ่มป่า
 // ใช้: node scripts/sync_hotspots.js [--from YYYY-MM-DD] [--refetch N] [--dedup-all]
 //  --dedup-all = ดึงทุกวันตั้งแต่ --from ใหม่เพื่อตัดระเบียนซ้ำของ API ย้อนหลัง (รวมจุดเดิม + ลบคู่แฝด ไม่เติม FIRMS วันเก่า) ~10 นาที
-//  - ครั้งแรกดึงตั้งแต่ 1 ต.ค. 2568 (ต้นปีงบ 2569) ทีละวัน · ครั้งต่อไปดึงเฉพาะวันที่ยังไม่มี + ดึงซ้ำ N วันล่าสุด (ค่าเริ่มต้น 7)
+//  - ดึงตั้งแต่ 3 ส.ค. 2567 (วันแรกที่ API มีข้อมูล — ก่อนหน้านั้นตอบว่าง; ผู้ใช้ขอขยายจาก 1 ต.ค. 68 เมื่อ 11 พ.ย. 69) ทีละวัน · ครั้งต่อไปดึงเฉพาะวันที่ยังไม่มี + ดึงซ้ำ N วันล่าสุด (ค่าเริ่มต้น 7)
 //    API ต้นทางเคยตอบว่าง/ไม่ครบย้อนหลังหลายวันแล้วค่อยเติมทีหลัง (24–27 ต.ค. 69) จึงดึงซ้ำเป็นสัปดาห์ และรวมจุดเดิมกับจุดใหม่ (ไม่ลบจุดเดิม)
 //  - API ส่งทั้งประเทศ (ช่วงพีค ~1 MB/วัน) สคริปต์กรองเหลือเฉพาะจุดในพื้นที่อนุรักษ์/พื้นที่รับผิดชอบ (GEO ใน index.html)
 //  - API ขัดข้อง (ทั้งประเทศ 0 จุด / ขาดบางดาวเทียม / ดึงไม่สำเร็จ) ในช่วง 7 วันล่าสุด → เติมจาก NASA FIRMS (ไฟล์ 7 วันสาธารณะ ไม่ต้องใช้ key)
@@ -16,7 +16,7 @@ const ROOT = path.join(__dirname, '..');
 const H = path.join(ROOT, 'index.html'), OUT = path.join(ROOT, 'data', 'hotspots_api.json');
 const API = 'https://wildlandfire.thairen.net.th/landfirealertsmap_thailand/api/alerts';
 const arg = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null };
-const FROM = arg('--from') || '2025-10-01', REFETCH = +(arg('--refetch') || 7), CONC = 3, ALL = process.argv.includes('--dedup-all');
+const FROM = arg('--from') || '2024-08-03', REFETCH = +(arg('--refetch') || 7), CONC = 3, ALL = process.argv.includes('--dedup-all');
 const { featDups } = require('./lib/dedup'); // ระเบียนซ้ำทั้งรอบดาวเทียมของ API (พ.ย. 68 – มี.ค. 69)
 
 // บันทึกผลลง data/sync.log ด้วย (ตั้งรันอัตโนมัติผ่าน Task Scheduler จะไม่มีหน้าจอให้ดู) · ตัดให้เหลือ ~200 KB
@@ -137,9 +137,12 @@ store.wdays = store.wdays || {}; // วันที่ดึงแล้วพ�
   const K = ['sat', 'cf', 'pv', 'am', 'tm', 'ar', 'st', 'sb'], D = Object.fromEntries(K.map(k => [k, []]));
   const ix = (k, v) => { let n = D[k].indexOf(v); if (n < 0) { n = D[k].length; D[k].push(v) } return n };
   const last = Math.max(-1, ...Object.keys(store.days).map(Number));
+  // จุดย้อนหลังก่อนที่ API มีข้อมูล (NASA FIRMS ปีงบ 2561 – 2 ส.ค. 67 จาก scripts/firms_hist.js) ต่อไว้หน้าข้อมูล API — ช่องสุดท้าย 1 = NASA FIRMS
+  //   from = วันแรกของข้อมูลทั้งชุด (หน้าเว็บ hcA0: ก่อนวันนี้จึงใช้จุดกรมอุทยานฯ) · api0 = วันแรกของ API ไทย
+  const HIST = (() => { try { const j = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'hotspots_hist.json'), 'utf8')); return { from: j.from, recs: j.recs.filter(r => r.ar && r.d < dayOf(FROM)) } } catch (e) { return { recs: [] } } })();
   const enc = {
-    v: 1, upd: new Date().toISOString(), from: FROM, to: last >= 0 ? isoOf(last) : null, ...D,
-    r: store.recs.filter(r => r.ar).map(r => [r.d, r.t, r.la, r.lo, ix('sat', r.sat), ix('cf', r.cf), ix('pv', r.pv), ix('am', r.am), ix('tm', r.tm + '|' + r.am), ix('ar', r.ar), ix('st', r.st), ix('sb', SBP[r.pv] || r.sb), r.dnp].concat(r.src === 'firms' ? [1] : [])),
+    v: 1, upd: new Date().toISOString(), from: HIST.recs.length ? HIST.from : FROM, api0: FROM, to: last >= 0 ? isoOf(last) : null, ...D,
+    r: HIST.recs.concat(store.recs.filter(r => r.ar)).map(r => [r.d, r.t, r.la, r.lo, ix('sat', r.sat), ix('cf', r.cf), ix('pv', r.pv), ix('am', r.am), ix('tm', r.tm + '|' + r.am), ix('ar', r.ar), ix('st', r.st), ix('sb', SBP[r.pv] || r.sb), r.dnp || 0].concat(r.src === 'firms' ? [1] : [])),
   };
   writeSafe(OUT, JSON.stringify({ enc, raw: store }));
   const s = JSON.stringify(enc);
@@ -168,9 +171,11 @@ store.wdays = store.wdays || {}; // วันที่ดึงแล้วพ�
     .concat(f69.map(r => [isoOf(r.d), String(r.t).padStart(4, '0').replace(/(..)$/, ':$1'), 'Suomi NPP', r.cf, (r.la / 1e5).toFixed(5), (r.lo / 1e5).toFixed(5), r.tm, r.am, r.pv, r.ar, r.st, SBP[r.pv] || r.sb, r.dnp ? 'ใช่' : 'ไม่ใช่'].map(q).join(',')));
   fs.writeFileSync(path.join(ROOT, 'data', 'FY2569_SNPP_ทั้งกลุ่มป่า.csv'), '﻿' + csv.join('\r\n'));
 
-  const cnt = {}; store.recs.filter(r => r.ar).forEach(r => { const k = (r.d >= dayOf('2026-10-01') ? '2570' : '2569') + ' ' + r.sat; cnt[k] = (cnt[k] || 0) + 1 });
+  const fyOf = d => { const x = new Date(d * 864e5); return x.getUTCFullYear() + 543 + (x.getUTCMonth() >= 9 ? 1 : 0) };
+  const cnt = {}; store.recs.filter(r => r.ar).forEach(r => { const k = fyOf(r.d) + ' ' + r.sat; cnt[k] = (cnt[k] || 0) + 1 });
   console.log('ในแนวเขต', store.recs.filter(r => r.ar).length, 'จุด', cnt, '· ฝังใน index.html', (s.length / 1024).toFixed(1), 'KB');
-  console.log('ปีงบ 2569 SNPP', f69.length, 'จุด · ตรงกับข้อมูลกรมอุทยานฯ', f69.filter(r => r.dnp).length, 'จาก', hd.filter(a => a[0] <= dayOf('2026-09-30')).length);
+  for (const Y of [2568, 2569]) { const a = dayOf((Y - 544) + '-10-01'), b = dayOf((Y - 543) + '-09-30'), A = store.recs.filter(r => r.ar && r.sat === 'SNPP' && r.d >= a && r.d <= b);
+    console.log(`ปีงบ ${Y} SNPP`, A.length, 'จุด · ตรงกับข้อมูลกรมอุทยานฯ', A.filter(r => r.dnp).length, 'จาก', hd.filter(x => x[0] >= a && x[0] <= b).length) }
   if (empty.length) console.log('API ตอบว่างทั้งประเทศ', empty.length, 'วัน (คงข้อมูลเดิม รอบหน้าดึงใหม่):', empty.join(', '));
   if (fail.length) { console.log('ดึงไม่สำเร็จ', fail.length, 'วัน (รันใหม่จะลองวันเหล่านี้อีก):', fail.slice(0, 5)); process.exitCode = 1 }
 })();
