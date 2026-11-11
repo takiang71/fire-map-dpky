@@ -7,6 +7,12 @@ on:
   schedule:
     - cron: '17 23,2,8,11 * * *'
   workflow_dispatch:
+    inputs:
+      # ผู้สั่งรัน: ว่าง = cron-job.org/กดเอง · watchdog = ตัวสั่งงานสำรองบน Cloudflare (worker/watchdog.mjs) · sync = workflow sync
+      by:
+        description: "ผู้สั่งรัน (ปล่อยว่างได้)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -52,7 +58,7 @@ jobs:
           git pull --rebase
           git push
       - name: deploy now
-        run: gh workflow run site.yml --ref main
+        run: gh workflow run site.yml --ref main -f by=sync
         env:
           GH_TOKEN: ${{ github.token }}
       # ตรวจว่า workflow site (cron-job.org ทุก 10 นาที) ยังทำงาน — ถ้าหยุด การตรวจ health ในรอบ site ก็หยุดด้วย

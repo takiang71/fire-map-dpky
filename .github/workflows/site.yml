@@ -7,6 +7,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      # ผู้สั่งรัน: ว่าง = cron-job.org/กดเอง · watchdog = ตัวสั่งงานสำรองบน Cloudflare (worker/watchdog.mjs) · sync = workflow sync
+      by:
+        description: "ผู้สั่งรัน (ปล่อยว่างได้)"
+        required: false
+        default: ""
 
 permissions:
   contents: write   # push สถานะการแจ้งเตือนไป branch state
@@ -69,6 +75,9 @@ jobs:
       # แจ้งเตือนผู้ดูแลเมื่อระบบเสีย (scripts/health.js) — ส่งถึง LINE_ADMIN_ID / TG_ADMIN_ID คนเดียว ไม่ตั้ง = บันทึกสถานะใน health.json อย่างเดียว
       - run: node scripts/health.js || true
         env:
+          # ใครสั่งรอบนี้ — health.js แจ้งเมื่อตัวสำรองต้องสั่งแทน cron-job.org ต่อเนื่องเกิน 1 ชม.
+          RUN_BY: ${{ inputs.by }}
+          RUN_EV: ${{ github.event_name }}
           LINE_TOKEN: ${{ secrets.LINE_TOKEN }}
           LINE_ADMIN_ID: ${{ vars.LINE_ADMIN_ID }}
           TG_TOKEN: ${{ secrets.TG_TOKEN }}

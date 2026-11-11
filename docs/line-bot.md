@@ -27,6 +27,7 @@
 |---|---|---|
 | แจ้งเตือนอัตโนมัติ (push) | GitHub Actions workflow `site` → `scripts/line_notify.js` | ทุกรอบที่สร้างเว็บ: ถ้ามีจุดใหม่ในแนวเขต (สแกนไม่เกิน 12 ชม.) จะส่งเข้ากลุ่ม 1 ข้อความรวมทุกจุด |
 | ตอบคำสั่ง (reply) | Cloudflare Worker `worker/line-webhook.mjs` (มีตัวสร้างการ์ด `carousel()` ที่ Actions ใช้ร่วม) | "สรุป" / "ช่วยเหลือ" / "รหัสกลุ่ม" |
+| ตัวสั่งงานสำรอง | Cloudflare Worker `worker/watchdog.mjs` (ข้อ 11) | สั่งรัน site/sync เองเมื่อ cron-job.org ไม่สั่งตามเวลา |
 | สถานะ | `https://takiang71.github.io/fire-map-dpky/notify.json` | จุดที่แจ้งไปแล้ว + บันทึก 50 รอบล่าสุด (ดูว่าส่งหรือข้ามเพราะอะไร) |
 
 **โควตา:** แผนฟรีของ LINE OA ส่งได้ราว 300 ข้อความ/เดือน และ push เข้ากลุ่มนับตามจำนวนสมาชิก (กลุ่ม 20 คน = 20 ข้อความ/ครั้ง ≈ 15 ครั้ง/เดือน)
@@ -217,6 +218,33 @@ workflow `sync` (เก็บจุดความร้อนสะสม + พ
 - **คำสั่ง "เฝ้าระวัง" / "จปร"** และการ์ดนี้ต่อท้ายคำตอบ "สรุป" — **ต้องวางโค้ด Worker ใหม่** (เหมือนข้อ 8) ถึงจะใช้ได้ · ปุ่มลัด 🎯 เฝ้าระวัง เหนือช่องพิมพ์ขึ้นทันทีหลังข้อความแจ้งเตือนรอบถัดไป แต่ถ้ายังไม่วาง Worker ใหม่ กดแล้วบอทจะไม่ตอบ
 - ทดสอบส่งเข้ากลุ่ม 1 ครั้ง (เสียโควตา): Actions → **line-test** → Run workflow → เลือก `watch`
 - เพิ่มพื้นที่อื่นในอนาคต: `node scripts/import_watch.js <แนวเขต.kmz> <จุดความร้อนย้อนหลัง.kmz> --id <รหัส> --name "<ชื่อ>" --short <ชื่อย่อ>` แล้วรัน `node scripts/sync_hotspots.js` (ต้องลบ `wdays` ใน data/hotspots_api.json ก่อน เพื่อดึงย้อนหลังพื้นที่ใหม่ ~10 นาที) — หน้าเว็บ/LINE/Telegram รองรับหลายพื้นที่ แต่แถวในแผงชั้นข้อมูลยังเขียนไว้สำหรับ จปร.
+
+## 11. (แนะนำ) ตัวสั่งงานสำรองบน Cloudflare (เพิ่ม 11 พ.ย. 69)
+
+ข้อ 6 และข้อ 7 ให้ **cron-job.org** สั่งรันอยู่ที่เดียว ถ้าบริการนั้นหยุด แจ้งเตือนจุดไฟจะช้าลงเหลือรอบของ GitHub เอง (ห่าง 2–5 ชม.)
+Worker `worker/watchdog.mjs` ตื่นทุก 5 นาที ดูรอบล่าสุดของ workflow ผ่าน GitHub API แล้ว**สั่งรันเฉพาะเมื่อรอบหายไป** (ปกติไม่สั่งอะไร จึงไม่รันซ้อนกับ cron-job.org):
+- `site` ไม่มีรอบใหม่เกิน 15 นาที → สั่ง site
+- `sync` ผ่านเวลา 06:17 / 09:17 / 15:17 / 18:17 น. มาแล้ว 25 นาที แต่ยังไม่มีรอบ → สั่ง sync
+- ถ้าตัวสำรองต้องสั่ง site แทนต่อเนื่องเกิน 1 ชม. ผู้ดูแลจะได้ข้อความ "cron-job.org ไม่ได้สั่งรอบ site ตามเวลา" (ข้อ 9) และได้ "✅ กลับมาปกติ" เมื่อ cron-job.org กลับมาสั่งเอง
+
+**ติดตั้ง** (ใช้ token เดิมของ cron-job.org — ดูวิธีคัดลอกในข้อ 7.2 ก.)
+1. https://dash.cloudflare.com → **Workers & Pages → Create → Create Worker** → ตั้งชื่อ `fire-watchdog` → **Deploy**
+2. กด **Edit code** → ลบโค้ดเดิม แล้ววางเนื้อหาไฟล์ทั้งไฟล์จาก
+   https://raw.githubusercontent.com/takiang71/fire-map-dpky/main/worker/watchdog.mjs → **Deploy**
+3. **Settings → Variables and Secrets → Add** → ชนิด **Secret**
+   - ชื่อ `GH_TOKEN` · ค่า = token จาก cron-job.org (ขึ้นต้น `github_pat_…` — มีคำว่า `Bearer ` ติดมาด้วยก็ได้ โค้ดตัดให้เอง)
+4. **Settings → Triggers → Cron Triggers → Add** → ใส่ `*/5 * * * *` → **Add** (Cloudflare ใช้เวลา UTC แต่ทุก 5 นาทีเหมือนกันทุกเขตเวลา)
+5. เปิด `https://fire-watchdog.takiang71.workers.dev` ในเบราว์เซอร์ (หน้านี้ดูอย่างเดียว ไม่สั่งรัน) ควรเห็น
+   - `"site": { … "ago_min": 0–6 }` = เห็นรอบล่าสุดของ site · `"would": []` = ปกติ ไม่มีอะไรต้องสั่ง
+   - `"error": "ยังไม่ได้ตั้ง Secret GH_TOKEN"` = ข้อ 3 ยังไม่ได้ทำ/ยังไม่ Deploy · `HTTP 401` = token ผิด · `HTTP 404` = token ไม่มีสิทธิ์ repo นี้
+6. (ไม่บังคับ) ทดสอบจริง: ที่ console.cron-job.org ปิดงาน `fire-map site` ชั่วคราว (Enable job = ปิด) รอ ~20 นาที
+   หน้า Actions ของ site จะมีรอบใหม่ที่ Worker สั่ง (กดเข้าไปดู ช่อง inputs `by` = `watchdog`) แล้ว**อย่าลืมเปิดงานกลับ**
+   - ดูว่า Worker สั่งอะไรไปบ้าง: หน้า Worker → **Logs** (หรือ Observability) เห็นบรรทัด JSON ทุก 5 นาที `"actions": []` = ไม่ได้สั่ง
+
+**หมายเหตุ**
+- ปิดชั่วคราวได้ด้วย Variable `OFF` = `1` (ไม่ต้องลบ Worker) · เปลี่ยนเกณฑ์ได้ด้วย `SITE_GAP` (นาที) และ `SYNC_SLOTS`
+- token ตัวเดียวกันใช้ทั้ง cron-job.org และ Worker — ถ้า token ถูกยกเลิก ทั้งสองหยุดพร้อมกัน (การตรวจ `--site` ใน workflow sync ตามรอบของ GitHub ยังแจ้งผู้ดูแลได้) · token ไม่หมดอายุ แต่ถ้าสร้างใหม่ต้องเปลี่ยนทั้งสองที่
+- ฟรีทั้งหมด: Cloudflare แผนฟรีมี Cron Trigger และ 100,000 คำขอ/วัน (Worker นี้ใช้ 288 ครั้ง/วัน) · GitHub API ใช้ ~24 ครั้ง/ชม. จาก 5,000
 
 ## ตรวจปัญหา
 

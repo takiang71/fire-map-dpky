@@ -21,7 +21,8 @@ const H = 36e5, REMIND = 12 * H;
 // เรื่องที่ตรวจ: ชื่อ + ต้องเป็นต่อเนื่องนานเท่าไรจึงแจ้ง (กันขัดข้องชั่วคราว)
 const CHECKS = { api: ['ดึงจุดความร้อนจาก API ไม่ได้', H], src: ['ระบบต้นทางไม่อัปเดต', 0], sync: ['sync จุดความร้อนไม่ทำงาน', 0], gap: ['ข้อมูลสะสมค้าง', 0], line: ['LINE ใช้งานไม่ได้', H],
   tg: ['Telegram ใช้งานไม่ได้', H], tgm: ['กลุ่ม Telegram ถูกอัปเกรดเป็น supergroup', 0],
-  pages: ['หน้าเว็บ (GitHub Pages) ไม่อัปเดต', 0], ci: ['หน้าเว็บฉบับใหม่ไม่ผ่านการตรวจ', 0] };
+  pages: ['หน้าเว็บ (GitHub Pages) ไม่อัปเดต', 0], ci: ['หน้าเว็บฉบับใหม่ไม่ผ่านการตรวจ', 0],
+  cron: ['cron-job.org ไม่ได้สั่งรอบ site ตามเวลา', H] };
 const now = +process.env.HEALTH_NOW || Date.now();
 const thTime = ms => { const d = new Date(ms + 7 * H); return `${d.getUTCDate()}/${d.getUTCMonth() + 1} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')} น.` };
 const hrs = ms => (ms / H).toFixed(ms < 10 * H ? 1 : 0);
@@ -93,6 +94,11 @@ function problems(pg) {
   const st = (await loadState('health.json', SITE, now)) || { checks: {}, log: [] };
   st.checks = st.checks || {};
   const P = problems(await getJ('live.json')), bad = [], ok = [];
+  // ใครสั่งรอบนี้ (site.yml ส่ง RUN_BY = inputs.by, RUN_EV = github.event_name): watchdog = ตัวสำรองบน Cloudflare ต้องสั่งแทน cron-job.org
+  // หายเมื่อมีรอบที่ cron-job.org สั่ง (workflow_dispatch ไม่มี by) · รอบที่ GitHub ตั้งเวลา/push/sync สั่ง ยังบอกไม่ได้ จึงคงสถานะเดิม
+  const BY = process.env.RUN_BY || '', EV = process.env.RUN_EV || '';
+  if (BY === 'watchdog') P.cron = 'ตัวสำรองบน Cloudflare (worker/watchdog.mjs) ต้องสั่งรอบ site แทน — งาน "fire-map site" ที่ console.cron-job.org อาจหยุด ถูกปิด หรือ token หมดอายุ (ดู HISTORY ของงาน)';
+  else if (st.checks.cron && !(EV === 'workflow_dispatch' && !BY)) P.cron = st.checks.cron.msg;
   // ตั้ง/เปลี่ยน LINE_ADMIN_ID / TG_ADMIN_ID → ส่งข้อความยืนยันทางนั้น 1 ครั้ง (health.json เป็นสาธารณะ จึงเก็บแค่แฮชของรหัส)
   const hash = v => v && require('crypto').createHash('sha256').update(v).digest('hex').slice(0, 12), aid = hash(ADMIN), tid = hash(TADMIN);
   const hello = () => { const n = Object.keys(P).length; return `✅ ตั้งค่าแจ้งเตือนผู้ดูแลเรียบร้อย\nบอทจะส่งข้อความถึงคุณคนเดียวเมื่อระบบแผนที่ไฟป่าเสีย (API/sync/ระบบต้นทาง/LINE/Telegram/หน้าเว็บหยุด) และเมื่อกลับมาปกติ\nสถานะตอนนี้: ${n ? `มีปัญหา ${n} เรื่อง (จะแจ้งแยก)` : 'ปกติ'}` };
