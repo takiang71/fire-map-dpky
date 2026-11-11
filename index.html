@@ -570,6 +570,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div class="pk" id="p-kp"></div>
   <button id="p-wch" type="button" hidden title="ติดตามรายวันและวิเคราะห์ย้อนหลังของพื้นที่เฝ้าระวังพิเศษ (อยู่นอกแนวเขตกลุ่มป่า ไม่รวมในยอดด้านบน)"></button>
   <div class="pq"><b id="p-cq">เทียบปีงบประมาณ</b><span class="sm" id="p-asof"></span></div>
+  <div class="ptb2" role="tablist" id="p-cs" aria-label="แหล่งข้อมูลที่ใช้เทียบปีงบ"><button role="tab" data-c="dnp" aria-selected="true" title="ตัวเลขทางการ: จุดความร้อนกรมอุทยานฯ (ไฟล์ Excel · Suomi NPP) ไม่รวมจุดจัดการเชื้อเพลิง/ตรวจสอบแล้วไม่พบไฟ — ปีนี้นับตามดาวเทียมตัวชี้วัด">กรมอุทยานฯ (Suomi NPP)</button><button role="tab" data-c="n20" aria-selected="false" title="ทุกปีงบนับเฉพาะ NOAA-20 (ดวงเดียวกับตัวชี้วัดตั้งแต่ 2 พ.ย. 69) ทุกจุดในแนวเขต จาก API ไทย (ตั้งแต่ 3 ส.ค. 67) และ NASA FIRMS (ก่อนหน้านั้น) — ปีงบ 2561 ไม่นับในค่าเฉลี่ยเพราะ NOAA-20 เริ่ม เม.ย. 61">NOAA-20 ทุกปี</button></div>
   <div id="p-cmp"></div>
   <div class="plg" id="p-lg"></div>
   <div class="pch" id="p-ch"></div>
@@ -1257,12 +1258,25 @@ function fyNow(F,T){if(!ADI)return null;const s=fy0(F),a=new Array(366).fill(0),
 function fyNowSample(F,T){const s=fy0(F),a=new Array(366).fill(0);let sd=F;const r=()=>(sd=sd*16807%2147483647)/2147483647;
  for(let i=0;i<T-1;i++)a[i]=r()<.25?1+Math.floor(r()*3):0;
  HS.forEach(h=>{const i=Math.floor((h.t+7*36e5)/864e5)-s;if(i>=Math.max(0,T-1)&&i<=T)a[i]++});for(let i=1;i<366;i++)a[i]+=a[i-1];return a}
-let PCH=null; // ประวัติ (คำนวณครั้งเดียวต่อปีงบ/สถานะปุ่มดงใหญ่)
-function pHist(F){if(PCH&&PCH.F===F&&PCH.x===!!S.xdy)return PCH;const P=F-1,yrs=[...new Set(HD.map(r=>r.fy))].filter(y=>y<=P).sort(),cp=fyCum(P),cs=yrs.map(y=>y===P?cp:fyCum(y)), /* เฉลี่ยทุกปีงบที่จบแล้ว รวมปีงบก่อน (ผู้ใช้กำหนด) */
+let PCH=null; // ประวัติ (คำนวณครั้งเดียวต่อปีงบ/สถานะปุ่มดงใหญ่/แหล่งข้อมูล)
+/* แหล่งข้อมูลของส่วนเทียบปีงบในการ์ด (ปุ่ม #p-cs, ไม่บันทึก): dnp = จุดกรมอุทยานฯ (ตัวเลขทางการ) · n20 = NOAA-20 ทุกปีจาก AD (API ไทย + NASA FIRMS ย้อนหลัง)
+   ไทล์ "สะสมปีงบ" ยังเป็นตัวชี้วัดเสมอ · ปีงบที่ NOAA-20 มีไม่ครบปี (2561: เริ่ม 1 เม.ย. 61 ใน FIRMS) ไม่นับในค่าเฉลี่ย */
+let CSRC='dnp';const N20_0=Date.UTC(2018,3,1)/864e5;
+function fyCumSat(F,sat){const a=new Array(366).fill(0),s=fy0(F);AD.forEach(r=>{const i=r.d-s;if(i>=0&&i<366&&r.sat===sat&&xAD(r))a[i]++});for(let i=1;i<366;i++)a[i]+=a[i-1];return a}
+function fyNowSat(F,T,sat){if(!ADI)return null;const s=fy0(F),a=new Array(366).fill(0),seen=new Set();
+ AD.forEach(r=>{const i=r.d-s;if(i>=0&&i<=T&&r.sat===sat&&xAD(r)){a[i]++;seen.add(hKey(r.d,r.t,r.la,r.lo))}});
+ LIVE.forEach(h=>{const x=new Date(h.t+7*36e5),d=Math.floor(x/864e5),i=d-s,k=hKey(d,x.getUTCHours()*100+x.getUTCMinutes(),h.lat,h.lon);if(d>ADI.to&&i>=0&&i<=T&&satKey(h.sat)===sat&&xLive(h)&&!seen.has(k)){a[i]++;seen.add(k)}});
+ for(let i=1;i<366;i++)a[i]+=a[i-1];return a}
+function pHistSat(F,sat){const P=F-1,yrs=[...new Set(AD.filter(r=>r.sat===sat).map(r=>fyOfDay(r.d)))].filter(y=>y<=P&&fy0(y)>=N20_0).sort(),cp=fyCumSat(P,sat),cs=yrs.map(y=>y===P?cp:fyCumSat(y,sat)),
+ avg=cp.map((_,i)=>cs.reduce((s,a)=>s+a[i],0)/(cs.length||1)),s0=fy0(P),s1=fy0(F),R=AD.filter(r=>r.sat===sat&&r.d>=s0&&r.d<s1&&xAD(r)),mo=new Array(12).fill(0),dd={};R.forEach(r=>{mo[(new Date(r.d*864e5).getUTCMonth()+3)%12]++;dd[r.d]=(dd[r.d]||0)+1});
+ const pm=mo.indexOf(Math.max(...mo)),pd=Object.entries(dd).sort((a,b)=>b[1]-a[1])[0];
+ const an=n=>{const Y=yrs.filter(y=>y>P-n),A=Y.map(y=>y===P?cp:fyCumSat(y,sat));return{n,ys:Y,lab:Y.length?Y[0]+'–'+String(Y.at(-1)).slice(2):'',a:cp.map((_,i)=>A.reduce((s,a)=>s+a[i],0)/(A.length||1))}};
+ return{F,x:!!S.xdy,c:sat,P,yrs,cp,avg,av:[an(3),an(5)],tot:R.length,pm,pmN:mo[pm],pd:pd?[+pd[0],pd[1]]:null}}
+function pHist(F){if(PCH&&PCH.F===F&&PCH.x===!!S.xdy&&PCH.c===CSRC)return PCH;if(CSRC==='n20')return PCH=Object.assign(pHistSat(F,'NOAA20'),{c:'n20'});const P=F-1,yrs=[...new Set(HD.map(r=>r.fy))].filter(y=>y<=P).sort(),cp=fyCum(P),cs=yrs.map(y=>y===P?cp:fyCum(y)), /* เฉลี่ยทุกปีงบที่จบแล้ว รวมปีงบก่อน (ผู้ใช้กำหนด) */
  avg=cp.map((_,i)=>cs.reduce((s,a)=>s+a[i],0)/(cs.length||1)),R=HD.filter(r=>r.fy===P&&fuOK(r)&&xHD(r)),mo=new Array(12).fill(0),dd={};R.forEach(r=>{mo[r.mo]++;dd[r.d]=(dd[r.d]||0)+1});
  const pm=mo.indexOf(Math.max(...mo)),pd=Object.entries(dd).sort((a,b)=>b[1]-a[1])[0];
  const an=n=>{const Y=[...new Set(HD.map(r=>r.fy))].filter(y=>y<=P&&y>P-n).sort(),A=Y.map(y=>y===P?cp:fyCum(y));return{n,ys:Y,lab:Y.length?Y[0]+'–'+String(Y.at(-1)).slice(2):'',a:cp.map((_,i)=>A.reduce((s,a)=>s+a[i],0)/(A.length||1))}};
- return PCH={F,x:!!S.xdy,P,yrs,cp,avg,av:[an(3),an(5)],tot:R.length,pm,pmN:mo[pm],pd:pd?[+pd[0],pd[1]]:null}}
+ return PCH={F,x:!!S.xdy,c:'dnp',P,yrs,cp,avg,av:[an(3),an(5)],tot:R.length,pm,pmN:mo[pm],pd:pd?[+pd[0],pd[1]]:null}}
 let PT='pv';
 const SB1='สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)',SB7='สำนักบริหารพื้นที่อนุรักษ์ที่ 7 (นครราชสีมา)';
 const SBP={'ปราจีนบุรี':SB1,'นครนายก':SB1,'สระแก้ว':SB1,'สระบุรี':'สำนักบริหารพื้นที่อนุรักษ์ที่ 1 สาขาสระบุรี','นครราชสีมา':SB7,'บุรีรัมย์':SB7}; // แยก สบอ. ตามจังหวัดที่เกิดจุด
@@ -1307,17 +1321,18 @@ function renderCard(){
  const tile=(l,v,s)=>`<div><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
  $('#p-kp').innerHTML=tile('24 ชม. ล่าสุด',nf(n24),d?`${d>0?'▲':'▼'} ${nf(Math.abs(d))} จาก 24 ชม. ก่อน`:'เท่ากับ 24 ชม. ก่อน')+tile('ใหม่ใน 6 ชม.',nf(n6),last?'ล่าสุด '+thTime(last)+' น.':'ยังไม่พบ')+tile('สะสมปีงบ '+F,nf(now[T]),indSub(F,T,now));
  $('#p-smp').hidden=!!real;
+ const n20=CSRC==='n20'&&!!real,cn=n20?fyNowSat(F,T,'NOAA20'):now;$$('#p-cs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.c===(n20?'n20':'dnp')));
  // เทียบช่วงเดียวกัน (1 ต.ค. ถึงวันนี้)
- const yr=Hh.yrs.length?Hh.yrs[0]+'–'+String(Hh.yrs[Hh.yrs.length-1]).slice(2):'',C=[['ปีงบ '+F+sx,now[T],'var(--fire)'],['ปีงบ '+Hh.P,Hh.cp[T],'#3E6FD8'],...Hh.av.map((a,j)=>['เฉลี่ย '+a.n+' ปี ('+a.lab+')',a.a[T],AVC[j]]),['เฉลี่ยปีงบ '+yr,Hh.avg[T],'#9aa3b5']],cm=Math.max(1,...C.map(c=>c[1]));
+ const yr=Hh.yrs.length?Hh.yrs[0]+'–'+String(Hh.yrs[Hh.yrs.length-1]).slice(2):'',C=[['ปีงบ '+F+sx,cn[T],'var(--fire)'],['ปีงบ '+Hh.P,Hh.cp[T],'#3E6FD8'],...Hh.av.map((a,j)=>['เฉลี่ย '+a.n+' ปี ('+a.lab+')',a.a[T],AVC[j]]),['เฉลี่ยปีงบ '+yr,Hh.avg[T],'#9aa3b5']],cm=Math.max(1,...C.map(c=>c[1]));
  $('#p-cq').textContent='เทียบปีงบประมาณ '+Hh.P;$('#p-asof').textContent='ช่วงเดียวกัน 1 ต.ค. – '+dShort(T0);
- const df=now[T]-Hh.cp[T];
+ const df=cn[T]-Hh.cp[T];
  $('#p-cmp').innerHTML=C.map(([l,v,c])=>`<div class="cr"><span>${l}</span><i style="width:${v/cm*100}%;background:${c}"></i><em>${nf(v,v%1?1:0)}</em></div>`).join('')+
   `<div class="cv">${df?`<b>${df>0?'▲ มากกว่า':'▼ น้อยกว่า'}</b> ปีงบ ${Hh.P} ช่วงเดียวกัน <b>${nf(Math.abs(df))}</b> จุด`:`<b>เท่ากับ</b> ปีงบ ${Hh.P} ช่วงเดียวกัน`}${Hh.cp[T]?` (${df>0?'+':''}${Math.round(df/Hh.cp[T]*100)}%)`:''}</div>`+
   // เทียบยอดรวมทั้งปีงบก่อน (ผู้ใช้ขอ 2 พ.ย. 69: ให้รู้จากการ์ดเลยว่าปีงบก่อนทั้งปีมีกี่จุด)
-  ((t,[c,p])=>`<div class="cfy"><div><span>ปีงบ ${Hh.P} ทั้งปี</span><b>${nf(t)}</b><small>จุด · 1 ต.ค. – 30 ก.ย.</small></div><div><span>ปีงบ ${F} ถึง ${dShort(T0)}</span><b>${nf(now[T])}</b><small>จุด · เทียบทั้งปี ${Hh.P}</small></div><em class="${c}" title="ปีงบ ${F} (ถึงวันนี้) เทียบยอดรวมทั้งปีงบ ${Hh.P} · ลูกศรแดง = มากกว่า, เขียว = น้อยกว่า">${p}</em></div>`)(Hh.tot,dPct(now[T],Hh.tot));
+  ((t,[c,p])=>`<div class="cfy"><div><span>ปีงบ ${Hh.P} ทั้งปี</span><b>${nf(t)}</b><small>จุด · 1 ต.ค. – 30 ก.ย.</small></div><div><span>ปีงบ ${F} ถึง ${dShort(T0)}</span><b>${nf(cn[T])}</b><small>จุด · เทียบทั้งปี ${Hh.P}</small></div><em class="${c}" title="ปีงบ ${F} (ถึงวันนี้) เทียบยอดรวมทั้งปีงบ ${Hh.P} · ลูกศรแดง = มากกว่า, เขียว = น้อยกว่า">${p}</em></div>`)(Hh.tot,dPct(cn[T],Hh.tot));
  $('#p-lg').innerHTML=`<span><i style="border-color:var(--fire)"></i>ปีงบ ${F}${sx}</span><span><i style="border-color:#3E6FD8"></i>ปีงบ ${Hh.P}</span>${Hh.av.map((a,j)=>`<span><i style="border-color:${AVC[j]};border-top-style:dashed"></i>เฉลี่ย ${a.n} ปี</span>`).join('')}<span><i style="border-color:#9aa3b5;border-top-style:dashed"></i>เฉลี่ย ${yr}</span><span><i class="sb"></i>ช่วงไฟป่า ม.ค.–เม.ย.</span>`;
- pChart(F,T,now,Hh);
- $('#p-yr').innerHTML=`ตัวชี้วัดกรมอุทยานฯ: ${ind}${ADI&&T0-ADI.to>2?` · <b>ข้อมูลสะสมถึง ${dShort(ADI.to)}</b>`:''}<br>ปีงบ ${Hh.P} ทั้งปี <b>${nf(Hh.tot)}</b> จุด${Hh.tot?` · มากสุดเดือน ${TMO[Hh.pm]} (${nf(Hh.pmN)}) · วันที่มากสุด ${dShort(Hh.pd[0])} (${nf(Hh.pd[1])} จุด)`:''} · กราฟเป็นยอดสะสมตั้งแต่ 1 ต.ค.`;
+ pChart(F,T,cn,Hh);
+ $('#p-yr').innerHTML=`${n20?'<b>เทียบด้วย NOAA-20 ทุกปี</b> (ทุกจุดในแนวเขต จาก API ไทย / NASA FIRMS — ไม่ใช่ตัวเลขทางการ, เฉลี่ยปีงบ '+(Hh.yrs[0]||'')+' เป็นต้นไป) · ':''}ตัวชี้วัดกรมอุทยานฯ: ${ind}${ADI&&T0-ADI.to>2?` · <b>ข้อมูลสะสมถึง ${dShort(ADI.to)}</b>`:''}<br>ปีงบ ${Hh.P} ทั้งปี <b>${nf(Hh.tot)}</b> จุด${Hh.tot?` · มากสุดเดือน ${TMO[Hh.pm]} (${nf(Hh.pmN)}) · วันที่มากสุด ${dShort(Hh.pd[0])} (${nf(Hh.pd[1])} จุด)`:''} · กราฟเป็นยอดสะสมตั้งแต่ 1 ต.ค.`;
  // ข้อมูลประกอบ: ดาวเทียม / ความเชื่อมั่น
  $('#p-mfy').textContent='จุดสะสมปีงบ '+F;$('#p-mcp').textContent='เทียบปีงบ '+(F-1);$('#p-cmf').textContent='เทียบทั้งปี '+(F-1);
  drawList()}
@@ -1463,6 +1478,7 @@ $('#p-tb').onclick=e=>{const b=e.target.closest('[data-t]');if(b)setPT(b.dataset
 $('#p-tb2').onclick=e=>{const b=e.target.closest('[data-t]');if(b)setPT(b.dataset.t)};
 $('#p-md').onclick=e=>{const b=e.target.closest('[data-m]');if(!b||b.dataset.m===PM)return;PM=b.dataset.m;$$('#p-md [data-m]').forEach(x=>x.setAttribute('aria-selected',x===b));$('#p-cm').hidden=PM!=='cmp';$('#p-fa').hidden=PM!=='fy';drawList()};
 $('#p-fa').onclick=e=>{const b=e.target.closest('[data-a]');if(!b||(b.dataset.a==='all')===FYA)return;FYA=b.dataset.a==='all';$$('#p-fa [data-a]').forEach(x=>x.setAttribute('aria-selected',x===b));drawList()};
+$('#p-cs').onclick=e=>{const b=e.target.closest('button[data-c]');if(!b||b.dataset.c===CSRC)return;CSRC=b.dataset.c;renderCard()};
 $('#p-cm').onclick=e=>{const b=e.target.closest('[data-c]');if(!b||b.dataset.c===CM)return;CM=b.dataset.c;$$('#p-cm [data-c]').forEach(x=>x.setAttribute('aria-selected',x===b));drawList()};
 $('#bHide').onclick=()=>{const h=$('#pcard').hidden=!$('#pcard').hidden;$('#bHide').setAttribute('aria-pressed',!h)};
 $$('[data-soon]').forEach(b=>b.onclick=()=>{const[a,p]=b.dataset.soon.split('|');toast(`"${a}" จะเปิดใช้ในเฟส ${p}`)});
@@ -5355,7 +5371,7 @@ function srcUpd(){const T0=thDay(),F=fyOfDay(T0),T=f=>{try{f()}catch(e){}};
  T(()=>{const ind=indSpan(F)?'Suomi NPP ถึง 1 พ.ย. 69 · NOAA-20 ตั้งแต่ 2 พ.ย. 69':indName(T0);
   srcBox('p-src',[`แผนที่ · 24 ชม. · ใหม่ใน 6 ชม.: ${SRCN.api} ดาวเทียมตามปุ่มด้านบน ดึงใหม่ทุก 5 นาที`+(HSRC&&HSRC.fm?` — <span class="w">ตอนนี้ใช้ ${SRCN.fm} แทนดาวเทียมที่ API ขาด</span>`:' (API ขัดข้อง = ใช้ NASA FIRMS สำรอง)'),
    `สะสมปีงบ ${F}: ${SRCN.api} เฉพาะดาวเทียมตัวชี้วัด (${ind})`,
-   `เทียบปีงบก่อน · กราฟสะสม · เส้นค่าเฉลี่ย: ${SRCN.dnp} ไม่รวมจุดจัดการเชื้อเพลิง/ตรวจสอบแล้วไม่พบไฟ`,
+   CSRC==='n20'?`เทียบปีงบก่อน · กราฟสะสม · เส้นค่าเฉลี่ย (โหมด NOAA-20): NOAA-20 ทุกจุดในแนวเขต — ${SRCN.api} ตั้งแต่ 3 ส.ค. 67 + ${SRCN.fm} ก่อนหน้านั้น (ไม่ใช่ตัวเลขทางการ)`:`เทียบปีงบก่อน · กราฟสะสม · เส้นค่าเฉลี่ย: ${SRCN.dnp} ไม่รวมจุดจัดการเชื้อเพลิง/ตรวจสอบแล้วไม่พบไฟ`,
    'รายการแยกตามพื้นที่: '+(PM==='24'?'จุดใน 24 ชม. จาก API ไทย':PM==='fy'?`สะสมปีงบ ${F} จาก API ไทย `+(FYA?'ทุกดาวเทียมตามปุ่ม':'ดาวเทียมตัวชี้วัด'):'ปีนี้ = API ไทย (ตัวชี้วัด) · ปีก่อน = กรมอุทยานฯ')])});
  T(()=>{const fy=fyList();srcBox('h-src',[`${SRCN.dnp} ปีงบ ${fy[0]}–${fy.at(-1)} — ตัวเลขทางการที่ใช้รายงาน · ปีงบปัจจุบันจะเข้ามาเมื่อนำเข้าไฟล์ Excel ฉบับใหม่`,'จุดสีเหลืองบนแผนที่ = พื้นที่เฝ้าระวังพิเศษ (ไฟล์ KMZ) ไม่นับในตัวเลขของการ์ดนี้'])});
  T(()=>srcBox('x-src',[`<b>รายงานสถิติดับไฟรวม อส.</b> (ไฟล์ Excel ${esc(XSRC)}) · "มีจุดความร้อน" = มี${SRCN.dnp} ห่าง ≤1 กม. ภายใน ±1 วัน`]));
