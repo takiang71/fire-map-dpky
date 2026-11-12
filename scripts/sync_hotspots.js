@@ -111,8 +111,10 @@ store.wdays = store.wdays || {}; // วันที่ดึงแล้วพ�
     // วันเก่ากว่า 7 วัน (เช่น API ว่างมานาน) ต้องใช้ MAP_KEY — ขอทีละดาวเทียมตามช่วงวันต่ำสุด–สูงสุด
     if (oldD.length) {
       if (!FM.key()) skip.push('เก่ากว่า 7 วัน ' + oldD.length + ' วัน ต้องตั้ง FIRMS_KEY');
-      else for (const s of SATS) { const D = oldD.filter(x => x[1].includes(s)).map(x => x[0]); if (!D.length) continue;
-        try { F.push(add(await FM.area(s, Math.min(...D), Math.max(...D), console.log))) } catch (e) { console.log('ดึง NASA FIRMS ไม่สำเร็จ:', e.message) } }
+      else for (const s of SATS) { const D = oldD.filter(x => x[1].includes(s)).map(x => x[0]).sort((x, y) => x - y); if (!D.length) continue;
+        // ขอเฉพาะช่วงวันที่ขาดจริง (วันติดกันห่าง ≤4 วันรวมเป็นช่วงเดียว) — เดิมขอตั้งแต่วันแรกถึงวันสุดท้ายที่ขาด ซึ่งยาวหลายร้อยวันเมื่อขยาย FROM ถึง ส.ค. 67
+        for (let i = 0; i < D.length;) { let j = i; while (j + 1 < D.length && D[j + 1] - D[j] <= 4) j++;
+          try { F.push(add(await FM.area(s, D[i], D[j], console.log))) } catch (e) { console.log('ดึง NASA FIRMS ไม่สำเร็จ:', e.message) } i = j + 1 } }
     }
     console.log('API ขาดข้อมูล', need.length, 'วัน (' + need.slice(0, 8).map(([d, m]) => isoOf(d) + ' ' + m.join('/')).join(', ') + (need.length > 8 ? ', …' : '') + ') → เติมจาก NASA FIRMS', F.reduce((a, b) => a + b, 0), 'จุด' + (skip.length ? ' · ' + skip.join(', ') : ''));
   }
@@ -139,7 +141,7 @@ store.wdays = store.wdays || {}; // วันที่ดึงแล้วพ�
   const last = Math.max(-1, ...Object.keys(store.days).map(Number));
   // จุดย้อนหลังก่อนที่ API มีข้อมูล (NASA FIRMS ปีงบ 2561 – 2 ส.ค. 67 จาก scripts/firms_hist.js) ต่อไว้หน้าข้อมูล API — ช่องสุดท้าย 1 = NASA FIRMS
   //   from = วันแรกของข้อมูลทั้งชุด (หน้าเว็บ hcA0: ก่อนวันนี้จึงใช้จุดกรมอุทยานฯ) · api0 = วันแรกของ API ไทย
-  const HIST = (() => { try { const j = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'hotspots_hist.json'), 'utf8')); return { from: j.from, recs: j.recs.filter(r => r.ar && r.d < dayOf(FROM)) } } catch (e) { return { recs: [] } } })();
+  const HIST = (() => { try { const j = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'hotspots_hist.json'), 'utf8')); return { from: j.from, recs: j.recs.filter(r => r.ar && r.d < dayOf(FROM)), wa: j.recs.filter(r => r.wa && r.d < dayOf(FROM)) } } catch (e) { return { recs: [], wa: [] } } })();
   const enc = {
     v: 1, upd: new Date().toISOString(), from: HIST.recs.length ? HIST.from : FROM, api0: FROM, to: last >= 0 ? isoOf(last) : null, ...D,
     r: HIST.recs.concat(store.recs.filter(r => r.ar)).map(r => [r.d, r.t, r.la, r.lo, ix('sat', r.sat), ix('cf', r.cf), ix('pv', r.pv), ix('am', r.am), ix('tm', r.tm + '|' + r.am), ix('ar', r.ar), ix('st', r.st), ix('sb', SBP[r.pv] || r.sb), r.dnp || 0].concat(r.src === 'firms' ? [1] : [])),
@@ -154,8 +156,8 @@ store.wdays = store.wdays || {}; // วันที่ดึงแล้วพ�
   if (WATCH.length) {
     const WD = { sat: [], cf: [], tm: [] }, wi = (k, v) => { let n = WD[k].indexOf(v); if (n < 0) { n = WD[k].length; WD[k].push(v) } return n }, ids = WATCH.map(a => a.id);
     const wl = Math.max(-1, ...Object.keys(store.wdays).map(Number));
-    const wenc = { v: 1, upd: enc.upd, from: FROM, to: wl >= 0 ? isoOf(Math.min(wl, last)) : null, ids, ...WD,
-      r: store.recs.filter(r => r.wa && ids.includes(r.wa)).map(r => [r.d, r.t, r.la, r.lo, wi('sat', r.sat), wi('cf', r.cf), wi('tm', [r.tm, r.am, r.pv].join('|')), ids.indexOf(r.wa)].concat(r.src === 'firms' ? [1] : [])) };
+    const wenc = { v: 1, upd: enc.upd, from: HIST.wa.length ? HIST.from : FROM, to: wl >= 0 ? isoOf(Math.min(wl, last)) : null, ids, ...WD,
+      r: HIST.wa.filter(r => ids.includes(r.wa)).concat(store.recs.filter(r => r.wa && ids.includes(r.wa))).map(r => [r.d, r.t, r.la, r.lo, wi('sat', r.sat), wi('cf', r.cf), wi('tm', [r.tm, r.am, r.pv].join('|')), ids.indexOf(r.wa)].concat(r.src === 'firms' ? [1] : [])) };
     const ws = JSON.stringify(wenc);
     if (/<script type="application\/json" id="wadata">/.test(h)) h = h.replace(/(<script type="application\/json" id="wadata">)[\s\S]*?(<\/script>)/, (_, a, b) => a + ws + b);
     else h = h.replace(/(<script type="application\/json" id="wdata">[\s\S]*?<\/script>)/, m => m + '\n<script type="application/json" id="wadata">' + ws + '</script>');
