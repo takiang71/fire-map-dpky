@@ -944,7 +944,7 @@ function normAlert(o){if(!o||typeof o!=='object')return null;const pr=o.properti
  const g=k=>{const v=pickK(pr,k);return v==null?null:String(v).trim()},pv=g(['province_name_th','province','province_th','pv_tn','prov','จังหวัด','changwat','province_name_en']),am=g(['district_name_th','amphoe','district','ap_tn','amphur','อำเภอ','district_name_en']),tb=g(['subdistrict_name_th','tambon','subdistrict','tb_tn','tumbon','ตำบล','subdistrict_name_en']);
  return{lat:la,lon:lo,t,sat:satName(pickK(pr,['satellite_name','satellite','sat','platform','source','sensor'])),frp:(v=>isFinite(v)&&v>0?+v.toFixed(1):null)(parseFloat(pickK(pr,['frp','FRP']))),conf,pa:g(['protected_area_name_th','protected_area']),prov:pv||'ไม่ระบุ',amp:am||'ไม่ระบุ',tam:tb||'ไม่ระบุ',ns:(pv||am||tb)?'api':'unk',live:true}}
 function nameFromHist(h){const n=HD.length?nearestHist(h.lat,h.lon):null;if(n&&n.d<=8){h.prov=DIC.pv[n.r.pv];h.amp=DIC.am[n.r.am];h.tam=DIC.tm[n.r.tm].split('|')[0];h.near={d:n.d};return true}return false}
-// ระเบียนซ้ำทั้งรอบดาวเทียมของ API (พ.ย. 68 – มี.ค. 69: ทุกจุดมีคู่แฝดเหลื่อม 10–250 หน่วย) — สำเนาเดียวกับ scripts/lib/dedup.js (แก้ต้องแก้ทั้งสองที่)
+// ระเบียนซ้ำทั้งรอบดาวเทียมของ API (ก.ย. 68 – มี.ค. 69: ทุกจุดมีคู่แฝดเหลื่อม 10–250 หน่วย) — สำเนาเดียวกับ scripts/lib/dedup.js (แก้ต้องแก้ทั้งสองที่)
 function apiDups(P){const O={TW:250,DT:3,PAIR:450,RATIO:0.6,MINN:30,ALLN:20,GAP:6},drop=new Set(),G={},passes=[];
  P.forEach((p,i)=>(G[p.s]=G[p.s]||[]).push({...p,i}));
  for(const s in G){const L=G[s].sort((a,b)=>a.m-b.m||a.i-b.i);let cur=[L[0]];for(let k=1;k<L.length;k++)if(L[k].m-L[k-1].m<=O.GAP)cur.push(L[k]);else{passes.push(cur);cur=[L[k]]}passes.push(cur)}

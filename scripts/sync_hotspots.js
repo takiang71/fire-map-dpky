@@ -17,7 +17,7 @@ const H = path.join(ROOT, 'index.html'), OUT = path.join(ROOT, 'data', 'hotspots
 const API = 'https://wildlandfire.thairen.net.th/landfirealertsmap_thailand/api/alerts';
 const arg = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null };
 const FROM = arg('--from') || '2024-08-03', REFETCH = +(arg('--refetch') || 7), CONC = 3, ALL = process.argv.includes('--dedup-all');
-const { featDups } = require('./lib/dedup'); // ระเบียนซ้ำทั้งรอบดาวเทียมของ API (พ.ย. 68 – มี.ค. 69)
+const { featDups } = require('./lib/dedup'); // ระเบียนซ้ำทั้งรอบดาวเทียมของ API (ก.ย. 68 – มี.ค. 69)
 
 // บันทึกผลลง data/sync.log ด้วย (ตั้งรันอัตโนมัติผ่าน Task Scheduler จะไม่มีหน้าจอให้ดู) · ตัดให้เหลือ ~200 KB
 const LOG = path.join(ROOT, 'data', 'sync.log');
@@ -117,7 +117,7 @@ store.wdays = store.wdays || {}; // วันที่ดึงแล้วพ�
     console.log('API ขาดข้อมูล', need.length, 'วัน (' + need.slice(0, 8).map(([d, m]) => isoOf(d) + ' ' + m.join('/')).join(', ') + (need.length > 8 ? ', …' : '') + ') → เติมจาก NASA FIRMS', F.reduce((a, b) => a + b, 0), 'จุด' + (skip.length ? ' · ' + skip.join(', ') : ''));
   }
   // --- ตัดจุดซ้ำของ API ไทย (ผู้ใช้สั่ง 30 ต.ค. 69 · เปลี่ยนวิธี 11 พ.ย. 69) ---
-  // API ส่งทั้งรอบดาวเทียมมาสองชุด (พ.ย. 68 – 4 มี.ค. 69) → ตรวจทั้งประเทศรายรอบใน fetchDay (scripts/lib/dedup.js) แล้วลบคู่แฝดด้านบน
+  // API ส่งทั้งรอบดาวเทียมมาสองชุด (17 ก.ย. 68 – 4 มี.ค. 69) → ตรวจทั้งประเทศรายรอบใน fetchDay (scripts/lib/dedup.js) แล้วลบคู่แฝดด้านบน
   // เกณฑ์เดิม (ในแนวเขต เวลาต่าง 1–3 นาที ห่าง <150 หน่วย) ไม่จับคู่แฝดเวลาเดียวกัน — ตรวจกับ FIRMS แล้วเหลือเกิน 62 จุด · ไม่แตะ hdata (Excel กรมอุทยานฯ)
   if (ndup || ndel) console.log(`ระเบียนซ้ำของ API ทั้งประเทศ ${ndup} จุด · ลบจากที่เก็บ ${ndel} จุด`);
   store.recs = [...byId.values()].sort((a, b) => a.d - b.d || a.t - b.t || a.la - b.la);
