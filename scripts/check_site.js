@@ -69,7 +69,7 @@ const NET = /Failed to fetch|NetworkError|Load failed|AJAXError|AbortError|abort
 const DESK = [
   ['การ์ดสถิติย้อนหลัง', `C('bStat')`], ['  แท็บการดับไฟป่า', `Q('#h-tab [data-v="xt"]')`], ['  ตารางการดับไฟ', `C('x-tbl')`], ['  ปิดตาราง', `C('md-x',1)`], ['  แท็บจุดความร้อน', `Q('#h-tab [data-v="hs"]')`], ['  ตารางสถิติ', `C('h-tbl')`], ['  ปิดตาราง', `C('md-x',1)`], ['  แท็บทุกดาวเทียม', `Q('#h-tab [data-v="ha"]')`], ['  ตารางทุกดาวเทียม', `C('h-tbl')`], ['  ปิดตาราง', `C('md-x',1)`], ['  ปิดการ์ดสถิติ', `C('h-x',1)`],
   ['พื้นที่เฝ้าระวังพิเศษ', `C('bWch')`], ['  ตาราง จปร.', `C('w-tbl')`], ['  ปิดตาราง', `C('md-x',1)`], ['  ปิด', `C('bWch')`],
-  ['ย้อนดูการลามของไฟ', `C('bPlay')`], ['  ปิด', `K('Escape')`],
+  ['ย้อนดูการลามของไฟ (ปีงบนี้)', `C('bPlay')`], ['  90 วันล่าสุด', `Q('#pb-w [data-v="90"]')`], ['  ×0.5', `Q('#pb-sp [data-v="0.5"]')`], ['  เล่น', `C('pb-p')`], ['  หยุด', `C('pb-p')`], ['  1 วัน (รายชั่วโมง)', `Q('#pb-w [data-v="1"]')`], ['  สถิติย้อนหลัง', `C('pb-m')`], ['  เล่น', `C('pb-p')`], ['  หยุด', `C('pb-p')`], ['  ปิด', `C('pb-x',1)`], ['  ปิดการ์ดสถิติ', `C('h-x',1)`],
   ['ตารางจุดความร้อน', `C('p-tbl')`], ['  ปีงบย้อนหลัง (ทุกดาวเทียม)', `(()=>{const y=document.getElementById('dt-y');if(!y||y.options.length<2)return 'ไม่พบตัวเลือกปีงบย้อนหลัง';y.value=y.options[1].value;y.dispatchEvent(new Event('change'));return ''})()`], ['  ปิดตาราง', `C('md-x',1)`],
   ['แผงชั้นข้อมูล', `C('bLay')`], ['  ปิดแผง', `C('xr',1)`],
   ['ข้อมูลพื้นฐาน', `C('bKnow')`], ['  ปิด', `C('kb-x',1)`],
@@ -79,7 +79,7 @@ const DESK = [
   ['พิมพ์แผนที่', `C('bPm')`], ['  ปิด', `C('pm-x',1)`],
   ['กลับมุมมองกลุ่มป่า', `C('bHome')`],
 ];
-const MOB = [['ปุ่มเครื่องมือ (มือถือ)', `C('bTo')`], ['  ปิด', `C('bTo')`], ['แผงชั้นข้อมูล', `C('bLay')`], ['  ปิดแผง', `C('xr',1)`], ['การ์ดสถิติ', `C('bStat')`], ['  ปิด', `C('h-x',1)`]];
+const MOB = [['ปุ่มเครื่องมือ (มือถือ)', `C('bTo')`], ['  ปิด', `C('bTo')`], ['แผงชั้นข้อมูล', `C('bLay')`], ['  ปิดแผง', `C('xr',1)`], ['การ์ดสถิติ', `C('bStat')`], ['  ปิด', `C('h-x',1)`], ['ย้อนดูการลามของไฟ', `C('bPlay')`], ['  เล่น', `C('pb-p')`], ['  ปิด', `C('pb-x',1)`]];
 const HELP = `window.__ck={C(id,vis){const e=document.getElementById(id);if(!e)return 'ไม่พบ #'+id;if(vis&&!e.offsetParent&&getComputedStyle(e).position!=='fixed')return 'ข้าม';e.click();return ''},
 Q(s){const e=document.querySelector(s);if(!e)return 'ไม่พบ '+s;e.click();return ''},K(k){document.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true}));return ''}};`;
 
