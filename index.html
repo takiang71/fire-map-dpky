@@ -535,11 +535,11 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 @media(max-width:767px){#wyb{bottom:calc(var(--sh0,34vh) + 8px);border-radius:16px;flex-wrap:wrap;row-gap:4px}.wyb-c{order:9;flex-basis:100%}#wyb>b{flex:1}}
 #wyb.cp{gap:6px;padding-left:10px}#wyb.cp .wyb-c{gap:3px}#wyb.cp .wyb-c button{padding:4px 8px}#wyb.cp .wyb-m button{padding:3px 8px}#wyb.wr{border-radius:16px}#wyb.wr .wyb-c{flex-wrap:wrap;row-gap:4px}
 /* ดาวเทียมรอบถัดไป #orb (13 พ.ย. 69) — เดสก์ท็อปมุมขวาบน · มือถือมุมซ้ายบน แบบย่อเป็นแถบเดียว */
-#orb{position:fixed;z-index:4;top:12px;right:12px;width:300px;overflow-y:auto;overscroll-behavior:contain;border-radius:14px;background:var(--glass);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 1px 4px rgba(20,30,60,.15);font-size:12px;color:var(--ink);overflow-x:hidden}
+#orb{position:fixed;z-index:4;top:12px;right:12px;width:330px;overflow-y:auto;overscroll-behavior:contain;border-radius:14px;background:var(--glass);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 1px 4px rgba(20,30,60,.15);font-size:12px;color:var(--ink);overflow-x:hidden}
 #orb[hidden],#orb.px{display:none!important}
 #orb .obh{display:flex;align-items:center;gap:7px;padding:7px 10px;cursor:pointer;user-select:none;-webkit-user-select:none;line-height:1.3}
 #orb .obh>svg{width:18px;height:18px;flex:none;fill:none;stroke:var(--navy);stroke-width:1.6}
-#orb .obti{font-size:12.5px;font-weight:600}#orb .obti small{font-weight:400;color:var(--mut);font-size:11px;margin-left:5px}
+#orb .obti{font-size:12.5px;font-weight:600;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}#orb .obti small{font-weight:400;color:var(--mut);font-size:11px;margin-left:5px}
 #orb .obq{display:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 #orb .obq i,#orb .obr>i{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--c);box-shadow:0 0 0 2px #fff;margin-right:5px;vertical-align:0}
 #orb em{font-style:normal;font-weight:700;font-variant-numeric:tabular-nums;color:var(--navy)}
@@ -552,7 +552,10 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 #orb .obr.on{background:rgba(27,42,94,.08)}#orb .obr:hover,#orb .obr:focus-visible{background:rgba(27,42,94,.05);outline:none}
 #orb .obr b{display:block;font-size:12.5px;line-height:1.3}#orb .obr span{display:block;color:var(--mut);font-size:11px;line-height:1.35}
 #orb .obr em{font-size:17px;padding-left:6px;white-space:nowrap}#orb .obr em.now,#orb .obr em.wait{font-size:12.5px}
-#orb .obw{display:block;width:100%;cursor:pointer;background:#0b1d36}
+#orb .obwm{position:relative;height:166px;flex:none;cursor:pointer;background:#0b1d36}#orb .obw{position:absolute;inset:0;width:100%;height:100%;display:block}
+/* เดสก์ท็อปแบบขยาย: กล่องสูงถึงเหนือแถวปุ่มแผนที่ แผนที่โลกย่อยืดเต็มที่ว่าง (ผู้ใช้ขอ 13 พ.ย. 69) */
+#orb.tall:not(.cp){display:flex;flex-direction:column}#orb.tall:not(.cp) .obb{flex:1;display:flex;flex-direction:column;min-height:0}#orb.tall:not(.cp) .obwm{flex:1 1 auto;min-height:130px;height:auto}
+#orb .obh .hsp{margin-left:auto;font-size:11px}#orb .obh .hsp+.obx{margin-left:2px}#orb.cp .obh .hsp{display:none}
 #orb .obn{padding:6px 10px 2px;color:var(--mut);font-size:10.5px;line-height:1.4}
 #orb .obs{margin:4px 10px 9px;font-size:10.5px}
 #orb.mb{right:auto}#orb.mb:not(.cp){width:min(300px,calc(100% - 90px))}
@@ -713,7 +716,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div class="row" data-tip="ดาวเทียม VIIRS 375 ม. (NOAA-20, NOAA-21, Suomi NPP) จาก Land Fire Alerts Thailand (WFSRU/ThaiREN) · แสดง 48 ชม. ล่าสุด เฉพาะในแนวเขตกลุ่มป่า · ดึงข้อมูลใหม่อัตโนมัติทุก 5 นาทีขณะเปิดดู"><svg class="i" style="color:var(--fire)" viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg><b>จุดความร้อน</b><button class="sw" data-k="hot" role="switch" aria-label="จุดความร้อน"></button></div>
   <div class="sats" data-sats role="group" aria-label="เลือกดาวเทียมที่แสดง" style="margin:0 0 6px"></div>
   <button class="lk" id="rf">↻ ดึงข้อมูลใหม่</button>
-  <div class="row" data-tip="ตำแหน่งดาวเทียม NOAA-20 และ NOAA-21 ที่ใช้ตรวจจับจุดความร้อน (VIIRS) คำนวณจากข้อมูลวงโคจรของ CelesTrak · กล่องมุมแผนที่นับถอยหลังถึงรอบที่แถบสแกนผ่านกลุ่มป่า นับทุกรอบที่ดาวเทียมสแกนผ่าน (รอบที่มุมสแกนเกิน 45° มีป้ายขอบแถบ) พร้อมแผนที่โลกย่อ · บนแผนที่: เส้นทางโคจร (จุดประ = ผ่านไปแล้ว) และแถบสแกนของรอบถัดไป (เส้นทึบ = มุมสแกนไม่เกิน 45°, เส้นประ = ขอบแถบ 56°) · ซูมออกหรือแตะแถวในกล่องเพื่อดูทั้งแถบ"><svg class="i" viewBox="0 0 24 24"><g transform="rotate(-45 12 12)"><rect x="9.6" y="8.6" width="4.8" height="6.2" rx="1"/><path d="M2.5 10.2h6.2v3.6H2.5zM15.3 10.2h6.2v3.6h-6.2zM12 14.8v2.6"/><path d="M9.6 19.8a3.4 3.4 0 014.8 0"/></g></svg><b>ดาวเทียมรอบถัดไป</b><span class="tag">NOAA-20/21</span><button class="sw" data-k="orb" role="switch" aria-label="ดาวเทียมรอบถัดไปและเส้นทางโคจร"></button></div>
+  <div class="row" data-tip="ตำแหน่งดาวเทียม NOAA-20 และ NOAA-21 ที่ใช้ตรวจจับจุดความร้อน (VIIRS) คำนวณจากข้อมูลวงโคจรของ CelesTrak · กล่องมุมแผนที่นับถอยหลังถึงรอบที่แถบสแกนผ่านกลุ่มป่า นับทุกรอบที่ดาวเทียมสแกนผ่าน (รอบที่มุมสแกนเกิน 45° มีป้ายขอบแถบ) พร้อมแผนที่โลกย่อ · บนแผนที่: เส้นทางโคจร (จุดประ = ผ่านไปแล้ว) และแถบสแกนของรอบถัดไป (เส้นทึบ = มุมสแกนไม่เกิน 45°, เส้นประ = ขอบแถบ 56°) · ซูมออกหรือแตะแถวในกล่องเพื่อดูทั้งแถบ · สวิตช์ &quot;บนแผนที่&quot; ที่หัวกล่อง = ซ่อนเฉพาะชั้นบนแผนที่ (กล่องยังอยู่)"><svg class="i" viewBox="0 0 24 24"><g transform="rotate(-45 12 12)"><rect x="9.6" y="8.6" width="4.8" height="6.2" rx="1"/><path d="M2.5 10.2h6.2v3.6H2.5zM15.3 10.2h6.2v3.6h-6.2zM12 14.8v2.6"/><path d="M9.6 19.8a3.4 3.4 0 014.8 0"/></g></svg><b>ดาวเทียมรอบถัดไป</b><span class="tag">NOAA-20/21</span><button class="sw" data-k="orb" role="switch" aria-label="ดาวเทียมรอบถัดไปและเส้นทางโคจร"></button></div>
   <div class="row" data-tip="Hotspot Cluster · จุดความร้อนวันเดียวกัน (เวลาไทย) ที่ห่างกันไม่เกินระยะที่กำหนด (ค่าเริ่มต้น 1 กม.) ต่อเนื่องกันเป็นลูกโซ่ = 1 กอง · วงกลมอยู่กลางกอง ตัวเลข = จำนวนจุด · แดง = วันล่าสุด ไล่ไปเหลือง = วันเก่า · ใช้จุดทุกดวงตามปุ่มดาวเทียมและปุ่มดงใหญ่ · แตะวงกลมเพื่อดูรายละเอียด · ดับเบิลคลิกที่กองเพื่อกระจายจุดทั้งหมดออก"><svg class="i" viewBox="0 0 24 24"><circle cx="8" cy="9" r="3.2" style="fill:#d93a1f;stroke:#fff"/><circle cx="15.5" cy="12.5" r="4" style="fill:#f08a1c;stroke:#fff"/><circle cx="9" cy="17.5" r="2.6" style="fill:#f5c542;stroke:#fff"/></svg><b>กองจุดความร้อนรายวัน</b><span class="tag">Cluster</span><button class="sw" data-k="hcl" role="switch" aria-label="กองจุดความร้อนรายวัน"></button></div>
   <div class="row" data-tip="Hotspot Group · รวมจุดที่ห่างกันไม่เกินระยะที่กำหนด และเกิดห่างกันไม่เกินจำนวนวันที่กำหนด (ค่าเริ่มต้น 1 กม. · 2 วัน) เป็นไฟเหตุการณ์เดียวกัน (เส้นประ = ขอบเขตกอง) · จุดเริ่มต้นของไฟ = จุดที่ดาวเทียมพบเป็นรอบแรกของกอง ใช้ระบุแหล่งที่มาของความร้อน · เส้นลูกศร = ทิศการลามรายวันจากจุดเริ่มต้น · แตะจุดเริ่มต้นเพื่อดูรายละเอียด"><svg class="i" viewBox="0 0 24 24"><path d="M8 16l8-8" style="stroke:#5c1209;stroke-width:2"/><path d="M16 8l-4 .5M16 8l-.5 4" style="stroke:#5c1209;stroke-width:2"/><circle cx="7" cy="17" r="4.5" style="fill:#d93a1f;stroke:#5c1209;stroke-width:1.5"/><circle cx="7" cy="17" r="1.5" style="fill:#fff;stroke:none"/></svg><b>กองจุดความร้อนรวม + จุดเริ่มต้นไฟ</b><span class="tag">Group</span><button class="sw" data-k="hgp" role="switch" aria-label="กองจุดความร้อนรวมและจุดเริ่มต้นของไฟ"></button></div>
   <div class="row" data-tip="Hotspot Area · รูปหลายเหลี่ยมครอบทุกจุดของกองรวม รวมระยะเผาไหม้รอบจุดตามที่กำหนด (ค่าเริ่มต้น 200 ม. ≈ ครึ่งพิกเซล VIIRS 375 ม.) · ไร่ = พื้นที่ที่ความร้อนกระจายตัวโดยประมาณ ไม่ใช่พื้นที่เผาไหม้จริง (ดูชั้นพื้นที่เผาไหม้)"><svg class="i" viewBox="0 0 24 24"><path d="M4 9l6-5 9 4 1 8-8 5-7-4z" style="fill:rgba(232,84,28,.35);stroke:#b8321a"/></svg><b>พื้นที่จุดความร้อนรวม</b><span class="tag">Area</span><button class="sw" data-k="har" role="switch" aria-label="พื้นที่จุดความร้อนรวม"></button></div>
@@ -1058,7 +1061,7 @@ const areaHtml=g=>{let s='';if(g.cons)s+=`<b>${esc(g.cons.properties.name)}</b><
  return s||'<span class="sm">อยู่นอกพื้นที่อนุรักษ์และพื้นที่รับผิดชอบไฟป่าตามไฟล์แนวเขต</span><br>'};
 
 /* ---------- สถานะ + จำค่าที่ผู้ใช้เลือก ---------- */
-let S={base:'natural',img:'google',d3:false,hot:true,prov:false,cons:true,resp:false,stn:false,wpt:false,rgr:false,fbs:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,orb:true,wch:true,wst:false,wsp:true,demo:false,water:true,road:true,wind:false,pm:false,dry:false,wx:false,rad:false,wyl:false,wyo:'wind',wyop:60,hist:false,xt:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',rep:false,rpm:2,hcd:1,hcg:2,hcr:200};
+let S={base:'natural',img:'google',d3:false,hot:true,prov:false,cons:true,resp:false,stn:false,wpt:false,rgr:false,fbs:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,orb:true,orbm:true,wch:true,wst:false,wsp:true,demo:false,water:true,road:true,wind:false,pm:false,dry:false,wx:false,rad:false,wyl:false,wyo:'wind',wyop:60,hist:false,xt:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',rep:false,rpm:2,hcd:1,hcg:2,hcr:200};
 try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;S.wst=false;if(S.base==='road')S.base='detail';
 const toast=(m,fn,ms)=>{const t=$('#toast');t.textContent=m;t.classList.add('show');t.classList.toggle('act',!!fn);t.onclick=fn?()=>{t.classList.remove('show','act');fn()}:null;
  clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show','act'),ms||2200)}; // fn = แตะป้ายแล้วทำ (ป้ายค้างนานขึ้น)
@@ -2820,7 +2823,7 @@ function hlgPos(){const e=$('#hlg');if(!e||e.hidden)return;const W=innerWidth,H=
  {const t=$('#c-t');if(t)t.textContent=['r','o','y','b'].reduce((a,k)=>a+(+($('#c-'+k).textContent)||0),0)}
  const PO=$('#right').classList.contains('open')||!$('#ulm').hidden||$('#dp').classList.contains('open');e.classList.toggle('px',PO);if(PO)return; // แผงขวาเปิด = ซ่อนกล่อง เพิ่มพื้นที่แผนที่ (ผู้ใช้ขอ 5 พ.ย. 69)
  if(mob){b=Math.round(H-$(document.body.classList.contains('pbon')?'#pbf':'#left').getBoundingClientRect().top)+8;const c=$('#ctl').getBoundingClientRect(),hd=HLGM==='hd';if(hd)r=0;if(c.height&&c.bottom>H-b-(hd?40:HLGM==='cp'?44:130))r=Math.round(W-c.left)+8;e.style.borderRadius=hd&&r>0?'99px':''} // มือถือ: ซ้ายของคอลัมน์ปุ่มขวาบน
- else{e.style.borderRadius='';const c=$('#ctl').getBoundingClientRect();b=Math.round(H-c.top)+10}
+ else{e.style.borderRadius='';const c=$('#ctl').getBoundingClientRect();b=Math.round(H-c.top)+10;const o=$('#orb');if(o&&!o.hidden&&o.offsetWidth){const q=o.getBoundingClientRect();if(q.bottom>H-b-e.offsetHeight-4&&q.left<W-12)r=Math.round(W-q.left)+10}} /* กล่องดาวเทียมรอบถัดไปยาวลงมาถึงแถวปุ่ม = ไปอยู่ซ้ายของกล่องนั้น */
  if(mob&&b>H*.75)b=Math.round(H*.4); // แผ่นล่างถูกลากขึ้นเต็ม: ไม่ตามขึ้นไปบนสุด (แผ่นบังอยู่แล้ว)
  e.style.right=r+'px';e.style.bottom=b+'px';const w=e.offsetWidth,hh=e.offsetHeight,x0=W-r-w,x1=W-r;
  ['#pbf','#wyb'].forEach(q=>{const f=$(q);if(!f||f.hidden)return;const q1=f.getBoundingClientRect();if(q1.right>x0&&q1.left<x1&&q1.top<H-b&&q1.bottom>H-b-hh)b=Math.round(H-q1.top)+8});
@@ -5745,16 +5748,17 @@ function obState(k,now){const Q=(OBP[k]||[]).filter(p=>!p.out),nx=Q.find(p=>p.t>
  return nx?{st:'next',p:nx,nx}:{st:'none'}}
 const obSatSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(-45 12 12)"><rect x="9.6" y="8.6" width="4.8" height="6.2" rx="1"/><path d="M2.5 10.2h6.2v3.6H2.5zM15.3 10.2h6.2v3.6h-6.2zM12 14.8v2.6"/><path d="M9.6 19.8a3.4 3.4 0 014.8 0"/></g></svg>';
 function obBox(){let e=$('#orb');if(e)return e;e=document.createElement('div');e.id='orb';e.hidden=true;e.setAttribute('role','region');e.setAttribute('aria-label','ดาวเทียมรอบถัดไปเหนือกลุ่มป่า');
- e.innerHTML=`<div class="obh" role="button" tabindex="0">${obSatSvg}<b class="obti">ดาวเทียมรอบถัดไป<small>เหนือกลุ่มป่า</small></b><span class="obq"></span><i class="obx" aria-hidden="true">▾</i></div>
+ e.innerHTML=`<div class="obh" role="button" tabindex="0">${obSatSvg}<b class="obti">ดาวเทียมรอบถัดไป<small>เหนือกลุ่มป่า</small></b><span class="obq"></span><label class="hsp" title="แสดง/ซ่อนเส้นทางโคจร แถบสแกน และไอคอนดาวเทียมบนแผนที่หลัก"><button class="sw" id="ob-sw" role="switch" aria-label="แสดงวงโคจรบนแผนที่"></button>บนแผนที่</label><i class="obx" aria-hidden="true">▾</i></div>
  <div class="obb">${Object.keys(OBC).map(k=>`<div class="obr" data-ob="${k}" role="button" tabindex="0" title="แตะเพื่อดูแถบสแกนของรอบนี้บนแผนที่"><i style="--c:${OBC[k]}"></i><div><b></b><span></span></div><em></em></div>`).join('')}
- <canvas class="obw" role="img" aria-label="แผนที่โลกแสดงตำแหน่งดาวเทียมปัจจุบัน" title="ตำแหน่งดาวเทียมขณะนี้ · เส้นทึบ = เส้นทางข้างหน้า 60 นาที · แถบจาง = ความกว้างแถบสแกน · พื้นมืด = กลางคืน · จุดแดง = กลุ่มป่า · แตะเพื่อดูรอบถัดไปบนแผนที่"></canvas>
+ <div class="obwm"><canvas class="obw" role="img" aria-label="แผนที่โลกแสดงตำแหน่งดาวเทียมปัจจุบัน" title="ตำแหน่งดาวเทียมขณะนี้ · เส้นทึบ = เส้นทางข้างหน้า 60 นาที · แถบจาง = ความกว้างแถบสแกน · พื้นมืด = กลางคืน · จุดแดง = กลุ่มป่า · แตะเพื่อดูรอบถัดไปบนแผนที่"></canvas></div>
  <div class="obn">นับทุกรอบที่แถบสแกนผ่านกลุ่มป่า · รอบที่มุมสแกนเกิน ${ORB.EDGE}° มีป้าย "ขอบแถบ" (พิกเซลใหญ่ขึ้น จับไฟเล็กได้ยากกว่า) · จุดความร้อนเข้าระบบราว ${OBLAG[0]}–${OBLAG[1]} นาทีหลังสแกน · ดาวเทียมผ่านไม่ได้แปลว่าจะพบจุดเสมอ (เมฆบัง / ไฟไม่ได้ลุกตอนสแกน)</div>
  <div class="dsrc obs" id="ob-src"></div></div>`;
  document.body.appendChild(e);
  const tg=()=>{OBM=obMode()==='cp'?'full':'cp';try{localStorage.setItem('fm-orb',OBM)}catch(x){}OBMD=0;obTick()};
+ const sw=e.querySelector('#ob-sw'),lb=sw.parentNode;lb.onclick=x=>{x.stopPropagation();x.preventDefault();S.orbm=!S.orbm;OBMD=0;LO()};lb.onkeydown=x=>x.stopPropagation(); /* สวิตช์ไม่ย่อ/ขยายกล่อง */
  const h=e.querySelector('.obh');h.onclick=tg;h.onkeydown=x=>{if(x.key==='Enter'||x.key===' '){x.preventDefault();tg()}};
  e.querySelectorAll('.obr').forEach(r=>{const go=()=>obFocus(r.dataset.ob);r.onclick=go;r.onkeydown=x=>{if(x.key==='Enter'){x.preventDefault();go()}}});
- e.querySelector('.obw').onclick=()=>{const now=Date.now();const ks=Object.keys(OBSR).map(k=>[k,obState(k,now)]).filter(x=>x[1].nx).sort((a,b)=>a[1].nx.t-b[1].nx.t);if(ks[0])obFocus(ks[0][0])};
+ e.querySelector('.obwm').onclick=()=>{const now=Date.now();const ks=Object.keys(OBSR).map(k=>[k,obState(k,now)]).filter(x=>x[1].nx).sort((a,b)=>a[1].nx.t-b[1].nx.t);if(ks[0])obFocus(ks[0][0])};
  return e}
 // วางกล่อง: เดสก์ท็อปมุมขวาบน (ซ้ายของแผงขวาที่เปิด) · มือถือมุมซ้ายบน (เว้นคอลัมน์ปุ่มขวา) · หลบป้าย #hsc / วันที่ภาพ / แผงผลวัด
 function obPos(){const e=$('#orb');if(!e||e.hidden)return;e.classList.remove('px');const W=innerWidth,mob=W<768;e.classList.toggle('mb',mob);let top=12,right=null,left=null;
@@ -5764,7 +5768,9 @@ function obPos(){const e=$('#orb');if(!e||e.hidden)return;e.classList.remove('px
  if(!mob){const l=$('#left'),lr=l&&l.offsetWidth&&!document.body.classList.contains('lc')?l.getBoundingClientRect().right:0;e.classList.toggle('px',x0<lr+8)} // ที่ไม่พอระหว่างแผง = ซ่อน
  for(let i=0;i<3;i++)for(const q of['#hsc','#imgdate','#msr','#mhud']){const o=$(q);if(!o||o.hidden||!o.offsetWidth||getComputedStyle(o).display==='none')continue;const r=o.getBoundingClientRect();if(r.right>x0&&r.left<x1&&r.bottom>top&&r.top<top+e.offsetHeight&&r.bottom<innerHeight*.6)top=Math.round(r.bottom)+8}
  e.style.top=`calc(${top}px + env(safe-area-inset-top))`;
- {let lim=innerHeight-12;const sh=mob?$(document.body.classList.contains('pbon')?'#pbf':'#left'):$('#ctl');if(sh&&sh.offsetHeight){const t=sh.getBoundingClientRect().top;if(t>top+80)lim=t-8}e.style.maxHeight=Math.max(60,lim-e.getBoundingClientRect().top)+'px'}}
+ {let lim=innerHeight-12;const sh=mob?$(document.body.classList.contains('pbon')?'#pbf':'#left'):$('#ctl');if(sh&&sh.offsetHeight){const t=sh.getBoundingClientRect().top;if(t>top+80)lim=t-(mob?8:12)}const hh=Math.max(60,lim-e.getBoundingClientRect().top),tall=!mob&&obMode()!=='cp';
+  e.classList.toggle('tall',tall);e.style.height=tall?hh+'px':'';e.style.maxHeight=hh+'px'}
+ {const r=e.getBoundingClientRect(),k=[r.left,r.bottom,e.hidden].join();if(obPos.k!==k){obPos.k=k;try{hlgPos()}catch(x){}}}} /* กล่องอายุจุดหลบกล่องนี้ */
 function obRow(r,k,now){const s=obState(k,now),b=r.querySelector('b'),sp=r.querySelector('span'),em=r.querySelector('em'),n=(OBT.sats[k]||{}).n||k;b.textContent=n;em.className='';
  const ang=p=>`มุมสแกน ${Math.round(p.ang)}°${p.edge?' (ขอบแถบ)':''}`,dn=p=>p.day?'☀ กลางวัน':'☾ กลางคืน';
  if(s.st==='now'){sp.textContent=`${dn(s.p)} · ${ang(s.p)} · ข้อมูลเข้าราว ${obHM(s.p.t+OBLAG[0]*6e4)}–${obHM(s.p.t+OBLAG[1]*6e4)} น.`;em.textContent='กำลังสแกน';em.className='now'}
@@ -5775,7 +5781,7 @@ function obRow(r,k,now){const s=obState(k,now),b=r.querySelector('b'),sp=r.query
  return s}
 function obTick(){const on=!!S.orb,e=obBox();e.hidden=!on;if(!on)return;try{if(map.getStyle()&&map.getSource('dem')&&!map.getSource('obt'))obLayers()}catch(x){console.warn('obLayers',x)} /* ชั้นหาย/ยังไม่ถูกสร้าง = สร้างใหม่ */const now=Date.now();if(!OBT&&!obLoad.p&&(!OBERR||now-(obLoad.ft||0)>6e4))obLoad(); // โหลดไม่ได้ = ลองใหม่ทุก 1 นาที
 if(obLoad.at&&now-obLoad.at>6*36e5){obLoad.p=null;obLoad()} // ข้อมูลวงโคจรใหม่ทุก 6 ชม. (เปิดค้าง)
- const cp=obMode()==='cp';e.classList.toggle('cp',cp);e.querySelector('.obh').setAttribute('aria-expanded',String(!cp));e.querySelector('.obh').title=cp?'แตะเพื่อขยาย':'แตะเพื่อย่อ';
+ const cp=obMode()==='cp';e.classList.toggle('cp',cp);{const b=$('#ob-sw');if(b)b.setAttribute('aria-checked',String(S.orbm!==false))}e.querySelector('.obh').setAttribute('aria-expanded',String(!cp));e.querySelector('.obh').title=cp?'แตะเพื่อขยาย':'แตะเพื่อย่อ';
  const q=e.querySelector('.obq');
  if(!OBT){q.textContent=OBERR||'กำลังโหลดวงโคจร…';e.querySelectorAll('.obr').forEach(r=>{r.querySelector('b').textContent=r.dataset.ob.replace('NOAA','NOAA-');r.querySelector('span').textContent=OBERR||'กำลังโหลด…';r.querySelector('em').textContent=''});obPos();return}
  obPasses(now);const S2=[];e.querySelectorAll('.obr').forEach(r=>{const k=r.dataset.ob;if(!OBSR[k]){r.hidden=true;return}r.hidden=false;S2.push([k,obRow(r,k,now)])});
@@ -5787,17 +5793,20 @@ if(obLoad.at&&now-obLoad.at>6*36e5){obLoad.p=null;obLoad()} // ข้อมู�
  if(!cp)obMini(now);obPos();obMap(now)}
 // แผนที่โลกย่อ (เมอร์เคเตอร์ ±70° กึ่งกลางที่ลองจิจูดกลุ่มป่า)
 const OBY0=.2238,OBYS=.5524;
-function obMini(now){const c=$('#orb .obw');if(!c||!c.offsetWidth)return;const W=c.offsetWidth,H=Math.round(W*OBYS),dpr=Math.min(2,devicePixelRatio||1);
- if(c.width!==Math.round(W*dpr)){c.width=Math.round(W*dpr);c.height=Math.round(H*dpr);c.style.height=H+'px'}
+function obMini(now){const c=$('#orb .obw');if(!c||!c.offsetWidth)return;const wm=c.parentNode;if(!$('#orb').classList.contains('tall'))wm.style.height=Math.round(wm.offsetWidth*OBYS)+'px';else wm.style.height='';
+ const W=c.offsetWidth,H=c.offsetHeight,dpr=Math.min(2,devicePixelRatio||1);if(!H)return;
+ if(c.width!==Math.round(W*dpr)||c.height!==Math.round(H*dpr)){c.width=Math.round(W*dpr);c.height=Math.round(H*dpr)}
+ /* ช่วงละติจูดตามความสูงกรอบ: กึ่งกลางที่กลุ่มป่า (จำกัดไม่เกินขอบโลก ±85°) · y0 = ขอบบนในพิกัดโลก 0..1 */
+ const Z=Math.max(W,H/.62),sp=H/Z,tyc=(1-Math.log(Math.tan(Math.PI/4+OBTGT[1]*Math.PI/360))/Math.PI)/2,Y0=sp>=1?(1-sp)/2:Math.min(1-sp,Math.max(0,tyc-sp/2)),CX=(OBTGT[0]+180)/360;
  if(!OBIMG){OBIMG=[];for(let j=0;j<4;j++)for(let i=0;i<4;i++){const im=new Image();im.onload=()=>{OBMD=0};im.src=`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/2/${j}/${i}`;OBIMG.push(im)}}
- const g=c.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);const L0=OBTGT[0]-180,wx=lon=>((((lon-L0)%360)+360)%360)/360*W,wy=lat=>{const a=Math.max(-85,Math.min(85,lat))*Math.PI/180;return((1-Math.log(Math.tan(Math.PI/4+a/2))/Math.PI)/2-OBY0)/OBYS*H};
+ const g=c.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);const wx=lon=>W/2+((((lon-OBTGT[0])%360)+540)%360-180)/360*Z,wy=lat=>{const a=Math.max(-85,Math.min(85,lat))*Math.PI/180;return((1-Math.log(Math.tan(Math.PI/4+a/2))/Math.PI)/2-Y0)*Z};
  g.fillStyle='#0b1d36';g.fillRect(0,0,W,H);
- OBIMG.forEach((im,n)=>{if(!im.complete||!im.naturalWidth)return;const i=n%4,j=Math.floor(n/4),x=((i/4-(L0+180)/360)%1+1)%1*W,y=(j/4-OBY0)/OBYS*H,s=W/4;g.drawImage(im,x,y,s,s);if(x+s>W)g.drawImage(im,x-W,y,s,s)});
+ OBIMG.forEach((im,n)=>{if(!im.complete||!im.naturalWidth)return;const i=n%4,j=Math.floor(n/4),y=(j/4-Y0)*Z,s=Z/4;for(let w=-2;w<=2;w++){const x=W/2+(i/4-CX+w)*Z;if(x<W&&x+s>0)g.drawImage(im,x,y,s,s)}});
  // เงากลางคืน
- const su=ORB.sun(now),td=Math.tan(su.lat*Math.PI/180)||1e-6;g.beginPath();const ys=su.lat<0?0:H;g.moveTo(0,ys);for(let x=0;x<=W;x+=2){const lon=L0+x/W*360;g.lineTo(x,wy(Math.atan(-Math.cos((lon-su.lon)*Math.PI/180)/td)*180/Math.PI))}g.lineTo(W,ys);g.closePath();g.fillStyle='rgba(2,8,28,.5)';g.fill();
+ const su=ORB.sun(now),td=Math.tan(su.lat*Math.PI/180)||1e-6;g.beginPath();const ys=su.lat<0?0:H;g.moveTo(0,ys);for(let x=0;x<=W;x+=2){const lon=OBTGT[0]+(x-W/2)/Z*360;g.lineTo(x,wy(Math.atan(-Math.cos((lon-su.lon)*Math.PI/180)/td)*180/Math.PI))}g.lineTo(W,ys);g.closePath();g.fillStyle='rgba(2,8,28,.5)';g.fill();
  // เส้นทางโคจร (คำนวณใหม่ทุก 30 วิ)
  if(!OBTRK||now-OBTRKAT>3e4){OBTRKAT=now;OBTRK={};for(const k in OBSR)OBTRK[k]=ORB.track(OBSR[k],now-40*6e4,now+60*6e4,60)}
- const kmPx=W/40075,path=(A,from,to)=>{g.beginPath();let px=null;for(let i=from;i<to;i++){const[lo,la]=A[i],x=wx(lo),y=wy(la);if(px==null||Math.abs(x-px)>W/2)g.moveTo(x,y);else g.lineTo(x,y);px=x}g.stroke()};
+ const kmPx=Z/40075,path=(A,from,to)=>{g.beginPath();let px=null;for(let i=from;i<to;i++){const[lo,la]=A[i],x=wx(lo),y=wy(la);if(px==null||Math.abs(x-px)>Z/2)g.moveTo(x,y);else g.lineTo(x,y);px=x}g.stroke()};
  g.lineCap='round';g.lineJoin='round';
  for(const k in OBTRK){const A=OBTRK[k],i0=40;g.strokeStyle=OBC[k];
   g.globalAlpha=.22;g.lineWidth=Math.max(3,2*ORB.scanKm(ORB.SCANMAX,830)*kmPx);path(A,i0,Math.min(A.length,i0+16)); // แถบสแกน ~15 นาทีข้างหน้า
@@ -5808,7 +5817,9 @@ function obMini(now){const c=$('#orb .obw');if(!c||!c.offsetWidth)return;const W
  const tx=wx(OBTGT[0]),ty=wy(OBTGT[1]);g.beginPath();g.arc(tx,ty,6,0,7);g.strokeStyle='rgba(255,70,50,.85)';g.lineWidth=1.5;g.stroke();g.beginPath();g.arc(tx,ty,2.6,0,7);g.fillStyle='#ff3b30';g.fill();
  // ดาวเทียมขณะนี้
  g.font='600 10px "Noto Sans Thai",sans-serif';g.textBaseline='middle';
- for(const k in OBSR){const p=ORB.at(OBSR[k],now);if(!p)continue;const x=wx(p.lon),y=wy(p.lat);g.beginPath();g.arc(x,y,4.5,0,7);g.fillStyle=OBC[k];g.fill();g.lineWidth=1.6;g.strokeStyle='#fff';g.stroke();
+ for(const k in OBSR){const p=ORB.at(OBSR[k],now);if(!p)continue;let x=wx(p.lon),y=wy(p.lat);if(x<-8||x>W+8||y<-8||y>H+8){const ex=Math.max(10,Math.min(W-10,x)),ey=Math.max(10,Math.min(H-10,y)),t=(x<0?'◀ ':'')+OBT.sats[k].n.replace('NOAA-','N')+(x>W?' ▶':''),tw=g.measureText(t).width,lx=x<0?ex-4:x>W?ex-tw+4:ex-tw/2;
+   g.font='600 10px sans-serif';g.textBaseline='middle';g.globalAlpha=.9;g.fillStyle='rgba(0,0,0,.55)';g.fillRect(lx-4,ey-8,tw+8,16);g.globalAlpha=1;g.fillStyle=OBC[k];g.fillText(t,lx,ey);continue} /* นอกกรอบ */
+  g.beginPath();g.arc(x,y,4.5,0,7);g.fillStyle=OBC[k];g.fill();g.lineWidth=1.6;g.strokeStyle='#fff';g.stroke();
   const t=OBT.sats[k].n.replace('NOAA-','N'),tw=g.measureText(t).width,lx=x+7+tw>W?x-9-tw:x+7;g.lineWidth=3;g.strokeStyle='rgba(0,0,0,.7)';g.strokeText(t,lx,y);g.fillStyle='#fff';g.fillText(t,lx,y)}
 }
 // ชั้นบนแผนที่หลัก
@@ -5828,13 +5839,13 @@ function obLayers(){if(!map.getStyle()||map.getSource('obt'))return;const E={typ
  map.addLayer({id:'ob-tf',type:'line',source:'obt',filter:['==',['get','k'],'fut'],layout:{'line-cap':'round'},paint:{'line-color':col,'line-width':2.4}},bh);
  const gl=!!map.getStyle().glyphs;
  if(gl)map.addLayer({id:'ob-lb',type:'symbol',source:'obt',filter:['==',['get','k'],'lab'],layout:{'text-field':['get','t'],'text-font':['Noto Sans Bold'],'text-size':12,'text-anchor':'left','text-offset':[.8,0],'text-allow-overlap':true},paint:{'text-color':col,'text-halo-color':'#fff','text-halo-width':2}},bh);
- map.addLayer({id:'ob-ic',type:'symbol',source:'obp',layout:{'icon-image':['concat','ob-',['get','s']],'icon-size':['interpolate',['linear'],['zoom'],2,.75,8,1],'icon-allow-overlap':true,'icon-rotation-alignment':'map',...(gl?{'text-field':['get','t'],'text-font':['Noto Sans Bold'],'text-size':11,'text-offset':[0,1.6],'text-anchor':'top','text-allow-overlap':true}:{})},paint:{'text-color':'#1d2433','text-halo-color':'#fff','text-halo-width':2}},bh);
+ map.addLayer({id:'ob-ic',type:'symbol',source:'obp',layout:{'icon-image':['concat','ob-',['get','s']],'icon-size':['interpolate',['linear'],['zoom'],2,1.15,8,1.5],'icon-allow-overlap':true,'icon-rotation-alignment':'map',...(gl?{'text-field':['get','t'],'text-font':['Noto Sans Bold'],'text-size':11,'text-offset':[0,2.2],'text-anchor':'top','text-allow-overlap':true}:{})},paint:{'text-color':'#1d2433','text-halo-color':'#fff','text-halo-width':2}},bh);
  OBMD=0;LO()}
 const OBL=['ob-bf','ob-bo','ob-bi','ob-tp','ob-tf','ob-lb','ob-ic'];
-function LO(){const on=!!S.orb;if(map.getStyle())OBL.forEach(id=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',on?'visible':'none'));obTick();if(!on){const e=$('#orb');if(e)e.hidden=true}}
+function LO(){const on=!!S.orb&&S.orbm!==false;if(map.getStyle())OBL.forEach(id=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',on?'visible':'none'));OBMD=0;{const b=$('#ob-sw');if(b)b.setAttribute('aria-checked',String(S.orbm!==false))}obTick();if(!S.orb){const e=$('#orb');if(e)e.hidden=true;try{hlgPos()}catch(x){}}}
 // แถบสแกนของรอบที่จะแสดง: รอบที่กำลังสแกน/รอข้อมูล/ถัดไป · ±12 นาทีรอบเวลาที่ผ่าน (~±43° ละติจูด)
 function obBand(k,p){const tr=ORB.track(OBSR[k],p.t-12*6e4,p.t+12*6e4,20),ki=ORB.scanKm(ORB.EDGE,p.alt),ko=ORB.scanKm(ORB.SCANMAX,p.alt),I=ORB.swath(tr,ki),O=ORB.swath(tr,ko);return{tr,I,O}}
-function obMap(now){if(!map.getSource('obt')||!OBT)return;const pts=[];
+function obMap(now){if(!map.getSource('obt')||!OBT||S.orbm===false)return;const pts=[];
  for(const k in OBSR){const p=ORB.at(OBSR[k],now);if(p)pts.push({type:'Feature',geometry:{type:'Point',coordinates:[p.lon,p.lat]},properties:{s:k,t:OBT.sats[k].n}})}
  map.getSource('obp').setData({type:'FeatureCollection',features:pts});
  if(now-OBMD<3e4)return;OBMD=now;const F=[],unwrap=A=>{const B=[];A.forEach((p,i)=>{let lo=p[0];if(i){const d=lo-B[i-1][0];lo-=Math.round(d/360)*360}B.push([lo,p[1]])});return B},LS=(c,props)=>F.push({type:'Feature',geometry:{type:'LineString',coordinates:c},properties:props});
@@ -5845,7 +5856,7 @@ function obMap(now){if(!map.getSource('obt')||!OBT)return;const pts=[];
   const q=ORB.at(OBSR[k],s.p.t);F.push({type:'Feature',geometry:{type:'Point',coordinates:[q.lon,q.lat]},properties:{k:'lab',c,t:`${OBT.sats[k].n} ${obHM(s.p.t)}`}})}
  map.getSource('obt').setData({type:'FeatureCollection',features:F})}
 // ซูมแผนที่ไปที่แถบสแกนของรอบที่แสดงของดวง k
-function obFocus(k){if(!OBSR[k])return;if(!S.orb){S.orb=true;apply()}if(OBF===k&&MOVED){OBF=null;OBMD=0;obMap(Date.now());$$('#orb .obr').forEach(r=>r.classList.toggle('on',false));return toast('แสดงแถบสแกนรอบถัดไปของทุกดวง')}OBF=k;$$('#orb .obr').forEach(r=>r.classList.toggle('on',r.dataset.ob===k));const now=Date.now(),s=obState(k,now);if(!s.p)return toast('ไม่มีรอบที่ผ่านกลุ่มป่าใน 36 ชม.');
+function obFocus(k){if(!OBSR[k])return;if(!S.orb){S.orb=true;apply()}if(S.orbm===false){S.orbm=true;LO()}if(OBF===k&&MOVED){OBF=null;OBMD=0;obMap(Date.now());$$('#orb .obr').forEach(r=>r.classList.toggle('on',false));return toast('แสดงแถบสแกนรอบถัดไปของทุกดวง')}OBF=k;$$('#orb .obr').forEach(r=>r.classList.toggle('on',r.dataset.ob===k));const now=Date.now(),s=obState(k,now);if(!s.p)return toast('ไม่มีรอบที่ผ่านกลุ่มป่าใน 36 ชม.');
  const b=obBand(k,s.p),A=[...b.O.l,...b.O.r].filter(p=>Math.abs(p[1]-OBTGT[1])<14);if(!A.length)return;const bb=new maplibregl.LngLatBounds(A[0],A[0]);A.forEach(p=>bb.extend(p));bb.extend(OBTGT);
  OBMD=0;obMap(now);MOVED=true;map.fitBounds(bb,{padding:homePad(),maxZoom:6,duration:dur(1200)});
  toast(`${OBT.sats[k].n} ${s.st==='next'?'ผ่านกลุ่มป่ารอบถัดไป':'รอบนี้'} ${obDay(s.p.t,now)}${obHM(s.p.t)} น. · แถบทึบ = มุมสแกนไม่เกิน ${ORB.EDGE}° · เส้นประ = ขอบแถบสแกน`,null,6000)}
