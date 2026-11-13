@@ -5773,7 +5773,7 @@ function obRow(r,k,now){const s=obState(k,now),b=r.querySelector('b'),sp=r.query
  else{sp.textContent='ไม่มีรอบที่แถบสแกนผ่านใน 36 ชม.';em.textContent='–'}
  r.title=s.p?`${n}: ${s.st==='next'?'ผ่านกลุ่มป่ารอบถัดไป':'รอบนี้'} ${obDay(s.p.t,now)}${obHM(s.p.t)} น. (${s.p.day?'กลางวัน':'กลางคืน'}, ${s.p.asc?'ขาขึ้นจากใต้ไปเหนือ':'ขาลงจากเหนือไปใต้'}) · กลุ่มป่าห่างแนวใต้ดาวเทียม ${Math.round(s.p.km).toLocaleString()} กม. · มุมสแกน ${s.p.ang.toFixed(1)}° · แตะเพื่อดูแถบสแกนบนแผนที่`:n;
  return s}
-function obTick(){const on=!!S.orb,e=obBox();e.hidden=!on;if(!on)return;const now=Date.now();if(!OBT&&!obLoad.p&&(!OBERR||now-(obLoad.ft||0)>6e4))obLoad(); // โหลดไม่ได้ = ลองใหม่ทุก 1 นาที
+function obTick(){const on=!!S.orb,e=obBox();e.hidden=!on;if(!on)return;try{if(map.getStyle()&&map.getSource('dem')&&!map.getSource('obt'))obLayers()}catch(x){console.warn('obLayers',x)} /* ชั้นหาย/ยังไม่ถูกสร้าง = สร้างใหม่ */const now=Date.now();if(!OBT&&!obLoad.p&&(!OBERR||now-(obLoad.ft||0)>6e4))obLoad(); // โหลดไม่ได้ = ลองใหม่ทุก 1 นาที
 if(obLoad.at&&now-obLoad.at>6*36e5){obLoad.p=null;obLoad()} // ข้อมูลวงโคจรใหม่ทุก 6 ชม. (เปิดค้าง)
  const cp=obMode()==='cp';e.classList.toggle('cp',cp);e.querySelector('.obh').setAttribute('aria-expanded',String(!cp));e.querySelector('.obh').title=cp?'แตะเพื่อขยาย':'แตะเพื่อย่อ';
  const q=e.querySelector('.obq');
@@ -5856,7 +5856,8 @@ function obHit(e){if(!S.orb||!map.getLayer('ob-ic'))return false;const f=map.que
 setInterval(()=>{if(S.orb&&!document.hidden)obTick()},1000);
 addEventListener('resize',()=>{OBMD=0;try{obPos()}catch(e){}});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.orb){OBPAT=0;obTick()}});
-if(map.isStyleLoaded())obLayers();else LO();
+/* setup() อาจทำงานไปแล้วก่อนสคริปต์นี้ (ข้าม obLayers) — ห้ามใช้ isStyleLoaded() ตัดสิน: เป็น false ระหว่างไทล์ยังโหลด */
+if(map.getStyle()&&map.getSource('dem'))obLayers();else LO();
 </script>
 </body>
 </html>

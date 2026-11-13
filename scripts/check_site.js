@@ -132,6 +132,8 @@ async function browser(dir) {
       info[nm] = st;
       if (!st.left) errs.push(`[${nm}] แผงซ้ายว่างเปล่า (หน้าเว็บไม่ได้วาดเนื้อหา)`);
       if (ok && !st.layers) errs.push(`[${nm}] แผนที่ไม่มีเลเยอร์`);
+      // ชั้นวงโคจรดาวเทียม (สคริปต์ท้ายไฟล์) — เคยไม่ถูกสร้างเมื่อ setup() ทำงานก่อนสคริปต์ (ผู้ใช้แจ้ง 13 พ.ย. 69) · รอ obTick อีก 1.5 วิ
+      if (ok) { await sleep(1500); const ob = await ev(`(typeof S!=='undefined'&&S.orb&&typeof obLayers==='function')?['ob-tf','ob-bf','ob-ic'].filter(id=>!map.getLayer(id)).join(','):''`).catch(() => ''); if (ob) errs.push(`[${nm}] ชั้นวงโคจรดาวเทียมไม่ถูกสร้าง (${ob})`) }
       await ev(HELP);
       for (const [label, js] of steps) {
         stage = `${nm}: ${label.trim()}`;
