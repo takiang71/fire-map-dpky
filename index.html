@@ -342,8 +342,8 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 .pbh{display:flex;align-items:center;gap:8px;margin-bottom:2px;font-size:13px}.pbh b{flex:1;min-width:0;color:var(--navy)}
 .pbh .cb{flex:none}.pbo{display:flex;align-items:center;gap:6px;margin-top:6px}.pbo>.sm{flex:none;min-width:80px}.pbo .seg{margin:0;flex:1}.pbo .seg button{min-height:30px;font-size:12px;padding:0 3px;white-space:nowrap}
 .pbd{font-size:12.5px;line-height:1.45}.pbd2{font-size:11.5px;line-height:1.4;color:var(--mut,#5b6478);margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-#pb-m{flex:none;min-height:30px;padding:0 10px;font-size:12px;box-shadow:none;border:1px solid var(--line);display:flex;align-items:center;gap:4px}#pb-m .i{width:15px;height:15px}#pb-m[aria-pressed="true"]{background:var(--sel);color:var(--navy);font-weight:800}
-@media(max-width:767px){#pbf{bottom:calc(var(--sh0,34vh) + 8px);padding:6px 10px 8px}.pbo{flex-wrap:wrap;row-gap:4px}.pbo>.sm{min-width:0}#pb-w{flex:1 1 100%}.pbo .seg button{font-size:11px;padding:0 1px}#pb-sp{flex:1 1 0}}.pbr .btn{min-height:34px;padding:0 10px;box-shadow:none;border:1px solid var(--line)}
+.pbh #pb-sp{margin:0;flex:none}.pbh #pb-sp button{flex:none;min-height:28px;padding:0 7px;font-size:12px}#pb-m{flex:none;min-height:28px;padding:0 9px;font-size:12px;box-shadow:none;border:1px solid var(--line);display:flex;align-items:center;gap:4px}#pb-m .i{width:15px;height:15px}#pb-m[aria-pressed="true"]{background:var(--sel);color:var(--navy);font-weight:800}
+@media(max-width:767px){#pbf{bottom:calc(var(--sh0,34vh) + 8px);padding:6px 10px 8px}.pbo{flex-wrap:wrap;row-gap:4px}.pbo>.sm{min-width:0}#pb-w{flex:1 1 100%}.pbo .seg button{font-size:11px;padding:0 1px}.pbh{flex-wrap:wrap;row-gap:4px}.pbh #pb-sp{order:9;flex:1 1 100%}.pbh #pb-sp button{flex:1}}.pbr .btn{min-height:34px;padding:0 10px;box-shadow:none;border:1px solid var(--line)}
 .md{position:fixed;inset:0;background:rgba(10,20,50,.45);z-index:40;display:grid;place-items:center;padding:12px}
 .mc{background:var(--bg);color:var(--ink);border-radius:22px;width:min(520px,100%);max-height:88vh;overflow:auto;box-shadow:var(--sh)}
 .mh{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg)}.mh b{flex:1;font-size:17px;color:var(--navy)}.mb{padding:14px 16px}
@@ -838,11 +838,10 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 </section>
 <!-- แผงเล่นย้อนตามวัน ลอยด้านล่างแผนที่ (เปิดจากปุ่ม "ย้อนดูการลามของไฟ") ตำแหน่งจัดโดย pbPos() -->
 <div class="card" id="pbf" hidden role="region" aria-label="ย้อนดูการลามของไฟ">
- <div class="pbh"><b>ย้อนดูการลามของไฟ</b><button class="btn" id="pb-m" aria-pressed="false" title="เล่นจุดความร้อนย้อนหลังตามตัวกรองในการ์ดวิเคราะห์สถิติย้อนหลัง (เลือกปีงบ/พื้นที่/เดือนได้)"><svg class="i" viewBox="0 0 24 24"><path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/></svg>สถิติย้อนหลัง</button><button class="cb ib" id="pb-x" aria-label="ออกจากโหมดเล่น" title="ออกจากโหมดเล่น"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+ <div class="pbh"><b>ย้อนดูการลามของไฟ</b><div class="seg" id="pb-sp" role="group" aria-label="ความเร็วในการเล่น" title="ความเร็วในการเล่น"><button data-v="0.5">×0.5</button><button data-v="1">×1</button><button data-v="2">×2</button><button data-v="4">×4</button></div><button class="btn" id="pb-m" aria-pressed="false" title="เล่นจุดความร้อนย้อนหลังตามตัวกรองในการ์ดวิเคราะห์สถิติย้อนหลัง (เลือกปีงบ/พื้นที่/เดือนได้)"><svg class="i" viewBox="0 0 24 24"><path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/></svg>สถิติย้อนหลัง</button><button class="cb ib" id="pb-x" aria-label="ออกจากโหมดเล่น" title="ออกจากโหมดเล่น"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
  <div class="pbd" id="pb-d" aria-live="polite"></div><div class="pbd2" id="pb-d2"></div>
  <div class="pbr"><button class="btn" id="pb-p">▶ เล่น</button><input type="range" id="pb-s" min="0" max="0" value="0" step="1" style="flex:1" aria-label="เลื่อนดูตามเวลา"></div>
  <div class="pbo"><span class="sm">ย้อนหลังล่าสุด</span><div class="seg" id="pb-w" role="group" aria-label="ช่วงย้อนหลังล่าสุด"><button data-v="fy" title="ตั้งแต่ 1 ต.ค. (ต้นปีงบประมาณ) ถึงปัจจุบัน">ปีงบนี้</button><button data-v="1">1 วัน</button><button data-v="3">3 วัน</button><button data-v="7">7 วัน</button><button data-v="30">30 วัน</button><button data-v="60">60 วัน</button><button data-v="90">90 วัน</button></div></div>
- <div class="pbo"><span class="sm">ความเร็ว</span><div class="seg" id="pb-sp"><button data-v="0.5">×0.5</button><button data-v="1">×1</button><button data-v="2">×2</button><button data-v="4">×4</button></div></div>
 </div>
 <div class="card" id="wyb" hidden role="region" aria-label="แถบควบคุมชั้นสภาพอากาศ Windy"><span class="wyb-d" aria-hidden="true"></span><b id="wyb-n">ลม</b><div class="wyb-c" id="wyb-c" role="group" aria-label="เลือกชั้นสภาพอากาศ"></div>
  <div class="wyb-m" id="wyb-m" role="group" aria-label="ควบคุมด้วย" title="ควบคุมด้วยแผนที่: ซูมลื่น แตะจุดความร้อน/แนวเขตได้ตามปกติ · ควบคุมด้วย Windy: เลื่อน/แตะดูค่าบนภาพ Windy · ล้อเมาส์ซูมแบบ Windy ขั้นละ 2 เท่า (ปุ่ม + − ซูมทีละขั้น) แผนที่และแนวเขตเลื่อนตามเมื่อ Windy วาดเสร็จ"><button data-m="0" aria-pressed="true">แผนที่</button><button data-m="1" aria-pressed="false">Windy</button></div>
@@ -2678,7 +2677,7 @@ const FUC={'ไม่มี':'#d93a1f','การจัดการเชื้�
 function histColor(){if(HM.color==='ld'||HM.color==='fu'){const k=HM.color,c=k==='ld'?ldColor:fuColor,ex=['match',['get',k]];STI[k].forEach((_,i)=>ex.push(i,c(i)));ex.push('#9aa3b5');return STI[k].length?ex:'#9aa3b5'}
  const ex=['match',['get','fy']];fyList().forEach(y=>ex.push(y,fyColor(y)));ex.push('#888');return ex}
 function hMap(F){const st=PB.on&&PB.src==='st',day=PB.days[PB.i],f0=st?fy0(fyOfDay(day)):0,arr=st?F.filter(r=>r.d<=day&&r.d>=f0):F; /* เล่นย้อนโหมดสถิติ = สะสมตั้งแต่ต้นปีงบของวันที่แสดง จุดใหม่เข้ม เก่าจางลงใน 7 วัน */
- HFC={type:'FeatureCollection',features:arr.map(r=>({type:'Feature',properties:{i:r.i,fy:r.fy,ld:r.ld,fu:r.fu,op:!st?.85:r.d===day?1:Math.max(.1,.45*(1-(day-r.d)/7))},geometry:{type:'Point',coordinates:[r.lo,r.la]}}))};
+ HFC={type:'FeatureCollection',features:arr.map(r=>({type:'Feature',properties:{i:r.i,fy:r.fy,ld:r.ld,fu:r.fu,op:!st?.85:r.d===day?1:Math.max(.2,.45*(1-(day-r.d)/7))},geometry:{type:'Point',coordinates:[r.lo,r.la]}}))};
  const s=map.getSource('hist');s&&s.setData(HFC);const sc=map.getSource('histc');sc&&sc.setData(HFC);['hist-c','histc-p'].forEach(id=>map.getLayer(id)&&map.setPaintProperty(id,'circle-color',histColor()));L4();
  if(PB.src==='st')pbStText(F,arr,day)}
 function setup4(){const dotPaint={'circle-radius':['interpolate',['linear'],['zoom'],6,3,11,6],'circle-color':histColor(),'circle-opacity':['get','op'],'circle-stroke-color':'#fff','circle-stroke-width':1,'circle-stroke-opacity':['get','op']};
@@ -2757,7 +2756,7 @@ function pcVis(){const v=!$('#pbf').hidden&&PB.src==='cur';map.getLayer('pbc-c')
 function pbSrcCur(A){const sn=k=>SATN[k]||(k==='NOAA'?'NOAA (ไม่ระบุดวง)':k),SO=['SNPP','NOAA20','NOAA21','NOAA'],sats=[...new Set(A.map(p=>p.sat))].sort((x,y)=>SO.indexOf(x)-SO.indexOf(y)).map(sn),fm=A.some(p=>p.fm),wa=A.filter(p=>p.wa).length;
  return'ที่มา: <b>API ไทย</b> (Land Fire Alerts Thailand)'+(fm?' + <b>NASA FIRMS</b> (วันที่ API ขาดข้อมูล)':'')+' · ดาวเทียม '+(sats.length?sats.join(', ')+' (ตามปุ่มดาวเทียม)':'ตามปุ่มดาวเทียม')+(S.xdy?' · ไม่รวม ขสป.ดงใหญ่':'')+(wa?' · รวมจุดพื้นที่เฝ้าระวังพิเศษ '+nf(wa)+' จุด':'')}
 function pcMap(){pcVis();const on=PB.on,last=PB.i>=PB.fr.length-1,e=on?PB.fr[PB.i]:PB.t1,hr=PB.stp<864e5,A=on?PB.P.filter(p=>p.ms<=e):PB.P,nw=p=>on&&p.ms>e-PB.stp;
- PCFC={type:'FeatureCollection',features:A.map(p=>({type:'Feature',properties:{nw:nw(p)?1:0,op:!on?.85:nw(p)?1:Math.max(.1,.45*(1-(e-p.ms)/PB.fd)),wa:p.wa?1:0},geometry:{type:'Point',coordinates:[p.lo,p.la]}}))};
+ PCFC={type:'FeatureCollection',features:A.map(p=>({type:'Feature',properties:{nw:nw(p)?1:0,op:!on?.85:nw(p)?1:Math.max(.2,.45*(1-(e-p.ms)/PB.fd)),wa:p.wa?1:0},geometry:{type:'Point',coordinates:[p.lo,p.la]}}))};
  const s=map.getSource('pbc');s&&s.setData(PCFC);
  const n=A.filter(nw).length,rl=(PB.rg==='fy'?'ปีงบ '+PB.F:PB.rg+' วันล่าสุด')+' ('+pbDT(PB.t0,hr)+' – '+pbDT(PB.t1,1)+')';
  tx('pb-d',on?`<b>${hr||last?pbDT(e,1):pbDT(e-1)}</b> · ${hr?'พบใน '+PB.stp/36e5+' ชม.ก่อนหน้า':'พบในวันนั้น'} <b>${nf(n)}</b> · สะสม <b>${nf(A.length)}</b> จุด ตั้งแต่ ${pbDT(PB.t0,hr)}`
@@ -3186,7 +3185,7 @@ function wHsPts(){try{if(!wHs())return[];if(!WR.length)wBuild();return WR.filter
 let WKEY='';
 function wHsSet(){let day=null,f0=0;try{day=PB.on&&PB.src==='st'?PB.days[PB.i]:null;if(day!=null)f0=fy0(fyOfDay(day))}catch(e){}const P=wHsPts(),A=day==null?P:P.filter(r=>r.d<=day&&r.d>=f0),
   k='h|'+P.length+'|'+(day==null?'-':day)+'|'+[...HF.fy].join()+'|'+[...HF.mo].join();if(k===WKEY)return;WKEY=k;
- WFC={type:'FeatureCollection',features:A.map(r=>({type:'Feature',properties:{i:r.i,fy:r.fy,sat:r.sat,ty:r.ty,op:day==null?.9:r.d===day?1:Math.max(.1,.45*(1-(day-r.d)/7))},geometry:{type:'Point',coordinates:[r.lo,r.la]}}))};
+ WFC={type:'FeatureCollection',features:A.map(r=>({type:'Feature',properties:{i:r.i,fy:r.fy,sat:r.sat,ty:r.ty,op:day==null?.9:r.d===day?1:Math.max(.2,.45*(1-(day-r.d)/7))},geometry:{type:'Point',coordinates:[r.lo,r.la]}}))};
  ['wts','wtc'].forEach(x=>{const q=map.getSource(x);q&&q.setData(WFC)});const e=['match',['get','fy']];[...new Set(P.map(r=>r.fy))].forEach(y=>e.push(y,fyColor(y)));e.push('#888');
  ['wt-c','wtc-p'].forEach(id=>map.getLayer(id)&&map.setPaintProperty(id,'circle-color',e.length>3?e:'#888'))}
 {const f0=hRender;hRender=function(){const v=f0.apply(this,arguments);try{LW()}catch(e){}return v}}
