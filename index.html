@@ -776,6 +776,13 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
    <div class="tsv"><b id="rd-v">กำลังดึงข้อมูล…</b><a id="rd-0" role="button" tabindex="0">ล่าสุด</a></div>
    <div class="wxb" style="background:linear-gradient(90deg,#d8d3c4,#9bd5f0,#2b8fd6,#0b4ea2,#ffd400,#e8001e)"></div><div class="wxs"><span>ฝนเบา</span><span>ปานกลาง</span><span>หนัก</span><span>หนักมาก/พายุ</span></div>
    </div>
+  <div class="row" data-tip="ภาพจากดาวเทียมอุตุนิยมวิทยา Himawari-9 ของสำนักงานอุตุนิยมวิทยาญี่ปุ่น (JMA) ทุก 10 นาที ย้อนหลัง 3 ชม. · ละเอียด ~2 กม. (ข้อมูลเข้าช้ากว่าเวลาภาพ ~10–20 นาที) · อินฟราเรดใช้ได้ทั้งกลางวันและกลางคืน"><svg class="i" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 00.6-7.95A6 6 0 006.2 9.1 4.5 4.5 0 007 18z"/></svg><b>ภาพเมฆ Himawari-9</b><span class="sm" id="hm-t"></span><button class="sw" data-k="him" role="switch" aria-label="ภาพเมฆ Himawari-9"></button></div>
+  <div id="hmbox" hidden><div class="seg" id="hmseg"><button data-v="ir" title="อินฟราเรด ช่อง 13 (10.4 µm) — เมฆยิ่งสูงยิ่งเย็นยิ่งขาว ใช้ได้ทั้งวัน">อินฟราเรด</button><button data-v="ct" title="เน้นยอดเมฆ — ยอดเมฆที่เย็นจัด (เมฆฝนฟ้าคะนอง) แสดงเป็นสี">ยอดเมฆ</button><button data-v="tc" title="ภาพสีธรรมชาติ — ใช้ได้เฉพาะกลางวัน">สีจริง</button><button data-v="wv" title="ไอน้ำ ช่อง 8 (6.2 µm) — ความชื้นในบรรยากาศชั้นบน สว่าง = ชื้น มืด = แห้ง">ไอน้ำ</button></div>
+   <div class="tsl"><button id="hm-pl" aria-label="เล่นภาพเคลื่อนไหว">▶</button><input type="range" id="hm-r" min="0" max="0" aria-label="เลื่อนเวลาภาพเมฆ"></div>
+   <div class="tsv"><b id="hm-v">กำลังดึงข้อมูล…</b><a id="hm-0" role="button" tabindex="0">ล่าสุด</a></div>
+   <div id="hm-lg"></div>
+   <div class="tsv"><span class="sm" style="flex:none">ความเข้ม</span><input type="range" id="hm-op" min="20" max="100" step="5" style="flex:1;min-width:0;accent-color:var(--navy)" aria-label="ความเข้มภาพเมฆ"><span class="sm" id="hm-opv" style="flex:none;width:34px;text-align:right"></span></div>
+   <p class="note" style="margin-left:0"><span id="hm-st"></span></p></div>
   <div class="row" data-tip="สี่เหลี่ยม = สถานี Air4Thai (กรมควบคุมมลพิษ) ค่าล่าสุด · พื้นผิว = แบบจำลอง CAMS (~110 กม.) ค่าปัจจุบันหรือพยากรณ์ล่วงหน้า ครอบคลุมประเทศเพื่อนบ้าน · ใช้ร่วมกับทิศทางลมดูควันข้ามแดน"><svg class="i" viewBox="0 0 24 24"><rect x="2" y="8" width="5" height="8" rx="1.500" style="fill:#00E400"/><rect x="9.500" y="8" width="5" height="8" rx="1.500" style="fill:#FFFF00"/><rect x="17" y="8" width="5" height="8" rx="1.500" style="fill:#FF7E00"/></svg><b>ฝุ่น PM2.5 / AQI</b><span class="sm" id="pm-t"></span><button class="sw" data-k="pm" role="switch" aria-label="ฝุ่น PM2.5 AQI"></button></div>
   <div id="pmbox" hidden><div class="seg" id="pmseg"><button data-v="aqi">AQI (ดัชนีสากล)</button><button data-v="pm">PM2.5 (µg/m³)</button></div>
    <div class="chips" id="pmchips"></div><div class="lgd" id="pmlg"></div>
@@ -1063,7 +1070,7 @@ const areaHtml=g=>{let s='';if(g.cons)s+=`<b>${esc(g.cons.properties.name)}</b><
  return s||'<span class="sm">อยู่นอกพื้นที่อนุรักษ์และพื้นที่รับผิดชอบไฟป่าตามไฟล์แนวเขต</span><br>'};
 
 /* ---------- สถานะ + จำค่าที่ผู้ใช้เลือก ---------- */
-let S={base:'natural',img:'google',d3:false,hot:true,prov:false,cons:true,resp:false,stn:false,wpt:false,rgr:false,fbs:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,orb:true,orbm:false,wch:true,wst:false,wsp:true,demo:false,water:true,road:true,wind:false,pm:false,dry:false,wx:false,rad:false,wyl:false,wyo:'wind',wyop:60,hist:false,xt:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',rep:false,rpm:2,hcd:1,hcg:2,hcr:200};
+let S={base:'natural',img:'google',d3:false,hot:true,prov:false,cons:true,resp:false,stn:false,wpt:false,rgr:false,fbs:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,orb:true,orbm:false,wch:true,wst:false,wsp:true,demo:false,water:true,road:true,wind:false,pm:false,dry:false,wx:false,rad:false,him:false,hmb:'ir',hmop:85,wyl:false,wyo:'wind',wyop:60,hist:false,xt:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',rep:false,rpm:2,hcd:1,hcg:2,hcr:200};
 try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;S.wst=false;if(S.base==='road')S.base='detail';
 const toast=(m,fn,ms)=>{const t=$('#toast');t.textContent=m;t.classList.add('show');t.classList.toggle('act',!!fn);t.onclick=fn?()=>{t.classList.remove('show','act');fn()}:null;
  clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show','act'),ms||2200)}; // fn = แตะป้ายแล้วทำ (ป้ายค้างนานขึ้น)
@@ -1844,7 +1851,7 @@ function drawDry(){if(!DRYD)return;const d=S2.dd,v=S2.dv,key=v==='fwi'?'fwi':v==
 function setup3(){
  map.addSource('wx',{type:'image',url:WXU,coordinates:WXC});map.addLayer({id:'wx-f',type:'raster',source:'wx',paint:{'raster-fade-duration':0}},wxBef());
  map.addSource('dry',{type:'image',url:DRYU,coordinates:CO});map.addLayer({id:'dry-f',type:'raster',source:'dry',paint:{'raster-fade-duration':0}});
- map.addSource('pm',{type:'image',url:PMU,coordinates:CO});map.addLayer({id:'pm-f',type:'raster',source:'pm',paint:{'raster-fade-duration':0}});radLayer()}
+ map.addSource('pm',{type:'image',url:PMU,coordinates:CO});map.addLayer({id:'pm-f',type:'raster',source:'pm',paint:{'raster-fade-duration':0}});radLayer();try{window.hmLayer&&hmLayer()}catch(e){}}
 /* --- ลม: อนุภาคไหลบน canvas จากตารางลมในกรอบแผนที่ (Open-Meteo) --- */
 const wc=$('#wc'),wx2=wc.getContext('2d');let WG=null,WP=[],raf=0;
 const wsz=()=>{wc.width=innerWidth;wc.height=innerHeight};
@@ -1875,6 +1882,7 @@ function L3(){ // เรียกจาก apply() ทุกครั้งท�
  if(S.pm)loadPM().then(()=>drawPM());else drawStations();if(S.dry)loadDry();
  set('wx-f',S.wx);$('#wxbox').hidden=!S.wx;$('#radbox').hidden=!S.rad;if(S.wx&&!WX)loadWx();
  if(S.rad)loadRad();else{rdStop();radLayer()}
+ try{window.hmApply&&hmApply()}catch(e){}
  wlApply()}
 /* --- สภาพอากาศรายชั่วโมง: ตาราง Open-Meteo ในกรอบที่มองเห็น (ขยายขอบ 25%) ย้อนหลัง 24 ชม. + พยากรณ์ 48 ชม. → ภาพ canvas วางบนแผนที่
    ดึงใหม่เมื่อเลื่อนออกนอกกรอบเดิม/ซูมเข้ามากจนตารางหยาบ หรือข้อมูลเก่ากว่า 30 นาที (Open-Meteo นับโควตาต่อพิกัด)
@@ -2530,7 +2538,7 @@ $('#wyb-x').onclick=()=>{S.wyl=false;apply()};$('#wyb-f').onclick=()=>wyOpen(S.w
 $('#d-wy').onclick=()=>{if(!CUR)return;S.wyl=true;S.wyo='wind';apply();map.easeTo({center:[CUR.lon,CUR.lat],zoom:Math.min(10,Math.max(8,Math.round(map.getZoom()))),duration:dur(800)})};
 setInterval(()=>{if(S.wyl&&!document.hidden)wlQuick()},10*6e4);
 $('#wy-dt').onclick=()=>{WYD=!WYD;try{localStorage.setItem('fm-wyd',WYD?'1':'0')}catch(e){}wyLoad()};
-$('#wy-o').onclick=()=>wyOpen(S.wx?{t:'temp',rh:'rh',pr:'rain',cc:'satellite'}[S2.wxv]:S.rad?'radar':S.dry?'fwi':S.pm?'pm2p5':'wind');
+$('#wy-o').onclick=()=>wyOpen(S.wx?{t:'temp',rh:'rh',pr:'rain',cc:'satellite'}[S2.wxv]:S.rad?'radar':S.him?'satellite':S.dry?'fwi':S.pm?'pm2p5':'wind');
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#wy').hidden)wyClose()});
 {const q=new URLSearchParams(location.search).get('wy');if(q!=null)wyOpen(WYO.some(a=>a[0]===q)?q:'wind')}
 $('#pmchips').onclick=e=>{const b=e.target.closest('.chip');if(b){S2.pmDay=+b.dataset.i;drawPM()}};
@@ -5901,6 +5909,66 @@ addEventListener('resize',()=>{OBMD=0;try{obPos()}catch(e){}});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.orb){OBPAT=0;obTick()}});
 /* setup() อาจทำงานไปแล้วก่อนสคริปต์นี้ (ข้าม obLayers) — ห้ามใช้ isStyleLoaded() ตัดสิน: เป็น false ระหว่างไทล์ยังโหลด */
 if(map.getStyle()&&map.getSource('dem'))obLayers();else LO();
+</script>
+<script>
+/* --- ภาพเมฆดาวเทียม Himawari-9 (JMA) — ไทล์ XYZ เมอร์เคเตอร์ของเว็บ JMA (www.jma.go.jp/bosai/himawari) ไม่ต้องใช้คีย์ CORS เปิด (*)
+   รายการเวลา: data/satimg/targetTimes_fd.json (ทุก 10 นาที ย้อนหลัง ~36 ชม., UTC) · ไทล์: data/satimg/<เวลา>/fd/<เวลา>/<ช่อง>/{z}/{x}/{y}.jpg ซูม 3–5 (ซูม 6 ไม่มี)
+   ช่อง: B13/TBB อินฟราเรด · SND/ETC เน้นยอดเมฆ · REP/ETC สีจริง (กลางวัน) · B08/TBB ไอน้ำ · ตรวจ 13 พ.ย. 69
+   อินฟราเรด/ยอดเมฆ: แปลงไทล์ผ่าน addProtocol('hima') ให้พื้นดิน (อุ่น = มืด) โปร่งใส เหลือแต่เมฆ — แผนที่และแนวเขตยังเห็น
+   1 เวลา = 1 ชั้น raster (hm<เวลา>) สลับด้วย opacity แบบเรดาร์ฝน · ชั้นอื่นซ่อน (ไม่โหลดไทล์) จนกว่าจะเล่น/เลื่อนแถบเวลา (HIMALL) */
+const HIM_BASE='https://www.jma.go.jp/bosai/himawari/data/satimg/',HIMN=19, /* 19 ภาพ = 3 ชม. */
+ HIMB={ir:{p:'B13/TBB',a:1,n:'อินฟราเรด'},ct:{p:'SND/ETC',a:2,n:'เน้นยอดเมฆ'},tc:{p:'REP/ETC',n:'สีจริง'},wv:{p:'B08/TBB',n:'ไอน้ำ'}};
+let HIM=null,HIMI=0,HIMP=0,HIMALL=false,HIMEMP=null;
+const hmT=t=>Date.UTC(+t.slice(0,4),+t.slice(4,6)-1,+t.slice(6,8),+t.slice(8,10),+t.slice(10,12)),
+ hmBand=()=>HIMB[S.hmb]?S.hmb:'ir';
+/* ค่าความสว่าง (0–255) → เมฆโปร่งแสง: ต่ำกว่า HIT0 = พื้นดิน/ทะเล (โปร่งใส) · สูงขึ้น = เมฆสูงกว่า เย็นกว่า ทึบกว่า */
+const HIT0=105,HIT1=215;
+function hmPx(d,a){for(let i=0;i<d.length;i+=4){const r=d[i],g=d[i+1],b=d[i+2],mx=Math.max(r,g,b),mn=Math.min(r,g,b);
+  if(a===2&&mx-mn>48){d[i+3]=235;continue} /* ยอดเมฆเย็นจัด (สี) คงสีเดิม */
+  const v=(r+g+b)/3,k=Math.min(1,Math.max(0,(v-HIT0)/(HIT1-HIT0)));if(!k){d[i+3]=0;continue}
+  const c=Math.pow(k,.7); /* เมฆบาง/ต่ำ = เทาอมฟ้า (เห็นบนแผนที่ฐานสีอ่อน) → เมฆหนา/สูง = ขาว */
+  d[i]=Math.round(96+159*c);d[i+1]=Math.round(112+143*c);d[i+2]=Math.round(136+119*c);d[i+3]=Math.round(255*Math.min(1,k*3)*(.6+.38*k))}}
+async function hmEmpty(){if(!HIMEMP)HIMEMP=await (await bnBlob(bnCanvas())).arrayBuffer();return{data:HIMEMP.slice(0)}}
+maplibregl.addProtocol('hima',async(p,ac)=>{const m=p.url.match(/^hima:\/\/(\w+)\/(\d{14})\/(\d+)\/(\d+)\/(\d+)/);if(!m)return hmEmpty();
+ const B=HIMB[m[1]],r=await fetch(`${HIM_BASE}${m[2]}/fd/${m[2]}/${B.p}/${m[3]}/${m[4]}/${m[5]}.jpg`,{signal:ac&&ac.signal});
+ if(!r.ok)return hmEmpty();if(!B.a)return{data:await r.arrayBuffer()};
+ const bm=await createImageBitmap(await r.blob()),c=bnCanvas(),g=c.getContext('2d',{willReadFrequently:true});g.drawImage(bm,0,0,256,256);
+ const im=g.getImageData(0,0,256,256);hmPx(im.data,B.a);g.putImageData(im,0,0);return{data:await (await bnBlob(c)).arrayBuffer()}});
+async function hmLoad(force){if(!S.him)return;if(HIM&&!force&&Date.now()-HIM.at<10*6e4)return hmLayer();
+ try{const j=await(await fetch(HIM_BASE+'targetTimes_fd.json',{cache:'no-cache'})).json(),f=j.map(o=>o.validtime).filter(t=>/^\d{14}$/.test(t)).sort().slice(-HIMN);
+  if(!f.length)throw 0;const L=!HIM||HIMI>=HIM.f.length-1;HIM={f,at:Date.now()};HIMI=L?f.length-1:Math.min(HIMI,f.length-1);hmLayer()}
+ catch(e){tx('hm-v','ดึงภาพเมฆไม่ได้');tx('hm-st','ติดต่อเว็บ JMA ไม่ได้ ลองใหม่ภายหลัง');toast('ดึงภาพเมฆ Himawari-9 ไม่ได้')}}
+function hmClear(){((map.getStyle()||{}).layers||[]).forEach(l=>{if(/^hm\d{14}$/.test(l.id)){map.removeLayer(l.id);map.removeSource(l.id)}})}
+function hmLayer(){if(!map.getSource('cons'))return;const ls=((map.getStyle()||{}).layers||[]).filter(l=>/^hm\d{14}$/.test(l.id));
+ if(!S.him||!HIM){ls.forEach(l=>map.setLayoutProperty(l.id,'visibility','none'));return}
+ const b=hmBand(),ids=HIM.f.map(t=>'hm'+t),bef=typeof wxBef==='function'?wxBef():undefined;
+ ls.forEach(l=>{const s=map.getSource(l.id);if(!ids.includes(l.id)||(s&&s._hmb!==b)){map.removeLayer(l.id);map.removeSource(l.id)}});
+ HIM.f.forEach((t,i)=>{const id=ids[i];if(!map.getSource(id)){map.addSource(id,{type:'raster',tiles:[`hima://${b}/${t}/{z}/{x}/{y}`],tileSize:256,minzoom:3,maxzoom:5,attribution:'Himawari-9 © JMA'});
+   map.getSource(id)._hmb=b;map.addLayer({id,type:'raster',source:id,paint:{'raster-opacity':0,'raster-opacity-transition':{duration:0},'raster-fade-duration':0}},bef)}
+  map.setLayoutProperty(id,'visibility',i===HIMI||HIMALL?'visible':'none');map.setPaintProperty(id,'raster-opacity',i===HIMI?(+S.hmop||85)/100:0)});
+ const r=$('#hm-r'),t=hmT(HIM.f[HIMI]),last=hmT(HIM.f[HIM.f.length-1]),L=HIMI===HIM.f.length-1;r.max=HIM.f.length-1;r.value=HIMI;tx('hm-t',thTime(t)+' น.');
+ tx('hm-v',new Date(t).toLocaleDateString('th-TH',{day:'numeric',month:'short',timeZone:'Asia/Bangkok'})+' '+thTime(t)+' น.'+(L?' (ล่าสุด)':` (${Math.round((last-t)/6e4)} นาทีก่อนล่าสุด)`));
+ let st=`Himawari-9 · JMA · ภาพล่าสุดเมื่อ ${Math.max(0,Math.round((Date.now()-last)/6e4))} นาทีที่แล้ว`;
+ if(b==='tc')try{const c=map.getCenter();if(ORB.sunEl(t,c.lat,c.lng)<0)st='<b>ขณะนั้นเป็นเวลากลางคืนบริเวณนี้ ภาพสีจริงจึงมืด — ใช้อินฟราเรดแทน</b><br>'+st}catch(e){}
+ $('#hm-st').innerHTML=st}
+function hmLegend(){const b=hmBand();$$('#hmseg button').forEach(x=>x.classList.toggle('on',x.dataset.v===b));
+ $('#hm-op').value=+S.hmop||85;tx('hm-opv',(+S.hmop||85)+'%');
+ $('#hm-lg').innerHTML=b==='ir'?`<div class="wxb" style="background:linear-gradient(90deg,rgba(96,112,136,.6),rgba(170,182,198,.8),#fff)"></div><div class="wxs"><span>เมฆต่ำ/บาง</span><span>เมฆสูง/หนา</span></div><div class="sm">ไม่แสดงพื้นดินและบริเวณท้องฟ้าโปร่ง</div>`
+  :b==='ct'?`<div class="wxb" style="background:linear-gradient(90deg,#c9d2dc 0 22%,#1e3cff 22%,#00c8ff,#00e070,#ffe600,#ff7a00,#e8001e)"></div><div class="wxs"><span>เมฆทั่วไป</span><span>ยอดเมฆเย็น</span><span>เย็นจัด (ฝนฟ้าคะนองรุนแรง)</span></div>`
+  :b==='wv'?`<div class="wxb" style="background:linear-gradient(90deg,#111,#888,#fff)"></div><div class="wxs"><span>บรรยากาศชั้นบนแห้ง</span><span>ชื้น</span></div>`
+  :`<div class="sm">ภาพสีธรรมชาติ (เมฆขาว ป่าเขียว) ใช้ได้เฉพาะกลางวัน</div>`}
+function hmStop(){clearInterval(HIMP);HIMP=0;const b=$('#hm-pl');b.textContent='▶';b.setAttribute('aria-label','เล่นภาพเคลื่อนไหว')}
+function hmApply(){$('#hmbox').hidden=!S.him;hmLegend();if(S.him)hmLoad();else{hmStop();HIMALL=false;hmLayer()}}
+$$('#hmseg button').forEach(x=>x.onclick=()=>{if(S.hmb===x.dataset.v)return;S.hmb=x.dataset.v;HIMALL=!!HIMP;hmClear();hmLegend();hmLayer()});
+$('#hm-r').oninput=e=>{hmStop();HIMALL=true;HIMI=+e.target.value;hmLayer()};
+$('#hm-0').onclick=()=>{hmStop();if(HIM){HIMI=HIM.f.length-1;hmLayer()}};
+$('#hm-op').oninput=e=>{S.hmop=+e.target.value;tx('hm-opv',S.hmop+'%');hmLayer()};
+$('#hm-pl').onclick=()=>{if(HIMP)return hmStop();if(!HIM)return;const b=$('#hm-pl');b.textContent='⏸';b.setAttribute('aria-label','หยุดภาพเคลื่อนไหว');HIMALL=true;
+ if(HIMI===HIM.f.length-1)HIMI=-1;let w=0;HIMP=setInterval(()=>{if(HIMI===HIM.f.length-1&&w++<2)return;w=0;HIMI=(HIMI+1)%HIM.f.length;hmLayer()},500)};
+setInterval(()=>{if(S.him&&!HIMP&&!document.hidden)hmLoad(true)},10*6e4); /* ภาพใหม่ทุก 10 นาที */
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.him&&HIM&&Date.now()-HIM.at>10*6e4)hmLoad(true)});
+map.on('moveend',()=>{if(S.him&&HIM&&S.hmb==='tc')hmLayer()}); /* ข้อความกลางวัน/กลางคืนตามกลางจอ */
+try{hmApply()}catch(e){}
 </script>
 </body>
 </html>
