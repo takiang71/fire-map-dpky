@@ -2678,10 +2678,10 @@ const FUC={'ไม่มี':'#d93a1f','การจัดการเชื้�
 function histColor(){if(HM.color==='ld'||HM.color==='fu'){const k=HM.color,c=k==='ld'?ldColor:fuColor,ex=['match',['get',k]];STI[k].forEach((_,i)=>ex.push(i,c(i)));ex.push('#9aa3b5');return STI[k].length?ex:'#9aa3b5'}
  const ex=['match',['get','fy']];fyList().forEach(y=>ex.push(y,fyColor(y)));ex.push('#888');return ex}
 function hMap(F){const st=PB.on&&PB.src==='st',day=PB.days[PB.i],f0=st?fy0(fyOfDay(day)):0,arr=st?F.filter(r=>r.d<=day&&r.d>=f0):F; /* เล่นย้อนโหมดสถิติ = สะสมตั้งแต่ต้นปีงบของวันที่แสดง จุดใหม่เข้ม เก่าจางลงใน 7 วัน */
- HFC={type:'FeatureCollection',features:arr.map(r=>({type:'Feature',properties:{i:r.i,fy:r.fy,ld:r.ld,fu:r.fu,op:st?Math.max(.3,1-(day-r.d)/7*.7):.85},geometry:{type:'Point',coordinates:[r.lo,r.la]}}))};
+ HFC={type:'FeatureCollection',features:arr.map(r=>({type:'Feature',properties:{i:r.i,fy:r.fy,ld:r.ld,fu:r.fu,op:!st?.85:r.d===day?1:Math.max(.1,.45*(1-(day-r.d)/7))},geometry:{type:'Point',coordinates:[r.lo,r.la]}}))};
  const s=map.getSource('hist');s&&s.setData(HFC);const sc=map.getSource('histc');sc&&sc.setData(HFC);['hist-c','histc-p'].forEach(id=>map.getLayer(id)&&map.setPaintProperty(id,'circle-color',histColor()));L4();
  if(PB.src==='st')pbStText(F,arr,day)}
-function setup4(){const dotPaint={'circle-radius':['interpolate',['linear'],['zoom'],6,3,11,6],'circle-color':histColor(),'circle-opacity':['get','op'],'circle-stroke-color':'#fff','circle-stroke-width':1};
+function setup4(){const dotPaint={'circle-radius':['interpolate',['linear'],['zoom'],6,3,11,6],'circle-color':histColor(),'circle-opacity':['get','op'],'circle-stroke-color':'#fff','circle-stroke-width':1,'circle-stroke-opacity':['get','op']};
  map.addSource('hist',{type:'geojson',data:HFC});map.addSource('histc',{type:'geojson',cluster:true,clusterRadius:50,clusterMaxZoom:12,data:HFC});
  map.addLayer({id:'hist-h',type:'heatmap',source:'hist',layout:{visibility:'none'},paint:{'heatmap-weight':['get','op'],'heatmap-intensity':['interpolate',['linear'],['zoom'],6,.6,11,1.6],'heatmap-radius':['interpolate',['linear'],['zoom'],6,8,10,18,13,34],'heatmap-opacity':.85,
   'heatmap-color':['interpolate',['linear'],['heatmap-density'],0,'rgba(255,224,138,0)',.2,'rgba(255,224,138,.75)',.45,'rgba(247,179,43,.85)',.7,'rgba(228,107,46,.9)',1,'rgba(176,42,31,.95)']}});
@@ -2750,14 +2750,14 @@ function pcBuild(){const now=Date.now(),T0=thDay(),F=fyOfDay(T0),dm=d=>d*864e5-7
  const sl=$('#pb-s');sl.max=Math.max(0,fr.length-1)}
 function pcLayers(){if(map.getSource('pbc'))return;map.addSource('pbc',{type:'geojson',data:PCFC});const nw=['==',['get','nw'],1];
  map.addLayer({id:'pbc-c',type:'circle',source:'pbc',layout:{visibility:'none'},paint:{'circle-radius':['interpolate',['linear'],['zoom'],6,['case',nw,5.5,3.5],12,['case',nw,11,7]],'circle-color':['case',nw,'#e0301e','#f08a1c'],'circle-opacity':['get','op'],
-  'circle-stroke-color':['case',['==',['get','wa'],1],'#f5c400','#fff'],'circle-stroke-width':['case',nw,2,1]}},map.getLayer('hot-glow')?'hot-glow':undefined);
+  'circle-stroke-color':['case',['==',['get','wa'],1],'#f5c400','#fff'],'circle-stroke-width':['case',nw,2,1],'circle-stroke-opacity':['get','op']}},map.getLayer('hot-glow')?'hot-glow':undefined);
  try{pcVis()}catch(e){}}
 function pbHot(){const set=(id,b)=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',b?'visible':'none'),h=S.hot&&!window.PBH;['hot-glow','hot-icon','hot-cl','hot-cn'].forEach(id=>set(id,h&&!S.d3));set('hot-3d',h&&S.d3)}
 function pcVis(){const v=!$('#pbf').hidden&&PB.src==='cur';map.getLayer('pbc-c')&&map.setLayoutProperty('pbc-c','visibility',v?'visible':'none');const h=v&&PB.on;if(h!==!!window.PBH){window.PBH=h;pbHot()}}
 function pbSrcCur(A){const sn=k=>SATN[k]||(k==='NOAA'?'NOAA (ไม่ระบุดวง)':k),SO=['SNPP','NOAA20','NOAA21','NOAA'],sats=[...new Set(A.map(p=>p.sat))].sort((x,y)=>SO.indexOf(x)-SO.indexOf(y)).map(sn),fm=A.some(p=>p.fm),wa=A.filter(p=>p.wa).length;
  return'ที่มา: <b>API ไทย</b> (Land Fire Alerts Thailand)'+(fm?' + <b>NASA FIRMS</b> (วันที่ API ขาดข้อมูล)':'')+' · ดาวเทียม '+(sats.length?sats.join(', ')+' (ตามปุ่มดาวเทียม)':'ตามปุ่มดาวเทียม')+(S.xdy?' · ไม่รวม ขสป.ดงใหญ่':'')+(wa?' · รวมจุดพื้นที่เฝ้าระวังพิเศษ '+nf(wa)+' จุด':'')}
 function pcMap(){pcVis();const on=PB.on,last=PB.i>=PB.fr.length-1,e=on?PB.fr[PB.i]:PB.t1,hr=PB.stp<864e5,A=on?PB.P.filter(p=>p.ms<=e):PB.P,nw=p=>on&&p.ms>e-PB.stp;
- PCFC={type:'FeatureCollection',features:A.map(p=>({type:'Feature',properties:{nw:nw(p)?1:0,op:on?Math.max(.3,1-(e-p.ms)/PB.fd*.7):.85,wa:p.wa?1:0},geometry:{type:'Point',coordinates:[p.lo,p.la]}}))};
+ PCFC={type:'FeatureCollection',features:A.map(p=>({type:'Feature',properties:{nw:nw(p)?1:0,op:!on?.85:nw(p)?1:Math.max(.1,.45*(1-(e-p.ms)/PB.fd)),wa:p.wa?1:0},geometry:{type:'Point',coordinates:[p.lo,p.la]}}))};
  const s=map.getSource('pbc');s&&s.setData(PCFC);
  const n=A.filter(nw).length,rl=(PB.rg==='fy'?'ปีงบ '+PB.F:PB.rg+' วันล่าสุด')+' ('+pbDT(PB.t0,hr)+' – '+pbDT(PB.t1,1)+')';
  tx('pb-d',on?`<b>${hr||last?pbDT(e,1):pbDT(e-1)}</b> · ${hr?'พบใน '+PB.stp/36e5+' ชม.ก่อนหน้า':'พบในวันนั้น'} <b>${nf(n)}</b> · สะสม <b>${nf(A.length)}</b> จุด ตั้งแต่ ${pbDT(PB.t0,hr)}`
@@ -2813,13 +2813,29 @@ function pbPos(){const f=$('#pbf');if(f.hidden)return;const W=innerWidth,mob=W<7
  if(mob&&c.width&&r<W-c.left+6){f.style.right=r+'px';const t=f.getBoundingClientRect().top;if(t<c.bottom+6)r=Math.round(W-c.left)+6} /* มือถือ: แผงสูงถึงคอลัมน์ปุ่มขวา = เว้นคอลัมน์ */
  Object.assign(f.style,{left:l+'px',right:r+'px',bottom:b})}
 function pbOpen(){pbStart('st')}
-/* จัดกลุ่มป่าไม่ให้แผงเล่นย้อนบัง (ผู้ใช้ขอ 13 พ.ย. 69): เลือกระหว่างเว้นด้านล่างเหนือแผง กับเว้นด้านซ้ายถึงขอบขวาของแผง แบบที่ซูมได้ใกล้กว่า · เดสก์ท็อปเท่านั้น
-   เรียกเมื่อเปิดแผง/สลับโหมด และจาก panFit (พับ/เปิดแผงซ้าย แผงชั้นข้อมูล) ขณะแผงเปิดอยู่ */
+/* จัดกลุ่มป่าไม่ให้แผงเล่นย้อนบัง (ผู้ใช้ขอ 13 พ.ย. 69 รอบ 3 ตามภาพตัวอย่าง): หาซูมใหญ่สุดที่ทุกจุดยอดของแนวเขต (พื้นที่อนุรักษ์ + แปลงสถานีฯ + พื้นที่เฝ้าระวังพิเศษ)
+   อยู่ในพื้นที่แผนที่ที่ไม่ถูกแผงบัง และไม่ตกในกล่องเล่นย้อน/แถวปุ่มควบคุม/กล่องอายุจุด (พื้นที่ว่างรูปตัว L — ส่วนล่างขวา เช่น ขหล.เขาฉกรรจ์ อยู่ข้างกล่องได้)
+   ค้นแบบแบ่งครึ่งซูม + ตารางจุดกลาง 33×33 ต่อระดับ (~0.1–0.3 วิ) · เดสก์ท็อปเท่านั้น · มุมมอง 3 มิติ = แบบเดิมเว้นด้านล่างเหนือกล่อง */
+function pbPts(){const ky=S.wch?1:0;if(pbPts.v&&pbPts.k===ky)return pbPts.v;pbPts.k=ky;const A=[],add=c=>{if(typeof c[0]==='number'){const m=maplibregl.MercatorCoordinate.fromLngLat(c);A.push([m.x,m.y])}else c.forEach(add)};
+ try{['cons','resp'].forEach(k=>(GEO[k].features||[]).forEach(f=>add(f.geometry.coordinates)))}catch(e){}try{if(S.wch)WAR.forEach(w=>add(w.c.coordinates||w.c))}catch(e){}
+ const k=Math.max(1,Math.floor(A.length/2500)),B=A.filter((_,i)=>i%k===0);[0,1].forEach(j=>{let lo=A[0],hi=A[0];A.forEach(p=>{if(p[j]<lo[j])lo=p;if(p[j]>hi[j])hi=p});B.push(lo,hi)});return pbPts.v=B}
 function pbFit(anim){if(innerWidth<768)return;const f=$('#pbf');if(f.hidden)return;pbPos();
- const B=f.getBoundingClientRect(),p=homePad(),H=map.getContainer().clientHeight,bb=histBounds(),
-  c1=Object.assign({},p,{bottom:Math.max(p.bottom,Math.round(H-B.top)+24)}),c2=Object.assign({},p,{left:Math.max(p.left,Math.round(B.right)+24)}),
-  z=q=>{try{const c=map.cameraForBounds(bb,{padding:q,maxZoom:11});return c&&isFinite(c.zoom)?c.zoom:-1}catch(e){return -1}},z1=z(c1),z2=z(c2);
- if(z1<0&&z2<0)return fitHome(anim);map.fitBounds(bb,{padding:z2>z1?c2:c1,maxZoom:11,bearing:0,pitch:S.d3?60:0,duration:anim?dur(1000):0})}
+ const C=map.getContainer(),cr=C.getBoundingClientRect(),W=C.clientWidth,H=C.clientHeight,pd=anim?dur(1000):0,rel=(e,g)=>{if(!e||e.hidden||!e.offsetWidth)return null;const r=e.getBoundingClientRect();return[r.left-cr.left-g,r.top-cr.top-g,r.right-cr.left+g,r.bottom-cr.top+g]};
+ const p=homePad(),mL=p.left-44,mR=p.right-44,mT=14,mB=26,O=[rel(f,14),rel($('#ctl'),8),rel($('#hlg'),8),rel($('#lcol'),6)].filter(Boolean),pts=pbPts();
+ if(S.d3||!pts.length||!window.maplibregl){const B=f.getBoundingClientRect();return map.fitBounds(histBounds(),{padding:Object.assign({},p,{bottom:Math.max(p.bottom,Math.round(H-B.top)+24)}),maxZoom:11,bearing:0,pitch:S.d3?60:0,duration:pd})}
+ let x0=1,x1=0,y0=1,y1=0;pts.forEach(q=>{if(q[0]<x0)x0=q[0];if(q[0]>x1)x1=q[0];if(q[1]<y0)y0=q[1];if(q[1]>y1)y1=q[1]});
+ const G=64,tryZ=z=>{const sc=512*2**z,cxl=x1-(W/2-mR)/sc,cxh=x0+(W/2-mL)/sc,cyl=y1-(H/2-mB)/sc,cyh=y0+(H/2-mT)/sc;if(cxl>cxh||cyl>cyh)return null;
+  /* จุดกลางที่ทำให้จุดยอด q ตกในสิ่งกีดขวาง o = สี่เหลี่ยมในพื้นที่จุดกลาง → บวกลงตารางผลต่าง 2 มิติ (G+1)² แล้วหาช่องที่เป็น 0 ใกล้กลางที่สุด */
+  const dx=(cxh-cxl)/G,dy=(cyh-cyl)/G,n=G+2,D=new Int32Array(n*n),ix=(v,l,d,up)=>d<=0?(up?(v<l?0:G+1):(v>l?G:-1)):(up?Math.ceil((v-l)/d):Math.floor((v-l)/d));
+  for(const q of pts)for(const o of O){let i0=ix(q[0]-(o[2]-W/2)/sc,cxl,dx,1),i1=ix(q[0]-(o[0]-W/2)/sc,cxl,dx,0),j0=ix(q[1]-(o[3]-H/2)/sc,cyl,dy,1),j1=ix(q[1]-(o[1]-H/2)/sc,cyl,dy,0);
+   if(i0<0)i0=0;if(j0<0)j0=0;if(i1>G)i1=G;if(j1>G)j1=G;if(i0>i1||j0>j1)continue;D[j0*n+i0]++;D[j0*n+i1+1]--;D[(j1+1)*n+i0]--;D[(j1+1)*n+i1+1]++}
+  for(let j=0;j<n;j++)for(let i=0;i<n;i++){const k=j*n+i;D[k]+=(i?D[k-1]:0)+(j?D[k-n]:0)-(i&&j?D[k-n-1]:0)}
+  let bi=-1,bj=-1,bd=1e18;for(let j=0;j<=G;j++)for(let i=0;i<=G;i++)if(!D[j*n+i]){const d=(i-G/2)**2*4*(dx*dx||1)+(j-G/2)**2*(dy*dy||1);if(d<bd){bd=d;bi=i;bj=j}}
+  return bi<0?null:[cxl+dx*bi,cyl+dy*bj]};
+ let lo=5,hi=11,best=tryZ(11)?[11,tryZ(11)]:null;if(!best){for(let i=0;i<14;i++){const z=(lo+hi)/2,c=tryZ(z);if(c){lo=z;best=[z,c]}else hi=z}}
+ if(!best)return fitHome(anim);const ce=new maplibregl.MercatorCoordinate(best[1][0],best[1][1]).toLngLat();
+ map.easeTo({center:ce,zoom:best[0],bearing:0,pitch:0,padding:{top:0,bottom:0,left:0,right:0},duration:pd})}
+
 function pbClose(){pbStop();PB.on=false;$('#pbf').hidden=true;pcVis();if(PB.src==='st')hMap(hfilt());if(PB.lca){PB.lca=false;if(innerWidth>767&&document.body.classList.contains('lc'))lcSet(false,true)}}
 addEventListener('resize',pbPos);new MutationObserver(()=>pbPos()).observe(document.body,{attributes:true,attributeFilter:['class']}); /* คอลัมน์ปุ่มมือถือซ่อน/แสดง (body.ctlh) หลังเปิดแผง = จัดใหม่ ไม่ให้แผงทับปุ่ม */
 /* --- เปิด/ปิดการ์ด --- */
@@ -3170,7 +3186,7 @@ function wHsPts(){try{if(!wHs())return[];if(!WR.length)wBuild();return WR.filter
 let WKEY='';
 function wHsSet(){let day=null,f0=0;try{day=PB.on&&PB.src==='st'?PB.days[PB.i]:null;if(day!=null)f0=fy0(fyOfDay(day))}catch(e){}const P=wHsPts(),A=day==null?P:P.filter(r=>r.d<=day&&r.d>=f0),
   k='h|'+P.length+'|'+(day==null?'-':day)+'|'+[...HF.fy].join()+'|'+[...HF.mo].join();if(k===WKEY)return;WKEY=k;
- WFC={type:'FeatureCollection',features:A.map(r=>({type:'Feature',properties:{i:r.i,fy:r.fy,sat:r.sat,ty:r.ty,op:day==null?.9:Math.max(.3,1-(day-r.d)/7*.7)},geometry:{type:'Point',coordinates:[r.lo,r.la]}}))};
+ WFC={type:'FeatureCollection',features:A.map(r=>({type:'Feature',properties:{i:r.i,fy:r.fy,sat:r.sat,ty:r.ty,op:day==null?.9:r.d===day?1:Math.max(.1,.45*(1-(day-r.d)/7))},geometry:{type:'Point',coordinates:[r.lo,r.la]}}))};
  ['wts','wtc'].forEach(x=>{const q=map.getSource(x);q&&q.setData(WFC)});const e=['match',['get','fy']];[...new Set(P.map(r=>r.fy))].forEach(y=>e.push(y,fyColor(y)));e.push('#888');
  ['wt-c','wtc-p'].forEach(id=>map.getLayer(id)&&map.setPaintProperty(id,'circle-color',e.length>3?e:'#888'))}
 {const f0=hRender;hRender=function(){const v=f0.apply(this,arguments);try{LW()}catch(e){}return v}}
