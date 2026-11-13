@@ -276,7 +276,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
  #ctl{top:calc(12px + env(safe-area-inset-top));bottom:auto;flex-direction:column-reverse} /* ชิดบนขวา (ผู้ใช้ขอ 2 พ.ย. 69) แผ่นล่างลากขึ้นได้สูงขึ้นก่อนต้องซ่อนปุ่ม */
  /* แผ่นล่างใดๆ ถูกเปิด/ลากขึ้นสูงเกินขอบล่างของคอลัมน์ปุ่ม = ซ่อนปุ่มควบคุม (ctlFit ตั้ง body.ctlh) — แต่ละแผ่นมีปุ่มปิด/ลากลงเองได้ */
  body.ctlh #ctl{display:none}
- .zm{flex-direction:column}
+ .zm{display:none} /* มือถือไม่มีปุ่มซูม + − (ผู้ใช้ขอ 13 พ.ย. 69 — ใช้นิ้วถ่าง/หนีบแทน) */
  .tw{display:block;position:relative}#bTo{display:grid}#bTo[aria-expanded=true],#bTo.act{background:var(--sel,#e6eef9)}#bTo.act::after{content:'';position:absolute;top:5px;right:5px;width:8px;height:8px;border-radius:50%;background:#e0301e;box-shadow:0 0 0 2px #fff}
  .ctx{display:none;position:absolute;right:calc(100% + 8px);top:0;flex-direction:row-reverse;gap:8px}body.ctlx .ctx{display:flex}.ctx #b3d{order:0}
  #right{left:8px;right:8px;width:auto;top:auto;bottom:0;max-height:70vh;border-radius:22px 22px 0 0;transform:translateY(calc(100% + 16px))}
@@ -1101,7 +1101,7 @@ async function imgDate(){const el=$('#imgdate'),q=++imgQ;if(!el)return;el.hidden
   const t=v?`ภาพถ่าย ${thD(new Date(v.slice(0,4)+'-'+v.slice(4,6)+'-'+v.slice(6)))} · ${a.src||'Esri'}${a.res?' '+a.res+' ม.':''} (กลางจอ)${w?' · ภาพย้อนหลัง Esri Wayback':''}`:'ไม่พบวันที่ของภาพบริเวณนี้';
   IMC[key]=t;if(q===imgQ)el.textContent=t}
  catch(e){if(q===imgQ)el.textContent='อ่านวันที่ภาพไม่ได้'}}
-/* มือถือ: ความสูงปกติของแผ่นล่าง (--sh0) = ขอบบนชิดใต้คอลัมน์ปุ่มควบคุม 8 px (ผู้ใช้ขอ 2 พ.ย. 69) ใช้ร่วมกับแถบลอย/มาตราส่วนที่วางเหนือแผ่น · จอเตี้ยจนแผ่นต่ำกว่า 30% ใช้ 34vh เดิม (ปุ่มจะซ่อนเมื่อทับ) · คำนวณก่อนสร้างแผนที่ เพราะ homePad ใช้ความสูงแผ่น */
+/* มือถือ: ความสูงปกติของแผ่นล่าง (--sh0) = ขอบบนชิดใต้คอลัมน์ปุ่มควบคุม 8 px (ผู้ใช้ขอ 2 พ.ย. 69) ใช้ร่วมกับแถบลอย/มาตราส่วนที่วางเหนือแผ่น · จอเตี้ยจนแผ่นต่ำกว่า 30% ใช้ 34vh เดิม (ปุ่มจะซ่อนเมื่อทับ) · คำนวณก่อนสร้างแผนที่ เพราะ homePad ใช้ความสูงแผ่น · 13 พ.ย. 69 ผู้ใช้ขอแผ่นสูง 2 ใน 3 ของจอ (เดิม 44%) — ยังไม่เกินใต้คอลัมน์ปุ่ม 8 px (ไม่ซ้อนปุ่ม) */
 /* แถบเครื่องมือมือถือ: กด #bTo = แสดงปุ่มเครื่องมือเป็นแถวทางซ้าย · เลือกเครื่องมือ/แตะนอกแถบ/เปลี่ยนเป็นจอกว้าง = ปิด · มีเครื่องมือทำงานอยู่ = จุดแดงบน #bTo */
 function ctxSet(on){document.body.classList.toggle('ctlx',on);const b=$('#bTo');if(b)b.setAttribute('aria-expanded',on)}
 function ctxMark(){const b=$('#bTo');if(b)b.classList.toggle('act',!![...document.querySelectorAll('#ctx [aria-pressed=true]')].length)}
@@ -1109,7 +1109,7 @@ document.addEventListener('click',e=>{const t=e.target;if(t.closest&&t.closest('
  if(t.closest&&t.closest('#ctx .cb')){setTimeout(()=>{ctxSet(false);ctxMark()},0);return}if(document.body.classList.contains('ctlx')&&!(t.closest&&t.closest('#ctl')))ctxSet(false)},true);
 addEventListener('resize',()=>{if(innerWidth>767)ctxSet(false)});
 new MutationObserver(ctxMark).observe(document.documentElement,{subtree:true,attributes:true,attributeFilter:['aria-pressed']});
-function sheetFit(){const R=document.documentElement,B=document.body,k=$('#ctl');if(innerWidth>767||!k){R.style.removeProperty('--sh0');return}const had=B.classList.contains('ctlh');if(had)B.classList.remove('ctlh');const h=Math.min(Math.floor(innerHeight-k.getBoundingClientRect().bottom-8),Math.round(innerHeight*.44));if(had)B.classList.add('ctlh');if(h>=innerHeight*.3)R.style.setProperty('--sh0',h+'px');else R.style.removeProperty('--sh0')}
+function sheetFit(){const R=document.documentElement,B=document.body,k=$('#ctl');if(innerWidth>767||!k){R.style.removeProperty('--sh0');return}const had=B.classList.contains('ctlh');if(had)B.classList.remove('ctlh');const h=Math.min(Math.floor(innerHeight-k.getBoundingClientRect().bottom-8),Math.round(innerHeight*2/3));if(had)B.classList.add('ctlh');if(h>=innerHeight*.3)R.style.setProperty('--sh0',h+'px');else R.style.removeProperty('--sh0')}
 sheetFit();addEventListener('resize',sheetFit);
 const map=new maplibregl.Map({container:'map',style:sty(),bounds:HOME,fitBoundsOptions:{padding:homePad()},attributionControl:false,maxPitch:75,preserveDrawingBuffer:true}); // preserveDrawingBuffer: ให้ดึงภาพแผนที่ใส่รายงานได้
 
@@ -2709,7 +2709,7 @@ function respRing(r){const n0=r.length-1;if(n0<4)return r;const ky=110600,kx=111
  const Q=P.map((_,i)=>{let x=0,y=0;for(let j=-K;j<=K;j++){const p=P[((i+j)%n+n)%n],w=W[j+K];x+=p[0]*w;y+=p[1]*w}return[+(x/ws).toFixed(6),+(y/ws).toFixed(6)]});Q.push(Q[0]);return Q}
 function respSmooth(){if(RESPS)return RESPS;
  return RESPS={type:'FeatureCollection',features:GEO.resp.features.map(f=>({type:'Feature',properties:f.properties,geometry:{type:'MultiPolygon',coordinates:f.geometry.coordinates.map(pg=>pg.map(respRing))}}))}}
-function homePad(){if(innerWidth<=767){const l=$('#left'),h=Math.min(innerHeight*.6,parseFloat(getComputedStyle(l).maxHeight)||innerHeight*.34);return{top:24,bottom:Math.round(h)+20,left:24,right:66}} // มือถือ: กลุ่มป่ากลางพื้นที่เหนือแผ่นล่าง เว้นคอลัมน์ปุ่มขวา
+function homePad(){if(innerWidth<=767){const h=Math.min(innerHeight*.7,parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sh0'))||innerHeight*.34); /* ความสูงปลายทางของแผ่น (--sh0) ไม่ใช่ max-height ที่กำลังเลื่อน — ตอนโหลดหน้าแผ่นยังเลื่อนจาก 34vh */return{top:24,bottom:Math.round(h)+20,left:24,right:66}} // มือถือ: กลุ่มป่ากลางพื้นที่เหนือแผ่นล่าง เว้นคอลัมน์ปุ่มขวา
  // เดสก์ท็อป: เว้นจากขอบแผงที่เปิดอยู่ (หรือขอบจอ) 60 px เท่ากันทั้งสองข้าง → กลุ่มป่ากลางพื้นที่ระหว่างแผง (ผู้ใช้กำหนด 2 พ.ย. 69) · ตำแหน่งตามเลย์เอาต์ ไม่นับ transform ระหว่างเลื่อน
  const L=$('#left'),R=[$('#right'),$('#ulm')].find(e=>e&&(e.id==='right'?e.classList.contains('open'):!e.hidden)),lx=document.body.classList.contains('lc')||!L?0:L.offsetLeft+L.offsetWidth-24;
  return{top:60,bottom:100,left:lx+60,right:R?innerWidth-R.offsetLeft+60:60}}
