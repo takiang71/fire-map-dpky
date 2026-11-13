@@ -158,7 +158,8 @@ function watchSum(W) {
   // นักท่องเที่ยวและเงินรายได้อุทยานแห่งชาติ (scripts/sync_tourism.js) — การ์ดในหน้าความสำคัญ
   if (fs.existsSync(path.join(ROOT, 'data', 'tourism.json'))) fs.copyFileSync(path.join(ROOT, 'data', 'tourism.json'), path.join(OUT, 'data', 'tourism.json'));
   // หน่วยพิทักษ์ จุดสกัด ฐานเฉพาะกิจ + ฐานป้องกันรักษาป่า (scripts/import_rangers.js)
-  for (const f of ['ranger.json', 'fbase.json']) if (fs.existsSync(path.join(ROOT, 'data', f))) fs.copyFileSync(path.join(ROOT, 'data', f), path.join(OUT, 'data', f));
+  // วงโคจร NOAA-20/21 (scripts/sync_tle.js) — กล่องนับถอยหลังดาวเทียมรอบถัดไป + ชั้นวงโคจร
+  for (const f of ['ranger.json', 'fbase.json', 'tle.json']) if (fs.existsSync(path.join(ROOT, 'data', f))) fs.copyFileSync(path.join(ROOT, 'data', f), path.join(OUT, 'data', f));
   if (fs.existsSync(path.join(ROOT, 'data', 'prov.json'))) fs.copyFileSync(path.join(ROOT, 'data', 'prov.json'), path.join(OUT, 'data', 'prov.json'));
   // ชนิดป่า (scripts/build_ftype.js)
   if (fs.existsSync(path.join(ROOT, 'data', 'ftype', 'ftype.json'))) { fs.mkdirSync(path.join(OUT, 'data', 'ftype'), { recursive: true }); fs.copyFileSync(path.join(ROOT, 'data', 'ftype', 'ftype.json'), path.join(OUT, 'data', 'ftype', 'ftype.json')) }

@@ -64,7 +64,9 @@ async function quotaOk() {
   try { bsum = JSON.parse(fs.readFileSync(path.join(OUT, 'burn_summary.json'), 'utf8')) } catch (e) { }
   try { wjs = JSON.parse(fs.readFileSync(path.join(OUT, 'watch.json'), 'utf8')) } catch (e) { }
   const wmsg = (fresh, daily = false, test = false) => watchCard(wjs, { fresh, site: SITE, now, daily, test });
-  const msg = (fresh, q, daily = false) => carousel({ live, sum, fresh, site: SITE, now, daily, quotaLeft: q && isFinite(q.left) ? Math.max(0, Math.floor((q.left - q.members) / q.members)) : null });
+  // ดาวเทียมรอบถัดไปที่แถบสแกนผ่านกลุ่มป่า (ไม่นับขอบแถบ) 24 ชม. ข้างหน้า — บรรทัดในสรุปประจำวัน (ผู้ใช้ขอ 13 พ.ย. 69)
+  const orb = () => { try { return require('./lib/orbit').next(JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'tle.json'), 'utf8')), now, 24) } catch (e) { return null } };
+  const msg = (fresh, q, daily = false) => carousel({ live, sum, fresh, site: SITE, now, daily, orb: daily ? orb() : null, quotaLeft: q && isFinite(q.left) ? Math.max(0, Math.floor((q.left - q.members) / q.members)) : null });
   if (process.argv.includes('--validate')) {
     const ex = live.features.slice(0, 3);
     for (const [n, m] of [['แจ้งเตือน', msg(ex, null)], ['สรุป', msg(null, null)], ['สรุปประจำวัน', msg(null, null, true)], ...(bsum ? [['พื้นที่เผาไหม้', burnCard(bsum, { site: SITE })]] : []), ...(wmsg(null) ? [['พื้นที่เฝ้าระวังพิเศษ', wmsg(null)], ['พื้นที่เฝ้าระวังพิเศษ (แจ้งเตือน)', wmsg((wjs.features || []).slice(0, 3).length ? wjs.features.slice(0, 3) : null) || wmsg(null)]] : [])]) {

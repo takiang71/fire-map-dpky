@@ -75,13 +75,16 @@ export const quickReply = site => ({ items: [['📊 สรุป', 'สรุป
 // live = live.json, sum = summary.json, fresh = จุดใหม่ที่จะแจ้งเตือน (null = โหมดสรุป แสดงจุด 24 ชม. แทน)
 // LINE จำกัด JSON ของ carousel ไม่เกิน 50 KB → ถ้าเกิน 48,000 ไบต์ (UTF-8: อักษรไทยตัวละ 3 ไบต์) ลดจำนวนจุดที่แสดงต่อการ์ดลง
 export const bytes = m => new TextEncoder().encode(JSON.stringify(m)).length;
+// รอบผ่านของดาวเทียม → "NOAA-20 ☀ 13:42" (+ "(14 พ.ย.)" ถ้าคนละวัน) — รูปแบบเดียวกับ label() ใน scripts/lib/orbit.js
+const orbLab = (p, now) => { const d = new Date(p.t + 7 * 36e5), n = new Date(now + 7 * 36e5), z = x => String(x).padStart(2, '0'); return `${p.n} ${p.day ? '☀' : '☾'} ${z(d.getUTCHours())}:${z(d.getUTCMinutes())}${d.getUTCDate() !== n.getUTCDate() ? ` (${d.getUTCDate()} ${['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'][d.getUTCMonth()]})` : ''}` };
 export function carousel(o) {
   let m;
   for (const per of [4, 2, 1, 0]) { m = build({ ...o, per }); if (bytes(m) < 48000) break }
   return m;
 }
 // daily = สรุปประจำวันที่ line_notify.js push เข้ากลุ่ม (เปลี่ยนแค่หัวการ์ดและ altText)
-function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaLeft = null, per = 4, test = false, daily = false }) {
+// orb = รอบที่ดาวเทียมผ่านกลุ่มป่า 24 ชม. ข้างหน้า (scripts/lib/orbit.js next() — line_notify ส่งมาเฉพาะสรุปประจำวัน; Worker ไม่ส่ง)
+function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaLeft = null, per = 4, test = false, daily = false, orb = null }) {
   const alert = !!fresh;
   const pts = (live && live.features || []).filter(f => f.properties && !excluded(f.properties)), h24 = pts.filter(f => now - thMs(f.properties.full_date) < 24 * 36e5);
   const nw = (fresh || []).filter(f => !excluded(f.properties)), list = alert ? nw : h24;
@@ -112,6 +115,7 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
         T(dt, { size: 'xs', weight: 'bold', color: dc, flex: 0, margin: 'md' }), T(`เทียบทั้งปีงบ ${fy - 1} (${all.pfull})`, { size: 'xxs', color: MUT, margin: 'sm' })], { margin: alert ? 'sm' : 'none' }),
       B('horizontal', [tile(h24.length, 'จุดใน 24 ชม.'), tile(all.pfull, `ทั้งปีงบ ${fy - 1}`, BLUE), tile(ind.replace('Suomi ', ''), 'ดาวเทียมตัวชี้วัด', '#444444')], { spacing: 'sm', margin: 'sm' }),
       B('horizontal', [topTile('pv'), topTile('am'), topTile('tm')], { spacing: 'sm', margin: 'sm' }),
+      ...(orb ? [T(`🛰 ดาวเทียมรอบถัดไป: ${orb.length ? orb.slice(0, 4).map(p => orbLab(p, now)).join(' · ') + ' น.' : 'ไม่มีรอบที่ผ่านกลางแถบสแกนใน 24 ชม.'}`, { size: 'xxs', color: '#1D3557', wrap: true, margin: 'sm' })] : []),
       sub('รายพื้นที่ (สะสมปีงบ)', [[RED, String(fy)], [BLUE, `${fy - 1} ทั้งปี`]]),
       ...rows.map(([n, v, c]) => { const [t, tc] = dPct(v.fy, v.pfull);
         return B('horizontal', [

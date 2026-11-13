@@ -25,6 +25,13 @@ const t0 = Date.now();
 const quit = c => { process.exitCode = c; setTimeout(() => process.exit(c), 800) };
 
 // ---------- 1) syntax ----------
+// สำเนา scripts/lib/orbit.js ที่ฝังใน index.html ต้องตรงกับไฟล์ต้นฉบับ (แก้ที่ lib แล้วลืม node scripts/embed_orbit.js)
+function orbLib(file) {
+  const B = '/*ORB-LIB-BEGIN*/', E = '/*ORB-LIB-END*/', cut = t => { const i = t.indexOf(B), j = t.indexOf(E); return i < 0 || j < i ? null : t.slice(i, j + E.length) };
+  const lib = path.join(ROOT, 'scripts', 'lib', 'orbit.js'); if (!fs.existsSync(file) || !fs.existsSync(lib)) return [];
+  const a = cut(fs.readFileSync(file, 'utf8')), b = cut(fs.readFileSync(lib, 'utf8').replace(/\r\n/g, '\n'));
+  return a === b ? [] : [`${path.relative(ROOT, file).replace(/\\/g, '/')}: สำเนา scripts/lib/orbit.js ${a ? 'ไม่ตรงกับต้นฉบับ' : 'หายไป'} — รัน node scripts/embed_orbit.js`];
+}
 function syntax(file) {
   const errs = [];
   if (!fs.existsSync(file)) return errs;
@@ -77,9 +84,10 @@ const DESK = [
   ['ชั้นข้อมูลของฉัน', `C('bUl')`], ['  ปิด', `C('bUl')`],
   ['วิเคราะห์ภูมิประเทศ', `C('bTr')`], ['  ปิด', `C('bTr')`],
   ['พิมพ์แผนที่', `C('bPm')`], ['  ปิด', `C('pm-x',1)`],
+  ['ดาวเทียมรอบถัดไป: ย่อ', `Q('#orb .obh')`], ['  ขยาย', `Q('#orb .obh')`], ['  แถว NOAA-21', `Q('#orb .obr[data-ob="NOAA21"]')`], ['  แผนที่โลกย่อ', `Q('#orb .obw')`], ['  ปิดชั้น', `Q('.sw[data-k="orb"]')`], ['  เปิดกลับ', `Q('.sw[data-k="orb"]')`],
   ['กลับมุมมองกลุ่มป่า', `C('bHome')`],
 ];
-const MOB = [['ปุ่มเครื่องมือ (มือถือ)', `C('bTo')`], ['  ปิด', `C('bTo')`], ['แผงชั้นข้อมูล', `C('bLay')`], ['  ปิดแผง', `C('xr',1)`], ['การ์ดสถิติ', `C('bStat')`], ['  ปิด', `C('h-x',1)`], ['ย้อนดูการลามของไฟ', `C('bPlay')`], ['  เล่น', `C('pb-p')`], ['  ปิด', `C('pb-x',1)`]];
+const MOB = [['ปุ่มเครื่องมือ (มือถือ)', `C('bTo')`], ['  ปิด', `C('bTo')`], ['ดาวเทียมรอบถัดไป: ขยาย/ย่อ', `Q('#orb .obh')`], ['  ย่อ/ขยาย', `Q('#orb .obh')`], ['แผงชั้นข้อมูล', `C('bLay')`], ['  ปิดแผง', `C('xr',1)`], ['การ์ดสถิติ', `C('bStat')`], ['  ปิด', `C('h-x',1)`], ['ย้อนดูการลามของไฟ', `C('bPlay')`], ['  เล่น', `C('pb-p')`], ['  ปิด', `C('pb-x',1)`]];
 const HELP = `window.__ck={C(id,vis){const e=document.getElementById(id);if(!e)return 'ไม่พบ #'+id;if(vis&&!e.offsetParent&&getComputedStyle(e).position!=='fixed')return 'ข้าม';e.click();return ''},
 Q(s){const e=document.querySelector(s);if(!e)return 'ไม่พบ '+s;e.click();return ''},K(k){document.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true}));return ''}};`;
 
@@ -149,7 +157,7 @@ async function browser(dir) {
     Object.assign(res, prev, { at: res.at, reused: prev.reused || prev.at });
     console.log(`index.html เหมือนรอบที่ตรวจแล้ว (${prev.reused || prev.at}) → ใช้ผลเดิม: ${prev.ok ? 'ผ่าน' : 'ไม่ผ่าน'}`);
   } else {
-    res.errs.push(...syntax(file), ...syntax(path.join(DIR, 'manual', 'index.html')));
+    res.errs.push(...syntax(file), ...syntax(path.join(DIR, 'manual', 'index.html')), ...orbLib(file));
     if (res.errs.length) console.log('syntax ผิด → ข้ามการเปิดในเบราว์เซอร์');
     else {
       const b = await browser(DIR);

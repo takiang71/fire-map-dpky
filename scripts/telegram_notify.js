@@ -135,12 +135,15 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
     ].join('\n'), strict);
     return msgOf(text, [[mapBtn(fresh), ['🗺️ แผนที่ไฟป่า', SITE]]]);
   };
+  // ดาวเทียมรอบถัดไปที่แถบสแกนผ่านกลุ่มป่า (ไม่นับขอบแถบ) 24 ชม. ข้างหน้า — บรรทัดในสรุปประจำวัน (ผู้ใช้ขอ 13 พ.ย. 69)
+  const orb = () => { try { return require('./lib/orbit').next(JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'tle.json'), 'utf8')), now, 24) } catch (e) { return null } };
   const dailyMsg = (strict = false) => {
     const text = fit(per => [
       `📋 <b>สรุปประจำวัน ${dateTh(now)}</b>`,
       'สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่ · สบอ.1 (ปราจีนบุรี)', '',
       `🕐 จุดใน 24 ชม.: <b>${h24.length}</b> จุด`,
       ...(sum && sum.ind ? [`🛰 ดาวเทียมตัวชี้วัด: ${esc(sum.ind)}`] : []),
+      ...(() => { const O = orb(); return O ? [`🛰 ดาวเทียมรอบถัดไป: ${O.length ? O.slice(0, 4).map(p => esc(require('./lib/orbit').label(p, now))).join(' · ') + ' น.' : 'ไม่มีรอบที่ผ่านกลางแถบสแกนใน 24 ชม.'}`] : [] })(),
       ...(sum ? ['', ...areaTable(new Set(h24.map(f => AREAS.some(a => a.k === f.properties._ar) ? f.properties._ar : OUTA)), '24 ชม.')] : []),
       ...(all.fy ? [`📍 พบมากสุด: ${tops(all)}`] : []),
       ...(h24.length ? ['', '<b>จุดใน 24 ชม.</b>', `<blockquote expandable>${list(byNew(h24), per * 2, true).join('\n')}</blockquote>`] : []),
