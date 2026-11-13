@@ -2752,7 +2752,7 @@ function pcLayers(){if(map.getSource('pbc'))return;map.addSource('pbc',{type:'ge
   'circle-stroke-color':['case',['==',['get','wa'],1],'#f5c400','#fff'],'circle-stroke-width':['case',nw,2,1],'circle-stroke-opacity':['get','op']}},map.getLayer('hot-glow')?'hot-glow':undefined);
  try{pcVis()}catch(e){}}
 function pbHot(){const set=(id,b)=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',b?'visible':'none'),h=S.hot&&!window.PBH;['hot-glow','hot-icon','hot-cl','hot-cn'].forEach(id=>set(id,h&&!S.d3));set('hot-3d',h&&S.d3)}
-function pcVis(){const v=!$('#pbf').hidden&&PB.src==='cur';document.body.classList.toggle('pbon',v);map.getLayer('pbc-c')&&map.setLayoutProperty('pbc-c','visibility',v?'visible':'none');const h=v&&PB.on;if(h!==!!window.PBH){window.PBH=h;pbHot()}}
+function pcVis(){const vis=!$('#pbf').hidden,v=vis&&PB.src==='cur';document.body.classList.toggle('pbon',vis&&(v||!HOPEN)); /* pbon (มือถือ: แผงแทนที่แผ่นเมนู) = โหมดปีงบนี้ หรือโหมดสถิติที่ปิดการ์ดแล้ว */map.getLayer('pbc-c')&&map.setLayoutProperty('pbc-c','visibility',v?'visible':'none');const h=v&&PB.on;if(h!==!!window.PBH){window.PBH=h;pbHot()}}
 function pbSrcCur(A){const sn=k=>SATN[k]||(k==='NOAA'?'NOAA (ไม่ระบุดวง)':k),SO=['SNPP','NOAA20','NOAA21','NOAA'],sats=[...new Set(A.map(p=>p.sat))].sort((x,y)=>SO.indexOf(x)-SO.indexOf(y)).map(sn),fm=A.some(p=>p.fm),wa=A.filter(p=>p.wa).length;
  return'ที่มา: <b>API ไทย</b> (Land Fire Alerts Thailand)'+(fm?' + <b>NASA FIRMS</b> (วันที่ API ขาดข้อมูล)':'')+' · ดาวเทียม '+(sats.length?sats.join(', ')+' (ตามปุ่มดาวเทียม)':'ตามปุ่มดาวเทียม')+(S.xdy?' · ไม่รวม ขสป.ดงใหญ่':'')+(wa?' · รวมจุดพื้นที่เฝ้าระวังพิเศษ '+nf(wa)+' จุด':'')}
 function pcMap(){pcVis();const on=PB.on,last=PB.i>=PB.fr.length-1,e=on?PB.fr[PB.i]:PB.t1,hr=PB.stp<864e5,A=on?PB.P.filter(p=>p.ms<=e):PB.P,nw=p=>on&&p.ms>e-PB.stp;
@@ -2770,7 +2770,7 @@ function pbFrame(){PB.src==='st'?hMap(hfilt()):pcMap()}
 function pbUI(){$$('#pb-w button').forEach(b=>b.classList.toggle('on',PB.src==='cur'&&b.dataset.v===String(PB.rg)));$$('#pb-sp button').forEach(b=>b.classList.toggle('on',+b.dataset.v===PB.sp));const m=$('#pb-m');m&&m.setAttribute('aria-pressed',String(PB.src==='st'))}
 function pbStart(src,keep){pbStop();PB.on=false;PB.src=src;$('#pbf').hidden=false;const dk=innerWidth>767,lc=()=>document.body.classList.contains('lc');
  if(dk&&!keep){if(src==='cur'){if(!lc()){lcSet(true);PB.lca=true}}else{PB.lca=false;if(lc())lcSet(false)}} /* ปีงบปัจจุบัน = พับแผงซ้าย (จำไว้กางคืนตอนปิด) · สถิติย้อนหลัง = กางแผงให้เห็นการ์ด */
- if(src==='st'){PB.i=0;pcVis();if(!HOPEN||(HTAB!=='hs'&&HTAB!=='ha'))hOpen(false,'hs');if(!S.hist){S.hist=HSP.hs=true;apply();hspSync()}hRender()}
+ if(src==='st'){PB.i=0;pcVis();if(!HOPEN||(HTAB!=='hs'&&HTAB!=='ha'))hOpen(false,HTAB==='ha'?'ha':'hs');if(!S.hist){S.hist=HSP.hs=true;apply();hspSync()}hRender()}
  else{pcBuild();PB.i=Math.max(0,PB.fr.length-1);$('#pb-s').value=PB.i;pcMap()}
  pbUI();pbPos();if(!keep)setTimeout(()=>pbFit(true),dk?60:0)}
 function pbStop(){clearInterval(PB.tm);PB.tm=0;$('#pb-p').textContent='▶ เล่น'}
@@ -2835,20 +2835,22 @@ function pbFit(anim){if(innerWidth<768){if(document.body.classList.contains('pbo
  if(!best)return fitHome(anim);const ce=new maplibregl.MercatorCoordinate(best[1][0],best[1][1]).toLngLat();
  map.easeTo({center:ce,zoom:best[0],bearing:0,pitch:0,padding:{top:0,bottom:0,left:0,right:0},duration:pd})}
 
-function pbClose(){const mo=document.body.classList.contains('pbon');pbStop();PB.on=false;$('#pbf').hidden=true;pcVis();if(mo&&innerWidth<768)fitHome(true);if(PB.src==='st')hMap(hfilt());if(PB.lca){PB.lca=false;if(innerWidth>767&&document.body.classList.contains('lc'))lcSet(false,true)}}
+function pbClose(){const mo=document.body.classList.contains('pbon');pbStop();PB.on=false;$('#pbf').hidden=true;pcVis();if(mo&&innerWidth<768)fitHome(true);if(PB.src==='st'){hMap(hfilt());if(!HOPEN&&S.hist){if(HAM()){hSet(false);HFC={type:'FeatureCollection',features:[]};hMap(hfilt())}S.hist=false;apply()}}if(PB.lca){PB.lca=false;if(innerWidth>767&&document.body.classList.contains('lc'))lcSet(false,true)}}
 addEventListener('resize',pbPos);new MutationObserver(()=>pbPos()).observe(document.body,{attributes:true,attributeFilter:['class']}); /* คอลัมน์ปุ่มมือถือซ่อน/แสดง (body.ctlh) หลังเปิดแผง = จัดใหม่ ไม่ให้แผงทับปุ่ม */
 /* --- เปิด/ปิดการ์ด --- */
 let HTAB='hs';const HSP={hs:true,xt:true}; // สวิตช์ "แสดงจุด" บนหัวการ์ด (ค่าเริ่มต้นเปิด) — wa ใช้ S.wsp
 const hspOn=()=>HTAB==='wa'?!!S.wsp:HTAB==='xt'?!!S.xt:!!S.hist,hspSync=()=>{const b=document.getElementById('h-sp');if(b)b.setAttribute('aria-checked',HOPEN&&hspOn())}; // แท็บการ์ดสถิติย้อนหลัง: hs = จุดความร้อน · xt = การดับไฟป่า (ผู้ใช้ขอ 5 พ.ย. 69)
 function hOpen(play,tab){if(play)tab='hs';HOPEN=true;$('#left').classList.add('hm');$('#pcard').hidden=true;$('#hcard').hidden=false;hTab(tab||HTAB);
- if(play)pbStart('st')} // เล่นย้อนตามตัวกรองการ์ดสถิติ
+ if(play)pbStart('st');try{pcVis()}catch(e){}} // เล่นย้อนตามตัวกรองการ์ดสถิติ
 function hTab(t){if(t==='ha'&&!HA){toast('กำลังเตรียมข้อมูลทุกดาวเทียม…');haBuild().then(()=>{if(HOPEN)hTab('ha')}).catch(e=>toast('เตรียมข้อมูลไม่สำเร็จ: '+e.message));return}
  HTAB=t;hSet(t==='ha');const x=t==='xt',w=t==='wa';$('#hcard').classList.toggle('xtm',x);$('#hcard').classList.toggle('wam',w);$('#hcard').classList.toggle('ham',t==='ha');tx('h-ttl',x?'สถิติการดับไฟป่าย้อนหลัง':w?'พื้นที่เฝ้าระวังพิเศษ':t==='ha'?'สถิติจุดความร้อนย้อนหลัง (ทุกดาวเทียม)':'สถิติจุดความร้อนย้อนหลัง (กรมอุทยานฯ)');$$('#h-tab button').forEach(b=>b.classList.toggle('on',b.dataset.v===t));$('#hcard').scrollTop=0;
  if(w){if(PB.src==='st')pbClose();S.hist=false;S.xt=false;S.wst=true;apply();hspSync();wtRender();wFocus(true)} /* เข้าเมนูพื้นที่เฝ้าระวังพิเศษทุกครั้ง = ซูมไปที่พื้นที่ */
  else if(x){if(PB.src==='st')pbClose();S.hist=false;S.wst=false;S.xt=HSP.xt;apply();hspSync();xtRender();if(!hTab.xd){hTab.xd=1;xtFit()}}
  else{S.xt=false;S.wst=false;S.hist=HSP.hs;apply();hspSync();const k='done'+t;if(!hOpen[k])hDef();hRender();if(!hOpen[k]){if(!hOpen.done)hFit();hOpen[k]=hOpen.done=1}}
  try{moreFit()}catch(e){}}
-function hClose(){HOPEN=false;if(PB.src==='st')pbClose();if(HAM()){hSet(false);HFC={type:'FeatureCollection',features:[]};hMap(hfilt())}$('#left').classList.remove('hm');$('#hcard').hidden=true;$('#pcard').hidden=false;$('#bHide').setAttribute('aria-pressed',true);S.hist=false;S.xt=false;S.wst=false;apply()} // ปิดการ์ด = ซ่อนจุดความร้อนย้อนหลังด้วย
+function hClose(){const keep=innerWidth<768&&PB.src==='st'&&!$('#pbf').hidden&&(HTAB==='hs'||HTAB==='ha'); /* มือถือ (ผู้ใช้ขอ 13 พ.ย. 69): ปิดการ์ดระหว่างเล่นย้อนสถิติ = คงตัวกรองและจุดไว้ แผงเล่นย้อนลงไปแทนที่แผ่นเมนู · กด ✕ ของแผงเล่นย้อนจึงล้างจุด */
+ HOPEN=false;if(keep){$('#left').classList.remove('hm');$('#hcard').hidden=true;$('#pcard').hidden=false;$('#bHide').setAttribute('aria-pressed',true);S.xt=false;S.wst=false;apply();pcVis();pbPos();setTimeout(()=>pbFit(true),0);return}
+ if(PB.src==='st')pbClose();if(HAM()){hSet(false);HFC={type:'FeatureCollection',features:[]};hMap(hfilt())}$('#left').classList.remove('hm');$('#hcard').hidden=true;$('#pcard').hidden=false;$('#bHide').setAttribute('aria-pressed',true);S.hist=false;S.xt=false;S.wst=false;apply()} // ปิดการ์ด = ซ่อนจุดความร้อนย้อนหลังด้วย
 
 /* ---------- ชุดข้อมูล "ทุกดาวเทียม" ของการ์ดสถิติ (ผู้ใช้ขอ 12 พ.ย. 69) ----------
  HA = AD (API ไทย ตั้งแต่ 3 ส.ค. 67 + NASA FIRMS ปีงบ 2561 – 2 ส.ค. 67 + เติม FIRMS วันที่ API ขาดดวง) ในรูปเดียวกับ HD (mkRec) · ไม่รวมจุด 48 ชม. ที่ยังไม่อยู่ใน AD
@@ -2890,7 +2892,7 @@ $('#h-rs').onclick=()=>{if(HTAB==='xt'){xtDef();xtRender()}else if(HTAB==='wa'){
 $('#h-per').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;HF.fy.clear();hPerYs(+b.dataset.v).forEach(y=>HF.fy.add(y));if(PB.on)PB.i=0;hRender()};
 $$('#h-md button').forEach(b=>b.onclick=()=>{HM.mode=b.dataset.v;hRender()});$$('#h-co button').forEach(b=>b.onclick=()=>{HM.color=b.dataset.v;hRender()});
 $$('#pb-w button').forEach(b=>b.onclick=()=>{const v=b.dataset.v;PB.rg=v==='fy'?'fy':+v;pbStart('cur',PB.src==='cur')});$$('#pb-sp button').forEach(b=>b.onclick=()=>{PB.sp=+b.dataset.v;if(PB.tm){pbStop();pbPlay()}pbUI()});
-$('#pb-m').onclick=()=>pbStart(PB.src==='st'?'cur':'st');
+$('#pb-m').onclick=()=>pbStart(PB.src==='st'&&HOPEN?'cur':'st'); /* สถิติที่ปิดการ์ดแล้ว (มือถือ) = เปิดการ์ดกลับมาแก้ตัวกรอง */
 $('#pb-p').onclick=pbPlay;$('#pb-x').onclick=pbClose;$('#pb-o').onclick=()=>pbStart('st');$('#pb-s').oninput=e=>{PB.i=+e.target.value;PB.on=true;pbStop();pbFrame()};
 $('#h-sp').onclick=e=>{e.preventDefault();e.stopPropagation();const v=!hspOn();if(HTAB==='wa')S.wsp=v;else if(HTAB==='xt')S.xt=HSP.xt=v;else S.hist=HSP.hs=v;apply();hspSync()};
 $('#h-fit').onclick=()=>HTAB==='xt'?xtFit():HTAB==='wa'?wtFit():hFit();
