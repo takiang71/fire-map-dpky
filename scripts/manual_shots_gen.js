@@ -43,7 +43,7 @@ job('sw_ftype', `await lay();set('ftype',true);await W(4000);row('ftype');${go('
 job('sw_fuel', `await lay();set('fuel',true);await W(4000);row('fuel');${go('101.45,14.35', 10.6)}`, { after: 9000 });
 job('sw_wind', `await lay();set('wind',true);await W(3000);row('wind');${go('101.6,14.1', 7.6)}`, { after: 9000 });
 job('sw_wx', `await lay();set('wx',true);await W(3000);row('wx');${go('101.6,14.1', 7.4)}`, { after: 9000 });
-job('sw_vr', `await lay();S.orb=false;S.vrs='tmd';set('vr',true);await W(6000);row('vr');${go('101.9,14.3', 7.2)}`, { after: 9000 });
+job('sw_vr', `await lay();S.orb=false;S.vrs='gfs';S.vrg='max';set('vr',true);await W(6000);row('vr');${go('101.9,14.3', 7.2)}`, { after: 9000 });
 job('sw_rad', `await lay();set('rad',true);await W(3000);row('rad');${go('101.0,13.4', 5.4)}`, { after: 8000 });
 job('sw_pm', `await lay();set('pm',true);await W(4000);row('pm');${go('101.0,13.6', 5.6)}`, { after: 8000 });
 job('sw_cons', `await lay();row('cons');${go('101.95,14.25', 8.9)}`, { after: 4000 });

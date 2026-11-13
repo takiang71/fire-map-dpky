@@ -52,15 +52,15 @@ jobs:
       - run: node scripts/sync_tle.js
         timeout-minutes: 3
         continue-on-error: true
-      # อัตราการระบายอากาศรายวัน 77 จังหวัด ของกรมอุตุฯ (ต้นทางออก ~13:45 น. — รอบ 15:17 ได้ข้อมูลวันนี้)
-      - run: node scripts/sync_tmdvr.js
-        timeout-minutes: 5
+      # อัตราการระบายอากาศ NOAA GFS (VRATE) จาก NOMADS — ดึงเฉพาะเมื่อมีรอบใหม่ (~3 นาที, 161 ไฟล์) แหล่งเดียวกับกรมอุตุฯ
+      - run: node scripts/sync_gfsvr.js
+        timeout-minutes: 10
         continue-on-error: true
       - name: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html data/hotspots_api.json data/burn data/fuel data/tourism.json data/tle.json data/tmd_vr.json "data/FY2569_SNPP_ทั้งกลุ่มป่า.csv"
+          git add index.html data/hotspots_api.json data/burn data/fuel data/tourism.json data/tle.json data/gfs_vr.json "data/FY2569_SNPP_ทั้งกลุ่มป่า.csv"
           if git diff --cached --quiet; then echo "ไม่มีข้อมูลใหม่"; exit 0; fi
           git commit -m "sync: จุดความร้อนสะสม $(TZ=Asia/Bangkok date '+%Y-%m-%d %H:%M')"
           git pull --rebase
