@@ -559,7 +559,8 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 #orb .obn{padding:6px 10px 2px;color:var(--mut);font-size:10.5px;line-height:1.4}
 #orb .obs{margin:4px 10px 9px;font-size:10.5px}
 @media(max-width:767px){.obpop .maplibregl-popup-content{font-size:11.5px;line-height:1.4;padding:8px 22px 8px 10px}}
-#orb.mb{right:auto}#orb.mb:not(.cp){width:min(300px,calc(100% - 90px))}
+/* มือถือ: คลาส obm (เดิมชื่อ mb ชนกับ .mb{padding:14px 16px} ของหน้าต่าง modal → แถบย่อหนา 58 px บังแนวเขต — ผู้ใช้แจ้ง 13 พ.ย. 69) */
+#orb.obm{right:auto}#orb.obm:not(.cp){width:min(300px,calc(100% - 90px))}#orb.obm.cp .obh{padding:4px 10px 4px 8px;gap:5px}#orb.obm.cp .obh>svg{width:15px;height:15px}#orb.obm.cp .obq{font-size:11.5px}
 </style>
 </head>
 <body>
@@ -1136,7 +1137,8 @@ document.addEventListener('click',e=>{const t=e.target;if(t.closest&&t.closest('
  if(t.closest&&t.closest('#ctx .cb')){setTimeout(()=>{ctxSet(false);ctxMark()},0);return}if(document.body.classList.contains('ctlx')&&!(t.closest&&t.closest('#ctl')))ctxSet(false)},true);
 addEventListener('resize',()=>{if(innerWidth>767)ctxSet(false)});
 new MutationObserver(ctxMark).observe(document.documentElement,{subtree:true,attributes:true,attributeFilter:['aria-pressed']});
-function sheetFit(){const R=document.documentElement,B=document.body,k=$('#ctl');if(innerWidth>767||!k){R.style.removeProperty('--sh0');return}const had=B.classList.contains('ctlh');if(had)B.classList.remove('ctlh');const h=Math.min(Math.floor(innerHeight-k.getBoundingClientRect().bottom-8),Math.round(innerHeight*2/3));if(had)B.classList.add('ctlh');if(h>=innerHeight*.3)R.style.setProperty('--sh0',h+'px');else R.style.removeProperty('--sh0')}
+function sheetFit(){const R=document.documentElement,B=document.body,k=$('#ctl');if(innerWidth>767||!k){R.style.removeProperty('--sh0');return}const had=B.classList.contains('ctlh');if(had)B.classList.remove('ctlh');let h=Math.min(Math.floor(innerHeight-k.getBoundingClientRect().bottom-8),Math.round(innerHeight*2/3));if(had)B.classList.add('ctlh');
+ {const o=$('#orb');if(o&&!o.hidden&&o.offsetHeight&&!o.classList.contains('cp')&&!B.classList.contains('pbon'))h=Math.max(Math.round(innerHeight*.3),Math.min(h,Math.floor(innerHeight-o.getBoundingClientRect().bottom-8)))} /* กล่องดาวเทียมรอบถัดไปแบบขยาย = แผ่นล่างเริ่มใต้กล่อง 8 px · ย่อกล่อง = กลับที่เดิม (ผู้ใช้ขอ 13 พ.ย. 69) */if(h>=innerHeight*.3)R.style.setProperty('--sh0',h+'px');else R.style.removeProperty('--sh0')}
 sheetFit();addEventListener('resize',sheetFit);
 const map=new maplibregl.Map({container:'map',style:sty(),bounds:HOME,fitBoundsOptions:{padding:homePad()},attributionControl:false,maxPitch:75,preserveDrawingBuffer:true}); // preserveDrawingBuffer: ให้ดึงภาพแผนที่ใส่รายงานได้
 
@@ -2825,6 +2827,7 @@ function hlgPos(){const e=$('#hlg');if(!e||e.hidden)return;const W=innerWidth,H=
  const PO=$('#right').classList.contains('open')||!$('#ulm').hidden||$('#dp').classList.contains('open');e.classList.toggle('px',PO);if(PO)return; // แผงขวาเปิด = ซ่อนกล่อง เพิ่มพื้นที่แผนที่ (ผู้ใช้ขอ 5 พ.ย. 69)
  if(mob){b=Math.round(H-$(document.body.classList.contains('pbon')?'#pbf':'#left').getBoundingClientRect().top)+8;const c=$('#ctl').getBoundingClientRect(),hd=HLGM==='hd';if(hd)r=0;if(c.height&&c.bottom>H-b-(hd?40:HLGM==='cp'?44:130))r=Math.round(W-c.left)+8;e.style.borderRadius=hd&&r>0?'99px':''} // มือถือ: ซ้ายของคอลัมน์ปุ่มขวาบน
  else{e.style.borderRadius='';const c=$('#ctl').getBoundingClientRect();b=Math.round(H-c.top)+10;const o=$('#orb');if(o&&!o.hidden&&o.offsetWidth){const q=o.getBoundingClientRect();if(q.bottom>H-b-e.offsetHeight-4&&q.left<W-12)r=Math.round(W-q.left)+10}} /* กล่องดาวเทียมรอบถัดไปยาวลงมาถึงแถวปุ่ม = ไปอยู่ซ้ายของกล่องนั้น */
+ if(mob){const o=$('#orb');if(o&&!o.hidden&&o.offsetHeight&&!o.classList.contains('cp')&&o.getBoundingClientRect().bottom>H-b-e.offsetHeight-4){e.classList.add('px');return}} /* มือถือ: กล่องดาวเทียมแบบขยายกินถึงแผ่นล่าง = ซ่อนกล่องอายุจุดชั่วคราว (ย่อกล่อง = กลับมา) */
  if(mob&&b>H*.75)b=Math.round(H*.4); // แผ่นล่างถูกลากขึ้นเต็ม: ไม่ตามขึ้นไปบนสุด (แผ่นบังอยู่แล้ว)
  e.style.right=r+'px';e.style.bottom=b+'px';const w=e.offsetWidth,hh=e.offsetHeight,x0=W-r-w,x1=W-r;
  ['#pbf','#wyb'].forEach(q=>{const f=$(q);if(!f||f.hidden)return;const q1=f.getBoundingClientRect();if(q1.right>x0&&q1.left<x1&&q1.top<H-b&&q1.bottom>H-b-hh)b=Math.round(H-q1.top)+8});
@@ -5762,16 +5765,17 @@ function obBox(){let e=$('#orb');if(e)return e;e=document.createElement('div');e
  e.querySelector('.obwm').onclick=()=>{const now=Date.now();const ks=Object.keys(OBSR).map(k=>[k,obState(k,now)]).filter(x=>x[1].nx).sort((a,b)=>a[1].nx.t-b[1].nx.t);if(ks[0])obFocus(ks[0][0])};
  return e}
 // วางกล่อง: เดสก์ท็อปมุมขวาบน (ซ้ายของแผงขวาที่เปิด) · มือถือมุมซ้ายบน (เว้นคอลัมน์ปุ่มขวา) · หลบป้าย #hsc / วันที่ภาพ / แผงผลวัด
-function obPos(){const e=$('#orb');if(!e||e.hidden)return;e.classList.remove('px');const W=innerWidth,mob=W<768;e.classList.toggle('mb',mob);let top=12,right=null,left=null;
+function obPos(){const e=$('#orb');if(!e||e.hidden)return;e.classList.remove('px');const W=innerWidth,mob=W<768;e.classList.toggle('obm',mob);let top=12,right=null,left=null;
  if(mob){left=12;e.style.maxWidth=(W-90)+'px'}else{right=12;e.style.maxWidth='';try{RPAN.forEach(x=>{if(rpOn(x)){const q=$(x[0]).getBoundingClientRect().left;right=Math.max(right,W-q+12)}})}catch(x){}}
  e.style.left=left==null?'':left+'px';e.style.right=right==null?'':right+'px';
  const ew=e.offsetWidth,x0=mob?left:W-right-ew,x1=x0+ew;
  if(!mob){const l=$('#left'),lr=l&&l.offsetWidth&&!document.body.classList.contains('lc')?l.getBoundingClientRect().right:0;e.classList.toggle('px',x0<lr+8)} // ที่ไม่พอระหว่างแผง = ซ่อน
  for(let i=0;i<3;i++)for(const q of['#hsc','#imgdate','#msr','#mhud']){const o=$(q);if(!o||o.hidden||!o.offsetWidth||getComputedStyle(o).display==='none')continue;const r=o.getBoundingClientRect();if(r.right>x0&&r.left<x1&&r.bottom>top&&r.top<top+e.offsetHeight&&r.bottom<innerHeight*.6)top=Math.round(r.bottom)+8}
  e.style.top=`calc(${top}px + env(safe-area-inset-top))`;
- {let lim=innerHeight-12;const sh=mob?$(document.body.classList.contains('pbon')?'#pbf':'#left'):$('#ctl');if(sh&&sh.offsetHeight){const t=sh.getBoundingClientRect().top;if(t>top+80)lim=t-(mob?8:12)}const hh=Math.max(60,lim-e.getBoundingClientRect().top),tall=!mob&&obMode()!=='cp';
+ {let lim=innerHeight-12;const pb=document.body.classList.contains('pbon'),sh=mob?(pb?$('#pbf'):null):$('#ctl');if(sh&&sh.offsetHeight){const t=sh.getBoundingClientRect().top;if(t>top+80)lim=t-(mob?8:12)}
+  if(mob&&!pb)lim=Math.round(innerHeight*.7)-8; /* มือถือแบบขยาย: แผ่นล่างเลื่อนลงไปต่อท้ายกล่อง (sheetFit) เหลือแผ่นอย่างน้อย 30% ของจอ — กล่องยาวกว่านั้นเลื่อนในกล่อง */const hh=Math.max(60,lim-e.getBoundingClientRect().top),tall=!mob&&obMode()!=='cp';
   e.classList.toggle('tall',tall);e.style.height=tall?hh+'px':'';e.style.maxHeight=hh+'px'}
- {const r=e.getBoundingClientRect(),k=[r.left,r.bottom,e.hidden].join();if(obPos.k!==k){obPos.k=k;try{hlgPos()}catch(x){}}}} /* กล่องอายุจุดหลบกล่องนี้ */
+ {const r=e.getBoundingClientRect(),k=[r.left,r.bottom,e.hidden,e.className].join();if(obPos.k!==k){obPos.k=k;try{sheetFit()}catch(x){}try{hlgPos()}catch(x){}}}} /* กล่องอายุจุดหลบกล่องนี้ */
 function obRow(r,k,now){const s=obState(k,now),b=r.querySelector('b'),sp=r.querySelector('span'),em=r.querySelector('em'),n=(OBT.sats[k]||{}).n||k;b.textContent=n;em.className='';
  const ang=p=>`มุมสแกน ${Math.round(p.ang)}°${p.edge?' (ขอบแถบ)':''}`,dn=p=>p.day?'☀ กลางวัน':'☾ กลางคืน';
  if(s.st==='now'){sp.textContent=`${dn(s.p)} · ${ang(s.p)} · ข้อมูลเข้าราว ${obHM(s.p.t+OBLAG[0]*6e4)}–${obHM(s.p.t+OBLAG[1]*6e4)} น.`;em.textContent='กำลังสแกน';em.className='now'}
@@ -5843,7 +5847,7 @@ function obLayers(){if(!map.getStyle()||map.getSource('obt'))return;const E={typ
  map.addLayer({id:'ob-ic',type:'symbol',source:'obp',layout:{'icon-image':['concat','ob-',['get','s']],'icon-size':['interpolate',['linear'],['zoom'],2,1.15,8,1.5],'icon-allow-overlap':true,'icon-rotation-alignment':'map',...(gl?{'text-field':['get','t'],'text-font':['Noto Sans Bold'],'text-size':11,'text-offset':[0,2.2],'text-anchor':'top','text-allow-overlap':true}:{})},paint:{'text-color':'#1d2433','text-halo-color':'#fff','text-halo-width':2}},bh);
  OBMD=0;LO()}
 const OBL=['ob-bf','ob-bo','ob-bi','ob-tp','ob-tf','ob-lb','ob-ic'];
-function LO(){const on=!!S.orb&&!!S.orbm;if(map.getStyle())OBL.forEach(id=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',on?'visible':'none'));OBMD=0;{const b=$('#ob-sw');if(b)b.setAttribute('aria-checked',String(!!S.orbm))}obTick();if(!S.orb){const e=$('#orb');if(e)e.hidden=true;try{hlgPos()}catch(x){}}}
+function LO(){const on=!!S.orb&&!!S.orbm;if(map.getStyle())OBL.forEach(id=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',on?'visible':'none'));OBMD=0;{const b=$('#ob-sw');if(b)b.setAttribute('aria-checked',String(!!S.orbm))}obTick();if(!S.orb){const e=$('#orb');if(e)e.hidden=true;obPos.k='';try{sheetFit()}catch(x){}try{hlgPos()}catch(x){}}}
 // แถบสแกนของรอบที่จะแสดง: รอบที่กำลังสแกน/รอข้อมูล/ถัดไป · ±12 นาทีรอบเวลาที่ผ่าน (~±43° ละติจูด)
 function obBand(k,p){const tr=ORB.track(OBSR[k],p.t-12*6e4,p.t+12*6e4,20),ki=ORB.scanKm(ORB.EDGE,p.alt),ko=ORB.scanKm(ORB.SCANMAX,p.alt),I=ORB.swath(tr,ki),O=ORB.swath(tr,ko);return{tr,I,O}}
 function obMap(now){if(!map.getSource('obt')||!OBT||!S.orbm)return;const pts=[];
