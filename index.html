@@ -2835,7 +2835,7 @@ function pbFit(anim){if(innerWidth<768){if(document.body.classList.contains('pbo
  if(!best)return fitHome(anim);const ce=new maplibregl.MercatorCoordinate(best[1][0],best[1][1]).toLngLat();
  map.easeTo({center:ce,zoom:best[0],bearing:0,pitch:0,padding:{top:0,bottom:0,left:0,right:0},duration:pd})}
 
-function pbClose(){const mo=document.body.classList.contains('pbon');pbStop();PB.on=false;$('#pbf').hidden=true;pcVis();if(mo&&innerWidth<768)fitHome(true);if(PB.src==='st'){hMap(hfilt());if(!HOPEN&&S.hist){if(HAM()){hSet(false);HFC={type:'FeatureCollection',features:[]};hMap(hfilt())}S.hist=false;apply()}}if(PB.lca){PB.lca=false;if(innerWidth>767&&document.body.classList.contains('lc'))lcSet(false,true)}}
+function pbClose(){const mo=document.body.classList.contains('pbon');pbStop();PB.on=false;$('#pbf').hidden=true;pcVis();if(mo&&innerWidth<768)fitHome(true);if(PB.src==='st'){hMap(hfilt());if(!HOPEN&&S.hist){hDef();PB.i=0; /* ผู้ใช้ขอ 13 พ.ย. 69: ปิดแผงหลังปิดการ์ด (มือถือ) = ล้างตัวกรองกลับค่าเริ่มต้นด้วย */if(HAM()){hSet(false);HFC={type:'FeatureCollection',features:[]};hMap(hfilt())}S.hist=false;apply()}}if(PB.lca){PB.lca=false;if(innerWidth>767&&document.body.classList.contains('lc'))lcSet(false,true)}}
 addEventListener('resize',pbPos);new MutationObserver(()=>pbPos()).observe(document.body,{attributes:true,attributeFilter:['class']}); /* คอลัมน์ปุ่มมือถือซ่อน/แสดง (body.ctlh) หลังเปิดแผง = จัดใหม่ ไม่ให้แผงทับปุ่ม */
 /* --- เปิด/ปิดการ์ด --- */
 let HTAB='hs';const HSP={hs:true,xt:true}; // สวิตช์ "แสดงจุด" บนหัวการ์ด (ค่าเริ่มต้นเปิด) — wa ใช้ S.wsp
