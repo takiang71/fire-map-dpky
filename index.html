@@ -1061,7 +1061,7 @@ const areaHtml=g=>{let s='';if(g.cons)s+=`<b>${esc(g.cons.properties.name)}</b><
  return s||'<span class="sm">อยู่นอกพื้นที่อนุรักษ์และพื้นที่รับผิดชอบไฟป่าตามไฟล์แนวเขต</span><br>'};
 
 /* ---------- สถานะ + จำค่าที่ผู้ใช้เลือก ---------- */
-let S={base:'natural',img:'google',d3:false,hot:true,prov:false,cons:true,resp:false,stn:false,wpt:false,rgr:false,fbs:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,orb:true,orbm:true,wch:true,wst:false,wsp:true,demo:false,water:true,road:true,wind:false,pm:false,dry:false,wx:false,rad:false,wyl:false,wyo:'wind',wyop:60,hist:false,xt:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',rep:false,rpm:2,hcd:1,hcg:2,hcr:200};
+let S={base:'natural',img:'google',d3:false,hot:true,prov:false,cons:true,resp:false,stn:false,wpt:false,rgr:false,fbs:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,orb:true,orbm:false,wch:true,wst:false,wsp:true,demo:false,water:true,road:true,wind:false,pm:false,dry:false,wx:false,rad:false,wyl:false,wyo:'wind',wyop:60,hist:false,xt:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',rep:false,rpm:2,hcd:1,hcg:2,hcr:200};
 try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;S.wst=false;if(S.base==='road')S.base='detail';
 const toast=(m,fn,ms)=>{const t=$('#toast');t.textContent=m;t.classList.add('show');t.classList.toggle('act',!!fn);t.onclick=fn?()=>{t.classList.remove('show','act');fn()}:null;
  clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show','act'),ms||2200)}; // fn = แตะป้ายแล้วทำ (ป้ายค้างนานขึ้น)
@@ -5781,7 +5781,7 @@ function obRow(r,k,now){const s=obState(k,now),b=r.querySelector('b'),sp=r.query
  return s}
 function obTick(){const on=!!S.orb,e=obBox();e.hidden=!on;if(!on)return;try{if(map.getStyle()&&map.getSource('dem')&&!map.getSource('obt'))obLayers()}catch(x){console.warn('obLayers',x)} /* ชั้นหาย/ยังไม่ถูกสร้าง = สร้างใหม่ */const now=Date.now();if(!OBT&&!obLoad.p&&(!OBERR||now-(obLoad.ft||0)>6e4))obLoad(); // โหลดไม่ได้ = ลองใหม่ทุก 1 นาที
 if(obLoad.at&&now-obLoad.at>6*36e5){obLoad.p=null;obLoad()} // ข้อมูลวงโคจรใหม่ทุก 6 ชม. (เปิดค้าง)
- const cp=obMode()==='cp';e.classList.toggle('cp',cp);{const b=$('#ob-sw');if(b)b.setAttribute('aria-checked',String(S.orbm!==false))}e.querySelector('.obh').setAttribute('aria-expanded',String(!cp));e.querySelector('.obh').title=cp?'แตะเพื่อขยาย':'แตะเพื่อย่อ';
+ const cp=obMode()==='cp';e.classList.toggle('cp',cp);{const b=$('#ob-sw');if(b)b.setAttribute('aria-checked',String(!!S.orbm))}e.querySelector('.obh').setAttribute('aria-expanded',String(!cp));e.querySelector('.obh').title=cp?'แตะเพื่อขยาย':'แตะเพื่อย่อ';
  const q=e.querySelector('.obq');
  if(!OBT){q.textContent=OBERR||'กำลังโหลดวงโคจร…';e.querySelectorAll('.obr').forEach(r=>{r.querySelector('b').textContent=r.dataset.ob.replace('NOAA','NOAA-');r.querySelector('span').textContent=OBERR||'กำลังโหลด…';r.querySelector('em').textContent=''});obPos();return}
  obPasses(now);const S2=[];e.querySelectorAll('.obr').forEach(r=>{const k=r.dataset.ob;if(!OBSR[k]){r.hidden=true;return}r.hidden=false;S2.push([k,obRow(r,k,now)])});
@@ -5842,10 +5842,10 @@ function obLayers(){if(!map.getStyle()||map.getSource('obt'))return;const E={typ
  map.addLayer({id:'ob-ic',type:'symbol',source:'obp',layout:{'icon-image':['concat','ob-',['get','s']],'icon-size':['interpolate',['linear'],['zoom'],2,1.15,8,1.5],'icon-allow-overlap':true,'icon-rotation-alignment':'map',...(gl?{'text-field':['get','t'],'text-font':['Noto Sans Bold'],'text-size':11,'text-offset':[0,2.2],'text-anchor':'top','text-allow-overlap':true}:{})},paint:{'text-color':'#1d2433','text-halo-color':'#fff','text-halo-width':2}},bh);
  OBMD=0;LO()}
 const OBL=['ob-bf','ob-bo','ob-bi','ob-tp','ob-tf','ob-lb','ob-ic'];
-function LO(){const on=!!S.orb&&S.orbm!==false;if(map.getStyle())OBL.forEach(id=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',on?'visible':'none'));OBMD=0;{const b=$('#ob-sw');if(b)b.setAttribute('aria-checked',String(S.orbm!==false))}obTick();if(!S.orb){const e=$('#orb');if(e)e.hidden=true;try{hlgPos()}catch(x){}}}
+function LO(){const on=!!S.orb&&!!S.orbm;if(map.getStyle())OBL.forEach(id=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',on?'visible':'none'));OBMD=0;{const b=$('#ob-sw');if(b)b.setAttribute('aria-checked',String(!!S.orbm))}obTick();if(!S.orb){const e=$('#orb');if(e)e.hidden=true;try{hlgPos()}catch(x){}}}
 // แถบสแกนของรอบที่จะแสดง: รอบที่กำลังสแกน/รอข้อมูล/ถัดไป · ±12 นาทีรอบเวลาที่ผ่าน (~±43° ละติจูด)
 function obBand(k,p){const tr=ORB.track(OBSR[k],p.t-12*6e4,p.t+12*6e4,20),ki=ORB.scanKm(ORB.EDGE,p.alt),ko=ORB.scanKm(ORB.SCANMAX,p.alt),I=ORB.swath(tr,ki),O=ORB.swath(tr,ko);return{tr,I,O}}
-function obMap(now){if(!map.getSource('obt')||!OBT||S.orbm===false)return;const pts=[];
+function obMap(now){if(!map.getSource('obt')||!OBT||!S.orbm)return;const pts=[];
  for(const k in OBSR){const p=ORB.at(OBSR[k],now);if(p)pts.push({type:'Feature',geometry:{type:'Point',coordinates:[p.lon,p.lat]},properties:{s:k,t:OBT.sats[k].n}})}
  map.getSource('obp').setData({type:'FeatureCollection',features:pts});
  if(now-OBMD<3e4)return;OBMD=now;const F=[],unwrap=A=>{const B=[];A.forEach((p,i)=>{let lo=p[0];if(i){const d=lo-B[i-1][0];lo-=Math.round(d/360)*360}B.push([lo,p[1]])});return B},LS=(c,props)=>F.push({type:'Feature',geometry:{type:'LineString',coordinates:c},properties:props});
@@ -5856,7 +5856,7 @@ function obMap(now){if(!map.getSource('obt')||!OBT||S.orbm===false)return;const 
   const q=ORB.at(OBSR[k],s.p.t);F.push({type:'Feature',geometry:{type:'Point',coordinates:[q.lon,q.lat]},properties:{k:'lab',c,t:`${OBT.sats[k].n} ${obHM(s.p.t)}`}})}
  map.getSource('obt').setData({type:'FeatureCollection',features:F})}
 // ซูมแผนที่ไปที่แถบสแกนของรอบที่แสดงของดวง k
-function obFocus(k){if(!OBSR[k])return;if(!S.orb){S.orb=true;apply()}if(S.orbm===false){S.orbm=true;LO()}if(OBF===k&&MOVED){OBF=null;OBMD=0;obMap(Date.now());$$('#orb .obr').forEach(r=>r.classList.toggle('on',false));return toast('แสดงแถบสแกนรอบถัดไปของทุกดวง')}OBF=k;$$('#orb .obr').forEach(r=>r.classList.toggle('on',r.dataset.ob===k));const now=Date.now(),s=obState(k,now);if(!s.p)return toast('ไม่มีรอบที่ผ่านกลุ่มป่าใน 36 ชม.');
+function obFocus(k){if(!OBSR[k])return;if(!S.orb){S.orb=true;apply()}if(!S.orbm){S.orbm=true;LO()}if(OBF===k&&MOVED){OBF=null;OBMD=0;obMap(Date.now());$$('#orb .obr').forEach(r=>r.classList.toggle('on',false));return toast('แสดงแถบสแกนรอบถัดไปของทุกดวง')}OBF=k;$$('#orb .obr').forEach(r=>r.classList.toggle('on',r.dataset.ob===k));const now=Date.now(),s=obState(k,now);if(!s.p)return toast('ไม่มีรอบที่ผ่านกลุ่มป่าใน 36 ชม.');
  const b=obBand(k,s.p),A=[...b.O.l,...b.O.r].filter(p=>Math.abs(p[1]-OBTGT[1])<14);if(!A.length)return;const bb=new maplibregl.LngLatBounds(A[0],A[0]);A.forEach(p=>bb.extend(p));bb.extend(OBTGT);
  OBMD=0;obMap(now);MOVED=true;map.fitBounds(bb,{padding:homePad(),maxZoom:6,duration:dur(1200)});
  toast(`${OBT.sats[k].n} ${s.st==='next'?'ผ่านกลุ่มป่ารอบถัดไป':'รอบนี้'} ${obDay(s.p.t,now)}${obHM(s.p.t)} น. · แถบทึบ = มุมสแกนไม่เกิน ${ORB.EDGE}° · เส้นประ = ขอบแถบสแกน`,null,6000)}
