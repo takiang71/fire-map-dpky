@@ -558,6 +558,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 #orb .obh .hsp{margin-left:auto;font-size:11px}#orb .obh .hsp+.obx{margin-left:2px}#orb.cp .obh .hsp{display:none}
 #orb .obn{padding:6px 10px 2px;color:var(--mut);font-size:10.5px;line-height:1.4}
 #orb .obs{margin:4px 10px 9px;font-size:10.5px}
+@media(max-width:767px){.obpop .maplibregl-popup-content{font-size:11.5px;line-height:1.4;padding:8px 22px 8px 10px}}
 #orb.mb{right:auto}#orb.mb:not(.cp){width:min(300px,calc(100% - 90px))}
 </style>
 </head>
@@ -5749,8 +5750,8 @@ function obState(k,now){const Q=(OBP[k]||[]).filter(p=>!p.out),nx=Q.find(p=>p.t>
 const obSatSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(-45 12 12)"><rect x="9.6" y="8.6" width="4.8" height="6.2" rx="1"/><path d="M2.5 10.2h6.2v3.6H2.5zM15.3 10.2h6.2v3.6h-6.2zM12 14.8v2.6"/><path d="M9.6 19.8a3.4 3.4 0 014.8 0"/></g></svg>';
 function obBox(){let e=$('#orb');if(e)return e;e=document.createElement('div');e.id='orb';e.hidden=true;e.setAttribute('role','region');e.setAttribute('aria-label','ดาวเทียมรอบถัดไปเหนือกลุ่มป่า');
  e.innerHTML=`<div class="obh" role="button" tabindex="0">${obSatSvg}<b class="obti">ดาวเทียมรอบถัดไป<small>เหนือกลุ่มป่า</small></b><span class="obq"></span><label class="hsp" title="แสดง/ซ่อนเส้นทางโคจร แถบสแกน และไอคอนดาวเทียมบนแผนที่หลัก"><button class="sw" id="ob-sw" role="switch" aria-label="แสดงวงโคจรบนแผนที่"></button>บนแผนที่</label><i class="obx" aria-hidden="true">▾</i></div>
- <div class="obb">${Object.keys(OBC).map(k=>`<div class="obr" data-ob="${k}" role="button" tabindex="0" title="แตะเพื่อดูแถบสแกนของรอบนี้บนแผนที่"><i style="--c:${OBC[k]}"></i><div><b></b><span></span></div><em></em></div>`).join('')}
- <div class="obwm"><canvas class="obw" role="img" aria-label="แผนที่โลกแสดงตำแหน่งดาวเทียมปัจจุบัน" title="ตำแหน่งดาวเทียมขณะนี้ · เส้นทึบ = เส้นทางข้างหน้า 60 นาที · แถบจาง = ความกว้างแถบสแกน · พื้นมืด = กลางคืน · จุดแดง = กลุ่มป่า · แตะเพื่อดูรอบถัดไปบนแผนที่"></canvas></div>
+ <div class="obb">${Object.keys(OBC).map(k=>`<div class="obr" data-ob="${k}" role="button" tabindex="0" title="แตะเพื่อซูมไปที่ดาวเทียมดวงนี้"><i style="--c:${OBC[k]}"></i><div><b></b><span></span></div><em></em></div>`).join('')}
+ <div class="obwm"><canvas class="obw" role="img" aria-label="แผนที่โลกแสดงตำแหน่งดาวเทียมปัจจุบัน" title="ตำแหน่งดาวเทียมขณะนี้ · เส้นทึบ = เส้นทางข้างหน้า 60 นาที · แถบจาง = ความกว้างแถบสแกน · พื้นมืด = กลางคืน · จุดแดง = กลุ่มป่า · แตะเพื่อซูมไปที่ดาวเทียมที่จะผ่านกลุ่มป่าก่อน"></canvas></div>
  <div class="obn">นับทุกรอบที่แถบสแกนผ่านกลุ่มป่า · รอบที่มุมสแกนเกิน ${ORB.EDGE}° มีป้าย "ขอบแถบ" (พิกเซลใหญ่ขึ้น จับไฟเล็กได้ยากกว่า) · จุดความร้อนเข้าระบบราว ${OBLAG[0]}–${OBLAG[1]} นาทีหลังสแกน · ดาวเทียมผ่านไม่ได้แปลว่าจะพบจุดเสมอ (เมฆบัง / ไฟไม่ได้ลุกตอนสแกน)</div>
  <div class="dsrc obs" id="ob-src"></div></div>`;
  document.body.appendChild(e);
@@ -5777,7 +5778,7 @@ function obRow(r,k,now){const s=obState(k,now),b=r.querySelector('b'),sp=r.query
  else if(s.st==='wait'){sp.textContent=`สแกนแล้ว ${obHM(s.p.t)} น. · ข้อมูลเข้าราว ${obHM(s.p.t+OBLAG[0]*6e4)}–${obHM(s.p.t+OBLAG[1]*6e4)} น.${s.nx?` · ถัดไป ${obDay(s.nx.t,now)}${obHM(s.nx.t)} น.`:''}`;em.textContent='รอข้อมูล';em.className='wait'}
  else if(s.st==='next'){sp.textContent=`${dn(s.p)} ${obDay(s.p.t,now)}${obHM(s.p.t)} น. · ${ang(s.p)}`;em.textContent=obCD((s.p.t-now)/1e3)}
  else{sp.textContent='ไม่มีรอบที่แถบสแกนผ่านใน 36 ชม.';em.textContent='–'}
- r.title=s.p?`${n}: ${s.st==='next'?'ผ่านกลุ่มป่ารอบถัดไป':'รอบนี้'} ${obDay(s.p.t,now)}${obHM(s.p.t)} น. (${s.p.day?'กลางวัน':'กลางคืน'}, ${s.p.asc?'ขาขึ้นจากใต้ไปเหนือ':'ขาลงจากเหนือไปใต้'}) · กลุ่มป่าห่างแนวใต้ดาวเทียม ${Math.round(s.p.km).toLocaleString()} กม. · มุมสแกน ${s.p.ang.toFixed(1)}° · แตะเพื่อดูแถบสแกนบนแผนที่`:n;
+ r.title=s.p?`${n}: ${s.st==='next'?'ผ่านกลุ่มป่ารอบถัดไป':'รอบนี้'} ${obDay(s.p.t,now)}${obHM(s.p.t)} น. (${s.p.day?'กลางวัน':'กลางคืน'}, ${s.p.asc?'ขาขึ้นจากใต้ไปเหนือ':'ขาลงจากเหนือไปใต้'}) · กลุ่มป่าห่างแนวใต้ดาวเทียม ${Math.round(s.p.km).toLocaleString()} กม. · มุมสแกน ${s.p.ang.toFixed(1)}° · แตะเพื่อซูมไปที่ดาวเทียมและติดตาม`:n;
  return s}
 function obTick(){const on=!!S.orb,e=obBox();e.hidden=!on;if(!on)return;try{if(map.getStyle()&&map.getSource('dem')&&!map.getSource('obt'))obLayers()}catch(x){console.warn('obLayers',x)} /* ชั้นหาย/ยังไม่ถูกสร้าง = สร้างใหม่ */const now=Date.now();if(!OBT&&!obLoad.p&&(!OBERR||now-(obLoad.ft||0)>6e4))obLoad(); // โหลดไม่ได้ = ลองใหม่ทุก 1 นาที
 if(obLoad.at&&now-obLoad.at>6*36e5){obLoad.p=null;obLoad()} // ข้อมูลวงโคจรใหม่ทุก 6 ชม. (เปิดค้าง)
@@ -5790,7 +5791,7 @@ if(obLoad.at&&now-obLoad.at>6*36e5){obLoad.p=null;obLoad()} // ข้อมู�
  if(top){const[k,s]=top,n=OBT.sats[k].n;q.innerHTML=s.st==='now'?`<i style="--c:${OBC[k]}"></i>${n} <em class="now">กำลังสแกน</em>`:s.st==='wait'?`<i style="--c:${OBC[k]}"></i>${n} สแกนแล้ว · <em class="wait">รอข้อมูล</em>`:s.st==='next'?`<i style="--c:${OBC[k]}"></i>${n} ${s.p.day?'☀':'☾'} ${obDay(s.p.t,now)}${obHM(s.p.t)} · อีก <em>${obCD((s.p.t-now)/1e3)}</em>`:'ไม่มีรอบใน 36 ชม.'}
  {const src=$('#ob-src'),ep=Object.values(OBT.sats).map(s=>Date.parse(s.ep)).filter(isFinite),old=ep.length?Math.max(0,(now-Math.min(...ep))/864e5):0;
   if(src&&src.dataset.k!==String(Math.floor(old))){src.dataset.k=String(Math.floor(old));src.innerHTML=`<b class="t">ที่มาข้อมูล</b> ข้อมูลวงโคจร (TLE) จาก CelesTrak · ค่าวงโคจรอายุ ${old<1?'ไม่ถึง 1 วัน':Math.floor(old)+' วัน'} · คำนวณตำแหน่งด้วยแบบจำลอง SGP4 ในเบราว์เซอร์ (เวลาคลาดเคลื่อนไม่เกินราว 1 นาที)${old>7?' · <span style="color:#b3261e">ข้อมูลวงโคจรเก่ากว่า 7 วัน เวลาอาจคลาดเคลื่อนมากขึ้น</span>':''}`}}
- if(!cp)obMini(now);obPos();obMap(now)}
+ if(!cp)obMini(now);obPos();obMap(now);try{obPopUpd(now)}catch(x){}}
 // แผนที่โลกย่อ (เมอร์เคเตอร์ ±70° กึ่งกลางที่ลองจิจูดกลุ่มป่า)
 const OBY0=.2238,OBYS=.5524;
 function obMini(now){const c=$('#orb .obw');if(!c||!c.offsetWidth)return;const wm=c.parentNode;if(!$('#orb').classList.contains('tall'))wm.style.height=Math.round(wm.offsetWidth*OBYS)+'px';else wm.style.height='';
@@ -5855,15 +5856,42 @@ function obMap(now){if(!map.getSource('obt')||!OBT||!S.orbm)return;const pts=[];
   LS(b.I.l,{k:'bin',c});LS(b.I.r,{k:'bin',c});LS(b.O.l,{k:'bout',c});LS(b.O.r,{k:'bout',c});
   const q=ORB.at(OBSR[k],s.p.t);F.push({type:'Feature',geometry:{type:'Point',coordinates:[q.lon,q.lat]},properties:{k:'lab',c,t:`${OBT.sats[k].n} ${obHM(s.p.t)}`}})}
  map.getSource('obt').setData({type:'FeatureCollection',features:F})}
-// ซูมแผนที่ไปที่แถบสแกนของรอบที่แสดงของดวง k
-function obFocus(k){if(!OBSR[k])return;if(!S.orb){S.orb=true;apply()}if(!S.orbm){S.orbm=true;LO()}if(OBF===k&&MOVED){OBF=null;OBMD=0;obMap(Date.now());$$('#orb .obr').forEach(r=>r.classList.toggle('on',false));return toast('แสดงแถบสแกนรอบถัดไปของทุกดวง')}OBF=k;$$('#orb .obr').forEach(r=>r.classList.toggle('on',r.dataset.ob===k));const now=Date.now(),s=obState(k,now);if(!s.p)return toast('ไม่มีรอบที่ผ่านกลุ่มป่าใน 36 ชม.');
- const b=obBand(k,s.p),A=[...b.O.l,...b.O.r].filter(p=>Math.abs(p[1]-OBTGT[1])<14);if(!A.length)return;const bb=new maplibregl.LngLatBounds(A[0],A[0]);A.forEach(p=>bb.extend(p));bb.extend(OBTGT);
- OBMD=0;obMap(now);MOVED=true;map.fitBounds(bb,{padding:homePad(),maxZoom:6,duration:dur(1200)});
- toast(`${OBT.sats[k].n} ${s.st==='next'?'ผ่านกลุ่มป่ารอบถัดไป':'รอบนี้'} ${obDay(s.p.t,now)}${obHM(s.p.t)} น. · แถบทึบ = มุมสแกนไม่เกิน ${ORB.EDGE}° · เส้นประ = ขอบแถบสแกน`,null,6000)}
+/* แตะแถวของดวงในกล่อง = ซูมไปที่ตำแหน่งดาวเทียมขณะนี้ + ป๊อปอัปข้อมูล แล้วแผนที่ติดตามดาวเทียมไปจนผู้ใช้เลื่อน/ซูมเอง หรือปิดป๊อปอัป
+   (ผู้ใช้ขอ 13 พ.ย. 69 — เดิมซูมไปที่แถบสแกนรอบถัดไป) · ยังแสดงแถบสแกนรอบถัดไปเฉพาะดวงนั้น (OBF) */
+function obFocus(k){if(!OBSR[k])return;if(!S.orb){S.orb=true;apply()}if(!S.orbm){S.orbm=true;LO()}OBF=k;$$('#orb .obr').forEach(r=>r.classList.toggle('on',r.dataset.ob===k));
+ const now=Date.now(),p=ORB.at(OBSR[k],now);if(!p)return;OBMD=0;obMap(now);MOVED=true;OBFOL=true;OBFT=now+dur(1300);
+ if(innerWidth<768&&obMode()!=='cp'){OBM='cp';OBMD=0;obTick()} /* มือถือ: ย่อกล่องชั่วคราว (ไม่บันทึก) ให้เห็นแผนที่ */
+ map.easeTo({center:[p.lon,p.lat],zoom:4.5,offset:obOff(),duration:dur(1200)});obPopup(k)}
 // แตะไอคอนดาวเทียมบนแผนที่ (เรียกจากตัวจัดการคลิกหลัก)
-function obHit(e){if(!S.orb||!map.getLayer('ob-ic'))return false;const f=map.queryRenderedFeatures(e.point,{layers:['ob-ic']})[0];if(!f)return false;
- const k=f.properties.s,now=Date.now(),p=ORB.at(OBSR[k],now),s=obState(k,now);
- new maplibregl.Popup({maxWidth:'270px'}).setLngLat(f.geometry.coordinates).setHTML(`<b style="color:${OBC[k]}">${esc(OBT.sats[k].n)}</b> <span class="sm">ดาวเทียมตรวจจับไฟ VIIRS</span><br>ความสูง ${Math.round(p.alt).toLocaleString()} กม. · ความเร็ว ${p.v.toFixed(1)} กม./วินาที<br>ตำแหน่งขณะนี้ ${Math.abs(p.lat).toFixed(1)}°${p.lat>=0?'N':'S'} ${Math.abs(p.lon).toFixed(1)}°${p.lon>=0?'E':'W'} · ห่างกลุ่มป่า ${Math.round(ORB.dist(OBTGT[1],OBTGT[0],p.lat,p.lon)).toLocaleString()} กม.<br>${s.p?`${s.st==='next'?'ผ่านกลุ่มป่ารอบถัดไป':s.st==='now'?'กำลังสแกนกลุ่มป่า':'สแกนกลุ่มป่าแล้ว'} <b>${obDay(s.p.t,now)}${obHM(s.p.t)} น.</b> (${s.p.day?'กลางวัน':'กลางคืน'} · มุมสแกน ${Math.round(s.p.ang)}°)`:'ไม่มีรอบที่แถบสแกนผ่านใน 36 ชม.'}`).addTo(map);return true}
+// แตะไอคอนดาวเทียมบนแผนที่ (เรียกจากตัวจัดการคลิกหลัก) = ป๊อปอัปตามตำแหน่งดาวเทียม (แผนที่ไม่ติดตาม)
+function obHit(e){if(!S.orb||!map.getLayer('ob-ic'))return false;const f=map.queryRenderedFeatures(e.point,{layers:['ob-ic']})[0];if(!f)return false;OBFOL=false;obPopup(f.properties.s);return true}
+/* ชื่อสถานที่ใต้ดาวเทียม: BigDataCloud reverse-geocode-client (ฟรี ไม่ต้องใช้คีย์ เปิด CORS ภาษาไทย — ทะเล/มหาสมุทรได้ชื่อมหาสมุทร)
+   แคชตามช่อง 2° (ดาวเทียมเคลื่อน ~2° ทุก 30 วิ = ขอราว 2 ครั้ง/นาทีขณะเปิดป๊อปอัป) · ขอไม่ได้ = ไม่แสดงบรรทัดนี้ ลองใหม่หลัง 1 นาที */
+const OBGC={},OBSEA={'Pacific Ocean':'มหาสมุทรแปซิฟิก','Atlantic Ocean':'มหาสมุทรแอตแลนติก','Indian Ocean':'มหาสมุทรอินเดีย','Arctic Ocean':'มหาสมุทรอาร์กติก','Southern Ocean':'มหาสมุทรใต้'};
+function obPlaceTxt(j){const inf=(j.localityInfo&&j.localityInfo.informative)||[],th=n=>OBSEA[n]||n,u=a=>a.filter(Boolean).filter((v,i,x)=>x.indexOf(v)===i);
+ if(j.countryName)return u([j.countryName,j.principalSubdivision,j.locality]).join(' · ');
+ const sea=inf.find(x=>/มหาสมุทร|ทะเล|อ่าว|ช่องแคบ|ocean|sea\b|gulf|bay|strait/i.test((x.description||'')+' '+(x.name||'')));if(sea)return th(sea.name);
+ const ct=inf.find(x=>/ทวีป|continent/i.test(x.description||''));return u([ct&&ct.name,th(j.locality||'')]).join(' · ')}
+function obPlace(la,lo){const key=Math.round(la/2)+','+Math.round(lo/2);let c=OBGC[key];if(c&&!(c.err&&Date.now()-c.at>6e4))return c.t;
+ OBGC[key]={t:null,at:Date.now()};
+ fetch(`https://api-bdc.io/data/reverse-geocode-client?latitude=${la.toFixed(2)}&longitude=${lo.toFixed(2)}&localityLanguage=th`).then(r=>r.ok?r.json():Promise.reject(Error('HTTP '+r.status)))
+  .then(j=>{OBGC[key]={t:obPlaceTxt(j)||'',at:Date.now()};obPopUpd(Date.now(),1)}).catch(()=>{OBGC[key]={t:'',err:1,at:Date.now()}});return null}
+let OBPOP=null,OBFOL=false,OBFT=0;
+function obOff(){const o=visOff();try{const{y0,y1}=visArea();o[1]+=Math.round((y1-y0)*(innerWidth<768?.36:.18))}catch(e){}return o}
+function obPopHtml(k,now){const p=ORB.at(OBSR[k],now),s=obState(k,now),pl=obPlace(p.lat,p.lon);
+ return `<b style="color:${OBC[k]}">${esc(OBT.sats[k].n)}</b> <span class="sm">ดาวเทียมตรวจจับไฟ VIIRS</span><br>`+
+ `<b>อยู่เหนือ:</b> ${pl==null?'<span class="sm">กำลังค้นหา…</span>':pl?esc(pl):'<span class="sm">ไม่ทราบชื่อสถานที่</span>'}<br>`+
+ `พิกัด ${Math.abs(p.lat).toFixed(1)}°${p.lat>=0?'N':'S'} ${Math.abs(p.lon).toFixed(1)}°${p.lon>=0?'E':'W'} · ห่างกลุ่มป่า ${Math.round(ORB.dist(OBTGT[1],OBTGT[0],p.lat,p.lon)).toLocaleString()} กม.<br>`+
+ `ความสูง ${Math.round(p.alt).toLocaleString()} กม. · ความเร็ว ${p.v.toFixed(1)} กม./วินาที · ${ORB.sunEl(now,p.lat,p.lon)>0?'☀ ด้านกลางวัน':'☾ ด้านกลางคืน'}<br>`+
+ (s.p?`${s.st==='next'?'ผ่านกลุ่มป่ารอบถัดไป':s.st==='now'?'กำลังสแกนกลุ่มป่า':'สแกนกลุ่มป่าแล้ว'} <b>${obDay(s.p.t,now)}${obHM(s.p.t)} น.</b> (${s.p.day?'กลางวัน':'กลางคืน'} · มุมสแกน ${Math.round(s.p.ang)}°${s.p.edge?' ขอบแถบ':''})${s.st==='next'?' · อีก '+obCD((s.p.t-now)/1e3):''}`:'ไม่มีรอบที่แถบสแกนผ่านใน 36 ชม.')+
+(innerWidth<768?'':`<br><span class="sm">${OBFOL?'แผนที่กำลังติดตามดาวเทียม · เลื่อนหรือซูมแผนที่เพื่อหยุด':'ตำแหน่งเปลี่ยนทุกวินาที'} · ชื่อสถานที่: BigDataCloud</span>`)}
+function obPopup(k){if(OBPOP)try{OBPOP.p.remove()}catch(e){}const now=Date.now(),p=ORB.at(OBSR[k],now);if(!p)return;
+ const pop=new maplibregl.Popup({maxWidth:innerWidth<768?'260px':'290px',className:'obpop',offset:22,anchor:'bottom'}).setLngLat([p.lon,p.lat]).setHTML(obPopHtml(k,now)).addTo(map);OBPOP={k,p:pop};
+ pop.on('close',()=>{if(OBPOP&&OBPOP.p===pop){OBPOP=null;OBFOL=false}})}
+// ทุกวินาที (obTick): ป๊อปอัปตามตำแหน่งดาวเทียม + แผนที่ติดตาม
+function obPopUpd(now,html){if(!OBPOP||!OBPOP.p.isOpen()||!OBSR[OBPOP.k])return;const p=ORB.at(OBSR[OBPOP.k],now);if(!p)return;OBPOP.p.setLngLat([p.lon,p.lat]).setHTML(obPopHtml(OBPOP.k,now));
+ if(!html&&OBFOL&&now>OBFT&&!map.isMoving())map.easeTo({center:[p.lon,p.lat],offset:obOff(),duration:dur(950),easing:t=>t})}
+map.on('movestart',e=>{if(e&&e.originalEvent&&OBFOL){OBFOL=false;obPopUpd(Date.now(),1)}}); /* ผู้ใช้ลาก/ซูมเอง = หยุดติดตาม */
 setInterval(()=>{if(S.orb&&!document.hidden)obTick()},1000);
 addEventListener('resize',()=>{OBMD=0;try{obPos()}catch(e){}});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.orb){OBPAT=0;obTick()}});
