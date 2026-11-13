@@ -67,28 +67,71 @@ async function live() {
   return L;
 }
 
-async function apiLive() {
-  const n = Date.now(), url = `${API}?start_date=${encodeURIComponent(th(n - 48 * 36e5))}&end_date=${encodeURIComponent(th(n))}&reserved_only=0&protected_only=0`;
+// --- ลดภาระ API ต้นทาง (ผู้ใช้สั่ง 13 พ.ย. 69): ปกติดึงแค่ 12 ชม. ล่าสุด (INC_H) แล้วรวมกับผลรอบก่อน · ดึงเต็ม 48 ชม. ทุก FULL_MIN นาที ---
+// 12 ชม. = ช่วงเดียวกับที่ LINE/Telegram แจ้งเตือน (สแกน ≤12 ชม.) → จุดที่มีสิทธิ์แจ้งเตือนอยู่ในคำขอทุกรอบเสมอ ความเร็วแจ้งเตือนเท่าเดิม
+// ช่วง 12–48 ชม. มาจากรอบก่อน (อัปเดตทุกครั้งที่ดึงเต็ม) · ฐานข้อมูลสะสม (adata) มาจาก sync_hotspots.js แยกกัน ไม่เกี่ยว
+// แคช = STATE_DIR/live_cache.json (site.yml ดึงจาก/เก็บกลับ branch state) {updated, full, feats (ในแนวเขต), W (พื้นที่เฝ้าระวัง), nat: {"ดาวเทียม|full_date": จำนวนทั้งประเทศ}}
+// ดึงเต็มทันทีเมื่อ: ไม่มีแคช/แคชเสีย, ดึงเต็มครั้งล่าสุดเกิน FULL_MIN, คำตอบ 12 ชม. ว่างทั้งประเทศ หรือขาดดาวเทียมใดใน SATS() (= พฤติกรรมเดิม → ตัดสินเรื่อง FIRMS เหมือนเดิม)
+const STATE_DIR = process.env.STATE_DIR || path.join(ROOT, '.state'), CACHE = path.join(STATE_DIR, 'live_cache.json');
+const INC_H = +process.env.LIVE_INC_H || 12, FULL_MIN = +process.env.LIVE_FULL_MIN || 30, EDGE_MIN = 20; // EDGE_MIN = ขอเกินขอบไว้ ให้ตัวตัดจุดซ้ำเห็นรอบดาวเทียมที่ขอบช่วงครบทั้งรอบ
+const fdOf = ms => th(ms).replace('T', ' ');
+async function apiGet(h) {
+  const n = Date.now(), url = `${API}?start_date=${encodeURIComponent(th(n - h * 36e5))}&end_date=${encodeURIComponent(th(n))}&reserved_only=0&protected_only=0`;
   for (let k = 1; ; k++) try {
-    const r = await fetch(url, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(120e3) });
+    const r = await fetch(url, { headers: { Accept: 'application/json', 'User-Agent': 'fire-map-dpky (https://takiang71.github.io/fire-map-dpky/)' }, signal: AbortSignal.timeout(120e3) });
     if (!r.ok) throw new Error('HTTP ' + r.status);
-    const j = await r.json(), raw = j.features || [], D = featDups(raw), all = raw.filter((f, i) => !D.has(i)); // ตัดคู่แฝดของรอบดาวเทียมที่ API ส่งซ้ำ (scripts/lib/dedup.js)
-    const keep = [];
-    WLIVE = [];
-    for (const f of all) {
-      const w = f.geometry && where(f.geometry.coordinates[0], f.geometry.coordinates[1]);
-      if (w) { Object.assign(f.properties || (f.properties = {}), { _ar: w.ar, _st: w.st }); keep.push(f) }
-      // พื้นที่เฝ้าระวังเป็นพิเศษ (นอกแนวเขตกลุ่มป่า) → watch.json แยกไฟล์ ไม่ปนใน live.json (หน้าเว็บ/LINE/Worker เดิมนับยอดกลุ่มป่าจาก live.json)
-      const wa = f.geometry && watchAt(f.geometry.coordinates[0], f.geometry.coordinates[1]);
-      if (wa) WLIVE.push({ ...f, properties: { ...f.properties, _w: wa } });
-    }
-    const last = all.reduce((m, f) => (f.properties && f.properties.full_date > m ? f.properties.full_date : m), ''), sats = {};
-    for (const f of all) { const k = satKey(f.properties && f.properties.satellite_name); sats[k] = (sats[k] || 0) + 1 } // จุดทั้งประเทศต่อดาวเทียม (หาดวงที่ขาด)
-    return { type: 'FeatureCollection', meta: { generated: new Date().toISOString(), nation_total: all.length, nation_last: last || null, sys_update: await sysUpdate(), sats, ...(D.size ? { dup: D.size } : {}) }, features: keep };
+    const j = await r.json(), raw = j.features || [], D = featDups(raw); // ตัดคู่แฝดของรอบดาวเทียมที่ API ส่งซ้ำ (scripts/lib/dedup.js)
+    return { all: raw.filter((f, i) => !D.has(i)), dup: D.size };
   } catch (e) {
     if (k >= 3) throw e;
     await new Promise(r => setTimeout(r, 5000 * k));
   }
+}
+// แยกคำตอบ API → จุดในแนวเขต / จุดพื้นที่เฝ้าระวัง / จำนวนทั้งประเทศต่อ "ดาวเทียม|เวลาสแกน"
+function split(all, from) {
+  const feats = [], W = [], nat = {};
+  for (const f of all) {
+    const p = f.properties || (f.properties = {}), fd = String(p.full_date || '');
+    if (from && fd && fd < from) continue; // ส่วนที่ขอเกินขอบ (EDGE_MIN) ใช้แค่ตัดจุดซ้ำ
+    const k = satKey(p.satellite_name) + '|' + fd; nat[k] = (nat[k] || 0) + 1;
+    const c = f.geometry && f.geometry.coordinates; if (!c) continue;
+    const w = where(c[0], c[1]);
+    if (w) { Object.assign(p, { _ar: w.ar, _st: w.st }); feats.push(f) }
+    // พื้นที่เฝ้าระวังเป็นพิเศษ (นอกแนวเขตกลุ่มป่า) → watch.json แยกไฟล์ ไม่ปนใน live.json (หน้าเว็บ/LINE/Worker เดิมนับยอดกลุ่มป่าจาก live.json)
+    const wa = watchAt(c[0], c[1]);
+    if (wa) W.push({ ...f, properties: { ...p, _w: wa } });
+  }
+  return { feats, W, nat };
+}
+function readCache() {
+  try { const c = JSON.parse(fs.readFileSync(CACHE, 'utf8')); return c && c.full && Array.isArray(c.feats) && Array.isArray(c.W) && c.nat ? c : null } catch (e) { return null }
+}
+async function apiLive() {
+  const now = Date.now(), C = readCache(), from48 = fdOf(now - 48 * 36e5);
+  let mode = 'full', why = !C ? 'ไม่มีผลรอบก่อน' : now - Date.parse(C.full) >= FULL_MIN * 6e4 ? `ดึงเต็มครั้งล่าสุดเกิน ${FULL_MIN} นาที` : process.env.LIVE_FULL ? 'สั่ง LIVE_FULL' : '';
+  let S, dup;
+  if (!why) {
+    const cut = fdOf(now - INC_H * 36e5), r = await apiGet(INC_H + EDGE_MIN / 60), I = split(r.all, cut), got = new Set(Object.keys(I.nat).map(k => k.split('|')[0]));
+    const miss = SATS().filter(s => !got.has(s));
+    if (!r.all.length) why = `คำตอบ ${INC_H} ชม. ว่างทั้งประเทศ`;
+    else if (miss.length) why = `คำตอบ ${INC_H} ชม. ไม่มี ${miss.map(s => SATN[s]).join('/')}`;
+    else {
+      const old = f => { const d = String(f.properties && f.properties.full_date || ''); return d && d >= from48 && d < cut };
+      const nat = {}; for (const k in C.nat) { const d = k.slice(k.indexOf('|') + 1); if (d >= from48 && d < cut) nat[k] = C.nat[k] } Object.assign(nat, I.nat);
+      S = { feats: C.feats.filter(old).concat(I.feats), W: C.W.filter(old).concat(I.W), nat }; dup = r.dup; mode = 'inc';
+    }
+  }
+  if (!S) { const r = await apiGet(48); S = split(r.all); dup = r.dup }
+  const sats = {}; let total = 0, last = '';
+  for (const k in S.nat) { const [s, d] = [k.slice(0, k.indexOf('|')), k.slice(k.indexOf('|') + 1)]; sats[s] = (sats[s] || 0) + S.nat[k]; total += S.nat[k]; if (d > last) last = d }
+  // ดึงเต็มแล้วว่าง/ขาดดาวเทียม (API ขัดข้อง หรือหน้าฝนดวงหนึ่งไม่มีจุด) = ไม่ใช้เป็นฐาน → รอบถัดไปดึงเต็มอีก (พฤติกรรมเดิม)
+  // ไม่งั้นพอ API กลับมา จะได้แค่ 12 ชม. ล่าสุด จุด 12–48 ชม. หายไปจนกว่าจะครบ FULL_MIN (ตรวจกับ API จำลองแล้ว)
+  const full = mode === 'inc' ? C.full : new Date(total && SATS().every(s => sats[s]) ? now : 0).toISOString();
+  try { fs.mkdirSync(STATE_DIR, { recursive: true }); fs.writeFileSync(CACHE, JSON.stringify({ updated: new Date().toISOString(), full, feats: S.feats, W: S.W, nat: S.nat })) }
+  catch (e) { console.log('บันทึก live_cache.json ไม่สำเร็จ:', e.message) }
+  console.log(mode === 'inc' ? `API: ดึง ${INC_H} ชม. ล่าสุด แล้วรวมกับผลรอบก่อน (ดึงเต็มล่าสุด ${C.full})` : `API: ดึงเต็ม 48 ชม. (${why || 'ไม่มีผลรอบก่อน'})`);
+  WLIVE = S.W;
+  return { type: 'FeatureCollection', meta: { generated: new Date().toISOString(), nation_total: total, nation_last: last || null, sys_update: await sysUpdate(), sats, fetch: mode === 'inc' ? { h: INC_H, full: C.full } : { h: 48, why }, ...(dup ? { dup } : {}) }, features: S.feats.sort((a, b) => String(b.properties.full_date).localeCompare(String(a.properties.full_date))) };
 }
 
 // --- ยอดสะสมปีงบ: ดาวเทียมตัวชี้วัด SNPP ก่อน 2 พ.ย. 2569 แล้ว NOAA-20 (IND_SW / indSat ในหน้าเว็บ) ---

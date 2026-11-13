@@ -41,7 +41,8 @@ jobs:
         run: |
           mkdir -p .state
           if git fetch -q --depth=1 origin state; then
-            for f in notify.json tg_notify.json health.json; do git show FETCH_HEAD:$f > .state/$f 2>/dev/null || rm -f .state/$f; done
+            # live_cache.json = จุดจาก API รอบก่อน (build_site.js ดึงแค่ 12 ชม. ล่าสุดแล้วรวมกับไฟล์นี้ ลดภาระ API ต้นทาง · ไม่มี = ดึงเต็ม 48 ชม.)
+            for f in notify.json tg_notify.json health.json live_cache.json; do git show FETCH_HEAD:$f > .state/$f 2>/dev/null || rm -f .state/$f; done
           else echo "ยังไม่มี branch state"; fi
           ls -l .state
       # ถ้าดึงข้อมูลไม่สำเร็จก็ยังเผยแพร่หน้าเว็บ (หน้าเว็บจะถอยไปดึง API ตรงเอง)
@@ -88,6 +89,8 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/st" && cd "$RUNNER_TEMP/st"
           n=0; for f in notify.json tg_notify.json health.json; do if [ -f "$GITHUB_WORKSPACE/_site/$f" ]; then cp "$GITHUB_WORKSPACE/_site/$f" .; n=$((n+1)); fi; done
+          # แคช API ของ build_site.js อยู่ใน .state/ (ไม่ขึ้น Pages)
+          if [ -f "$GITHUB_WORKSPACE/.state/live_cache.json" ]; then cp "$GITHUB_WORKSPACE/.state/live_cache.json" .; n=$((n+1)); fi
           [ "$n" -gt 0 ] || { echo "ไม่มีไฟล์สถานะ"; exit 0; }
           git init -q -b state
           git add -A
