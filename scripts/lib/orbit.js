@@ -159,10 +159,10 @@
 
   // จุดเป้าหมาย = กึ่งกลางกรอบแนวเขตพื้นที่อนุรักษ์ของกลุ่มป่าดงพญาเย็น-เขาใหญ่ (กรอบ 101.127–103.227°E, 13.649–14.612°N จาก data/geo.json)
   const DPKY = [102.177, 14.130];
-  // รอบที่นับ (ไม่รวมขอบแถบ) ของทุกดวงใน tle.json ช่วง t0..t0+hours ชม. เรียงตามเวลา → [{k, n, t, ang, km, day, asc}]
+  // รอบที่นับ = ทุกรอบที่กลุ่มป่าอยู่ในแถบสแกน (≤56.06°, รวมขอบแถบ — ผู้ใช้ขอ 13 พ.ย. 69 เดิมตัดรอบ >45°) ของทุกดวงใน tle.json ช่วง t0..t0+hours ชม. เรียงตามเวลา → [{k, n, t, ang, km, day, asc, edge}]
   function next(tle, t0, hours = 24, tgt = DPKY, maxAng = 45) {
     const A = [];
-    for (const [k, s] of Object.entries((tle && tle.sats) || {})) { try { const sr = parse(s.l1, s.l2, s.n); passes(sr, tgt, t0, hours, maxAng).filter(p => !p.edge).forEach(p => A.push({ k, n: s.n, ...p })) } catch (e) {} }
+    for (const [k, s] of Object.entries((tle && tle.sats) || {})) { try { const sr = parse(s.l1, s.l2, s.n); passes(sr, tgt, t0, hours, maxAng).filter(p => !p.out).forEach(p => A.push({ k, n: s.n, ...p })) } catch (e) {} }
     return A.sort((a, b) => a.t - b.t);
   }
 

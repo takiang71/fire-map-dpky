@@ -135,7 +135,7 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
     ].join('\n'), strict);
     return msgOf(text, [[mapBtn(fresh), ['🗺️ แผนที่ไฟป่า', SITE]]]);
   };
-  // ดาวเทียมรอบถัดไปที่แถบสแกนผ่านกลุ่มป่า (ไม่นับขอบแถบ) 24 ชม. ข้างหน้า — บรรทัดในสรุปประจำวัน (ผู้ใช้ขอ 13 พ.ย. 69)
+  // ดาวเทียมรอบถัดไปที่แถบสแกนผ่านกลุ่มป่า (ทุกรอบรวมขอบแถบ) 24 ชม. ข้างหน้า — บรรทัดในสรุปประจำวัน (ผู้ใช้ขอ 13 พ.ย. 69)
   const orb = () => { try { return require('./lib/orbit').next(JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'tle.json'), 'utf8')), now, 24) } catch (e) { return null } };
   const dailyMsg = (strict = false) => {
     const text = fit(per => [
