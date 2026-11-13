@@ -343,7 +343,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 .pbh .cb{flex:none}.pbo{display:flex;align-items:center;gap:6px;margin-top:6px}.pbo>.sm{flex:none;min-width:80px}.pbo .seg{margin:0;flex:1}.pbo .seg button{min-height:30px;font-size:12px;padding:0 3px;white-space:nowrap}
 .pbd{font-size:12.5px;line-height:1.45}.pbd2{font-size:11.5px;line-height:1.4;color:var(--mut,#5b6478);margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .pbh #pb-sp{margin:0;flex:none}.pbh #pb-sp button{flex:none;min-height:28px;padding:0 7px;font-size:12px}#pb-m{flex:none;min-height:28px;padding:0 9px;font-size:12px;box-shadow:none;border:1px solid var(--line);display:flex;align-items:center;gap:4px}#pb-m .i{width:15px;height:15px}#pb-m[aria-pressed="true"]{background:var(--sel);color:var(--navy);font-weight:800}
-@media(max-width:767px){#pbf{bottom:calc(var(--sh0,34vh) + 8px);padding:6px 10px 8px}.pbo{flex-wrap:wrap;row-gap:4px}.pbo>.sm{min-width:0}#pb-w{flex:1 1 100%}.pbo .seg button{font-size:11px;padding:0 1px}.pbh{flex-wrap:wrap;row-gap:4px}.pbh #pb-sp{order:9;flex:1 1 100%}.pbh #pb-sp button{flex:1}}.pbr .btn{min-height:34px;padding:0 10px;box-shadow:none;border:1px solid var(--line)}
+@media(max-width:767px){#pbf{bottom:calc(var(--sh0,34vh) + 8px);padding:6px 10px 8px}body.pbon #left,body.pbon #more{display:none!important}body.pbon #pbf{left:0!important;right:0!important;bottom:0!important;width:auto!important;max-width:none;margin:0;border-radius:20px 20px 0 0;padding:12px 16px calc(12px + env(safe-area-inset-bottom))} /* มือถือ โหมดปีงบนี้: แผงแทนที่แผ่นเมนูหลักด้านล่าง ไม่บังแผนที่ (ผู้ใช้ขอ 13 พ.ย. 69) — โหมดสถิติยังลอยเหนือแผ่นเพราะต้องใช้การ์ดสถิติ */.pbo{flex-wrap:wrap;row-gap:4px}.pbo>.sm{min-width:0}#pb-w{flex:1 1 100%}.pbo .seg button{font-size:11px;padding:0 1px}.pbh{flex-wrap:wrap;row-gap:4px}.pbh #pb-sp{order:9;flex:1 1 100%}.pbh #pb-sp button{flex:1}}.pbr .btn{min-height:34px;padding:0 10px;box-shadow:none;border:1px solid var(--line)}
 .md{position:fixed;inset:0;background:rgba(10,20,50,.45);z-index:40;display:grid;place-items:center;padding:12px}
 .mc{background:var(--bg);color:var(--ink);border-radius:22px;width:min(520px,100%);max-height:88vh;overflow:auto;box-shadow:var(--sh)}
 .mh{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg)}.mh b{flex:1;font-size:17px;color:var(--navy)}.mb{padding:14px 16px}
@@ -2752,7 +2752,7 @@ function pcLayers(){if(map.getSource('pbc'))return;map.addSource('pbc',{type:'ge
   'circle-stroke-color':['case',['==',['get','wa'],1],'#f5c400','#fff'],'circle-stroke-width':['case',nw,2,1],'circle-stroke-opacity':['get','op']}},map.getLayer('hot-glow')?'hot-glow':undefined);
  try{pcVis()}catch(e){}}
 function pbHot(){const set=(id,b)=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',b?'visible':'none'),h=S.hot&&!window.PBH;['hot-glow','hot-icon','hot-cl','hot-cn'].forEach(id=>set(id,h&&!S.d3));set('hot-3d',h&&S.d3)}
-function pcVis(){const v=!$('#pbf').hidden&&PB.src==='cur';map.getLayer('pbc-c')&&map.setLayoutProperty('pbc-c','visibility',v?'visible':'none');const h=v&&PB.on;if(h!==!!window.PBH){window.PBH=h;pbHot()}}
+function pcVis(){const v=!$('#pbf').hidden&&PB.src==='cur';document.body.classList.toggle('pbon',v);map.getLayer('pbc-c')&&map.setLayoutProperty('pbc-c','visibility',v?'visible':'none');const h=v&&PB.on;if(h!==!!window.PBH){window.PBH=h;pbHot()}}
 function pbSrcCur(A){const sn=k=>SATN[k]||(k==='NOAA'?'NOAA (ไม่ระบุดวง)':k),SO=['SNPP','NOAA20','NOAA21','NOAA'],sats=[...new Set(A.map(p=>p.sat))].sort((x,y)=>SO.indexOf(x)-SO.indexOf(y)).map(sn),fm=A.some(p=>p.fm),wa=A.filter(p=>p.wa).length;
  return'ที่มา: <b>API ไทย</b> (Land Fire Alerts Thailand)'+(fm?' + <b>NASA FIRMS</b> (วันที่ API ขาดข้อมูล)':'')+' · ดาวเทียม '+(sats.length?sats.join(', ')+' (ตามปุ่มดาวเทียม)':'ตามปุ่มดาวเทียม')+(S.xdy?' · ไม่รวม ขสป.ดงใหญ่':'')+(wa?' · รวมจุดพื้นที่เฝ้าระวังพิเศษ '+nf(wa)+' จุด':'')}
 function pcMap(){pcVis();const on=PB.on,last=PB.i>=PB.fr.length-1,e=on?PB.fr[PB.i]:PB.t1,hr=PB.stp<864e5,A=on?PB.P.filter(p=>p.ms<=e):PB.P,nw=p=>on&&p.ms>e-PB.stp;
@@ -2794,7 +2794,7 @@ function hlgPos(){const e=$('#hlg');if(!e||e.hidden)return;const W=innerWidth,H=
  e.classList.toggle('mb',mob);['cp','hd'].forEach(k=>e.classList.toggle(k,mob&&HLGM===k));if(mob){e.setAttribute('role','button');e.setAttribute('aria-expanded',String(HLGM==='full'));e.title=HLGM==='hd'?'แตะเพื่อแสดงอายุจุดความร้อน':'แตะเพื่อ'+(HLGM==='cp'?'ขยาย':'ย่อ')+' · ปัดขวาเพื่อซ่อน'}else{e.setAttribute('role','group');e.removeAttribute('aria-expanded');e.removeAttribute('title')}
  {const t=$('#c-t');if(t)t.textContent=['r','o','y','b'].reduce((a,k)=>a+(+($('#c-'+k).textContent)||0),0)}
  const PO=$('#right').classList.contains('open')||!$('#ulm').hidden||$('#dp').classList.contains('open');e.classList.toggle('px',PO);if(PO)return; // แผงขวาเปิด = ซ่อนกล่อง เพิ่มพื้นที่แผนที่ (ผู้ใช้ขอ 5 พ.ย. 69)
- if(mob){b=Math.round(H-$('#left').getBoundingClientRect().top)+8;const c=$('#ctl').getBoundingClientRect(),hd=HLGM==='hd';if(hd)r=0;if(c.height&&c.bottom>H-b-(hd?40:HLGM==='cp'?44:130))r=Math.round(W-c.left)+8;e.style.borderRadius=hd&&r>0?'99px':''} // มือถือ: ซ้ายของคอลัมน์ปุ่มขวาบน
+ if(mob){b=Math.round(H-$(document.body.classList.contains('pbon')?'#pbf':'#left').getBoundingClientRect().top)+8;const c=$('#ctl').getBoundingClientRect(),hd=HLGM==='hd';if(hd)r=0;if(c.height&&c.bottom>H-b-(hd?40:HLGM==='cp'?44:130))r=Math.round(W-c.left)+8;e.style.borderRadius=hd&&r>0?'99px':''} // มือถือ: ซ้ายของคอลัมน์ปุ่มขวาบน
  else{e.style.borderRadius='';const c=$('#ctl').getBoundingClientRect();b=Math.round(H-c.top)+10}
  if(mob&&b>H*.75)b=Math.round(H*.4); // แผ่นล่างถูกลากขึ้นเต็ม: ไม่ตามขึ้นไปบนสุด (แผ่นบังอยู่แล้ว)
  e.style.right=r+'px';e.style.bottom=b+'px';const w=e.offsetWidth,hh=e.offsetHeight,x0=W-r-w,x1=W-r;
@@ -2818,7 +2818,7 @@ function pbOpen(){pbStart('st')}
 function pbPts(){const ky=S.wch?1:0;if(pbPts.v&&pbPts.k===ky)return pbPts.v;pbPts.k=ky;const A=[],add=c=>{if(typeof c[0]==='number'){const m=maplibregl.MercatorCoordinate.fromLngLat(c);A.push([m.x,m.y])}else c.forEach(add)};
  try{['cons','resp'].forEach(k=>(GEO[k].features||[]).forEach(f=>add(f.geometry.coordinates)))}catch(e){}try{if(S.wch)WAR.forEach(w=>add(w.c.coordinates||w.c))}catch(e){}
  const k=Math.max(1,Math.floor(A.length/2500)),B=A.filter((_,i)=>i%k===0);[0,1].forEach(j=>{let lo=A[0],hi=A[0];A.forEach(p=>{if(p[j]<lo[j])lo=p;if(p[j]>hi[j])hi=p});B.push(lo,hi)});return pbPts.v=B}
-function pbFit(anim){if(innerWidth<768)return;const f=$('#pbf');if(f.hidden)return;pbPos();
+function pbFit(anim){if(innerWidth<768){if(document.body.classList.contains('pbon')){const t=$('#pbf').getBoundingClientRect().top;map.fitBounds(histBounds(),{padding:{top:24,bottom:Math.round(innerHeight-t)+16,left:20,right:66},maxZoom:11,bearing:0,pitch:S.d3?60:0,duration:anim?dur(1000):0})}return} /* มือถือ: กลุ่มป่ากลางพื้นที่เหนือแผงเล่นย้อน */const f=$('#pbf');if(f.hidden)return;pbPos();
  const C=map.getContainer(),cr=C.getBoundingClientRect(),W=C.clientWidth,H=C.clientHeight,pd=anim?dur(1000):0,rel=(e,g)=>{if(!e||e.hidden||!e.offsetWidth)return null;const r=e.getBoundingClientRect();return[r.left-cr.left-g,r.top-cr.top-g,r.right-cr.left+g,r.bottom-cr.top+g]};
  const p=homePad(),mL=p.left-44,mR=p.right-44,mT=14,mB=26,O=[rel(f,14),rel($('#ctl'),8),rel($('#hlg'),8),rel($('#lcol'),6)].filter(Boolean),pts=pbPts();
  if(S.d3||!pts.length||!window.maplibregl){const B=f.getBoundingClientRect();return map.fitBounds(histBounds(),{padding:Object.assign({},p,{bottom:Math.max(p.bottom,Math.round(H-B.top)+24)}),maxZoom:11,bearing:0,pitch:S.d3?60:0,duration:pd})}
@@ -2835,7 +2835,7 @@ function pbFit(anim){if(innerWidth<768)return;const f=$('#pbf');if(f.hidden)retu
  if(!best)return fitHome(anim);const ce=new maplibregl.MercatorCoordinate(best[1][0],best[1][1]).toLngLat();
  map.easeTo({center:ce,zoom:best[0],bearing:0,pitch:0,padding:{top:0,bottom:0,left:0,right:0},duration:pd})}
 
-function pbClose(){pbStop();PB.on=false;$('#pbf').hidden=true;pcVis();if(PB.src==='st')hMap(hfilt());if(PB.lca){PB.lca=false;if(innerWidth>767&&document.body.classList.contains('lc'))lcSet(false,true)}}
+function pbClose(){const mo=document.body.classList.contains('pbon');pbStop();PB.on=false;$('#pbf').hidden=true;pcVis();if(mo&&innerWidth<768)fitHome(true);if(PB.src==='st')hMap(hfilt());if(PB.lca){PB.lca=false;if(innerWidth>767&&document.body.classList.contains('lc'))lcSet(false,true)}}
 addEventListener('resize',pbPos);new MutationObserver(()=>pbPos()).observe(document.body,{attributes:true,attributeFilter:['class']}); /* คอลัมน์ปุ่มมือถือซ่อน/แสดง (body.ctlh) หลังเปิดแผง = จัดใหม่ ไม่ให้แผงทับปุ่ม */
 /* --- เปิด/ปิดการ์ด --- */
 let HTAB='hs';const HSP={hs:true,xt:true}; // สวิตช์ "แสดงจุด" บนหัวการ์ด (ค่าเริ่มต้นเปิด) — wa ใช้ S.wsp
