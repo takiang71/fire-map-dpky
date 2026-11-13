@@ -24,8 +24,8 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 #hlg{position:fixed;z-index:4;right:max(12px,env(safe-area-inset-right));bottom:calc(88px + env(safe-area-inset-bottom));padding:7px 12px 7px 9px;border-radius:14px;background:var(--glass);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 1px 4px rgba(20,30,60,.15);font-size:12px;color:var(--ink);display:grid;gap:1px;min-width:150px}
 #hlg[hidden],#hlg.px{display:none!important}#hlg>b{font-size:11px;font-weight:600;color:var(--mut);margin:0 0 2px 3px}
 #hlg>div{display:flex;align-items:center;gap:6px;line-height:20px}#hlg span{flex:1;white-space:nowrap}#hlg em{font-style:normal;font-weight:700;color:var(--navy);min-width:16px;text-align:right}
-#hlg i{width:20px;height:20px;flex:none;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--c) 55%,transparent) 0,transparent 70%)}
-#hlg svg{width:13px;height:13px;fill:var(--c);stroke:var(--c);stroke-width:1.5;stroke-linejoin:round}
+#hlg i{width:20px;height:20px;flex:none;display:grid;place-items:center}
+#hlg svg{width:15px;height:15px;fill:var(--c);stroke:var(--c);stroke-width:1.2;stroke-linejoin:round;paint-order:stroke;filter:drop-shadow(0 0 .6px #fff) drop-shadow(0 0 .6px #fff)}
 body.wyon #hlg{opacity:.92}
 #hlg .hlt{display:none}
 #hlg.mb{touch-action:none;user-select:none;-webkit-user-select:none;cursor:pointer;transition:transform .2s ease,opacity .2s}
@@ -848,7 +848,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
  <button class="cb ib" id="wyb-f" aria-label="เปิดแบบเต็มจอ" title="เปิดแบบเต็มจอ (มีตารางพยากรณ์รายชั่วโมง)"><svg class="i" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
  <button class="cb ib" id="wyb-x" aria-label="ปิดชั้นสภาพอากาศ"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
 <!-- สัญลักษณ์อายุจุดความร้อน (ผู้ใช้ขอ 5 พ.ย. 69 ย้ายออกจากแผงชั้นข้อมูลมาไว้บนแผนที่ ขวาล่างเหนือปุ่มควบคุม) · ไอคอน = เปลวไฟ + วงเรืองแสงแบบบนแผนที่ · ตัวเลข = จำนวนจุดที่แสดงอยู่ -->
-<div id="hlg" role="group" aria-label="สัญลักษณ์อายุจุดความร้อน"><b>อายุจุดความร้อน</b><div><i style="--c:#e0301e"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><span>ภายใน 6 ชม.</span><em id="c-r"></em></div><div><i style="--c:#f08a1c"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><span>6–12 ชม.</span><em id="c-o"></em></div><div><i style="--c:#e8b020"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><span>12–24 ชม.</span><em id="c-y"></em></div><div><i style="--c:#9a6a4a;opacity:.6"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><span>เก่ากว่า 24 ชม.</span><em id="c-b"></em></div><div class="hlt"><i style="--c:#e0301e"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><em id="c-t"></em></div></div>
+<div id="hlg" role="group" aria-label="สัญลักษณ์อายุจุดความร้อน"><b>อายุจุดความร้อน</b><div><i style="--c:#c4140a"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><span>ภายใน 6 ชม.</span><em id="c-r"></em></div><div><i style="--c:#d95a00"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><span>6–12 ชม.</span><em id="c-o"></em></div><div><i style="--c:#c28e00"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><span>12–24 ชม.</span><em id="c-y"></em></div><div><i style="--c:#5c3a22;opacity:.6"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><span>เก่ากว่า 24 ชม.</span><em id="c-b"></em></div><div class="hlt"><i style="--c:#c4140a"><svg viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg></i><em id="c-t"></em></div></div>
 <nav id="ctl" aria-label="ปุ่มควบคุมแผนที่">
  <button class="cb" id="bLoc" aria-label="ตำแหน่งของฉัน"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
  <button class="cb" id="bLay" aria-label="ชั้นข้อมูล"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"/></svg></button>
@@ -1113,12 +1113,12 @@ function sheetFit(){const R=document.documentElement,B=document.body,k=$('#ctl')
 sheetFit();addEventListener('resize',sheetFit);
 const map=new maplibregl.Map({container:'map',style:sty(),bounds:HOME,fitBoundsOptions:{padding:homePad()},attributionControl:false,maxPitch:75,preserveDrawingBuffer:true}); // preserveDrawingBuffer: ให้ดึงภาพแผนที่ใส่รายงานได้
 
-const COL={r:'#e0301e',o:'#f08a1c',y:'#e8b020',b:'#9a6a4a'}, GL=['match',['get','g'],'r',COL.r,'o',COL.o,'y',COL.y,COL.b];
+const COL={r:'#c4140a',o:'#d95a00',y:'#c28e00',b:'#5c3a22'} /* สีเข้มขึ้น (ผู้ใช้ขอ 13 พ.ย. 69 — เดิม #e0301e/#f08a1c/#e8b020/#9a6a4a) */, GL=['match',['get','g'],'r',COL.r,'o',COL.o,'y',COL.y,COL.b];
 
 function flame(c){ // วาดไอคอนเปลวไฟลง canvas
  const cv=document.createElement('canvas');cv.width=cv.height=48;const x=cv.getContext('2d');x.scale(2,2);
  x.fillStyle='#fff';x.strokeStyle=c;x.lineWidth=1.5;const p=new Path2D('M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.5 2-2 2 1-3 0-6-1-8z');
- x.translate(0,1);x.fill(p);x.fillStyle=c;x.fill(p);x.stroke(p);return x.getImageData(0,0,48,48)}
+ x.translate(0,1);x.lineJoin='round';x.strokeStyle='#fff';x.lineWidth=3.2;x.stroke(p);x.strokeStyle=c;x.lineWidth=1.2;x.fillStyle=c;x.fill(p);x.stroke(p);return x.getImageData(0,0,48,48)}
 const sq=(h,d=.0028)=>({type:'Feature',properties:{id:h.id,g:grp(h),frp:h.frp||12},geometry:{type:'Polygon',coordinates:[[[h.lon-d,h.lat-d],[h.lon+d,h.lat-d],[h.lon+d,h.lat+d],[h.lon-d,h.lat+d],[h.lon-d,h.lat-d]]]}});
 const pt=h=>({type:'Feature',properties:{id:h.id,g:grp(h),frp:h.frp||12},geometry:{type:'Point',coordinates:[h.lon,h.lat]}});
 
@@ -1168,8 +1168,8 @@ function setup(){ // เรียกทุกครั้งที่สลั�
  map.addSource('hot3',{type:'geojson',data:{type:'FeatureCollection',features:HS.map(h=>sq(h))}});
  map.addSource('ring',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
  for(const k in COL)if(!map.hasImage('f-'+k))map.addImage('f-'+k,flame(COL[k]),{pixelRatio:2});
- map.addLayer({id:'hot-glow',type:'circle',source:'hot',filter:['!',['has','point_count']],paint:{'circle-color':GL,'circle-radius':['interpolate',['linear'],['zoom'],6,10,12,26],'circle-blur':.9,'circle-opacity':['match',['get','g'],'b',.3,.6]}});
- map.addLayer({id:'hot-icon',type:'symbol',source:'hot',filter:['!',['has','point_count']],layout:{'icon-image':['concat','f-',['get','g']],'icon-size':['interpolate',['linear'],['zoom'],6,.55,12,.9],'icon-allow-overlap':true},paint:{'icon-opacity':['match',['get','g'],'b',.6,1]}});
+ map.addLayer({id:'hot-glow',type:'circle',source:'hot',filter:['!',['has','point_count']],paint:{'circle-color':GL,'circle-radius':['interpolate',['linear'],['zoom'],6,10,12,26],'circle-blur':.9,'circle-opacity':0}});
+ map.addLayer({id:'hot-icon',type:'symbol',source:'hot',filter:['!',['has','point_count']],layout:{'icon-image':['concat','f-',['get','g']],'icon-size':['interpolate',['linear'],['zoom'],6,.55,12,.9],'icon-allow-overlap':true},paint:{'icon-opacity':1}});
  map.addLayer({id:'hot-cl',type:'circle',source:'hot',filter:['has','point_count'],paint:{'circle-color':'#c0301c','circle-opacity':.85,'circle-radius':['step',['get','point_count'],14,10,20,50,28],'circle-stroke-color':'#fff','circle-stroke-width':2}});
  if(map.getStyle().glyphs)map.addLayer({id:'hot-cn',type:'symbol',source:'hot',filter:['has','point_count'],layout:{'text-field':['get','point_count_abbreviated'],'text-font':['Noto Sans Bold'],'text-size':12,'text-allow-overlap':true},paint:{'text-color':'#fff'}});
  map.addLayer({id:'hot-3d',type:'fill-extrusion',source:'hot3',paint:{'fill-extrusion-color':GL,'fill-extrusion-height':['*',['get','frp'],90],'fill-extrusion-opacity':.9}});
@@ -1534,29 +1534,29 @@ addEventListener('keydown',e=>{
 map.on('click',e=>{
  if(typeof msBusy==='function'&&msBusy())return; // เครื่องมือวัดจัดการคลิกเอง
  const cl=map.getLayer('hot-cl')&&map.queryRenderedFeatures(e.point,{layers:['hot-cl']})[0];
- if(cl){map.getSource('hot').getClusterExpansionZoom(cl.properties.cluster_id).then(z=>map.easeTo({center:cl.geometry.coordinates,zoom:z+.5,duration:dur(800)}));return}
+ if(cl){map.getSource('hot').getClusterExpansionZoom(cl.properties.cluster_id).then(z=>map.easeTo({offset:visOff(),center:cl.geometry.coordinates,zoom:z+.5,duration:dur(800)}));return}
  if($('#dp').classList.contains('open')&&!(map.queryRenderedFeatures(e.point,{layers:['hot-icon','hot-3d','wlv-icon','wlv-3d'].filter(id=>map.getLayer(id))})[0])){closeDetail();return}
  const f=map.getLayer('hot-icon')&&map.queryRenderedFeatures(e.point,{layers:['hot-icon','hot-3d']})[0];
  if(f){openDetail(HS.find(x=>x.id===f.properties.id));return}
  const wl=map.queryRenderedFeatures(e.point,{layers:['wlv-icon','wlv-3d'].filter(id=>map.getLayer(id)&&map.getLayoutProperty(id,'visibility')==='visible')})[0];if(wl&&WLAST[wl.properties.i]){openDetail(WLAST[wl.properties.i]);return} // จุด 48 ชม. ในพื้นที่เฝ้าระวังพิเศษ
- const wcl=(S.wst||S.hist)&&map.getLayer('wtc-cl')&&map.queryRenderedFeatures(e.point,{layers:['wtc-cl']})[0];if(wcl){map.getSource('wtc').getClusterExpansionZoom(wcl.properties.cluster_id).then(z=>map.easeTo({center:wcl.geometry.coordinates,zoom:z+.5,duration:dur(800)}));return}
+ const wcl=(S.wst||S.hist)&&map.getLayer('wtc-cl')&&map.queryRenderedFeatures(e.point,{layers:['wtc-cl']})[0];if(wcl){map.getSource('wtc').getClusterExpansionZoom(wcl.properties.cluster_id).then(z=>map.easeTo({offset:visOff(),center:wcl.geometry.coordinates,zoom:z+.5,duration:dur(800)}));return}
  const wtf=(S.wst||S.hist)&&map.queryRenderedFeatures(e.point,{layers:['wt-c','wtc-p'].filter(id=>map.getLayer(id))})[0];if(wtf){wtPopup(WR[wtf.properties.i]);return}
  const fp=PM!=='24'&&map.getLayer('fypt')&&map.queryRenderedFeatures(e.point,{layers:['fypt']})[0];
  if(fp){const p=fp.properties,[lo,la]=fp.geometry.coordinates;ftFill(new maplibregl.Popup({maxWidth:'260px'}).setLngLat([lo,la]).setHTML(`<b>จุดความร้อนสะสมปีงบ ${fyOfDay(p.d)}</b><br>${dShort(p.d)} เวลา ${hhmmTh(p.t)} น. · ${esc(SATN[p.sat]||p.sat)}${p.fm?'<br><span class="sm">ที่มา: NASA FIRMS (ระบบไทยขัดข้องวันนั้น)</span>':''}<br>${p.tam?'ต.'+esc(p.tam)+' ':''}${p.amp?'อ.'+esc(p.amp)+' ':''}${p.prov?'จ.'+esc(p.prov):''}${ftRow(lo,la)}<span class="sm">พิกัด ${la.toFixed(5)}, ${lo.toFixed(5)}</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${la},${lo}">เปิดใน Google Maps</a>`).addTo(map));return}
  const hr=HSRF.features.length&&map.getLayer('hsring')&&map.queryRenderedFeatures(e.point,{layers:['hsring']})[0]; // วงล้อมจุดจากลิงก์แจ้งเตือน
- if(hr&&hr.properties.cluster){map.getSource('hsring').getClusterExpansionZoom(hr.properties.cluster_id).then(z=>map.easeTo({center:hr.geometry.coordinates,zoom:z+.3,duration:dur(800)}));return}
+ if(hr&&hr.properties.cluster){map.getSource('hsring').getClusterExpansionZoom(hr.properties.cluster_id).then(z=>map.easeTo({offset:visOff(),center:hr.geometry.coordinates,zoom:z+.3,duration:dur(800)}));return}
  if(hr){const [lo,la]=hr.geometry.coordinates,h=HS.find(x=>Math.hypot(x.lat-la,x.lon-lo)<.004)||hsAD(la,lo);if(h){MOVED=true;openDetail(h);return}} // จุดเก่ากว่า 48 ชม. หาใน AD (ผู้ใช้แจ้ง 5 พ.ย. 69: แตะวงแล้วได้แค่ป๊อปอัปตำแหน่ง)
  const br=S.burn&&map.getLayer('bnring')&&map.queryRenderedFeatures(e.point,{layers:['bnring']})[0]; // วงล้อมรอยเผา = ซูมไปที่กลุ่ม
- if(br&&br.properties.cluster){MOVED=true;map.getSource('bnring').getClusterExpansionZoom(br.properties.cluster_id).then(z=>map.easeTo({center:br.geometry.coordinates,zoom:z+.3,duration:dur(800)}));return}
+ if(br&&br.properties.cluster){MOVED=true;map.getSource('bnring').getClusterExpansionZoom(br.properties.cluster_id).then(z=>map.easeTo({offset:visOff(),center:br.geometry.coordinates,zoom:z+.3,duration:dur(800)}));return}
  if(br&&BNRC[br.properties.i]){MOVED=true;map.fitBounds(BNRC[br.properties.i],{padding:homePad(),maxZoom:15,duration:dur(900)});return}
  const hc=(S.hcl||S.hgp||S.har)&&map.queryRenderedFeatures(e.point,{layers:['hcs-m','hcg-i','hcc-c','hca-f'].filter(id=>map.getLayer(id))})[0];
  if(HCS&&!(hc&&/^hc[sc]-[mc]$/.test(hc.layer.id))){hcSpider(null);if(!hc)return} // แตะที่ว่างขณะกระจายจุด = ยุบกลับ
  if(hc){hcPop(hc,e.lngLat);return}
  const xcl=S.xt&&map.getLayer('xtc-cl')&&map.queryRenderedFeatures(e.point,{layers:['xtc-cl']})[0]; // การดับไฟป่า (สถิติย้อนหลัง แท็บที่ 2)
- if(xcl){map.getSource('xtc').getClusterExpansionZoom(xcl.properties.cluster_id).then(z=>map.easeTo({center:xcl.geometry.coordinates,zoom:z+.5,duration:dur(800)}));return}
+ if(xcl){map.getSource('xtc').getClusterExpansionZoom(xcl.properties.cluster_id).then(z=>map.easeTo({offset:visOff(),center:xcl.geometry.coordinates,zoom:z+.5,duration:dur(800)}));return}
  const xf=S.xt&&map.queryRenderedFeatures(e.point,{layers:['xt-c','xtc-p'].filter(id=>map.getLayer(id))})[0];if(xf){xtPopup(XT[xf.properties.i]);return}
  const hcl=S.hist&&map.getLayer('histc-cl')&&map.queryRenderedFeatures(e.point,{layers:['histc-cl']})[0];
- if(hcl){map.getSource('histc').getClusterExpansionZoom(hcl.properties.cluster_id).then(z=>map.easeTo({center:hcl.geometry.coordinates,zoom:z+.5,duration:dur(800)}));return}
+ if(hcl){map.getSource('histc').getClusterExpansionZoom(hcl.properties.cluster_id).then(z=>map.easeTo({offset:visOff(),center:hcl.geometry.coordinates,zoom:z+.5,duration:dur(800)}));return}
  const hf=S.hist&&map.queryRenderedFeatures(e.point,{layers:['hist-c','histc-p'].filter(id=>map.getLayer(id))})[0];if(hf){histPopup(hf);return}
  const uh=typeof ulHit==='function'?ulHit(e):null;if(uh&&uh.done)return; // ชั้นข้อมูลของผู้ใช้: หมุด/เส้น = ป๊อปอัปของวัตถุ, พื้นที่ = บรรทัดบนสุดของป๊อปอัปตำแหน่ง
  const g0=geoAt(e.lngLat.lng,e.lngLat.lat);
@@ -3177,9 +3177,9 @@ function setupWT(){if(!WAR.length)return;WFC=wFC();const bf=map.getLayer('hot-gl
  if(map.getStyle().glyphs)map.addLayer({id:'wtc-n',type:'symbol',source:'wtc',filter:['has','point_count'],layout:{visibility:'none','text-field':['get','point_count_abbreviated'],'text-font':['Noto Sans Bold'],'text-size':12,'text-allow-overlap':true},paint:{'text-color':'#fff'}},bf);
  map.addLayer({id:'wtc-p',type:'circle',source:'wtc',filter:['!',['has','point_count']],layout:{visibility:'none'},paint:p},bf);
  map.addSource('wlv',{type:'geojson',data:wlvFC()});
- map.addLayer({id:'wlv-glow',type:'circle',source:'wlv',layout:{visibility:'none'},paint:{'circle-color':GL,'circle-radius':['interpolate',['linear'],['zoom'],6,10,12,26],'circle-blur':.9,'circle-opacity':['match',['get','g'],'b',.3,.6]}});
+ map.addLayer({id:'wlv-glow',type:'circle',source:'wlv',layout:{visibility:'none'},paint:{'circle-color':GL,'circle-radius':['interpolate',['linear'],['zoom'],6,10,12,26],'circle-blur':.9,'circle-opacity':0}});
  map.addSource('wlv3',{type:'geojson',data:wlv3FC()});map.addLayer({id:'wlv-3d',type:'fill-extrusion',source:'wlv3',layout:{visibility:'none'},paint:{'fill-extrusion-color':GL,'fill-extrusion-height':['*',['get','frp'],90],'fill-extrusion-opacity':.9}});
- map.addLayer({id:'wlv-icon',type:'symbol',source:'wlv',layout:{visibility:'none','icon-image':['concat','f-',['get','g']],'icon-size':['interpolate',['linear'],['zoom'],6,.55,12,.9],'icon-allow-overlap':true},paint:{'icon-opacity':['match',['get','g'],'b',.6,1]}});
+ map.addLayer({id:'wlv-icon',type:'symbol',source:'wlv',layout:{visibility:'none','icon-image':['concat','f-',['get','g']],'icon-size':['interpolate',['linear'],['zoom'],6,.55,12,.9],'icon-allow-overlap':true},paint:{'icon-opacity':1}});
  LW()}
 /* จุดย้อนหลังของพื้นที่เฝ้าระวังพิเศษบนชั้นจุดความร้อนย้อนหลัง (S.hist = แท็บจุดความร้อนของการ์ดสถิติ / สวิตช์ในแผงชั้นข้อมูล) กรองตามปีงบ/เดือนของการ์ด · ระหว่างเล่นย้อนแสดงตามหน้าต่างวันเหมือนจุดกรมอุทยานฯ */
 const wHs=()=>!!S.hist&&WAR.length>0;
@@ -3988,6 +3988,8 @@ function msPos(){const e=$('#msr');if(!e||e.hidden)return;if(innerWidth<=767){e.
 ['#right','#dp','#ulm'].forEach(q=>{const p=$(q);if(p)new MutationObserver(msPos).observe(p,{attributes:true,attributeFilter:['class','hidden']})});
 addEventListener('resize',msPos);
 /* จุดเล็งกลางพื้นที่แผนที่ที่มองเห็น (ไม่นับแผงซ้าย/ขวาบนเดสก์ท็อป-แท็บเล็ต) · ถ้าแผงของเครื่องมือ tp บังจุดกลาง เลื่อนไปกลางส่วนที่เหลือ (ผู้ใช้แจ้ง 8 พ.ย. 69 ว่ากากบาทไม่อยู่กลางจอบนมือถือ/แท็บเล็ต) */
+/* ระยะเลื่อนจากกลาง container ไปกลางพื้นที่แผนที่ที่มองเห็น — ใช้เป็น offset ของ easeTo (ผู้ใช้แจ้ง 13 พ.ย. 69: แตะคลัสเตอร์บนมือถือแล้วจุดไปอยู่ใต้แผ่นล่าง) */
+function visOff(){try{const{m,x0,x1,y0,y1}=visArea();return[Math.round((x0+x1)/2-(m.left+m.width/2)),Math.round((y0+y1)/2-(m.top+m.height/2))]}catch(e){return[0,0]}}
 function visArea(){const m=map.getContainer().getBoundingClientRect();let x0=Math.max(0,m.left),x1=Math.min(innerWidth,m.right),y0=Math.max(0,m.top),y1=Math.min(innerHeight,m.bottom);
  if(innerWidth>767){const l=$('#left'),lr=l&&l.offsetWidth&&!document.body.classList.contains('lc')?l.getBoundingClientRect().right:0;if(lr>x0+20&&lr<x1-200)x0=lr;
   RPAN.forEach(x=>{if(rpOn(x)){const q=$(x[0]).getBoundingClientRect().left;if(q>x0+200)x1=Math.min(x1,q)}})}
