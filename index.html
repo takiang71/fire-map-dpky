@@ -838,11 +838,11 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 </section>
 <!-- แผงเล่นย้อนตามวัน ลอยด้านล่างแผนที่ (เปิดจากปุ่ม "ย้อนดูการลามของไฟ") ตำแหน่งจัดโดย pbPos() -->
 <div class="card" id="pbf" hidden role="region" aria-label="ย้อนดูการลามของไฟ">
- <div class="pbh"><b>ย้อนดูการลามของไฟ</b><button class="cb ib" id="pb-x" aria-label="ออกจากโหมดเล่น" title="ออกจากโหมดเล่น"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+ <div class="pbh"><b>ย้อนดูการลามของไฟ</b><button class="btn" id="pb-m" aria-pressed="false" title="เล่นจุดความร้อนย้อนหลังตามตัวกรองในการ์ดวิเคราะห์สถิติย้อนหลัง (เลือกปีงบ/พื้นที่/เดือนได้)"><svg class="i" viewBox="0 0 24 24"><path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/></svg>สถิติย้อนหลัง</button><button class="cb ib" id="pb-x" aria-label="ออกจากโหมดเล่น" title="ออกจากโหมดเล่น"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
  <div class="pbd" id="pb-d" aria-live="polite"></div><div class="pbd2" id="pb-d2"></div>
  <div class="pbr"><button class="btn" id="pb-p">▶ เล่น</button><input type="range" id="pb-s" min="0" max="0" value="0" step="1" style="flex:1" aria-label="เลื่อนดูตามเวลา"></div>
  <div class="pbo"><span class="sm">ย้อนหลังล่าสุด</span><div class="seg" id="pb-w" role="group" aria-label="ช่วงย้อนหลังล่าสุด"><button data-v="fy" title="ตั้งแต่ 1 ต.ค. (ต้นปีงบประมาณ) ถึงปัจจุบัน">ปีงบนี้</button><button data-v="1">1 วัน</button><button data-v="3">3 วัน</button><button data-v="7">7 วัน</button><button data-v="30">30 วัน</button><button data-v="60">60 วัน</button><button data-v="90">90 วัน</button></div></div>
- <div class="pbo"><span class="sm">ความเร็ว</span><div class="seg" id="pb-sp"><button data-v="0.5">×0.5</button><button data-v="1">×1</button><button data-v="2">×2</button><button data-v="4">×4</button></div><button class="btn" id="pb-m" aria-pressed="false" title="เล่นจุดความร้อนย้อนหลังตามตัวกรองในการ์ดวิเคราะห์สถิติย้อนหลัง (เลือกปีงบ/พื้นที่/เดือนได้)"><svg class="i" viewBox="0 0 24 24"><path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/></svg>สถิติย้อนหลัง</button></div>
+ <div class="pbo"><span class="sm">ความเร็ว</span><div class="seg" id="pb-sp"><button data-v="0.5">×0.5</button><button data-v="1">×1</button><button data-v="2">×2</button><button data-v="4">×4</button></div></div>
 </div>
 <div class="card" id="wyb" hidden role="region" aria-label="แถบควบคุมชั้นสภาพอากาศ Windy"><span class="wyb-d" aria-hidden="true"></span><b id="wyb-n">ลม</b><div class="wyb-c" id="wyb-c" role="group" aria-label="เลือกชั้นสภาพอากาศ"></div>
  <div class="wyb-m" id="wyb-m" role="group" aria-label="ควบคุมด้วย" title="ควบคุมด้วยแผนที่: ซูมลื่น แตะจุดความร้อน/แนวเขตได้ตามปกติ · ควบคุมด้วย Windy: เลื่อน/แตะดูค่าบนภาพ Windy · ล้อเมาส์ซูมแบบ Windy ขั้นละ 2 เท่า (ปุ่ม + − ซูมทีละขั้น) แผนที่และแนวเขตเลื่อนตามเมื่อ Windy วาดเสร็จ"><button data-m="0" aria-pressed="true">แผนที่</button><button data-m="1" aria-pressed="false">Windy</button></div>
@@ -2723,6 +2723,7 @@ function gapC(){const p=homePad(),W=map.getContainer().clientWidth,H=map.getCont
 function focSet(){if(innerWidth<=767)return;const g=gapC();FOC=map.unproject([g.x,g.y]);GAPW=g.w}
 map.on('moveend',focSet);
 function panFit(){if(innerWidth>767)try{
+ if(!$('#pbf').hidden){pbFit(true);return}
  if(!MOVED||!FOC){if(HOPEN&&HTAB==='wa')wFocus(true);else fitHome(true);return}
  const g=gapC(),P=map.project(FOC);GAPW=g.w;
  const dx=P.x-g.x,dy=P.y-g.y;if(Math.abs(dx)<2&&Math.abs(dy)<2)return;const f=FOC;map.panBy([dx,dy],{duration:dur(700)});map.once('moveend',()=>{FOC=f})
@@ -2768,10 +2769,11 @@ function pbStText(F,arr,day){const on=PB.on,fys=[...new Set(F.map(r=>r.fy))].sor
  tx('pb-d2','ที่มา: '+(HAM()?'<b>API ไทย</b> + <b>NASA FIRMS</b> (แท็บทุกดาวเทียม)':'<b>จุดความร้อนกรมอุทยานฯ</b> (ไฟล์ Excel · Suomi NPP)')+' · ตัวกรองการ์ดสถิติ: '+esc(hLabel())+(wn?' · บนแผนที่มีจุดพื้นที่เฝ้าระวังพิเศษอีก '+nf(wn)+' จุด (ไฟล์ KMZ / API ไทย ไม่นับรวม)':''));$('#pb-d2').title=$('#pb-d2').textContent}
 function pbFrame(){PB.src==='st'?hMap(hfilt()):pcMap()}
 function pbUI(){$$('#pb-w button').forEach(b=>b.classList.toggle('on',PB.src==='cur'&&b.dataset.v===String(PB.rg)));$$('#pb-sp button').forEach(b=>b.classList.toggle('on',+b.dataset.v===PB.sp));const m=$('#pb-m');m&&m.setAttribute('aria-pressed',String(PB.src==='st'))}
-function pbStart(src){pbStop();PB.on=false;PB.src=src;$('#pbf').hidden=false;
+function pbStart(src,keep){pbStop();PB.on=false;PB.src=src;$('#pbf').hidden=false;const dk=innerWidth>767,lc=()=>document.body.classList.contains('lc');
+ if(dk&&!keep){if(src==='cur'){if(!lc()){lcSet(true);PB.lca=true}}else{PB.lca=false;if(lc())lcSet(false)}} /* ปีงบปัจจุบัน = พับแผงซ้าย (จำไว้กางคืนตอนปิด) · สถิติย้อนหลัง = กางแผงให้เห็นการ์ด */
  if(src==='st'){PB.i=0;pcVis();if(!HOPEN||(HTAB!=='hs'&&HTAB!=='ha'))hOpen(false,'hs');if(!S.hist){S.hist=HSP.hs=true;apply();hspSync()}hRender()}
  else{pcBuild();PB.i=Math.max(0,PB.fr.length-1);$('#pb-s').value=PB.i;pcMap()}
- pbUI();pbPos()}
+ pbUI();pbPos();if(!keep)setTimeout(()=>pbFit(true),dk?60:0)}
 function pbStop(){clearInterval(PB.tm);PB.tm=0;$('#pb-p').textContent='▶ เล่น'}
 const pbN=()=>PB.src==='st'?PB.days.length:PB.fr.length;
 function pbPlay(){if(PB.tm)return pbStop();if(!pbN())return toast(PB.src==='st'?'ไม่มีข้อมูลตามตัวกรอง':'ไม่มีช่วงเวลาให้เล่น');PB.on=true;if(PB.i>=pbN()-1)PB.i=0;$('#pb-s').value=PB.i;$('#pb-p').textContent='⏸ หยุด';pbFrame();
@@ -2803,12 +2805,22 @@ function hlgPos(){const e=$('#hlg');if(!e||e.hidden)return;const W=innerWidth,H=
  const mo=new MutationObserver(run);mo.observe($('#right'),{attributes:true,attributeFilter:['class']});mo.observe($('#dp'),{attributes:true,attributeFilter:['class']});mo.observe($('#ulm'),{attributes:true,attributeFilter:['hidden']});
  ['#pbf','#wyb'].forEach(x=>mo.observe($(x),{attributes:true,attributeFilter:['hidden','style','class']}));if(window.ResizeObserver)new ResizeObserver(run).observe($('#left'));setTimeout(run,0)}
 function pbPos(){const f=$('#pbf');if(f.hidden)return;const W=innerWidth,mob=W<768,c=$('#ctl').getBoundingClientRect(),hc=$('#hcard');
+ if(!mob){const L=$('#left'),l=document.body.classList.contains('lc')||!L?16:L.offsetLeft+L.offsetWidth-24+12,w=Math.min(640,W-l-16); /* ผู้ใช้ขอ 13 พ.ย. 69: ซ้ายเท่าแผงซ้าย ขนาดคงที่ ไม่ยืด/หดตามที่ว่าง */
+  Object.assign(f.style,{left:l+'px',right:'auto',width:w+'px',bottom:c.width&&l+w>c.left-12?(innerHeight-c.top+10)+'px':''});return}
+ f.style.width='';
  let l=mob||!HOPEN||hc.hidden?12:hc.getBoundingClientRect().right+12,r=mob?12:W-c.left+12,b='';
  if(W-l-r<(mob?220:420)){r=12;if(!mob)b=(innerHeight-c.top+10)+'px';else l=12}
  if(mob&&c.width&&r<W-c.left+6){f.style.right=r+'px';const t=f.getBoundingClientRect().top;if(t<c.bottom+6)r=Math.round(W-c.left)+6} /* มือถือ: แผงสูงถึงคอลัมน์ปุ่มขวา = เว้นคอลัมน์ */
  Object.assign(f.style,{left:l+'px',right:r+'px',bottom:b})}
 function pbOpen(){pbStart('st')}
-function pbClose(){pbStop();PB.on=false;$('#pbf').hidden=true;pcVis();if(PB.src==='st')hMap(hfilt())}
+/* จัดกลุ่มป่าไม่ให้แผงเล่นย้อนบัง (ผู้ใช้ขอ 13 พ.ย. 69): เลือกระหว่างเว้นด้านล่างเหนือแผง กับเว้นด้านซ้ายถึงขอบขวาของแผง แบบที่ซูมได้ใกล้กว่า · เดสก์ท็อปเท่านั้น
+   เรียกเมื่อเปิดแผง/สลับโหมด และจาก panFit (พับ/เปิดแผงซ้าย แผงชั้นข้อมูล) ขณะแผงเปิดอยู่ */
+function pbFit(anim){if(innerWidth<768)return;const f=$('#pbf');if(f.hidden)return;pbPos();
+ const B=f.getBoundingClientRect(),p=homePad(),H=map.getContainer().clientHeight,bb=histBounds(),
+  c1=Object.assign({},p,{bottom:Math.max(p.bottom,Math.round(H-B.top)+24)}),c2=Object.assign({},p,{left:Math.max(p.left,Math.round(B.right)+24)}),
+  z=q=>{try{const c=map.cameraForBounds(bb,{padding:q,maxZoom:11});return c&&isFinite(c.zoom)?c.zoom:-1}catch(e){return -1}},z1=z(c1),z2=z(c2);
+ if(z1<0&&z2<0)return fitHome(anim);map.fitBounds(bb,{padding:z2>z1?c2:c1,maxZoom:11,bearing:0,pitch:S.d3?60:0,duration:anim?dur(1000):0})}
+function pbClose(){pbStop();PB.on=false;$('#pbf').hidden=true;pcVis();if(PB.src==='st')hMap(hfilt());if(PB.lca){PB.lca=false;if(innerWidth>767&&document.body.classList.contains('lc'))lcSet(false,true)}}
 addEventListener('resize',pbPos);new MutationObserver(()=>pbPos()).observe(document.body,{attributes:true,attributeFilter:['class']}); /* คอลัมน์ปุ่มมือถือซ่อน/แสดง (body.ctlh) หลังเปิดแผง = จัดใหม่ ไม่ให้แผงทับปุ่ม */
 /* --- เปิด/ปิดการ์ด --- */
 let HTAB='hs';const HSP={hs:true,xt:true}; // สวิตช์ "แสดงจุด" บนหัวการ์ด (ค่าเริ่มต้นเปิด) — wa ใช้ S.wsp
@@ -2862,7 +2874,7 @@ $('#hcard').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if
 $('#h-rs').onclick=()=>{if(HTAB==='xt'){xtDef();xtRender()}else if(HTAB==='wa'){wDef();wtRender()}else{hDef();hRender()}};
 $('#h-per').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;HF.fy.clear();hPerYs(+b.dataset.v).forEach(y=>HF.fy.add(y));if(PB.on)PB.i=0;hRender()};
 $$('#h-md button').forEach(b=>b.onclick=()=>{HM.mode=b.dataset.v;hRender()});$$('#h-co button').forEach(b=>b.onclick=()=>{HM.color=b.dataset.v;hRender()});
-$$('#pb-w button').forEach(b=>b.onclick=()=>{const v=b.dataset.v;PB.rg=v==='fy'?'fy':+v;pbStart('cur')});$$('#pb-sp button').forEach(b=>b.onclick=()=>{PB.sp=+b.dataset.v;if(PB.tm){pbStop();pbPlay()}pbUI()});
+$$('#pb-w button').forEach(b=>b.onclick=()=>{const v=b.dataset.v;PB.rg=v==='fy'?'fy':+v;pbStart('cur',PB.src==='cur')});$$('#pb-sp button').forEach(b=>b.onclick=()=>{PB.sp=+b.dataset.v;if(PB.tm){pbStop();pbPlay()}pbUI()});
 $('#pb-m').onclick=()=>pbStart(PB.src==='st'?'cur':'st');
 $('#pb-p').onclick=pbPlay;$('#pb-x').onclick=pbClose;$('#pb-o').onclick=()=>pbStart('st');$('#pb-s').oninput=e=>{PB.i=+e.target.value;PB.on=true;pbStop();pbFrame()};
 $('#h-sp').onclick=e=>{e.preventDefault();e.stopPropagation();const v=!hspOn();if(HTAB==='wa')S.wsp=v;else if(HTAB==='xt')S.xt=HSP.xt=v;else S.hist=HSP.hs=v;apply();hspSync()};
