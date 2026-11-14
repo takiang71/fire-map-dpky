@@ -6252,7 +6252,7 @@ const FWNV={Temp_noon:['ต่ำ','ปานกลาง','สูง','สู�
 const fwNm=(v,k)=>(FWNV[v]||FWN)[k];
 const FWRGB=FWC.map((c,k)=>hx(c).concat([85,150,165,175,185][k])); /* ระดับต่ำโปร่งกว่า ไม่ให้ทั้งกรอบเป็นสีเขียวทึบช่วงที่อันตรายต่ำ */
 const FWA={all:'กลุ่มป่าฯ',ky:'อช.เขาใหญ่',tl:'อช.ทับลาน',ps:'อช.ปางสีดา',tp:'อช.ตาพระยา',dy:'ขสป.ดงใหญ่',ks:'ขหล.โคกสูง',kc:'ขหล.เขาฉกรรจ์'};
-let FWX=null,FWXP=null,FWDC={},FWFC={},FWS=null,FWG=null,FWGA=null,FWGD=null,FWK='',FWPN=0,FWIU=BLANK,FWCO=[[0,1],[1,1],[1,0],[0,0]],FWQ=0;
+let FWX=null,FWXP=null,FWDC={},FWS=null,FWG=null,FWGA=null,FWGD=null,FWK='',FWPN=0,FWIU=BLANK,FWCO=[[0,1],[1,1],[1,0],[0,0]],FWQ=0;
 const fwB=v=>FWX&&FWX.bounds&&FWX.bounds[v];
 const fwCat=(x,b)=>x<b[0]?0:x<b[1]?1:x<b[2]?2:x<b[3]?3:4;
 const fwN=(v,x)=>x==null||isNaN(x)?'–':nf(x,FWV[v][4]);
@@ -6267,14 +6267,6 @@ function fwLoad(force){if(force)FWXP=null;return FWXP||(FWXP=fetch(FWU+'index.js
 function fwGet(x){const key=x.d+'|'+x.run+'|'+(x.lm||'');if(FWDC[key])return FWDC[key];
  const p=fetch(FWU+'g/'+x.d+'.json?r='+encodeURIComponent(x.run+'_'+(x.lm||''))).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{j.A={};return j}).catch(e=>{delete FWDC[key];throw e});
  const ks=Object.keys(FWDC);if(ks.length>=5)delete FWDC[ks[0]];return FWDC[key]=p}
-/* ตารางเต็มพื้นที่ของตัวแปรเดียว (g/<วันที่>.<ตัวแปร>.gz = Int16LE ค่า×10 บีบอัด gzip) — แคช 14 ชุด
-   GitHub Pages ส่ง .gz เป็นไฟล์ธรรมดา → คลายเองด้วย DecompressionStream (ถ้าเบราว์เซอร์/เซิร์ฟเวอร์คลายให้แล้วจะไม่มีหัว 1f 8b) */
-function fwFull(x,v){const key=x.d+'|'+x.run+'|'+(x.lm||'')+'|'+v;if(FWFC[key])return FWFC[key];const G=FWX&&FWX.grid;
- const p=(G?fetch(FWU+'g/'+x.d+'.'+v+'.gz?r='+encodeURIComponent(x.run+'_'+(x.lm||''))):Promise.reject(new Error('ไม่มีตำแหน่งกริด'))).then(async r=>{if(!r.ok)throw new Error('HTTP '+r.status);let b=new Uint8Array(await r.arrayBuffer());
-  if(b[0]===0x1f&&b[1]===0x8b)b=new Uint8Array(await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer());
-  const n=G.nx*G.ny;if(b.length<n*2)throw new Error('ไฟล์ไม่ครบ');const dv=new DataView(b.buffer,b.byteOffset,b.byteLength),a=new Float32Array(n);
-  for(let i=0;i<n;i++){const q=dv.getInt16(i*2,true);a[i]=q===-32768?NaN:q/10}return{G,a}}).catch(e=>{delete FWFC[key];throw e});
- const ks=Object.keys(FWFC);if(ks.length>=14)delete FWFC[ks[0]];return FWFC[key]=p}
 function fwArr(G,v){if(G.A[v])return G.A[v];const s=G.v&&G.v[v];if(!s)return null;const b=atob(s),n=G.nx*G.ny,a=new Float32Array(n);
  for(let i=0;i<n;i++){let x=b.charCodeAt(2*i)|b.charCodeAt(2*i+1)<<8;if(x>32767)x-=65536;a[i]=x===-32768?NaN:x/G.q}return G.A[v]=a}
 /* ค่าที่จุด: ประมาณเชิงเส้นสองทางจาก 4 เซลล์รอบจุด (เซลล์ที่ไม่มีข้อมูลไม่นับ) — ตรรกะเดียวกับ scripts/sync_fwi.js (สรุปรายพื้นที่) */
@@ -6283,10 +6275,16 @@ function fwAt(G,a,lo,la){if(!G||!a)return null;const fx=(lo-G.x0)/G.dx,fy=(la-G.
  const t=(v,ww)=>{if(!isNaN(v)&&ww>0){s+=v*ww;w+=ww}};t(a[o],(1-p)*(1-q));t(a[o+1],p*(1-q));t(a[o+G.nx],(1-p)*q);t(a[o+G.nx+1],p*q);return w>.25?s/w:null}
 /* วันที่เลือก: FWS → วันนี้ (เวลาไทย) ถ้ามี → วันของรอบล่าสุด */
 function fwIdx(){if(!FWX||!FWX.days.length)return-1;const D=FWX.days;let i=FWS?D.findIndex(x=>x.d===FWS):-1;if(i<0)i=D.findIndex(x=>x.d===fwTday());if(i<0)i=D.findIndex(x=>x.d===FWX.run);return i<0?D.length-1:i}
-/* ภาพบนแผนที่: วาดเฉพาะบริเวณที่มองเห็น (+ขอบ 25%) ที่ความละเอียดใกล้จอ — ตารางเต็มพื้นที่ไทย+ลาว 543×699 ถ้าวาดทั้งผืนเป็นภาพเดียว
-   ขอบระดับสีจะเป็นขั้นบันไดเมื่อซูมเข้า · วาดใหม่เมื่อเลื่อน/ซูมจนออกนอกส่วนที่วาดไว้ หรือความละเอียดต่างไปเกิน 1.5 เท่า (fwView) */
+/* ขอบเขตที่ระบายสี (ผู้ใช้ขอ 14 พ.ย. 69 — เดิมเต็มพื้นที่ต้นทางไทย+ลาว): เฉพาะแนวเขตพื้นที่อนุรักษ์ของกลุ่มป่า (GEO.cons รวม ขสป.ดงใหญ่)
+   + พื้นที่เฝ้าระวังพิเศษ (WAR เช่น จปร.) · ป๊อปอัป/ป้ายชี้เมาส์ก็แสดงเฉพาะในขอบเขตนี้ (แผงรายละเอียดจุดความร้อนยังแสดงเสมอ) */
+let FWM=null;
+function fwMask(){if(FWM)return FWM;const P=[];GEO.cons.features.forEach(f=>f.geometry.coordinates.forEach(p=>P.push(p)));WAR.forEach(a=>a.c.forEach(p=>P.push(p)));
+ const b=[180,90,-180,-90];P.forEach(p=>p[0].forEach(([x,y])=>{if(x<b[0])b[0]=x;if(x>b[2])b[2]=x;if(y<b[1])b[1]=y;if(y>b[3])b[3]=y}));return FWM={P,b}}
+const fwIn=(lo,la)=>{const b=fwMask().b;return lo>=b[0]&&lo<=b[2]&&la>=b[1]&&la<=b[3]&&!!(geoAt(lo,la).cons||watchAt(lo,la))};
+/* ภาพบนแผนที่: วาดเฉพาะบริเวณที่มองเห็น (+ขอบ 25%) ภายในกรอบของขอบเขตที่ระบายสี ที่ความละเอียดใกล้จอ แล้วตัดตามเส้นแนวเขตจริง
+   (ตาราง ~3 กม. ถ้าวาดเป็นภาพหยาบ ขอบระดับสีจะเป็นขั้นบันไดเมื่อซูมเข้า) · วาดใหม่เมื่อเลื่อน/ซูมจนออกนอกส่วนที่วาดไว้ หรือความละเอียดต่างไปเกิน 1.5 เท่า (fwView) */
 let FWR=null,FWIQ=0;
-function fwRect(G,pad){const gx0=G.x0-G.dx/2,gx1=G.x0+(G.nx-.5)*G.dx,gyN=G.y0-G.dy/2,gyS=G.y0+(G.ny-.5)*G.dy,B=map.getBounds();
+function fwRect(G,pad){const M=fwMask().b,gx0=Math.max(G.x0-G.dx/2,M[0]),gx1=Math.min(G.x0+(G.nx-.5)*G.dx,M[2]),gyN=Math.min(G.y0-G.dy/2,M[3]),gyS=Math.max(G.y0+(G.ny-.5)*G.dy,M[1]),B=map.getBounds();
  let w=B.getWest(),e=B.getEast(),so=B.getSouth(),n=B.getNorth();const pw=(e-w)*pad,ph=(n-so)*pad;w-=pw;e+=pw;so=Math.max(-80,so-ph);n=Math.min(80,n+ph);
  const cv=map.getCanvas(),ppx=cv.clientWidth/((B.getEast()-B.getWest())*Math.PI/180);
  return{x0:Math.max(gx0,w),x1:Math.min(gx1,e),yS:Math.max(gyS,so),yN:Math.min(gyN,n),ppx}}
@@ -6296,7 +6294,12 @@ function fwImg(G,a,v){const r=fwRect(G,.25),b=fwB(v),q=++FWIQ,src=()=>map.getSou
  const cell=(r.x1-r.x0)/G.dx,k=Math.min(1,2048/W,2048/H,cell*12/W);W=Math.max(2,Math.round(W*k));H=Math.max(2,Math.round(H*k));
  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d'),im=x.createImageData(W,H),x0=r.x0,x1=r.x1;
  if(b)for(let py=0;py<H;py++){const la=iY(ya+(yb-ya)*(py+.5)/H);for(let px=0;px<W;px++){const z=fwAt(G,a,x0+(x1-x0)*(px+.5)/W,la);if(z!=null)im.data.set(FWRGB[fwCat(z,b)],(py*W+px)*4)}}
- x.putImageData(im,0,0);FWR=Object.assign(r,{G,a,v});const co=[[x0,r.yN],[x1,r.yN],[x1,r.yS],[x0,r.yS]];
+ x.putImageData(im,0,0);
+ /* ตัดตามแนวเขต: เก็บเฉพาะพิกเซลในรูปหลายเหลี่ยม (วาดหน้ากากทีละรูป evenodd → รูเป็นช่องว่าง, หลายรูปรวมกัน) */
+ x.globalCompositeOperation='destination-in';const kx=W/(x1-x0),ky=H/(ya-yb);
+ const mk=document.createElement('canvas');mk.width=W;mk.height=H;const m=mk.getContext('2d');m.fillStyle='#000';for(const p of fwMask().P){const q=new Path2D();for(const ring of p){ring.forEach(([lo,la],j)=>{const px=(lo-x0)*kx,py=(ya-mY(la))*ky;j?q.lineTo(px,py):q.moveTo(px,py)});q.closePath()}m.fill(q,'evenodd')}x.drawImage(mk,0,0)
+ x.globalCompositeOperation='source-over';
+ FWR=Object.assign(r,{G,a,v});const co=[[x0,r.yN],[x1,r.yN],[x1,r.yS],[x0,r.yS]];
  cv.toBlob(bl=>{if(q!==FWIQ||!bl)return;const u=URL.createObjectURL(bl),old=FWIU;FWIU=u;FWCO=co;const s=src();s&&s.updateImage({url:u,coordinates:co});
   if(old&&old.startsWith('blob:'))setTimeout(()=>URL.revokeObjectURL(old),3000)})}
 /* เลื่อน/ซูมแล้ว: วาดใหม่เมื่อส่วนที่มองเห็นเลยส่วนที่วาดไว้ หรือซูมจนความละเอียดต่างไปมาก */
@@ -6336,10 +6339,10 @@ async function fwDraw(){if(!S.fwi)return;fwExplain();const v=fwVar();$$('#fwi-v 
    s+=`<span class="c${j===i?' on':''}" data-i="${j}" data-tip="${esc(tip)}" style="${c>=0?`background:${FWC[c]};color:${c===1?'#3a2e00':'#fff'}`:''}">${fwCell(t[0])}</span>`})}
  tx('fwi-pt',s+`</div><div class="sm" style="margin-top:3px">* วันพยากรณ์ · สีตามระดับของค่าเฉลี่ย — บางส่วนของพื้นที่อาจสูงกว่านี้ (ดูช่วงค่าในป้าย)</div>`);
  const rl=FWX.days.find(x=>x.d===FWX.run);
- fwSt(`ข้อมูล <a href="${FWSRC}" target="_blank" rel="noopener">TFDRS กรมป่าไม้</a> (Thailand Fire Danger Rating System) พัฒนาโดยหน่วยวิจัยไฟป่าฯ (WFSRU) คณะวนศาสตร์ ม.เกษตรศาสตร์ ร่วมกับกรมป่าไม้ จุฬาฯ Natural Resources Canada และคณะ · คำนวณด้วยโค้ด <a href="https://github.com/nrcan-cfs-fire/cffdrs-ng" target="_blank" rel="noopener">cffdrs-ng</a> (พัฒนาต่อโดย Marko Niinimaki และ Jittisak Yodkhum) จากอากาศพยากรณ์ <a href="https://tiservice.hii.or.th/wrf-roms/netcdf/" target="_blank" rel="noopener">WRF-ROMS</a> ของ สสน. · ตาราง ~3 กม. · รอบล่าสุด ${fwDate(FWX.run,{day:'numeric',month:'short'})}${rl&&rl.lm?' (ออก '+thTime(Date.parse(rl.lm))+' น.)':''} — ต้นทางออกวันละครั้งช่วงบ่าย ระบบนี้ตรวจรอบใหม่วันละ 4 ครั้ง`);
+ fwSt(`ข้อมูล <a href="${FWSRC}" target="_blank" rel="noopener">TFDRS กรมป่าไม้</a> (Thailand Fire Danger Rating System) พัฒนาโดยหน่วยวิจัยไฟป่าฯ (WFSRU) คณะวนศาสตร์ ม.เกษตรศาสตร์ ร่วมกับกรมป่าไม้ จุฬาฯ Natural Resources Canada และคณะ · คำนวณด้วยโค้ด <a href="https://github.com/nrcan-cfs-fire/cffdrs-ng" target="_blank" rel="noopener">cffdrs-ng</a> (พัฒนาต่อโดย Marko Niinimaki และ Jittisak Yodkhum) จากอากาศพยากรณ์ <a href="https://tiservice.hii.or.th/wrf-roms/netcdf/" target="_blank" rel="noopener">WRF-ROMS</a> ของ สสน. · ตาราง ~3 กม. · แผนที่ระบายสีเฉพาะในแนวเขตพื้นที่อนุรักษ์และพื้นที่เฝ้าระวังพิเศษ · รอบล่าสุด ${fwDate(FWX.run,{day:'numeric',month:'short'})}${rl&&rl.lm?' (ออก '+thTime(Date.parse(rl.lm))+' น.)':''} — ต้นทางออกวันละครั้งช่วงบ่าย ระบบนี้ตรวจรอบใหม่วันละ 4 ครั้ง`);
  /* ภาพบนแผนที่ (โหลดไฟล์ของวันนั้น) */
  const key=d.d+'|'+d.run+'|'+(d.lm||'')+'|'+v;if(FWK===key&&FWGD===d)return;const q=++FWQ;
- try{const F=await fwFull(d,v);if(q!==FWQ)return;fwImg(F.G,F.a,v);FWG=F.G;FWGA=F.a;FWGD=d;FWK=key}
+ try{const C=await fwGet(d);if(q!==FWQ)return;const a=fwArr(C,v);if(!a)throw new Error('ไม่มีตัวแปร '+v);fwImg(C,a,v);FWG=C;FWGA=a;FWGD=d;FWK=key}
  catch(e){if(q===FWQ)fwSt('โหลดข้อมูลวันที่ '+esc(d.d)+' ไม่ได้ ('+esc(e.message||e)+')')}}
 function fwApply(){const bx=$('#fwibox');if(!bx)return;bx.hidden=!S.fwi;try{fwLayer()}catch(e){}
  if(!S.fwi){tx('fwi-t','');return}fwDraw();fwLoad().then(fwDraw).catch(e=>{fwSt('โหลดข้อมูล TFDRS ไม่ได้ ('+esc(e.message||e)+')');tx('fwi-dv','โหลดข้อมูลไม่ได้')})}
@@ -6365,11 +6368,9 @@ function fwAll(G,lo,la){const o={};for(const v of Object.keys(FWV))o[v]=fwAt(G,f
 const fwEm=(v,x)=>{const b=fwB(v);if(x==null)return'–';if(!b)return fwN(v,x);const k=fwCat(x,b);return`<em style="background:${FWC[k]};color:${k===1?'#3a2e00':'#fff'}">${fwN(v,x)} ${fwNm(v,k)}</em>`};
 function fwHtml(o,d){return`<b>FWI</b> ${fwEm('FWI',o.FWI)} · ISI ${fwB2('ISI',o.ISI)} · BUI ${fwB2('BUI',o.BUI)}<br>FFMC ${fwB2('FFMC',o.FFMC)} · DMC ${fwB2('DMC',o.DMC)} · DC ${fwB2('DC',o.DC)}<br>`+
  `<span style="opacity:.85">อากาศเที่ยงวัน ${fwN('Temp_noon',o.Temp_noon)} °C · ความชื้น ${fwN('Rh_noon',o.Rh_noon)}% · ลม ${fwN('Wsp_noon',o.Wsp_noon)} กม./ชม. · ฝน 24 ชม. ${fwN('Precip_24hr',o.Precip_24hr)} มม.</span>`}
-/* ค่าทุกตัวแปรที่จุด: ในกรอบรอบกลุ่มป่าใช้ไฟล์กรอบ (ไฟล์เดียว) นอกกรอบโหลดตารางเต็มพื้นที่ทีละตัวแปร */
-async function fwAllAt(d,lo,la){const C=await fwGet(d),fx=(lo-C.x0)/C.dx,fy=(la-C.y0)/C.dy;
- if(fx>=0&&fy>=0&&fx<=C.nx-1&&fy<=C.ny-1)return fwAll(C,lo,la);
- const L=await Promise.all(Object.keys(FWV).map(v=>fwFull(d,v).then(F=>[v,fwAt(F.G,F.a,lo,la)]).catch(()=>[v,null])));return Object.fromEntries(L)}
-function fwPop(lo,la){if(!S.fwi||!FWG||!FWGD)return'';const z=fwAt(FWG,FWGA,lo,la);if(z==null)return'';const d=FWGD,id='fwpp'+(++FWPN);
+/* ค่าทุกตัวแปรที่จุด (ไฟล์กรอบรอบกลุ่มป่า BOX — นอกกรอบได้ null) */
+async function fwAllAt(d,lo,la){return fwAll(await fwGet(d),lo,la)}
+function fwPop(lo,la){if(!S.fwi||!FWG||!FWGD||!fwIn(lo,la))return'';const z=fwAt(FWG,FWGA,lo,la);if(z==null)return'';const d=FWGD,id='fwpp'+(++FWPN);
  fwAllAt(d,lo,la).then(o=>{const e=document.getElementById(id);if(!e)return;if(o.FWI==null){e.remove();return}e.querySelector('.fwpv').innerHTML=fwHtml(o,d)}).catch(()=>{const e=document.getElementById(id);if(e)e.querySelector('.fwpv').textContent='โหลดค่าไม่ได้'});
  return`<div class="sm fwpp" id="${id}" style="margin:0 0 4px"><b>ดัชนีอันตรายไฟป่า</b> (TFDRS) ${fwDate(d.d,{day:'numeric',month:'short'})}${d.f?' พยากรณ์':''}<br><span class="fwpv"><span style="opacity:.7">กำลังโหลด…</span></span></div>`}
 /* แผงรายละเอียดจุดความร้อน: ค่า FWI System ของวันที่ตรวจพบ (หรือวันล่าสุดที่มี) — โหลดเองแม้ไม่ได้เปิดชั้น */
@@ -6382,7 +6383,7 @@ async function fwDetail(h){const el=$('#fw-tf');if(!el||!h)return;el.innerHTML='
  catch(e){if(CUR===h)el.innerHTML='<span style="opacity:.7">โหลดดัชนี FWI ของกรมป่าไม้ไม่ได้</span>'}}
 {const od=openDetail;openDetail=function(h){od.apply(this,arguments);try{fwDetail(h)}catch(e){}}}
 /* ป้ายค่าที่ชี้เมาส์ — ต่อท้ายป้ายของชั้นอื่นที่เปิดพร้อมกัน */
-map.on('mousemove',e=>{if(!S.fwi||!FWG||!FWGA||!FWGD)return;const v=fwVar(),z=fwAt(FWG,FWGA,e.lngLat.lng,e.lngLat.lat);if(z==null)return;const t=$('#tip'),b=fwB(v);
+map.on('mousemove',e=>{if(!S.fwi||!FWG||!FWGA||!FWGD||!fwIn(e.lngLat.lng,e.lngLat.lat))return;const v=fwVar(),z=fwAt(FWG,FWGA,e.lngLat.lng,e.lngLat.lat);if(z==null)return;const t=$('#tip'),b=fwB(v);
  const s=`${FWV[v][0]} ${fwN(v,z)}${FWV[v][3]?' '+FWV[v][3]:''}${b?' ('+fwNm(v,fwCat(z,b))+')':''} · ${fwDate(FWGD.d,{day:'numeric',month:'short'})}${FWGD.f?' พยากรณ์':''} · TFDRS`;
  const keep=t.style.display==='block'&&(S.vr||S.dry||S.wx)&&t.textContent&&!t.textContent.includes('TFDRS');
  t.textContent=keep?t.textContent+' | '+s:s;t.style.display='block';t.style.left=e.originalEvent.clientX+14+'px';t.style.top=e.originalEvent.clientY+14+'px'});
