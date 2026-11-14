@@ -2,7 +2,7 @@
 // วิธีเดียวกับหน้าเว็บ (gvDays/gvAreas/gvMean ใน index.html):
 //   วัน = วัน UTC (07:00–06:00 น. ไทย) แบบกรมอุตุฯ · ตัดวันที่ข้อมูลครอบ <12 ชม.
 //   ค่าของกลุ่มป่า = ค่าเฉลี่ยของจุดทุก 0.05° ภายในแนวเขตพื้นที่อนุรักษ์ (bilinear จากตาราง 0.25°)
-//   mean = เฉลี่ยทั้งวัน (ตัวเลขแบบที่กรมอุตุฯ รายงาน) · max = สูงสุดของวัน (ค่าสูงสุดรายช่องแล้วเฉลี่ยพื้นที่ = ตาราง "สูงสุดของวัน" บนเว็บ)
+//   mean = เฉลี่ยทั้งวัน (ตัวเลขแบบที่กรมอุตุฯ รายงาน) · max = สูงสุดของวัน (แต่ละจุดเอาค่าสูงสุดของค่ารายชั่วโมงที่จุดนั้น แล้วเฉลี่ยพื้นที่ = ตาราง "สูงสุดของวัน" บนเว็บ — 14 พ.ย. 69 เลิกใช้สูงสุดรายช่องตาราง เพราะช่องข้างเคียงสูงสุดคนละชั่วโมงทำให้สูงเกินจริง)
 //   a/z/hrs = ช่วงชั่วโมงแรก–สุดท้ายที่ค่าเฉลี่ยทั้งกลุ่มป่ารายชั่วโมง ≥2,000 · pk/pkT = ชั่วโมงที่ค่าเฉลี่ยทั้งกลุ่มป่าสูงสุด
 // สรุปประจำวันส่ง 05:30 น. → ใช้วันที่ยังเหลือเกินครึ่งวัน (เริ่ม 07:00 น. วันนี้เป็นต้นไป)
 const fs = require('fs'), path = require('path');
@@ -25,18 +25,20 @@ function vrSummary(now = Date.now(), n = 5, file = FILE) {
     const i = Math.min(j.nx - 2, Math.floor(fx)), k = Math.min(j.ny - 2, Math.floor(fy)), a = fx - i, b = fy - k, p = k * j.nx + i;
     return [[p, (1 - a) * (1 - b)], [p + 1, a * (1 - b)], [p + j.nx, (1 - a) * b], [p + j.nx + 1, a * b]] }).filter(Boolean);
   if (!W.length) return null;
-  const area = f => W.reduce((s, w) => s + w.reduce((u, [p, c]) => u + f[p] * c, 0), 0) / W.length;
+  const at = (f, w) => w.reduce((u, [p, c]) => u + f[p] * c, 0);
+  const area = f => W.reduce((s, w) => s + at(f, w), 0) / W.length;
   const S = V.map(a => area(a) * q); // ค่าเฉลี่ยทั้งกลุ่มป่ารายชั่วโมง
   const sz = k => k < t.length - 1 ? t[k + 1] - t[k] : t[k] - t[k - 1], D = {};
   t.forEach((ms, k) => { const d = new Date(ms).toISOString().slice(0, 10); (D[d] = D[d] || []).push(k) });
   const days = Object.keys(D).sort().map(d => ({ d, k: D[d], st: Date.parse(d) }))
     .filter(x => x.k.length >= 4 && x.k.reduce((a, k) => a + sz(k), 0) >= 432e5 && x.st + 432e5 > now).slice(0, n)
-    .map(x => { const mean = new Float64Array(NN), max = new Float64Array(NN);
-      for (const k of x.k) { const a = V[k]; for (let p = 0; p < NN; p++) { mean[p] += a[p]; if (a[p] > max[p]) max[p] = a[p] } }
+    .map(x => { const mean = new Float64Array(NN);
+      for (const k of x.k) { const a = V[k]; for (let p = 0; p < NN; p++) mean[p] += a[p] }
       for (let p = 0; p < NN; p++) mean[p] /= x.k.length;
+      const mx = W.reduce((s, w) => s + Math.max(...x.k.map(k => at(V[k], w))), 0) / W.length;
       const ok = x.k.filter(k => S[k] >= 2000), pk = x.k.reduce((a, k) => S[k] > S[a] ? k : a, x.k[0]);
       return { d: x.d, st: x.st, part: t[x.k[0]] > x.st || t[x.k[x.k.length - 1]] + sz(x.k[x.k.length - 1]) < x.st + 864e5,
-        mean: Math.round(area(mean) * q / 10) * 10, max: Math.round(area(max) * q / 10) * 10,
+        mean: Math.round(area(mean) * q / 10) * 10, max: Math.round(mx * q / 10) * 10,
         a: ok.length ? t[ok[0]] : null, z: ok.length ? t[ok[ok.length - 1]] : null, hrs: Math.round(ok.reduce((s, k) => s + sz(k), 0) / 36e5),
         pk: Math.round(S[pk] / 10) * 10, pkT: t[pk] } });
   return days.length ? { cyc: j.cyc, days } : null;
