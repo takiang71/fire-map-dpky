@@ -371,6 +371,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 .kc>div{min-width:0}.kc span{display:block;font-size:10.5px;color:var(--mut);line-height:1.25}.kc b{display:block;font-size:21px;line-height:1.15;color:var(--navy);font-weight:800}.kc b.t{font-size:14px;line-height:1.25}.kc small{display:block;font-size:10.5px;color:var(--mut);line-height:1.25}
 .hh{flex-wrap:wrap;gap:6px 6px}.ht{flex:1;font-size:15px;font-weight:800;color:var(--navy)}.hh>.hsub{flex:0 0 100%;margin-top:-2px}
 .hsp{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--navy);cursor:pointer;white-space:nowrap}.hsp .sw{width:32px;height:18px}.hsp .sw::after{width:14px;height:14px}.hsp .sw[aria-checked=true]::after{transform:translateX(14px)}
+.pqs{display:flex;flex-wrap:wrap;gap:6px 16px;margin:6px 0 8px}
 .hp{min-height:32px;padding:0 10px;border:1px solid var(--line);background:var(--bg);border-radius:99px;font-size:12.5px;display:inline-flex;align-items:center;gap:5px;color:var(--navy);font-weight:600}.hp svg{width:15px;height:15px}
 .kp .nm{font-size:13px;line-height:1.3;font-weight:800;margin:0 0 2px}.kp .lb{font-weight:600;color:var(--mut);font-size:10.5px;line-height:1.25}.kp .six{display:flex;flex-direction:column}
 /* หน้ากระดาน "ความสำคัญ" (#kb) — ความรู้รายพื้นที่อนุรักษ์ + แผนที่ประกอบ */
@@ -748,7 +749,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div class="row" data-tip="ระบบดัชนีอันตรายไฟป่าของแคนาดา (Canadian Forest Fire Weather Index System) คำนวณโดยระบบ TFDRS ของกรมป่าไม้ จากอุณหภูมิ ความชื้น ลมเที่ยงวัน และฝน 24 ชม. (แบบจำลอง WRF ของ สสน.) · เกณฑ์ 5 ระดับปรับเทียบสำหรับประเทศไทย · ตาราง ~3 กม. วันละครั้ง ย้อนหลัง 7 วัน + พยากรณ์ 2 วัน · 6 ดัชนี: FFMC DMC DC (ความชื้นเชื้อเพลิง) → ISI BUI → FWI · ชี้เมาส์บนแผนที่เพื่อดูค่า"><svg class="i" viewBox="0 0 24 24"><path d="M3.5 17a8.5 8.5 0 0117 0"/><path d="M12 17l4.5-5.5"/><circle cx="12" cy="17" r="1.4"/><path d="M6 12.6l1.2.8M12 8.5v1.4M18 12.6l-1.2.8"/></svg><b>ดัชนีอันตรายไฟป่า FWI</b><span class="tag">กรมป่าไม้</span><span class="sm" id="fwi-t"></span><button class="sw" data-k="fwi" role="switch" aria-label="ดัชนีอันตรายไฟป่า FWI System กรมป่าไม้"></button></div>
   <div id="fwibox" hidden>
    <div class="seg fwseg" id="fwi-v" role="group" aria-label="เลือกดัชนี"><button data-v="FWI" title="ดัชนีความรุนแรงของไฟ (Fire Weather Index) — ดัชนีอันตรายไฟป่าโดยรวม">FWI</button><button data-v="ISI" title="ดัชนีการลุกลามเริ่มต้น (Initial Spread Index)">ISI</button><button data-v="BUI" title="ดัชนีเชื้อเพลิงสะสม (Buildup Index)">BUI</button><button data-v="FFMC" title="รหัสความชื้นเชื้อเพลิงละเอียด (Fine Fuel Moisture Code)">FFMC</button><button data-v="DMC" title="รหัสความชื้นของอินทรียวัตถุชั้นบน (Duff Moisture Code)">DMC</button><button data-v="DC" title="รหัสความแห้งแล้ง (Drought Code)">DC</button></div>
-   <div class="seg fwseg" id="fwi-w" role="group" aria-label="อากาศที่ใช้คำนวณ"><button data-v="Temp_noon" title="อุณหภูมิเที่ยงวัน (°C)">อุณหภูมิ</button><button data-v="Wsp_noon" title="ความเร็วลมเที่ยงวัน (กม./ชม.)">ลม</button><button data-v="Precip_24hr" title="ฝนสะสม 24 ชม. (มม.)">ฝน 24 ชม.</button></div>
+   <div class="seg fwseg" id="fwi-w" hidden role="group" aria-label="อากาศที่ใช้คำนวณ"><button data-v="Temp_noon" title="อุณหภูมิเที่ยงวัน (°C)">อุณหภูมิ</button><button data-v="Wsp_noon" title="ความเร็วลมเที่ยงวัน (กม./ชม.)">ลม</button><button data-v="Precip_24hr" title="ฝนสะสม 24 ชม. (มม.)">ฝน 24 ชม.</button></div>
    <div class="chips" id="fwi-dc" role="group" aria-label="เลือกวัน"></div>
    <div class="tsv"><span id="fwi-dv" style="flex:1">–</span></div>
    <div class="vrl" id="fwi-lg"></div>
@@ -767,24 +768,42 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
    </div>
 
   <h3>สภาพอากาศและคุณภาพอากาศ</h3>
-  <div class="row" data-tip="ภาพพยากรณ์จาก Windy.com (ECMWF, ฝุ่น = CAMS) ซ้อนใต้แนวเขตและจุดความร้อน · หยุดเลื่อนแผนที่แล้วภาพโหลดใหม่ตามตำแหน่ง · ระหว่างเปิดชั้นนี้ซูมใกล้ได้จำกัดตาม Windy · เลือกควบคุมด้วย Windy ในแถบด้านล่างเพื่อแตะดูค่าบนภาพ"><svg class="i" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 10-3-3M3 12h16a3 3 0 11-3 3M3 16h7"/></svg><b>สภาพอากาศ Windy</b><span class="tag wylv">LIVE</span><button class="sw" data-k="wyl" role="switch" aria-label="ชั้นสภาพอากาศ Windy"></button></div>
-  <div id="wylbox" hidden><div class="wyc" id="wyl-c" role="group" aria-label="เลือกชั้นสภาพอากาศ"></div>
-   <div class="seg" id="wyl-t" role="group" aria-label="เวลาพยากรณ์"><button data-v="now">ตอนนี้</button><button data-v="12">+12 ชม.</button><button data-v="24">+24 ชม.</button></div>
-   <div class="wyo"><span>ความเข้มของชั้นสภาพอากาศ</span><b id="wyl-ov">60%</b></div><input type="range" id="wyl-o" min="20" max="100" step="5" value="60" aria-label="ความเข้มของชั้นสภาพอากาศ">
-   <div class="wyq"><div class="sm">สภาพอากาศกลางกลุ่มป่า (สบอ.1) ตอนนี้</div><div id="wyl-q">กำลังดึงข้อมูล…</div></div>
-   </div>
-  <div class="row" data-tip="เส้นลมจาก Open-Meteo ตามบริเวณที่มองเห็น ปรับทุก 15 นาที · หัวเส้นชี้ไปทางที่ลมพัดไป ยิ่งยาวยิ่งแรง (5 ระดับ ต่ำกว่า 1 ถึงเกิน 8 ม./วินาที)"><svg class="i" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 10-3-3M3 12h16a3 3 0 11-3 3M3 16h7"/></svg><b>ทิศทางลมปัจจุบัน</b><button class="sw" data-k="wind" role="switch" aria-label="ทิศทางลม"></button></div>
-  <div id="wbox" hidden><div class="wscale"><span>ลมเบา</span><span class="wl"><i style="width:8px"></i><i style="width:14px"></i><i style="width:22px"></i><i style="width:32px"></i><i style="width:44px"></i></span><span>ลมแรง</span></div><p class="note" style="margin-left:0"><span id="wn">กำลังดึงข้อมูล…</span></p></div>
-  <div class="row" data-tip="แบบจำลอง Open-Meteo (~10–25 กม.) ตามบริเวณที่มองเห็น: อุณหภูมิ ความชื้น ฝน เมฆ · เลื่อนเวลาได้ตั้งแต่ย้อนหลัง 24 ชม. ถึงพยากรณ์ 48 ชม. · ชี้เมาส์บนแผนที่เพื่อดูค่า"><svg class="i" viewBox="0 0 24 24"><path d="M14 14.8V5a2 2 0 10-4 0v9.8a4 4 0 104 0z"/></svg><b>สภาพอากาศรายชั่วโมง</b><span class="sm" id="wx-t"></span><button class="sw" data-k="wx" role="switch" aria-label="สภาพอากาศรายชั่วโมง"></button></div>
-  <div id="wxbox" hidden><div class="seg" id="wxseg"><button data-v="t">อุณหภูมิ</button><button data-v="rh">ความชื้น</button><button data-v="pr">ฝน</button><button data-v="cc">เมฆ</button></div>
+  <div class="row" data-tip="แบบจำลอง Open-Meteo (~10–25 กม.) ตามบริเวณที่มองเห็น: อุณหภูมิ ความชื้น ลม ฝน เมฆ · เลื่อนเวลาได้ตั้งแต่ย้อนหลัง 24 ชม. ถึงพยากรณ์ 48 ชม. · เส้นลมเคลื่อนไหวตามเวลาที่เลือก หัวเส้นชี้ไปทางที่ลมพัดไป ยิ่งยาวยิ่งแรง · ค่าวัดจริงดูที่แถวสถานีตรวจอากาศ กรมอุตุฯ · ชี้เมาส์บนแผนที่เพื่อดูค่า"><svg class="i" viewBox="0 0 24 24"><path d="M14 14.8V5a2 2 0 10-4 0v9.8a4 4 0 104 0z"/></svg><b>สภาพอากาศแบบจำลอง</b><span class="sm" id="wx-t"></span><button class="sw" data-k="wx" role="switch" aria-label="สภาพอากาศแบบจำลอง"></button></div>
+  <div id="wxbox" hidden><div class="seg" id="wxseg"><button data-v="t">อุณหภูมิ</button><button data-v="rh">ความชื้น</button><button data-v="ws">ลม</button><button data-v="pr">ฝน</button><button data-v="cc">เมฆ</button></div>
    <div class="tsl"><button id="wx-pv" aria-label="ชั่วโมงก่อนหน้า">‹</button><input type="range" id="wx-r" min="0" max="71" aria-label="เลื่อนเวลา ย้อนหลัง 24 ชม. ถึงพยากรณ์ 48 ชม."><button id="wx-nx" aria-label="ชั่วโมงถัดไป">›</button></div>
    <div class="tsv"><b id="wx-v">–</b><a id="wx-0" role="button" tabindex="0">ตอนนี้</a></div>
    <div id="wx-lg"></div>
+   <div class="pqs"><label class="hsp" title="แสดงเส้นลมเคลื่อนไหวของเวลาที่เลือก (ใช้ข้อมูลชุดเดียวกับตารางนี้)"><button class="sw" data-k="wxw" role="switch" aria-label="เส้นลมเคลื่อนไหว"></button>เส้นลมเคลื่อนไหว</label></div>
+  <div id="wbox" hidden><div class="wscale" style="margin-top:2px"><span>ลมเบา</span><span class="wl"><i style="width:8px"></i><i style="width:14px"></i><i style="width:22px"></i><i style="width:32px"></i><i style="width:44px"></i></span><span>ลมแรง</span></div><p class="note" style="margin-left:0"><span id="wn">กำลังดึงข้อมูล…</span></p></div>
    <p class="note" style="margin-left:0"><span id="wx-st"></span></p></div>
   <div class="row" data-tip="สถานีตรวจอากาศอัตโนมัติของกรมอุตุนิยมวิทยา ~220 สถานีทั่วประเทศ · ค่าตรวจวัดจริงล่าสุด (ไม่ใช่แบบจำลอง) ปรับทุก 10 นาที · เลือกแสดงอุณหภูมิ ความชื้น ลม หรือฝน · แตะสถานีเพื่อดูรายละเอียดและกราฟย้อนหลัง 48 ชม."><svg class="i" viewBox="0 0 24 24"><path d="M12 21V10M8 21h8M12 10l-5-6h10z"/><circle cx="12" cy="10" r="1.6"/></svg><b>สถานีตรวจอากาศ กรมอุตุฯ</b><span class="sm" id="tm-t"></span><button class="sw" data-k="tmd" role="switch" aria-label="สถานีตรวจอากาศอัตโนมัติ กรมอุตุนิยมวิทยา"></button></div>
   <div id="tmbox" hidden><div class="seg" id="tmseg" role="group" aria-label="ค่าที่แสดงบนแผนที่"><button data-v="t">อุณหภูมิ</button><button data-v="rh">ความชื้น</button><button data-v="ws">ลม</button><button data-v="r">ฝนวันนี้</button><button data-v="r7">ฝน 7 วัน</button></div>
    <div id="tm-lg"></div><div id="tm-ar"></div>
    <p class="note" style="margin-left:0"><span id="tm-st"></span></p></div>
+  <div class="row" data-tip="ภาพสังเกตการณ์ล่าสุด กดเล่นภาพเคลื่อนไหวได้ · อินฟราเรด/ยอดเมฆ/สีจริง/ไอน้ำ = ดาวเทียมอุตุนิยมวิทยา Himawari-9 (JMA) ทุก 10 นาที ย้อนหลัง 3 ชม. ละเอียด ~2 กม. (เข้าช้ากว่าเวลาภาพ ~10–20 นาที) · เรดาร์ฝน = RainViewer ทุก 10 นาที ย้อนหลัง 2 ชม. ละเอียดถึงซูม 7 บางพื้นที่ไม่มีเรดาร์ครอบคลุม"><svg class="i" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 00.6-7.95A6 6 0 006.2 9.1 4.5 4.5 0 007 18z"/></svg><b>เมฆและเรดาร์ฝน</b><span class="sm" id="hm-t"></span><button class="sw" data-k="him" role="switch" aria-label="เมฆและเรดาร์ฝน"></button></div>
+  <div id="hmbox" hidden><div class="seg" id="hmseg"><button data-v="ir" title="อินฟราเรด ช่อง 13 (10.4 µm) — เมฆยิ่งสูงยิ่งเย็นยิ่งขาว ใช้ได้ทั้งวัน">อินฟราเรด</button><button data-v="ct" title="เน้นยอดเมฆ — ยอดเมฆที่เย็นจัด (เมฆฝนฟ้าคะนอง) แสดงเป็นสี">ยอดเมฆ</button><button data-v="tc" title="ภาพสีธรรมชาติ — ใช้ได้เฉพาะกลางวัน">สีจริง</button><button data-v="wv" title="ไอน้ำ ช่อง 8 (6.2 µm) — ความชื้นในบรรยากาศชั้นบน สว่าง = ชื้น มืด = แห้ง">ไอน้ำ</button><button data-v="rd" title="เรดาร์ตรวจอากาศ RainViewer — ฝนที่กำลังตก ย้อนหลัง 2 ชม.">เรดาร์ฝน</button></div>
+   <div id="hm-c">
+   <div class="tsl"><button id="hm-pl" aria-label="เล่นภาพเคลื่อนไหว">▶</button><input type="range" id="hm-r" min="0" max="0" aria-label="เลื่อนเวลาภาพเมฆ"></div>
+   <div class="tsv"><b id="hm-v">กำลังดึงข้อมูล…</b><a id="hm-0" role="button" tabindex="0">ล่าสุด</a></div>
+   <div id="hm-lg"></div>
+   <div class="tsv"><span class="sm" style="flex:none">ความเข้ม</span><input type="range" id="hm-op" min="20" max="100" step="5" style="flex:1;min-width:0;accent-color:var(--navy)" aria-label="ความเข้มภาพเมฆ"><span class="sm" id="hm-opv" style="flex:none;width:34px;text-align:right"></span></div>
+   <p class="note" style="margin-left:0"><span id="hm-st"></span></p></div>
+   <div id="radbox" hidden><div class="tsl"><button id="rd-pl" aria-label="เล่นภาพเคลื่อนไหว">▶</button><input type="range" id="rd-r" min="0" max="0" aria-label="เลื่อนเวลาภาพเรดาร์"></div>
+    <div class="tsv"><b id="rd-v">กำลังดึงข้อมูล…</b><a id="rd-0" role="button" tabindex="0">ล่าสุด</a></div>
+    <div class="wxb" style="background:linear-gradient(90deg,#d8d3c4,#9bd5f0,#2b8fd6,#0b4ea2,#ffd400,#e8001e)"></div><div class="wxs"><span>ฝนเบา</span><span>ปานกลาง</span><span>หนัก</span><span>หนักมาก/พายุ</span></div>
+    <p class="note" style="margin-left:0">ละเอียดสูงสุดเท่าระดับซูม 7 · บริเวณที่ไม่มีเรดาร์ครอบคลุมจะไม่แสดงฝน</p></div>
+   </div>
+  <div class="row" data-tip="สถานีตรวจวัด Air4Thai (กรมควบคุมมลพิษ) = ค่าวัดจริงล่าสุด · แบบจำลอง CAMS ของโคเปอร์นิคัส (ECMWF) ~45 กม. = แผนที่ค่าเฉลี่ย 24 ชม. หรือราย 3 ชม. ตั้งแต่เมื่อวานถึงพยากรณ์ ~5 วัน ครอบคลุมประเทศเพื่อนบ้าน (ดูควันข้ามแดน) · ทั้งสองแบบระบายสีตามเกณฑ์กรมควบคุมมลพิษ · เลือกเปิด/ปิดแต่ละแบบได้ในกล่องด้านล่าง"><svg class="i" viewBox="0 0 24 24"><circle cx="7" cy="9" r="2.200" style="fill:#50a4f4;stroke:none"/><circle cx="15" cy="7" r="2.600" style="fill:#e5db32;stroke:none"/><circle cx="16" cy="15.500" r="3" style="fill:#ef8128;stroke:none"/><circle cx="8" cy="16" r="2" style="fill:#00db00;stroke:none"/></svg><b>ฝุ่น PM2.5</b><span class="sm" id="cm-t"></span><button class="sw" data-k="pm" role="switch" aria-label="ฝุ่น PM2.5"></button></div>
+  <div id="pmbox" hidden><div class="pqs"><label class="hsp" title="ค่าวัดจริงล่าสุดของสถานี Air4Thai (กรมควบคุมมลพิษ)"><button class="sw" data-k="pmst" role="switch" aria-label="สถานีตรวจวัด Air4Thai"></button>สถานีตรวจวัด (ค่าจริง)</label><label class="hsp" title="แผนที่จากแบบจำลอง CAMS ย้อนหลังถึงพยากรณ์ ~5 วัน"><button class="sw" data-k="pmc" role="switch" aria-label="แบบจำลอง CAMS"></button>แบบจำลอง CAMS (พยากรณ์)</label></div>
+   <div id="pq-lg"></div>
+   <div id="cmbox" hidden><div class="seg" id="cm-md" role="group" aria-label="ค่าที่แสดง" style="margin-bottom:6px"><button data-v="d" title="ค่าเฉลี่ย 00:00–24:00 น. ของวันที่เลือก — ใช้เทียบเกณฑ์กรมควบคุมมลพิษได้ตรง">เฉลี่ย 24 ชม.</button><button data-v="t" title="ค่าขณะนั้นทุก 3 ชม. · เลื่อนแถบหรือกดเล่น">ราย 3 ชม.</button></div>
+    <div class="chips" id="cm-dc"></div>
+    <div class="tsl cmt"><button id="cm-pl" aria-label="เล่นภาพเคลื่อนไหว">▶</button><input type="range" id="cm-r" min="0" max="0" aria-label="เลื่อนเวลา PM2.5 CAMS"></div>
+    <div class="tsv"><b id="cm-v">กำลังดึงข้อมูล…</b><a id="cm-0" role="button" tabindex="0">ตอนนี้</a></div>
+    <div id="cm-lg"></div><div id="cm-ar"></div>
+    <div class="tsv"><span class="sm" style="flex:none">ความเข้ม</span><input type="range" id="cm-op" min="20" max="100" step="5" style="flex:1;min-width:0;accent-color:var(--navy)" aria-label="ความเข้ม PM2.5 CAMS"><span class="sm" id="cm-opv" style="flex:none;width:34px;text-align:right"></span></div>
+    <p class="note" style="margin-left:0"><span id="cm-st"></span></p></div>
+   <p class="note" style="margin-left:0"><span id="pq-st"></span></p></div>
   <div class="row" data-tip="อัตราการระบายอากาศ = ความสูงชั้นผสมอากาศ × ความเร็วลมเฉลี่ยในชั้นนั้น (ตร.ม./วินาที) · ต่ำกว่า 2,000 = ไม่ดี การเผาในที่โล่งส่งผลกระทบต่อคุณภาพอากาศมาก · ข้อมูลจาก NOAA GFS ตัวแปรเดียวกับที่กรมอุตุนิยมวิทยาใช้ พยากรณ์ 7 วัน (5 วันแรกทุกชั่วโมง 2 วันหลังทุก 3 ชม.) · ชี้เมาส์บนแผนที่เพื่อดูค่า"><svg class="i" viewBox="0 0 24 24"><path d="M4 20h16M7 16c0-3 3-3.5 3-6.5S8 6 8 4M12 16c0-3 3-3.5 3-6.5S13 6 13 4M17 16c0-2.5 2.5-3 2.5-5.5"/></svg><b>อัตราการระบายอากาศ</b><span class="sm" id="vr-t"></span><button class="sw" data-k="vr" role="switch" aria-label="อัตราการระบายอากาศ"></button></div>
   <div id="vrbox" hidden>
    <div class="vrt"><div class="chips" id="vr-dc" role="group" aria-label="เลือกวัน"></div>
@@ -797,30 +816,12 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
    <div class="vrc vrt"><div class="sm" id="vr-pth"></div><div id="vr-pt"></div></div>
    <details class="vrad"><summary>เกณฑ์และคำแนะนำการเผาในที่โล่ง (กรมอุตุฯ)</summary><div id="vr-ad"></div></details>
    <p class="note" style="margin-left:0"><span id="vr-st"></span></p></div>
-  <div class="row" data-tip="เรดาร์ตรวจอากาศจาก RainViewer ย้อนหลัง 2 ชม. ทุก 10 นาที · ละเอียดสูงสุดเท่าระดับซูม 7 · บริเวณที่ไม่มีเรดาร์ครอบคลุมจะไม่แสดงฝน"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 12l6-6M12 7a5 5 0 105 5"/></svg><b>เรดาร์ฝน</b><span class="sm" id="rd-t"></span><button class="sw" data-k="rad" role="switch" aria-label="เรดาร์ฝน"></button></div>
-  <div id="radbox" hidden><div class="tsl"><button id="rd-pl" aria-label="เล่นภาพเคลื่อนไหว">▶</button><input type="range" id="rd-r" min="0" max="0" aria-label="เลื่อนเวลาภาพเรดาร์"></div>
-   <div class="tsv"><b id="rd-v">กำลังดึงข้อมูล…</b><a id="rd-0" role="button" tabindex="0">ล่าสุด</a></div>
-   <div class="wxb" style="background:linear-gradient(90deg,#d8d3c4,#9bd5f0,#2b8fd6,#0b4ea2,#ffd400,#e8001e)"></div><div class="wxs"><span>ฝนเบา</span><span>ปานกลาง</span><span>หนัก</span><span>หนักมาก/พายุ</span></div>
+  <div class="row" data-tip="ภาพพยากรณ์จาก Windy.com (ECMWF) ลม ฝน อุณหภูมิ ความชื้น ซ้อนใต้แนวเขตและจุดความร้อน · เหมาะดูภาพรวมและพยากรณ์ล่วงหน้า (แผนที่เต็มจอพยากรณ์ได้ ~10 วัน) · ระหว่างเปิดชั้นนี้ซูมใกล้ได้จำกัดตาม Windy และภาพนี้ไม่ขึ้นในรายงาน/พิมพ์แผนที่ · เลือกควบคุมด้วย Windy ในแถบด้านล่างเพื่อแตะดูค่าบนภาพ"><svg class="i" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 10-3-3M3 12h16a3 3 0 11-3 3M3 16h7"/></svg><b>พยากรณ์อากาศ Windy</b><span class="tag wylv">LIVE</span><button class="sw" data-k="wyl" role="switch" aria-label="ชั้นสภาพอากาศ Windy"></button></div>
+  <div id="wylbox" hidden><div class="wyc" id="wyl-c" role="group" aria-label="เลือกชั้นสภาพอากาศ"></div>
+   <div class="seg" id="wyl-t" role="group" aria-label="เวลาพยากรณ์"><button data-v="now">ตอนนี้</button><button data-v="12">+12 ชม.</button><button data-v="24">+24 ชม.</button></div>
+   <div class="wyo"><span>ความเข้มของชั้นสภาพอากาศ</span><b id="wyl-ov">60%</b></div><input type="range" id="wyl-o" min="20" max="100" step="5" value="60" aria-label="ความเข้มของชั้นสภาพอากาศ">
+   <div class="wyq"><div class="sm">สภาพอากาศกลางกลุ่มป่า (สบอ.1) ตอนนี้</div><div id="wyl-q">กำลังดึงข้อมูล…</div></div>
    </div>
-  <div class="row" data-tip="ภาพจากดาวเทียมอุตุนิยมวิทยา Himawari-9 ของสำนักงานอุตุนิยมวิทยาญี่ปุ่น (JMA) ทุก 10 นาที ย้อนหลัง 3 ชม. · ละเอียด ~2 กม. (ข้อมูลเข้าช้ากว่าเวลาภาพ ~10–20 นาที) · อินฟราเรดใช้ได้ทั้งกลางวันและกลางคืน"><svg class="i" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 00.6-7.95A6 6 0 006.2 9.1 4.5 4.5 0 007 18z"/></svg><b>ภาพเมฆ Himawari-9</b><span class="sm" id="hm-t"></span><button class="sw" data-k="him" role="switch" aria-label="ภาพเมฆ Himawari-9"></button></div>
-  <div id="hmbox" hidden><div class="seg" id="hmseg"><button data-v="ir" title="อินฟราเรด ช่อง 13 (10.4 µm) — เมฆยิ่งสูงยิ่งเย็นยิ่งขาว ใช้ได้ทั้งวัน">อินฟราเรด</button><button data-v="ct" title="เน้นยอดเมฆ — ยอดเมฆที่เย็นจัด (เมฆฝนฟ้าคะนอง) แสดงเป็นสี">ยอดเมฆ</button><button data-v="tc" title="ภาพสีธรรมชาติ — ใช้ได้เฉพาะกลางวัน">สีจริง</button><button data-v="wv" title="ไอน้ำ ช่อง 8 (6.2 µm) — ความชื้นในบรรยากาศชั้นบน สว่าง = ชื้น มืด = แห้ง">ไอน้ำ</button></div>
-   <div class="tsl"><button id="hm-pl" aria-label="เล่นภาพเคลื่อนไหว">▶</button><input type="range" id="hm-r" min="0" max="0" aria-label="เลื่อนเวลาภาพเมฆ"></div>
-   <div class="tsv"><b id="hm-v">กำลังดึงข้อมูล…</b><a id="hm-0" role="button" tabindex="0">ล่าสุด</a></div>
-   <div id="hm-lg"></div>
-   <div class="tsv"><span class="sm" style="flex:none">ความเข้ม</span><input type="range" id="hm-op" min="20" max="100" step="5" style="flex:1;min-width:0;accent-color:var(--navy)" aria-label="ความเข้มภาพเมฆ"><span class="sm" id="hm-opv" style="flex:none;width:34px;text-align:right"></span></div>
-   <p class="note" style="margin-left:0"><span id="hm-st"></span></p></div>
-  <div class="row" data-tip="สี่เหลี่ยม = สถานี Air4Thai (กรมควบคุมมลพิษ) ค่าล่าสุด · พื้นผิว = แบบจำลอง CAMS ผ่าน Open-Meteo จุดห่าง 1° (~110 กม.) ค่าปัจจุบันหรือพยากรณ์ล่วงหน้า (ซ่อนเมื่อเปิดแถว PM2.5 แบบจำลอง CAMS ที่ละเอียดกว่า) ครอบคลุมประเทศเพื่อนบ้าน · ใช้ร่วมกับทิศทางลมดูควันข้ามแดน"><svg class="i" viewBox="0 0 24 24"><rect x="2" y="8" width="5" height="8" rx="1.500" style="fill:#00E400"/><rect x="9.500" y="8" width="5" height="8" rx="1.500" style="fill:#FFFF00"/><rect x="17" y="8" width="5" height="8" rx="1.500" style="fill:#FF7E00"/></svg><b>ฝุ่น PM2.5 / AQI</b><span class="sm" id="pm-t"></span><button class="sw" data-k="pm" role="switch" aria-label="ฝุ่น PM2.5 AQI"></button></div>
-  <div id="pmbox" hidden><div class="seg" id="pmseg"><button data-v="aqi">AQI (ดัชนีสากล)</button><button data-v="pm">PM2.5 (µg/m³)</button></div>
-   <div class="chips" id="pmchips"></div><div class="lgd" id="pmlg"></div>
-   </div>
-  <div class="row" data-tip="แผนที่ฝุ่น PM2.5 จากแบบจำลองบรรยากาศ CAMS ของโคเปอร์นิคัส (ECMWF) ความละเอียด ~45 กม. ระบายสีตามระดับของกรมควบคุมมลพิษ · ค่าเฉลี่ย 24 ชม. รายวัน หรือราย 3 ชม. ตั้งแต่เมื่อวานถึงพยากรณ์ล่วงหน้า ~5 วัน · ค่าจากแบบจำลอง ไม่ใช่ค่าตรวจวัดจากสถานี · แตะแผนที่เพื่อดูค่าที่จุด"><svg class="i" viewBox="0 0 24 24"><circle cx="7" cy="9" r="2.200" style="fill:#50a4f4;stroke:none"/><circle cx="15" cy="7" r="2.600" style="fill:#e5db32;stroke:none"/><circle cx="16" cy="15.500" r="3" style="fill:#ef8128;stroke:none"/><circle cx="8" cy="16" r="2" style="fill:#00db00;stroke:none"/></svg><b>PM2.5 แบบจำลอง CAMS</b><span class="sm" id="cm-t"></span><button class="sw" data-k="cms" role="switch" aria-label="PM2.5 แบบจำลอง CAMS"></button></div>
-  <div id="cmbox" hidden><div class="seg" id="cm-md" role="group" aria-label="ค่าที่แสดง" style="margin-bottom:6px"><button data-v="d" title="ค่าเฉลี่ย 00:00–24:00 น. ของวันที่เลือก — ใช้เทียบเกณฑ์กรมควบคุมมลพิษได้ตรง">เฉลี่ย 24 ชม.</button><button data-v="t" title="ค่าขณะนั้นทุก 3 ชม. · เลื่อนแถบหรือกดเล่น">ราย 3 ชม.</button></div>
-   <div class="chips" id="cm-dc"></div>
-   <div class="tsl cmt"><button id="cm-pl" aria-label="เล่นภาพเคลื่อนไหว">▶</button><input type="range" id="cm-r" min="0" max="0" aria-label="เลื่อนเวลา PM2.5 CAMS"></div>
-   <div class="tsv"><b id="cm-v">กำลังดึงข้อมูล…</b><a id="cm-0" role="button" tabindex="0">ตอนนี้</a></div>
-   <div id="cm-lg"></div><div id="cm-ar"></div>
-   <div class="tsv"><span class="sm" style="flex:none">ความเข้ม</span><input type="range" id="cm-op" min="20" max="100" step="5" style="flex:1;min-width:0;accent-color:var(--navy)" aria-label="ความเข้ม PM2.5 CAMS"><span class="sm" id="cm-opv" style="flex:none;width:34px;text-align:right"></span></div>
-   <p class="note" style="margin-left:0"><span id="cm-st"></span></p></div>
   <button class="lk" id="wy-o">เปิดแผนที่พยากรณ์ Windy แบบเต็มจอ (มีตารางพยากรณ์รายชั่วโมง) →</button>
 
   <h3>พื้นที่อนุรักษ์และสถานีควบคุมไฟป่า</h3>
@@ -1105,8 +1106,8 @@ const areaHtml=g=>{let s='';if(g.cons)s+=`<b>${esc(g.cons.properties.name)}</b><
  return s||'<span class="sm">อยู่นอกพื้นที่อนุรักษ์และพื้นที่รับผิดชอบไฟป่าตามไฟล์แนวเขต</span><br>'};
 
 /* ---------- สถานะ + จำค่าที่ผู้ใช้เลือก ---------- */
-let S={base:'natural',img:'google',d3:false,hot:true,prov:false,cons:true,resp:false,stn:false,wpt:false,rgr:false,fbs:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,orb:true,orbm:false,wch:true,wst:false,wsp:true,demo:false,water:true,road:true,wind:false,pm:false,cms:false,cmm:'d',cmop:65,dry:false,fwi:false,fwv:'FWI',wx:false,vr:false,vrg:'mean',rad:false,him:false,tmd:false,tmv:'t',hmb:'ir',hmop:85,wyl:false,wyo:'wind',wyop:60,hist:false,xt:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',rep:false,rpm:2,hcd:1,hcg:2,hcr:200};
-try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;S.wst=false;S.dry=false;S.wpt=false;if(S.base==='road')S.base='detail';/* แถวอากาศแห้ง/จุดเฝ้าระวังถูกเอาออกจากแผงชั้นข้อมูล 14 พ.ย. 69 — ค่าที่บันทึกไว้ต้องไม่เปิดค้าง */
+let S={base:'natural',img:'google',d3:false,hot:true,prov:false,cons:true,resp:false,stn:false,wpt:false,rgr:false,fbs:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,orb:true,orbm:false,wch:true,wst:false,wsp:true,demo:false,water:true,road:true,wxw:true,pm:false,pmst:true,pmc:true,cmm:'d',cmop:65,dry:false,fwi:false,fwv:'FWI',wx:false,vr:false,vrg:'mean',rad:false,him:false,tmd:false,tmv:'t',hmb:'ir',hmop:85,wyl:false,wyo:'wind',wyop:60,hist:false,xt:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',rep:false,rpm:2,hcd:1,hcg:2,hcr:200};
+try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;S.wst=false;S.dry=false;S.wpt=false;/* รวมแถวหมวดสภาพอากาศ 14 พ.ย. 69: ลม→สภาพอากาศแบบจำลอง · เรดาร์→เมฆและเรดาร์ฝน · PM2.5 CAMS→ฝุ่น PM2.5 */if(S.cms){S.pm=true;S.pmc=true}if(S.rad){S.him=true;S.hmb='rd'}if(S.wind){S.wx=true;S.wxw=true}delete S.cms;delete S.wind;if(!['wind','rain','temp','rh'].includes(S.wyo))S.wyo='wind';if(S.base==='road')S.base='detail';/* แถวอากาศแห้ง/จุดเฝ้าระวังถูกเอาออกจากแผงชั้นข้อมูล 14 พ.ย. 69 — ค่าที่บันทึกไว้ต้องไม่เปิดค้าง */
 const toast=(m,fn,ms)=>{const t=$('#toast');t.textContent=m;t.classList.add('show');t.classList.toggle('act',!!fn);t.onclick=fn?()=>{t.classList.remove('show','act');fn()}:null;
  clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show','act'),ms||2200)}; // fn = แตะป้ายแล้วทำ (ป้ายค้างนานขึ้น)
 const thTime=d=>new Date(d).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'});
@@ -1851,13 +1852,14 @@ async function getStations(){const web=/^https?:$/.test(location.protocol),urls=
  for(const u of urls)try{const r=await fetch(u,{headers:{Accept:'application/json'}});if(!r.ok)continue;const s=a4tParse(await r.json());if(s.length)return s}catch(e){}
  toast('ดึงข้อมูลสถานีวัดฝุ่น Air4Thai ไม่ได้ (ติด CORS — ตั้ง AIR4THAI_PROXY หรือเปิดด้วย scripts/serve.js) แสดงข้อมูลตัวอย่าง');
  const t=Date.now();return[['ปากช่อง นครราชสีมา',14.71,101.42,18],['ศูนย์ราชการ นครราชสีมา',14.98,102.10,34],['องครักษ์ นครนายก',14.21,101.0,27],['เมือง ปราจีนบุรี',14.05,101.37,41],['กบินทร์บุรี ปราจีนบุรี',13.99,101.72,38],['วังน้ำเย็น สระแก้ว',13.95,102.0,24],['มวกเหล็ก สระบุรี',14.65,101.2,22],['เมือง บุรีรัมย์',14.99,103.1,null],['ปักธงชัย นครราชสีมา',14.7,102.0,29]].map(a=>({name:a[0],area:'',lat:a[1],lon:a[2],pm:a[3],t,src:'ข้อมูลตัวอย่าง'}))}
-function drawStations(){const far=map.getZoom()<7.5;STM.forEach(m=>{const e=m.getElement(),p=e._pm;if(S.pm){const a=p==null?null:aqiOf(p);e.style.display='';e.style.background=a?AC[a.l]:'#9ca3af';e.style.color=a&&(a.l===1||a.l===0)?'#1d2433':'#fff';
-  e.textContent=far?'':a?aqTxt(p):'–';e.style.minWidth=far?'12px':'30px';e.style.height=far?'12px':'24px';e.style.borderRadius=far?'50%':'5px';e.style.padding=far?'0':'0 3px'}else e.style.display='none'})} // ซูมไกล = จุดสี ซูมใกล้ (ระดับจังหวัด) = ตัวเลข
-async function loadPM(){if(PMD)return;try{if(!STN.length){STN=await getStations();
- STN.forEach(st=>{const e=document.createElement('div');e.className='stm';e._pm=st.pm;e.title=st.name;e.onclick=ev=>{ev.stopPropagation();new maplibregl.Popup({offset:14}).setLngLat([st.lon,st.lat]).setHTML(`<b>${st.name}</b>${st.area?`<br><span class="sm">${st.area}</span>`:''}<br>${st.pm==null?'ไม่มีข้อมูล/ไม่อัปเดต':'PM2.5 '+st.pm+' µg/m³ · AQI '+aqiOf(st.pm).v}<br><span class="sm">${st.src}${st.t&&st.src!=='ข้อมูลตัวอย่าง'?' · ข้อมูล '+new Date(st.t).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'})+' น.':''}</span>`).addTo(map)};STM.push(new maplibregl.Marker({element:e}).setLngLat([st.lon,st.lat]).addTo(map))})}
- const r=[];for(let i=0;i<GR.length;i+=50){const c=GR.slice(i,i+50);let j=await(await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${c.map(x=>x[1]).join(',')}&longitude=${c.map(x=>x[0]).join(',')}&current=pm2_5&hourly=pm2_5&forecast_days=5&timezone=Asia%2FBangkok`)).json();j=Array.isArray(j)?j:[j];
-  j.forEach(p=>r.push({now:p.current.pm2_5,d:Array.from({length:5},(_,d)=>{const h=p.hourly.pm2_5.slice(d*24,d*24+24).filter(x=>x!=null);return h.length?h.reduce((a,b)=>a+b)/h.length:null})}))}
- PMD=r}catch(e){toast('ดึงข้อมูลฝุ่น CAMS ไม่ได้ แสดงเฉพาะสถานีตัวอย่าง')}drawPM()}
+function drawStations(){const far=map.getZoom()<7.5,on=S.pm&&S.pmst!==false;STM.forEach(m=>{const e=m.getElement(),p=e._pm;if(on){const l=p==null?-1:pcdLv(p);e.style.display='';e.style.background=l<0?'#9ca3af':PCD[l][2];e.style.color=l<0?'#fff':PCD[l][3];
+  e.textContent=far?'':l<0?'–':Math.round(p);e.style.minWidth=far?'12px':'30px';e.style.height=far?'12px':'24px';e.style.borderRadius=far?'50%':'5px';e.style.padding=far?'0':'0 3px'}else e.style.display='none'});pqInfo()} // ซูมไกล = จุดสี ซูมใกล้ (ระดับจังหวัด) = ตัวเลข
+/* เกณฑ์ PM2.5 กรมควบคุมมลพิษ (µg/m³) — ชุดเดียวกับแบบจำลอง CAMS (CMTH) */
+const PCD=[[15,'ดีมาก','#3BCCFF','#1d2433','0–15'],[25,'ดี','#92D050','#1d2433','15.1–25'],[37.5,'ปานกลาง','#FFFF00','#1d2433','25.1–37.5'],[75,'เริ่มมีผลกระทบต่อสุขภาพ','#FFA200','#1d2433','37.6–75'],[1e9,'มีผลกระทบต่อสุขภาพ','#F04646','#fff','มากกว่า 75']],pcdLv=v=>PCD.findIndex(x=>v<=x[0]);
+let A4Q=null;
+function loadPM(){if(A4Q)return A4Q.then(drawStations);return A4Q=(async()=>{try{STN=await getStations()}catch(e){STN=[]}
+ STN.forEach(st=>{const e=document.createElement('div');e.className='stm';e._pm=st.pm;e.title=st.name;e.onclick=ev=>{ev.stopPropagation();const l=st.pm==null?-1:pcdLv(st.pm);new maplibregl.Popup({offset:14}).setLngLat([st.lon,st.lat]).setHTML(`<b>${st.name}</b>${st.area?`<br><span class="sm">${st.area}</span>`:''}<br>${l<0?'ไม่มีข้อมูล/ไม่อัปเดต':'PM2.5 <b>'+nf(st.pm,1)+'</b> µg/m³ · <span style="background:'+PCD[l][2]+';color:'+PCD[l][3]+';border-radius:4px;padding:0 5px">'+PCD[l][1]+'</span>'}<br><span class="sm">สถานีตรวจวัด (ค่าจริง) · ${st.src}${st.t&&st.src!=='ข้อมูลตัวอย่าง'?' · ข้อมูล '+new Date(st.t).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'})+' น.':''} · เกณฑ์กรมควบคุมมลพิษ</span>`).addTo(map)};STM.push(new maplibregl.Marker({element:e}).setLngLat([st.lon,st.lat]).addTo(map))});
+ drawStations()})()}
 /* พื้นผิวเรียบ: ประมาณค่าทุกพิกเซลจากจุดตาราง 1° แล้วระบายสีไล่ระดับ (ภาพ canvas วางบนแผนที่) */
 const GX0=97.5,GX1=105.5,GY0=5.5,GY1=20.5,IW=240,IH=450,CO=[[GX0,GY1],[GX1,GY1],[GX1,GY0],[GX0,GY0]];
 const mY=la=>Math.log(Math.tan(Math.PI/4+la*Math.PI/360)),iY=y=>(2*Math.atan(Math.exp(y))-Math.PI/2)*180/Math.PI;
@@ -1870,12 +1872,10 @@ function surf(val,rgba,keep){const cv=document.createElement('canvas');cv.width=
  x.putImageData(im,0,0);return cv.toDataURL()}
 const AQS=[25,75,125,175,250,350],AQC=AC.map(hx),DCC=DC.map(hx),DST={fwi:[25,62,82,94,100],rh:[-70,-50,-35,-25,-10],vpd:[.5,1.5,2.5,3.5,4.5]};
 const PR=['0–9','9.1–35.4','35.5–55.4','55.5–125.4','125.5–225.4','225.5+'],AR2=['0–50','51–100','101–150','151–200','201–300','301+'];
-function drawPM(){const k=S2.pmDay,t=new Date();tx('pm-t',thTime(Date.now())+' น.');
- if(PMD){PMU=surf(i=>k?PMD[i].d[k]:PMD[i].now,v=>{const c=ramp(AQS,AQC,aqiOf(v).v);return[c[0],c[1],c[2],115]});const s=map.getSource('pm');s&&s.updateImage({url:PMU,coordinates:CO})}
- tx('pmchips',[0,1,2,3,4].map(i=>{const pct=i&&PMD?Math.round(100*MI.filter(g=>PMD[g].d[i]!=null&&aqiOf(PMD[g].d[i]).v>100).length/MI.length):null;
-  return`<button class="chip${i===k?' on':''}" data-i="${i}">${i===0?'ตอนนี้':i===1?'พรุ่งนี้':dayLab(i)}${i?`<i></i><b>${pct==null?'–':pct+'%'}</b>`:'<small style="color:#d93a1f">สด</small>'}</button>`}).join(''));
- const aq=S2.pmv==='aqi';tx('pmlg',`<div class="sm" style="margin:4px 0">${aq?'AQI สากล (US EPA) · PM2.5 เฉลี่ย 24 ชม. µg/m³':'PM2.5 เฉลี่ย 24 ชม. (µg/m³) · เกณฑ์ AQI US EPA'}</div>`+AC.map((c,i)=>`<div style="align-items:flex-start;margin-bottom:6px"><i style="background:${c};margin-top:3px"></i><b style="min-width:84px">${aq?AR2[i]:PR[i]}</b><span style="flex:1">${AN[i]}<div class="sm">${aq?'PM2.5 '+PR[i]:'AQI '+AR2[i]}</div></span></div>`).join(''));
- $$('#pmseg button').forEach(b=>b.classList.toggle('on',b.dataset.v===S2.pmv));drawStations()}
+function pqInfo(){if(!$('#pq-lg'))return;const st=S.pm&&S.pmst!==false,cm=typeof cmOn==='function'&&cmOn();
+ $('#pq-lg').innerHTML=st&&!cm?'<div class="sm" style="margin:2px 0 4px">PM2.5 (µg/m³) · เกณฑ์กรมควบคุมมลพิษ</div><div class="lgd">'+PCD.map(c=>`<div><i style="background:${c[2]}"></i><b style="min-width:72px">${c[4]}</b><span>${c[1]}</span></div>`).join('')+'</div>':'';
+ const n=STN.filter(x=>x.pm!=null).length;tx('pq-st',!S.pm?'':st?(STN.length?`สถานี ${STN[0].src} ${STN.length} สถานี (มีค่าล่าสุด ${n}) · ซูมใกล้เพื่อดูตัวเลข`:'กำลังดึงข้อมูลสถานี…'):'ปิดการแสดงสถานีตรวจวัด');
+ if(S.pm&&!cm)tx('cm-t',st?thTime(Date.now())+' น.':'')}
 async function loadDry(){if(DRYD)return;try{DRYD=await omDaily(GR,7)}catch(e){toast('ดึงพยากรณ์ความแห้งไม่ได้');return}drawDry()}
 function drawDry(){if(!DRYD)return;const d=S2.dd,v=S2.dv,key=v==='fwi'?'fwi':v==='rh'?'rh':'vpd',lab=v==='fwi'?'CBI':v==='rh'?'ความชื้นต่ำสุด':'VPD',N=MI.length,pct=(f,x)=>Math.round(100*MI.filter(i=>f(DRYD[i][x])).length/N);
  DRYU=surf(i=>DRYD[i]?DRYD[i][d][key]:null,x=>{const c=ramp(DST[v],DCC,v==='rh'?-x:x);return[c[0],c[1],c[2],125]},(lo,la)=>inside([lo,la],TH));
@@ -1887,17 +1887,22 @@ function drawDry(){if(!DRYD)return;const d=S2.dd,v=S2.dv,key=v==='fwi'?'fwi':v==
 function setup3(){
  map.addSource('wx',{type:'image',url:WXU,coordinates:WXC});map.addLayer({id:'wx-f',type:'raster',source:'wx',paint:{'raster-fade-duration':0}},wxBef());
  map.addSource('dry',{type:'image',url:DRYU,coordinates:CO});map.addLayer({id:'dry-f',type:'raster',source:'dry',paint:{'raster-fade-duration':0}});
- map.addSource('pm',{type:'image',url:PMU,coordinates:CO});map.addLayer({id:'pm-f',type:'raster',source:'pm',paint:{'raster-fade-duration':0}});radLayer();try{window.hmLayer&&hmLayer()}catch(e){}try{window.vrLayer&&vrLayer()}catch(e){}try{window.fwLayer&&fwLayer()}catch(e){}try{window.cmLayer&&cmLayer()}catch(e){}try{window.tmLayer&&tmLayer()}catch(e){}}
+ radLayer();try{window.hmLayer&&hmLayer()}catch(e){}try{window.vrLayer&&vrLayer()}catch(e){}try{window.fwLayer&&fwLayer()}catch(e){}try{window.cmLayer&&cmLayer()}catch(e){}try{window.tmLayer&&tmLayer()}catch(e){}}
 /* --- ลม: อนุภาคไหลบน canvas จากตารางลมในกรอบแผนที่ (Open-Meteo) --- */
 const wc=$('#wc'),wx2=wc.getContext('2d');let WG=null,WP=[],raf=0;
 const wsz=()=>{wc.width=innerWidth;wc.height=innerHeight};
 function wget(lo,la){if(!WG)return null;const fx=(lo-WG.x0)/WG.dx,fy=(la-WG.y0)/WG.dy;if(fx<0||fy<0||fx>WG.nx-1||fy>WG.ny-1)return null;const i=Math.min(WG.nx-2,Math.floor(fx)),j=Math.min(WG.ny-2,Math.floor(fy)),a=fx-i,b=fy-j,g=(k,m)=>WG[k][(j+m)*WG.nx+i],
  bl=k=>g(k,0)*(1-a)*(1-b)+WG[k][j*WG.nx+i+1]*a*(1-b)+WG[k][(j+1)*WG.nx+i]*(1-a)*b+WG[k][(j+1)*WG.nx+i+1]*a*b;return[bl('u'),bl('v')]}
-async function loadWind(){if(!S.wind)return;const b=map.getBounds(),px=(b.getEast()-b.getWest())*.1,py=(b.getNorth()-b.getSouth())*.1,nx=7,ny=6,x0=b.getWest()-px,y0=b.getSouth()-py,dx=(b.getEast()-b.getWest()+2*px)/(nx-1),dy=(b.getNorth()-b.getSouth()+2*py)/(ny-1),la=[],lo=[];
- for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){la.push((y0+j*dy).toFixed(3));lo.push((x0+i*dx).toFixed(3))}
- try{let j=await(await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la.join(',')}&longitude=${lo.join(',')}&current=wind_speed_10m,wind_direction_10m&wind_speed_unit=ms`)).json();j=Array.isArray(j)?j:[j];
-  WG={x0,y0,dx,dy,nx,ny,u:j.map(p=>-p.current.wind_speed_10m*Math.sin(p.current.wind_direction_10m*Math.PI/180)),v:j.map(p=>-p.current.wind_speed_10m*Math.cos(p.current.wind_direction_10m*Math.PI/180))};
-  const sp=WG.u.map((a,i)=>Math.hypot(a,WG.v[i]));tx('wn','ลมในกรอบเฉลี่ย '+nf(sp.reduce((a,b)=>a+b)/sp.length,1)+' ม./วินาที (สูงสุด '+nf(Math.max(...sp),1)+')');if(RM)wstatic()}catch(e){toast('ดึงข้อมูลลมไม่ได้')}}
+/* ลมของชั่วโมงที่เลือก (S2.wxh) จากตาราง WX — เดิมดึงแยกเฉพาะลมปัจจุบัน (รวมแถว 14 พ.ย. 69) */
+function wOn(){return!!(S.wx&&(S.wxw||S2.wxv==='ws'))}
+function wgSet(h){if(!WX||!WX.v.ws||!WX.v.wd){WG=null;return}const n=WX.nx*WX.ny,u=new Array(n),v=new Array(n);
+ for(let p=0;p<n;p++){const a=WX.v.ws[p][h],d=WX.v.wd[p][h];if(a==null||d==null){u[p]=v[p]=0;continue}const ms=a/3.6,r=d*Math.PI/180;u[p]=-ms*Math.sin(r);v[p]=-ms*Math.cos(r)}
+ WG={x0:WX.x0,y0:WX.y0,dx:WX.dx,dy:WX.dy,nx:WX.nx,ny:WX.ny,u,v};const b=map.getBounds(),sp=[];
+ for(let j=0;j<WX.ny;j++)for(let i=0;i<WX.nx;i++){const lo=WX.x0+i*WX.dx,la=WX.y0+j*WX.dy,a=WX.v.ws[j*WX.nx+i][h];if(a!=null&&lo>=b.getWest()&&lo<=b.getEast()&&la>=b.getSouth()&&la<=b.getNorth())sp.push(a)}
+ tx('wn',sp.length?'ลมในกรอบเฉลี่ย '+nf(sp.reduce((x,y)=>x+y)/sp.length,0)+' กม./ชม. (สูงสุด '+nf(Math.max(...sp),0)+') · '+thTime(Date.parse(WX.t[h]+':00+07:00'))+' น.':'–');
+ if(RM&&wOn())wstatic()}
+function wAnim(){const wo=wOn();$('#wbox').hidden=!wo;wc.style.display=wo?'':'none';cancelAnimationFrame(raf);wx2.clearRect(0,0,wc.width,wc.height);
+ if(wo){wsz();if(!WP.length)WP=Array.from({length:650},()=>{const p={};wseed(p);return p});if(WG&&RM)wstatic();else if(!RM)raf=requestAnimationFrame(wframe)}}
 const WL=[8,14,22,32,44],wrgb=()=>S.base==='sat'||S.base==='dark'?'255,255,255':'27,42,94',WT=[1,2.5,5,8],wcls=sp=>sp<WT[0]?0:sp<WT[1]?1:sp<WT[2]?2:sp<WT[3]?3:4; // ความยาวเส้น (px) ตามระดับความเร็วลม
 const wseed=p=>{p.x=Math.random()*wc.width;p.y=Math.random()*wc.height;p.a=Math.random()*40;p.life=120+Math.random()*80};
 function comet(x,y,ux,uy,L,al,col){ // รูปเรียวแหลม: ปลายหางแหลมโปร่งใส หนาและทึบขึ้นไปทางหัว ไม่มีหัวกลม
@@ -1908,14 +1913,13 @@ function wframe(){raf=requestAnimationFrame(wframe);if(!WG)return;wx2.clearRect(
   const sp=Math.hypot(w[0],w[1]),c=wcls(sp),ux=w[0]/(sp||1),uy=-w[1]/(sp||1),f=Math.min(1,p.a/15,(p.life-p.a)/15);
   comet(p.x,p.y,ux,uy,WL[c],Math.min(.95,.6+.08*c)*f,col);const st=.2+.06*sp;p.x+=ux*st;p.y+=uy*st} // เคลื่อนช้า: ความเร็วลมแสดงด้วยความยาวหาง
 }
-function wstatic(){wx2.clearRect(0,0,wc.width,wc.height);if(!WG||!S.wind)return;wx2.lineCap='round';const col=wrgb();
+function wstatic(){wx2.clearRect(0,0,wc.width,wc.height);if(!WG||!wOn())return;wx2.lineCap='round';const col=wrgb();
  for(let x=30;x<wc.width;x+=44)for(let y=30;y<wc.height;y+=44){const l=map.unproject([x,y]),w=wget(l.lng,l.lat);if(!w)continue;const sp=Math.hypot(w[0],w[1]),c=wcls(sp);comet(x,y,w[0]/(sp||1),-w[1]/(sp||1),WL[c],Math.min(.95,.6+.08*c),col)}}
 function L3(){ // เรียกจาก apply() ทุกครั้งที่สวิตช์/สไตล์เปลี่ยน
- const set=(id,b)=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',b?'visible':'none');set('pm-f',S.pm&&!S.cms);set('dry-f',S.dry);
- $('#wbox').hidden=!S.wind;$('#pmbox').hidden=!S.pm;$('#drybox').hidden=!S.dry;
- wc.style.display=S.wind?'':'none';cancelAnimationFrame(raf);wx2.clearRect(0,0,wc.width,wc.height);
- if(S.wind){wsz();if(!WP.length)WP=Array.from({length:650},()=>{const p={};wseed(p);return p});if(WG&&RM)wstatic();else if(!RM)raf=requestAnimationFrame(wframe);if(!WG)loadWind()}
- if(S.pm)loadPM().then(()=>drawPM());else drawStations();if(S.dry)loadDry();
+ S.rad=!!(S.him&&S.hmb==='rd'); /* เรดาร์ฝนเป็นโหมดหนึ่งของแถวเมฆและเรดาร์ฝน */
+ const set=(id,b)=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',b?'visible':'none');set('dry-f',S.dry);
+ $('#pmbox').hidden=!S.pm;$('#drybox').hidden=!S.dry;wAnim();
+ if(S.pm&&S.pmst!==false)loadPM();else drawStations();if(S.dry)loadDry();
  set('wx-f',S.wx);$('#wxbox').hidden=!S.wx;$('#radbox').hidden=!S.rad;if(S.wx&&!WX)loadWx();
  if(S.rad)loadRad();else{rdStop();radLayer()}
  try{window.hmApply&&hmApply()}catch(e){}
@@ -1931,7 +1935,8 @@ let WX=null,WXQ=0,WXU=BLANK,WXC=[[0,1],[1,1],[1,0],[0,0]],wxT=0;
 const WXV={t:['อุณหภูมิ','°C',[15,20,25,30,35,40],['#3b6fd8','#4fb3d9','#7cc87a','#f2d44e','#f08a1c','#c0301c']],
  rh:['ความชื้นสัมพัทธ์','%',[20,35,50,65,80,95],['#9b2c1f','#e8741c','#f2d44e','#9fd3a6','#4fb3d9','#2c5fb3']],
  pr:['ฝน','มม./ชม.',[.1,1,2.5,5,10,20],['#b9e3fa','#6cc0f0','#2b8fd6','#1b4fa8','#7a3db8','#c0307a']],
- cc:['เมฆปกคลุม','%',[0,25,50,75,100],['#6b7a90','#6b7a90','#6b7a90','#6b7a90','#6b7a90']]},WXK={t:'temperature_2m',rh:'relative_humidity_2m',pr:'precipitation',cc:'cloud_cover'};
+ cc:['เมฆปกคลุม','%',[0,25,50,75,100],['#6b7a90','#6b7a90','#6b7a90','#6b7a90','#6b7a90']],
+ ws:['ความเร็วลม','กม./ชม.',[0,5,10,20,30,45],['#e3eef6','#a9d6ec','#7cc4a4','#f2d44e','#f08a1c','#c0301c']]},WXK={t:'temperature_2m',rh:'relative_humidity_2m',pr:'precipitation',cc:'cloud_cover',ws:'wind_speed_10m',wd:'wind_direction_10m'};
 const wxBef=()=>['ftype','fuel','burn','cons-f'].find(id=>map.getLayer(id)); // อากาศ/เรดาร์อยู่ใต้ชั้นชนิดป่า/เชื้อเพลิง/รอยเผา/แนวเขต
 const wxH=()=>WX?Math.max(0,Math.min(WX.t.length-1,WX.now+(S2.wxh||0))):0; // S2.wxh = ห่างจากชั่วโมงปัจจุบันกี่ชั่วโมง
 function wxCol(k,x){const M=WXV[k];if(k==='pr'&&x<.1)return null;if(k==='cc')return x<5?null:[107,122,144,Math.round(x*1.6)];const c=ramp(M[2],M[3].map(hx),x);return[c[0],c[1],c[2],k==='pr'?175:135]}
@@ -1952,7 +1957,7 @@ async function loadWx(force){if(!S.wx)return;const b=map.getBounds(),W=b.getWest
  catch(e){if(q===WXQ){tx('wx-st','ดึงข้อมูลไม่ได้');toast('ดึงข้อมูลสภาพอากาศไม่ได้')}}}
 function drawWx(){const k=S2.wxv,M=WXV[k];$$('#wxseg button').forEach(b=>b.classList.toggle('on',b.dataset.v===k));
  tx('wx-lg',`<div class="wxb" style="background:linear-gradient(90deg,${k==='cc'?'rgba(107,122,144,.08),rgba(107,122,144,.9)':M[3].join(',')})"></div><div class="wxs">${M[2].map(s=>`<span>${k==='pr'&&s===.1?'<0.1':s}</span>`).join('')}</div><div class="sm">${M[0]} (${M[1]})${k==='pr'?' · ต่ำกว่า 0.1 มม. ไม่ระบายสี':''}</div>`);
- if(!WX)return;const h=wxH(),r=$('#wx-r');r.max=WX.t.length-1;r.value=h;tx('wx-v',wxLab(h));tx('wx-t',thTime(Date.parse(WX.t[h]+':00+07:00'))+' น.');
+ if(!WX)return;const h=wxH(),r=$('#wx-r');wgSet(h);r.max=WX.t.length-1;r.value=h;tx('wx-v',wxLab(h));tx('wx-t',thTime(Date.parse(WX.t[h]+':00+07:00'))+' น.');
  const cv=document.createElement('canvas');cv.width=cv.height=256;const x=cv.getContext('2d'),im=x.createImageData(256,256),ya=mY(WX.y1),yb=mY(WX.y0);
  for(let py=0;py<256;py++){const la=iY(ya+(yb-ya)*(py+.5)/256);for(let px=0;px<256;px++){const val=wxAt(k,h,WX.x0+(WX.x1-WX.x0)*(px+.5)/256,la);if(val==null)continue;const c=wxCol(k,val);if(c)im.data.set(c,(py*256+px)*4)}}
  x.putImageData(im,0,0);WXU=cv.toDataURL();WXC=[[WX.x0,WX.y1],[WX.x1,WX.y1],[WX.x1,WX.y0],[WX.x0,WX.y0]];const s=map.getSource('wx');s&&s.updateImage({url:WXU,coordinates:WXC})}
@@ -1966,7 +1971,7 @@ function radLayer(){if(!RV||!map.getSource('cons'))return;const ids=RV.f.map(f=>
  RV.f.forEach((f,i)=>{const id=ids[i];if(!map.getSource(id)){map.addSource(id,{type:'raster',tiles:[`${RV.h}${f.path}/256/{z}/{x}/{y}/2/1_1.png`],tileSize:256,maxzoom:7});
    map.addLayer({id,type:'raster',source:id,paint:{'raster-opacity':0,'raster-opacity-transition':{duration:0},'raster-fade-duration':0}},bef)}
   map.setLayoutProperty(id,'visibility',S.rad?'visible':'none');map.setPaintProperty(id,'raster-opacity',i===RVI?.75:0)});
- const r=$('#rd-r'),t=RV.f[RVI].time*1e3,L=RVI===RV.f.length-1;r.max=RV.f.length-1;r.value=RVI;tx('rd-t',thTime(t)+' น.');
+ const r=$('#rd-r'),t=RV.f[RVI].time*1e3,L=RVI===RV.f.length-1;r.max=RV.f.length-1;r.value=RVI;tx('hm-t',thTime(t)+' น.');
  tx('rd-v',new Date(t).toLocaleDateString('th-TH',{day:'numeric',month:'short',timeZone:'Asia/Bangkok'})+' '+thTime(t)+' น.'+(L?' (ล่าสุด)':` (${Math.round((RV.f[RV.f.length-1].time*1e3-t)/6e4)} นาทีก่อนล่าสุด)`))}
 function rdStop(){clearInterval(RVP);RVP=0;const b=$('#rd-pl');b.textContent='▶';b.setAttribute('aria-label','เล่นภาพเคลื่อนไหว')}
 /* --- หน้าพยากรณ์อากาศ Windy (Embed ฟรี ไม่ใช้คีย์) เปิดที่ตำแหน่ง/ซูมเดียวกับแผนที่หลัก · ลิงก์ตรง ?wy=<ชั้น> --- */
@@ -2008,8 +2013,9 @@ function wlBase(){if(!map.getStyle())return;const k=S.wyl&&!WLover?1-S.wyop/100:
   map.setPaintProperty(id,p,k===1?o:typeof o==='number'?o*k:o==null?(p==='hillshade-exaggeration'?.5:1)*k:k)})})} // ค่าเดิมเป็น expression (ตามซูม) ใช้ค่าคงที่แทนชั่วคราว
 function wlMode(b){WLint=b;$('#map').classList.toggle('wyi',b);$$('#wyb-m button').forEach(x=>x.setAttribute('aria-pressed',(x.dataset.m==='1')===b))}
 function wlSame(){const f=WLB.querySelector('iframe:last-child');if(!f)return false;const p=map.project([+f.dataset.lo,+f.dataset.la]);return Math.hypot(p.x-WLB.clientWidth/2,p.y-WLB.clientHeight/2)<2&&Math.abs(map.getZoom()-f.dataset.zm)<.01}
-function wlUI(){const o=WYO.find(a=>a[0]===S.wyo)||WYO[0],btn=a=>`<button data-o="${a[0]}" aria-pressed="${a[0]===o[0]}">${a[1]}</button>`;
- if(!$('#wyl-c').childElementCount){$('#wyl-c').innerHTML=WYO.map(btn).join('');$('#wyb-c').innerHTML=WYO.map(btn).join('')}
+const WYL=WYO.filter(a=>['wind','rain','temp','rh'].includes(a[0])); /* ชั้นซ้อนบนแผนที่: ตัดเรดาร์/ดาวเทียม/PM2.5/ความเสี่ยงไฟป่า (มีชั้นในแอปที่แม่นกว่าหรือเป็นค่าทางการ) — หน้าเต็มจอยังมีครบ */
+function wlUI(){const o=WYL.find(a=>a[0]===S.wyo)||WYL[0],btn=a=>`<button data-o="${a[0]}" aria-pressed="${a[0]===o[0]}">${a[1]}</button>`;
+ if(!$('#wyl-c').childElementCount){$('#wyl-c').innerHTML=WYL.map(btn).join('');$('#wyb-c').innerHTML=WYL.map(btn).join('')}
  $$('#wyl-c button,#wyb-c button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.o===o[0]));$$('#wyl-t button').forEach(b=>b.classList.toggle('on',b.dataset.v===WLcal));
  tx('wyb-n',WLover?'ซูมใกล้เกินที่ Windy แสดงได้ · ซูมออกเพื่อดู':WLcal==='now'?'':`พยากรณ์ +${WLcal} ชม.`);$('#wyb-n').hidden=!WLover&&WLcal==='now';$('#wyl-o').value=S.wyop;tx('wyl-ov',S.wyop+'%');wybPos()}
 let WYBX=[0,0];
@@ -2548,13 +2554,12 @@ async function LFT(){ // เรียกจาก apply() และปุ่ม�
   `<div class="sm" style="margin-top:6px">ตามพื้นที่อนุรักษ์ (ชนิดที่มากสุด)</div><div class="fua">${Object.entries(ar).sort((x,y)=>y[1].reduce((a,b)=>a+b,0)-x[1].reduce((a,b)=>a+b,0)).map(([a,g])=>
    `<div><span>${esc(j.ar[a]==='นอกพื้นที่อนุรักษ์'?j.ar[a]:paShort(j.ar[a]))}</span>${bar(g)}<b style="white-space:nowrap">${esc(top(g))}</b></div>`).join('')}</div>`+
   (j.e[0]+j.e[1]?`<div class="sm" style="margin-top:6px">ทั้งกริด (รวมป่านอกแนวเขต) เติมจากผืนป่าเดียวกัน ${nf(j.e[0])} ไร่ · จากป่าใกล้สุด ${nf(j.e[1])} ไร่</div>`:'')}
-addEventListener('resize',()=>{if(S.wind){wsz();WP.forEach(wseed)}});
-map.on('movestart',()=>{if(S.wind)wx2.clearRect(0,0,wc.width,wc.height)});
-let wt=0;map.on('moveend',()=>{if(!S.wind)return;WP.forEach(wseed);clearTimeout(wt);wt=setTimeout(loadWind,500);if(RM)wstatic()});
-setInterval(()=>{if(S.wind)loadWind()},15*60*1000);
+addEventListener('resize',()=>{if(wOn()){wsz();WP.forEach(wseed)}});
+map.on('movestart',()=>{if(wOn())wx2.clearRect(0,0,wc.width,wc.height)});
+map.on('moveend',()=>{if(!wOn())return;WP.forEach(wseed);if(WX)wgSet(wxH());if(RM)wstatic()});
 map.on('moveend',()=>{if(S.wx){clearTimeout(wxT);wxT=setTimeout(loadWx,600)}});
 setInterval(()=>{if(document.hidden)return;if(S.wx)loadWx();if(S.rad&&!RVP)loadRad(true)},10*6e4); // อากาศดึงจริงเมื่อเก่ากว่า 30 นาที · เรดาร์ทุก 10 นาที
-$$('#wxseg button').forEach(b=>b.onclick=()=>{S2.wxv=b.dataset.v;drawWx()});
+$$('#wxseg button').forEach(b=>b.onclick=()=>{S2.wxv=b.dataset.v;drawWx();wAnim()});
 const wxGo=h=>{if(WX){h=Math.max(0,Math.min(WX.t.length-1,h));S2.wxh=h===WX.now?null:h-WX.now;drawWx()}};
 $('#wx-r').oninput=e=>wxGo(+e.target.value);$('#wx-pv').onclick=()=>wxGo(wxH()-1);$('#wx-nx').onclick=()=>wxGo(wxH()+1);
 $('#wx-0').onclick=()=>{S2.wxh=null;drawWx()};
@@ -2578,19 +2583,17 @@ $('#wyb-x').onclick=()=>{S.wyl=false;apply()};$('#wyb-f').onclick=()=>wyOpen(S.w
 $('#d-wy').onclick=()=>{if(!CUR)return;S.wyl=true;S.wyo='wind';apply();map.easeTo({center:[CUR.lon,CUR.lat],zoom:Math.min(10,Math.max(8,Math.round(map.getZoom()))),duration:dur(800)})};
 setInterval(()=>{if(S.wyl&&!document.hidden)wlQuick()},10*6e4);
 $('#wy-dt').onclick=()=>{WYD=!WYD;try{localStorage.setItem('fm-wyd',WYD?'1':'0')}catch(e){}wyLoad()};
-$('#wy-o').onclick=()=>wyOpen(S.wx?{t:'temp',rh:'rh',pr:'rain',cc:'satellite'}[S2.wxv]:S.rad?'radar':S.him?'satellite':S.dry||S.fwi?'fwi':S.pm||S.cms?'pm2p5':'wind');
+$('#wy-o').onclick=()=>wyOpen(S.wx?{t:'temp',rh:'rh',pr:'rain',cc:'satellite',ws:'wind'}[S2.wxv]:S.rad?'radar':S.him?'satellite':S.dry||S.fwi?'fwi':S.pm?'pm2p5':'wind');
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#wy').hidden)wyClose()});
 {const q=new URLSearchParams(location.search).get('wy');if(q!=null)wyOpen(WYO.some(a=>a[0]===q)?q:'wind')}
-$('#pmchips').onclick=e=>{const b=e.target.closest('.chip');if(b){S2.pmDay=+b.dataset.i;drawPM()}};
 $('#drchips').onclick=e=>{const b=e.target.closest('.chip');if(b){S2.dd=+b.dataset.i;drawDry()}};
-$$('#pmseg button').forEach(b=>b.onclick=()=>{S2.pmv=b.dataset.v;drawPM()});
 $$('#drseg button').forEach(b=>b.onclick=()=>{S2.dv=b.dataset.v;drawDry()});
 $('#dr-r').onclick=async()=>{DRYD=null;await loadDry();toast('คำนวณใหม่แล้ว')};
 map.on('mousemove',e=>{const t=$('#tip'),v=S2.dv,key=v==='vpd'?'vpd':v,lab=v==='fwi'?'CBI':v==='rh'?'ความชื้นต่ำสุด':'VPD';
  const show=s=>{t.textContent=s;t.style.display='block';t.style.left=e.originalEvent.clientX+14+'px';t.style.top=e.originalEvent.clientY+14+'px'},ll=e.lngLat;
  if(S.dry&&DRYD&&inside([ll.lng,ll.lat],TH)){const x=bil(i=>DRYD[i]?DRYD[i][S2.dd][key]:null,ll.lng,ll.lat);
   if(x!=null)return show(`${lab} ${nf(x,v==='vpd'?2:0)}${v==='rh'?'%':v==='vpd'?' kPa':''} · ${DN[cls(v,x)]} (ค่าประมาณจากตาราง ~110 กม.)`)}
- if(S.wx&&WX){const k=S2.wxv,h=wxH(),x=wxAt(k,h,ll.lng,ll.lat);if(x!=null)return show(`${WXV[k][0]} ${nf(x,k==='pr'?1:0)} ${WXV[k][1]} · ${thTime(Date.parse(WX.t[h]+':00+07:00'))} น. (ค่าประมาณ)`)}
+ if(S.wx&&WX){const k=S2.wxv,h=wxH(),x=wxAt(k,h,ll.lng,ll.lat),w=k==='ws'&&wget(ll.lng,ll.lat),dn=w&&Math.hypot(w[0],w[1])>.3?' จากทิศ'+DIRN[Math.round(((Math.atan2(-w[0],-w[1])*180/Math.PI+360)%360)/45)%8]:'';if(x!=null)return show(`${WXV[k][0]} ${nf(x,k==='pr'?1:0)} ${WXV[k][1]}${dn} · ${thTime(Date.parse(WX.t[h]+':00+07:00'))} น. (ค่าประมาณ)`)}
  t.style.display='none'});
 /* --- แผงรายละเอียด 7.4-7.5 --- */
 let AQV=null;
@@ -5974,13 +5977,14 @@ maplibregl.addProtocol('hima',async(p,ac)=>{const m=p.url.match(/^hima:\/\/(\w+)
  if(!r.ok)return hmEmpty();if(!B.a)return{data:await r.arrayBuffer()};
  const bm=await createImageBitmap(await r.blob()),c=bnCanvas(),g=c.getContext('2d',{willReadFrequently:true});g.drawImage(bm,0,0,256,256);
  const im=g.getImageData(0,0,256,256);hmPx(im.data,B.a);g.putImageData(im,0,0);return{data:await (await bnBlob(c)).arrayBuffer()}});
-async function hmLoad(force){if(!S.him)return;if(HIM&&!force&&Date.now()-HIM.at<10*6e4)return hmLayer();
+const hmOn=()=>!!(S.him&&S.hmb!=='rd'); /* โหมดเรดาร์ฝน = ปิดภาพเมฆ */
+async function hmLoad(force){if(!hmOn())return;if(HIM&&!force&&Date.now()-HIM.at<10*6e4)return hmLayer();
  try{const j=await(await fetch(HIM_BASE+'targetTimes_fd.json',{cache:'no-cache'})).json(),f=j.map(o=>o.validtime).filter(t=>/^\d{14}$/.test(t)).sort().slice(-HIMN);
   if(!f.length)throw 0;const L=!HIM||HIMI>=HIM.f.length-1;HIM={f,at:Date.now()};HIMI=L?f.length-1:Math.min(HIMI,f.length-1);hmLayer()}
  catch(e){tx('hm-v','ดึงภาพเมฆไม่ได้');tx('hm-st','ติดต่อเว็บ JMA ไม่ได้ ลองใหม่ภายหลัง');toast('ดึงภาพเมฆ Himawari-9 ไม่ได้')}}
 function hmClear(){((map.getStyle()||{}).layers||[]).forEach(l=>{if(/^hm\d{14}$/.test(l.id)){map.removeLayer(l.id);map.removeSource(l.id)}})}
 function hmLayer(){if(!map.getSource('cons'))return;const ls=((map.getStyle()||{}).layers||[]).filter(l=>/^hm\d{14}$/.test(l.id));
- if(!S.him||!HIM){ls.forEach(l=>map.setLayoutProperty(l.id,'visibility','none'));return}
+ if(!hmOn()||!HIM){ls.forEach(l=>map.setLayoutProperty(l.id,'visibility','none'));return}
  const b=hmBand(),ids=HIM.f.map(t=>'hm'+t),bef=typeof wxBef==='function'?wxBef():undefined;
  ls.forEach(l=>{const s=map.getSource(l.id);if(!ids.includes(l.id)||(s&&s._hmb!==b)){map.removeLayer(l.id);map.removeSource(l.id)}});
  HIM.f.forEach((t,i)=>{const id=ids[i];if(!map.getSource(id)){map.addSource(id,{type:'raster',tiles:[`hima://${b}/${t}/{z}/{x}/{y}`],tileSize:256,minzoom:3,maxzoom:5,attribution:'Himawari-9 © JMA'});
@@ -5991,23 +5995,23 @@ function hmLayer(){if(!map.getSource('cons'))return;const ls=((map.getStyle()||{
  let st=`Himawari-9 · JMA · ภาพล่าสุดเมื่อ ${Math.max(0,Math.round((Date.now()-last)/6e4))} นาทีที่แล้ว`;
  if(b==='tc')try{const c=map.getCenter();if(ORB.sunEl(t,c.lat,c.lng)<0)st='<b>ขณะนั้นเป็นเวลากลางคืนบริเวณนี้ ภาพสีจริงจึงมืด — ใช้อินฟราเรดแทน</b><br>'+st}catch(e){}
  $('#hm-st').innerHTML=st}
-function hmLegend(){const b=hmBand();$$('#hmseg button').forEach(x=>x.classList.toggle('on',x.dataset.v===b));
+function hmLegend(){const b=hmBand(),sel=S.hmb==='rd'?'rd':b;$$('#hmseg button').forEach(x=>x.classList.toggle('on',x.dataset.v===sel));$('#hm-c').hidden=sel==='rd';
  $('#hm-op').value=+S.hmop||85;tx('hm-opv',(+S.hmop||85)+'%');
  $('#hm-lg').innerHTML=b==='ir'?`<div class="wxb" style="background:linear-gradient(90deg,rgba(96,112,136,.6),rgba(170,182,198,.8),#fff)"></div><div class="wxs"><span>เมฆต่ำ/บาง</span><span>เมฆสูง/หนา</span></div><div class="sm">ไม่แสดงพื้นดินและบริเวณท้องฟ้าโปร่ง</div>`
   :b==='ct'?`<div class="wxb" style="background:linear-gradient(90deg,#c9d2dc 0 22%,#1e3cff 22%,#00c8ff,#00e070,#ffe600,#ff7a00,#e8001e)"></div><div class="wxs"><span>เมฆทั่วไป</span><span>ยอดเมฆเย็น</span><span>เย็นจัด (ฝนฟ้าคะนองรุนแรง)</span></div>`
   :b==='wv'?`<div class="wxb" style="background:linear-gradient(90deg,#111,#888,#fff)"></div><div class="wxs"><span>บรรยากาศชั้นบนแห้ง</span><span>ชื้น</span></div>`
   :`<div class="sm">ภาพสีธรรมชาติ (เมฆขาว ป่าเขียว) ใช้ได้เฉพาะกลางวัน</div>`}
 function hmStop(){clearInterval(HIMP);HIMP=0;const b=$('#hm-pl');b.textContent='▶';b.setAttribute('aria-label','เล่นภาพเคลื่อนไหว')}
-function hmApply(){$('#hmbox').hidden=!S.him;hmLegend();if(S.him)hmLoad();else{hmStop();HIMALL=false;hmLayer()}}
-$$('#hmseg button').forEach(x=>x.onclick=()=>{if(S.hmb===x.dataset.v)return;S.hmb=x.dataset.v;HIMALL=!!HIMP;hmClear();hmLegend();hmLayer()});
+function hmApply(){$('#hmbox').hidden=!S.him;hmLegend();if(hmOn())hmLoad();else{hmStop();HIMALL=false;hmLayer()}}
+$$('#hmseg button').forEach(x=>x.onclick=()=>{const v=x.dataset.v;if(S.hmb===v)return;if(S.hmb==='rd'||v==='rd'){S.hmb=v;hmStop();HIMALL=false;apply();return}S.hmb=v;HIMALL=!!HIMP;hmClear();hmLegend();hmLayer()});
 $('#hm-r').oninput=e=>{hmStop();HIMALL=true;HIMI=+e.target.value;hmLayer()};
 $('#hm-0').onclick=()=>{hmStop();if(HIM){HIMI=HIM.f.length-1;hmLayer()}};
 $('#hm-op').oninput=e=>{S.hmop=+e.target.value;tx('hm-opv',S.hmop+'%');hmLayer()};
 $('#hm-pl').onclick=()=>{if(HIMP)return hmStop();if(!HIM)return;const b=$('#hm-pl');b.textContent='⏸';b.setAttribute('aria-label','หยุดภาพเคลื่อนไหว');HIMALL=true;
  if(HIMI===HIM.f.length-1)HIMI=-1;let w=0;HIMP=setInterval(()=>{if(HIMI===HIM.f.length-1&&w++<2)return;w=0;HIMI=(HIMI+1)%HIM.f.length;hmLayer()},500)};
-setInterval(()=>{if(S.him&&!HIMP&&!document.hidden)hmLoad(true)},10*6e4); /* ภาพใหม่ทุก 10 นาที */
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.him&&HIM&&Date.now()-HIM.at>10*6e4)hmLoad(true)});
-map.on('moveend',()=>{if(S.him&&HIM&&S.hmb==='tc')hmLayer()}); /* ข้อความกลางวัน/กลางคืนตามกลางจอ */
+setInterval(()=>{if(hmOn()&&!HIMP&&!document.hidden)hmLoad(true)},10*6e4); /* ภาพใหม่ทุก 10 นาที */
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&hmOn()&&HIM&&Date.now()-HIM.at>10*6e4)hmLoad(true)});
+map.on('moveend',()=>{if(hmOn()&&HIM&&S.hmb==='tc')hmLayer()}); /* ข้อความกลางวัน/กลางคืนตามกลางจอ */
 try{hmApply()}catch(e){}
 </script>
 <style>
@@ -6283,7 +6287,7 @@ const fwN=(v,x)=>x==null||isNaN(x)?'–':nf(x,FWV[v][4]);
 const fwCell=x=>x<10?x.toFixed(1):String(Math.round(x));
 const fwTday=()=>new Date(Date.now()+7*36e5).toISOString().slice(0,10);
 const fwDate=(d,o)=>new Date(d+'T00:00:00Z').toLocaleDateString('th-TH',Object.assign({timeZone:'UTC'},o||{weekday:'short',day:'numeric',month:'short'}));
-const fwVar=()=>FWV[S.fwv]&&S.fwv!=='Rh_noon'?S.fwv:'FWI';
+const fwVar=()=>FWV[S.fwv]&&!/_/.test(S.fwv)?S.fwv:'FWI'; /* ค่าอากาศ (Temp_noon ฯลฯ) ไม่ระบายบนแผนที่แล้ว — ดูที่หมวดสภาพอากาศ */
 /* ค่าที่มีสีตามระดับ (ข้อความ) */
 const fwB2=(v,x)=>{const b=fwB(v);if(x==null||isNaN(x))return'–';if(!b)return`<b>${fwN(v,x)}</b>`;const k=fwCat(x,b);return`<b style="color:${FWT[k]}">${fwN(v,x)}</b>`};
 function fwLoad(force){if(force)FWXP=null;return FWXP||(FWXP=fetch(FWU+'index.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{if(!FWX||FWX.run!==j.run||FWX.upd!==j.upd){FWX=j;FWK=''}FWX.at=Date.now();return FWX}).catch(e=>{FWXP=null;throw e}))}
@@ -6443,6 +6447,7 @@ const cmBg=v=>{const k=Math.min(2000,Math.max(0,Math.round(v*10)))*4,r=CMLUT[k],
  cmNow=()=>{if(!CMX)return 0;let b=0;CMX.f.forEach((t,i)=>{if(Math.abs(t-Date.now())<Math.abs(CMX.f[b]-Date.now()))b=i});return b},
  cmMode=()=>S.cmm==='t'?'t':'d';
 /* โหลด + ถอด base64 Uint16 (ค่า×q, 65535 = ไม่มี) · วัน = วันไทยที่มี ≥6 เวลา ตั้งแต่เมื่อวาน */
+const cmOn=()=>!!(S.pm&&S.pmc!==false); /* แบบจำลอง CAMS = สวิตช์ย่อยในแถวฝุ่น PM2.5 (รวมแถว 14 พ.ย. 69) */
 function cmLoad(){if(CMP0)return CMP0;tx('cm-v','กำลังโหลดตารางค่า…');
  return CMP0=fetch(CM_URL,{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{
   const n=j.nx*j.ny,V=j.v.map(s=>{const b=atob(s),a=new Float32Array(n);for(let i=0;i<n;i++){const u=b.charCodeAt(2*i)|(b.charCodeAt(2*i+1)<<8);a[i]=u===65535?NaN:u/j.q}return a});
@@ -6468,7 +6473,7 @@ function cmImg(f){const d=CMX.d,x0=CMX.x0-d/2,x1=CMX.x0+(CMX.nx-.5)*d,y0=CMX.y0-
 function cmLayer(){if(!map.getSource('cons'))return;
  if(!map.getSource('cm'))map.addSource('cm',{type:'image',url:CMU,coordinates:CMCO});
  if(!map.getLayer('cm-f'))map.addLayer({id:'cm-f',type:'raster',source:'cm',paint:{'raster-opacity':(+S.cmop||65)/100,'raster-fade-duration':0,'raster-resampling':'linear'}},wxBef());
- const on=!!(S.cms&&CMX);map.setLayoutProperty('cm-f','visibility',on?'visible':'none');if(on){map.getSource('cm').updateImage({url:CMU,coordinates:CMCO});map.setPaintProperty('cm-f','raster-opacity',(+S.cmop||65)/100)}}
+ const on=!!(cmOn()&&CMX);map.setLayoutProperty('cm-f','visibility',on?'visible':'none');if(on){map.getSource('cm').updateImage({url:CMU,coordinates:CMCO});map.setPaintProperty('cm-f','raster-opacity',(+S.cmop||65)/100)}}
 /* จุดในแนวเขตทุก 0.05° ต่อพื้นที่ (ใช้ซ้ำทุกเวลา) */
 function cmAreas(){if(CMA)return CMA;const P=CMAR.map(()=>[]);
  for(let x=Math.ceil(100.9/.05)*.05;x<=103.2;x+=.05)for(let y=Math.ceil(13.8/.05)*.05;y<=14.7;y+=.05){const c=geoAt(x,y).cons;if(!c)continue;P[0].push([x,y]);const k=CMAR.findIndex(a=>a[1]===c.properties.name);if(k>0)P[k].push([x,y])}
@@ -6496,10 +6501,10 @@ function cmLegend(){$('#cm-op').value=+S.cmop||65;tx('cm-opv',(+S.cmop||65)+'%')
   gr=[[0,0]].concat(CMST).concat([[125,4]]).map(p=>`${CMTH[p[1]][3]} ${pos(p[0]).toFixed(1)}%`).join(',');
  $('#cm-lg').innerHTML=`<div class="sm" style="margin:6px 0 2px">PM2.5 (µg/m³) · ระดับตามเกณฑ์กรมควบคุมมลพิษ (สีไล่ต่อเนื่อง)</div><i style="display:block;height:10px;border-radius:2px;background:linear-gradient(90deg,${gr});background-size:100% 100%"></i><div style="display:flex;gap:2px;margin-top:1px">${CMTH.map((c,i)=>`<span style="flex:1;min-width:0;text-align:center;font-size:10.5px;color:var(--mut);line-height:1.25">${lb[i]}<br>${c[1].replace('ต่อสุขภาพ','')}</span>`).join('')}</div>`}
 /* บรรทัดในป๊อปอัปแตะแผนที่ */
-function cmPop(lo,la){if(!S.cms||!CMX)return'';const v=cmAt(cmField(),lo,la);if(v==null)return'';
+function cmPop(lo,la){if(!cmOn()||!CMX)return'';const v=cmAt(cmField(),lo,la);if(v==null)return'';
  return`<div class="sm" style="margin:0 0 4px"><b>PM2.5 แบบจำลอง CAMS</b> ${cmMode()==='d'?'เฉลี่ย 24 ชม. '+cmDLab(CMD):cmLab(CMX.f[CMI])}<br>${cmFmt(v)}</div>`}
 function cmStop(){clearInterval(CMP);CMP=0;const b=$('#cm-pl');b.textContent='▶';b.setAttribute('aria-label','เล่นภาพเคลื่อนไหว')}
-function cmApply(){$("#cmbox").hidden=!S.cms;cmLegend();if(S.cms){if(CMX&&Date.now()-CMX.at>3*36e5)CMP0=null;cmLoad().catch(()=>{})}else cmStop();try{cmLayer()}catch(e){}}
+function cmApply(){$("#cmbox").hidden=!cmOn();cmLegend();try{pqInfo()}catch(e){}if(cmOn()){if(CMX&&Date.now()-CMX.at>3*36e5)CMP0=null;cmLoad().catch(()=>{})}else cmStop();try{cmLayer()}catch(e){}}
 function cmGo(i){if(!CMX)return;CMI=Math.max(0,Math.min(CMX.f.length-1,i));cmDraw()}
 $('#cm-md').onclick=e=>{const b=e.target.closest('button');if(!b)return;cmStop();S.cmm=b.dataset.v;cmDraw()};
 $('#cm-r').oninput=e=>{cmStop();cmGo(+e.target.value)};
@@ -6511,7 +6516,7 @@ $('#cm-op').oninput=e=>{S.cmop=+e.target.value;tx('cm-opv',S.cmop+'%');if(CMX)cm
 /* เล่น (ราย 3 ชม.): ข้อมูลอยู่ในเครื่องแล้ว จึงเดินทุก 0.7 วิ */
 $('#cm-pl').onclick=()=>{if(CMP)return cmStop();if(!CMX)return;if(cmMode()!=='t')S.cmm='t';const b=$('#cm-pl');b.textContent='⏸';b.setAttribute('aria-label','หยุดภาพเคลื่อนไหว');
  CMP=setInterval(()=>cmGo(CMI>=CMX.f.length-1?0:CMI+1),700)};
-setInterval(()=>{if(S.cms&&!CMP&&!document.hidden){CMP0=null;cmLoad().catch(()=>{})}},60*6e4); /* รอบแบบจำลองใหม่ (sync วันละ 4 รอบ) */
+setInterval(()=>{if(cmOn()&&!CMP&&!document.hidden){CMP0=null;cmLoad().catch(()=>{})}},60*6e4); /* รอบแบบจำลองใหม่ (sync วันละ 4 รอบ) */
 try{cmApply()}catch(e){}
 </script>
 
