@@ -56,10 +56,29 @@ jobs:
       - run: node scripts/sync_gfsvr.js
         timeout-minutes: 10
         continue-on-error: true
-      # ระบบดัชนีอันตรายไฟป่า (FWI System) จาก TFDRS กรมป่าไม้ — รอบใหม่วันละครั้ง (~14:30 น.) ดึงเฉพาะเมื่อมีรอบใหม่ (~1 นาที)
-      - run: node scripts/sync_fwi.js
-        timeout-minutes: 8
+      # ตาราง FWI เต็มพื้นที่ของ TFDRS (data/fwi/g/ ~20 MB) อยู่ที่ branch fwi-grid (commit เดียว force push ไม่สะสมประวัติ) ไม่ใช่ main
+      - name: load fwi grids
+        run: |
+          mkdir -p data/fwi/g
+          if git fetch -q --depth=1 origin fwi-grid; then git archive FETCH_HEAD | tar -x -C data/fwi/g; git rev-parse 'FETCH_HEAD^{tree}' > "$RUNNER_TEMP/fwi_tree"; else echo "ยังไม่มี branch fwi-grid"; fi
+          ls data/fwi/g | wc -l
+      # ระบบดัชนีอันตรายไฟป่า (FWI System) จาก TFDRS กรมป่าไม้ — รอบใหม่วันละครั้ง (~14:30 น.) ดึงเฉพาะเมื่อมีรอบใหม่ (~1 นาที, ทั้งรอบ 90 ไฟล์ ~140 MB)
+      - id: fwi
+        run: node scripts/sync_fwi.js
+        timeout-minutes: 15
         continue-on-error: true
+      # ตารางเปลี่ยน → force push branch fwi-grid (commit เดียว) · ไม่เปลี่ยน = ไม่ push
+      - name: save fwi grids
+        if: steps.fwi.outcome == 'success'
+        continue-on-error: true
+        run: |
+          d="$RUNNER_TEMP/fg"; rm -rf "$d"; mkdir -p "$d"; cp -r data/fwi/g/. "$d"/; cd "$d"
+          [ -n "$(ls)" ] || { echo "ไม่มีไฟล์ตาราง FWI"; exit 0; }
+          git init -q -b fwi-grid; git add -A
+          new=$(git write-tree); old=$(cat "$RUNNER_TEMP/fwi_tree" 2>/dev/null || true)
+          [ "$new" != "$old" ] || { echo "ตาราง FWI ไม่เปลี่ยน"; exit 0; }
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm "fwi grids $(date -u +%FT%TZ)"
+          for i in 1 2 3; do git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" fwi-grid && break; sleep 5; done
       - name: commit
         run: |
           git config user.name "github-actions[bot]"

@@ -3,16 +3,19 @@
 // เกณฑ์ 5 ระดับปรับเทียบสำหรับประเทศไทย (window.boundsByIndicator ในหน้าต้นทาง — อ่านใหม่ทุกรอบ)
 // ต้นทาง: /forecast/<รอบ>/<รอบ>_<ตัวแปร>.tif (วันของรอบ) และ /forecast/<รอบ>/<รอบ+1|+2>_<ตัวแปร>_forecast.tif (พยากรณ์ 2 วัน)
 //   GeoTIFF float32 ไม่บีบอัด EPSG:4326 ~3 กม. (543×699 ครอบไทย+ลาว) ~1.5 MB/ไฟล์ · nodata -9999 · ไม่เปิด CORS หน้าเว็บจึงอ่านจากไฟล์ของเรา
-//   ดึงด้วย HTTP Range เฉพาะแถวที่ครอบกรอบ BOX (~0.2 MB/ไฟล์) · รอบใหม่ออกวันละครั้ง (~14:30 น. ไทย)
-// ผล data/fwi/index.json {v,src,upd,run,bounds,vars,box,days:[{d,f (0 = วันของรอบ, 1/2 = พยากรณ์ล่วงหน้า),run,lm,rlm (Last-Modified ของ FWI วันของรอบ — เปลี่ยน = ดึงทั้งรอบใหม่),a:{all|ky|tl|…:{ตัวแปร:[เฉลี่ย,ต่ำสุด,สูงสุด,[สัดส่วน 5 ระดับ]]}}}]}
-//   + data/fwi/<YYYY-MM-DD>.json {d,f,run,x0,y0 (กลางเซลล์มุมบนซ้าย),dx,dy (ติดลบ = แถวเหนือ→ใต้),nx,ny,q:10,v:{ตัวแปร: base64 Int16LE ค่า×10, -32768 = ไม่มีข้อมูล}}
+//   ดึงทั้งไฟล์ (เต็มพื้นที่ไทย+ลาว — ผู้ใช้ขอ 14 พ.ย. 69 ให้สีเต็มจอ เดิมดึงเฉพาะกรอบ BOX) · รอบใหม่ออกวันละครั้ง (~14:30 น. ไทย)
+// ผล data/fwi/index.json (อยู่ใน main) {v:2,src,upd,run,bounds,vars,box,grid (ตำแหน่งกริดเต็ม),days:[{d,f (0 = วันของรอบ, 1/2 = พยากรณ์ล่วงหน้า),run,lm,rlm (Last-Modified ของ FWI วันของรอบ — เปลี่ยน = ดึงทั้งรอบใหม่),a:{all|ky|tl|…:{ตัวแปร:[เฉลี่ย,ต่ำสุด,สูงสุด,[สัดส่วน 5 ระดับ]]}}}]}
+//   + ตาราง data/fwi/g/ (ไม่อยู่ใน main — .gitignore · sync.yml เก็บไว้ที่ branch fwi-grid แบบ commit เดียว force push ไม่สะสมประวัติ, site.yml ดึงมาก่อน build)
+//     g/<YYYY-MM-DD>.json = กรอบรอบกลุ่มป่า BOX ทุกตัวแปร {d,f,run,x0,y0 (กลางเซลล์มุมบนซ้าย),dx,dy (ติดลบ = แถวเหนือ→ใต้),nx,ny,q:10,v:{ตัวแปร: base64 Int16LE ค่า×10, -32768 = ไม่มีข้อมูล}} (ป๊อปอัป/แผงรายละเอียด)
+//     g/<YYYY-MM-DD>.<ตัวแปร>.gz = เต็มพื้นที่ Int16LE ค่า×10 (-32768 = ไม่มีข้อมูล) บีบอัด gzip ~130–300 KB · ตำแหน่งกริดใน index.json grid (ภาพบนแผนที่)
+//     (เต็มพื้นที่ ~1.8 MB/วัน × 3 วันที่เปลี่ยนต่อวัน — ถ้า commit ใน main ประวัติจะโต ~2 GB/ปี)
 // ใช้: node scripts/sync_fwi.js [--force] [--keep 7]
-const fs = require('fs'), path = require('path');
+const fs = require('fs'), path = require('path'), zlib = require('zlib');
 const { GEO } = require('./lib/area');
-const ROOT = path.join(__dirname, '..'), OUT = path.join(ROOT, 'data', 'fwi'), IDX = path.join(OUT, 'index.json');
+const ROOT = path.join(__dirname, '..'), OUT = path.join(ROOT, 'data', 'fwi'), GD = path.join(OUT, 'g'), IDX = path.join(OUT, 'index.json');
 const SRC = process.env.FDRS_URL || 'https://fdrs.forest.go.th';
 const VARS = ['FWI', 'ISI', 'BUI', 'FFMC', 'DMC', 'DC', 'Temp_noon', 'Rh_noon', 'Wsp_noon', 'Precip_24hr'];
-const BOX = [100.4, 12.9, 104.0, 15.4]; // กรอบรอบกลุ่มป่า (18 จังหวัดรอบข้าง) ~3 กม./เซลล์ → ~130×98 เซลล์
+const BOX = [100.4, 12.9, 104.0, 15.4]; // กรอบรอบกลุ่มป่า (18 จังหวัดรอบข้าง) ~3 กม./เซลล์ → ~130×98 เซลล์ — ไฟล์ทุกตัวแปรสำหรับป๊อปอัป/แผงรายละเอียด
 const ai = process.argv.indexOf('--keep'), KEEP = ai > 0 ? +process.argv[ai + 1] : 7; // เก็บวันของรอบย้อนหลังกี่วัน
 const FORCE = process.argv.includes('--force');
 const UA = 'fire-map-dpky (https://takiang71.github.io/fire-map-dpky/)';
@@ -24,7 +27,7 @@ const addD = (d, n) => new Date(Date.parse(d) + n * 864e5).toISOString().slice(0
 async function get(url, range, tries = 3) {
   for (let a = 0; ; a++) {
     try {
-      const r = await fetch(url, { headers: { 'User-Agent': UA, ...(range ? { Range: 'bytes=' + range } : {}) }, signal: AbortSignal.timeout(60e3) });
+      const r = await fetch(url, { headers: { 'User-Agent': UA, ...(range ? { Range: 'bytes=' + range } : {}) }, signal: AbortSignal.timeout(90e3) });
       if (r.status === 404) return null;
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return { b: Buffer.from(await r.arrayBuffer()), part: r.status === 206, lm: r.headers.get('last-modified') };
@@ -41,10 +44,10 @@ async function meta() {
   return { run: m && m[1], bounds };
 }
 
-// อ่านเฉพาะแถวที่ครอบ BOX ของ GeoTIFF float32 ไม่บีบอัด (แถบละหลายแถว) → {x0,y0,dx,dy,nx,ny,a:Float32Array}
-async function crop(url) {
-  let H = await get(url, '0-65535'); if (!H) return null;
-  let b = H.b; const le = b[0] === 0x49;
+// อ่าน GeoTIFF float32 ไม่บีบอัด (แถบละหลายแถว) ทั้งไฟล์ → {x0,y0 (กลางเซลล์มุมบนซ้าย),dx,dy,nx,ny,a:Float32Array}
+async function grid(url) {
+  const H = await get(url); if (!H) return null;
+  const b = H.b, le = b[0] === 0x49;
   const u16 = o => le ? b.readUInt16LE(o) : b.readUInt16BE(o), u32 = o => le ? b.readUInt32LE(o) : b.readUInt32BE(o);
   if (u16(2) !== 42) throw new Error('ไม่ใช่ TIFF');
   const ifd = u32(4), n = u16(ifd), T = {}, SZ = { 1: 1, 2: 1, 3: 2, 4: 4, 11: 4, 12: 8, 16: 8 };
@@ -60,21 +63,22 @@ async function crop(url) {
   if (T[258][0] !== 32 || T[259][0] !== 1 || (T[339] || [1])[0] !== 3 || (T[277] || [1])[0] !== 1 || T[322]) throw new Error('รูปแบบ TIFF ไม่ตรงที่คาด (ต้องเป็น float32 ไม่บีบอัด แบบแถบ)');
   const sc = T[33550], tie = T[33922]; if (!sc || !tie) throw new Error('ไม่มีพิกัด GeoTIFF');
   const nod = T[42113] != null ? +T[42113] : -9999, X0 = tie[3] - tie[0] * sc[0], Y0 = tie[4] + tie[1] * sc[1];
-  const c0 = Math.max(0, Math.floor((BOX[0] - X0) / sc[0])), c1 = Math.min(w, Math.ceil((BOX[2] - X0) / sc[0]));
-  const r0 = Math.max(0, Math.floor((Y0 - BOX[3]) / sc[1])), r1 = Math.min(h, Math.ceil((Y0 - BOX[1]) / sc[1]));
-  if (c1 <= c0 || r1 <= r0) throw new Error('กรอบไม่ทับข้อมูล');
-  const s0 = Math.floor(r0 / rps), s1 = Math.floor((r1 - 1) / rps);
-  let contig = true; for (let s = s0; s < s1; s++) if (offs[s + 1] !== offs[s] + cnts[s]) contig = false;
-  let D, base;
-  if (contig) { const R = await get(url, `${offs[s0]}-${offs[s1] + cnts[s1] - 1}`); D = R.b; base = R.part ? offs[s0] : 0 }
-  else { D = (await get(url)).b; base = 0 }
-  const nx = c1 - c0, ny = r1 - r0, a = new Float32Array(nx * ny);
-  const rd = o => le ? D.readFloatLE(o) : D.readFloatBE(o);
-  for (let r = r0; r < r1; r++) {
-    const s = Math.floor(r / rps), ro = offs[s] - base + (r - s * rps) * w * 4;
-    for (let c = c0; c < c1; c++) { const v = rd(ro + c * 4); a[(r - r0) * nx + c - c0] = !(v > nod + 0.5) || !isFinite(v) ? NaN : v }
+  if (offs.length * rps < h || offs[offs.length - 1] + cnts[cnts.length - 1] > b.length) throw new Error('ไฟล์ TIFF ไม่ครบ');
+  const a = new Float32Array(w * h), rd = o => le ? b.readFloatLE(o) : b.readFloatBE(o);
+  for (let r = 0; r < h; r++) {
+    const s = Math.floor(r / rps), ro = offs[s] + (r - s * rps) * w * 4;
+    for (let c = 0; c < w; c++) { const v = rd(ro + c * 4); a[r * w + c] = !(v > nod + 0.5) || !isFinite(v) ? NaN : v }
   }
-  return { x0: X0 + (c0 + .5) * sc[0], y0: Y0 - (r0 + .5) * sc[1], dx: sc[0], dy: -sc[1], nx, ny, a, lm: H.lm };
+  return { x0: X0 + .5 * sc[0], y0: Y0 - .5 * sc[1], dx: sc[0], dy: -sc[1], nx: w, ny: h, a, lm: H.lm };
+}
+// ตัดกรอบ BOX จากกริดเต็ม
+function crop(G) {
+  const c0 = Math.max(0, Math.floor((BOX[0] - G.x0) / G.dx)), c1 = Math.min(G.nx, Math.ceil((BOX[2] - G.x0) / G.dx) + 1);
+  const r0 = Math.max(0, Math.floor((G.y0 - BOX[3]) / -G.dy)), r1 = Math.min(G.ny, Math.ceil((G.y0 - BOX[1]) / -G.dy) + 1);
+  if (c1 <= c0 || r1 <= r0) throw new Error('กรอบไม่ทับข้อมูล');
+  const nx = c1 - c0, ny = r1 - r0;
+  const sub = a => { const o = new Float32Array(nx * ny); for (let r = 0; r < ny; r++) o.set(a.subarray((r + r0) * G.nx + c0, (r + r0) * G.nx + c1), r * nx); return o };
+  return { G: { x0: G.x0 + c0 * G.dx, y0: G.y0 + r0 * G.dy, dx: G.dx, dy: G.dy, nx, ny }, sub };
 }
 
 // ค่าที่จุด (ประมาณเชิงเส้นสองทาง; เพื่อนบ้านที่ไม่มีข้อมูลไม่นับ) — ตรรกะเดียวกับหน้าเว็บ (fwAt)
@@ -118,23 +122,27 @@ function stats(G, V, bounds, A) {
 async function day(run, d, f) { // ดึงทั้ง 10 ตัวแปรของวัน d ในรอบ run
   const V = {}; let G = null, lm = null;
   for (const v of VARS) {
-    const u = `${SRC}/forecast/${run}/${d}_${v}${f ? '_forecast' : ''}.tif`, g = await crop(u);
+    const u = `${SRC}/forecast/${run}/${d}_${v}${f ? '_forecast' : ''}.tif`, g = await grid(u);
     if (!g) { if (v === 'FWI') return null; console.log('  ไม่มี', v, d); continue }
     if (G && (g.nx !== G.nx || g.ny !== G.ny || Math.abs(g.x0 - G.x0) > 1e-6 || Math.abs(g.y0 - G.y0) > 1e-6)) throw new Error('กริดของ ' + v + ' ไม่ตรงกับ FWI');
     G = G || g; V[v] = g.a; if (v === 'FWI') lm = g.lm; await sleep(250);
   }
   return { G, V, lm };
 }
-function enc(G, V) {
-  const v = {};
-  for (const [k, a] of Object.entries(V)) { const q = Buffer.alloc(a.length * 2); for (let i = 0; i < a.length; i++) q.writeInt16LE(isNaN(a[i]) ? -32768 : Math.max(-32767, Math.min(32767, Math.round(a[i] * 10))), i * 2); v[k] = q.toString('base64') }
-  const r = x => +x.toFixed(6);
-  return { x0: r(G.x0), y0: r(G.y0), dx: r(G.dx), dy: r(G.dy), nx: G.nx, ny: G.ny, q: 10, v };
+const i16 = a => { const q = Buffer.alloc(a.length * 2); for (let i = 0; i < a.length; i++) q.writeInt16LE(isNaN(a[i]) ? -32768 : Math.max(-32767, Math.min(32767, Math.round(a[i] * 10))), i * 2); return q };
+const geo = G => { const r = x => +x.toFixed(6); return { x0: r(G.x0), y0: r(G.y0), dx: r(G.dx), dy: r(G.dy), nx: G.nx, ny: G.ny } };
+function enc(G, V) { // กรอบ BOX ทุกตัวแปร
+  const C = crop(G), v = {};
+  for (const [k, a] of Object.entries(V)) v[k] = i16(C.sub(a)).toString('base64');
+  return { ...geo(C.G), q: 10, v };
 }
-const wr = (p, o) => { fs.writeFileSync(p + '.tmp', JSON.stringify(o)); fs.renameSync(p + '.tmp', p) };
+const has0 = d => fs.existsSync(path.join(GD, d + '.json')) && fs.existsSync(path.join(GD, d + '.FWI.gz'));
+const wr = (p, o) => { fs.writeFileSync(p + '.tmp', Buffer.isBuffer(o) ? o : JSON.stringify(o)); fs.renameSync(p + '.tmp', p) };
 
 (async () => {
-  fs.mkdirSync(OUT, { recursive: true });
+  fs.mkdirSync(GD, { recursive: true });
+  // ไฟล์รูปแบบเดิม (กรอบ BOX ใน data/fwi/<วันที่>.json — v1) ไม่ใช้แล้ว
+  for (const f of fs.readdirSync(OUT)) if (/^\d{4}-\d{2}-\d{2}\.json$/.test(f)) fs.unlinkSync(path.join(OUT, f));
   const M = await meta(); let run = M.run;
   if (!run) { // หน้าแรกอ่านไม่ได้ → ไล่หาวันล่าสุดที่มีไฟล์ FWI (ย้อนหลัง 4 วัน)
     const t = new Date(Date.now() + 7 * 36e5).toISOString().slice(0, 10);
@@ -148,25 +156,31 @@ const wr = (p, o) => { fs.writeFileSync(p + '.tmp', JSON.stringify(o)); fs.renam
   // วันที่ต้องมี: วันของรอบย้อนหลัง KEEP วัน (ถึง run) + พยากรณ์ run+1, run+2
   const want = []; for (let k = KEEP - 1; k >= 0; k--) want.push({ d: addD(run, -k), f: 0, run: addD(run, -k) });
   want.push({ d: addD(run, 1), f: 1, run }, { d: addD(run, 2), f: 2, run });
-  const days = []; let ch = false;
+  const days = []; let ch = false, G0 = prev && prev.grid || null;
   // วันของรอบล่าสุด: ต้นทางอาจคำนวณใหม่ในวันเดียวกัน → เทียบ Last-Modified
   let lmRun = null; try { const h = await fetch(`${SRC}/forecast/${run}/${run}_FWI.tif`, { method: 'HEAD', headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(30e3) }); lmRun = h.ok ? h.headers.get('last-modified') : null } catch (e) { }
   for (const w of want) {
-    const o = has(w.d), file = path.join(OUT, w.d + '.json');
-    const same = o && o.f === w.f && o.run === w.run && fs.existsSync(file) && (w.run !== run || !lmRun || o.rlm === lmRun);
+    const o = has(w.d), file = path.join(GD, w.d + '.json');
+    const same = o && o.f === w.f && o.run === w.run && prev.grid && has0(w.d) && (w.run !== run || !lmRun || o.rlm === lmRun);
     if (same && !FORCE) { days.push(o); continue }
     let R; try { R = await day(w.run, w.d, w.f) } catch (e) { console.log('  ดึง', w.d, 'ไม่ได้:', e.message); R = undefined }
-    if (!R) { if (o && fs.existsSync(file)) days.push(o); else if (R === null) console.log('  ไม่มีข้อมูลวัน', w.d, w.f ? '(พยากรณ์)' : ''); continue }
+    if (!R) { if (o && has0(w.d) && prev.grid) days.push(o); else if (R === null) console.log('  ไม่มีข้อมูลวัน', w.d, w.f ? '(พยากรณ์)' : ''); continue }
+    if (G0 && JSON.stringify(geo(R.G)) !== JSON.stringify(G0)) { // ต้นทางเปลี่ยนกริด (index.json มีตำแหน่งกริดชุดเดียว)
+      if (days.length) { console.log('  กริดของวัน', w.d, 'ไม่ตรงกับวันก่อนหน้า — ข้าม'); continue }
+      G0 = null;
+    }
+    G0 = G0 || geo(R.G);
     wr(file, { d: w.d, f: w.f, run: w.run, ...enc(R.G, R.V) });
+    for (const [k, a] of Object.entries(R.V)) wr(path.join(GD, `${w.d}.${k}.gz`), zlib.gzipSync(i16(a), { level: 9 }));
     days.push({ d: w.d, f: w.f, run: w.run, lm: R.lm, ...(w.run === run && lmRun ? { rlm: lmRun } : {}), a: stats(R.G, R.V, bounds, A) }); ch = true;
     const s = days[days.length - 1].a.all.FWI; console.log(`  ${w.d}${w.f ? ' (พยากรณ์ +' + w.f + ')' : ''} FWI กลุ่มป่า เฉลี่ย ${s && s[0]} สูงสุด ${s && s[2]}`);
   }
   if (!days.length) { console.error('ไม่ได้ข้อมูลเลย — คงข้อมูลเดิม'); process.exit(1) }
   // ลบไฟล์วันที่ไม่ใช้แล้ว
-  const keep = new Set(days.map(x => x.d + '.json').concat('index.json'));
-  for (const f of fs.readdirSync(OUT)) if (/^\d{4}-\d{2}-\d{2}\.json$/.test(f) && !keep.has(f)) { fs.unlinkSync(path.join(OUT, f)); ch = true }
-  if (!ch && prev && prev.run === run && JSON.stringify(prev.bounds) === JSON.stringify(bounds)) return console.log('TFDRS รอบ', run, 'มีอยู่แล้ว ไม่มีอะไรเปลี่ยน');
+  const keep = new Set(days.map(x => x.d));
+  for (const f of fs.readdirSync(GD)) { const m = f.match(/^(\d{4}-\d{2}-\d{2})\./); if (m && !keep.has(m[1])) { fs.unlinkSync(path.join(GD, f)); ch = true } }
+  if (!ch && prev && prev.v === 2 && prev.run === run && JSON.stringify(prev.bounds) === JSON.stringify(bounds)) return console.log('TFDRS รอบ', run, 'มีอยู่แล้ว ไม่มีอะไรเปลี่ยน');
   days.sort((a, b) => a.d < b.d ? -1 : 1);
-  wr(IDX, { v: 1, src: SRC, upd: new Date().toISOString(), run, bounds, vars: VARS, box: BOX, keep: KEEP, days });
+  wr(IDX, { v: 2, src: SRC, upd: new Date().toISOString(), run, bounds, vars: VARS, box: BOX, grid: G0, keep: KEEP, days });
   console.log(`เขียน data/fwi รอบ ${run} · ${days.length} วัน (${days.filter(x => x.f).length} วันพยากรณ์)`);
 })().catch(e => { console.error(e); process.exit(1) });

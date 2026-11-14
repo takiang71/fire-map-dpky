@@ -26,7 +26,6 @@ for (const b of ['natural', 'flat', 'sat', 'detail', 'dark'])
   job('base_' + b, `lcSet(true);document.querySelector('[data-b=${b}]').click();await W(4000);${go('101.415,14.665', 12.4)}`, { after: 7000, q: 66, clip: { x: 340, y: 190, width: 600, height: 380 } });
 
 // ---------- รายสวิตช์ (เปิดแผงชั้นข้อมูลค้างไว้ให้เห็นกล่องตั้งค่า) ----------
-job('sw_d3', `await lay();set('d3',true);await W(1500);row('d3');${go('101.38,14.40', 11.6, ',pitch:62,bearing:-25')}`, { after: 9000 });
 job('sw_hot', `await lay();await demo();row('hot');const b=new maplibregl.LngLatBounds();HS.forEach(h=>b.extend([h.lon,h.lat]));map.fitBounds(b,{padding:{top:60,bottom:60,left:60,right:420},duration:0});`);
 const HCV = go('102.02,14.40', 10.3);
 job('sw_hcl', `await lay();set('hcl',true);await W(1500);sel('#hc-s','fyp');await W(1500);row('hcl');${HCV}`);
@@ -38,7 +37,6 @@ job('sw_xt', `await lay();set('xt',true);await W(2500);row('xt');${go('101.75,14
 job('sw_burn_c', `await lay();set('burn',true);await W(3500);sel('#bn-s','c202603');await W(4000);row('burn');document.querySelector('#right .rb').scrollTop+=30;${go('102.20,14.30', 10.4)}`, { after: 8000 });
 job('sw_burn_h', `await lay();set('burn',true);await W(3500);sel('#bn-s','fy2569');await W(4000);const h=document.querySelector('#bn-h');h&&h.click();await W(2500);row('burn');document.querySelector('#right .rb').scrollTop+=160;${go('102.62,14.40', 10.9)}`, { after: 8000 });
 job('sw_rep', `await lay();set('rep',true);await W(4000);row('rep');${go('102.20,14.30', 10.4)}`, { after: 8000 });
-job('sw_dry', `await lay();set('dry',true);await W(6000);const rb=document.querySelector('#drseg button[data-v=rh]');rb&&rb.click();await W(2500);row('dry');${go('101.0,13.8', 5.8)}`, { after: 6000 });
 job('sw_fwi', `await lay();S.orb=false;set('fwi',true);await W(5000);row('fwi');${go('101.95,14.15', 7.5)}`, { after: 6000 });
 job('sw_ftype', `await lay();set('ftype',true);await W(4000);row('ftype');${go('101.80,14.25', 9.2)}`, { after: 8000 });
 job('sw_fuel', `await lay();set('fuel',true);await W(4000);row('fuel');${go('101.45,14.35', 10.6)}`, { after: 9000 });
@@ -50,7 +48,6 @@ job('sw_pm', `await lay();set('pm',true);await W(4000);row('pm');${go('101.0,13.
 job('sw_cons', `await lay();row('cons');${go('101.95,14.25', 8.9)}`, { after: 4000 });
 job('sw_resp', `await lay();set('resp',true);await W(1500);row('resp');${go('101.95,14.25', 9.0)}`, { after: 5000 });
 job('sw_stn', `await lay();set('stn',true);set('resp',true);await W(1500);row('stn');${go('101.55,14.25', 10.8)}`, { after: 6000 });
-job('sw_wpt', `await lay();set('wpt',true);await W(1500);row('wpt');${go('101.42,14.22', 11.2)}`, { after: 6000 });
 job('sw_wch', `await lay();set('wch',true);await W(1500);row('wch');document.querySelector('#right .rb').scrollTop-=45;${go('101.16,14.32', 11.2)}`, { after: 6000 });
 job('sw_adm', `await lay();set('prov',true);set('amp',true);set('tam',true);await W(3000);row('prov');${go('101.50,14.10', 10.0)}`, { after: 7000 });
 job('sw_road', `await lay();document.querySelector('[data-b=detail]').click();await W(4000);row('water');${go('101.42,14.19', 12.6)}`, { after: 8000 });

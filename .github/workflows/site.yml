@@ -52,6 +52,12 @@ jobs:
         timeout-minutes: 6
         continue-on-error: true
         run: node scripts/pass_wait.js
+      # ตาราง FWI เต็มพื้นที่ของ TFDRS (data/fwi/g/ ~20 MB) อยู่ที่ branch fwi-grid (commit เดียว force push ไม่สะสมประวัติ) ไม่ใช่ main
+      - name: load fwi grids
+        run: |
+          mkdir -p data/fwi/g
+          if git fetch -q --depth=1 origin fwi-grid; then git archive FETCH_HEAD | tar -x -C data/fwi/g; git rev-parse 'FETCH_HEAD^{tree}' > "$RUNNER_TEMP/fwi_tree"; else echo "ยังไม่มี branch fwi-grid"; fi
+          ls data/fwi/g | wc -l
       # ถ้าดึงข้อมูลไม่สำเร็จก็ยังเผยแพร่หน้าเว็บ (หน้าเว็บจะถอยไปดึง API ตรงเอง)
       - run: node scripts/build_site.js || true
       # ตรวจหน้าเว็บก่อนขึ้น Pages (scripts/check_site.js): syntax ทุก <script> + เปิดใน Chrome headless เดสก์ท็อป/มือถือ กดปุ่มหลัก นับ error

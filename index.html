@@ -110,7 +110,8 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
  #rpt img.mp{width:100%;max-height:115mm;object-fit:contain;border:1px solid #ccc}
  #rpt .r3{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}#rpt table{width:100%;border-collapse:collapse}#rpt th,#rpt td{border:1px solid #bbb;padding:2px 5px;text-align:left}#rpt th{background:#eef1f7}#rpt td.n{text-align:right}
  #rpt tr{break-inside:avoid}#rpt thead{display:table-header-group}#rpt .r3{break-inside:avoid;align-items:start}
- #rpt table.dl{font-size:9.5px}#rpt table.dl td:nth-child(-n+3),#rpt table.dl td:last-child{white-space:nowrap}#rpt .ft{margin-top:8px;color:#555;font-size:9.5px}#rpt .dv{margin-top:4px;padding-top:4px;border-top:1px solid #ddd;color:#555;font-size:9.5px;break-inside:avoid}
+ #rpt table.dl{font-size:9.5px}#rpt table.dl td:nth-child(-n+3),#rpt table.dl td:last-child{white-space:nowrap}#rpt .ft{margin-top:8px;color:#555;font-size:9.5px}#rpt td.fwc{text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact}#rpt table.fwrt{font-size:9.5px}#rpt table.fwrt td,#rpt table.fwrt th{white-space:nowrap;padding:2px 3px}
+#rpt .dv{margin-top:4px;padding-top:4px;border-top:1px solid #ddd;color:#555;font-size:9.5px;break-inside:avoid}
 }
 .pmd{display:flex;align-items:center;gap:6px;margin:12px 0 4px}.pmd .sg2{display:flex;flex:1;background:#eef1f6;border-radius:10px;padding:2px;gap:2px}.pmd .sg2 button{flex:1 1 auto;border:0;background:none;border-radius:8px;padding:5px 6px;font-size:12.5px;color:var(--mut);white-space:nowrap}.pmd .sg2 button[aria-selected=true]{background:#fff;color:var(--navy);font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.12)}.pmd>span{margin-left:auto;font-size:12px;color:var(--mut);white-space:nowrap}
 .ptb2{display:flex;gap:4px;margin:-2px 0 8px}.ptb2[hidden]{display:none}.ptb2 button{border:1px solid var(--line);background:none;border-radius:999px;padding:3px 10px;font-size:12.5px;color:var(--mut);white-space:nowrap}.ptb2 button[aria-selected=true]{border-color:var(--navy);color:var(--navy);font-weight:700;background:#eef1f6}.ptb2 em{font-style:normal;font-weight:400}
@@ -711,7 +712,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div class="sg" id="imgsrc" hidden aria-label="แหล่งภาพดาวเทียม"><button data-i="google">Google</button><button data-i="esri">Esri</button><button data-i="s2">Sentinel-2</button><button data-i="day">NOAA-20</button></div>
   <div id="imgtime" hidden><div class="itr"><button id="it-p" aria-label="ภาพก่อนหน้า">‹</button><input type="range" id="it-r" list="it-l" aria-label="เลื่อนดูภาพย้อนหลัง"><datalist id="it-l"></datalist><button id="it-n" aria-label="ภาพถัดไป">›</button></div>
    <div class="itv"><b id="it-v"></b><input type="date" id="it-d" aria-label="เลือกวันที่ภาพ"><a id="it-0" role="button" tabindex="0">ล่าสุด</a></div><div class="dsrc" id="it-src"></div></div>
-  <div class="row" data-tip="ภูมิประเทศนูนต่ำ เอียงและหมุนแผนที่ได้"><svg class="i" viewBox="0 0 24 24"><path d="M3 20l6-10 4 6 3-4 5 8z"/></svg><b>มุมมอง 3 มิติ</b><button class="sw" data-k="d3" role="switch" aria-label="มุมมอง 3 มิติ"></button></div>
+  <div class="row" hidden data-tip="ภูมิประเทศนูนต่ำ เอียงและหมุนแผนที่ได้"><svg class="i" viewBox="0 0 24 24"><path d="M3 20l6-10 4 6 3-4 5 8z"/></svg><b>มุมมอง 3 มิติ</b><button class="sw" data-k="d3" role="switch" aria-label="มุมมอง 3 มิติ"></button></div>
 
   <h3>ไฟป่า</h3>
   <div class="row" data-tip="ดาวเทียม VIIRS 375 ม. (NOAA-20, NOAA-21, Suomi NPP) จาก Land Fire Alerts Thailand (WFSRU/ThaiREN) · แสดง 48 ชม. ล่าสุด เฉพาะในแนวเขตกลุ่มป่า · ดึงข้อมูลใหม่อัตโนมัติทุก 5 นาทีขณะเปิดดู"><svg class="i" style="color:var(--fire)" viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg><b>จุดความร้อน</b><button class="sw" data-k="hot" role="switch" aria-label="จุดความร้อน"></button></div>
@@ -738,7 +739,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div class="row" data-tip="พื้นที่ที่พบรอยเผาไหม้มากกว่า 1 ปีงบ จากภาพดาวเทียม 20 ม. ระบบตามรอยเผา (สสน.) ทุกรอบ (ราย 7 วัน รายเดือน รายฤดู) ตั้งแต่ ธ.ค. 66 · สี = จำนวนปีงบที่ไหม้ · ใช้ระบุจุดที่ควรวางแนวกันไฟ/ลาดตระเวนก่อนฤดูไฟ · แตะพื้นที่บนแผนที่เพื่อดูปีที่ไหม้"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" style="fill:#f6d365;stroke:none"/><rect x="6" y="8" width="12" height="8" rx="1.5" style="fill:#f08a1c;stroke:none"/><rect x="9" y="10.5" width="6" height="3" rx="1" style="fill:#5c0a14;stroke:none"/></svg><b>พื้นที่เผาซ้ำซาก</b><span class="tag" id="rp-t">–</span><button class="sw" data-k="rep" role="switch" aria-label="พื้นที่เผาซ้ำซาก"></button></div>
   <div id="rpbox" hidden><div class="seg" id="rpseg"><button data-v="2">ไหม้ ≥ 2 ปี</button><button data-v="3">≥ 3 ปี</button><button data-v="1">ทุกพื้นที่ที่เคยไหม้</button></div>
    <div class="lgd" id="rp-lg" style="display:flex;flex-wrap:wrap;column-gap:12px"></div><div id="rp-a"></div><div class="dsrc" id="rp-src"></div></div>
-  <div class="row" data-tip="ดัชนีไฟป่า (Chandler Burning Index) จากอุณหภูมิสูงสุด ความชื้นต่ำสุด ลม และฝน · ตั้งแต่ 75 = เชื้อเพลิงแห้ง ติดไฟง่าย · พยากรณ์รายวัน Open-Meteo (ตาราง ~110 กม.) · ชี้เมาส์บนแผนที่เพื่อดูค่า"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v18M5 8c3-3 11-3 14 0"/></svg><b>อากาศแห้ง เสี่ยงเกิดไฟป่า</b><span class="sm" id="dr-t"></span><button class="sw" data-k="dry" role="switch" aria-label="อากาศแห้ง"></button></div>
+  <div class="row" hidden data-tip="ดัชนีไฟป่า (Chandler Burning Index) จากอุณหภูมิสูงสุด ความชื้นต่ำสุด ลม และฝน · ตั้งแต่ 75 = เชื้อเพลิงแห้ง ติดไฟง่าย · พยากรณ์รายวัน Open-Meteo (ตาราง ~110 กม.) · ชี้เมาส์บนแผนที่เพื่อดูค่า"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v18M5 8c3-3 11-3 14 0"/></svg><b>อากาศแห้ง เสี่ยงเกิดไฟป่า</b><span class="sm" id="dr-t"></span><button class="sw" data-k="dry" role="switch" aria-label="อากาศแห้ง"></button></div>
   <div id="drybox" hidden><div class="seg" id="drseg"><button data-v="fwi">ดัชนีไฟป่า CBI</button><button data-v="rh">ความชื้นต่ำสุด</button><button data-v="vpd">ความแห้ง VPD</button></div>
    <div class="chips" id="drchips"></div><div class="lgd" id="drlg"></div>
    <div class="lgd"><div><i style="background:#e8741c;border-radius:50%"></i><span style="flex:1">พื้นที่เสี่ยงสูงขึ้นไป (CBI ≥ 75)</span><b id="dr-s1"></b></div><div><i style="background:#c0503c;border-radius:50%"></i><span style="flex:1">เสี่ยงสูงมาก–วิกฤต (CBI ≥ 90)</span><b id="dr-s2"></b></div><div><i style="background:#7e0023;border-radius:50%"></i><span style="flex:1">ความชื้นต่ำสุดในประเทศ</span><b id="dr-s3"></b></div></div>
@@ -819,7 +820,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div class="row" data-tip="ข้อมูลปี 2570 · แตะในแผนที่เพื่อดูสถานีฯ ที่รับผิดชอบ" data-tipel="rleg"><svg class="i" style="color:#2a6fdb" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3" stroke-dasharray="4 3"/></svg><b>พื้นที่รับผิดชอบของสถานีควบคุมไฟป่า</b><span class="tag">8 แปลง</span><button class="sw" data-k="resp" role="switch" aria-label="พื้นที่รับผิดชอบไฟป่า"></button></div>
   <div id="rleg" hidden></div>
   <div class="row" data-tip="ตำแหน่งตามไฟล์ KMZ ของผู้ใช้ · ซูมเข้าเพื่อดูชื่อสถานีฯ"><svg class="i" style="color:#2a6fdb" viewBox="0 0 24 24"><path d="M12 3l8 3.5v5.5c0 4.5-3.5 7.5-8 9-4.500-1.500-8-4.500-8-9V6.500z"/></svg><b>สถานีควบคุมไฟป่า</b><span class="tag">8 แห่ง</span><button class="sw" data-k="stn" role="switch" aria-label="สถานีควบคุมไฟป่า"></button></div>
-  <div class="row" data-tip="จุดเฝ้าระวังไฟป่า ปี 2569 ตามไฟล์ KMZ ของผู้ใช้ · ซูมเข้าเพื่อดูรหัสจุด"><svg class="i" viewBox="0 0 24 24"><path d="M12 2.5l2.8 6.2 6.7.6-5.1 4.5 1.5 6.7L12 17l-5.9 3.5 1.5-6.7-5.1-4.5 6.7-.6z" style="fill:#e11d2e;stroke:#3b0a0f"/></svg><b>จุดเฝ้าระวังไฟป่า</b><span class="tag" id="c-wpt">–</span><button class="sw" data-k="wpt" role="switch" aria-label="จุดเฝ้าระวังไฟป่า"></button></div>
+  <div class="row" hidden data-tip="จุดเฝ้าระวังไฟป่า ปี 2569 ตามไฟล์ KMZ ของผู้ใช้ · ซูมเข้าเพื่อดูรหัสจุด"><svg class="i" viewBox="0 0 24 24"><path d="M12 2.5l2.8 6.2 6.7.6-5.1 4.5 1.5 6.7L12 17l-5.9 3.5 1.5-6.7-5.1-4.5 6.7-.6z" style="fill:#e11d2e;stroke:#3b0a0f"/></svg><b>จุดเฝ้าระวังไฟป่า</b><span class="tag" id="c-wpt">–</span><button class="sw" data-k="wpt" role="switch" aria-label="จุดเฝ้าระวังไฟป่า"></button></div>
 
   <h3>พื้นที่เฝ้าระวังพิเศษ</h3>
   <div class="row" data-tip="แนวเขตพื้นที่บริเวณโรงเรียนนายร้อยพระจุลจอมเกล้า (KMZ ของผู้ใช้ 54,139 ไร่) อยู่นอกแนวเขตกลุ่มป่า · แสดงจุดความร้อน 48 ชม. ในพื้นที่ทุกดาวเทียม แยกจากยอดของกลุ่มป่า · ติดตามรายวันและวิเคราะห์ย้อนหลังในการ์ดวิเคราะห์สถิติ แท็บ &quot;พื้นที่เฝ้าระวังพิเศษ&quot; · แจ้งเตือนจุดใหม่ทาง LINE/Telegram"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l8 3.5v5.5c0 4.5-3.5 7.5-8 9-4.5-1.5-8-4.5-8-9V6.5z" style="fill:#ffd000;stroke:#6b5200"/><circle cx="12" cy="11.5" r="2.6" style="fill:#fff;stroke:#6b5200"/></svg><b>โรงเรียนนายร้อยพระจุลจอมเกล้า</b><span class="tag" id="wch-t">–</span><button class="sw" data-k="wch" role="switch" aria-label="พื้นที่เฝ้าระวังพิเศษ โรงเรียนนายร้อยพระจุลจอมเกล้า"></button></div>
@@ -1092,7 +1093,7 @@ const areaHtml=g=>{let s='';if(g.cons)s+=`<b>${esc(g.cons.properties.name)}</b><
 
 /* ---------- สถานะ + จำค่าที่ผู้ใช้เลือก ---------- */
 let S={base:'natural',img:'google',d3:false,hot:true,prov:false,cons:true,resp:false,stn:false,wpt:false,rgr:false,fbs:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,orb:true,orbm:false,wch:true,wst:false,wsp:true,demo:false,water:true,road:true,wind:false,pm:false,dry:false,fwi:false,fwv:'FWI',wx:false,vr:false,vrg:'mean',rad:false,him:false,hmb:'ir',hmop:85,wyl:false,wyo:'wind',wyop:60,hist:false,xt:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',rep:false,rpm:2,hcd:1,hcg:2,hcr:200};
-try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;S.wst=false;if(S.base==='road')S.base='detail';
+try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;S.wst=false;S.dry=false;S.wpt=false;if(S.base==='road')S.base='detail';/* แถวอากาศแห้ง/จุดเฝ้าระวังถูกเอาออกจากแผงชั้นข้อมูล 14 พ.ย. 69 — ค่าที่บันทึกไว้ต้องไม่เปิดค้าง */
 const toast=(m,fn,ms)=>{const t=$('#toast');t.textContent=m;t.classList.add('show');t.classList.toggle('act',!!fn);t.onclick=fn?()=>{t.classList.remove('show','act');fn()}:null;
  clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show','act'),ms||2200)}; // fn = แตะป้ายแล้วทำ (ป้ายค้างนานขึ้น)
 const thTime=d=>new Date(d).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'});
@@ -1509,7 +1510,7 @@ async function snapMarkers(){const mc=map.getCanvas(),cr=mc.getBoundingClientRec
   const tx=(t.left+t.width/2-cr.left)*k,ty=(t.top+t.height/2-cr.top)*k;x.strokeStyle='#fff';x.lineWidth=3*k;x.strokeText(sp.textContent,tx,ty);x.fillStyle=cs.color;x.fillText(sp.textContent,tx,ty)}
  return o.toDataURL('image/jpeg',.88)}
 const RPT_DEV=`<div class="dv">พัฒนาระบบโดย นายเกรียงไกร โพธิงาม นักวิชาการป่าไม้ชำนาญการ หัวหน้าสถานีควบคุมไฟป่าทับลาน (ด้านทิศใต้) ส่วนควบคุมและปฏิบัติการไฟป่า สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี) กรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช</div>`;
-async function buildReport(){const R=dtRows(),img=await mapSnap(snapPts(R),null,DT.rg!=='24'&&DT.rg!=='48'),now=Date.now(),bn=await bnReport('#'),cnt=k=>{const m={};R.forEach(r=>{const v=k(r)||'ไม่ระบุ';m[v]=(m[v]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])};
+async function buildReport(){const R=dtRows(),img=await mapSnap(snapPts(R),null,DT.rg!=='24'&&DT.rg!=='48'),now=Date.now(),bn=await bnReport('#'),fw=typeof fwReport==='function'?await fwReport('#'):'',cnt=k=>{const m={};R.forEach(r=>{const v=k(r)||'ไม่ระบุ';m[v]=(m[v]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])};
  const tb=(h,E)=>`<table><thead><tr><th>${h}</th><th>จุด</th></tr></thead><tbody>${E.map(([k,v])=>`<tr><td>${esc(k)}</td><td class="n">${nf(v)}</td></tr>`).join('')||'<tr><td colspan="2">–</td></tr>'}</tbody></table>`;
  const sv=$('#p-ch svg'),chart=sv?sv.outerHTML.replace(/<line id="p-x"[^>]*\/?>(<\/line>)?/,''):'',demo=R.some(r=>r.demo)||!$('#p-smp').hidden||HS.some(h=>h.demo&&ageH(h)<24);
  $('#rpt').innerHTML=`<h1>รายงานสถานการณ์จุดความร้อน กลุ่มป่าดงพญาเย็น-เขาใหญ่</h1><div>สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี) · ช่วงข้อมูลในตาราง: ${esc(dtLabel())} · ออกรายงาน ${new Date(now).toLocaleString('th-TH',{dateStyle:'long',timeStyle:'short',timeZone:'Asia/Bangkok'})} น.</div>
@@ -1518,8 +1519,8 @@ async function buildReport(){const R=dtRows(),img=await mapSnap(snapPts(R),null,
  <div class="rg"><div><b>${esc($('#p-cq').textContent)}</b> <span>(${esc($('#p-asof').textContent)})</span>${$('#p-cmp').innerHTML}<div style="margin-top:6px">${$('#p-yr').innerHTML}</div></div><div><div class="plg">${$('#p-lg').innerHTML}</div>${chart}</div></div>
  ${img?`<h2>2. แผนที่ ณ เวลาออกรายงาน</h2><img class="mp" src="${img}" alt="แผนที่">`:''}
  <h2>${img?3:2}. สรุปตามพื้นที่ (${esc(dtLabel())} · ${nf(R.length)} จุด)</h2><div class="r3">${tb('จังหวัด',cnt(r=>r.pv))}${tb('สบอ.',cnt(r=>r.sb&&sbShort(r.sb)))}${tb('พื้นที่อนุรักษ์',cnt(r=>paShort(r.ar)))}${tb('สถานีควบคุมไฟป่า',cnt(r=>r.st==='ไม่มี'?NOST:r.st.replace(/^สถานีควบคุมไฟป่า\s*/,'')))}</div>
- ${bn.replace('<h2>#.','<h2>'+(img?4:3)+'.')}
- <h2>${(img?4:3)+(bn?1:0)}. รายละเอียดจุดความร้อน</h2><table class="dl"><thead><tr><th>#</th><th>วันที่ เวลา</th><th>ดาวเทียม</th><th>ความเชื่อมั่น</th><th>ตำบล / อำเภอ / จังหวัด</th><th>พื้นที่อนุรักษ์</th><th>สถานีฯ</th><th>ละติจูด, ลองจิจูด</th></tr></thead><tbody>${R.map((r,i)=>`<tr><td class="n">${i+1}</td><td>${dShort(r.d)} ${hhmmTh(r.t)}</td><td>${SATN[r.sat]||esc(r.sat)}${r.demo?' (ตัวอย่าง)':''}</td><td>${esc(r.cf)}</td><td>${esc([r.tm,r.am,r.pv].filter(v=>v&&v!=='ไม่ระบุ').join(' / ')||'ไม่ระบุ')}</td><td>${esc(paShort(r.ar))}</td><td>${esc(r.st.replace(/^สถานีควบคุมไฟป่า\s*/,''))}</td><td>${r.la.toFixed(5)}, ${r.lo.toFixed(5)}</td></tr>`).join('')||'<tr><td colspan="8">ไม่พบจุดความร้อนในช่วงนี้</td></tr>'}</tbody></table>
+ ${bn.replace('<h2>#.','<h2>'+(img?4:3)+'.')}${fw.replace('<h2>#.','<h2>'+((img?4:3)+(bn?1:0))+'.')}
+ <h2>${(img?4:3)+(bn?1:0)+(fw?1:0)}. รายละเอียดจุดความร้อน</h2><table class="dl"><thead><tr><th>#</th><th>วันที่ เวลา</th><th>ดาวเทียม</th><th>ความเชื่อมั่น</th><th>ตำบล / อำเภอ / จังหวัด</th><th>พื้นที่อนุรักษ์</th><th>สถานีฯ</th><th>ละติจูด, ลองจิจูด</th></tr></thead><tbody>${R.map((r,i)=>`<tr><td class="n">${i+1}</td><td>${dShort(r.d)} ${hhmmTh(r.t)}</td><td>${SATN[r.sat]||esc(r.sat)}${r.demo?' (ตัวอย่าง)':''}</td><td>${esc(r.cf)}</td><td>${esc([r.tm,r.am,r.pv].filter(v=>v&&v!=='ไม่ระบุ').join(' / ')||'ไม่ระบุ')}</td><td>${esc(paShort(r.ar))}</td><td>${esc(r.st.replace(/^สถานีควบคุมไฟป่า\s*/,''))}</td><td>${r.la.toFixed(5)}, ${r.lo.toFixed(5)}</td></tr>`).join('')||'<tr><td colspan="8">ไม่พบจุดความร้อนในช่วงนี้</td></tr>'}</tbody></table>
  <div class="ft">แหล่งข้อมูลจุดความร้อนในรายงาน: ${esc(dtSrcTxt())} ·${bn?' พื้นที่เผาไหม้: ระบบตามรอยเผา (สสน.) ·':''} ข้อมูลย้อนหลังกรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช · แนวเขตจากไฟล์ KMZ ของ สบอ.1 · ตัวชี้วัด: Suomi NPP (ตั้งแต่ ${dShort(IND_SW)} ใช้ NOAA-20)</div>${RPT_DEV}`;
  await Promise.all([...$('#rpt').querySelectorAll('img')].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})));return R.length}
 /* ดาวน์โหลดภาพแผนที่ตามตัวกรอง (ผู้ใช้ขอ 10 พ.ย. 69): ภาพเดียวกับในรายงาน + แถบหัวเรื่อง/เงื่อนไข + ที่มา/วันที่ */
@@ -6226,7 +6227,8 @@ try{vrApply()}catch(e){}
 <script>
 /* ===== ระบบดัชนีอันตรายไฟป่า (Canadian Forest Fire Weather Index System) — ผู้ใช้ขอ 14 พ.ย. 69 จาก https://fdrs.forest.go.th (TFDRS กรมป่าไม้)
    รายละเอียดระบบตาม https://natural-resources.canada.ca/forests-forestry/wildland-fires/canada-fire-weather-index-system
-   scripts/sync_fwi.js (sync.yml) ดึง GeoTIFF ~3 กม. ของต้นทาง (ไม่เปิด CORS) ตัดกรอบรอบกลุ่มป่า → data/fwi/index.json (รายการวัน + สรุปรายพื้นที่อนุรักษ์) + data/fwi/<วันที่>.json (10 ตัวแปร ค่า×10 Int16)
+   scripts/sync_fwi.js (sync.yml) ดึง GeoTIFF ~3 กม. ของต้นทาง (ไม่เปิด CORS) → data/fwi/index.json (รายการวัน + สรุปรายพื้นที่อนุรักษ์ + grid) + data/fwi/g/ (branch fwi-grid):
+   <วันที่>.<ตัวแปร>.gz = เต็มพื้นที่ไทย+ลาว (ภาพบนแผนที่ — ผู้ใช้ขอ 14 พ.ย. 69 ให้สีเต็มจอ) · <วันที่>.json = กรอบรอบกลุ่มป่าทุกตัวแปร (ป๊อปอัป/แผงรายละเอียด)
    วันของรอบ (ค่าเที่ยงวันของวันนั้น) ย้อนหลัง 7 วัน + พยากรณ์ล่วงหน้า 2 วัน · เกณฑ์ 5 ระดับตามต้นทาง (ปรับเทียบสำหรับประเทศไทย) อยู่ใน index.json (bounds)
    ชื่อตัวแปร/ฟังก์ชันขึ้นต้น FW/fw (ระวัง: fw-c/fw-d/fw-t ในแผงรายละเอียดเป็นของ CBI เดิม) */
 const FWU=BN_BASE.replace(/burn\/$/,'fwi/'),FWSRC='https://fdrs.forest.go.th/index.php',FWNR='https://natural-resources.canada.ca/forests-forestry/wildland-fires/canada-fire-weather-index-system';
@@ -6245,9 +6247,12 @@ const FWV={
 const FWIX=['FWI','ISI','BUI','FFMC','DMC','DC'],FWWX=['Temp_noon','Wsp_noon','Precip_24hr'];
 /* สี 5 ระดับตามต้นทาง (Low/Moderate/High/Very High/Extreme) */
 const FWC=['#2ec670','#f1c95b','#f07800','#ff2424','#710e0e'],FWT=['#1e8a4b','#8a6a00','#c05a00','#d61c1c','#710e0e'],FWN=['ต่ำ','ปานกลาง','สูง','สูงมาก','รุนแรงมาก'],FWE=['Low','Moderate','High','Very High','Extreme'];
+/* ชื่อระดับของอากาศเที่ยงวัน (ผู้ใช้ขอ 14 พ.ย. 69 ให้มีคำอธิบายใต้สีเหมือนดัชนี) */
+const FWNV={Temp_noon:['ต่ำ','ปานกลาง','สูง','สูงมาก','ร้อนจัด'],Wsp_noon:['อ่อน','ปานกลาง','แรง','แรงมาก','รุนแรง'],Precip_24hr:['น้อย','ปานกลาง','หนัก','หนักมาก','รุนแรง']};
+const fwNm=(v,k)=>(FWNV[v]||FWN)[k];
 const FWRGB=FWC.map((c,k)=>hx(c).concat([85,150,165,175,185][k])); /* ระดับต่ำโปร่งกว่า ไม่ให้ทั้งกรอบเป็นสีเขียวทึบช่วงที่อันตรายต่ำ */
 const FWA={all:'กลุ่มป่าฯ',ky:'อช.เขาใหญ่',tl:'อช.ทับลาน',ps:'อช.ปางสีดา',tp:'อช.ตาพระยา',dy:'ขสป.ดงใหญ่',ks:'ขหล.โคกสูง',kc:'ขหล.เขาฉกรรจ์'};
-let FWX=null,FWXP=null,FWDC={},FWS=null,FWG=null,FWGD=null,FWK='',FWIU=BLANK,FWCO=[[0,1],[1,1],[1,0],[0,0]],FWQ=0;
+let FWX=null,FWXP=null,FWDC={},FWFC={},FWS=null,FWG=null,FWGA=null,FWGD=null,FWK='',FWPN=0,FWIU=BLANK,FWCO=[[0,1],[1,1],[1,0],[0,0]],FWQ=0;
 const fwB=v=>FWX&&FWX.bounds&&FWX.bounds[v];
 const fwCat=(x,b)=>x<b[0]?0:x<b[1]?1:x<b[2]?2:x<b[3]?3:4;
 const fwN=(v,x)=>x==null||isNaN(x)?'–':nf(x,FWV[v][4]);
@@ -6260,8 +6265,16 @@ const fwB2=(v,x)=>{const b=fwB(v);if(x==null||isNaN(x))return'–';if(!b)return`
 function fwLoad(force){if(force)FWXP=null;return FWXP||(FWXP=fetch(FWU+'index.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{if(!FWX||FWX.run!==j.run||FWX.upd!==j.upd){FWX=j;FWK=''}FWX.at=Date.now();return FWX}).catch(e=>{FWXP=null;throw e}))}
 /* ไฟล์รายวัน (แคช 5 วันล่าสุดที่เปิด) — คีย์รวมรอบ เพราะไฟล์วันพยากรณ์ถูกแทนเมื่อมีรอบใหม่ */
 function fwGet(x){const key=x.d+'|'+x.run+'|'+(x.lm||'');if(FWDC[key])return FWDC[key];
- const p=fetch(FWU+x.d+'.json?r='+encodeURIComponent(x.run+'_'+(x.lm||''))).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{j.A={};return j}).catch(e=>{delete FWDC[key];throw e});
+ const p=fetch(FWU+'g/'+x.d+'.json?r='+encodeURIComponent(x.run+'_'+(x.lm||''))).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{j.A={};return j}).catch(e=>{delete FWDC[key];throw e});
  const ks=Object.keys(FWDC);if(ks.length>=5)delete FWDC[ks[0]];return FWDC[key]=p}
+/* ตารางเต็มพื้นที่ของตัวแปรเดียว (g/<วันที่>.<ตัวแปร>.gz = Int16LE ค่า×10 บีบอัด gzip) — แคช 14 ชุด
+   GitHub Pages ส่ง .gz เป็นไฟล์ธรรมดา → คลายเองด้วย DecompressionStream (ถ้าเบราว์เซอร์/เซิร์ฟเวอร์คลายให้แล้วจะไม่มีหัว 1f 8b) */
+function fwFull(x,v){const key=x.d+'|'+x.run+'|'+(x.lm||'')+'|'+v;if(FWFC[key])return FWFC[key];const G=FWX&&FWX.grid;
+ const p=(G?fetch(FWU+'g/'+x.d+'.'+v+'.gz?r='+encodeURIComponent(x.run+'_'+(x.lm||''))):Promise.reject(new Error('ไม่มีตำแหน่งกริด'))).then(async r=>{if(!r.ok)throw new Error('HTTP '+r.status);let b=new Uint8Array(await r.arrayBuffer());
+  if(b[0]===0x1f&&b[1]===0x8b)b=new Uint8Array(await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer());
+  const n=G.nx*G.ny;if(b.length<n*2)throw new Error('ไฟล์ไม่ครบ');const dv=new DataView(b.buffer,b.byteOffset,b.byteLength),a=new Float32Array(n);
+  for(let i=0;i<n;i++){const q=dv.getInt16(i*2,true);a[i]=q===-32768?NaN:q/10}return{G,a}}).catch(e=>{delete FWFC[key];throw e});
+ const ks=Object.keys(FWFC);if(ks.length>=14)delete FWFC[ks[0]];return FWFC[key]=p}
 function fwArr(G,v){if(G.A[v])return G.A[v];const s=G.v&&G.v[v];if(!s)return null;const b=atob(s),n=G.nx*G.ny,a=new Float32Array(n);
  for(let i=0;i<n;i++){let x=b.charCodeAt(2*i)|b.charCodeAt(2*i+1)<<8;if(x>32767)x-=65536;a[i]=x===-32768?NaN:x/G.q}return G.A[v]=a}
 /* ค่าที่จุด: ประมาณเชิงเส้นสองทางจาก 4 เซลล์รอบจุด (เซลล์ที่ไม่มีข้อมูลไม่นับ) — ตรรกะเดียวกับ scripts/sync_fwi.js (สรุปรายพื้นที่) */
@@ -6270,16 +6283,32 @@ function fwAt(G,a,lo,la){if(!G||!a)return null;const fx=(lo-G.x0)/G.dx,fy=(la-G.
  const t=(v,ww)=>{if(!isNaN(v)&&ww>0){s+=v*ww;w+=ww}};t(a[o],(1-p)*(1-q));t(a[o+1],p*(1-q));t(a[o+G.nx],(1-p)*q);t(a[o+G.nx+1],p*q);return w>.25?s/w:null}
 /* วันที่เลือก: FWS → วันนี้ (เวลาไทย) ถ้ามี → วันของรอบล่าสุด */
 function fwIdx(){if(!FWX||!FWX.days.length)return-1;const D=FWX.days;let i=FWS?D.findIndex(x=>x.d===FWS):-1;if(i<0)i=D.findIndex(x=>x.d===fwTday());if(i<0)i=D.findIndex(x=>x.d===FWX.run);return i<0?D.length-1:i}
-function fwImg(G,a,v){const x0=G.x0-G.dx/2,x1=G.x0+(G.nx-.5)*G.dx,yN=G.y0-G.dy/2,yS=G.y0+(G.ny-.5)*G.dy,b=fwB(v);
- const W=512,H=Math.min(1024,Math.max(128,Math.round(W*(mY(yN)-mY(yS))/((x1-x0)*Math.PI/180)))),cv=document.createElement('canvas');cv.width=W;cv.height=H;
- const x=cv.getContext('2d'),im=x.createImageData(W,H),ya=mY(yN),yb=mY(yS);
- for(let py=0;py<H;py++){const la=iY(ya+(yb-ya)*(py+.5)/H);for(let px=0;px<W;px++){const z=fwAt(G,a,x0+(x1-x0)*(px+.5)/W,la);if(z!=null&&b)im.data.set(FWRGB[fwCat(z,b)],(py*W+px)*4)}}
- x.putImageData(im,0,0);FWIU=cv.toDataURL();FWCO=[[x0,yN],[x1,yN],[x1,yS],[x0,yS]];const s=map.getSource('fwi');s&&s.updateImage({url:FWIU,coordinates:FWCO})}
+/* ภาพบนแผนที่: วาดเฉพาะบริเวณที่มองเห็น (+ขอบ 25%) ที่ความละเอียดใกล้จอ — ตารางเต็มพื้นที่ไทย+ลาว 543×699 ถ้าวาดทั้งผืนเป็นภาพเดียว
+   ขอบระดับสีจะเป็นขั้นบันไดเมื่อซูมเข้า · วาดใหม่เมื่อเลื่อน/ซูมจนออกนอกส่วนที่วาดไว้ หรือความละเอียดต่างไปเกิน 1.5 เท่า (fwView) */
+let FWR=null,FWIQ=0;
+function fwRect(G,pad){const gx0=G.x0-G.dx/2,gx1=G.x0+(G.nx-.5)*G.dx,gyN=G.y0-G.dy/2,gyS=G.y0+(G.ny-.5)*G.dy,B=map.getBounds();
+ let w=B.getWest(),e=B.getEast(),so=B.getSouth(),n=B.getNorth();const pw=(e-w)*pad,ph=(n-so)*pad;w-=pw;e+=pw;so=Math.max(-80,so-ph);n=Math.min(80,n+ph);
+ const cv=map.getCanvas(),ppx=cv.clientWidth/((B.getEast()-B.getWest())*Math.PI/180);
+ return{x0:Math.max(gx0,w),x1:Math.min(gx1,e),yS:Math.max(gyS,so),yN:Math.min(gyN,n),ppx}}
+function fwImg(G,a,v){const r=fwRect(G,.25),b=fwB(v),q=++FWIQ,src=()=>map.getSource('fwi');
+ if(!(r.x1>r.x0&&r.yN>r.yS)){FWR=Object.assign(r,{G,a,v,none:1});FWIU=BLANK;const s=src();s&&s.updateImage({url:BLANK,coordinates:FWCO});return}
+ const ya=mY(r.yN),yb=mY(r.yS);let W=Math.round((r.x1-r.x0)*Math.PI/180*r.ppx),H=Math.round((ya-yb)*r.ppx);
+ const cell=(r.x1-r.x0)/G.dx,k=Math.min(1,2048/W,2048/H,cell*12/W);W=Math.max(2,Math.round(W*k));H=Math.max(2,Math.round(H*k));
+ const cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d'),im=x.createImageData(W,H),x0=r.x0,x1=r.x1;
+ if(b)for(let py=0;py<H;py++){const la=iY(ya+(yb-ya)*(py+.5)/H);for(let px=0;px<W;px++){const z=fwAt(G,a,x0+(x1-x0)*(px+.5)/W,la);if(z!=null)im.data.set(FWRGB[fwCat(z,b)],(py*W+px)*4)}}
+ x.putImageData(im,0,0);FWR=Object.assign(r,{G,a,v});const co=[[x0,r.yN],[x1,r.yN],[x1,r.yS],[x0,r.yS]];
+ cv.toBlob(bl=>{if(q!==FWIQ||!bl)return;const u=URL.createObjectURL(bl),old=FWIU;FWIU=u;FWCO=co;const s=src();s&&s.updateImage({url:u,coordinates:co});
+  if(old&&old.startsWith('blob:'))setTimeout(()=>URL.revokeObjectURL(old),3000)})}
+/* เลื่อน/ซูมแล้ว: วาดใหม่เมื่อส่วนที่มองเห็นเลยส่วนที่วาดไว้ หรือซูมจนความละเอียดต่างไปมาก */
+function fwView(){if(!S.fwi||!FWR||!FWR.G)return;const r=fwRect(FWR.G,0),e=1e-9;
+ const out=r.x1>r.x0&&r.yN>r.yS&&(FWR.none||r.x0<FWR.x0-e||r.x1>FWR.x1+e||r.yS<FWR.yS-e||r.yN>FWR.yN+e),z=r.ppx/FWR.ppx;
+ if(out||z>1.5||z<1/1.5)fwImg(FWR.G,FWR.a,FWR.v)}
+map.on('moveend',()=>{try{fwView()}catch(e){}});
 function fwLayer(){if(!map.getSource('cons'))return;const bef=typeof wxBef==='function'?wxBef():undefined;
  if(!map.getSource('fwi')){map.addSource('fwi',{type:'image',url:FWIU,coordinates:FWCO});map.addLayer({id:'fwi-f',type:'raster',source:'fwi',paint:{'raster-fade-duration':0}},bef)}
  map.setLayoutProperty('fwi-f','visibility',S.fwi?'visible':'none')}
 function fwLegend(v){const b=fwB(v);if(!b){tx('fwi-lg','');return}const u=FWV[v][3],r=k=>k===0?'<'+nf(b[0],b[0]%1?1:0):k===4?'≥'+nf(b[3],b[3]%1?1:0):nf(b[k-1],b[k-1]%1?1:0)+'–'+nf(b[k],b[k]%1?1:0),wx=FWWX.includes(v);
- tx('fwi-lg',FWC.map((c,k)=>`<div title="${FWN[k]} (${FWE[k]})"><i style="background:${c}"></i>${wx?`<b>${r(k)}</b>${u}`:`<b>${FWN[k]}</b>${r(k)}`}</div>`).join(''))}
+ tx('fwi-lg',FWC.map((c,k)=>`<div title="${fwNm(v,k)}${wx?'':' ('+FWE[k]+')'}"><i style="background:${c}"></i><b>${fwNm(v,k)}</b>${r(k)}${wx&&u?' '+u:''}</div>`).join(''))}
 function fwExplain(){const a=$('#fwi-ad');if(!a||a.innerHTML)return;const b=FWX&&FWX.bounds;
  a.innerHTML=`<p>ระบบดัชนีอันตรายไฟป่าของแคนาดา (<a href="${FWNR}" target="_blank" rel="noopener">Canadian Forest Fire Weather Index System</a>) ประเมินผลของ<b>สภาพอากาศ</b>ต่อความชื้นของเชื้อเพลิงและพฤติกรรมไฟ คำนวณวันละครั้งจากค่าเที่ยงวัน (อุณหภูมิ ความชื้นสัมพัทธ์ ความเร็วลม) และฝนสะสม 24 ชม. โดยรหัสความชื้นทั้งสามนำค่าของ<b>วันก่อนหน้า</b>มาคิดต่อ จึงสะท้อนความแห้งที่สะสมมา ไม่ใช่แค่อากาศวันเดียว · ไม่ได้คิดชนิดหรือปริมาณเชื้อเพลิงจริงและภูมิประเทศ</p>
  <div class="fwfl"><span>อากาศเที่ยงวัน + ฝน</span><em>→</em><span>FFMC · DMC · DC</span><em>→</em><span>ISI = FFMC + ลม</span><span>BUI = DMC + DC</span><em>→</em><span><b>FWI</b> = ISI + BUI</span></div>
@@ -6295,48 +6324,66 @@ async function fwDraw(){if(!S.fwi)return;fwExplain();const v=fwVar();$$('#fwi-v 
  const on=$('#fwi-dc .on');if(on){const bx=$('#fwi-dc');bx.scrollLeft=Math.max(0,on.offsetLeft-bx.clientWidth/2+on.offsetWidth/2)}
  const al=d.a&&d.a.all&&d.a.all[v];
  $('#fwi-dv').innerHTML=`<b>${FWV[v][0]}</b> ${FWV[v][1]} · ${fwDate(d.d,{weekday:'short',day:'numeric',month:'short'})}${d.d===today?' (วันนี้)':''} `+(d.f?`<b>พยากรณ์ล่วงหน้า ${d.f} วัน</b>`:'ค่าเที่ยงวัน')+(al?`<br><span class="sm">ทั้งกลุ่มป่า: เฉลี่ย ${fwB2(v,al[0])} · ${fwN(v,al[1])}–${fwN(v,al[2])}${FWV[v][3]?' '+FWV[v][3]:''}</span>`:'');
- const ab=d.a&&d.a.all&&d.a.all[v];tx('fwi-t',ab&&fwB(v)?`<span style="color:${FWT[fwCat(ab[0],fwB(v))]};font-weight:600">${FWN[fwCat(ab[0],fwB(v))]}</span>`:'');
+ const ab=d.a&&d.a.all&&d.a.all[v];tx('fwi-t',ab&&fwB(v)?`<span style="color:${FWT[fwCat(ab[0],fwB(v))]};font-weight:600">${fwNm(v,fwCat(ab[0],fwB(v)))}</span>`:'');
  /* ตารางรายพื้นที่อนุรักษ์ × วัน (ค่าเฉลี่ยพื้นที่) */
  const b=fwB(v),K=Object.keys(FWA).filter(k=>D.some(x=>x.a&&x.a[k]&&x.a[k][v]));
  tx('fwi-pth',`<b>ค่าเฉลี่ยในพื้นที่อนุรักษ์</b> ${FWV[v][0]}${FWV[v][3]?' ('+FWV[v][3]+')':''} · แตะตัวเลข = เลือกวัน · ชี้/แตะดูช่วงค่าภายในพื้นที่`);
  let s=`<div class="vrtb" style="grid-template-columns:70px repeat(${D.length},1fr)"><span></span>${D.map((x,k)=>`<span class="h${k===i?' on':''}" data-i="${k}" title="${fwDate(x.d)}${x.f?' (พยากรณ์)':''}">${fwDate(x.d,{day:'numeric'})}${x.f?'*':''}</span>`).join('')}`;
  for(const k of K){s+=`<span class="n" title="${k==='all'?'ทุกพื้นที่อนุรักษ์ในกลุ่มป่า (รวม ขสป.ดงใหญ่)':esc(FWA[k])}">${FWA[k]}</span>`;
   D.forEach((x,j)=>{const t=x.a&&x.a[k]&&x.a[k][v];if(!t){s+='<span>–</span>';return}const c=b?fwCat(t[0],b):-1;
-   const sh=t[3]?`\nสัดส่วนพื้นที่ (จุดตัวอย่างทุก 0.02°): `+FWN.map((n,q)=>t[3][q]?`${n} ${Math.round(t[3][q]*100)}%`:'').filter(Boolean).join(' · '):'';
-   const tip=`${FWA[k]} · ${fwDate(x.d)}${x.f?' (พยากรณ์ล่วงหน้า '+x.f+' วัน)':''}\n${FWV[v][0]} เฉลี่ยทั้งพื้นที่ ${fwN(v,t[0])}${FWV[v][3]?' '+FWV[v][3]:''}${c>=0?' ('+FWN[c]+')':''}\nภายในพื้นที่: ต่ำสุด ${fwN(v,t[1])} – สูงสุด ${fwN(v,t[2])}${sh}`;
+   const sh=t[3]?`\nสัดส่วนพื้นที่ (จุดตัวอย่างทุก 0.02°): `+FWN.map((n,q)=>t[3][q]?`${fwNm(v,q)} ${Math.round(t[3][q]*100)}%`:'').filter(Boolean).join(' · '):'';
+   const tip=`${FWA[k]} · ${fwDate(x.d)}${x.f?' (พยากรณ์ล่วงหน้า '+x.f+' วัน)':''}\n${FWV[v][0]} เฉลี่ยทั้งพื้นที่ ${fwN(v,t[0])}${FWV[v][3]?' '+FWV[v][3]:''}${c>=0?' ('+fwNm(v,c)+')':''}\nภายในพื้นที่: ต่ำสุด ${fwN(v,t[1])} – สูงสุด ${fwN(v,t[2])}${sh}`;
    s+=`<span class="c${j===i?' on':''}" data-i="${j}" data-tip="${esc(tip)}" style="${c>=0?`background:${FWC[c]};color:${c===1?'#3a2e00':'#fff'}`:''}">${fwCell(t[0])}</span>`})}
  tx('fwi-pt',s+`</div><div class="sm" style="margin-top:3px">* วันพยากรณ์ · สีตามระดับของค่าเฉลี่ย — บางส่วนของพื้นที่อาจสูงกว่านี้ (ดูช่วงค่าในป้าย)</div>`);
  const rl=FWX.days.find(x=>x.d===FWX.run);
  fwSt(`ข้อมูล <a href="${FWSRC}" target="_blank" rel="noopener">TFDRS กรมป่าไม้</a> (Thailand Fire Danger Rating System) พัฒนาโดยหน่วยวิจัยไฟป่าฯ (WFSRU) คณะวนศาสตร์ ม.เกษตรศาสตร์ ร่วมกับกรมป่าไม้ จุฬาฯ Natural Resources Canada และคณะ · คำนวณด้วยโค้ด <a href="https://github.com/nrcan-cfs-fire/cffdrs-ng" target="_blank" rel="noopener">cffdrs-ng</a> (พัฒนาต่อโดย Marko Niinimaki และ Jittisak Yodkhum) จากอากาศพยากรณ์ <a href="https://tiservice.hii.or.th/wrf-roms/netcdf/" target="_blank" rel="noopener">WRF-ROMS</a> ของ สสน. · ตาราง ~3 กม. · รอบล่าสุด ${fwDate(FWX.run,{day:'numeric',month:'short'})}${rl&&rl.lm?' (ออก '+thTime(Date.parse(rl.lm))+' น.)':''} — ต้นทางออกวันละครั้งช่วงบ่าย ระบบนี้ตรวจรอบใหม่วันละ 4 ครั้ง`);
  /* ภาพบนแผนที่ (โหลดไฟล์ของวันนั้น) */
  const key=d.d+'|'+d.run+'|'+(d.lm||'')+'|'+v;if(FWK===key&&FWGD===d)return;const q=++FWQ;
- try{const G=await fwGet(d);if(q!==FWQ)return;const a=fwArr(G,v);if(!a)throw new Error('ไม่มีตัวแปร '+v);fwImg(G,a,v);FWG=G;FWGD=d;FWK=key}
+ try{const F=await fwFull(d,v);if(q!==FWQ)return;fwImg(F.G,F.a,v);FWG=F.G;FWGA=F.a;FWGD=d;FWK=key}
  catch(e){if(q===FWQ)fwSt('โหลดข้อมูลวันที่ '+esc(d.d)+' ไม่ได้ ('+esc(e.message||e)+')')}}
 function fwApply(){const bx=$('#fwibox');if(!bx)return;bx.hidden=!S.fwi;try{fwLayer()}catch(e){}
  if(!S.fwi){tx('fwi-t','');return}fwDraw();fwLoad().then(fwDraw).catch(e=>{fwSt('โหลดข้อมูล TFDRS ไม่ได้ ('+esc(e.message||e)+')');tx('fwi-dv','โหลดข้อมูลไม่ได้')})}
+/* หัวข้อในรายงาน PDF หลัก (ผู้ใช้ขอ 14 พ.ย. 69): วันที่เลือกในแผง (ค่าเริ่มต้น = วันนี้) ทุกดัชนี × พื้นที่อนุรักษ์ + FWI รายวันทุกวันที่มี */
+async function fwReport(n){try{await fwLoad();const D=FWX.days;if(!D.length)return'';const i=fwIdx(),d=D[i],today=fwTday(),K=Object.keys(FWA).filter(k=>d.a&&d.a[k]);if(!K.length)return'';
+ const V=FWIX.concat(['Temp_noon','Rh_noon','Wsp_noon','Precip_24hr']),cell=(v,t,nm=1)=>{if(!t)return'<td class="fwc">–</td>';const b=fwB(v),c=b?fwCat(t[0],b):-1;
+  return`<td class="fwc"${c>=0?` style="background:${FWC[c]};color:${c===1||c===0?'#1f2a1f':'#fff'}"`:''} title="${c>=0?fwNm(v,c):''}">${fwCell(t[0])}${c>=0&&nm?'<br><small>'+fwNm(v,c)+'</small>':''}</td>`};
+ const al=d.a.all&&d.a.all.FWI,hi=al&&al[3]?Math.round(al[3].slice(2).reduce((x,y)=>x+y,0)*100):0;
+ const tA=`<table class="fwrt"><thead><tr><th>พื้นที่</th>${V.map(v=>`<th>${FWV[v][0]}${FWV[v][3]?'<br><small>'+FWV[v][3]+'</small>':''}</th>`).join('')}</tr></thead><tbody>${K.map(k=>`<tr><td>${FWA[k]}</td>${V.map(v=>cell(v,d.a[k][v])).join('')}</tr>`).join('')}</tbody></table>`;
+ const tB=`<table class="fwrt"><thead><tr><th>พื้นที่</th>${D.map(x=>`<th>${fwDate(x.d,{day:'numeric',month:'short'})}${x.f?'*':''}</th>`).join('')}</tr></thead><tbody>${K.map(k=>`<tr><td>${FWA[k]}</td>${D.map(x=>cell('FWI',x.a&&x.a[k]&&x.a[k].FWI,0)).join('')}</tr>`).join('')}</tbody></table>`;
+ const b=fwB('FWI');
+ return`<h2>${n}. ดัชนีอันตรายไฟป่า FWI System (TFDRS กรมป่าไม้) — ${fwDate(d.d,{weekday:'long',day:'numeric',month:'long',year:'numeric'})}${d.d===today?' (วันนี้)':''}${d.f?' · พยากรณ์ล่วงหน้า '+d.f+' วัน':' · ค่าเที่ยงวัน'}</h2>
+ ${al?`<div>ทั้งกลุ่มป่า: FWI เฉลี่ย <b>${fwN('FWI',al[0])}</b> (${b?fwNm('FWI',fwCat(al[0],b)):''}) · ช่วงภายในพื้นที่ ${fwN('FWI',al[1])}–${fwN('FWI',al[2])}${hi?` · ระดับสูงขึ้นไป ${hi}% ของพื้นที่`:''}</div>`:''}
+ <div style="margin-top:4px"><b>ค่าเฉลี่ยรายพื้นที่อนุรักษ์ทุกดัชนีและอากาศเที่ยงวัน</b></div>${tA}
+ <div style="margin-top:6px"><b>FWI เฉลี่ยรายวัน</b> (วันของรอบย้อนหลัง + พยากรณ์ * ล่วงหน้า 2 วัน) · สี: ${FWC.map((c,k)=>`<span style="color:${c};-webkit-print-color-adjust:exact;print-color-adjust:exact">■</span> ${FWN[k]}`).join(' ')}</div>${tB}
+ <div class="ft">ระบบดัชนีอันตรายไฟป่าของแคนาดา (Canadian Forest Fire Weather Index System) จากระบบ TFDRS กรมป่าไม้ (fdrs.forest.go.th) รอบ ${fwDate(FWX.run,{day:'numeric',month:'short',year:'numeric'})} · ตาราง ~3 กม. คำนวณจากอากาศเที่ยงวันและฝน 24 ชม. ของแบบจำลอง WRF-ROMS (สสน.) ด้วยโค้ด cffdrs-ng (Natural Resources Canada) พัฒนาต่อโดย Marko Niinimaki และ Jittisak Yodkhum · ค่าในตาราง = ค่าเฉลี่ยของจุดตัวอย่างทุก 0.02° ภายในแนวเขต (กลุ่มป่าฯ รวม ขสป.ดงใหญ่) สีตามระดับของค่าเฉลี่ย บางส่วนของพื้นที่อาจสูงกว่านี้ · เกณฑ์ 5 ระดับปรับเทียบสำหรับประเทศไทย${b?` (FWI ปานกลาง ≥${b[0]} · สูง ≥${b[1]} · สูงมาก ≥${b[2]} · รุนแรงมาก ≥${b[3]})`:''}</div>`}catch(e){return''}}
 const fwPick=i=>{if(!FWX||!FWX.days[i])return;FWS=FWX.days[i].d;if(FWS===fwTday())FWS=null;fwDraw()};
 $('#fwi-dc').onclick=e=>{const b=e.target.closest('[data-i]');if(b)fwPick(+b.dataset.i)};
 $('#fwi-pt').onclick=e=>{const b=e.target.closest('[data-i]');if(b)fwPick(+b.dataset.i)};
 $$('#fwi-v button,#fwi-w button').forEach(b=>b.onclick=()=>{S.fwv=b.dataset.v;fwDraw()});
 /* ค่าทั้งหมดที่จุด (ป๊อปอัปแตะแผนที่ / แผงรายละเอียดจุดความร้อน) */
 function fwAll(G,lo,la){const o={};for(const v of Object.keys(FWV))o[v]=fwAt(G,fwArr(G,v),lo,la);return o}
-const fwEm=(v,x)=>{const b=fwB(v);if(x==null)return'–';if(!b)return fwN(v,x);const k=fwCat(x,b);return`<em style="background:${FWC[k]};color:${k===1?'#3a2e00':'#fff'}">${fwN(v,x)} ${FWN[k]}</em>`};
+const fwEm=(v,x)=>{const b=fwB(v);if(x==null)return'–';if(!b)return fwN(v,x);const k=fwCat(x,b);return`<em style="background:${FWC[k]};color:${k===1?'#3a2e00':'#fff'}">${fwN(v,x)} ${fwNm(v,k)}</em>`};
 function fwHtml(o,d){return`<b>FWI</b> ${fwEm('FWI',o.FWI)} · ISI ${fwB2('ISI',o.ISI)} · BUI ${fwB2('BUI',o.BUI)}<br>FFMC ${fwB2('FFMC',o.FFMC)} · DMC ${fwB2('DMC',o.DMC)} · DC ${fwB2('DC',o.DC)}<br>`+
  `<span style="opacity:.85">อากาศเที่ยงวัน ${fwN('Temp_noon',o.Temp_noon)} °C · ความชื้น ${fwN('Rh_noon',o.Rh_noon)}% · ลม ${fwN('Wsp_noon',o.Wsp_noon)} กม./ชม. · ฝน 24 ชม. ${fwN('Precip_24hr',o.Precip_24hr)} มม.</span>`}
-function fwPop(lo,la){if(!S.fwi||!FWG||!FWGD)return'';const o=fwAll(FWG,lo,la);if(o.FWI==null)return'';const d=FWGD;
- return`<div class="sm fwpp" style="margin:0 0 4px"><b>ดัชนีอันตรายไฟป่า</b> (TFDRS) ${fwDate(d.d,{day:'numeric',month:'short'})}${d.f?' พยากรณ์':''}<br>${fwHtml(o,d)}</div>`}
+/* ค่าทุกตัวแปรที่จุด: ในกรอบรอบกลุ่มป่าใช้ไฟล์กรอบ (ไฟล์เดียว) นอกกรอบโหลดตารางเต็มพื้นที่ทีละตัวแปร */
+async function fwAllAt(d,lo,la){const C=await fwGet(d),fx=(lo-C.x0)/C.dx,fy=(la-C.y0)/C.dy;
+ if(fx>=0&&fy>=0&&fx<=C.nx-1&&fy<=C.ny-1)return fwAll(C,lo,la);
+ const L=await Promise.all(Object.keys(FWV).map(v=>fwFull(d,v).then(F=>[v,fwAt(F.G,F.a,lo,la)]).catch(()=>[v,null])));return Object.fromEntries(L)}
+function fwPop(lo,la){if(!S.fwi||!FWG||!FWGD)return'';const z=fwAt(FWG,FWGA,lo,la);if(z==null)return'';const d=FWGD,id='fwpp'+(++FWPN);
+ fwAllAt(d,lo,la).then(o=>{const e=document.getElementById(id);if(!e)return;if(o.FWI==null){e.remove();return}e.querySelector('.fwpv').innerHTML=fwHtml(o,d)}).catch(()=>{const e=document.getElementById(id);if(e)e.querySelector('.fwpv').textContent='โหลดค่าไม่ได้'});
+ return`<div class="sm fwpp" id="${id}" style="margin:0 0 4px"><b>ดัชนีอันตรายไฟป่า</b> (TFDRS) ${fwDate(d.d,{day:'numeric',month:'short'})}${d.f?' พยากรณ์':''}<br><span class="fwpv"><span style="opacity:.7">กำลังโหลด…</span></span></div>`}
 /* แผงรายละเอียดจุดความร้อน: ค่า FWI System ของวันที่ตรวจพบ (หรือวันล่าสุดที่มี) — โหลดเองแม้ไม่ได้เปิดชั้น */
 async function fwDetail(h){const el=$('#fw-tf');if(!el||!h)return;el.innerHTML='<span style="opacity:.7">กำลังโหลดดัชนี FWI ของกรมป่าไม้…</span>';
  try{await fwLoad();if(CUR!==h)return;const ds=new Date(h.t+7*36e5).toISOString().slice(0,10),D=FWX.days;let d=D.find(x=>x.d===ds);
   if(!d){const ob=D.filter(x=>!x.f&&x.d<=ds);d=ob.length?ob[ob.length-1]:null}
-  if(!d){el.innerHTML='';return}const G=await fwGet(d);if(CUR!==h)return;const o=fwAll(G,h.lon,h.lat);
+  if(!d){el.innerHTML='';return}const o=await fwAllAt(d,h.lon,h.lat);if(CUR!==h)return;
   if(o.FWI==null){el.innerHTML='<span style="opacity:.7">ดัชนี FWI กรมป่าไม้: จุดนี้อยู่นอกขอบเขตข้อมูล</span>';return}
   el.innerHTML=`<b>ระบบ FWI กรมป่าไม้ (TFDRS)</b> ${fwDate(d.d,{day:'numeric',month:'short'})}${d.d!==ds?' (วันล่าสุดที่มี)':''}${d.f?' · พยากรณ์':' · ค่าเที่ยงวัน'}<br>${fwHtml(o,d)}`}
  catch(e){if(CUR===h)el.innerHTML='<span style="opacity:.7">โหลดดัชนี FWI ของกรมป่าไม้ไม่ได้</span>'}}
 {const od=openDetail;openDetail=function(h){od.apply(this,arguments);try{fwDetail(h)}catch(e){}}}
 /* ป้ายค่าที่ชี้เมาส์ — ต่อท้ายป้ายของชั้นอื่นที่เปิดพร้อมกัน */
-map.on('mousemove',e=>{if(!S.fwi||!FWG||!FWGD)return;const v=fwVar(),z=fwAt(FWG,fwArr(FWG,v),e.lngLat.lng,e.lngLat.lat);if(z==null)return;const t=$('#tip'),b=fwB(v);
- const s=`${FWV[v][0]} ${fwN(v,z)}${FWV[v][3]?' '+FWV[v][3]:''}${b?' ('+FWN[fwCat(z,b)]+')':''} · ${fwDate(FWGD.d,{day:'numeric',month:'short'})}${FWGD.f?' พยากรณ์':''} · TFDRS`;
+map.on('mousemove',e=>{if(!S.fwi||!FWG||!FWGA||!FWGD)return;const v=fwVar(),z=fwAt(FWG,FWGA,e.lngLat.lng,e.lngLat.lat);if(z==null)return;const t=$('#tip'),b=fwB(v);
+ const s=`${FWV[v][0]} ${fwN(v,z)}${FWV[v][3]?' '+FWV[v][3]:''}${b?' ('+fwNm(v,fwCat(z,b))+')':''} · ${fwDate(FWGD.d,{day:'numeric',month:'short'})}${FWGD.f?' พยากรณ์':''} · TFDRS`;
  const keep=t.style.display==='block'&&(S.vr||S.dry||S.wx)&&t.textContent&&!t.textContent.includes('TFDRS');
  t.textContent=keep?t.textContent+' | '+s:s;t.style.display='block';t.style.left=e.originalEvent.clientX+14+'px';t.style.top=e.originalEvent.clientY+14+'px'});
 /* ตรวจรอบใหม่ทุก 30 นาทีขณะเปิดชั้น (ต้นทางออกวันละครั้ง) */
