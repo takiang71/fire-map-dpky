@@ -1,8 +1,8 @@
 // อัตราการระบายอากาศจาก NOAA GFS โดยตรง (ตัวแปร VRATE ที่ระดับ planetary boundary layer, ตร.ม./วินาที) — ผู้ใช้สั่ง 13 พ.ย. 69 "เปลี่ยนเป็น GFS"
 // = แหล่งเดียวกับกรมอุตุนิยมวิทยา (ozone.tmd.go.th "Source: NOAA's GFS products") — ค่ารายวันของกรมอุตุฯ = ค่าเฉลี่ย VRATE ของวัน UTC (07:00–06:00 น. ไทย)
 //   ตรวจ 13 พ.ย. 69 จุดกรุงเทพฯ: GFS 1,083 / กรมอุตุฯ 1,088 · ปราจีนบุรี 1,200 / 1,170
-// ดึงผ่าน NOMADS grib filter (ตัดเฉพาะกรอบประเทศไทย ~6 KB ต่อชั่วโมงพยากรณ์, simple packing) ชั่วโมง 0–120 ทุกชั่วโมง + 123–240 ทุก 3 ชม. = 161 ไฟล์
-// รอบ GFS ออกวันละ 4 รอบ (00/06/12/18Z) ครบทั้ง 240 ชม. ราว 4–5 ชม. หลังเวลารอบ · ไม่มีรอบใหม่ = ไม่ดึง
+// ดึงผ่าน NOMADS grib filter (ตัดเฉพาะกรอบประเทศไทย ~6 KB ต่อชั่วโมงพยากรณ์, simple packing) ชั่วโมง 0–120 ทุกชั่วโมง = 121 ไฟล์ (5 วัน; หลังจากนั้น GFS ออกทุก 3 ชม. จึงไม่ใช้ — ผู้ใช้ขอ 14 พ.ย. 69)
+// รอบ GFS ออกวันละ 4 รอบ (00/06/12/18Z) ครบ 120 ชม. ราว 3.5–4 ชม. หลังเวลารอบ · ไม่มีรอบใหม่ = ไม่ดึง
 // NOMADS จำกัด ~120 ครั้ง/นาที → เว้น 0.6 วิต่อคำขอ (~2 นาที) · NOMADS ไม่เปิด CORS หน้าเว็บจึงอ่านจากไฟล์นี้
 // ผล data/gfs_vr.json {src,cyc,y0,x0,d,nx,ny,q:100,h:[ชั่วโมงพยากรณ์],v:[base64 Uint8 ค่า/100 (สูงสุด 255) แถวใต้→เหนือ]}
 // ใช้: node scripts/sync_gfsvr.js [--force] [--cyc YYYYMMDDHH]
@@ -11,15 +11,15 @@ const { decode } = require('./lib/grib');
 const ROOT = path.join(__dirname, '..'), OUT = path.join(ROOT, 'data', 'gfs_vr.json');
 const NOM = process.env.GFS_NOMADS || 'https://nomads.ncep.noaa.gov';
 const BOX = { top: 21, bottom: 5, left: 97, right: 106 }; // ประเทศไทยทั้งประเทศ (ละติจูด 5.6–20.5, ลองจิจูด 97.3–105.7)
-const HRS = [...Array.from({ length: 121 }, (_, i) => i), ...Array.from({ length: 40 }, (_, i) => 123 + i * 3)];
+const HRS = Array.from({ length: 121 }, (_, i) => i); // เฉพาะช่วงที่ GFS ออกทุกชั่วโมง (5 วัน) — ผู้ใช้ขอ 14 พ.ย. 69 ให้ทุกวันเป็นรายชั่วโมงเท่ากับ Open-Meteo (หลัง 120 ชม. GFS ออกทุก 3 ชม.)
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const UA = 'fire-map-dpky (https://takiang71.github.io/fire-map-dpky/)';
 const ymd = t => t.toISOString().slice(0, 10).replace(/-/g, '');
 async function ok(url) { try { const r = await fetch(url, { method: 'HEAD', headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(30e3) }); return r.ok } catch (e) { return false } }
-async function latest() { // รอบล่าสุดที่มีชั่วโมง 240 แล้ว (ย้อนหลังไม่เกิน 2 วัน)
+async function latest() { // รอบล่าสุดที่มีชั่วโมง 120 แล้ว (ย้อนหลังไม่เกิน 2 วัน)
   let t = Math.floor(Date.now() / 216e5) * 216e5;
   for (let k = 0; k < 8; k++, t -= 216e5) { const d = new Date(t), c = String(d.getUTCHours()).padStart(2, '0');
-    if (await ok(`${NOM}/pub/data/nccf/com/gfs/prod/gfs.${ymd(d)}/${c}/atmos/gfs.t${c}z.pgrb2.0p25.f240.idx`)) return d }
+    if (await ok(`${NOM}/pub/data/nccf/com/gfs/prod/gfs.${ymd(d)}/${c}/atmos/gfs.t${c}z.pgrb2.0p25.f120.idx`)) return d }
   return null;
 }
 async function grab(d, fh) {
@@ -48,7 +48,7 @@ async function grab(d, fh) {
     await sleep(600);
   }
   if (miss.length) console.log('ดึงไม่ได้', miss.length, 'ชั่วโมง\n  ' + miss.slice(0, 10).join('\n  '));
-  if (!G || miss.length > 12) { console.error('ข้อมูลขาดมากเกินไป — คงไฟล์เดิม'); process.exit(1) }
+  if (!G || miss.length > 8) { console.error('ข้อมูลขาดมากเกินไป — คงไฟล์เดิม'); process.exit(1) }
   const out = { src: 'NOAA NCEP GFS 0.25° (NOMADS) · VRATE planetary boundary layer', cyc, x0: G.lo1, y0: G.la1, d: G.di, dy: G.la2 > G.la1 ? G.dj : -G.dj, nx: G.ni, ny: G.nj, q: 100, h, v, upd: new Date().toISOString() };
   fs.writeFileSync(OUT + '.tmp', JSON.stringify(out)); fs.renameSync(OUT + '.tmp', OUT);
   console.log(`เขียน ${path.relative(ROOT, OUT)} ${(fs.statSync(OUT).size / 1024).toFixed(0)} KB · ${h.length} ชั่วโมง · กริด ${G.ni}×${G.nj}`);
