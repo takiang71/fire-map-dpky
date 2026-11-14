@@ -6520,7 +6520,7 @@ try{cmApply()}catch(e){}
    API ของหน้าเว็บกรมอุตุฯ: /api/awsnow (ค่าล่าสุดทุกสถานี ~220 แห่ง ปรับทุกนาที) · /api/awsrainfall (ฝนเมื่อวาน/3 วัน/7 วัน รายวัน) · /api/awsnowbyid?id= (รายชั่วโมงย้อนหลัง 48 ชม.)
    ไม่ต้องใช้คีย์ · CORS สะท้อน Origin ที่ขอ (รวม null ของ file://) จึงดึงจากเบราว์เซอร์ตรง · ความเร็วลมหน่วย กม./ชม. ตามหน้าเว็บต้นทาง · ทิศลม = ทิศที่ลมพัดมา
    ชั้น GL (tmd-c วงกลม / tmd-a ลูกศรลม / tmd-t ตัวเลข) จึงขึ้นในภาพรายงานและหน้าพิมพ์แผนที่ด้วย */
-const TM_API='https://wxmap.tmd.go.th/api/',TM_WEB='https://wxmap.tmd.go.th/awsmap/stations/',TM_OLD=3*36e5,TM_NEAR=30;
+const TM_API='https://wxmap.tmd.go.th/api/',TM_WEB='https://wxmap.tmd.go.th/awsmap' /* หน้าสถานีรายแห่ง (/awsmap/stations/<id>) ขึ้น "เกิดข้อผิดพลาดในการเชื่อมต่อ API" เพราะ /api/awsdailybyid ของกรมอุตุฯ ตอบ 500 ทุกสถานี (ตรวจ 14 พ.ย. 69) — ลิงก์ไปหน้าแผนที่สถานีแทน */,TM_OLD=3*36e5,TM_NEAR=30;
 let TMN=null,TMR=null,TMAT=0,TMRAT=0,TMQ=null,TMH={},TMNB=null;
 const TMV={t:['อุณหภูมิ','°C',[15,20,25,30,35,40],['#3b6fd8','#4fb3d9','#7cc87a','#f2d44e','#f08a1c','#c0301c']],
  rh:['ความชื้นสัมพัทธ์','%',[20,35,50,65,80,95],['#9b2c1f','#e8741c','#f2d44e','#9fd3a6','#4fb3d9','#2c5fb3']],
@@ -6584,7 +6584,7 @@ function tmPopup(id,ll){const s=(TMN||[]).find(x=>x.station_id==id);if(!s)return
  ${r?`<tr><td>ฝนสะสม</td><td>เมื่อวาน ${f(r.precip_yesterday,'')} · 3 วัน ${f(r.precip_3days,'')} · 7 วัน ${f(r.precip_7days,'มม.')}</td></tr>`:''}
  <tr><td>ความกดอากาศ</td><td>${f(s.pressure,'hPa')}</td></tr></table>
  <div class="tmg" id="tmg-${s.station_id}"><span class="sm">กำลังโหลดกราฟย้อนหลัง 48 ชม.…</span></div>
- <a class="sm" href="${TM_WEB}${s.station_id}" target="_blank" rel="noopener">ดูในเว็บกรมอุตุนิยมวิทยา ↗</a></div>`;
+ <a class="sm" href="${TM_WEB}" target="_blank" rel="noopener">แผนที่สถานีในเว็บกรมอุตุนิยมวิทยา ↗</a></div>`;
  const P=new maplibregl.Popup({maxWidth:'300px',focusAfterOpen:false}).setLngLat(ll||[s.station_lon,s.station_lat]).setHTML(h).addTo(map);
  tmHist(s.station_id).then(H=>{const el=P.getElement()&&P.getElement().querySelector('#tmg-'+s.station_id);if(el)el.innerHTML=tmChart(H)}).catch(()=>{const el=P.getElement()&&P.getElement().querySelector('#tmg-'+s.station_id);if(el)el.innerHTML='<span class="sm">โหลดข้อมูลย้อนหลังไม่ได้</span>'});return P}
 async function tmHist(id){const c=TMH[id];if(c&&Date.now()-c.at<10*6e4)return c.d;const j=await(await fetch(TM_API+'awsnowbyid?id='+encodeURIComponent(id),{cache:'no-store'})).json();
@@ -6617,7 +6617,7 @@ async function tmDetail(h){const el=$('#tm-d');if(!el||!h)return;el.innerHTML='<
   el.innerHTML=L.map(({s,km,br},i)=>{const r=TMR&&TMR.get(s.station_id),bad=tmRhBad(s);
    return`<div class="tms"><b>${esc(tmShort(s.station_name_th))}</b> <span class="sm">ห่าง ${nf(km,km<10?1:0)} กม. ทางทิศ${DIRN[Math.round(br/45)%8]} · จ.${esc(s.province_name_th)}</span>
    ${tmCells({T:tmNum(s.temperature),H:bad?null:tmNum(s.humidity),bad,W:tmNum(s.windspeed),D:tmNum(s.winddirection),R:tmNum(s.precip_today),R7:r?tmNum(r.precip_7days):null})}
-   <div class="sm">ค่าล่าสุด ${tmDT(tmT(s))}${tmOld(s)?' <span style="color:#b45309">(ไม่อัปเดตเกิน 3 ชม.)</span>':''} · <a href="${TM_WEB}${s.station_id}" target="_blank" rel="noopener">กรมอุตุฯ ↗</a>${i===0&&!S.tmd?` · <a role="button" tabindex="0" data-tmon="${s.station_id}">ดูบนแผนที่</a>`:''}</div>
+   <div class="sm">ค่าล่าสุด ${tmDT(tmT(s))}${tmOld(s)?' <span style="color:#b45309">(ไม่อัปเดตเกิน 3 ชม.)</span>':''} · <a href="${TM_WEB}" target="_blank" rel="noopener">กรมอุตุฯ ↗</a>${i===0&&!S.tmd?` · <a role="button" tabindex="0" data-tmon="${s.station_id}">ดูบนแผนที่</a>`:''}</div>
    ${i===0&&recent?'<div class="tmh" id="tm-dh"><span class="sm" style="opacity:.7">กำลังโหลดค่าขณะดาวเทียมสแกน…</span></div>':''}</div>`}).join('')+
    '<div class="sm" style="margin:-4px 0 8px">ค่าตรวจวัดจริง ณ ที่ตั้งสถานี — สภาพบนสันเขา/ในหุบใกล้จุดไฟอาจต่างจากสถานีมาก · ช่องแดง = ความชื้นต่ำกว่า 40%</div>';
   if(L[0]&&recent){const H=await tmHist(L[0].s.station_id);if(CUR!==h)return;const e2=$('#tm-dh');if(!e2)return;
