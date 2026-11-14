@@ -771,19 +771,16 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
    <div class="tsv"><b id="wx-v">–</b><a id="wx-0" role="button" tabindex="0">ตอนนี้</a></div>
    <div id="wx-lg"></div>
    <p class="note" style="margin-left:0"><span id="wx-st"></span></p></div>
-  <div class="row" data-tip="อัตราการระบายอากาศ = ความสูงชั้นผสมอากาศ × ความเร็วลมเฉลี่ยในชั้นนั้น (ตร.ม./วินาที) · ต่ำกว่า 2,000 = ไม่ดี การเผาในที่โล่งส่งผลกระทบต่อคุณภาพอากาศมาก · เลือกได้ 2 แหล่ง: NOAA GFS (แหล่งเดียวกับกรมอุตุนิยมวิทยา พยากรณ์ 10 วัน) หรือคำนวณจาก Open-Meteo (ละเอียดกว่า 3 วัน) · ชี้เมาส์บนแผนที่เพื่อดูค่า"><svg class="i" viewBox="0 0 24 24"><path d="M4 20h16M7 16c0-3 3-3.5 3-6.5S8 6 8 4M12 16c0-3 3-3.5 3-6.5S13 6 13 4M17 16c0-2.5 2.5-3 2.5-5.5"/></svg><b>อัตราการระบายอากาศ</b><span class="sm" id="vr-t"></span><button class="sw" data-k="vr" role="switch" aria-label="อัตราการระบายอากาศ"></button></div>
+  <div class="row" data-tip="อัตราการระบายอากาศ = ความสูงชั้นผสมอากาศ × ความเร็วลมเฉลี่ยในชั้นนั้น (ตร.ม./วินาที) · ต่ำกว่า 2,000 = ไม่ดี การเผาในที่โล่งส่งผลกระทบต่อคุณภาพอากาศมาก · เลือกได้ 2 แหล่ง: NOAA GFS (แหล่งเดียวกับกรมอุตุนิยมวิทยา พยากรณ์ 10 วัน) หรือคำนวณจาก Open-Meteo (ละเอียดกว่า) ทั้งสองแหล่งพยากรณ์ 10 วัน · ชี้เมาส์บนแผนที่เพื่อดูค่า"><svg class="i" viewBox="0 0 24 24"><path d="M4 20h16M7 16c0-3 3-3.5 3-6.5S8 6 8 4M12 16c0-3 3-3.5 3-6.5S13 6 13 4M17 16c0-2.5 2.5-3 2.5-5.5"/></svg><b>อัตราการระบายอากาศ</b><span class="sm" id="vr-t"></span><button class="sw" data-k="vr" role="switch" aria-label="อัตราการระบายอากาศ"></button></div>
   <div id="vrbox" hidden>
-   <div class="seg" id="vrsrc" role="group" aria-label="แหล่งข้อมูลอัตราการระบายอากาศ"><button data-v="gfs">NOAA GFS<small>แหล่งเดียวกับกรมอุตุฯ · 10 วัน</small></button><button data-v="om">Open-Meteo<small>ละเอียดกว่า · 3 วัน</small></button></div>
+   <div class="seg" id="vrsrc" role="group" aria-label="แหล่งข้อมูลอัตราการระบายอากาศ"><button data-v="gfs">NOAA GFS<small>แหล่งเดียวกับกรมอุตุฯ · ~27 กม.</small></button><button data-v="om">Open-Meteo<small>ละเอียดกว่า ~10–25 กม.</small></button></div>
    <div class="vrt"><div class="chips" id="vr-dc" role="group" aria-label="เลือกวัน"></div>
     <div class="seg" id="vr-gm" role="group" aria-label="ค่าที่แสดง"><button data-v="mean" title="ค่าเฉลี่ย 07:00–06:00 น. แบบเดียวกับที่กรมอุตุนิยมวิทยารายงาน">เฉลี่ยทั้งวัน</button><button data-v="max" title="ชั่วโมงที่ระบายอากาศได้ดีที่สุดของวัน">สูงสุดของวัน</button><button data-v="hr">รายชั่วโมง</button></div>
     <div class="vrgh"><div class="tsl"><button id="vr-gp" aria-label="ชั่วโมงก่อนหน้า">‹</button><input type="range" id="vr-gr" min="0" max="160" aria-label="เลื่อนเวลาพยากรณ์"><button id="vr-gn" aria-label="ชั่วโมงถัดไป">›</button></div></div>
     <div class="tsv"><b id="vr-dv">–</b><a id="vr-g0" role="button" tabindex="0">วันนี้</a></div></div>
-   <div class="vro"><div class="tsl"><button id="vr-pv" aria-label="ชั่วโมงก่อนหน้า">‹</button><input type="range" id="vr-r" min="0" max="95" aria-label="เลื่อนเวลา ย้อนหลัง 24 ชม. ถึงพยากรณ์ 3 วัน"><button id="vr-nx" aria-label="ชั่วโมงถัดไป">›</button></div>
-    <div class="tsv"><b id="vr-v">–</b><a id="vr-0" role="button" tabindex="0">ตอนนี้</a></div></div>
    <div class="vrl" id="vr-lg"></div>
    <div class="vrc vrt vrgc"><div class="sm" id="vr-gch">รายชั่วโมงที่กลางแผนที่</div><div id="vr-gg"></div><div id="vr-gs"></div></div>
    <div class="vrc vrt"><div class="sm" id="vr-pth"></div><div id="vr-pt"></div></div>
-   <div class="vrc vro"><div class="sm" id="vr-ch">รายชั่วโมงที่กลางแผนที่</div><div id="vr-g"></div><div id="vr-sm"></div></div>
    <details class="vrad"><summary>เกณฑ์และคำแนะนำการเผาในที่โล่ง (กรมอุตุฯ)</summary><div id="vr-ad"></div></details>
    <p class="note" style="margin-left:0"><span id="vr-st"></span></p></div>
   <div class="row" data-tip="เรดาร์ตรวจอากาศจาก RainViewer ย้อนหลัง 2 ชม. ทุก 10 นาที · ละเอียดสูงสุดเท่าระดับซูม 7 · บริเวณที่ไม่มีเรดาร์ครอบคลุมจะไม่แสดงฝน"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 12l6-6M12 7a5 5 0 105 5"/></svg><b>เรดาร์ฝน</b><span class="sm" id="rd-t"></span><button class="sw" data-k="rad" role="switch" aria-label="เรดาร์ฝน"></button></div>
@@ -5988,11 +5985,11 @@ try{hmApply()}catch(e){}
 </script>
 <style>
 .vrl{display:flex;gap:3px;margin-top:8px}.vrl>div{flex:1;min-width:0;font-size:10px;color:var(--mut);text-align:center;line-height:1.3}.vrl i{display:block;height:9px;border-radius:3px;margin-bottom:2px;opacity:.9}.vrl b{display:block;color:var(--ink);font-size:11px;white-space:nowrap}
-.vrc{margin-top:8px;border-top:1px solid var(--line);padding-top:6px}#vr-g svg,#vr-gg svg{display:block;width:100%;height:104px;cursor:pointer;touch-action:pan-y;user-select:none}
-#vr-sm,#vr-gs{display:grid;grid-template-columns:auto 1fr auto;gap:2px 8px;font-size:12px;line-height:1.45;margin-top:6px}#vr-sm>span:nth-child(-n+3),#vr-gs>span:nth-child(-n+3){color:var(--mut);font-size:11px}#vr-sm b,#vr-gs b{color:var(--navy);font-weight:600}#vr-gs .on{background:var(--sel);border-radius:4px}
+.vrc{margin-top:8px;border-top:1px solid var(--line);padding-top:6px}#vr-gg svg{display:block;width:100%;height:104px;cursor:pointer;touch-action:pan-y;user-select:none}
+#vr-gs{display:grid;grid-template-columns:auto 1fr auto;gap:2px 8px;font-size:12px;line-height:1.45;margin-top:6px}#vr-gs>span:nth-child(-n+3){color:var(--mut);font-size:11px}#vr-gs b{color:var(--navy);font-weight:600}#vr-gs .on{background:var(--sel);border-radius:4px}
 .vrpt{width:16px;height:16px;border-radius:50%;border:2px solid #1B2A5E;background:rgba(255,255,255,.35);box-shadow:0 0 0 2px #fff;pointer-events:none}
 #vrsrc button{min-height:44px;line-height:1.25;font-size:12px}#vrsrc small{display:block;font-size:10.5px;color:var(--mut);font-weight:400}
-#vrbox.gfs .vro,#vrbox.om .vrt{display:none}#vrbox:not(.ghr) .vrgh{display:none}#vrbox:not(.gch) .vrgc{display:none}
+#vrbox:not(.ghr) .vrgh{display:none}#vrbox:not(.gch) .vrgc{display:none}
 #vr-gm{margin:4px 0}#vr-gm button{min-height:32px;font-size:12px}
 #vr-dc .chip{width:44px;min-height:40px;font-size:11px;padding:3px 0}#vr-dc .chip b{font-size:13px}#vr-dc .chip small{font-size:9px;color:var(--mut)}
 .vrtb{display:grid;grid-template-columns:62px repeat(10,1fr);gap:1px;font-size:10px;margin-top:4px}.vrtb>*{text-align:center;padding:3px 0;line-height:1.2;border-radius:3px}
@@ -6009,7 +6006,8 @@ try{hmApply()}catch(e){}
          "เฉลี่ยทั้งวัน" = ค่าเฉลี่ยของวัน UTC (07:00–06:00 น. ไทย) = วิธีที่กรมอุตุฯ รายงาน (ตรวจ 13 พ.ย. 69: กรุงเทพฯ GFS 1,083–1,205 / กรมอุตุฯ 1,080–1,088)
          S.vrg mean | max (ชั่วโมงที่ดีที่สุดของวัน) | hr (รายชั่วโมง) · ตารางกลุ่มป่า + 6 จังหวัด = ค่าเฉลี่ยพื้นที่ (สุ่มจุดทุก 0.05° ในแนวเขต)
    om  = คำนวณเองจาก Open-Meteo รายชั่วโมง: VR = ความสูงชั้นผสมอากาศ (boundary_layer_height, เหนือพื้นดิน) × ลมพา (ค่าเฉลี่ยเวกเตอร์ของลม 0–ยอดชั้นผสม
-         จากลม 10 ม. + 975–700 hPa ที่ความสูงมาตรฐานเขตร้อน หักความสูงพื้นที่ของจุด ต่อเส้นตรงแล้วอินทิเกรต) · ตาราง ≤10×9 จุดในกรอบที่มองเห็น ย้อนหลัง 24 ชม. + พยากรณ์ 72 ชม.
+         จากลม 10 ม. + 975–700 hPa ที่ความสูงมาตรฐานเขตร้อน หักความสูงพื้นที่ของจุด ต่อเส้นตรงแล้วอินทิเกรต) · ตาราง ≤9×8 จุดในกรอบที่มองเห็น ย้อนหลัง 24 ชม. + พยากรณ์ 240 ชม.
+         ใช้หน้าจอเดียวกับ GFS (เฉลี่ย/สูงสุด/รายชั่วโมง + กราฟ + ตาราง) — ผู้ใช้ขอ 14 พ.ย. 69
    เกณฑ์ 5 ระดับ + คำแนะนำการเผาในที่โล่ง ตามภาพเกณฑ์ของกรมอุตุฯ (https://ozone.tmd.go.th/PM2.5/weather/wi7days/VR_guidelines.jpg) */
 const VRL=[[975,340],[950,565],[925,790],[900,1015],[850,1490],[800,1990],[700,3130]]; /* hPa → ความสูงจากระดับทะเลโดยประมาณ (ม.) */
 /* [ค่าต่ำสุด, ระดับ, สีพื้น, ช่วง, คำแนะนำของกรมอุตุฯ, สีตัวอักษร] */
@@ -6024,9 +6022,12 @@ const vrCat=v=>v>=16000?4:v>=8000?3:v>=4000?2:v>=2000?1:0;
 /* จังหวัดของกลุ่มป่า (สบอ.1 + สบอ.7) → รหัสภาพกราฟรายวันของกรมอุตุฯ (ไว้เปิดเทียบ) */
 const VRPV=[['นครนายก',417201],['ปราจีนบุรี',430201],['สระแก้ว',440401],['สระบุรี',418000],['นครราชสีมา',431201],['บุรีรัมย์',436201]];
 const GVR_URL=BN_BASE.replace(/burn\/$/,'gfs_vr.json'),TMD_IMG='https://ozone.tmd.go.th/PM2.5/weather/Metgram/output/VR_daily/daily_VR_',TMD_URL='https://ozone.tmd.go.th/Daily_VR.html';
-let VR=null,VRQ=0,VRU=BLANK,VRCO=[[0,1],[1,1],[1,0],[0,0]],VRH=null,VRT=0,VRM=null,VRP=null; /* Open-Meteo: VRH = ห่างจากชั่วโมงปัจจุบันกี่ชั่วโมง (null = ตอนนี้) */
-let GV=null,GVP=null,VRD=null,VRGH=null,GVA=null; /* GFS: GV ข้อมูลที่ถอดแล้ว · VRD วันที่เลือก (null = วันนี้) · VRGH ลำดับชั่วโมง (null = ชั่วโมงปัจจุบัน) · GVA จุดสุ่มของแต่ละพื้นที่ */
+let VR=null,VRQ=0,VRU=BLANK,VRCO=[[0,1],[1,1],[1,0],[0,0]],VRT=0,VRM=null; /* VR = ผลดิบ Open-Meteo (ใช้บอกความสูงชั้นผสม/ลมพา) */
+/* ทั้งสองแหล่งแปลงเป็นชุดข้อมูลรูปเดียวกัน {x0,y0,d,dy,nx,ny,q,t[ms],V[ชั่วโมง][จุด],days,F} แล้วใช้หน้าจอ/ตาราง/กราฟชุดเดียวกัน (ผู้ใช้ขอ 14 พ.ย. 69)
+   GVG = GFS · GVO = Open-Meteo · GV = ชุดที่ใช้อยู่ตาม S.vrs */
+let GV=null,GVG=null,GVO=null,GVP=null,VRD=null,VRGH=null,GVA=null; /* VRD วันที่เลือก (null = วันนี้) · VRGH ลำดับชั่วโมง (null = ใกล้เวลานี้) · GVA จุดสุ่มของแต่ละพื้นที่ */
 const vrMode=()=>S.vrs==='om'?'om':'gfs';
+const gvSet=()=>{GV=vrMode()==='om'?GVO:GVG};
 const vrGm=()=>['mean','max','hr'].includes(S.vrg)?S.vrg:'mean';
 const vrN=v=>nf(Math.round(v/10)*10);
 const vrB=v=>{const c=VRC[vrCat(v)];return`<b style="color:${c[5]}">${vrN(v)} ${c[1]}</b>`};
@@ -6038,6 +6039,7 @@ function vrImg(x0,x1,y0,y1,at){const H=Math.min(512,Math.max(128,Math.round(256*
  const x=cv.getContext('2d'),im=x.createImageData(256,H),ya=mY(y1),yb=mY(y0);
  for(let py=0;py<H;py++){const la=iY(ya+(yb-ya)*(py+.5)/H);for(let px=0;px<256;px++){const v=at(x0+(x1-x0)*(px+.5)/256,la);if(v!=null)im.data.set(VRRGB[vrCat(v)],(py*256+px)*4)}}
  x.putImageData(im,0,0);VRU=cv.toDataURL();VRCO=[[x0,y1],[x1,y1],[x1,y0],[x0,y0]];const s=map.getSource('vr');s&&s.updateImage({url:VRU,coordinates:VRCO})}
+const vrClear=()=>{VRU=BLANK;const s=map.getSource('vr');s&&s.updateImage({url:BLANK,coordinates:VRCO})};
 /* ---------- Open-Meteo (คำนวณเอง รายชั่วโมง) ---------- */
 function vrCalc(p){const H=p.hourly,el=p.elevation||0,n=H.time.length,o={v:[],m:[],u:[],w:[]},R=Math.PI/180;
  const uv=(s,d)=>s==null||d==null?null:[-s*Math.sin(d*R),-s*Math.cos(d*R)]; /* ทิศลม = ทิศที่ลมพัดมา → เวกเตอร์ไปทางที่ลมพัดไป */
@@ -6049,59 +6051,36 @@ function vrCalc(p){const H=p.hourly,el=p.elevation||0,n=H.time.length,o={v:[],m:
   if(z0<T){su+=(T-z0)*u0;sv+=(T-z0)*v0}
   const mu=su/T,mv=sv/T;o.v.push(M*Math.hypot(mu,mv));o.m.push(M);o.u.push(mu);o.w.push(mv)}
  return o}
-const vrNow=()=>{if(!VR)return 0;const hr=new Date().toLocaleString('sv-SE',{timeZone:'Asia/Bangkok'}).slice(0,13).replace(' ','T')+':00';return Math.max(0,VR.t.indexOf(hr))};
-const vrHr=()=>VR?Math.max(0,Math.min(VR.t.length-1,vrNow()+(VRH||0))):0;
-const vrMs=h=>Date.parse(VR.t[h]+':00+07:00');
+/* ค่าความสูงชั้นผสม/ลมพา (Open-Meteo) ที่ชั่วโมง h — ใช้เสริมป๊อปอัป/ป้ายชี้เมาส์ */
 function vrAt(k,h,lo,la){const G=VR;if(!G)return null;const fx=(lo-G.x0)/G.dx,fy=(la-G.y0)/G.dy;if(fx<0||fy<0||fx>G.nx-1||fy>G.ny-1)return null;
  const i=Math.min(G.nx-2,Math.floor(fx)),j=Math.min(G.ny-2,Math.floor(fy)),a=fx-i,b=fy-j,g=(c,r)=>G.C[r*G.nx+c][k][h],q=[g(i,j),g(i+1,j),g(i,j+1),g(i+1,j+1)];
  if(q.some(x=>x==null))return null;return q[0]*(1-a)*(1-b)+q[1]*a*(1-b)+q[2]*(1-a)*b+q[3]*a*b}
-function vrInfo(h,lo,la){const v=vrAt('v',h,lo,la);if(v==null)return null;const u=vrAt('u',h,lo,la),w=vrAt('w',h,lo,la),s=Math.hypot(u,w);
- return{v,c:vrCat(v),m:vrAt('m',h,lo,la),s,to:s<.3?'':'ไปทางทิศ'+DIRN[Math.round(((Math.atan2(u,w)*180/Math.PI+360)%360)/45)%8]}}
-async function vrLoad(force){if(!S.vr||vrMode()!=='om')return;const b=map.getBounds(),W=b.getWest(),E=b.getEast(),So=b.getSouth(),N=b.getNorth(),sp=Math.max(.15,Math.max(E-W,N-So)/7);
+function vrInfo(h,lo,la){const m=vrAt('m',h,lo,la);if(m==null)return null;const u=vrAt('u',h,lo,la),w=vrAt('w',h,lo,la),s=Math.hypot(u,w);
+ return{m,s,to:s<.3?'':'ไปทางทิศ'+DIRN[Math.round(((Math.atan2(u,w)*180/Math.PI+360)%360)/45)%8]}}
+const vrMet=(k,lo,la)=>{if(vrMode()!=='om'||!VR)return'';const I=vrInfo(k,lo,la);return I?`ชั้นผสมอากาศ ${nf(Math.round(I.m/10)*10)} ม. · ลมพา ${nf(I.s,1)} ม./วินาที ${I.to}`:''};
+/* ตาราง ≤9×8 จุดในกรอบที่มองเห็น (ขยายขอบ 25%) ย้อนหลัง 24 ชม. + พยากรณ์ 10 วัน (240 ชม. เท่ากับ GFS) · ดึงใหม่เมื่อออกนอกกรอบ/ซูมเข้าจนหยาบ/เก่ากว่า 1 ชม. */
+async function vrLoad(force){if(!S.vr||vrMode()!=='om')return;const b=map.getBounds(),W=b.getWest(),E=b.getEast(),So=b.getSouth(),N=b.getNorth(),sp=Math.max(.15,Math.max(E-W,N-So)/6);
  if(!force&&VR&&W>=VR.x0&&E<=VR.x1&&So>=VR.y0&&N<=VR.y1&&VR.dx<=sp*1.6&&Date.now()-VR.at<60*6e4)return;
- const px=(E-W)*.25,py=(N-So)*.25,x0=W-px,x1=E+px,y0=Math.max(-80,So-py),y1=Math.min(80,N+py),nx=Math.min(10,Math.max(3,Math.ceil((x1-x0)/sp)+1)),ny=Math.min(9,Math.max(3,Math.ceil((y1-y0)/sp)+1)),
+ const px=(E-W)*.25,py=(N-So)*.25,x0=W-px,x1=E+px,y0=Math.max(-80,So-py),y1=Math.min(80,N+py),nx=Math.min(9,Math.max(3,Math.ceil((x1-x0)/sp)+1)),ny=Math.min(8,Math.max(3,Math.ceil((y1-y0)/sp)+1)),
   dx=(x1-x0)/(nx-1),dy=(y1-y0)/(ny-1),la=[],lo=[],q=++VRQ;
  for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){la.push((y0+j*dy).toFixed(3));lo.push((((x0+i*dx+540)%360)-180).toFixed(3))}
- vrSt('กำลังดึงข้อมูล…');
- try{const P=[];for(let i=0;i<la.length;i+=100){const j=await(await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la.slice(i,i+100).join(',')}&longitude=${lo.slice(i,i+100).join(',')}&hourly=${VRK}&wind_speed_unit=ms&past_hours=24&forecast_hours=72&timezone=Asia%2FBangkok`)).json();if(j.error)throw j.reason;P.push(...(Array.isArray(j)?j:[j]))}
-  if(q!==VRQ)return;VR={x0,x1,y0,y1,dx,dy,nx,ny,t:P[0].hourly.time,C:P.map(vrCalc),at:Date.now()};vrDraw()}
- catch(e){if(q===VRQ){vrSt('ดึงข้อมูลไม่ได้');toast('ดึงข้อมูลอัตราการระบายอากาศ (Open-Meteo) ไม่ได้')}}}
-function vrLab(h){const d=vrMs(h),n=h-vrNow();return new Date(d).toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short',timeZone:'Asia/Bangkok'})+' '+thTime(d)+' น.'+(n?n<0?` (ย้อนหลัง ${-n} ชม.)`:` (พยากรณ์ +${n} ชม.)`:' (ตอนนี้)')}
-function vrDraw(){if(vrMode()!=='om')return;vrLegend();if(VR)vrSt(`คำนวณจากแบบจำลอง Open-Meteo (~10–25 กม.) · ข้อมูล ${thTime(VR.at)} น. · ตาราง ${VR.nx}×${VR.ny} จุด · เกณฑ์กรมอุตุนิยมวิทยา`);if(!VR)return;
- const h=vrHr(),r=$('#vr-r');r.max=VR.t.length-1;r.value=h;tx('vr-v',vrLab(h));tx('vr-t',thTime(vrMs(h))+' น.');
- vrImg(VR.x0,VR.x1,VR.y0,VR.y1,(lo,la)=>vrAt('v',h,lo,la));vrChart()}
-/* จุดที่แสดงกราฟ = กลางพื้นที่แผนที่ที่มองเห็น (ไม่นับส่วนที่แผงบัง) */
-function vrPt(){try{const a=visArea();return map.unproject([(a.x0+a.x1)/2-a.m.left,(a.y0+a.y1)/2-a.m.top])}catch(e){return map.getCenter()}}
-function vrChart(){const g=$('#vr-g');if(!g)return;if(vrMode()==='gfs')return gvChart();if(!VR||!S.vr){g.innerHTML='';tx('vr-sm','');vrMark(null);return}
- const c=vrPt(),n=VR.t.length,V=VR.t.map((_,h)=>vrAt('v',h,c.lng,c.lat)),hs=vrHr(),now=vrNow();VRP=c;
- vrMark(c);
- let lb='รายชั่วโมงที่กลางแผนที่ (วงกลมบนแผนที่)';try{const a=admAt(c.lng,c.lat);if(a)lb=`รายชั่วโมงที่ ${admTxt(a,1)} (วงกลมกลางแผนที่)`}catch(e){}tx('vr-ch',lb);
- if(V.every(v=>v==null)){g.innerHTML='';tx('vr-sm','กลางแผนที่อยู่นอกตารางข้อมูล');return}
- const W=Math.round(g.clientWidth)||320,T=4,B=80,MX=20000,LV=[2000,4000,8000,16000],y=v=>B-(B-T)*Math.sqrt(Math.min(v,MX)/MX),bw=W/n;let s=`<svg viewBox="0 0 ${W} 104" width="${W}" height="104" role="img" aria-label="กราฟอัตราการระบายอากาศรายชั่วโมง">`;
- LV.forEach(l=>{s+=`<line x1="0" x2="${W}" y1="${y(l)}" y2="${y(l)}" stroke="#9aa1ad" stroke-width=".6" stroke-dasharray="3 2"/>`});
- V.forEach((v,h)=>{if(v==null)return;s+=`<rect x="${h*bw+.15}" y="${y(v)}" width="${Math.max(.3,bw-.3)}" height="${B-y(v)}" fill="${VRC[vrCat(v)][2]}"/>`});
- VR.t.forEach((t,h)=>{if(t.slice(11,13)==='00'){s+=`<line x1="${h*bw}" x2="${h*bw}" y1="${T}" y2="${B+14}" stroke="#6b7280" stroke-width=".8"/>`}
-  if(t.slice(11,13)==='12')s+=`<text x="${h*bw}" y="${B+12}" font-size="9" fill="#6b7280" text-anchor="middle">${new Date(vrMs(h)).toLocaleDateString('th-TH',{weekday:'short',day:'numeric',timeZone:'Asia/Bangkok'})}</text>`});
- s+=`<line x1="${(now+.5)*bw}" x2="${(now+.5)*bw}" y1="${T}" y2="${B}" stroke="#D93A1F" stroke-width="1.4"/>`;
- s+=`<rect x="${hs*bw}" y="${T-2}" width="${bw}" height="${B-T+2}" fill="rgba(27,42,94,.18)" stroke="#1B2A5E" stroke-width="1"/>`;
- LV.forEach(l=>{s+=`<text x="${W-2}" y="${y(l)-1.5}" font-size="8" fill="#6b7280" text-anchor="end">${nf(l)}</text>`});
- g.innerHTML=s+`<text x="2" y="${B+24}" font-size="8.5" fill="#6b7280">เส้นแดง = ตอนนี้ · แตะ/ลากบนกราฟเพื่อเลือกเวลา · ตร.ม./วินาที</text></svg>`;
- /* สรุปรายวัน 3 คอลัมน์: วัน | ช่วงชั่วโมงแรก–สุดท้ายที่ ≥2,000 (จำนวนชั่วโมง) | ค่าสูงสุด */
- const day=VR.t[now].slice(0,10),D={};VR.t.forEach((t,h)=>{const d=t.slice(0,10);if(d<day||V[h]==null)return;(D[d]=D[d]||[]).push(h)});
- const ds=Object.keys(D).sort(),tn=['วันนี้','พรุ่งนี้'];
- tx('vr-sm','<span>วัน</span><span>ช่วงที่ระบายได้ (≥2,000)</span><span>สูงสุด</span>'+ds.map((d,i)=>{const H=D[d];if(H.length<20&&i)return'';const ok=H.filter(h=>V[h]>=2000),mx=H.reduce((a,h)=>V[h]>V[a]?h:a,H[0]),c=VRC[vrCat(V[mx])];
-  const nm=tn[i]||new Date(vrMs(H[0])).toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short',timeZone:'Asia/Bangkok'}),a=ok.length&&VR.t[ok[0]].slice(11),z=ok.length&&VR.t[ok[ok.length-1]].slice(11);
-  return`<b>${nm}</b><span>`+(ok.length?(a===z?a+' น.':`${a}–${z} น.`)+` (${ok.length} ชม.)`:`<span style="color:${VRC[0][5]}">อากาศปิดทั้งวัน</span>`)+
-   `</span><span><span style="color:${c[5]};font-weight:600">${vrN(V[mx])}</span> ${VR.t[mx].slice(11)} น.</span>`}).join(''))}
+ vrSt('กำลังดึงข้อมูล Open-Meteo…');
+ try{const P=[];for(let i=0;i<la.length;i+=100){const j=await(await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la.slice(i,i+100).join(',')}&longitude=${lo.slice(i,i+100).join(',')}&hourly=${VRK}&wind_speed_unit=ms&past_hours=24&forecast_hours=240&timezone=Asia%2FBangkok`)).json();if(j.error)throw j.reason;P.push(...(Array.isArray(j)?j:[j]))}
+  if(q!==VRQ)return;VR={x0,x1,y0,y1,dx,dy,nx,ny,t:P[0].hourly.time,C:P.map(vrCalc),at:Date.now()};
+  const n=nx*ny,t=VR.t.map(s=>Date.parse(s+':00+07:00'));
+  GVO={om:1,x0,y0,d:dx,dy,nx,ny,q:1,c0:t[0],t,V:t.map((_,h)=>Float32Array.from(VR.C,c=>c.v[h]??0)),days:gvDays(t),F:{},at:VR.at};
+  gvSet();gvDraw()}
+ catch(e){if(q===VRQ){vrSt('ดึงข้อมูล Open-Meteo ไม่ได้');toast('ดึงข้อมูลอัตราการระบายอากาศ (Open-Meteo) ไม่ได้')}}}
 /* ---------- NOAA GFS (data/gfs_vr.json) ---------- */
-/* ถอด base64 → Uint8 ต่อชั่วโมง · วัน = วัน UTC (07:00–06:00 น. ไทย) แบบกรมอุตุฯ · ตัดวันที่มีน้อยกว่า 4 ค่า */
+/* วัน = วัน UTC (07:00–06:00 น. ไทย) แบบกรมอุตุฯ · ตัดวันที่ข้อมูลครอบไม่ถึง 12 ชม. (เช่นวันแรกของรอบ GFS 18Z มีแค่ 01:00–06:00 น. ค่าเฉลี่ยเป็น 0 ทำให้เข้าใจผิด) · part = เริ่มหลัง 07:00 น. หรือค่าสุดท้ายไม่ถึง 07:00 น. วันถัดไป */
+function gvDays(t){const D={};t.forEach((ms,k)=>{const d=new Date(ms).toISOString().slice(0,10);(D[d]=D[d]||[]).push(k)});
+ const sz=k=>k<t.length-1?t[k+1]-t[k]:t[k]-t[k-1],days=Object.keys(D).sort().map(d=>({d,k:D[d],st:Date.parse(d)})).filter(x=>x.k.length>=4&&x.k.reduce((a,k)=>a+sz(k),0)>=432e5);
+ days.forEach(x=>{const a=x.k[0],z=x.k[x.k.length-1];x.part=t[a]>x.st||t[z]+sz(z)<x.st+864e5});return days}
+/* ถอด base64 → Uint8 ต่อชั่วโมง (ค่า/100) */
 function gvPrep(j){const n=j.nx*j.ny,c0=Date.parse(j.cyc.replace('Z',':00Z')),V=j.v.map(s=>{const b=atob(s),a=new Uint8Array(n);for(let i=0;i<n;i++)a[i]=b.charCodeAt(i);return a});
- const t=j.h.map(h=>c0+h*36e5),D={};t.forEach((ms,k)=>{const d=new Date(ms).toISOString().slice(0,10);(D[d]=D[d]||[]).push(k)});
- const days=Object.keys(D).sort().map(d=>({d,k:D[d],st:Date.parse(d)})).filter(x=>x.k.length>=4);
- days.forEach(x=>{const a=x.k[0],z=x.k[x.k.length-1],sz=z<t.length-1?t[z+1]-t[z]:t[z]-t[z-1];x.part=t[a]>x.st||t[z]+sz<x.st+864e5}); /* ไม่ครบวัน = เริ่มหลัง 07:00 น. หรือค่าสุดท้ายไม่ถึง 07:00 น. วันถัดไป */
- return{...j,c0,V,t,days,F:{}}}
-const gvLoad=()=>GVP||(GVP=fetch(GVR_URL,{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{GV=gvPrep(j);GVA=null;return GV}).catch(e=>{GVP=null;throw e}));
-/* สนามค่าของวัน (mean/max) หรือชั่วโมง k — Float32 ตร.ม./วินาที, แคช */
+ const t=j.h.map(h=>c0+h*36e5);return{...j,c0,V,t,days:gvDays(t),F:{}}}
+const gvLoad=()=>GVP||(GVP=fetch(GVR_URL,{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{GVG=gvPrep(j);gvSet();return GVG}).catch(e=>{GVP=null;throw e}));
+/* สนามค่าของวัน (mean/max) หรือชั่วโมง k — Float32 ตร.ม./วินาที, แคชต่อชุดข้อมูล */
 function gvField(kind,i){const key=kind+i;if(GV.F[key])return GV.F[key];const n=GV.nx*GV.ny,f=new Float32Array(n);
  if(kind==='h'){const a=GV.V[i];for(let p=0;p<n;p++)f[p]=a[p]*GV.q}
  else{const K=GV.days[i].k;for(let p=0;p<n;p++){let s=0,m=0;for(const k of K){const v=GV.V[k][p];s+=v;if(v>m)m=v}f[p]=(kind==='mean'?s/K.length:m)*GV.q}}
@@ -6114,29 +6093,32 @@ const gvNowK=()=>{if(!GV)return 0;let b=0;GV.t.forEach((ms,k)=>{if(Math.abs(ms-D
 const gvK=()=>VRGH==null?gvNowK():Math.max(0,Math.min(GV.t.length-1,VRGH));
 const gvDay=()=>{if(!GV)return 0;if(vrGm()==='hr'){const d=new Date(GV.t[gvK()]).toISOString().slice(0,10),i=GV.days.findIndex(x=>x.d===d);return i<0?0:i}return Math.max(0,Math.min(GV.days.length-1,VRD??gvToday()))};
 const gvDate=(i,o)=>new Date(GV.days[i].st).toLocaleDateString('th-TH',Object.assign({timeZone:'UTC'},o||{weekday:'short',day:'numeric',month:'short'}));
-const gvRel=i=>{const d=i-gvToday();return d===0?'วันนี้':d===1?'พรุ่งนี้':''};
+const gvRel=i=>{const d=Math.round((GV.days[i].st-Date.parse(new Date().toISOString().slice(0,10)))/864e5);return d===0?'วันนี้':d===1?'พรุ่งนี้':d===-1?'เมื่อวาน':''}; /* เทียบวันจริง (วันแรกของ GFS อาจถูกตัด) */
 const gvCur=()=>vrGm()==='hr'?gvField('h',gvK()):gvField(vrGm(),gvDay());
+const gvX1=()=>GV.x0+(GV.nx-1)*GV.d,gvYs=()=>[Math.min(GV.y0,GV.y0+(GV.ny-1)*GV.dy),Math.max(GV.y0,GV.y0+(GV.ny-1)*GV.dy)];
 /* จุดสุ่มทุก 0.05° ภายในกลุ่มป่า (แนวเขตพื้นที่อนุรักษ์) และ 6 จังหวัด ใช้หาค่าเฉลี่ยพื้นที่ */
 function gvAreas(){if(GVA)return GVA;const L=(bb,inn)=>{const P=[];for(let x=Math.ceil(bb[0]/.05)*.05;x<=bb[2];x+=.05)for(let y=Math.ceil(bb[1]/.05)*.05;y<=bb[3];y+=.05)if(inn(x,y))P.push([x,y]);return P};
  const A=[['กลุ่มป่าฯ',null,L([100.9,13.8,103.2,14.7],(x,y)=>!!geoAt(x,y).cons)]];
  if(PRV)for(const[p,id]of VRPV){const f=PRV.pv.features.find(f=>f.properties.p===p);if(f)A.push([p,id,L(f.bb,(x,y)=>prvAt(x,y)===p)])}
  return GVA=PRV?A:(A.length=1,A)}
-const gvMean=(f,P)=>{let s=0,n=0;for(const[x,y]of P){const v=gvAt(f,x,y);if(v!=null){s+=v;n++}}return n?s/n:null};
-function gvDraw(){vrLegend();if(vrMode()!=='gfs')return;const box=$('#vr-dc');$('#vrbox').classList.toggle('ghr',vrGm()==='hr');$('#vrbox').classList.toggle('gch',vrGm()!=='mean');$$('#vr-gm button').forEach(b=>b.classList.toggle('on',b.dataset.v===vrGm()));
- if(!GV){box.innerHTML='';tx('vr-pt','');tx('vr-pth','');tx('vr-dv',S.vr?'กำลังโหลดข้อมูล GFS…':'–');return}
+/* ค่าเฉลี่ยพื้นที่ — ต้องมีข้อมูลครอบ ≥80% ของพื้นที่ (Open-Meteo มีเฉพาะกรอบที่มองเห็น) ไม่งั้น null */
+const gvMean=(f,P)=>{let s=0,n=0;for(const[x,y]of P){const v=gvAt(f,x,y);if(v!=null){s+=v;n++}}return n&&n>=P.length*.8?s/n:null};
+function gvDraw(){vrLegend();gvSet();const box=$('#vr-dc'),om=vrMode()==='om';$('#vrbox').classList.toggle('ghr',vrGm()==='hr');$('#vrbox').classList.toggle('gch',vrGm()!=='mean');$$('#vr-gm button').forEach(b=>b.classList.toggle('on',b.dataset.v===vrGm()));
+ if(!GV){box.innerHTML='';tx('vr-pt','');tx('vr-pth','');tx('vr-gg','');tx('vr-gs','');vrMark(null);tx('vr-dv',S.vr?(om?'กำลังดึงข้อมูล Open-Meteo…':'กำลังโหลดข้อมูล GFS…'):'–');return}
  const sel=gvDay(),gm=vrGm(),c0=new Date(GV.c0);
  box.innerHTML=GV.days.map((x,i)=>`<button class="chip${i===sel?' on':''}" data-i="${i}" title="${gvDate(i,{weekday:'long',day:'numeric',month:'long'})} 07:00 น. – 06:00 น. ของวันถัดไป${x.part?' (มีข้อมูลบางส่วน)':''}">${gvDate(i,{weekday:'short'})}<b>${gvDate(i,{day:'numeric'})}</b>${x.part?'<small>บางส่วน</small>':''}</button>`).join('');
  const on=box.querySelector('.on');if(on)box.scrollLeft=Math.max(0,on.offsetLeft-box.clientWidth/2+on.offsetWidth/2);
- let lab;if(gm==='hr'){const k=gvK(),r=$('#vr-gr');r.max=GV.t.length-1;r.value=k;lab=new Date(GV.t[k]).toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short',timeZone:'Asia/Bangkok'})+' '+thTime(GV.t[k])+' น.'+(k===gvNowK()?' (ใกล้เวลานี้)':'');tx('vr-t',thTime(GV.t[k])+' น.')}
+ let lab;if(gm==='hr'){const k=gvK(),r=$('#vr-gr');r.max=GV.t.length-1;r.value=k;lab=new Date(GV.t[k]).toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short',timeZone:'Asia/Bangkok'})+' '+thTime(GV.t[k])+' น.'+(k===gvNowK()?' (ใกล้เวลานี้)':GV.t[k]<Date.now()?' (ย้อนหลัง)':'');tx('vr-t',thTime(GV.t[k])+' น.')}
  else{const rl=gvRel(sel);lab=(gm==='mean'?'เฉลี่ย ':'สูงสุดของวัน ')+gvDate(sel,{weekday:'short',day:'numeric',month:'short'})+(rl?` (${rl})`:'')+' 07:00–06:00 น.';tx('vr-t',gvDate(sel,{day:'numeric',month:'short'}))}
  tx('vr-dv',lab);
- vrSt(`<a href="https://www.nco.ncep.noaa.gov/pmb/products/gfs/" target="_blank" rel="noopener">NOAA GFS</a> 0.25° (~27 กม.) รอบ ${c0.toLocaleDateString('th-TH',{day:'numeric',month:'short',timeZone:'Asia/Bangkok'})} ${thTime(c0)} น. (${GV.cyc.slice(11,13)}Z) · ตัวแปร VRATE ชุดเดียวกับที่<a href="${TMD_URL}" target="_blank" rel="noopener">กรมอุตุนิยมวิทยา</a>ใช้ (ค่าเฉลี่ยรายวันนับ 07:00–06:00 น. แบบกรมอุตุฯ) · ละเอียดทีละ 100 · ทุกชั่วโมงถึง 5 วัน หลังจากนั้นทุก 3 ชม. · ตรวจรอบใหม่วันละ 4 ครั้ง`);
+ vrSt(om?`คำนวณจากแบบจำลอง <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> (~10–25 กม.) = ความสูงชั้นผสมอากาศ × ลมพา · ตาราง ${GV.nx}×${GV.ny} จุด<b> เฉพาะบริเวณที่มองเห็น</b> (เลื่อนแผนที่แล้วดึงใหม่) · ย้อนหลัง 1 วัน + พยากรณ์ 10 วัน · ข้อมูล ${thTime(GV.at)} น. · เกณฑ์กรมอุตุนิยมวิทยา`
+  :`<a href="https://www.nco.ncep.noaa.gov/pmb/products/gfs/" target="_blank" rel="noopener">NOAA GFS</a> 0.25° (~27 กม.) รอบ ${c0.toLocaleDateString('th-TH',{day:'numeric',month:'short',timeZone:'Asia/Bangkok'})} ${thTime(c0)} น. (${GV.cyc.slice(11,13)}Z) · ตัวแปร VRATE ชุดเดียวกับที่<a href="${TMD_URL}" target="_blank" rel="noopener">กรมอุตุนิยมวิทยา</a>ใช้ (ค่าเฉลี่ยรายวันนับ 07:00–06:00 น. แบบกรมอุตุฯ) · ละเอียดทีละ 100 · ทุกชั่วโมงถึง 5 วัน หลังจากนั้นทุก 3 ชม. · ตรวจรอบใหม่วันละ 4 ครั้ง`);
  /* ภาพบนแผนที่ */
- const f=gvCur();vrImg(GV.x0,GV.x0+(GV.nx-1)*GV.d,Math.min(GV.y0,GV.y0+(GV.ny-1)*GV.dy),Math.max(GV.y0,GV.y0+(GV.ny-1)*GV.dy),(lo,la)=>gvAt(f,lo,la));
- /* ตาราง 10 วัน: กลุ่มป่า + จังหวัด (ค่าเฉลี่ยพื้นที่ของ mean หรือ max) */
- const A=gvAreas(),st=gm==='max'?'max':'mean';
- tx('vr-pth',`${st==='max'?'สูงสุดของวัน':'ค่าเฉลี่ยทั้งวัน'} เฉลี่ยทั้งพื้นที่ (พัน ตร.ม./วินาที) · แตะตัวเลข = เลือกวัน · แตะชื่อจังหวัด = กราฟของกรมอุตุฯ`);
- let s=`<div class="vrtb"><span></span>${GV.days.map((_,i)=>`<span class="h${i===sel?' on':''}" data-i="${i}">${gvDate(i,{day:'numeric'})}</span>`).join('')}`;
+ const f=gvCur(),Y=gvYs();vrImg(GV.x0,gvX1(),Y[0],Y[1],(lo,la)=>gvAt(f,lo,la));
+ /* ตาราง: กลุ่มป่า + จังหวัด (ค่าเฉลี่ยพื้นที่ของ mean หรือ max) */
+ const A=gvAreas(),st=gm==='max'?'max':'mean',nd=GV.days.length;
+ tx('vr-pth',`${st==='max'?'สูงสุดของวัน':'ค่าเฉลี่ยทั้งวัน'} เฉลี่ยทั้งพื้นที่ (พัน ตร.ม./วินาที) · แตะตัวเลข = เลือกวัน · แตะชื่อจังหวัด = กราฟของกรมอุตุฯ`+(om?' · Open-Meteo มีข้อมูลเฉพาะบริเวณที่มองเห็น พื้นที่ที่อยู่นอกกรอบเป็น –':''));
+ let s=`<div class="vrtb" style="grid-template-columns:62px repeat(${nd},1fr)"><span></span>${GV.days.map((_,i)=>`<span class="h${i===sel?' on':''}" data-i="${i}">${gvDate(i,{day:'numeric'})}</span>`).join('')}`;
  for(const[p,id,P]of A){s+=id?`<button data-p="${p}" data-id="${id}" title="เปิดกราฟพยากรณ์ 10 วันของกรมอุตุฯ (ค่าที่สถานีตรวจอากาศของจังหวัด)">${p}</button>`:`<span class="n" title="ค่าเฉลี่ยภายในแนวเขตพื้นที่อนุรักษ์ของกลุ่มป่า">${p}</span>`;
   GV.days.forEach((_,i)=>{const v=P.length?gvMean(gvField(st,i),P):null;if(v==null){s+='<span>–</span>';return}const c=VRC[vrCat(v)];
    s+=`<span class="c${i===sel?' on':''}" data-i="${i}" title="${p} ${gvDate(i)} · ${vrN(v)} ตร.ม./วินาที (${c[1]})" style="background:${c[2]};color:${vrCat(v)===1?'#3a2e00':'#fff'}">${v>=9950?Math.round(v/1000):(v/1000).toFixed(1)}</span>`})}
@@ -6144,23 +6126,25 @@ function gvDraw(){vrLegend();if(vrMode()!=='gfs')return;const box=$('#vr-dc');$(
 function tvPopChart(p,id){const u=`${TMD_IMG}${id}.png`;
  openModal(`อัตราการระบายอากาศ 10 วัน จ.${p} (กรมอุตุฯ)`,`<a href="${u}" target="_blank" rel="noopener"><img src="${u}?v=${Math.floor(Date.now()/36e5)}" alt="กราฟอัตราการระบายอากาศ 10 วัน จ.${p} จากกรมอุตุนิยมวิทยา" style="width:100%;height:auto;aspect-ratio:1000/600;border:1px solid var(--line);border-radius:8px;background:#f4f5f8" referrerpolicy="no-referrer" onerror="this.replaceWith('โหลดภาพไม่ได้ — แตะเพื่อเปิดที่เว็บกรมอุตุฯ')"></a>
   <p class="sm" style="margin-top:6px">ภาพต้นฉบับจาก<a href="${TMD_URL}" target="_blank" rel="noopener">กรมอุตุนิยมวิทยา ศูนย์โอโซนและรังสี</a> (แตะภาพเพื่อเปิดขนาดเต็ม) = ค่าเฉลี่ยรายวันของ GFS ที่สถานีตรวจอากาศของจังหวัด · ตารางในแผงนี้เป็นค่าเฉลี่ยทั้งจังหวัด ตัวเลขจึงต่างกันได้ · Poor = ไม่ดี, Fair = อ่อน, Good = ดี, Very Good = ดีมาก</p>`,true)}
+/* จุดที่แสดงกราฟ = กลางพื้นที่แผนที่ที่มองเห็น (ไม่นับส่วนที่แผงบัง) */
+function vrPt(){try{const a=visArea();return map.unproject([(a.x0+a.x1)/2-a.m.left,(a.y0+a.y1)/2-a.m.top])}catch(e){return map.getCenter()}}
 function vrMark(c){if(!c){if(VRM)VRM.remove(),VRM=null;return}if(!VRM){const e=document.createElement('div');e.className='vrpt';VRM=new maplibregl.Marker({element:e})}VRM.setLngLat(c).addTo(map)}
-/* GFS: กราฟรายชั่วโมง 10 วันของจุดกลางแผนที่ + สรุปรายวัน (แสดงในโหมดสูงสุดของวัน/รายชั่วโมง — ผู้ใช้ขอ 13 พ.ย. 69 ให้มีรายละเอียดเหมือน Open-Meteo)
-   แกนเวลาเป็นสัดส่วนจริง (แท่ง 3 ชม. หลังวันที่ 5 กว้างกว่า) · เส้นแบ่งวัน = 07:00 น. ตามวันของกรมอุตุฯ */
+/* กราฟรายชั่วโมงของจุดกลางแผนที่ + สรุปรายวัน (โหมดสูงสุดของวัน/รายชั่วโมง — ผู้ใช้ขอ 13 พ.ย. 69)
+   แกนเวลาเป็นสัดส่วนจริง (GFS หลังวันที่ 5 ทุก 3 ชม. แท่งกว้างกว่า) · เส้นแบ่งวัน = 07:00 น. ตามวันของกรมอุตุฯ */
 let GVX=null;
-function gvChart(){const g=$('#vr-gg');if(!g)return;if(!S.vr||!GV||vrMode()!=='gfs'||vrGm()==='mean'){g.innerHTML='';tx('vr-gs','');GVX=null;if(vrMode()==='gfs')vrMark(null);return}
+function gvChart(){const g=$('#vr-gg');if(!g)return;gvSet();if(!S.vr||!GV||vrGm()==='mean'){g.innerHTML='';tx('vr-gs','');GVX=null;vrMark(null);return}
  const c=vrPt();vrMark(c);
  let lb='รายชั่วโมงที่กลางแผนที่ (วงกลมบนแผนที่)';try{const a=admAt(c.lng,c.lat);if(a)lb=`รายชั่วโมงที่ ${admTxt(a,1)} (วงกลมกลางแผนที่)`}catch(e){}tx('vr-gch',lb);
  const T=GV.t,n=T.length,V=T.map((_,k)=>gvAt(gvField('h',k),c.lng,c.lat));
- if(V.every(v=>v==null)){g.innerHTML='';tx('vr-gs','กลางแผนที่อยู่นอกขอบเขตข้อมูล GFS (ประเทศไทย)');GVX=null;return}
+ if(V.every(v=>v==null)){g.innerHTML='';tx('vr-gs',GV.om?'กำลังดึงข้อมูลบริเวณนี้…':'กลางแผนที่อยู่นอกขอบเขตข้อมูล GFS (ประเทศไทย)');GVX=null;return}
  const st=k=>k<n-1?T[k+1]-T[k]:T[k]-T[k-1],t0=T[0],t1=T[n-1]+st(n-1),W=Math.round(g.clientWidth)||320,TT=4,B=80,MX=20000,LV=[2000,4000,8000,16000],
   y=v=>B-(B-TT)*Math.sqrt(Math.min(v,MX)/MX),X=ms=>(ms-t0)/(t1-t0)*W,gm=vrGm(),sel=gvDay(),D=GV.days[sel];GVX={t0,t1};
- let s=`<svg viewBox="0 0 ${W} 104" width="${W}" height="104" role="img" aria-label="กราฟอัตราการระบายอากาศรายชั่วโมงจาก GFS">`;
+ let s=`<svg viewBox="0 0 ${W} 104" width="${W}" height="104" role="img" aria-label="กราฟอัตราการระบายอากาศรายชั่วโมง">`;
  if(gm==='max')s+=`<rect x="${X(D.st)}" y="${TT-2}" width="${X(D.st+864e5)-X(D.st)}" height="${B-TT+2}" fill="rgba(27,42,94,.10)"/>`;
  LV.forEach(l=>{s+=`<line x1="0" x2="${W}" y1="${y(l)}" y2="${y(l)}" stroke="#9aa1ad" stroke-width=".6" stroke-dasharray="3 2"/>`});
  V.forEach((v,k)=>{if(v==null)return;const a=X(T[k]);s+=`<rect x="${a+.1}" y="${y(v)}" width="${Math.max(.5,X(T[k]+st(k))-a-.2)}" height="${B-y(v)}" fill="${VRC[vrCat(v)][2]}"/>`});
  GV.days.forEach((d,i)=>{s+=`<line x1="${X(d.st)}" x2="${X(d.st)}" y1="${TT}" y2="${B+14}" stroke="#6b7280" stroke-width=".8"/>`;
-  if(d.st+432e5<t1)s+=`<text x="${X(d.st+432e5)}" y="${B+12}" font-size="9" fill="${i===sel?'#1B2A5E':'#6b7280'}" font-weight="${i===sel?700:400}" text-anchor="middle">${gvDate(i,{day:'numeric'})}</text>`});
+  if(d.st+432e5<t1&&d.st+432e5>t0)s+=`<text x="${X(d.st+432e5)}" y="${B+12}" font-size="9" fill="${i===sel?'#1B2A5E':'#6b7280'}" font-weight="${i===sel?700:400}" text-anchor="middle">${gvDate(i,{day:'numeric'})}</text>`});
  const now=Date.now();if(now>t0&&now<t1)s+=`<line x1="${X(now)}" x2="${X(now)}" y1="${TT}" y2="${B}" stroke="#D93A1F" stroke-width="1.4"/>`;
  const mk=k=>{const a=X(T[k]);return`<rect x="${a-.5}" y="${TT-2}" width="${Math.max(2,X(T[k]+st(k))-a)+1}" height="${B-TT+2}" fill="rgba(27,42,94,.18)" stroke="#1B2A5E" stroke-width="1"/>`};
  if(gm==='hr')s+=mk(gvK());else{const k=D.k.reduce((a,k)=>(V[k]??-1)>(V[a]??-1)?k:a,D.k[0]);s+=mk(k)}
@@ -6172,7 +6156,7 @@ function gvChart(){const g=$('#vr-gg');if(!g)return;if(!S.vr||!GV||vrMode()!=='g
   const rl=gvRel(i),nm=(rl?rl+' ':'')+gvDate(i,rl?{day:'numeric',month:'short'}:undefined)+(d.part?'*':''),a=ok.length&&thTime(T[ok[0]]),z=ok.length&&thTime(T[ok[ok.length-1]]);
   return`<b${on} data-i="${i}" style="cursor:pointer">${nm}</b><span${on}>`+(ok.length?(a===z?a+' น.':`${a}–${z} น.`)+` (${hr} ชม.)`:`<span style="color:${VRC[0][5]}">อากาศปิดทั้งวัน</span>`)+
    `</span><span${on}><span style="color:${c[5]};font-weight:600">${vrN(V[mx])}</span> ${thTime(T[mx])} น.</span>`}).join('')+
-  (GV.days.some(d=>d.part)?'<span style="grid-column:1/-1;color:var(--mut);font-size:10.5px">* มีข้อมูลไม่ครบทั้งวัน (ต้นหรือท้ายรอบพยากรณ์) · หลังวันที่ 5 ค่าทุก 3 ชม. ช่วงเวลาจึงหยาบกว่า</span>':'<span style="grid-column:1/-1;color:var(--mut);font-size:10.5px">หลังวันที่ 5 ค่าทุก 3 ชม. ช่วงเวลาจึงหยาบกว่า</span>'))}
+  `<span style="grid-column:1/-1;color:var(--mut);font-size:10.5px">${GV.days.some(d=>d.part)?'* มีข้อมูลไม่ครบทั้งวัน (ต้นหรือท้ายช่วงข้อมูล)'+(GV.om?'':' · '):''}${GV.om?'':'หลังวันที่ 5 ค่าทุก 3 ชม. ช่วงเวลาจึงหยาบกว่า'}</span>`)}
 {const g=$('#vr-gg');let dn=false;const pick=e=>{if(!GV||!GVX)return;const r=g.getBoundingClientRect();if(!r.width)return;const ms=GVX.t0+(e.clientX-r.left)/r.width*(GVX.t1-GVX.t0);
   if(vrGm()==='hr'){let k=0;GV.t.forEach((t,i)=>{if(t<=ms)k=i});if(k!==gvK())gvGo(k)}else{const i=GV.days.findIndex(d=>ms>=d.st&&ms<d.st+864e5);if(i>=0&&i!==gvDay())gvPick(i)}};
  g.addEventListener('pointerdown',e=>{if(!g.firstChild)return;dn=true;try{g.setPointerCapture(e.pointerId)}catch(_){}pick(e)});
@@ -6181,46 +6165,38 @@ function gvChart(){const g=$('#vr-gg');if(!g)return;if(!S.vr||!GV||vrMode()!=='g
 function vrLayer(){if(!map.getSource('cons'))return;const bef=typeof wxBef==='function'?wxBef():undefined;
  if(!map.getSource('vr')){map.addSource('vr',{type:'image',url:VRU,coordinates:VRCO});map.addLayer({id:'vr-f',type:'raster',source:'vr',paint:{'raster-fade-duration':0}},bef)}
  map.setLayoutProperty('vr-f','visibility',S.vr?'visible':'none')}
-function vrApply(){const bx=$('#vrbox');if(!bx)return;const m=vrMode();bx.hidden=!S.vr;bx.classList.toggle('gfs',m==='gfs');bx.classList.toggle('om',m==='om');
+function vrApply(){const bx=$('#vrbox');if(!bx)return;const m=vrMode();bx.hidden=!S.vr;gvSet();
  $$('#vrsrc button').forEach(b=>b.classList.toggle('on',b.dataset.v===m));vrLegend();try{vrLayer()}catch(e){}
- if(!S.vr){vrChart();tx('vr-t','');return}
- if(m==='om'){VRU=BLANK;if(VR)vrDraw();else{const s=map.getSource('vr');s&&s.updateImage({url:BLANK,coordinates:VRCO})}vrLoad();vrChart();admLoad().then(vrChart).catch(()=>{});return}
- gvDraw();
- gvLoad().then(()=>{gvDraw();return prvLoad().then(()=>{GVA=null;gvDraw()})}).catch(e=>{vrSt('โหลดข้อมูล GFS ไม่ได้ ('+esc(e.message||e)+')');tx('vr-dv','โหลดข้อมูลไม่ได้')})}
+ if(!S.vr){vrMark(null);tx('vr-t','');return}
+ if(!GV)vrClear();gvDraw();admLoad().then(()=>gvChart()).catch(()=>{});
+ prvLoad().then(()=>{if(GVA&&GVA.length<2)GVA=null;gvDraw()}).catch(()=>{});
+ if(m==='om'){vrLoad();return}
+ gvLoad().then(()=>gvDraw()).catch(e=>{vrSt('โหลดข้อมูล GFS ไม่ได้ ('+esc(e.message||e)+')');tx('vr-dv','โหลดข้อมูลไม่ได้')})}
 /* บรรทัดในป๊อปอัปแตะแผนที่ (เฉพาะเมื่อเปิดชั้นนี้ ไม่ดึงข้อมูลเพิ่ม) */
-function vrPop(lo,la){if(!S.vr)return'';
- if(vrMode()==='gfs'){if(!GV)return'';const i=gvDay(),mn=gvAt(gvField('mean',i),lo,la);if(mn==null)return'';const K=GV.days[i].k;let bk=K[0],bv=-1;for(const k of K){const v=gvAt(gvField('h',k),lo,la);if(v>bv){bv=v;bk=k}}
-  const hv=vrGm()==='hr'?gvAt(gvField('h',gvK()),lo,la):null,rl=gvRel(i),c=VRC[vrCat(vrGm()==='max'?bv:mn)];
-  return`<div class="sm" style="margin:0 0 4px"><b>ระบายอากาศ</b> (GFS) ${gvDate(i,{day:'numeric',month:'short'})}${rl?' ('+rl+')':''}`+(hv!=null?`<br>${thTime(GV.t[gvK()])} น. ${vrB(hv)}`:'')+
-   `<br>เฉลี่ยทั้งวัน ${vrB(mn)} · สูงสุด ${vrB(bv)} ${thTime(GV.t[bk])} น.<br>${c[4]}</div>`}
- if(!VR)return'';const h=vrHr(),I=vrInfo(h,lo,la);if(!I)return'';const now=h===vrNow();
- const d=VR.t[h].slice(0,10),H=VR.t.map((t,i)=>i).filter(i=>VR.t[i].slice(0,10)===d),mx=H.reduce((a,i)=>{const v=vrAt('v',i,lo,la);return v!=null&&v>a[1]?[i,v]:a},[-1,-1]);
- return`<div class="sm" style="margin:0 0 4px"><b>ระบายอากาศ</b>${now?'':' ('+thTime(vrMs(h))+' น.)'} ${vrB(I.v)} ตร.ม./วินาที<br>ชั้นผสมอากาศ ${nf(Math.round(I.m/10)*10)} ม. · ลมพา ${nf(I.s,1)} ม./วินาที ${I.to}`+
-  (mx[0]>=0?`<br>วันนั้นสูงสุด ${vrN(mx[1])} (${VRC[vrCat(mx[1])][1]}) ${VR.t[mx[0]].slice(11)} น.`:'')+'</div>'}
-const vrGo=h=>{if(!VR)return;h=Math.max(0,Math.min(VR.t.length-1,h));VRH=h===vrNow()?null:h-vrNow();vrDraw()};
+function vrPop(lo,la){if(!S.vr)return'';gvSet();if(!GV)return'';const i=gvDay(),mn=gvAt(gvField('mean',i),lo,la);if(mn==null)return'';
+ const K=GV.days[i].k;let bk=K[0],bv=-1;for(const k of K){const v=gvAt(gvField('h',k),lo,la);if(v>bv){bv=v;bk=k}}
+ const hr=vrGm()==='hr',hk=hr?gvK():bk,hv=hr?gvAt(gvField('h',hk),lo,la):null,rl=gvRel(i),c=VRC[vrCat(vrGm()==='max'?bv:hr?hv:mn)],met=vrMet(hk,lo,la);
+ return`<div class="sm" style="margin:0 0 4px"><b>ระบายอากาศ</b> (${GV.om?'Open-Meteo':'GFS'}) ${gvDate(i,{day:'numeric',month:'short'})}${rl?' ('+rl+')':''}`+(hr?`<br>${thTime(GV.t[hk])} น. ${vrB(hv)}`:'')+
+  `<br>เฉลี่ยทั้งวัน ${vrB(mn)} · สูงสุด ${vrB(bv)} ${thTime(GV.t[bk])} น.`+(met?`<br>${met} (${thTime(GV.t[hk])} น.)`:'')+`<br>${c[4]}</div>`}
 const gvGo=k=>{if(!GV)return;k=Math.max(0,Math.min(GV.t.length-1,k));VRGH=k===gvNowK()?null:k;gvDraw()};
-$('#vr-r').oninput=e=>vrGo(+e.target.value);$('#vr-pv').onclick=()=>vrGo(vrHr()-1);$('#vr-nx').onclick=()=>vrGo(vrHr()+1);
-$('#vr-0').onclick=()=>{VRH=null;vrDraw()};
 $('#vr-gr').oninput=e=>gvGo(+e.target.value);$('#vr-gp').onclick=()=>gvGo(gvK()-1);$('#vr-gn').onclick=()=>gvGo(gvK()+1);
 $('#vr-g0').onclick=()=>{VRD=null;VRGH=null;gvDraw()};
-$('#vrsrc').onclick=e=>{const b=e.target.closest('button');if(!b||b.dataset.v===vrMode())return;S.vrs=b.dataset.v;$('#tip').style.display='none';tx('vr-t','');vrApply()};
+$('#vrsrc').onclick=e=>{const b=e.target.closest('button');if(!b||b.dataset.v===vrMode())return;S.vrs=b.dataset.v;$('#tip').style.display='none';tx('vr-t','');VRGH=null;VRD=null;vrApply()};
 $('#vr-gm').onclick=e=>{const b=e.target.closest('button');if(!b||!GV)return;const d=gvDay();S.vrg=b.dataset.v;
  if(S.vrg==='hr'){const K=GV.days[d].k,nk=gvNowK();VRGH=K.includes(nk)?null:K.reduce((a,k)=>Math.abs(new Date(GV.t[k]).getUTCHours()-7)<Math.abs(new Date(GV.t[a]).getUTCHours()-7)?k:a,K[0])}else VRD=d===gvToday()?null:d; /* รายชั่วโมงของวันที่เลือก: เริ่มที่ 14:00 น. (07Z) */
  gvDraw()};
 const gvPick=i=>{if(!GV)return;if(vrGm()==='hr'){const K=GV.days[i].k,h=new Date(GV.t[gvK()]).getUTCHours();VRGH=K.reduce((a,k)=>Math.abs(new Date(GV.t[k]).getUTCHours()-h)<Math.abs(new Date(GV.t[a]).getUTCHours()-h)?k:a,K[0]);if(VRGH===gvNowK())VRGH=null}else VRD=i===gvToday()?null:i;gvDraw()};
 $('#vr-dc').onclick=e=>{const b=e.target.closest('[data-i]');if(b)gvPick(+b.dataset.i)};
 $('#vr-pt').onclick=e=>{const p=e.target.closest('[data-p]');if(p)return tvPopChart(p.dataset.p,p.dataset.id);const c=e.target.closest('[data-i]');if(c)gvPick(+c.dataset.i)};
-{const g=$('#vr-g');let dn=false;const pick=e=>{if(!VR)return;const r=g.getBoundingClientRect();if(!r.width)return;vrGo(Math.floor((e.clientX-r.left)/r.width*VR.t.length))};
- g.addEventListener('pointerdown',e=>{if(!g.firstChild)return;dn=true;try{g.setPointerCapture(e.pointerId)}catch(_){}pick(e)});
- g.addEventListener('pointermove',e=>{if(dn)pick(e)});addEventListener('pointerup',()=>{dn=false})}
-addEventListener('resize',()=>{if(S.vr)vrChart()});
-map.on('moveend',()=>{if(!S.vr)return;clearTimeout(VRT);VRT=setTimeout(()=>{if(vrMode()==='om')vrLoad();vrChart()},vrMode()==='om'?600:150)});
-setInterval(()=>{if(!S.vr||document.hidden)return;if(vrMode()==='om'){vrLoad();if(VR)vrDraw()}else if(GV&&Date.now()-Date.parse(GV.upd||0)>3*36e5){GVP=null;gvLoad().then(gvDraw).catch(()=>{})}else if(GV)gvDraw()},10*6e4); /* om: ข้อมูลใหม่เมื่อเก่ากว่า 1 ชม. · gfs: โหลดไฟล์ใหม่เมื่อเก่ากว่า 3 ชม. */
-map.on('mousemove',e=>{if(!S.vr)return;const t=$('#tip'),lo=e.lngLat.lng,la=e.lngLat.lat;let s='';
- if(vrMode()==='gfs'){if(!GV)return;const v=gvAt(gvCur(),lo,la);if(v==null)return;const gm=vrGm();
-  s=`ระบายอากาศ ${vrN(v)} ตร.ม./วินาที (${VRC[vrCat(v)][1]}) · `+(gm==='hr'?thTime(GV.t[gvK()])+' น.':(gm==='mean'?'เฉลี่ยทั้งวัน ':'สูงสุดของวัน ')+gvDate(gvDay(),{day:'numeric',month:'short'}))+' · GFS'}
- else{if(!VR)return;const I=vrInfo(vrHr(),lo,la);if(!I)return;s=`ระบายอากาศ ${vrN(I.v)} ตร.ม./วินาที (${VRC[I.c][1]}) · ชั้นผสมอากาศ ${nf(Math.round(I.m/10)*10)} ม. · ลมพา ${nf(I.s,1)} ม./วินาที ${I.to} · ${thTime(vrMs(vrHr()))} น. (ค่าประมาณ)`}
- t.textContent=s;t.style.display='block';t.style.left=e.originalEvent.clientX+14+'px';t.style.top=e.originalEvent.clientY+14+'px'});
+addEventListener('resize',()=>{if(S.vr)gvChart()});
+map.on('moveend',()=>{if(!S.vr)return;clearTimeout(VRT);const om=vrMode()==='om';VRT=setTimeout(()=>{if(om)vrLoad();gvChart()},om?600:150)});
+setInterval(()=>{if(!S.vr||document.hidden)return;if(vrMode()==='om')vrLoad();else if(GVG&&Date.now()-Date.parse(GVG.upd||0)>3*36e5){GVP=null;gvLoad().then(gvDraw).catch(()=>{})}if(GV)gvDraw()},10*6e4); /* om: ข้อมูลใหม่เมื่อเก่ากว่า 1 ชม. · gfs: โหลดไฟล์ใหม่เมื่อเก่ากว่า 3 ชม. */
+map.on('mousemove',e=>{if(!S.vr)return;gvSet();if(!GV)return;const t=$('#tip'),lo=e.lngLat.lng,la=e.lngLat.lat,v=gvAt(gvCur(),lo,la);if(v==null)return;const gm=vrGm(),met=gm==='hr'?vrMet(gvK(),lo,la):'';
+ t.textContent=`ระบายอากาศ ${vrN(v)} ตร.ม./วินาที (${VRC[vrCat(v)][1]}) · `+(gm==='hr'?thTime(GV.t[gvK()])+' น.':(gm==='mean'?'เฉลี่ยทั้งวัน ':'สูงสุดของวัน ')+gvDate(gvDay(),{day:'numeric',month:'short'}))+(met?' · '+met:'')+' · '+(GV.om?'Open-Meteo':'GFS');
+ t.style.display='block';t.style.left=e.originalEvent.clientX+14+'px';t.style.top=e.originalEvent.clientY+14+'px'});
+/* ป้ายค่าที่ชี้เมาส์ (#tip) หายเมื่อเมาส์ออกจากแผนที่หรือเข้าแผง/การ์ดที่ลอยทับแผนที่ (ผู้ใช้แจ้ง 14 พ.ย. 69 ว่าค้างบังแผงข้อมูล) */
+map.on('mouseout',()=>{$('#tip').style.display='none'});
+document.addEventListener('pointerover',e=>{const t=$('#tip');if(t.style.display!=='none'&&!e.target.closest('.maplibregl-canvas-container'))t.style.display='none'},true);
 try{vrApply()}catch(e){}
 </script>
 
