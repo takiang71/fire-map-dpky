@@ -111,7 +111,7 @@ function fwiBlock(fw, now) {
       'เที่ยงวัน ' + [x.t != null ? Math.round(x.t) + '°C' : '', x.rh != null ? 'ชื้น ' + Math.round(x.rh) + '%' : '', x.ws != null ? 'ลม ' + Math.round(x.ws) + ' กม./ชม.' : '', x.pr != null ? 'ฝน ' + x.pr + ' มม.' : ''].filter(Boolean).join(' '),
       { size: 'xxs', color: '#1D3557', wrap: true, margin: 'xs' })];
 }
-// pm = PM2.5 แบบจำลอง CAMS ของกลุ่มป่า วันนี้–2 วันข้างหน้า (scripts/lib/camssum.js จาก data/cams_pm.json — line_notify ส่งมาเฉพาะสรุปประจำวัน; Worker ไม่ส่ง · ผู้ใช้ขอ 14 พ.ย. 69)
+// pm = PM2.5 แบบจำลอง CAMS ของกลุ่มป่า วันนี้–2 วันข้างหน้า (scripts/lib/camssum.js จาก data/cams_grid.json — line_notify ส่งมาเฉพาะสรุปประจำวัน; Worker ไม่ส่ง · ผู้ใช้ขอ 14 พ.ย. 69)
 // สีพื้นตามระดับ AQI ของกรมควบคุมมลพิษ (ค่าเฉลี่ย 24 ชม.: ≤15 ดีมาก / ≤25 ดี / ≤37.5 ปานกลาง / ≤75 เริ่มมีผลกระทบ / >75 มีผลกระทบ)
 const PMK = [['ดีมาก', '#3BCCFF', '#00384D'], ['ดี', '#92D050', '#1F3A00'], ['ปานกลาง', '#FFE600', '#3A3300'], ['เริ่มมีผลฯ', '#FFA200', '#3A2000'], ['มีผลกระทบ', '#F04646', '#FFFFFF']];
 const pmF = v => v == null ? '–' : v < 10 ? v.toFixed(1) : String(Math.round(v));

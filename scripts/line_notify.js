@@ -70,7 +70,7 @@ async function quotaOk() {
   const vrs = () => { try { return require('./lib/vrsum').vrSummary(now) } catch (e) { return null } };
   // ดัชนีอันตรายไฟป่า FWI ของกลุ่มป่า วันนี้/พรุ่งนี้ (TFDRS กรมป่าไม้, data/fwi/index.json) — เฉพาะสรุปประจำวัน (ผู้ใช้ขอ 14 พ.ย. 69)
   const fws = () => { try { return require('./lib/fwisum').fwiSummary(now) } catch (e) { return null } };
-  // PM2.5 แบบจำลอง CAMS ของกลุ่มป่า วันนี้–2 วันข้างหน้า (Copernicus/ECMWF, data/cams_pm.json จาก sync_cams) — เฉพาะสรุปประจำวัน (ผู้ใช้ขอ 14 พ.ย. 69)
+  // PM2.5 แบบจำลอง CAMS ของกลุ่มป่า วันนี้–2 วันข้างหน้า (Copernicus/ECMWF, data/cams_grid.json จาก sync_cams) — เฉพาะสรุปประจำวัน (ผู้ใช้ขอ 14 พ.ย. 69)
   const pms = () => { try { return require('./lib/camssum').camsSummary(now) } catch (e) { return null } };
   const msg = (fresh, q, daily = false) => carousel({ live, sum, fresh, site: SITE, now, daily, orb: daily ? orb() : null, vr: daily ? vrs() : null, fwi: daily ? fws() : null, pm: daily ? pms() : null, quotaLeft: q && isFinite(q.left) ? Math.max(0, Math.floor((q.left - q.members) / q.members)) : null });
   if (process.argv.includes('--validate')) {
