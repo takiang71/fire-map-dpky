@@ -137,6 +137,12 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
   };
   // ดาวเทียมรอบถัดไปที่แถบสแกนผ่านกลุ่มป่า (ทุกรอบรวมขอบแถบ) 24 ชม. ข้างหน้า — บรรทัดในสรุปประจำวัน (ผู้ใช้ขอ 13 พ.ย. 69)
   const orb = () => { try { return require('./lib/orbit').next(JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'tle.json'), 'utf8')), now, 24) } catch (e) { return null } };
+  // อัตราการระบายอากาศของกลุ่มป่า 5 วัน (NOAA GFS) — บรรทัดในสรุปประจำวัน เหมือนการ์ด LINE (ผู้ใช้ขอ 14 พ.ย. 69)
+  const vrLines = () => { let V; try { V = require('./lib/vrsum') } catch (e) { return [] } const R = V.vrSummary(now); if (!R) return [];
+    const nf = v => v.toLocaleString('en-US'), dl = d => { const x = new Date(d.st); return x.getUTCDate() + ' ' + ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'][x.getUTCMonth()] };
+    const f = R.days[0], lab = f.d === new Date(now + 7 * 36e5).toISOString().slice(0, 10) ? 'วันนี้' : dl(f);
+    return [`🌫 อัตราระบายอากาศ กลุ่มป่า (สูงสุดของวัน ตร.ม./วินาที): ${R.days.map(d => `${dl(d)} <b>${nf(d.max)}</b> ${V.vrLevel(d.max)}`).join(' · ')}`,
+      `   ${lab}: ${f.a ? `ระบายได้ (≥2,000) ${hm(f.a)}–${hm(f.z)} น.` : 'อากาศปิดทั้งวัน ไม่ควรเผา'} · เฉลี่ยทั้งวัน ${nf(f.mean)} (${V.vrLevel(f.mean)}) · NOAA GFS เกณฑ์กรมอุตุฯ`] };
   const dailyMsg = (strict = false) => {
     const text = fit(per => [
       `📋 <b>สรุปประจำวัน ${dateTh(now)}</b>`,
@@ -144,6 +150,7 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
       `🕐 จุดใน 24 ชม.: <b>${h24.length}</b> จุด`,
       ...(sum && sum.ind ? [`🛰 ดาวเทียมตัวชี้วัด: ${esc(sum.ind)}`] : []),
       ...(() => { const O = orb(); return O ? [`🛰 ดาวเทียมรอบถัดไป: ${O.length ? O.slice(0, 4).map(p => esc(require('./lib/orbit').label(p, now))).join(' · ') + ' น.' : 'ไม่มีรอบที่ผ่านกลางแถบสแกนใน 24 ชม.'}`] : [] })(),
+      ...vrLines(),
       ...(sum ? ['', ...areaTable(new Set(h24.map(f => AREAS.some(a => a.k === f.properties._ar) ? f.properties._ar : OUTA)), '24 ชม.')] : []),
       ...(all.fy ? [`📍 พบมากสุด: ${tops(all)}`] : []),
       ...(h24.length ? ['', '<b>จุดใน 24 ชม.</b>', `<blockquote expandable>${list(byNew(h24), per * 2, true).join('\n')}</blockquote>`] : []),

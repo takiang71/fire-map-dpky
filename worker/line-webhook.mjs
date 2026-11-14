@@ -84,7 +84,20 @@ export function carousel(o) {
 }
 // daily = สรุปประจำวันที่ line_notify.js push เข้ากลุ่ม (เปลี่ยนแค่หัวการ์ดและ altText)
 // orb = รอบที่ดาวเทียมผ่านกลุ่มป่า 24 ชม. ข้างหน้า (scripts/lib/orbit.js next() — line_notify ส่งมาเฉพาะสรุปประจำวัน; Worker ไม่ส่ง)
-function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaLeft = null, per = 4, test = false, daily = false, orb = null }) {
+// vr = อัตราการระบายอากาศของกลุ่มป่า 5 วัน (scripts/lib/vrsum.js จาก NOAA GFS — line_notify ส่งมาเฉพาะสรุปประจำวัน; Worker ไม่ส่ง · ผู้ใช้ขอ 14 พ.ย. 69)
+// เกณฑ์/สีตามกรมอุตุฯ แบบเดียวกับหน้าเว็บ (VRC ใน index.html) · สีใน Flex ต้อง #RRGGBB เต็ม
+const VRK = [[16000, 'ดีที่สุด', '#1C1C96', '#FFFFFF'], [8000, 'ดีมาก', '#3B6EE8', '#FFFFFF'], [4000, 'ดี', '#2F9E44', '#FFFFFF'], [2000, 'อ่อน', '#F5C800', '#3A2E00'], [0, 'ไม่ดี', '#FF3300', '#FFFFFF']];
+const vrK = v => VRK.find(c => v >= c[0]);
+const MONS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+function vrBlock(vr, now) {
+  const D = vr.days, nf = v => v.toLocaleString('en-US'), dl = d => { const x = new Date(d.st); return x.getUTCDate() + ' ' + MONS[x.getUTCMonth()] };
+  const today = new Date(now + 7 * 36e5).toISOString().slice(0, 10), f = D[0], k = vrK(f.mean), lab = f.d === today ? 'วันนี้' : dl(f);
+  return [sub('อัตราระบายอากาศ กลุ่มป่า · สูงสุดของวัน (ตร.ม./วินาที)'),
+    B('horizontal', D.map(d => { const c = vrK(d.max); return B('vertical', [T(dl(d), { size: 'xxs', align: 'center', color: c[3] }), T(nf(d.max), { size: 'xs', weight: 'bold', align: 'center', color: c[3] })],
+      { flex: 1, backgroundColor: c[2], cornerRadius: 'md', paddingAll: '3px' }) }), { spacing: 'xs', margin: 'xs' }),
+    T(lab + ': ' + (f.a ? 'ระบายได้ (≥2,000) ' + hm(f.a) + '–' + hm(f.z) + ' น.' : 'อากาศปิดทั้งวัน ไม่ควรเผา') + ' · เฉลี่ยทั้งวัน ' + nf(f.mean) + ' (' + k[1] + ') · NOAA GFS เกณฑ์กรมอุตุฯ', { size: 'xxs', color: '#1D3557', wrap: true, margin: 'xs' })];
+}
+function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaLeft = null, per = 4, test = false, daily = false, orb = null, vr = null }) {
   const alert = !!fresh;
   const pts = (live && live.features || []).filter(f => f.properties && !excluded(f.properties)), h24 = pts.filter(f => now - thMs(f.properties.full_date) < 24 * 36e5);
   const nw = (fresh || []).filter(f => !excluded(f.properties)), list = alert ? nw : h24;
@@ -116,6 +129,7 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
       B('horizontal', [tile(h24.length, 'จุดใน 24 ชม.'), tile(all.pfull, `ทั้งปีงบ ${fy - 1}`, BLUE), tile(ind.replace('Suomi ', ''), 'ดาวเทียมตัวชี้วัด', '#444444')], { spacing: 'sm', margin: 'sm' }),
       B('horizontal', [topTile('pv'), topTile('am'), topTile('tm')], { spacing: 'sm', margin: 'sm' }),
       ...(orb ? [T(`🛰 ดาวเทียมรอบถัดไป: ${orb.length ? orb.slice(0, 4).map(p => orbLab(p, now)).join(' · ') + ' น.' : 'ไม่มีรอบที่ผ่านกลางแถบสแกนใน 24 ชม.'}`, { size: 'xxs', color: '#1D3557', wrap: true, margin: 'sm' })] : []),
+      ...(vr && vr.days && vr.days.length ? vrBlock(vr, now) : []),
       sub('รายพื้นที่ (สะสมปีงบ)', [[RED, String(fy)], [BLUE, `${fy - 1} ทั้งปี`]]),
       ...rows.map(([n, v, c]) => { const [t, tc] = dPct(v.fy, v.pfull);
         return B('horizontal', [
