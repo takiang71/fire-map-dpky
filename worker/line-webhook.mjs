@@ -111,7 +111,21 @@ function fwiBlock(fw, now) {
       'เที่ยงวัน ' + [x.t != null ? Math.round(x.t) + '°C' : '', x.rh != null ? 'ชื้น ' + Math.round(x.rh) + '%' : '', x.ws != null ? 'ลม ' + Math.round(x.ws) + ' กม./ชม.' : '', x.pr != null ? 'ฝน ' + x.pr + ' มม.' : ''].filter(Boolean).join(' '),
       { size: 'xxs', color: '#1D3557', wrap: true, margin: 'xs' })];
 }
-function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaLeft = null, per = 4, test = false, daily = false, orb = null, vr = null, fwi = null }) {
+// pm = PM2.5 แบบจำลอง CAMS ของกลุ่มป่า วันนี้–2 วันข้างหน้า (scripts/lib/camssum.js จาก data/cams_pm.json — line_notify ส่งมาเฉพาะสรุปประจำวัน; Worker ไม่ส่ง · ผู้ใช้ขอ 14 พ.ย. 69)
+// สีพื้นตามระดับ AQI ของกรมควบคุมมลพิษ (ค่าเฉลี่ย 24 ชม.: ≤15 ดีมาก / ≤25 ดี / ≤37.5 ปานกลาง / ≤75 เริ่มมีผลกระทบ / >75 มีผลกระทบ)
+const PMK = [['ดีมาก', '#3BCCFF', '#00384D'], ['ดี', '#92D050', '#1F3A00'], ['ปานกลาง', '#FFE600', '#3A3300'], ['เริ่มมีผลฯ', '#FFA200', '#3A2000'], ['มีผลกระทบ', '#F04646', '#FFFFFF']];
+const pmF = v => v == null ? '–' : v < 10 ? v.toFixed(1) : String(Math.round(v));
+function pmBlock(pm, now) {
+  const D = pm.days, today = new Date(now + 7 * 36e5).toISOString().slice(0, 10), x = D[0];
+  const dl = d => { const y = new Date(Date.parse(d.d)); return (d.d === today ? 'วันนี้ ' : '') + y.getUTCDate() + ' ' + MONS[y.getUTCMonth()] };
+  return [sub('PM2.5 กลุ่มป่า · เฉลี่ย 24 ชม. µg/m³ (แบบจำลอง CAMS)'),
+    B('horizontal', D.map(d => { const c = PMK[d.c]; return B('vertical', [T(dl(d), { size: 'xxs', align: 'center', color: c[2] }),
+      T(pmF(d.mean) + ' ' + c[0], { size: 'xs', weight: 'bold', align: 'center', color: c[2] }), T('สูงสุด ' + pmF(d.pk), { size: 'xxs', align: 'center', color: c[2] })],
+      { flex: 1, backgroundColor: c[1], cornerRadius: 'md', paddingAll: '3px' }) }), { spacing: 'xs', margin: 'xs' }),
+    T('วันนี้: ' + x.parks.filter(p => p[1] != null).map(p => p[0] + ' ' + pmF(p[1])).join(' · ') + ' · สูงสุด ' + pmF(x.pk) + ' (' + hm(x.pkT) + ' น. ' + x.pkN + ') · ค่าแบบจำลอง ไม่ใช่ค่าตรวจวัด',
+      { size: 'xxs', color: '#1D3557', wrap: true, margin: 'xs' })];
+}
+function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaLeft = null, per = 4, test = false, daily = false, orb = null, vr = null, fwi = null, pm = null }) {
   const alert = !!fresh;
   const pts = (live && live.features || []).filter(f => f.properties && !excluded(f.properties)), h24 = pts.filter(f => now - thMs(f.properties.full_date) < 24 * 36e5);
   const nw = (fresh || []).filter(f => !excluded(f.properties)), list = alert ? nw : h24;
@@ -145,6 +159,7 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
       ...(orb ? [T(`🛰 ดาวเทียมรอบถัดไป: ${orb.length ? orb.slice(0, 4).map(p => orbLab(p, now)).join(' · ') + ' น.' : 'ไม่มีรอบที่ผ่านกลางแถบสแกนใน 24 ชม.'}`, { size: 'xxs', color: '#1D3557', wrap: true, margin: 'sm' })] : []),
       ...(vr && vr.days && vr.days.length ? vrBlock(vr, now) : []),
       ...(fwi && fwi.days && fwi.days.length ? fwiBlock(fwi, now) : []),
+      ...(pm && pm.days && pm.days.length ? pmBlock(pm, now) : []),
       sub('รายพื้นที่ (สะสมปีงบ)', [[RED, String(fy)], [BLUE, `${fy - 1} ทั้งปี`]]),
       ...rows.map(([n, v, c]) => { const [t, tc] = dPct(v.fy, v.pfull);
         return B('horizontal', [
