@@ -143,6 +143,12 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
     const f = R.days[0], lab = f.d === new Date(now + 7 * 36e5).toISOString().slice(0, 10) ? 'วันนี้' : dl(f);
     return [`🌫 อัตราระบายอากาศ กลุ่มป่า (สูงสุดของวัน ตร.ม./วินาที): ${R.days.map(d => `${dl(d)} <b>${nf(d.max)}</b> ${V.vrLevel(d.max)}`).join(' · ')}`,
       `   ${lab}: ${f.a ? `ระบายได้ (≥2,000) ${hm(f.a)}–${hm(f.z)} น.` : 'อากาศปิดทั้งวัน ไม่ควรเผา'} · เฉลี่ยทั้งวัน ${nf(f.mean)} (${V.vrLevel(f.mean)}) · NOAA GFS เกณฑ์กรมอุตุฯ`] };
+  // ดัชนีอันตรายไฟป่า FWI ของกลุ่มป่า วันนี้/พรุ่งนี้ (TFDRS กรมป่าไม้) — บรรทัดในสรุปประจำวัน เหมือนการ์ด LINE (ผู้ใช้ขอ 14 พ.ย. 69)
+  const fwLines = () => { let F; try { F = require('./lib/fwisum') } catch (e) { return [] } const R = F.fwiSummary(now); if (!R) return [];
+    const today = new Date(now + 7 * 36e5).toISOString().slice(0, 10), x = R.days[0], ic = ['🟢', '🟡', '🟠', '🔴', '🟤'];
+    const dl = d => { const y = new Date(Date.parse(d.d)); return (d.d === today ? 'วันนี้ ' : '') + y.getUTCDate() + ' ' + ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'][y.getUTCMonth()] };
+    return [`🔥 ดัชนีอันตรายไฟป่า FWI กลุ่มป่า (เฉลี่ย · กรมป่าไม้): ${R.days.map(d => `${dl(d)} ${ic[d.c]} <b>${d.mean.toFixed(1)}</b> ${F.FWN[d.c]} (สูงสุด ${d.max.toFixed(1)})`).join(' · ')}`,
+      `   วันนี้: ${x.hi > 0 ? `ระดับสูงขึ้นไป ${x.hi}% ของพื้นที่ · ` : ''}${x.top ? `มากสุด ${x.top.n} ${x.top.v.toFixed(1)} · ` : ''}เที่ยงวัน ${[x.t != null ? Math.round(x.t) + '°C' : '', x.rh != null ? 'ชื้น ' + Math.round(x.rh) + '%' : '', x.ws != null ? 'ลม ' + Math.round(x.ws) + ' กม./ชม.' : '', x.pr != null ? 'ฝน ' + x.pr + ' มม.' : ''].filter(Boolean).join(' ')}`] };
   const dailyMsg = (strict = false) => {
     const text = fit(per => [
       `📋 <b>สรุปประจำวัน ${dateTh(now)}</b>`,
@@ -151,6 +157,7 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
       ...(sum && sum.ind ? [`🛰 ดาวเทียมตัวชี้วัด: ${esc(sum.ind)}`] : []),
       ...(() => { const O = orb(); return O ? [`🛰 ดาวเทียมรอบถัดไป: ${O.length ? O.slice(0, 4).map(p => esc(require('./lib/orbit').label(p, now))).join(' · ') + ' น.' : 'ไม่มีรอบที่ผ่านกลางแถบสแกนใน 24 ชม.'}`] : [] })(),
       ...vrLines(),
+      ...fwLines(),
       ...(sum ? ['', ...areaTable(new Set(h24.map(f => AREAS.some(a => a.k === f.properties._ar) ? f.properties._ar : OUTA)), '24 ชม.')] : []),
       ...(all.fy ? [`📍 พบมากสุด: ${tops(all)}`] : []),
       ...(h24.length ? ['', '<b>จุดใน 24 ชม.</b>', `<blockquote expandable>${list(byNew(h24), per * 2, true).join('\n')}</blockquote>`] : []),

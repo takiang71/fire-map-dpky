@@ -97,7 +97,21 @@ function vrBlock(vr, now) {
       { flex: 1, backgroundColor: c[2], cornerRadius: 'md', paddingAll: '3px' }) }), { spacing: 'xs', margin: 'xs' }),
     T(lab + ': ' + (f.a ? 'ระบายได้ (≥2,000) ' + hm(f.a) + '–' + hm(f.z) + ' น.' : 'อากาศปิดทั้งวัน ไม่ควรเผา') + ' · เฉลี่ยทั้งวัน ' + nf(f.mean) + ' (' + k[1] + ') · NOAA GFS เกณฑ์กรมอุตุฯ', { size: 'xxs', color: '#1D3557', wrap: true, margin: 'xs' })];
 }
-function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaLeft = null, per = 4, test = false, daily = false, orb = null, vr = null }) {
+// fwi = ดัชนีอันตรายไฟป่า FWI ของกลุ่มป่า วันนี้/พรุ่งนี้ (scripts/lib/fwisum.js จาก TFDRS กรมป่าไม้ — line_notify ส่งมาเฉพาะสรุปประจำวัน; Worker ไม่ส่ง · ผู้ใช้ขอ 14 พ.ย. 69)
+// สี 5 ระดับเดียวกับหน้าเว็บ (FWC ใน index.html)
+const FWK = [['ต่ำ', '#2EC670', '#0B3D20'], ['ปานกลาง', '#F1C95B', '#3A2E00'], ['สูง', '#F07800', '#FFFFFF'], ['สูงมาก', '#FF2424', '#FFFFFF'], ['รุนแรงมาก', '#710E0E', '#FFFFFF']];
+function fwiBlock(fw, now) {
+  const D = fw.days, today = new Date(now + 7 * 36e5).toISOString().slice(0, 10), x = D[0];
+  const dl = d => { const y = new Date(Date.parse(d.d)); return (d.d === today ? 'วันนี้ ' : '') + y.getUTCDate() + ' ' + MONS[y.getUTCMonth()] };
+  return [sub('ดัชนีอันตรายไฟป่า FWI กลุ่มป่า · ค่าเฉลี่ย (กรมป่าไม้)'),
+    B('horizontal', D.map(d => { const c = FWK[d.c]; return B('vertical', [T(dl(d), { size: 'xxs', align: 'center', color: c[2] }),
+      T(d.mean.toFixed(1) + ' ' + c[0], { size: 'xs', weight: 'bold', align: 'center', color: c[2] }), T('สูงสุด ' + d.max.toFixed(1) + (d.cx > d.c ? ' (' + FWK[d.cx][0] + ')' : ''), { size: 'xxs', align: 'center', color: c[2] })],
+      { flex: 1, backgroundColor: c[1], cornerRadius: 'md', paddingAll: '3px' }) }), { spacing: 'xs', margin: 'xs' }),
+    T('วันนี้: ' + (x.hi > 0 ? 'ระดับสูงขึ้นไป ' + x.hi + '% ของพื้นที่ · ' : '') + (x.top ? 'มากสุด ' + x.top.n + ' ' + x.top.v.toFixed(1) + ' · ' : '') +
+      'เที่ยงวัน ' + [x.t != null ? Math.round(x.t) + '°C' : '', x.rh != null ? 'ชื้น ' + Math.round(x.rh) + '%' : '', x.ws != null ? 'ลม ' + Math.round(x.ws) + ' กม./ชม.' : '', x.pr != null ? 'ฝน ' + x.pr + ' มม.' : ''].filter(Boolean).join(' '),
+      { size: 'xxs', color: '#1D3557', wrap: true, margin: 'xs' })];
+}
+function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaLeft = null, per = 4, test = false, daily = false, orb = null, vr = null, fwi = null }) {
   const alert = !!fresh;
   const pts = (live && live.features || []).filter(f => f.properties && !excluded(f.properties)), h24 = pts.filter(f => now - thMs(f.properties.full_date) < 24 * 36e5);
   const nw = (fresh || []).filter(f => !excluded(f.properties)), list = alert ? nw : h24;
@@ -130,6 +144,7 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
       B('horizontal', [topTile('pv'), topTile('am'), topTile('tm')], { spacing: 'sm', margin: 'sm' }),
       ...(orb ? [T(`🛰 ดาวเทียมรอบถัดไป: ${orb.length ? orb.slice(0, 4).map(p => orbLab(p, now)).join(' · ') + ' น.' : 'ไม่มีรอบที่ผ่านกลางแถบสแกนใน 24 ชม.'}`, { size: 'xxs', color: '#1D3557', wrap: true, margin: 'sm' })] : []),
       ...(vr && vr.days && vr.days.length ? vrBlock(vr, now) : []),
+      ...(fwi && fwi.days && fwi.days.length ? fwiBlock(fwi, now) : []),
       sub('รายพื้นที่ (สะสมปีงบ)', [[RED, String(fy)], [BLUE, `${fy - 1} ทั้งปี`]]),
       ...rows.map(([n, v, c]) => { const [t, tc] = dPct(v.fy, v.pfull);
         return B('horizontal', [
