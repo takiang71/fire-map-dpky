@@ -316,7 +316,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 .aq{display:flex;gap:12px;align-items:center}.aqs{width:74px;height:66px;border-radius:14px;display:grid;place-items:center;align-content:center;flex:none}.aqs small{font-size:11px;font-weight:600}.aqs b{font-size:28px;line-height:1}
 .wxr{display:flex;gap:10px;align-items:center}.wxr .tb{flex:1;grid-template-columns:48% 52%;font-size:12px}
 .cream{background:#fff7e0;border-radius:14px;padding:10px;margin-top:8px;color:#1d2433}.cap{color:#fff;font-weight:800;font-size:12px;border-radius:99px;padding:2px 10px;white-space:nowrap}
-.fwt{display:grid;grid-template-columns:1.5fr 1fr 1fr .8fr 1.2fr 1.8fr;gap:4px 2px;font-size:10.5px;align-items:center}.fwt em{font-style:normal;color:#fff;font-weight:800;border-radius:99px;padding:1px 6px;white-space:nowrap}
+.fwt{display:grid;grid-template-columns:1.5fr 1.9fr 1fr .8fr .9fr .9fr;gap:4px 2px;font-size:10.5px;align-items:center}.fwt em{font-style:normal;color:#fff;font-weight:800;border-radius:99px;padding:1px 6px;white-space:nowrap}
 .gb{display:none}#grab{touch-action:none}
 @media(max-width:767px){.gb{display:block;width:44px;height:5px;border-radius:3px;background:#b8bdcc;margin:0 auto;padding:10px 0;background-clip:content-box;min-height:24px;touch-action:none;flex:none}}
 [hidden]{display:none!important}
@@ -523,7 +523,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 /* ชั้นสภาพอากาศ Windy ใต้ canvas แผนที่ (#wyl) + แถบควบคุมลอย (#wyb) */
 #wyl{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:#dfe4ea}#wyl iframe{position:absolute;border:0;transform-origin:50% 50%}
 #map.wyi .maplibregl-canvas-container,#map.wyi .maplibregl-canvas{pointer-events:none}#map.wyi #wyl{pointer-events:auto}
-.tag.wylv{background:#e3f6ea;color:#18794e;font-weight:700}
+
 .wyc{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px}.wyc button,.wyb-c button{border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:5px 11px;font-size:12.5px;white-space:nowrap}
 .wyc button[aria-pressed=true],.wyb-c button[aria-pressed=true]{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:600}
 .wyo{display:flex;justify-content:space-between;font-size:12.5px;margin-top:8px}#wyl-o{width:100%;accent-color:var(--navy)}
@@ -816,7 +816,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
    <div class="vrc vrt"><div class="sm" id="vr-pth"></div><div id="vr-pt"></div></div>
    <details class="vrad"><summary>เกณฑ์และคำแนะนำการเผาในที่โล่ง (กรมอุตุฯ)</summary><div id="vr-ad"></div></details>
    <p class="note" style="margin-left:0"><span id="vr-st"></span></p></div>
-  <div class="row" data-tip="ภาพพยากรณ์จาก Windy.com (ECMWF) ลม ฝน อุณหภูมิ ความชื้น ซ้อนใต้แนวเขตและจุดความร้อน · เหมาะดูภาพรวมและพยากรณ์ล่วงหน้า (แผนที่เต็มจอพยากรณ์ได้ ~10 วัน) · ระหว่างเปิดชั้นนี้ซูมใกล้ได้จำกัดตาม Windy และภาพนี้ไม่ขึ้นในรายงาน/พิมพ์แผนที่ · เลือกควบคุมด้วย Windy ในแถบด้านล่างเพื่อแตะดูค่าบนภาพ"><svg class="i" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 10-3-3M3 12h16a3 3 0 11-3 3M3 16h7"/></svg><b>พยากรณ์อากาศ Windy</b><span class="tag wylv">LIVE</span><button class="sw" data-k="wyl" role="switch" aria-label="ชั้นสภาพอากาศ Windy"></button></div>
+  <div class="row" data-tip="ภาพพยากรณ์จาก Windy.com (ECMWF) ลม ฝน อุณหภูมิ ความชื้น ซ้อนใต้แนวเขตและจุดความร้อน · เหมาะดูภาพรวมและพยากรณ์ล่วงหน้า (แผนที่เต็มจอพยากรณ์ได้ ~10 วัน) · ระหว่างเปิดชั้นนี้ซูมใกล้ได้จำกัดตาม Windy และภาพนี้ไม่ขึ้นในรายงาน/พิมพ์แผนที่ · เลือกควบคุมด้วย Windy ในแถบด้านล่างเพื่อแตะดูค่าบนภาพ"><svg class="i" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 10-3-3M3 12h16a3 3 0 11-3 3M3 16h7"/></svg><b>พยากรณ์อากาศ Windy</b><button class="sw" data-k="wyl" role="switch" aria-label="ชั้นสภาพอากาศ Windy"></button></div>
   <div id="wylbox" hidden><div class="wyc" id="wyl-c" role="group" aria-label="เลือกชั้นสภาพอากาศ"></div>
    <div class="seg" id="wyl-t" role="group" aria-label="เวลาพยากรณ์"><button data-v="now">ตอนนี้</button><button data-v="12">+12 ชม.</button><button data-v="24">+24 ชม.</button></div>
    <div class="wyo"><span>ความเข้มของชั้นสภาพอากาศ</span><b id="wyl-ov">60%</b></div><input type="range" id="wyl-o" min="20" max="100" step="5" value="60" aria-label="ความเข้มของชั้นสภาพอากาศ">
@@ -895,14 +895,14 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
    <button class="tl" id="d-eq">ข้อสมการและหลักการวิทยาศาสตร์</button><div class="eq" id="eq" hidden></div>
    <div class="sm" style="margin-top:8px">ผลจำลองเป็นค่าประมาณจากแบบจำลอง ไม่ใช่ข้อมูลทางการ ห้ามใช้เป็นเกณฑ์เดียวในการตัดสินใจภาคสนาม</div>
   </div>
-  <div class="dh"><b>ฝุ่น PM2.5 / AQI</b><div class="seg" id="dseg" style="width:130px;margin:0"><button data-v="aqi">AQI</button><button data-v="pm">PM2.5</button></div></div>
-  <div class="aq"><div class="aqs" id="aq-b"><small>AQI</small><b id="aq-n">–</b></div><div><b id="aq-l" style="font-size:18px"></b><div class="sm" id="aq-s"></div></div></div>
+  <div class="dh"><b>ฝุ่น PM2.5</b><span class="sm">เกณฑ์กรมควบคุมมลพิษ</span></div>
+  <div class="aq"><div class="aqs" id="aq-b"><small>PM2.5</small><b id="aq-n">–</b></div><div><b id="aq-l" style="font-size:18px"></b><div class="sm" id="aq-s"></div></div></div>
   <div class="row sub" style="margin-left:0;min-height:30px"><span>แบบจำลอง CAMS</span><em id="aq-c" style="font-style:normal"></em></div><div class="sm" id="aq-h"></div>
   <div class="dh"><b>สภาพอากาศตอนนี้</b></div>
   <div class="wxr"><svg viewBox="0 0 100 100" width="118" height="118" aria-label="เข็มทิศลม"><circle cx="50" cy="50" r="44" fill="none" stroke="#c9cedb" stroke-width="1.500"/><g font-size="9" fill="#6b7280" text-anchor="middle"><text x="50" y="14">N</text><text x="89" y="53">E</text><text x="50" y="94">S</text><text x="11" y="53">W</text></g><g id="ar"><path d="M50 22V36M45 28L50 21L55 28" fill="none" stroke="#1B2A5E" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round"/></g><text x="50" y="56" text-anchor="middle" font-size="22" font-weight="800" fill="#1B2A5E" id="ws">–</text><text x="50" y="68" text-anchor="middle" font-size="8" fill="#6b7280">กม./ชม.</text></svg><div class="tb" id="wxt"></div></div>
   <div class="wh"><div style="display:flex;justify-content:space-between;font-size:12.5px"><span>ความแห้งของอากาศ (VPD)</span><b id="vp"></b></div><div class="bar"><i id="vp-b"></i></div><div class="sm" id="vp-t"></div></div>
-  <div class="cream"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="font-size:13px">ดัชนีอันตรายไฟป่าตอนนี้ (CBI)</b><span class="cap" id="fw-c"></span></div><div class="sm" id="fw-d" style="margin:6px 0"></div><div class="fwt" id="fw-t"></div><div class="sm" id="fw-tf" style="margin-top:6px"></div></div>
-  <div class="sm" style="margin:8px 0">ค่าจากแบบจำลอง (Open-Meteo) · ดัชนีอันตรายไฟป่าคำนวณตามสมการ Chandler Burning Index (CBI) ร่วมกับความเร็วลมและฝนสะสม · ลมในตารางพยากรณ์ = ความเร็วสูงสุดรายวัน</div>
+  <div class="cream"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="font-size:13px">ดัชนีอันตรายไฟป่า FWI วันนี้</b><span class="cap" id="fw-c"></span></div><div class="sm" id="fw-d" style="margin:6px 0"></div><div class="fwt" id="fw-t"></div><div class="sm" id="fw-tf" style="margin-top:6px"></div></div>
+  <div class="sm" style="margin:8px 0">สภาพอากาศตอนนี้และ VPD จากแบบจำลอง Open-Meteo · ดัชนีอันตรายไฟป่า FWI System จากระบบ TFDRS กรมป่าไม้ (ค่าเที่ยงวัน เกณฑ์ปรับเทียบสำหรับประเทศไทย · * = พยากรณ์)</div>
   <div class="dh"><b>ค่าตรวจวัดจากสถานีกรมอุตุฯ ใกล้สุด</b></div><div id="tm-d"></div>
   <div style="text-align:center;padding-bottom:6px"><a class="tl" style="display:inline;margin:0 10px" id="d-cp2" role="button" tabindex="0">คัดลอกพิกัด</a><a class="tl" style="display:inline;margin:0 10px" id="d-go2" role="button" tabindex="0">นำทางด้วย Google Maps</a></div>
   <div style="display:none"></div></div>
@@ -1636,11 +1636,13 @@ map.on('click',e=>{
  const uh=typeof ulHit==='function'?ulHit(e):null;if(uh&&uh.done)return; // ชั้นข้อมูลของผู้ใช้: หมุด/เส้น = ป๊อปอัปของวัตถุ, พื้นที่ = บรรทัดบนสุดของป๊อปอัปตำแหน่ง
  const g0=geoAt(e.lngLat.lng,e.lngLat.lat);
  const{lat,lng}=e.lngLat,ll=lat.toFixed(5)+', '+lng.toFixed(5);
- const pop=new maplibregl.Popup({maxWidth:'270px'}).setLngLat(e.lngLat).setHTML(`${uh?uh.html:''}${wchHtml(e.lngLat)}${areaHtml(g0)}${bnAt(e.lngLat)}${rpAt(e.lngLat)}<span class="pft"></span><b>พิกัด</b> ${ll}<br><div class="sm pw" style="margin:4px 0">กำลังดึงสภาพอากาศ…</div>${typeof vrPop==='function'?vrPop(lng,lat):''}${typeof fwPop==='function'?fwPop(lng,lat):''}${typeof cmPop==='function'?cmPop(lng,lat):''}<span class="sm pt0">กำลังหาชื่อตำบล…</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}">นำทางด้วย Google Maps</a>`).addTo(map);if(uh)uh.bind(pop);
+ const FPH=typeof fwPop==='function'?fwPop(lng,lat):''; /* เปิดชั้น FWI = แสดงครบทุกดัชนี ไม่งั้นบรรทัด FWI/FFMC สั้น (.pfw) */
+ const pop=new maplibregl.Popup({maxWidth:'270px'}).setLngLat(e.lngLat).setHTML(`${uh?uh.html:''}${wchHtml(e.lngLat)}${areaHtml(g0)}${bnAt(e.lngLat)}${rpAt(e.lngLat)}<span class="pft"></span><b>พิกัด</b> ${ll}<br><div class="sm pw" style="margin:4px 0">กำลังดึงสภาพอากาศ…</div>${typeof vrPop==='function'?vrPop(lng,lat):''}${FPH||'<div class="sm pfw" style="margin:0 0 4px"></div>'}${typeof cmPop==='function'?cmPop(lng,lat):''}<span class="sm pt0">กำลังหาชื่อตำบล…</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}">นำทางด้วย Google Maps</a>`).addTo(map);if(uh)uh.bind(pop);
+ if(!FPH&&typeof fwQuick==='function')fwQuick(lng,lat).then(x=>{const el=pop.getElement()&&pop.getElement().querySelector('.pfw');if(el){if(x)el.innerHTML=x;else el.remove()}}).catch(()=>{const el=pop.getElement()&&pop.getElement().querySelector('.pfw');if(el)el.remove()});
  ftLoad().then(()=>{const f=ftAt(lng,lat),el=pop.getElement()&&pop.getElement().querySelector('.pft');if(el&&f)el.innerHTML='<b>ชนิดป่า</b> '+ftTxt(f)+'<br>'}).catch(()=>{});
  admLoad().then(()=>{const a=admAt(lng,lat),el=pop.getElement()&&pop.getElement().querySelector('.pt0');if(el){const p=a?null:prvAt(lng,lat);el.innerHTML=a?'<b>'+esc(admTxt(a,1))+'</b>':p?'<b>จ.'+esc(p)+'</b>':'นอกขอบเขตข้อมูลตำบล'}}).catch(()=>{const el=pop.getElement()&&pop.getElement().querySelector('.pt0');if(el)el.textContent='โหลดชื่อตำบลไม่ได้'});
- fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,precipitation&wind_speed_unit=kmh`).then(r=>r.json()).then(j=>{const c=j.current,f=cbi(c.temperature_2m,c.relative_humidity_2m,c.wind_speed_10m,c.precipitation||0),l=fwiLv(f),el=pop.getElement().querySelector('.pw');
-  if(el)el.innerHTML=`${nf(c.temperature_2m,1)} °C · ความชื้น ${Math.round(c.relative_humidity_2m)}%<br>ลมจากทิศ${DIRN[Math.round(c.wind_direction_10m/45)%8]} ${Math.round(c.wind_speed_10m)} กม./ชม.<br>สูง ${Math.round(j.elevation)} ม. · ไฟป่า CBI <b style="color:${DK[l]}">${nf(f,1)} ${DN[l]}</b>`}).catch(()=>{const el=pop.getElement()&&pop.getElement().querySelector('.pw');if(el)el.textContent='ดึงสภาพอากาศไม่ได้'})});
+ fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,precipitation&wind_speed_unit=kmh`).then(r=>r.json()).then(j=>{const c=j.current,el=pop.getElement().querySelector('.pw');
+  if(el)el.innerHTML=`${nf(c.temperature_2m,1)} °C · ความชื้น ${Math.round(c.relative_humidity_2m)}%<br>ลมจากทิศ${DIRN[Math.round(c.wind_direction_10m/45)%8]} ${Math.round(c.wind_speed_10m)} กม./ชม.<br>สูง ${Math.round(j.elevation)} ม.`}).catch(()=>{const el=pop.getElement()&&pop.getElement().querySelector('.pw');if(el)el.textContent='ดึงสภาพอากาศไม่ได้'})});
 
 
 /* ================= เฟส 2: แบบจำลองไฟป่า + แผงรายละเอียด ================= */
@@ -1904,14 +1906,16 @@ function wgSet(h){if(!WX||!WX.v.ws||!WX.v.wd){WG=null;return}const n=WX.nx*WX.ny
 function wAnim(){const wo=wOn();$('#wbox').hidden=!wo;wc.style.display=wo?'':'none';cancelAnimationFrame(raf);wx2.clearRect(0,0,wc.width,wc.height);
  if(wo){wsz();if(!WP.length)WP=Array.from({length:650},()=>{const p={};wseed(p);return p});if(WG&&RM)wstatic();else if(!RM)raf=requestAnimationFrame(wframe)}}
 const WL=[8,14,22,32,44],wrgb=()=>S.base==='sat'||S.base==='dark'?'255,255,255':'27,42,94',WT=[1,2.5,5,8],wcls=sp=>sp<WT[0]?0:sp<WT[1]?1:sp<WT[2]?2:sp<WT[3]?3:4; // ความยาวเส้น (px) ตามระดับความเร็วลม
-const wseed=p=>{p.x=Math.random()*wc.width;p.y=Math.random()*wc.height;p.a=Math.random()*40;p.life=120+Math.random()*80};
+/* อายุเส้นนับเป็นวินาที · ความเร็ว WSPD px/วินาที ต่อ 1 ม./วินาที (ลม 1 ม./วิ ≈ 3 px/วิ, 8 ม./วิ ≈ 24 px/วิ) — เดิม 0.2+0.06×ลม px ต่อเฟรม ลมสงบก็ยังวิ่ง และจอ 120 Hz เร็วเป็นสองเท่า (ผู้ใช้แจ้ง 14 พ.ย. 69 ลมเบาแต่เส้นวิ่งเร็ว) */
+const WSPD=3;let WFT0=0;
+const wseed=p=>{p.x=Math.random()*wc.width;p.y=Math.random()*wc.height;p.a=Math.random()*2;p.life=4+Math.random()*3};
 function comet(x,y,ux,uy,L,al,col){ // รูปเรียวแหลม: ปลายหางแหลมโปร่งใส หนาและทึบขึ้นไปทางหัว ไม่มีหัวกลม
  const ax=x-ux*L,ay=y-uy*L,nx=-uy*1.3,ny=ux*1.3,g=wx2.createLinearGradient(ax,ay,x,y);g.addColorStop(0,`rgba(${col},0)`);g.addColorStop(.85,`rgba(${col},${al})`);g.addColorStop(1,`rgba(${col},${al})`);
  wx2.fillStyle=g;wx2.beginPath();wx2.moveTo(ax,ay);wx2.lineTo(x+nx,y+ny);wx2.lineTo(x-nx,y-ny);wx2.closePath();wx2.fill()}
-function wframe(){raf=requestAnimationFrame(wframe);if(!WG)return;wx2.clearRect(0,0,wc.width,wc.height);wx2.lineCap='round';const col=wrgb();
- for(const p of WP){const l=map.unproject([p.x,p.y]),w=wget(l.lng,l.lat);if(!w||++p.a>p.life){wseed(p);continue}
-  const sp=Math.hypot(w[0],w[1]),c=wcls(sp),ux=w[0]/(sp||1),uy=-w[1]/(sp||1),f=Math.min(1,p.a/15,(p.life-p.a)/15);
-  comet(p.x,p.y,ux,uy,WL[c],Math.min(.95,.6+.08*c)*f,col);const st=.2+.06*sp;p.x+=ux*st;p.y+=uy*st} // เคลื่อนช้า: ความเร็วลมแสดงด้วยความยาวหาง
+function wframe(t){raf=requestAnimationFrame(wframe);const dt=Math.min(.1,Math.max(0,((t||0)-WFT0)/1000));WFT0=t||0;if(!WG)return;wx2.clearRect(0,0,wc.width,wc.height);wx2.lineCap='round';const col=wrgb();
+ for(const p of WP){const l=map.unproject([p.x,p.y]),w=wget(l.lng,l.lat);if(!w||(p.a+=dt)>p.life){wseed(p);continue}
+  const sp=Math.hypot(w[0],w[1]),c=wcls(sp),ux=w[0]/(sp||1),uy=-w[1]/(sp||1),f=Math.min(1,p.a/.6,(p.life-p.a)/.6);
+  comet(p.x,p.y,ux,uy,WL[c],Math.min(.95,.6+.08*c)*f,col);const st=WSPD*sp*dt;p.x+=ux*st;p.y+=uy*st} // เคลื่อนช้า: ความเร็วลมแสดงด้วยความยาวหาง
 }
 function wstatic(){wx2.clearRect(0,0,wc.width,wc.height);if(!WG||!wOn())return;wx2.lineCap='round';const col=wrgb();
  for(let x=30;x<wc.width;x+=44)for(let y=30;y<wc.height;y+=44){const l=map.unproject([x,y]),w=wget(l.lng,l.lat);if(!w)continue;const sp=Math.hypot(w[0],w[1]),c=wcls(sp);comet(x,y,w[0]/(sp||1),-w[1]/(sp||1),WL[c],Math.min(.95,.6+.08*c),col)}}
@@ -2597,22 +2601,23 @@ map.on('mousemove',e=>{const t=$('#tip'),v=S2.dv,key=v==='vpd'?'vpd':v,lab=v==='
  t.style.display='none'});
 /* --- แผงรายละเอียด 7.4-7.5 --- */
 let AQV=null;
-function renderAq(){if(!AQV)return;const a=aqiOf(AQV.pm),h=CUR;$('#aq-b').style.cssText=`background:${AC[a.l]};color:${a.l<2?'#1d2433':'#fff'}`;
- $('#aq-b small').textContent=S2.aqm==='aqi'?'AQI':'PM2.5';tx('aq-n',S2.aqm==='aqi'?a.v:nf(AQV.pm,1));tx('aq-l',AN[a.l]);
- tx('aq-s',S2.aqm==='aqi'?`PM2.5 ${nf(AQV.pm,1)} µg/m³ · ${AQV.src}`:`AQI ${a.v} · ${AQV.src}`);tx('aq-c',AQV.cams==null?'–':`AQI ${aqiOf(AQV.cams).v} · ${nf(AQV.cams,1)} µg/m³`);
- tx('aq-h',AH[a.l]+' · AQI ตามเกณฑ์สากล US EPA (2024)'+(AQV.near?'':' · ไม่มีสถานีที่อัปเดตในระยะ 50 กม.'));$$('#dseg button').forEach(b=>b.classList.toggle('on',b.dataset.v===S2.aqm))}
+/* เกณฑ์ PM2.5 กรมควบคุมมลพิษ (PCD) + คำแนะนำสุขภาพตามประกาศ (ย่อ) — เดิมใช้ AQI US EPA (เปลี่ยน 14 พ.ย. 69 ผู้ใช้ขอ) */
+const PCDH=['คุณภาพอากาศดีมาก เหมาะกับกิจกรรมกลางแจ้งและการท่องเที่ยว','คุณภาพอากาศดี ทำกิจกรรมกลางแจ้งได้ตามปกติ','ประชาชนทั่วไปทำกิจกรรมกลางแจ้งได้ตามปกติ · ผู้ที่ต้องดูแลสุขภาพเป็นพิเศษ หากมีอาการ เช่น ไอ หายใจลำบาก ระคายเคืองตา ควรลดเวลาทำกิจกรรมกลางแจ้ง','ควรเฝ้าระวังสุขภาพ ถ้ามีอาการควรลดเวลาทำกิจกรรมกลางแจ้งหรือใช้อุปกรณ์ป้องกันตนเอง · ผู้ที่ต้องดูแลสุขภาพเป็นพิเศษ ถ้ามีอาการควรปรึกษาแพทย์','ทุกคนควรหลีกเลี่ยงกิจกรรมกลางแจ้งและพื้นที่ที่มีมลพิษสูง หรือใช้อุปกรณ์ป้องกันตนเอง · ถ้ามีอาการควรปรึกษาแพทย์'];
+function renderAq(){if(!AQV)return;const l=Math.max(0,pcdLv(AQV.pm)),c=AQV.cams==null?-1:Math.max(0,pcdLv(AQV.cams));$('#aq-b').style.cssText=`background:${PCD[l][2]};color:${PCD[l][3]}`;
+ tx('aq-n',nf(AQV.pm,1));tx('aq-l',PCD[l][1]);tx('aq-s',`µg/m³ · ${AQV.src}`);
+ tx('aq-c',c<0?'–':`${nf(AQV.cams,1)} µg/m³ · <span style="background:${PCD[c][2]};color:${PCD[c][3]};border-radius:4px;padding:0 5px">${PCD[c][1]}</span>`);
+ tx('aq-h',PCDH[l]+' · ระดับตามเกณฑ์กรมควบคุมมลพิษ (PM2.5 เฉลี่ย 24 ชม. ปี 2566: ≤15 ดีมาก · ≤25 ดี · ≤37.5 ปานกลาง · ≤75 เริ่มมีผลกระทบ · >75 มีผลกระทบ)'+(AQV.near?'':' · ไม่มีสถานีที่อัปเดตในระยะ 50 กม.'))}
 async function fillAq(h){AQV=null;tx('aq-n','–');tx('aq-l','กำลังดึง…');tx('aq-s','');tx('aq-c','–');tx('aq-h','');
  let cams=null;try{const j=await(await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${h.lat}&longitude=${h.lon}&hourly=pm2_5&past_hours=24&forecast_hours=1&timezone=Asia%2FBangkok`)).json(),v=j.hourly.pm2_5.filter(x=>x!=null);if(v.length)cams=v.reduce((a,b)=>a+b)/v.length}catch(e){}
  if(CUR!==h)return;await loadPM().catch(()=>{});const km=(a,b)=>Math.hypot((a.lat-b.lat)*110.6,(a.lon-b.lon)*111.3*Math.cos(a.lat*Math.PI/180)),st=STN.filter(s=>s.pm!=null).map(s=>({s,d:km(h,s)})).filter(x=>x.d<=50).sort((a,b)=>a.d-b.d)[0];
- if(st)AQV={pm:st.s.pm,src:`สถานี${st.s.name} (${nf(st.d)} กม.) · ข้อมูลตัวอย่าง`,cams,near:1};else if(cams!=null)AQV={pm:cams,src:'เฉลี่ย 24 ชม. · ประมาณจากแบบจำลอง CAMS',cams,near:0};
+ if(st)AQV={pm:st.s.pm,src:`สถานี${st.s.name} (${nf(st.d)} กม.) · ${st.s.src}`,cams,near:1};else if(cams!=null)AQV={pm:cams,src:'เฉลี่ย 24 ชม. · ประมาณจากแบบจำลอง CAMS',cams,near:0};
  if(AQV)renderAq();else tx('aq-l','ไม่มีข้อมูลฝุ่น')}
 function fillWx(h,c){const T=c.temperature_2m,RH=c.relative_humidity_2m,u=c.wind_speed_10m,fr=c.wind_direction_10m,es=.6108*Math.exp(17.27*T/(T+237.3)),vp=es*(1-RH/100),ad=216.7*(es*10*RH/100)/(T+273.15),ab=['เหนือ','ตอ.เหนือ','ตอ.','ตอ.ใต้','ใต้','ตต.ใต้','ตต.','ตต.เหนือ'],rain=c.precipitation||0;
  $('#ar').setAttribute('transform',`rotate(${(fr+180)%360} 50 50)`);tx('ws',Math.round(u));
  tx('wxt',`<span>ลมพัดมาจาก</span><b>ทิศ${DIRN[Math.round(fr/45)%8]}</b><span>ลมกระโชก</span><b>${Math.round(c.wind_gusts_10m)} กม./ชม.</b><span>อุณหภูมิ</span><b>${nf(T,1)} °C</b><span>ความชื้น</span><b>${Math.round(RH)} %</b><span>ฝนชั่วโมงนี้</span><b>${nf(rain,1)} มม.</b>`);
  tx('vp',nf(vp,2)+' kPa');$('#vp-b').style.cssText=`width:${Math.min(100,vp/4*100)}%;background:#e0a010`;tx('vp-t',`ยิ่งสูง อากาศยิ่งดึงความชื้นออกจากใบไม้และกิ่งไม้ เชื้อเพลิงแห้งและติดไฟง่ายขึ้น · ความหนาแน่นไอน้ำ ${nf(ad,1)} g/m³`);
- const f=cbi(T,RH,u,rain),l=fwiLv(f);$('#fw-c').style.background=DK[l];tx('fw-c',nf(f,1)+' · '+DN[l]+' ('+DE[l]+')');tx('fw-d',FWD[l]);tx('fw-t','');
- omDaily([[h.lon,h.lat]],3).then(r=>{if(CUR!==h)return;tx('fw-t','<span>วัน</span><span>สูง/ต่ำ °C</span><span>RH ต่ำสุด</span><span>ฝน</span><span>ลม</span><span>เสี่ยงไฟ (CBI)</span>'+r[0].map((x,k)=>{const q=fwiLv(x.fwi);return`<span>${dayFull(k)}</span><span>${Math.round(x.tx)}/${Math.round(x.tn)}</span><span>${Math.round(x.rh)}%</span><span>${nf(x.rain,1)}</span><span>${ab[Math.round(x.dir/45)%8]} ${Math.round(x.w)}</span><span><em style="background:${DK[q]}">${Math.round(x.fwi)} · ${DN[q]}</em></span>`}).join(''))}).catch(()=>tx('fw-t','<span style="grid-column:1/-1">ดึงพยากรณ์ 3 วันไม่ได้</span>'))}
-$$('#dseg button').forEach(b=>b.onclick=()=>{S2.aqm=b.dataset.v;renderAq()});
+ /* ดัชนีอันตรายไฟป่า: fwNow() ในโมดูล FWI (TFDRS) — เลิกแสดง CBI 14 พ.ย. 69 */
+}
 
 
 let PLU=BLANK,PLC=CO; // ภาพกลุ่มควัน Lagrangian
@@ -6250,7 +6255,7 @@ try{vrApply()}catch(e){}
 #fwi-dc .chip.fc{border-style:dashed}
 #fwi-ad p{margin:6px 0;line-height:1.55}#fwi-ad .fwfl{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:6px 0;font-size:11px}#fwi-ad .fwfl span{background:#F5F6F8;border:1px solid var(--line);border-radius:6px;padding:2px 6px}#fwi-ad .fwfl em{font-style:normal;color:var(--mut)}
 #fwi-ad td b{color:var(--navy)}
-#fw-tf em,.fwpp em{font-style:normal;color:#fff;border-radius:4px;padding:0 4px}
+#fw-tf em,.fwpp em,.pfw em{font-style:normal;color:#fff;border-radius:4px;padding:0 4px;white-space:nowrap}
 </style>
 <script>
 /* ===== ระบบดัชนีอันตรายไฟป่า (Canadian Forest Fire Weather Index System) — ผู้ใช้ขอ 14 พ.ย. 69 จาก https://fdrs.forest.go.th (TFDRS กรมป่าไม้)
@@ -6258,7 +6263,7 @@ try{vrApply()}catch(e){}
    scripts/sync_fwi.js (sync.yml) ดึง GeoTIFF ~3 กม. ของต้นทาง (ไม่เปิด CORS) → data/fwi/index.json (รายการวัน + สรุปรายพื้นที่อนุรักษ์ + grid) + data/fwi/g/ (branch fwi-grid):
    <วันที่>.<ตัวแปร>.gz = เต็มพื้นที่ไทย+ลาว (ภาพบนแผนที่ — ผู้ใช้ขอ 14 พ.ย. 69 ให้สีเต็มจอ) · <วันที่>.json = กรอบรอบกลุ่มป่าทุกตัวแปร (ป๊อปอัป/แผงรายละเอียด)
    วันของรอบ (ค่าเที่ยงวันของวันนั้น) ย้อนหลัง 7 วัน + พยากรณ์ล่วงหน้า 2 วัน · เกณฑ์ 5 ระดับตามต้นทาง (ปรับเทียบสำหรับประเทศไทย) อยู่ใน index.json (bounds)
-   ชื่อตัวแปร/ฟังก์ชันขึ้นต้น FW/fw (ระวัง: fw-c/fw-d/fw-t ในแผงรายละเอียดเป็นของ CBI เดิม) */
+   ชื่อตัวแปร/ฟังก์ชันขึ้นต้น FW/fw (fw-c/fw-d/fw-t ในแผงรายละเอียด = FWI วันนี้ ตั้งโดย fwNow — เดิมเป็น CBI) */
 const FWU=BN_BASE.replace(/burn\/$/,'fwi/'),FWSRC='https://fdrs.forest.go.th/index.php',FWNR='https://natural-resources.canada.ca/forests-forestry/wildland-fires/canada-fire-weather-index-system';
 /* [ชื่อสั้น, ชื่อไทย, ชื่ออังกฤษ, หน่วย, ทศนิยม, คำอธิบาย] */
 const FWV={
@@ -6407,9 +6412,22 @@ async function fwDetail(h){const el=$('#fw-tf');if(!el||!h)return;el.innerHTML='
   if(!d){const ob=D.filter(x=>!x.f&&x.d<=ds);d=ob.length?ob[ob.length-1]:null}
   if(!d){el.innerHTML='';return}const o=await fwAllAt(d,h.lon,h.lat);if(CUR!==h)return;
   if(o.FWI==null){el.innerHTML='<span style="opacity:.7">ดัชนี FWI กรมป่าไม้: จุดนี้อยู่นอกขอบเขตข้อมูล</span>';return}
-  el.innerHTML=`<b>ระบบ FWI กรมป่าไม้ (TFDRS)</b> ${fwDate(d.d,{day:'numeric',month:'short'})}${d.d!==ds?' (วันล่าสุดที่มี)':''}${d.f?' · พยากรณ์':' · ค่าเที่ยงวัน'}<br>${fwHtml(o,d)}`}
+  el.innerHTML=`<b>ทุกดัชนีวันที่ตรวจพบจุด</b> ${fwDate(d.d,{day:'numeric',month:'short'})}${d.d!==ds?' (วันล่าสุดที่มี)':''}${d.f?' · พยากรณ์':' · ค่าเที่ยงวัน'}<br>${fwHtml(o,d)}`}
  catch(e){if(CUR===h)el.innerHTML='<span style="opacity:.7">โหลดดัชนี FWI ของกรมป่าไม้ไม่ได้</span>'}}
-{const od=openDetail;openDetail=function(h){od.apply(this,arguments);try{fwDetail(h)}catch(e){}}}
+/* วันนี้ (เวลาไทย) → วันของรอบล่าสุด → วันสุดท้ายที่มี */
+function fwToday(){const D=FWX.days;let i=D.findIndex(x=>x.d===fwTday());if(i<0)i=D.findIndex(x=>x.d===FWX.run);return i<0?D.length-1:i}
+/* ป๊อปอัปแตะแผนที่ (ชั้น FWI ปิดอยู่): FWI + FFMC วันนี้ที่จุด — นอกกรอบข้อมูลได้ '' */
+async function fwQuick(lo,la){await fwLoad();const d=FWX.days[fwToday()];if(!d)return'';const o=await fwAllAt(d,lo,la);if(o.FWI==null)return'';
+ return`<b>ไฟป่า FWI</b> ${fwEm('FWI',o.FWI)} · <b>FFMC</b> ${fwEm('FFMC',o.FFMC)}<br><span style="opacity:.75">ดัชนีอันตรายไฟป่า กรมป่าไม้ (TFDRS) ${fwDate(d.d,{day:'numeric',month:'short'})}${d.f?' พยากรณ์':' ค่าเที่ยงวัน'}</span>`}
+/* แผงรายละเอียดจุดความร้อน: FWI วันนี้ + ตาราง 3 วัน (แทน CBI เดิม) */
+async function fwNow(h){const c=$('#fw-c');if(!c||!h)return;c.textContent='กำลังโหลด…';c.style.background='#9ca3af';c.style.color='#fff';tx('fw-d','');tx('fw-t','');
+ try{await fwLoad();if(CUR!==h)return;const i=fwToday(),rows=FWX.days.slice(i,i+3),O=await Promise.all(rows.map(d=>fwAllAt(d,h.lon,h.lat)));if(CUR!==h)return;const o=O[0],b=fwB('FWI');
+  if(o.FWI==null){c.textContent='ไม่มีข้อมูล';tx('fw-d','จุดนี้อยู่นอกขอบเขตข้อมูล FWI ของกรมป่าไม้');return}
+  const k=b?fwCat(o.FWI,b):0;c.style.background=FWC[k];c.style.color=k===1?'#3a2e00':'#fff';c.textContent=fwN('FWI',o.FWI)+' · '+FWN[k]+' ('+FWE[k]+')';
+  tx('fw-d',FWD[k]+' <span style="opacity:.75">· '+fwDate(rows[0].d,{day:'numeric',month:'short'})+(rows[0].f?' พยากรณ์':' ค่าเที่ยงวัน')+'</span>');
+  tx('fw-t','<span>วัน</span><span>FWI</span><span>FFMC</span><span>ISI</span><span>BUI</span><span>DC</span>'+rows.map((d,j)=>{const x=O[j];return`<span>${fwDate(d.d)}${d.f?'*':''}</span><span>${fwEm('FWI',x.FWI)}</span><span>${fwB2('FFMC',x.FFMC)}</span><span>${fwB2('ISI',x.ISI)}</span><span>${fwB2('BUI',x.BUI)}</span><span>${fwB2('DC',x.DC)}</span>`}).join(''))}
+ catch(e){if(CUR===h){c.textContent='โหลดไม่ได้';tx('fw-d','โหลดดัชนี FWI ของกรมป่าไม้ไม่ได้')}}}
+{const od=openDetail;openDetail=function(h){od.apply(this,arguments);try{fwNow(h)}catch(e){}try{fwDetail(h)}catch(e){}}}
 /* ป้ายค่าที่ชี้เมาส์ — ต่อท้ายป้ายของชั้นอื่นที่เปิดพร้อมกัน */
 map.on('mousemove',e=>{if(!S.fwi||!FWG||!FWGA||!FWGD||!fwIn(e.lngLat.lng,e.lngLat.lat))return;const v=fwVar(),z=fwAt(FWG,FWGA,e.lngLat.lng,e.lngLat.lat);if(z==null)return;const t=$('#tip'),b=fwB(v);
  const s=`${FWV[v][0]} ${fwN(v,z)}${FWV[v][3]?' '+FWV[v][3]:''}${b?' ('+fwNm(v,fwCat(z,b))+')':''} · ${fwDate(FWGD.d,{day:'numeric',month:'short'})}${FWGD.f?' พยากรณ์':''} · TFDRS`;
