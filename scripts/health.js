@@ -20,7 +20,7 @@ const ACTIONS = 'https://github.com/takiang71/fire-map-dpky/actions';
 const H = 36e5, REMIND = 12 * H;
 // เรื่องที่ตรวจ: ชื่อ + ต้องเป็นต่อเนื่องนานเท่าไรจึงแจ้ง (กันขัดข้องชั่วคราว)
 const CHECKS = { api: ['ดึงจุดความร้อนจาก API ไม่ได้', H], src: ['ระบบต้นทางไม่อัปเดต', 0], sync: ['sync จุดความร้อนไม่ทำงาน', 0], gap: ['ข้อมูลสะสมค้าง', 0], line: ['LINE ใช้งานไม่ได้', H],
-  tg: ['Telegram ใช้งานไม่ได้', H], tle: ['ข้อมูลวงโคจรดาวเทียมเก่า', 0], tgm: ['กลุ่ม Telegram ถูกอัปเกรดเป็น supergroup', 0],
+  tg: ['Telegram ใช้งานไม่ได้', H], tle: ['ข้อมูลวงโคจรดาวเทียมเก่า', 0], vr: ['ข้อมูลอัตราการระบายอากาศ (GFS) เก่า', 0], tgm: ['กลุ่ม Telegram ถูกอัปเกรดเป็น supergroup', 0],
   pages: ['หน้าเว็บ (GitHub Pages) ไม่อัปเดต', 0], ci: ['หน้าเว็บฉบับใหม่ไม่ผ่านการตรวจ', 0],
   cron: ['cron-job.org ไม่ได้สั่งรอบ site ตามเวลา', H] };
 const now = +process.env.HEALTH_NOW || Date.now();
@@ -71,6 +71,10 @@ function problems(pg) {
     const today = Math.floor((now + 7 * H) / 864e5), to = a.to ? Date.parse(a.to) / 864e5 : 0;
     if (today - to > 2) P.gap = `ดึงครบถึง ${a.to || '-'} (ขาด ${today - to - 1} วัน) — API อาจตอบว่างย้อนหลัง`;
   }
+  // อัตราการระบายอากาศ NOAA GFS (scripts/sync_gfsvr.js ใน sync.yml) — ผู้ใช้ขอ 14 พ.ย. 69 · ปกติรอบ GFS ที่ใช้อายุไม่เกิน ~17 ชม. (sync 4 รอบ/วัน, รอบ GFS ครบ 120 ชม. ~4 ชม. หลังเวลารอบ)
+  // เกิน 30 ชม. = sync_gfsvr ล้มติดกันหลายรอบหรือ NOMADS ล่ม → พยากรณ์บนเว็บ/สรุปประจำวันเหลือน้อยวันและเริ่มเก่า
+  try { const g = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'gfs_vr.json'), 'utf8')), c = Date.parse(String(g.cyc).replace('Z', ':00Z'));
+    if (!isFinite(c)) P.vr = 'data/gfs_vr.json ไม่มีเวลารอบ GFS'; else if (now - c > 30 * H) P.vr = `รอบ GFS ที่ใช้อยู่ ${thTime(c)} (${hrs(now - c)} ชม.) พยากรณ์เหลือถึง ${thTime(c + 120 * H)} — ดูขั้น sync_gfsvr ใน workflow sync (NOMADS อาจล่ม)` } catch (e) { P.vr = 'อ่าน data/gfs_vr.json ไม่ได้' }
   // วงโคจร NOAA-20/21 (scripts/sync_tle.js ใน sync.yml) — เก่ากว่า 4 วัน เวลานับถอยหลัง/สรุปประจำวันเริ่มคลาดเคลื่อน
   try { const tl = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'tle.json'), 'utf8')), ep = Object.values(tl.sats || {}).map(x => Date.parse(x.ep)).filter(isFinite);
     if (!ep.length) P.tle = 'data/tle.json ไม่มีข้อมูลดาวเทียม'; else if (now - Math.min(...ep) > 4 * 24 * H) P.tle = `ค่าวงโคจรล่าสุด ${thTime(Math.min(...ep))} (${Math.round((now - Math.min(...ep)) / 864e5)} วัน) — ดูขั้น sync_tle ใน workflow sync` } catch (e) { P.tle = 'อ่าน data/tle.json ไม่ได้' }
