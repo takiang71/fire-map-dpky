@@ -805,10 +805,17 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
    <div id="hm-lg"></div>
    <div class="tsv"><span class="sm" style="flex:none">ความเข้ม</span><input type="range" id="hm-op" min="20" max="100" step="5" style="flex:1;min-width:0;accent-color:var(--navy)" aria-label="ความเข้มภาพเมฆ"><span class="sm" id="hm-opv" style="flex:none;width:34px;text-align:right"></span></div>
    <p class="note" style="margin-left:0"><span id="hm-st"></span></p></div>
-  <div class="row" data-tip="สี่เหลี่ยม = สถานี Air4Thai (กรมควบคุมมลพิษ) ค่าล่าสุด · พื้นผิว = แบบจำลอง CAMS (~110 กม.) ค่าปัจจุบันหรือพยากรณ์ล่วงหน้า ครอบคลุมประเทศเพื่อนบ้าน · ใช้ร่วมกับทิศทางลมดูควันข้ามแดน"><svg class="i" viewBox="0 0 24 24"><rect x="2" y="8" width="5" height="8" rx="1.500" style="fill:#00E400"/><rect x="9.500" y="8" width="5" height="8" rx="1.500" style="fill:#FFFF00"/><rect x="17" y="8" width="5" height="8" rx="1.500" style="fill:#FF7E00"/></svg><b>ฝุ่น PM2.5 / AQI</b><span class="sm" id="pm-t"></span><button class="sw" data-k="pm" role="switch" aria-label="ฝุ่น PM2.5 AQI"></button></div>
+  <div class="row" data-tip="สี่เหลี่ยม = สถานี Air4Thai (กรมควบคุมมลพิษ) ค่าล่าสุด · พื้นผิว = แบบจำลอง CAMS ผ่าน Open-Meteo จุดห่าง 1° (~110 กม.) ค่าปัจจุบันหรือพยากรณ์ล่วงหน้า (ซ่อนเมื่อเปิดแถว PM2.5 แบบจำลอง CAMS ที่ละเอียดกว่า) ครอบคลุมประเทศเพื่อนบ้าน · ใช้ร่วมกับทิศทางลมดูควันข้ามแดน"><svg class="i" viewBox="0 0 24 24"><rect x="2" y="8" width="5" height="8" rx="1.500" style="fill:#00E400"/><rect x="9.500" y="8" width="5" height="8" rx="1.500" style="fill:#FFFF00"/><rect x="17" y="8" width="5" height="8" rx="1.500" style="fill:#FF7E00"/></svg><b>ฝุ่น PM2.5 / AQI</b><span class="sm" id="pm-t"></span><button class="sw" data-k="pm" role="switch" aria-label="ฝุ่น PM2.5 AQI"></button></div>
   <div id="pmbox" hidden><div class="seg" id="pmseg"><button data-v="aqi">AQI (ดัชนีสากล)</button><button data-v="pm">PM2.5 (µg/m³)</button></div>
    <div class="chips" id="pmchips"></div><div class="lgd" id="pmlg"></div>
    </div>
+  <div class="row" data-tip="แผนที่ฝุ่น PM2.5 จากแบบจำลองบรรยากาศ CAMS ของโคเปอร์นิคัส (ECMWF) ความละเอียด ~45 กม. ทุก 3 ชม. ย้อนหลัง 2 วันถึงพยากรณ์ล่วงหน้า 5 วัน · ค่าจากแบบจำลอง ไม่ใช่ค่าตรวจวัดจากสถานี · แตะแผนที่เพื่อดูค่าที่จุด"><svg class="i" viewBox="0 0 24 24"><circle cx="7" cy="9" r="2.200" style="fill:#50a4f4;stroke:none"/><circle cx="15" cy="7" r="2.600" style="fill:#e5db32;stroke:none"/><circle cx="16" cy="15.500" r="3" style="fill:#ef8128;stroke:none"/><circle cx="8" cy="16" r="2" style="fill:#00db00;stroke:none"/></svg><b>PM2.5 แบบจำลอง CAMS</b><span class="sm" id="cm-t"></span><button class="sw" data-k="cms" role="switch" aria-label="PM2.5 แบบจำลอง CAMS"></button></div>
+  <div id="cmbox" hidden><div class="chips" id="cm-dc"></div>
+   <div class="tsl"><button id="cm-pl" aria-label="เล่นภาพเคลื่อนไหว">▶</button><input type="range" id="cm-r" min="0" max="0" aria-label="เลื่อนเวลา PM2.5 CAMS"></div>
+   <div class="tsv"><b id="cm-v">กำลังดึงข้อมูล…</b><a id="cm-0" role="button" tabindex="0">ตอนนี้</a></div>
+   <div id="cm-lg"></div><div id="cm-ar"></div>
+   <div class="tsv"><span class="sm" style="flex:none">ความเข้ม</span><input type="range" id="cm-op" min="20" max="100" step="5" style="flex:1;min-width:0;accent-color:var(--navy)" aria-label="ความเข้ม PM2.5 CAMS"><span class="sm" id="cm-opv" style="flex:none;width:34px;text-align:right"></span></div>
+   <p class="note" style="margin-left:0"><span id="cm-st"></span></p></div>
   <button class="lk" id="wy-o">เปิดแผนที่พยากรณ์ Windy แบบเต็มจอ (มีตารางพยากรณ์รายชั่วโมง) →</button>
 
   <h3>พื้นที่อนุรักษ์และสถานีควบคุมไฟป่า</h3>
@@ -1092,7 +1099,7 @@ const areaHtml=g=>{let s='';if(g.cons)s+=`<b>${esc(g.cons.properties.name)}</b><
  return s||'<span class="sm">อยู่นอกพื้นที่อนุรักษ์และพื้นที่รับผิดชอบไฟป่าตามไฟล์แนวเขต</span><br>'};
 
 /* ---------- สถานะ + จำค่าที่ผู้ใช้เลือก ---------- */
-let S={base:'natural',img:'google',d3:false,hot:true,prov:false,cons:true,resp:false,stn:false,wpt:false,rgr:false,fbs:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,orb:true,orbm:false,wch:true,wst:false,wsp:true,demo:false,water:true,road:true,wind:false,pm:false,dry:false,fwi:false,fwv:'FWI',wx:false,vr:false,vrg:'mean',rad:false,him:false,hmb:'ir',hmop:85,wyl:false,wyo:'wind',wyop:60,hist:false,xt:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',rep:false,rpm:2,hcd:1,hcg:2,hcr:200};
+let S={base:'natural',img:'google',d3:false,hot:true,prov:false,cons:true,resp:false,stn:false,wpt:false,rgr:false,fbs:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,orb:true,orbm:false,wch:true,wst:false,wsp:true,demo:false,water:true,road:true,wind:false,pm:false,cms:false,cmop:75,dry:false,fwi:false,fwv:'FWI',wx:false,vr:false,vrg:'mean',rad:false,him:false,hmb:'ir',hmop:85,wyl:false,wyo:'wind',wyop:60,hist:false,xt:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',rep:false,rpm:2,hcd:1,hcg:2,hcr:200};
 try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;S.wst=false;S.dry=false;S.wpt=false;if(S.base==='road')S.base='detail';/* แถวอากาศแห้ง/จุดเฝ้าระวังถูกเอาออกจากแผงชั้นข้อมูล 14 พ.ย. 69 — ค่าที่บันทึกไว้ต้องไม่เปิดค้าง */
 const toast=(m,fn,ms)=>{const t=$('#toast');t.textContent=m;t.classList.add('show');t.classList.toggle('act',!!fn);t.onclick=fn?()=>{t.classList.remove('show','act');fn()}:null;
  clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show','act'),ms||2200)}; // fn = แตะป้ายแล้วทำ (ป้ายค้างนานขึ้น)
@@ -1621,7 +1628,7 @@ map.on('click',e=>{
  const uh=typeof ulHit==='function'?ulHit(e):null;if(uh&&uh.done)return; // ชั้นข้อมูลของผู้ใช้: หมุด/เส้น = ป๊อปอัปของวัตถุ, พื้นที่ = บรรทัดบนสุดของป๊อปอัปตำแหน่ง
  const g0=geoAt(e.lngLat.lng,e.lngLat.lat);
  const{lat,lng}=e.lngLat,ll=lat.toFixed(5)+', '+lng.toFixed(5);
- const pop=new maplibregl.Popup({maxWidth:'270px'}).setLngLat(e.lngLat).setHTML(`${uh?uh.html:''}${wchHtml(e.lngLat)}${areaHtml(g0)}${bnAt(e.lngLat)}${rpAt(e.lngLat)}<span class="pft"></span><b>พิกัด</b> ${ll}<br><div class="sm pw" style="margin:4px 0">กำลังดึงสภาพอากาศ…</div>${typeof vrPop==='function'?vrPop(lng,lat):''}${typeof fwPop==='function'?fwPop(lng,lat):''}<span class="sm pt0">กำลังหาชื่อตำบล…</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}">นำทางด้วย Google Maps</a>`).addTo(map);if(uh)uh.bind(pop);
+ const pop=new maplibregl.Popup({maxWidth:'270px'}).setLngLat(e.lngLat).setHTML(`${uh?uh.html:''}${wchHtml(e.lngLat)}${areaHtml(g0)}${bnAt(e.lngLat)}${rpAt(e.lngLat)}<span class="pft"></span><b>พิกัด</b> ${ll}<br><div class="sm pw" style="margin:4px 0">กำลังดึงสภาพอากาศ…</div>${typeof vrPop==='function'?vrPop(lng,lat):''}${typeof fwPop==='function'?fwPop(lng,lat):''}${typeof cmPop==='function'?cmPop(lng,lat):''}<span class="sm pt0">กำลังหาชื่อตำบล…</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}">นำทางด้วย Google Maps</a>`).addTo(map);if(uh)uh.bind(pop);
  ftLoad().then(()=>{const f=ftAt(lng,lat),el=pop.getElement()&&pop.getElement().querySelector('.pft');if(el&&f)el.innerHTML='<b>ชนิดป่า</b> '+ftTxt(f)+'<br>'}).catch(()=>{});
  admLoad().then(()=>{const a=admAt(lng,lat),el=pop.getElement()&&pop.getElement().querySelector('.pt0');if(el){const p=a?null:prvAt(lng,lat);el.innerHTML=a?'<b>'+esc(admTxt(a,1))+'</b>':p?'<b>จ.'+esc(p)+'</b>':'นอกขอบเขตข้อมูลตำบล'}}).catch(()=>{const el=pop.getElement()&&pop.getElement().querySelector('.pt0');if(el)el.textContent='โหลดชื่อตำบลไม่ได้'});
  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,precipitation&wind_speed_unit=kmh`).then(r=>r.json()).then(j=>{const c=j.current,f=cbi(c.temperature_2m,c.relative_humidity_2m,c.wind_speed_10m,c.precipitation||0),l=fwiLv(f),el=pop.getElement().querySelector('.pw');
@@ -1873,7 +1880,7 @@ function drawDry(){if(!DRYD)return;const d=S2.dd,v=S2.dv,key=v==='fwi'?'fwi':v==
 function setup3(){
  map.addSource('wx',{type:'image',url:WXU,coordinates:WXC});map.addLayer({id:'wx-f',type:'raster',source:'wx',paint:{'raster-fade-duration':0}},wxBef());
  map.addSource('dry',{type:'image',url:DRYU,coordinates:CO});map.addLayer({id:'dry-f',type:'raster',source:'dry',paint:{'raster-fade-duration':0}});
- map.addSource('pm',{type:'image',url:PMU,coordinates:CO});map.addLayer({id:'pm-f',type:'raster',source:'pm',paint:{'raster-fade-duration':0}});radLayer();try{window.hmLayer&&hmLayer()}catch(e){}try{window.vrLayer&&vrLayer()}catch(e){}try{window.fwLayer&&fwLayer()}catch(e){}}
+ map.addSource('pm',{type:'image',url:PMU,coordinates:CO});map.addLayer({id:'pm-f',type:'raster',source:'pm',paint:{'raster-fade-duration':0}});radLayer();try{window.hmLayer&&hmLayer()}catch(e){}try{window.vrLayer&&vrLayer()}catch(e){}try{window.fwLayer&&fwLayer()}catch(e){}try{window.cmLayer&&cmLayer()}catch(e){}}
 /* --- ลม: อนุภาคไหลบน canvas จากตารางลมในกรอบแผนที่ (Open-Meteo) --- */
 const wc=$('#wc'),wx2=wc.getContext('2d');let WG=null,WP=[],raf=0;
 const wsz=()=>{wc.width=innerWidth;wc.height=innerHeight};
@@ -1897,7 +1904,7 @@ function wframe(){raf=requestAnimationFrame(wframe);if(!WG)return;wx2.clearRect(
 function wstatic(){wx2.clearRect(0,0,wc.width,wc.height);if(!WG||!S.wind)return;wx2.lineCap='round';const col=wrgb();
  for(let x=30;x<wc.width;x+=44)for(let y=30;y<wc.height;y+=44){const l=map.unproject([x,y]),w=wget(l.lng,l.lat);if(!w)continue;const sp=Math.hypot(w[0],w[1]),c=wcls(sp);comet(x,y,w[0]/(sp||1),-w[1]/(sp||1),WL[c],Math.min(.95,.6+.08*c),col)}}
 function L3(){ // เรียกจาก apply() ทุกครั้งที่สวิตช์/สไตล์เปลี่ยน
- const set=(id,b)=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',b?'visible':'none');set('pm-f',S.pm);set('dry-f',S.dry);
+ const set=(id,b)=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',b?'visible':'none');set('pm-f',S.pm&&!S.cms);set('dry-f',S.dry);
  $('#wbox').hidden=!S.wind;$('#pmbox').hidden=!S.pm;$('#drybox').hidden=!S.dry;
  wc.style.display=S.wind?'':'none';cancelAnimationFrame(raf);wx2.clearRect(0,0,wc.width,wc.height);
  if(S.wind){wsz();if(!WP.length)WP=Array.from({length:650},()=>{const p={};wseed(p);return p});if(WG&&RM)wstatic();else if(!RM)raf=requestAnimationFrame(wframe);if(!WG)loadWind()}
@@ -1907,6 +1914,7 @@ function L3(){ // เรียกจาก apply() ทุกครั้งท�
  try{window.hmApply&&hmApply()}catch(e){}
  try{window.vrApply&&vrApply()}catch(e){}
  try{window.fwApply&&fwApply()}catch(e){}
+ try{window.cmApply&&cmApply()}catch(e){}
  wlApply()}
 /* --- สภาพอากาศรายชั่วโมง: ตาราง Open-Meteo ในกรอบที่มองเห็น (ขยายขอบ 25%) ย้อนหลัง 24 ชม. + พยากรณ์ 48 ชม. → ภาพ canvas วางบนแผนที่
    ดึงใหม่เมื่อเลื่อนออกนอกกรอบเดิม/ซูมเข้ามากจนตารางหยาบ หรือข้อมูลเก่ากว่า 30 นาที (Open-Meteo นับโควตาต่อพิกัด)
@@ -2562,7 +2570,7 @@ $('#wyb-x').onclick=()=>{S.wyl=false;apply()};$('#wyb-f').onclick=()=>wyOpen(S.w
 $('#d-wy').onclick=()=>{if(!CUR)return;S.wyl=true;S.wyo='wind';apply();map.easeTo({center:[CUR.lon,CUR.lat],zoom:Math.min(10,Math.max(8,Math.round(map.getZoom()))),duration:dur(800)})};
 setInterval(()=>{if(S.wyl&&!document.hidden)wlQuick()},10*6e4);
 $('#wy-dt').onclick=()=>{WYD=!WYD;try{localStorage.setItem('fm-wyd',WYD?'1':'0')}catch(e){}wyLoad()};
-$('#wy-o').onclick=()=>wyOpen(S.wx?{t:'temp',rh:'rh',pr:'rain',cc:'satellite'}[S2.wxv]:S.rad?'radar':S.him?'satellite':S.dry||S.fwi?'fwi':S.pm?'pm2p5':'wind');
+$('#wy-o').onclick=()=>wyOpen(S.wx?{t:'temp',rh:'rh',pr:'rain',cc:'satellite'}[S2.wxv]:S.rad?'radar':S.him?'satellite':S.dry||S.fwi?'fwi':S.pm||S.cms?'pm2p5':'wind');
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#wy').hidden)wyClose()});
 {const q=new URLSearchParams(location.search).get('wy');if(q!=null)wyOpen(WYO.some(a=>a[0]===q)?q:'wind')}
 $('#pmchips').onclick=e=>{const b=e.target.closest('.chip');if(b){S2.pmDay=+b.dataset.i;drawPM()}};
@@ -6390,6 +6398,88 @@ map.on('mousemove',e=>{if(!S.fwi||!FWG||!FWGA||!FWGD||!fwIn(e.lngLat.lng,e.lngLa
 /* ตรวจรอบใหม่ทุก 30 นาทีขณะเปิดชั้น (ต้นทางออกวันละครั้ง) */
 setInterval(()=>{if(!S.fwi||document.hidden||!FWX)return;if(Date.now()-(FWX.at||0)>30*6e4)fwLoad(true).then(fwDraw).catch(()=>{})},5*6e4);
 try{fwApply()}catch(e){}
+</script>
+
+<script>
+/* --- PM2.5 แบบจำลอง CAMS (Copernicus Atmosphere Monitoring Service, ECMWF) — ผู้ใช้ขอ 14 พ.ย. 69 "จาก atmosphere.copernicus.eu"
+   แหล่ง: WMS สาธารณะของ ECMWF eccharts.ecmwf.int/wms/?token=public ชั้น composition_pm2p5 (CAMS global ~0.4°) ไม่ต้องใช้คีย์ · CORS สะท้อน Origin (รวม null)
+   เวลา: Dimension time ใน GetCapabilities (กรองด้วย &layers= → ~7 KB) ทุก 3 ชม. ย้อนหลัง ~5 วันถึง +5 วัน (ใช้ตั้งแต่ต้นวันเมื่อวาน (เวลาไทย) ไม่เกิน CMBACK ชม.) · GetMap ตอบ 302 ไปภาพ PNG
+   ภาพที่ได้เล็กกว่าที่ขอ 1 px → ขอ 513 ได้ 512 (tileSize 512) · สี sh_all_pmx_regional 2–300 µg/m³ (ตรงคำอธิบายสีจาก GetLegend) · ค่าที่จุด = GetFeatureInfo JSON (จุดตารางใกล้สุด)
+   1 เวลา = 1 ชั้น cm<ชั่วโมงนับจาก 1970> · ชั้นใหม่โหลดแบบโปร่งใสก่อน แสดงเมื่อไทล์ครบ (ภาพเดิมค้างจนพร้อม ไม่กะพริบ) · เก็บ ≤CMKEEP ชั้น */
+const CM_WMS='https://eccharts.ecmwf.int/wms/?token=public',CML='composition_pm2p5',CMSTY='sh_all_pmx_regional',CMBACK=48,CMKEEP=6,
+ CMC=[[2,'#1464d1'],[5,'#2881ef'],[10,'#50a4f4'],[20,'#00db00'],[30,'#50ef50'],[40,'#9fe532'],[50,'#e5db32'],[75,'#e5ae2d'],[100,'#ef8128'],[150,'#f93c3c'],[200,'#ef0081']],
+ /* เกณฑ์ PM2.5 ของกรมควบคุมมลพิษ (เฉลี่ย 24 ชม., ปี 2566) — ใช้บอกระดับคร่าวๆ ส่วนค่าแบบจำลองเป็นค่าขณะนั้น */
+ CMTH=[[15,'ดีมาก','#1c9ad6'],[25,'ดี','#5a9e1f'],[37.5,'ปานกลาง','#a88e00'],[75,'เริ่มมีผลกระทบต่อสุขภาพ','#e07000'],[1e9,'มีผลกระทบต่อสุขภาพ','#d0001b']],
+ CMPT=[['เขาใหญ่',101.4,14.42],['ทับลาน',102.05,14.15],['ปางสีดา',102.2,13.95],['ตาพระยา',102.65,14.15]];
+/* ค่าต่ำ (อากาศดี) ทำให้โปร่งขึ้น — ไม่งั้นช่วงอากาศสะอาดทั้งแผนที่เป็นสีน้ำเงินทึบ บังแผนที่ฐาน · สีอื่นคงตามแผนที่ CAMS */
+const CMA={'1464d1':.3,'2881ef':.45,'50a4f4':.65};
+maplibregl.addProtocol('cams',async(p,ac)=>{const m=p.url.match(/^cams:\/\/(\d+)\/([-\d.,e]+)/);if(!m)throw new Error('cams url');
+ const r=await fetch(cmUrl(+m[1],m[2]),{signal:ac&&ac.signal});if(!r.ok)throw new Error('HTTP '+r.status);
+ const bm=await createImageBitmap(await r.blob()),c=document.createElement('canvas');c.width=bm.width;c.height=bm.height;const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(bm,0,0);
+ const im=g.getImageData(0,0,c.width,c.height),d=im.data;for(let i=0;i<d.length;i+=4){if(!d[i+3])continue;const k=((d[i]<<16)|(d[i+1]<<8)|d[i+2]).toString(16).padStart(6,'0'),a=CMA[k];if(a)d[i+3]=Math.round(d[i+3]*a)}
+ g.putImageData(im,0,0);return{data:await (await new Promise(res=>c.toBlob(res,'image/png'))).arrayBuffer()}});
+let CMX=null,CMI=0,CMP=0,CMW=0,CMV={},CMN=0,CMQ=0;
+const cmTs=t=>new Date(t).toISOString().slice(0,19)+'Z',cmLv=v=>CMTH.find(x=>v<=x[0]),cmId=t=>'cm'+String(Math.round(t/36e5)).padStart(10,'0'),
+ cmThD=t=>Math.floor((t+7*36e5)/864e5),cmThH=t=>new Date(t+7*36e5).getUTCHours(),
+ cmLab=t=>new Date(t).toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short',timeZone:'Asia/Bangkok'})+' '+thTime(t)+' น.',
+ cmUrl=(t,bb)=>`${CM_WMS}&service=WMS&request=GetMap&version=1.3.0&layers=${CML}&styles=${CMSTY}&crs=EPSG:3857&bbox=${bb}&width=513&height=513&format=image/png&transparent=true&time=${cmTs(t)}`,
+ cmNow=()=>{if(!CMX)return 0;let b=0;CMX.f.forEach((t,i)=>{if(Math.abs(t-Date.now())<Math.abs(CMX.f[b]-Date.now()))b=i});return b},
+ cmIds=()=>((map.getStyle()||{}).layers||[]).filter(l=>/^cm\d{10}$/.test(l.id)).map(l=>l.id),
+ cmOn=id=>!!map.getLayer(id)&&map.getLayoutProperty(id,'visibility')!=='none'&&map.getPaintProperty(id,'raster-opacity')>0;
+async function cmLoad(force){if(!S.cms)return;if(CMX&&!force&&Date.now()-CMX.at<60*6e4)return cmLayer();
+ try{const x=await(await fetch(`${CM_WMS}&service=WMS&version=1.3.0&request=GetCapabilities&layers=${CML}`)).text(),i=x.indexOf('<Name>'+CML+'</Name>'),
+   m=i<0?null:x.slice(i).match(/<Dimension name="time"[^>]*>\s*([^<\s/]+)\/([^<\s/]+)\/PT(\d+)H/);if(!m)throw 0;
+  const a=Date.parse(m[1]),b=Date.parse(m[2]),st=+m[3]*36e5,f=[];if(!(st>0))throw 0;for(let t=a;t<=b;t+=st)if(t>=Math.max(Date.now()-CMBACK*36e5,(cmThD(Date.now())-1)*864e5-7*36e5))f.push(t);if(!f.length)throw 0;
+  const was=CMX&&CMX.f[CMI];CMX={f,at:Date.now()};const k=was?f.indexOf(was):-1;CMI=k<0?cmNow():k;cmLayer()}
+ catch(e){tx('cm-v','ดึงข้อมูลไม่ได้');tx('cm-st','ติดต่อบริการแผนที่ของ ECMWF ไม่ได้ ลองใหม่ภายหลัง');toast('ดึงแผนที่ PM2.5 ของ CAMS ไม่ได้')}}
+function cmShow(id){const op=(+S.cmop||75)/100;cmIds().forEach(k=>{if(k===id){map.setLayoutProperty(k,'visibility','visible');map.setPaintProperty(k,'raster-opacity',op)}else{map.setPaintProperty(k,'raster-opacity',0);map.setLayoutProperty(k,'visibility','none')}})}
+function cmLayer(){if(S.cms&&CMX)cmUI();if(!map.getSource('cons'))return; /* แผงทำงานได้แม้สไตล์ยังโหลดไม่เสร็จ — setup3 เรียกซ้ำ */
+ if(!S.cms||!CMX){cmIds().forEach(k=>map.setLayoutProperty(k,'visibility','none'));return}
+ const t=CMX.f[CMI],id=cmId(t),q=++CMQ;
+ if(!map.getSource(id)){
+  /* เก็บชั้นไว้ไม่เกิน CMKEEP — ลบชั้นที่ไม่ได้แสดงอยู่ก่อน */
+  const old=cmIds().filter(k=>!cmOn(k));while(cmIds().length>=CMKEEP&&old.length){const k=old.shift();map.removeLayer(k);map.removeSource(k)}
+  map.addSource(id,{type:'raster',tiles:[`cams://${t}/{bbox-epsg-3857}`],tileSize:512,maxzoom:8,attribution:'PM2.5: Copernicus Atmosphere Monitoring Service (CAMS) · ECMWF'});
+  map.addLayer({id,type:'raster',source:id,paint:{'raster-opacity':0,'raster-opacity-transition':{duration:0},'raster-fade-duration':0}},wxBef())}
+ map.setLayoutProperty(id,'visibility','visible');
+ const done=()=>{if(q!==CMQ||!map.getSource(id))return true;if(!map.isSourceLoaded(id))return false;cmShow(id);return true};
+ if(!done()){const h=e=>{if((!e||!e.sourceId||e.sourceId===id)&&done()){map.off('sourcedata',h);map.off('idle',h)}};map.on('sourcedata',h);map.on('idle',h)}}
+function cmUI(){if(!CMX)return;const t=CMX.f[CMI],n=cmNow(),r=$('#cm-r');r.max=CMX.f.length-1;r.value=CMI;
+ tx('cm-t',CMI===n?'ตอนนี้':thTime(t)+' น.');
+ tx('cm-v',cmLab(t)+(CMI===n?' (ใกล้เวลาปัจจุบัน)':t>Date.now()?' (พยากรณ์)':' (ย้อนหลัง)'));
+ /* ชิปวัน: แตะ = เวลาใกล้ 13:00 น. ของวันนั้น · เลื่อนแถบเพื่อดูทีละ 3 ชม. */
+ const days=[];CMX.f.forEach((x,i)=>{const d=cmThD(x);let o=days.find(o=>o.d===d);if(!o){o={d,i};days.push(o)}if(Math.abs(cmThH(x)-13)<Math.abs(cmThH(CMX.f[o.i])-13))o.i=i});
+ const td=cmThD(Date.now()),cd=cmThD(t);
+ $('#cm-dc').innerHTML=days.map(o=>`<button class="chip${o.d===cd?' on':''}" data-i="${o.i}">${o.d===td?'วันนี้':o.d===td+1?'พรุ่งนี้':o.d===td-1?'เมื่อวาน':new Date(o.d*864e5).toLocaleDateString('th-TH',{weekday:'short',day:'numeric',timeZone:'UTC'})}</button>`).join('');
+ cmArea(t);
+ $('#cm-st').innerHTML=`ที่มา: Copernicus Atmosphere Monitoring Service (CAMS) · ECMWF — แบบจำลองบรรยากาศทั่วโลก ~45 กม. ค่าขณะนั้น (เกณฑ์ระดับของไทยใช้ค่าเฉลี่ย 24 ชม.) · <a href="https://atmosphere.copernicus.eu/charts/packages/cams/" target="_blank" rel="noopener">แผนที่บนเว็บ CAMS</a>`}
+function cmLegend(){$('#cm-op').value=+S.cmop||75;tx('cm-opv',(+S.cmop||75)+'%');
+ $('#cm-lg').innerHTML=`<div class="sm" style="margin:6px 0 2px">PM2.5 (µg/m³) · สีตามแผนที่ CAMS</div><div style="display:flex;gap:1px">${CMC.map(c=>`<span style="flex:1;min-width:0;text-align:center;font-size:10.5px;color:var(--mut)"><i style="display:block;height:10px;background:${c[1]};opacity:${CMA[c[1].slice(1)]||1};border-radius:2px"></i>${c[0]}</span>`).join('')}</div><div class="sm" style="margin-top:2px">ต่ำกว่า 2 ไม่ระบายสี · ช่วงต่ำกว่า 20 แสดงโปร่งขึ้นให้เห็นแผนที่ฐาน</div>`}
+/* ค่าที่จุด: GetFeatureInfo (จุดตารางแบบจำลองใกล้สุด) แคชตามเวลา+ตำแหน่ง */
+async function cmVal(t,lo,la){const k=t+'|'+lo.toFixed(2)+'|'+la.toFixed(2);if(k in CMV)return CMV[k];
+ const u=`${CM_WMS}&service=WMS&request=GetFeatureInfo&version=1.3.0&layers=${CML}&query_layers=${CML}&crs=EPSG:4326&bbox=${(la-.01).toFixed(4)},${(lo-.01).toFixed(4)},${(la+.01).toFixed(4)},${(lo+.01).toFixed(4)}&width=3&height=3&i=1&j=1&info_format=application/json&time=${cmTs(t)}`;
+ const j=await(await fetch(u)).json(),p=(j.Probes||[])[0],v=p&&p.Value?+p.Value.Data:NaN;return CMV[k]=isFinite(v)?v:null}
+function cmFmt(v){if(v==null)return'ไม่มีข้อมูล';const l=cmLv(v);return`<b style="color:${l[2]}">${nf(v,v<10?1:0)}</b> µg/m³ · ${l[1]}`}
+function cmArea(t){clearTimeout(CMW);const el=$('#cm-ar');if(!el.innerHTML)el.innerHTML='<div class="sm" style="opacity:.7;margin-top:6px">กำลังอ่านค่าในพื้นที่…</div>';
+ CMW=setTimeout(async()=>{const r=await Promise.all(CMPT.map(p=>cmVal(t,p[1],p[2]).catch(()=>null)));if(!CMX||CMX.f[CMI]!==t)return;
+  el.innerHTML=`<div class="sm" style="margin:8px 0 2px">ค่าแบบจำลอง ${thTime(t)} น. (จุดตารางใกล้สุด)</div>`+CMPT.map((p,i)=>`<div class="sm" style="display:flex;gap:6px"><span style="flex:none;width:64px">อช.${p[0]}</span><span>${cmFmt(r[i])}</span></div>`).join('')},400)}
+/* บรรทัดในป๊อปอัปแตะแผนที่ */
+function cmPop(lo,la){if(!S.cms||!CMX)return'';const t=CMX.f[CMI],id='cmpp'+(++CMN);
+ cmVal(t,lo,la).then(v=>{const e=document.getElementById(id);if(e)e.querySelector('.cmpv').innerHTML=cmFmt(v)}).catch(()=>{const e=document.getElementById(id);if(e)e.querySelector('.cmpv').textContent='อ่านค่าไม่ได้'});
+ return`<div class="sm" id="${id}" style="margin:0 0 4px"><b>PM2.5 แบบจำลอง CAMS</b> ${cmLab(t)}<br><span class="cmpv"><span style="opacity:.7">กำลังโหลด…</span></span></div>`}
+function cmStop(){clearTimeout(CMP);CMP=0;const b=$('#cm-pl');b.textContent='▶';b.setAttribute('aria-label','เล่นภาพเคลื่อนไหว')}
+function cmApply(){$('#cmbox').hidden=!S.cms;cmLegend();if(S.cms)cmLoad();else{cmStop();cmLayer()}}
+function cmGo(i){if(!CMX)return;CMI=Math.max(0,Math.min(CMX.f.length-1,i));cmLayer()}
+$('#cm-r').oninput=e=>{cmStop();cmGo(+e.target.value)};
+$('#cm-0').onclick=()=>{cmStop();cmGo(cmNow())};
+$('#cm-dc').onclick=e=>{const b=e.target.closest('.chip');if(b){cmStop();cmGo(+b.dataset.i)}};
+$('#cm-op').oninput=e=>{S.cmop=+e.target.value;tx('cm-opv',S.cmop+'%');if(CMX)cmLayer()};
+/* เล่น: ไปเวลาถัดไปเมื่อภาพเวลาปัจจุบันขึ้นแล้ว (ต้นทางสร้างภาพ ~1–2 วิ/แผ่น จึงไม่ยิงล่วงหน้า) */
+$('#cm-pl').onclick=()=>{if(CMP)return cmStop();if(!CMX)return;const b=$('#cm-pl');b.textContent='⏸';b.setAttribute('aria-label','หยุดภาพเคลื่อนไหว');
+ const step=()=>{if(!CMP)return;cmGo(CMI>=CMX.f.length-1?0:CMI+1);const id=cmId(CMX.f[CMI]),n=Date.now();
+  const wait=()=>{if(!CMP)return;CMP=cmOn(id)||Date.now()-n>15e3?setTimeout(step,700):setTimeout(wait,200)};CMP=setTimeout(wait,200)};CMP=setTimeout(step,10)};
+setInterval(()=>{if(S.cms&&!CMP&&!document.hidden)cmLoad(true)},60*6e4); /* รอบแบบจำลองใหม่ */
+try{cmApply()}catch(e){}
 </script>
 
 </body>
