@@ -52,7 +52,7 @@ jobs:
         timeout-minutes: 6
         continue-on-error: true
         run: node scripts/pass_wait.js
-      # ตาราง FWI เต็มพื้นที่ของ TFDRS (data/fwi/g/ ~20 MB) อยู่ที่ branch fwi-grid (commit เดียว force push ไม่สะสมประวัติ) ไม่ใช่ main
+      # ตาราง FWI กรอบรอบกลุ่มป่าของ TFDRS (data/fwi/g/<วันที่>.json 9 ไฟล์ ~3 MB — เลิกเก็บตารางเต็มพื้นที่ 14 พ.ย. 69) อยู่ที่ branch fwi-grid (commit เดียว force push ไม่สะสมประวัติ) ไม่ใช่ main
       - name: load fwi grids
         run: |
           mkdir -p data/fwi/g

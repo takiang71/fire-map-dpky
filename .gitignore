@@ -21,5 +21,5 @@ data/firms_audit.csv
 # สถานะการแจ้งเตือนที่ workflow site ดึงจาก branch state (scripts/lib/state.js)
 .state/
 
-# ตาราง FWI เต็มพื้นที่ (scripts/sync_fwi.js) — เก็บที่ branch fwi-grid ไม่ใช่ main (ประวัติจะโต ~2 GB/ปี)
+# ตาราง FWI กรอบรอบกลุ่มป่า (scripts/sync_fwi.js) — เก็บที่ branch fwi-grid ไม่ใช่ main (3 ไฟล์ ~1 MB เปลี่ยนทุกวัน ประวัติจะโต ~370 MB/ปี)
 data/fwi/g/
