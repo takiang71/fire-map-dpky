@@ -902,6 +902,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div class="wh"><div style="display:flex;justify-content:space-between;font-size:12.5px"><span>ความแห้งของอากาศ (VPD)</span><b id="vp"></b></div><div class="bar"><i id="vp-b"></i></div><div class="sm" id="vp-t"></div></div>
   <div class="cream"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="font-size:13px">ดัชนีอันตรายไฟป่าตอนนี้ (CBI)</b><span class="cap" id="fw-c"></span></div><div class="sm" id="fw-d" style="margin:6px 0"></div><div class="fwt" id="fw-t"></div><div class="sm" id="fw-tf" style="margin-top:6px"></div></div>
   <div class="sm" style="margin:8px 0">ค่าจากแบบจำลอง (Open-Meteo) · ดัชนีอันตรายไฟป่าคำนวณตามสมการ Chandler Burning Index (CBI) ร่วมกับความเร็วลมและฝนสะสม · ลมในตารางพยากรณ์ = ความเร็วสูงสุดรายวัน</div>
+  <div class="dh"><b>ค่าตรวจวัดจากสถานีกรมอุตุฯ ใกล้สุด</b></div><div id="tm-d"></div>
   <div style="text-align:center;padding-bottom:6px"><a class="tl" style="display:inline;margin:0 10px" id="d-cp2" role="button" tabindex="0">คัดลอกพิกัด</a><a class="tl" style="display:inline;margin:0 10px" id="d-go2" role="button" tabindex="0">นำทางด้วย Google Maps</a></div>
   <div style="display:none"></div></div>
 </section>
@@ -6021,6 +6022,7 @@ try{hmApply()}catch(e){}
 #cm-dc{gap:4px;flex-wrap:nowrap}#cm-dc .chip{flex:1 1 0;min-width:0;width:auto;font-size:11px;padding:6px 0;overflow:hidden;white-space:nowrap}#vr-dc{gap:4px}#vr-dc .chip{flex:1 1 0;min-width:0;width:auto;min-height:40px;font-size:11px;padding:3px 0;overflow:hidden;white-space:nowrap}#vr-dc .chip b{font-size:13px}#vr-dc .chip small{display:block;font-size:8.5px;line-height:1.1;color:var(--mut)} /* 7 วันพอดีแถวเดียว */
 
 #tmseg button{padding:0 2px;font-size:12px}
+#tm-d .tms{margin:4px 0 10px}#tm-d .tms>b{color:var(--navy);font-size:13px}.tmdg{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:5px 0 3px}.tmdg>div{border:1px solid var(--line);border-radius:8px;padding:4px 5px;text-align:center;line-height:1.25}.tmdg small{display:block;color:var(--mut);font-size:10px}.tmdg b{font-size:13.5px;color:var(--navy)}.tmdg i{font-style:normal;font-size:10px;color:var(--mut);display:block}.tmdg .lo{background:#fdecea}.tmdg .lo b{color:#b42318}#tm-d [data-tmon]{color:var(--navy);text-decoration:underline;cursor:pointer}#tm-d .tmh{background:var(--sel);border-radius:8px;padding:5px 7px;margin-top:5px}
 .tmtb{display:grid;grid-template-columns:minmax(0,1fr) repeat(4,46px);gap:1px;font-size:11px;margin-top:4px;align-items:stretch}.tmtb>*{text-align:center;padding:4px 0;line-height:1.2;border-radius:3px}
 .tmtb .h{color:var(--mut);font-size:10px}.tmtb .n{text-align:left;color:var(--navy);font-weight:600;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-left:2px}
 .tmtb .n small{display:block;font-weight:400;color:var(--mut);font-size:9.5px}.tmtb .n:hover{background:var(--sel)}.tmtb .n.old{opacity:.55}
@@ -6552,12 +6554,12 @@ function tmLayer(){if(!map.getSource('cons'))return;const bf=map.getLayer('hot-g
    'text-anchor':'left','text-offset':[.85,0],'text-padding':1},paint:{'text-color':['case',['==',['get','old'],1],'#6b7280','#1d2433'],'text-halo-color':'#fff','text-halo-width':1.6}},bf)}
  else map.getSource('tmd').setData(tmFC());
  ['tmd-c','tmd-a','tmd-t'].forEach(id=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',on?'visible':'none'))}
-async function tmLoad(force){if(!S.tmd)return;if(TMQ)return TMQ;const now=Date.now();if(TMN&&!force&&now-TMAT<10*6e4)return tmDraw();
- tx('tm-st',TMN?$('#tm-st').innerHTML:'กำลังดึงข้อมูลจากกรมอุตุนิยมวิทยา…');
+async function tmLoad(force,q){if(!S.tmd&&!q)return;if(TMQ)return TMQ;const now=Date.now();if(TMN&&!force&&now-TMAT<10*6e4)return q?null:tmDraw();
+ if(S.tmd)tx('tm-st',TMN?$('#tm-st').innerHTML:'กำลังดึงข้อมูลจากกรมอุตุนิยมวิทยา…');
  const get=e=>fetch(TM_API+e,{cache:'no-store'}).then(r=>{if(!r.ok)throw r.status;return r.json()}).then(j=>{if(!j||!Array.isArray(j.data))throw 0;return j.data});
  TMQ=(async()=>{try{const [n,r]=await Promise.all([get('awsnow'),!TMR||now-TMRAT>60*6e4?get('awsrainfall').catch(()=>null):null]);
-   TMN=n.filter(s=>isFinite(s.station_lat)&&isFinite(s.station_lon)&&s.station_lat>0);TMAT=Date.now();TMNB=null;if(r){TMR=new Map(r.map(x=>[x.station_id,x]));TMRAT=Date.now()}tmDraw()}
-  catch(e){tx('tm-st','ดึงข้อมูลสถานีตรวจอากาศกรมอุตุฯ ไม่ได้ ('+esc(String(e&&e.message||e))+') — ลองใหม่ภายหลัง');if(!TMN)toast('ดึงข้อมูลสถานีตรวจอากาศกรมอุตุฯ ไม่ได้')}
+   TMN=n.filter(s=>isFinite(s.station_lat)&&isFinite(s.station_lon)&&s.station_lat>0);TMAT=Date.now();TMNB=null;if(r){TMR=new Map(r.map(x=>[x.station_id,x]));TMRAT=Date.now()}if(S.tmd)tmDraw()}
+  catch(e){if(S.tmd)tx('tm-st','ดึงข้อมูลสถานีตรวจอากาศกรมอุตุฯ ไม่ได้ ('+esc(String(e&&e.message||e))+') — ลองใหม่ภายหลัง');if(!TMN&&S.tmd)toast('ดึงข้อมูลสถานีตรวจอากาศกรมอุตุฯ ไม่ได้')}
   finally{TMQ=null}})();return TMQ}
 /* สถานีใกล้กลุ่มป่า: ระยะถึงแนวเขตพื้นที่อนุรักษ์ (จุดยอดของ GEO.cons) ≤ TM_NEAR กม. */
 function tmNear(){if(TMNB)return TMNB;const V=[];for(const f of GEO.cons.features){const g=f.geometry,P=g.type==='Polygon'?[g.coordinates]:g.coordinates;for(const p of P)for(const r of p)for(let i=0;i<r.length;i+=2)V.push(r[i])}
@@ -6586,7 +6588,7 @@ function tmPopup(id,ll){const s=(TMN||[]).find(x=>x.station_id==id);if(!s)return
  const P=new maplibregl.Popup({maxWidth:'300px',focusAfterOpen:false}).setLngLat(ll||[s.station_lon,s.station_lat]).setHTML(h).addTo(map);
  tmHist(s.station_id).then(H=>{const el=P.getElement()&&P.getElement().querySelector('#tmg-'+s.station_id);if(el)el.innerHTML=tmChart(H)}).catch(()=>{const el=P.getElement()&&P.getElement().querySelector('#tmg-'+s.station_id);if(el)el.innerHTML='<span class="sm">โหลดข้อมูลย้อนหลังไม่ได้</span>'});return P}
 async function tmHist(id){const c=TMH[id];if(c&&Date.now()-c.at<10*6e4)return c.d;const j=await(await fetch(TM_API+'awsnowbyid?id='+encodeURIComponent(id),{cache:'no-store'})).json();
- const d=(j&&j.data||[]).map(x=>({t:tmT(x),T:tmNum(x.temperature),H:tmRhBad(x)?null:tmNum(x.humidity),W:tmNum(x.windspeed),R:tmNum(x.precip_1hr)})).filter(x=>isFinite(x.t)).sort((a,b)=>a.t-b.t);TMH[id]={at:Date.now(),d};return d}
+ const d=(j&&j.data||[]).map(x=>({t:tmT(x),T:tmNum(x.temperature),H:tmRhBad(x)?null:tmNum(x.humidity),W:tmNum(x.windspeed),D:tmNum(x.winddirection),R:tmNum(x.precip_1hr)})).filter(x=>isFinite(x.t)).sort((a,b)=>a.t-b.t);TMH[id]={at:Date.now(),d};return d}
 function tmChart(H){if(!H.length)return'<span class="sm">ไม่มีข้อมูลย้อนหลัง</span>';const W=268,Hh=92,L=26,R=26,T=8,B=16,t0=H[0].t,t1=H[H.length-1].t||t0+1,X=t=>L+(W-L-R)*(t-t0)/Math.max(1,t1-t0);
  const Ts=H.map(x=>x.T).filter(v=>v!=null),tmn=Math.floor(Math.min(...Ts)),tmx=Math.ceil(Math.max(...Ts)),YT=v=>T+(Hh-T-B)*(1-(v-tmn)/Math.max(1,tmx-tmn)),YH=v=>T+(Hh-T-B)*(1-v/100);
  const Rm=Math.max(5,...H.map(x=>x.R||0)),bw=Math.max(1.5,(W-L-R)/H.length-1),ln=(k,Y)=>{let p='',up=false;for(const x of H){if(x[k]==null){up=false;continue}p+=(up?'L':'M')+X(x.t).toFixed(1)+' '+Y(x[k]).toFixed(1);up=true}return p};
@@ -6600,9 +6602,32 @@ function tmChart(H){if(!H.length)return'<span class="sm">ไม่มีข้�
  <div class="sm"><span style="color:#d9481c">━ อุณหภูมิ</span> · <span style="color:#2b6fd6">━ ความชื้น</span> · <span style="color:#3d8fd0">▮ ฝนรายชั่วโมง</span> · ย้อนหลัง 48 ชม.<br>ความชื้นต่ำสุด ${isFinite(hmin)?Math.round(hmin)+'%':'–'} · ลมแรงสุด ${isFinite(wmx)?nf(wmx,1)+' กม./ชม.':'–'} · ฝนรวม ${nf(rs,1)} มม.</div>`}
 function tmHit(e){if(!S.tmd||!TMN)return false;const ids=['tmd-a','tmd-c'].filter(id=>map.getLayer(id));if(!ids.length)return false;
  const f=map.queryRenderedFeatures([[e.point.x-6,e.point.y-6],[e.point.x+6,e.point.y+6]],{layers:ids})[0];if(!f)return false;tmPopup(f.properties.id);return true}
-function tmGo(id){const s=(TMN||[]).find(x=>x.station_id==id);if(!s)return;MOVED=true;map.easeTo({center:[s.station_lon,s.station_lat],zoom:Math.max(map.getZoom(),10),offset:visOff(),duration:dur(700)});
- map.once('moveend',()=>tmPopup(id))}
+function tmGo(id){const s=(TMN||[]).find(x=>x.station_id==id);if(!s)return;MOVED=true;map.once('moveend',()=>tmPopup(id)); /* ผูกก่อน easeTo: ลดการเคลื่อนไหว (dur=0) moveend ยิงทันที */
+ map.easeTo({center:[s.station_lon,s.station_lat],zoom:Math.max(map.getZoom(),10),offset:visOff(),duration:dur(700)})}
 function tmApply(){$('#tmbox').hidden=!S.tmd;tmLegend();if(S.tmd)tmLoad().catch(()=>{});try{tmLayer()}catch(e){}}
+/* แผงรายละเอียดจุดความร้อน: สถานีกรมอุตุฯ 2 แห่งที่ใกล้สุด (≤60 กม.) ค่าล่าสุด + ค่าชั่วโมงที่ใกล้เวลาดาวเทียมสแกน (จุดไม่เกิน 47 ชม. จาก awsnowbyid) */
+const tmKm=(lo,la,lo2,la2)=>{const k=Math.cos((la+la2)/2*Math.PI/180),dx=(lo2-lo)*k,dy=la2-la;return{km:Math.hypot(dx,dy)*111.2,br:(Math.atan2(dx,dy)*180/Math.PI+360)%360}};
+function tmCells(o){const f=(v,d)=>v==null?'–':nf(v,d),ws=o.W,lo=o.H!=null&&o.H<40;
+ return`<div class="tmdg"><div><small>อุณหภูมิ</small><b>${f(o.T,1)}°</b></div><div class="${lo?'lo':''}"><small>ความชื้น</small><b>${o.H==null?(o.bad?'?':'–'):Math.round(o.H)+'%'}</b></div><div><small>ลม กม./ชม.</small><b>${f(ws,1)}</b>${ws!=null&&ws>=1&&o.D!=null?`<i>จาก${tmDir(o.D)}</i>`:ws!=null&&ws<1?'<i>สงบ</i>':''}</div><div><small>${o.rl||'ฝนวันนี้'}</small><b>${f(o.R,1)}</b>${o.R7!=null?`<i>7 วัน ${nf(o.R7,1)}</i>`:''}</div></div>`}
+async function tmDetail(h){const el=$('#tm-d');if(!el||!h)return;el.innerHTML='<span class="sm" style="opacity:.7">กำลังโหลดสถานีตรวจอากาศกรมอุตุฯ…</span>';
+ try{await tmLoad(false,true);if(CUR!==h)return;if(!TMN||!TMN.length)throw 0;
+  const L=TMN.map(s=>({s,...tmKm(h.lon,h.lat,s.station_lon,s.station_lat)})).filter(x=>x.km<=60).sort((a,b)=>a.km-b.km).slice(0,2);
+  if(!L.length){el.innerHTML='<span class="sm">ไม่มีสถานีกรมอุตุฯ ในระยะ 60 กม.</span>';return}
+  const recent=h.t&&Date.now()-h.t<47*36e5;
+  el.innerHTML=L.map(({s,km,br},i)=>{const r=TMR&&TMR.get(s.station_id),bad=tmRhBad(s);
+   return`<div class="tms"><b>${esc(tmShort(s.station_name_th))}</b> <span class="sm">ห่าง ${nf(km,km<10?1:0)} กม. ทางทิศ${DIRN[Math.round(br/45)%8]} · จ.${esc(s.province_name_th)}</span>
+   ${tmCells({T:tmNum(s.temperature),H:bad?null:tmNum(s.humidity),bad,W:tmNum(s.windspeed),D:tmNum(s.winddirection),R:tmNum(s.precip_today),R7:r?tmNum(r.precip_7days):null})}
+   <div class="sm">ค่าล่าสุด ${tmDT(tmT(s))}${tmOld(s)?' <span style="color:#b45309">(ไม่อัปเดตเกิน 3 ชม.)</span>':''} · <a href="${TM_WEB}${s.station_id}" target="_blank" rel="noopener">กรมอุตุฯ ↗</a>${i===0&&!S.tmd?` · <a role="button" tabindex="0" data-tmon="${s.station_id}">ดูบนแผนที่</a>`:''}</div>
+   ${i===0&&recent?'<div class="tmh" id="tm-dh"><span class="sm" style="opacity:.7">กำลังโหลดค่าขณะดาวเทียมสแกน…</span></div>':''}</div>`}).join('')+
+   '<div class="sm" style="margin:-4px 0 8px">ค่าตรวจวัดจริง ณ ที่ตั้งสถานี — สภาพบนสันเขา/ในหุบใกล้จุดไฟอาจต่างจากสถานีมาก · ช่องแดง = ความชื้นต่ำกว่า 40%</div>';
+  if(L[0]&&recent){const H=await tmHist(L[0].s.station_id);if(CUR!==h)return;const e2=$('#tm-dh');if(!e2)return;
+   let b=null;for(const x of H)if(!b||Math.abs(x.t-h.t)<Math.abs(b.t-h.t))b=x;
+   if(!b||Math.abs(b.t-h.t)>90*6e4){e2.hidden=true;return}
+   const R3=H.filter(x=>x.t>h.t-3*36e5&&x.t<=b.t).reduce((a,x)=>a+(x.R||0),0);
+   e2.innerHTML=`<span class="sm"><b>ขณะดาวเทียมสแกน</b> ${tmHM(h.t)} น. (ค่าของ ${tmHM(b.t)} น.)</span>${tmCells({...b,R:R3,rl:'ฝน 3 ชม.'})}`}}
+ catch(e){if(CUR===h)el.innerHTML='<span class="sm" style="opacity:.7">ดึงข้อมูลสถานีตรวจอากาศกรมอุตุฯ ไม่ได้</span>'}}
+{const od=openDetail;openDetail=function(h){od.apply(this,arguments);try{tmDetail(h)}catch(e){}}}
+$('#tm-d').addEventListener('click',e=>{const a=e.target.closest('[data-tmon]');if(!a)return;const b=document.querySelector('.sw[data-k="tmd"]');if(b&&!S.tmd)b.click();tmLoad().then(()=>tmGo(a.dataset.tmon)).catch(()=>{})});
 $$('#tmseg button').forEach(b=>b.onclick=()=>{if(S.tmv===b.dataset.v)return;S.tmv=b.dataset.v;tmDraw()});
 $('#tm-ar').addEventListener('click',e=>{const a=e.target.closest('[data-tm]');if(a)tmGo(a.dataset.tm)});
 $('#tm-ar').addEventListener('keydown',e=>{const a=e.target.closest('[data-tm]');if(a&&(e.key==='Enter'||e.key===' ')){e.preventDefault();tmGo(a.dataset.tm)}});
