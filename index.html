@@ -125,7 +125,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .rb h3{margin:14px 0 6px;font-size:14px;color:var(--navy)}
 .row{display:flex;align-items:center;gap:10px;min-height:40px;font-size:14px}.row b{flex:1;font-weight:600}.row[data-tip]>b,.row[data-tipel]>b{cursor:help}
 /* ป้ายเมื่อชี้เมาส์ (#tt สร้างใน JS): ปุ่มควบคุมแผนที่ + คำอธิบายแถวในแผงชั้นข้อมูล */
-#tt{position:fixed;left:-999px;top:0;z-index:60;max-width:300px;padding:8px 11px;border-radius:10px;background:rgba(24,31,48,.95);color:#fff;font-size:12px;line-height:1.55;box-shadow:0 6px 20px rgba(0,0,0,.25);pointer-events:none;opacity:0;transition:opacity .12s}#tt.on{opacity:1}#tt.one{white-space:nowrap;padding:5px 10px}#tt .ttl{margin-top:5px}#tt .ttl:first-child{margin-top:0}
+#tt{position:fixed;left:-999px;top:0;z-index:60;max-width:300px;padding:8px 11px;border-radius:10px;background:rgba(24,31,48,.95);color:#fff;font-size:12px;line-height:1.55;box-shadow:0 6px 20px rgba(0,0,0,.25);pointer-events:none;opacity:0;transition:opacity .12s}#tt.on{opacity:1}#tt.one{white-space:nowrap;padding:5px 10px}#tt .ttl{margin-top:5px;white-space:pre-line}#tt .ttl:first-child{margin-top:0}
 .sub{margin-left:30px;font-size:13px;gap:8px;min-height:32px}.sub span{flex:1}
 .sub svg{width:16px;height:16px}
 .note{font-size:12px;color:var(--mut);margin:0 0 6px 30px}
@@ -3493,7 +3493,7 @@ function ttShow(el){const c=el.closest('#ctl'),g=el.dataset.tipel&&$('#'+el.data
 function ttHide(){ttEl=null;TT.className='';clearTimeout(ttT)}
 document.addEventListener('pointerover',e=>{if(e.pointerType!=='mouse')return;const el=e.target.closest('[data-tip],[data-tipel]');if(el!==ttEl)el?ttShow(el):ttHide()});
 // จอสัมผัส: แตะชื่อชั้นข้อมูลเพื่อดูคำอธิบาย 6 วินาที
-document.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'){ttHide();return}const el=e.target.closest('b')&&e.target.closest('#right [data-tip],#right [data-tipel]');if(el){ttShow(el);clearTimeout(ttT);ttT=setTimeout(ttHide,6000)}else ttHide()});
+document.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'){ttHide();return}const el=e.target.closest('b')&&e.target.closest('#right [data-tip],#right [data-tipel]')||e.target.closest('.vrtb [data-tip]'); /* จอสัมผัส: แตะชื่อชั้น หรือแตะช่องตารางอัตราการระบายอากาศ */if(el){ttShow(el);clearTimeout(ttT);ttT=setTimeout(ttHide,6000)}else ttHide()});
 addEventListener('wheel',()=>ttEl&&!ttEl.closest('#ctl')&&ttHide(),{passive:true});
 document.fonts&&document.fonts.ready.then(fitTitle);
 /* จุดเฝ้าระวังไฟป่า ปี 2569 (ดาวแดงตามสัญลักษณ์ใน KMZ) — สร้างก่อน FSM เพื่อให้ป้ายสถานีฯ อยู่ด้านบน */
@@ -6119,6 +6119,8 @@ function gvAreas(){if(GVA)return GVA;const L=(bb,inn)=>{const P=[];for(let x=Mat
  if(PRV)for(const[p,id]of VRPV){const f=PRV.pv.features.find(f=>f.properties.p===p);if(f)A.push([p,id,L(f.bb,(x,y)=>prvAt(x,y)===p)])}
  return GVA=PRV?A:(A.length=1,A)}
 /* ค่าเฉลี่ยพื้นที่ — ต้องมีข้อมูลครอบ ≥80% ของพื้นที่ (Open-Meteo มีเฉพาะกรอบที่มองเห็น) ไม่งั้น null */
+/* สถิติจุดในพื้นที่ (ผู้ใช้ขอ 14 พ.ย. 69 ให้ป้ายช่องตารางบอกช่วงและสัดส่วนที่ระบายได้ เพราะค่าเฉลี่ยบดบังความต่างภายในพื้นที่) */
+const gvStat=(P,fn)=>{let s=0,n=0,lo=Infinity,hi=-Infinity,ok=0;for(const[x,y]of P){const v=fn(x,y);if(v==null)continue;s+=v;n++;if(v<lo)lo=v;if(v>hi)hi=v;if(v>=2000)ok++}return n&&n>=P.length*.8?{m:s/n,lo,hi,ok:ok/n,n}:null};
 const gvMeanF=(P,fn)=>{let s=0,n=0;for(const[x,y]of P){const v=fn(x,y);if(v!=null){s+=v;n++}}return n&&n>=P.length*.8?s/n:null};
 const gvMean=(f,P)=>{let s=0,n=0;for(const[x,y]of P){const v=gvAt(f,x,y);if(v!=null){s+=v;n++}}return n&&n>=P.length*.8?s/n:null};
 const vrThDate=ms=>new Date(ms).toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short',timeZone:'Asia/Bangkok'});
@@ -6142,8 +6144,13 @@ function gvDraw(){vrLegend();gvSet();const box=$('#vr-dc'),om=vrMode()==='om',gm
  tx('vr-pth',`<b>ค่าเฉลี่ยทั้งพื้นที่</b> ของ${st==='max'?'ค่าสูงสุดของวัน':'ค่าเฉลี่ยทั้งวัน'} (พัน ตร.ม./วินาที) · แตะตัวเลข = เลือกวัน · แตะชื่อจังหวัด = กราฟของกรมอุตุฯ`+(om?' · Open-Meteo มีข้อมูลเฉพาะบริเวณที่มองเห็น พื้นที่ที่อยู่นอกกรอบเป็น –':''));
  let s=`<div class="vrtb" style="grid-template-columns:62px repeat(${nd},1fr)"><span></span>${GV.days.map((_,i)=>`<span class="h${i===sel?' on':''}" data-i="${i}">${gvDate(i,{day:'numeric'})}</span>`).join('')}`;
  for(const[p,id,P]of A){s+=id?`<button data-p="${p}" data-id="${id}" title="เปิดกราฟพยากรณ์ 10 วันของกรมอุตุฯ (ค่าที่จุดสถานีตรวจอากาศของจังหวัด)">${p}</button>`:`<span class="n" title="ค่าเฉลี่ยภายในแนวเขตพื้นที่อนุรักษ์ของกลุ่มป่า">${p}</span>`;
-  GV.days.forEach((_,i)=>{const v=!P.length?null:st==='max'?gvMeanF(P,gvMaxFn(i)):gvMean(gvField(st,i),P);if(v==null){s+='<span>–</span>';return}const c=VRC[vrCat(v)];
-   s+=`<span class="c${i===sel?' on':''}" data-i="${i}" title="${p} ${gvDate(i)} · ${vrN(v)} ตร.ม./วินาที (${c[1]})" style="background:${c[2]};color:${vrCat(v)===1?'#3a2e00':'#fff'}">${v>=9950?Math.round(v/1000):(v/1000).toFixed(1)}</span>`})}
+  GV.days.forEach((_,i)=>{let fn=null;if(P.length){if(st==='max')fn=gvMaxFn(i);else{const f=gvField(st,i);fn=(x,y)=>gvAt(f,x,y)}}const T=fn&&gvStat(P,fn),v=T&&T.m;if(v==null){s+='<span>–</span>';return}const c=VRC[vrCat(v)],ok=Math.round(T.ok*100);
+   const tip=`${p} · ${gvDate(i,{weekday:'short',day:'numeric',month:'short'})}
+${st==='max'?'ค่าสูงสุดของวัน':'ค่าเฉลี่ยทั้งวัน'} เฉลี่ยทั้งพื้นที่ ${vrN(v)} ตร.ม./วินาที (${c[1]})
+ภายในพื้นที่: ต่ำสุด ${vrN(T.lo)} – สูงสุด ${vrN(T.hi)}
+พื้นที่ที่ ≥2,000 (ระบายได้): ${ok}%${ok===0?' — ไม่มีจุดใดระบายได้':ok===100?' — ทั้งพื้นที่':''}
+(จากจุดตัวอย่างทุก 0.05° ${T.n} จุด)`;
+   s+=`<span class="c${i===sel?' on':''}" data-i="${i}" data-tip="${esc(tip)}" style="background:${c[2]};color:${vrCat(v)===1?'#3a2e00':'#fff'}">${v>=9950?Math.round(v/1000):(v/1000).toFixed(1)}</span>`})}
  tx('vr-pt',s+'</div>');gvChart()}
 function tvPopChart(p,id){const u=`${TMD_IMG}${id}.png`;
  openModal(`อัตราการระบายอากาศ 10 วัน จ.${p} (กรมอุตุฯ)`,`<a href="${u}" target="_blank" rel="noopener"><img src="${u}?v=${Math.floor(Date.now()/36e5)}" alt="กราฟอัตราการระบายอากาศ 10 วัน จ.${p} จากกรมอุตุนิยมวิทยา" style="width:100%;height:auto;aspect-ratio:1000/600;border:1px solid var(--line);border-radius:8px;background:#f4f5f8" referrerpolicy="no-referrer" onerror="this.replaceWith('โหลดภาพไม่ได้ — แตะเพื่อเปิดที่เว็บกรมอุตุฯ')"></a>
