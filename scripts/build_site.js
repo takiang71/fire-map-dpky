@@ -194,8 +194,8 @@ function watchSum(W) {
   fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
   // คู่มือการใช้งาน (manual/index.html + ภาพประกอบ) — ปุ่ม #bMan ในหน้าเว็บเปิดหน้านี้
   if (fs.existsSync(path.join(ROOT, 'manual'))) fs.cpSync(path.join(ROOT, 'manual'), path.join(OUT, 'manual'), { recursive: true });
-  // พื้นที่เผาไหม้ (scripts/sync_burn.js), แหล่งเชื้อเพลิง (scripts/sync_fuel.js) และภาพแหล่งท่องเที่ยว (data/tour) — หน้าเว็บอ่านจาก data/ ทางเดียวกับตอนเปิดผ่าน serve.js
-  for (const d of ['burn', 'fuel', 'tour']) if (fs.existsSync(path.join(ROOT, 'data', d))) fs.cpSync(path.join(ROOT, 'data', d), path.join(OUT, 'data', d), { recursive: true });
+  // พื้นที่เผาไหม้ (scripts/sync_burn.js), แหล่งเชื้อเพลิง (scripts/sync_fuel.js), ภาพแหล่งท่องเที่ยว (data/tour) และดัชนีอันตรายไฟป่า TFDRS (scripts/sync_fwi.js) — หน้าเว็บอ่านจาก data/ ทางเดียวกับตอนเปิดผ่าน serve.js
+  for (const d of ['burn', 'fuel', 'tour', 'fwi']) if (fs.existsSync(path.join(ROOT, 'data', d))) fs.cpSync(path.join(ROOT, 'data', d), path.join(OUT, 'data', d), { recursive: true });
   // แนวเขตอำเภอ/ตำบล (scripts/build_admin.js) — หน้าเว็บโหลดเมื่อใช้
   if (fs.existsSync(path.join(ROOT, 'data', 'admin.json'))) fs.copyFileSync(path.join(ROOT, 'data', 'admin.json'), path.join(OUT, 'data', 'admin.json'));
   // นักท่องเที่ยวและเงินรายได้อุทยานแห่งชาติ (scripts/sync_tourism.js) — การ์ดในหน้าความสำคัญ

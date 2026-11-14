@@ -39,6 +39,7 @@ job('sw_burn_c', `await lay();set('burn',true);await W(3500);sel('#bn-s','c20260
 job('sw_burn_h', `await lay();set('burn',true);await W(3500);sel('#bn-s','fy2569');await W(4000);const h=document.querySelector('#bn-h');h&&h.click();await W(2500);row('burn');document.querySelector('#right .rb').scrollTop+=160;${go('102.62,14.40', 10.9)}`, { after: 8000 });
 job('sw_rep', `await lay();set('rep',true);await W(4000);row('rep');${go('102.20,14.30', 10.4)}`, { after: 8000 });
 job('sw_dry', `await lay();set('dry',true);await W(6000);const rb=document.querySelector('#drseg button[data-v=rh]');rb&&rb.click();await W(2500);row('dry');${go('101.0,13.8', 5.8)}`, { after: 6000 });
+job('sw_fwi', `await lay();S.orb=false;set('fwi',true);await W(5000);row('fwi');${go('101.95,14.15', 7.5)}`, { after: 6000 });
 job('sw_ftype', `await lay();set('ftype',true);await W(4000);row('ftype');${go('101.80,14.25', 9.2)}`, { after: 8000 });
 job('sw_fuel', `await lay();set('fuel',true);await W(4000);row('fuel');${go('101.45,14.35', 10.6)}`, { after: 9000 });
 job('sw_wind', `await lay();set('wind',true);await W(3000);row('wind');${go('101.6,14.1', 7.6)}`, { after: 9000 });

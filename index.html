@@ -739,11 +739,21 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div id="rpbox" hidden><div class="seg" id="rpseg"><button data-v="2">ไหม้ ≥ 2 ปี</button><button data-v="3">≥ 3 ปี</button><button data-v="1">ทุกพื้นที่ที่เคยไหม้</button></div>
    <div class="lgd" id="rp-lg" style="display:flex;flex-wrap:wrap;column-gap:12px"></div><div id="rp-a"></div><div class="dsrc" id="rp-src"></div></div>
   <div class="row" data-tip="ดัชนีไฟป่า (Chandler Burning Index) จากอุณหภูมิสูงสุด ความชื้นต่ำสุด ลม และฝน · ตั้งแต่ 75 = เชื้อเพลิงแห้ง ติดไฟง่าย · พยากรณ์รายวัน Open-Meteo (ตาราง ~110 กม.) · ชี้เมาส์บนแผนที่เพื่อดูค่า"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v18M5 8c3-3 11-3 14 0"/></svg><b>อากาศแห้ง เสี่ยงเกิดไฟป่า</b><span class="sm" id="dr-t"></span><button class="sw" data-k="dry" role="switch" aria-label="อากาศแห้ง"></button></div>
-  <div id="drybox" hidden><div class="seg" id="drseg"><button data-v="fwi">ดัชนีไฟป่า FWI</button><button data-v="rh">ความชื้นต่ำสุด</button><button data-v="vpd">ความแห้ง VPD</button></div>
+  <div id="drybox" hidden><div class="seg" id="drseg"><button data-v="fwi">ดัชนีไฟป่า CBI</button><button data-v="rh">ความชื้นต่ำสุด</button><button data-v="vpd">ความแห้ง VPD</button></div>
    <div class="chips" id="drchips"></div><div class="lgd" id="drlg"></div>
-   <div class="lgd"><div><i style="background:#e8741c;border-radius:50%"></i><span style="flex:1">พื้นที่เสี่ยงสูงขึ้นไป (FWI ≥ 75)</span><b id="dr-s1"></b></div><div><i style="background:#c0503c;border-radius:50%"></i><span style="flex:1">เสี่ยงสูงมาก–วิกฤต (FWI ≥ 90)</span><b id="dr-s2"></b></div><div><i style="background:#7e0023;border-radius:50%"></i><span style="flex:1">ความชื้นต่ำสุดในประเทศ</span><b id="dr-s3"></b></div></div>
+   <div class="lgd"><div><i style="background:#e8741c;border-radius:50%"></i><span style="flex:1">พื้นที่เสี่ยงสูงขึ้นไป (CBI ≥ 75)</span><b id="dr-s1"></b></div><div><i style="background:#c0503c;border-radius:50%"></i><span style="flex:1">เสี่ยงสูงมาก–วิกฤต (CBI ≥ 90)</span><b id="dr-s2"></b></div><div><i style="background:#7e0023;border-radius:50%"></i><span style="flex:1">ความชื้นต่ำสุดในประเทศ</span><b id="dr-s3"></b></div></div>
    <p class="note" style="margin-left:0"><span id="dr-n"></span></p>
    <button class="lk" id="dr-r">↻ คำนวณใหม่</button></div>
+  <div class="row" data-tip="ระบบดัชนีอันตรายไฟป่าของแคนาดา (Canadian Forest Fire Weather Index System) คำนวณโดยระบบ TFDRS ของกรมป่าไม้ จากอุณหภูมิ ความชื้น ลมเที่ยงวัน และฝน 24 ชม. (แบบจำลอง WRF ของ สสน.) · เกณฑ์ 5 ระดับปรับเทียบสำหรับประเทศไทย · ตาราง ~3 กม. วันละครั้ง ย้อนหลัง 7 วัน + พยากรณ์ 2 วัน · 6 ดัชนี: FFMC DMC DC (ความชื้นเชื้อเพลิง) → ISI BUI → FWI · ชี้เมาส์บนแผนที่เพื่อดูค่า"><svg class="i" viewBox="0 0 24 24"><path d="M3.5 17a8.5 8.5 0 0117 0"/><path d="M12 17l4.5-5.5"/><circle cx="12" cy="17" r="1.4"/><path d="M6 12.6l1.2.8M12 8.5v1.4M18 12.6l-1.2.8"/></svg><b>ดัชนีอันตรายไฟป่า FWI</b><span class="tag">กรมป่าไม้</span><span class="sm" id="fwi-t"></span><button class="sw" data-k="fwi" role="switch" aria-label="ดัชนีอันตรายไฟป่า FWI System กรมป่าไม้"></button></div>
+  <div id="fwibox" hidden>
+   <div class="seg fwseg" id="fwi-v" role="group" aria-label="เลือกดัชนี"><button data-v="FWI" title="ดัชนีความรุนแรงของไฟ (Fire Weather Index) — ดัชนีอันตรายไฟป่าโดยรวม">FWI</button><button data-v="ISI" title="ดัชนีการลุกลามเริ่มต้น (Initial Spread Index)">ISI</button><button data-v="BUI" title="ดัชนีเชื้อเพลิงสะสม (Buildup Index)">BUI</button><button data-v="FFMC" title="รหัสความชื้นเชื้อเพลิงละเอียด (Fine Fuel Moisture Code)">FFMC</button><button data-v="DMC" title="รหัสความชื้นของอินทรียวัตถุชั้นบน (Duff Moisture Code)">DMC</button><button data-v="DC" title="รหัสความแห้งแล้ง (Drought Code)">DC</button></div>
+   <div class="seg fwseg" id="fwi-w" role="group" aria-label="อากาศที่ใช้คำนวณ"><button data-v="Temp_noon" title="อุณหภูมิเที่ยงวัน (°C)">อุณหภูมิ</button><button data-v="Wsp_noon" title="ความเร็วลมเที่ยงวัน (กม./ชม.)">ลม</button><button data-v="Precip_24hr" title="ฝนสะสม 24 ชม. (มม.)">ฝน 24 ชม.</button></div>
+   <div class="chips" id="fwi-dc" role="group" aria-label="เลือกวัน"></div>
+   <div class="tsv"><span id="fwi-dv" style="flex:1">–</span></div>
+   <div class="vrl" id="fwi-lg"></div>
+   <div class="vrc"><div class="sm" id="fwi-pth"></div><div id="fwi-pt"></div></div>
+   <details class="vrad"><summary>FWI System คืออะไร · อ่านค่าอย่างไร</summary><div id="fwi-ad"></div></details>
+   <p class="note" style="margin-left:0"><span id="fwi-st"></span></p></div>
 
   <h3>ป่าไม้และเชื้อเพลิง</h3>
   <div class="row" data-tip="ชนิดป่าปี 2561 จาก shapefile ของกรมป่าไม้ (โครงการจัดทำข้อมูลสภาพพื้นที่ป่าไม้ ปี 2560–2561) ทำเป็นกริด 50 ม. · ใช้จำแนกพื้นที่และเลือกเชื้อเพลิงให้โมเดลไฟ · แตะแผนที่เพื่อดูชนิดป่า"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="9" height="14" style="fill:#38a800;stroke:none"/><rect x="12" y="5" width="9" height="7" style="fill:#a87000;stroke:none"/><rect x="12" y="12" width="9" height="7" style="fill:#e69800;stroke:none"/></svg><b>ชนิดป่า</b><span class="tag">2561</span><button class="sw" data-k="ftype" role="switch" aria-label="ชนิดป่า"></button></div>
@@ -877,7 +887,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div class="dh"><b>สภาพอากาศตอนนี้</b></div>
   <div class="wxr"><svg viewBox="0 0 100 100" width="118" height="118" aria-label="เข็มทิศลม"><circle cx="50" cy="50" r="44" fill="none" stroke="#c9cedb" stroke-width="1.500"/><g font-size="9" fill="#6b7280" text-anchor="middle"><text x="50" y="14">N</text><text x="89" y="53">E</text><text x="50" y="94">S</text><text x="11" y="53">W</text></g><g id="ar"><path d="M50 22V36M45 28L50 21L55 28" fill="none" stroke="#1B2A5E" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round"/></g><text x="50" y="56" text-anchor="middle" font-size="22" font-weight="800" fill="#1B2A5E" id="ws">–</text><text x="50" y="68" text-anchor="middle" font-size="8" fill="#6b7280">กม./ชม.</text></svg><div class="tb" id="wxt"></div></div>
   <div class="wh"><div style="display:flex;justify-content:space-between;font-size:12.5px"><span>ความแห้งของอากาศ (VPD)</span><b id="vp"></b></div><div class="bar"><i id="vp-b"></i></div><div class="sm" id="vp-t"></div></div>
-  <div class="cream"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="font-size:13px">ดัชนีอันตรายไฟป่าตอนนี้ (FWI / CBI)</b><span class="cap" id="fw-c"></span></div><div class="sm" id="fw-d" style="margin:6px 0"></div><div class="fwt" id="fw-t"></div></div>
+  <div class="cream"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="font-size:13px">ดัชนีอันตรายไฟป่าตอนนี้ (CBI)</b><span class="cap" id="fw-c"></span></div><div class="sm" id="fw-d" style="margin:6px 0"></div><div class="fwt" id="fw-t"></div><div class="sm" id="fw-tf" style="margin-top:6px"></div></div>
   <div class="sm" style="margin:8px 0">ค่าจากแบบจำลอง (Open-Meteo) · ดัชนีอันตรายไฟป่าคำนวณตามสมการ Chandler Burning Index (CBI) ร่วมกับความเร็วลมและฝนสะสม · ลมในตารางพยากรณ์ = ความเร็วสูงสุดรายวัน</div>
   <div style="text-align:center;padding-bottom:6px"><a class="tl" style="display:inline;margin:0 10px" id="d-cp2" role="button" tabindex="0">คัดลอกพิกัด</a><a class="tl" style="display:inline;margin:0 10px" id="d-go2" role="button" tabindex="0">นำทางด้วย Google Maps</a></div>
   <div style="display:none"></div></div>
@@ -1081,7 +1091,7 @@ const areaHtml=g=>{let s='';if(g.cons)s+=`<b>${esc(g.cons.properties.name)}</b><
  return s||'<span class="sm">อยู่นอกพื้นที่อนุรักษ์และพื้นที่รับผิดชอบไฟป่าตามไฟล์แนวเขต</span><br>'};
 
 /* ---------- สถานะ + จำค่าที่ผู้ใช้เลือก ---------- */
-let S={base:'natural',img:'google',d3:false,hot:true,prov:false,cons:true,resp:false,stn:false,wpt:false,rgr:false,fbs:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,orb:true,orbm:false,wch:true,wst:false,wsp:true,demo:false,water:true,road:true,wind:false,pm:false,dry:false,wx:false,vr:false,vrg:'mean',rad:false,him:false,hmb:'ir',hmop:85,wyl:false,wyo:'wind',wyop:60,hist:false,xt:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',rep:false,rpm:2,hcd:1,hcg:2,hcr:200};
+let S={base:'natural',img:'google',d3:false,hot:true,prov:false,cons:true,resp:false,stn:false,wpt:false,rgr:false,fbs:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,orb:true,orbm:false,wch:true,wst:false,wsp:true,demo:false,water:true,road:true,wind:false,pm:false,dry:false,fwi:false,fwv:'FWI',wx:false,vr:false,vrg:'mean',rad:false,him:false,hmb:'ir',hmop:85,wyl:false,wyo:'wind',wyop:60,hist:false,xt:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',rep:false,rpm:2,hcd:1,hcg:2,hcr:200};
 try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;S.wst=false;if(S.base==='road')S.base='detail';
 const toast=(m,fn,ms)=>{const t=$('#toast');t.textContent=m;t.classList.add('show');t.classList.toggle('act',!!fn);t.onclick=fn?()=>{t.classList.remove('show','act');fn()}:null;
  clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show','act'),ms||2200)}; // fn = แตะป้ายแล้วทำ (ป้ายค้างนานขึ้น)
@@ -1610,11 +1620,11 @@ map.on('click',e=>{
  const uh=typeof ulHit==='function'?ulHit(e):null;if(uh&&uh.done)return; // ชั้นข้อมูลของผู้ใช้: หมุด/เส้น = ป๊อปอัปของวัตถุ, พื้นที่ = บรรทัดบนสุดของป๊อปอัปตำแหน่ง
  const g0=geoAt(e.lngLat.lng,e.lngLat.lat);
  const{lat,lng}=e.lngLat,ll=lat.toFixed(5)+', '+lng.toFixed(5);
- const pop=new maplibregl.Popup({maxWidth:'270px'}).setLngLat(e.lngLat).setHTML(`${uh?uh.html:''}${wchHtml(e.lngLat)}${areaHtml(g0)}${bnAt(e.lngLat)}${rpAt(e.lngLat)}<span class="pft"></span><b>พิกัด</b> ${ll}<br><div class="sm pw" style="margin:4px 0">กำลังดึงสภาพอากาศ…</div>${typeof vrPop==='function'?vrPop(lng,lat):''}<span class="sm pt0">กำลังหาชื่อตำบล…</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}">นำทางด้วย Google Maps</a>`).addTo(map);if(uh)uh.bind(pop);
+ const pop=new maplibregl.Popup({maxWidth:'270px'}).setLngLat(e.lngLat).setHTML(`${uh?uh.html:''}${wchHtml(e.lngLat)}${areaHtml(g0)}${bnAt(e.lngLat)}${rpAt(e.lngLat)}<span class="pft"></span><b>พิกัด</b> ${ll}<br><div class="sm pw" style="margin:4px 0">กำลังดึงสภาพอากาศ…</div>${typeof vrPop==='function'?vrPop(lng,lat):''}${typeof fwPop==='function'?fwPop(lng,lat):''}<span class="sm pt0">กำลังหาชื่อตำบล…</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}">นำทางด้วย Google Maps</a>`).addTo(map);if(uh)uh.bind(pop);
  ftLoad().then(()=>{const f=ftAt(lng,lat),el=pop.getElement()&&pop.getElement().querySelector('.pft');if(el&&f)el.innerHTML='<b>ชนิดป่า</b> '+ftTxt(f)+'<br>'}).catch(()=>{});
  admLoad().then(()=>{const a=admAt(lng,lat),el=pop.getElement()&&pop.getElement().querySelector('.pt0');if(el){const p=a?null:prvAt(lng,lat);el.innerHTML=a?'<b>'+esc(admTxt(a,1))+'</b>':p?'<b>จ.'+esc(p)+'</b>':'นอกขอบเขตข้อมูลตำบล'}}).catch(()=>{const el=pop.getElement()&&pop.getElement().querySelector('.pt0');if(el)el.textContent='โหลดชื่อตำบลไม่ได้'});
  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,precipitation&wind_speed_unit=kmh`).then(r=>r.json()).then(j=>{const c=j.current,f=cbi(c.temperature_2m,c.relative_humidity_2m,c.wind_speed_10m,c.precipitation||0),l=fwiLv(f),el=pop.getElement().querySelector('.pw');
-  if(el)el.innerHTML=`${nf(c.temperature_2m,1)} °C · ความชื้น ${Math.round(c.relative_humidity_2m)}%<br>ลมจากทิศ${DIRN[Math.round(c.wind_direction_10m/45)%8]} ${Math.round(c.wind_speed_10m)} กม./ชม.<br>สูง ${Math.round(j.elevation)} ม. · ไฟป่า FWI <b style="color:${DK[l]}">${nf(f,1)} ${DN[l]}</b>`}).catch(()=>{const el=pop.getElement()&&pop.getElement().querySelector('.pw');if(el)el.textContent='ดึงสภาพอากาศไม่ได้'})});
+  if(el)el.innerHTML=`${nf(c.temperature_2m,1)} °C · ความชื้น ${Math.round(c.relative_humidity_2m)}%<br>ลมจากทิศ${DIRN[Math.round(c.wind_direction_10m/45)%8]} ${Math.round(c.wind_speed_10m)} กม./ชม.<br>สูง ${Math.round(j.elevation)} ม. · ไฟป่า CBI <b style="color:${DK[l]}">${nf(f,1)} ${DN[l]}</b>`}).catch(()=>{const el=pop.getElement()&&pop.getElement().querySelector('.pw');if(el)el.textContent='ดึงสภาพอากาศไม่ได้'})});
 
 
 /* ================= เฟส 2: แบบจำลองไฟป่า + แผงรายละเอียด ================= */
@@ -1804,7 +1814,7 @@ const cbi=(T,RH,w,rain)=>Math.max(0,((110-1.373*RH)-.54*(10.2-T))*124*Math.pow(1
 const vpdOf=(T,RH)=>.6108*Math.exp(17.27*T/(T+237.3))*(1-RH/100);
 const DC=['#cfe3d0','#e8d9a0','#f6b26b','#c0503c','#7e0023'],DN=['ต่ำ','ปานกลาง','สูง','สูงมาก','วิกฤต'],DE=['Low','Moderate','High','Very High','Extreme'],DK=['#2e7d4f','#b89b2e','#e8741c','#c0392b','#7e0023'];
 const cls=(v,x)=>v==='fwi'?(x>=97.5?4:x>=90?3:x>=75?2:x>=50?1:0):v==='rh'?(x>=60?0:x>=40?1:x>=30?2:x>=20?3:4):(x<1?0:x<2?1:x<3?2:x<4?3:4);
-const DLG={fwi:['ดัชนีอันตรายไฟป่า (FWI / CBI)',['≥ 0','≥ 50','≥ 75','≥ 90','≥ 97.5']],rh:['ความชื้นสัมพัทธ์ต่ำสุดรายวัน',['≥ 60%','40-60%','30-40%','20-30%','< 20%']],vpd:['ความแห้งของอากาศ VPD (kPa)',['< 1','1-2','2-3','3-4','≥ 4']]};
+const DLG={fwi:['ดัชนีอันตรายไฟป่า (CBI)',['≥ 0','≥ 50','≥ 75','≥ 90','≥ 97.5']],rh:['ความชื้นสัมพัทธ์ต่ำสุดรายวัน',['≥ 60%','40-60%','30-40%','20-30%','< 20%']],vpd:['ความแห้งของอากาศ VPD (kPa)',['< 1','1-2','2-3','3-4','≥ 4']]};
 const FWD=['ความชื้นในอากาศและเชื้อเพลิงสูง โอกาสเกิดและลุกลามของไฟป่าต่ำ','เชื้อเพลิงเริ่มแห้ง ไฟเกิดได้และลามได้ปานกลาง ควรเฝ้าระวัง','เชื้อเพลิงแห้ง ติดไฟง่าย ไฟลุกลามเร็ว ควรเตรียมกำลังพลและงดเผา','เชื้อเพลิงแห้งมาก ไฟรุนแรงและควบคุมยาก ควรประกาศห้ามเผาเด็ดขาด','เงื่อนไขวิกฤต ไฟลามรุนแรงมาก เสี่ยงไฟเรือนยอดและไฟกระโดด'];
 const fwiLv=x=>cls('fwi',x);
 /* --- Open-Meteo: พยากรณ์รายวันหลายพิกัด (แบ่งชุดละ 50 จุด) --- */
@@ -1852,7 +1862,7 @@ function drawPM(){const k=S2.pmDay,t=new Date();tx('pm-t',thTime(Date.now())+' �
  const aq=S2.pmv==='aqi';tx('pmlg',`<div class="sm" style="margin:4px 0">${aq?'AQI สากล (US EPA) · PM2.5 เฉลี่ย 24 ชม. µg/m³':'PM2.5 เฉลี่ย 24 ชม. (µg/m³) · เกณฑ์ AQI US EPA'}</div>`+AC.map((c,i)=>`<div style="align-items:flex-start;margin-bottom:6px"><i style="background:${c};margin-top:3px"></i><b style="min-width:84px">${aq?AR2[i]:PR[i]}</b><span style="flex:1">${AN[i]}<div class="sm">${aq?'PM2.5 '+PR[i]:'AQI '+AR2[i]}</div></span></div>`).join(''));
  $$('#pmseg button').forEach(b=>b.classList.toggle('on',b.dataset.v===S2.pmv));drawStations()}
 async function loadDry(){if(DRYD)return;try{DRYD=await omDaily(GR,7)}catch(e){toast('ดึงพยากรณ์ความแห้งไม่ได้');return}drawDry()}
-function drawDry(){if(!DRYD)return;const d=S2.dd,v=S2.dv,key=v==='fwi'?'fwi':v==='rh'?'rh':'vpd',lab=v==='fwi'?'FWI':v==='rh'?'ความชื้นต่ำสุด':'VPD',N=MI.length,pct=(f,x)=>Math.round(100*MI.filter(i=>f(DRYD[i][x])).length/N);
+function drawDry(){if(!DRYD)return;const d=S2.dd,v=S2.dv,key=v==='fwi'?'fwi':v==='rh'?'rh':'vpd',lab=v==='fwi'?'CBI':v==='rh'?'ความชื้นต่ำสุด':'VPD',N=MI.length,pct=(f,x)=>Math.round(100*MI.filter(i=>f(DRYD[i][x])).length/N);
  DRYU=surf(i=>DRYD[i]?DRYD[i][d][key]:null,x=>{const c=ramp(DST[v],DCC,v==='rh'?-x:x);return[c[0],c[1],c[2],125]},(lo,la)=>inside([lo,la],TH));
  const s=map.getSource('dry');s&&s.updateImage({url:DRYU,coordinates:CO});
  tx('dr-t',pct(x=>x.fwi>=75,d)+'% เสี่ยงสูง');tx('dr-s1',pct(x=>x.fwi>=75,d)+'%');tx('dr-s2',pct(x=>x.fwi>=90,d)+'%');tx('dr-s3',Math.round(Math.min(...MI.map(i=>DRYD[i][d].rh)))+'%');
@@ -1862,7 +1872,7 @@ function drawDry(){if(!DRYD)return;const d=S2.dd,v=S2.dv,key=v==='fwi'?'fwi':v==
 function setup3(){
  map.addSource('wx',{type:'image',url:WXU,coordinates:WXC});map.addLayer({id:'wx-f',type:'raster',source:'wx',paint:{'raster-fade-duration':0}},wxBef());
  map.addSource('dry',{type:'image',url:DRYU,coordinates:CO});map.addLayer({id:'dry-f',type:'raster',source:'dry',paint:{'raster-fade-duration':0}});
- map.addSource('pm',{type:'image',url:PMU,coordinates:CO});map.addLayer({id:'pm-f',type:'raster',source:'pm',paint:{'raster-fade-duration':0}});radLayer();try{window.hmLayer&&hmLayer()}catch(e){}try{window.vrLayer&&vrLayer()}catch(e){}}
+ map.addSource('pm',{type:'image',url:PMU,coordinates:CO});map.addLayer({id:'pm-f',type:'raster',source:'pm',paint:{'raster-fade-duration':0}});radLayer();try{window.hmLayer&&hmLayer()}catch(e){}try{window.vrLayer&&vrLayer()}catch(e){}try{window.fwLayer&&fwLayer()}catch(e){}}
 /* --- ลม: อนุภาคไหลบน canvas จากตารางลมในกรอบแผนที่ (Open-Meteo) --- */
 const wc=$('#wc'),wx2=wc.getContext('2d');let WG=null,WP=[],raf=0;
 const wsz=()=>{wc.width=innerWidth;wc.height=innerHeight};
@@ -1895,6 +1905,7 @@ function L3(){ // เรียกจาก apply() ทุกครั้งท�
  if(S.rad)loadRad();else{rdStop();radLayer()}
  try{window.hmApply&&hmApply()}catch(e){}
  try{window.vrApply&&vrApply()}catch(e){}
+ try{window.fwApply&&fwApply()}catch(e){}
  wlApply()}
 /* --- สภาพอากาศรายชั่วโมง: ตาราง Open-Meteo ในกรอบที่มองเห็น (ขยายขอบ 25%) ย้อนหลัง 24 ชม. + พยากรณ์ 48 ชม. → ภาพ canvas วางบนแผนที่
    ดึงใหม่เมื่อเลื่อนออกนอกกรอบเดิม/ซูมเข้ามากจนตารางหยาบ หรือข้อมูลเก่ากว่า 30 นาที (Open-Meteo นับโควตาต่อพิกัด)
@@ -2550,7 +2561,7 @@ $('#wyb-x').onclick=()=>{S.wyl=false;apply()};$('#wyb-f').onclick=()=>wyOpen(S.w
 $('#d-wy').onclick=()=>{if(!CUR)return;S.wyl=true;S.wyo='wind';apply();map.easeTo({center:[CUR.lon,CUR.lat],zoom:Math.min(10,Math.max(8,Math.round(map.getZoom()))),duration:dur(800)})};
 setInterval(()=>{if(S.wyl&&!document.hidden)wlQuick()},10*6e4);
 $('#wy-dt').onclick=()=>{WYD=!WYD;try{localStorage.setItem('fm-wyd',WYD?'1':'0')}catch(e){}wyLoad()};
-$('#wy-o').onclick=()=>wyOpen(S.wx?{t:'temp',rh:'rh',pr:'rain',cc:'satellite'}[S2.wxv]:S.rad?'radar':S.him?'satellite':S.dry?'fwi':S.pm?'pm2p5':'wind');
+$('#wy-o').onclick=()=>wyOpen(S.wx?{t:'temp',rh:'rh',pr:'rain',cc:'satellite'}[S2.wxv]:S.rad?'radar':S.him?'satellite':S.dry||S.fwi?'fwi':S.pm?'pm2p5':'wind');
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#wy').hidden)wyClose()});
 {const q=new URLSearchParams(location.search).get('wy');if(q!=null)wyOpen(WYO.some(a=>a[0]===q)?q:'wind')}
 $('#pmchips').onclick=e=>{const b=e.target.closest('.chip');if(b){S2.pmDay=+b.dataset.i;drawPM()}};
@@ -2558,7 +2569,7 @@ $('#drchips').onclick=e=>{const b=e.target.closest('.chip');if(b){S2.dd=+b.datas
 $$('#pmseg button').forEach(b=>b.onclick=()=>{S2.pmv=b.dataset.v;drawPM()});
 $$('#drseg button').forEach(b=>b.onclick=()=>{S2.dv=b.dataset.v;drawDry()});
 $('#dr-r').onclick=async()=>{DRYD=null;await loadDry();toast('คำนวณใหม่แล้ว')};
-map.on('mousemove',e=>{const t=$('#tip'),v=S2.dv,key=v==='vpd'?'vpd':v,lab=v==='fwi'?'FWI':v==='rh'?'ความชื้นต่ำสุด':'VPD';
+map.on('mousemove',e=>{const t=$('#tip'),v=S2.dv,key=v==='vpd'?'vpd':v,lab=v==='fwi'?'CBI':v==='rh'?'ความชื้นต่ำสุด':'VPD';
  const show=s=>{t.textContent=s;t.style.display='block';t.style.left=e.originalEvent.clientX+14+'px';t.style.top=e.originalEvent.clientY+14+'px'},ll=e.lngLat;
  if(S.dry&&DRYD&&inside([ll.lng,ll.lat],TH)){const x=bil(i=>DRYD[i]?DRYD[i][S2.dd][key]:null,ll.lng,ll.lat);
   if(x!=null)return show(`${lab} ${nf(x,v==='vpd'?2:0)}${v==='rh'?'%':v==='vpd'?' kPa':''} · ${DN[cls(v,x)]} (ค่าประมาณจากตาราง ~110 กม.)`)}
@@ -2580,7 +2591,7 @@ function fillWx(h,c){const T=c.temperature_2m,RH=c.relative_humidity_2m,u=c.wind
  tx('wxt',`<span>ลมพัดมาจาก</span><b>ทิศ${DIRN[Math.round(fr/45)%8]}</b><span>ลมกระโชก</span><b>${Math.round(c.wind_gusts_10m)} กม./ชม.</b><span>อุณหภูมิ</span><b>${nf(T,1)} °C</b><span>ความชื้น</span><b>${Math.round(RH)} %</b><span>ฝนชั่วโมงนี้</span><b>${nf(rain,1)} มม.</b>`);
  tx('vp',nf(vp,2)+' kPa');$('#vp-b').style.cssText=`width:${Math.min(100,vp/4*100)}%;background:#e0a010`;tx('vp-t',`ยิ่งสูง อากาศยิ่งดึงความชื้นออกจากใบไม้และกิ่งไม้ เชื้อเพลิงแห้งและติดไฟง่ายขึ้น · ความหนาแน่นไอน้ำ ${nf(ad,1)} g/m³`);
  const f=cbi(T,RH,u,rain),l=fwiLv(f);$('#fw-c').style.background=DK[l];tx('fw-c',nf(f,1)+' · '+DN[l]+' ('+DE[l]+')');tx('fw-d',FWD[l]);tx('fw-t','');
- omDaily([[h.lon,h.lat]],3).then(r=>{if(CUR!==h)return;tx('fw-t','<span>วัน</span><span>สูง/ต่ำ °C</span><span>RH ต่ำสุด</span><span>ฝน</span><span>ลม</span><span>เสี่ยงไฟ (FWI)</span>'+r[0].map((x,k)=>{const q=fwiLv(x.fwi);return`<span>${dayFull(k)}</span><span>${Math.round(x.tx)}/${Math.round(x.tn)}</span><span>${Math.round(x.rh)}%</span><span>${nf(x.rain,1)}</span><span>${ab[Math.round(x.dir/45)%8]} ${Math.round(x.w)}</span><span><em style="background:${DK[q]}">${Math.round(x.fwi)} · ${DN[q]}</em></span>`}).join(''))}).catch(()=>tx('fw-t','<span style="grid-column:1/-1">ดึงพยากรณ์ 3 วันไม่ได้</span>'))}
+ omDaily([[h.lon,h.lat]],3).then(r=>{if(CUR!==h)return;tx('fw-t','<span>วัน</span><span>สูง/ต่ำ °C</span><span>RH ต่ำสุด</span><span>ฝน</span><span>ลม</span><span>เสี่ยงไฟ (CBI)</span>'+r[0].map((x,k)=>{const q=fwiLv(x.fwi);return`<span>${dayFull(k)}</span><span>${Math.round(x.tx)}/${Math.round(x.tn)}</span><span>${Math.round(x.rh)}%</span><span>${nf(x.rain,1)}</span><span>${ab[Math.round(x.dir/45)%8]} ${Math.round(x.w)}</span><span><em style="background:${DK[q]}">${Math.round(x.fwi)} · ${DN[q]}</em></span>`}).join(''))}).catch(()=>tx('fw-t','<span style="grid-column:1/-1">ดึงพยากรณ์ 3 วันไม่ได้</span>'))}
 $$('#dseg button').forEach(b=>b.onclick=()=>{S2.aqm=b.dataset.v;renderAq()});
 
 
@@ -6202,6 +6213,135 @@ document.addEventListener('pointerover',e=>{const t=$('#tip');if(t.style.display
 try{vrApply()}catch(e){}
 </script>
 
+
+<style>
+/* ===== ระบบดัชนีอันตรายไฟป่า (FWI System) จาก TFDRS กรมป่าไม้ ===== */
+.fwseg{margin:4px 0}.fwseg button{min-height:30px;font-size:12px;padding:0 2px}
+#fwi-dc{gap:3px}#fwi-dc .chip{flex:1 1 0;min-width:0;width:auto;min-height:44px;font-size:10.5px;padding:3px 0 6px;overflow:hidden;white-space:nowrap;position:relative}#fwi-dc .chip b{font-size:13px;display:block}#fwi-dc .chip small{display:block;font-size:8.5px;line-height:1.1;color:var(--mut)}#fwi-dc .chip i{position:absolute;left:4px;right:4px;bottom:2px;height:3px;border-radius:2px}
+#fwi-dc .chip.fc{border-style:dashed}
+#fwi-ad p{margin:6px 0;line-height:1.55}#fwi-ad .fwfl{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:6px 0;font-size:11px}#fwi-ad .fwfl span{background:#F5F6F8;border:1px solid var(--line);border-radius:6px;padding:2px 6px}#fwi-ad .fwfl em{font-style:normal;color:var(--mut)}
+#fwi-ad td b{color:var(--navy)}
+#fw-tf em,.fwpp em{font-style:normal;color:#fff;border-radius:4px;padding:0 4px}
+</style>
+<script>
+/* ===== ระบบดัชนีอันตรายไฟป่า (Canadian Forest Fire Weather Index System) — ผู้ใช้ขอ 14 พ.ย. 69 จาก https://fdrs.forest.go.th (TFDRS กรมป่าไม้)
+   รายละเอียดระบบตาม https://natural-resources.canada.ca/forests-forestry/wildland-fires/canada-fire-weather-index-system
+   scripts/sync_fwi.js (sync.yml) ดึง GeoTIFF ~3 กม. ของต้นทาง (ไม่เปิด CORS) ตัดกรอบรอบกลุ่มป่า → data/fwi/index.json (รายการวัน + สรุปรายพื้นที่อนุรักษ์) + data/fwi/<วันที่>.json (10 ตัวแปร ค่า×10 Int16)
+   วันของรอบ (ค่าเที่ยงวันของวันนั้น) ย้อนหลัง 7 วัน + พยากรณ์ล่วงหน้า 2 วัน · เกณฑ์ 5 ระดับตามต้นทาง (ปรับเทียบสำหรับประเทศไทย) อยู่ใน index.json (bounds)
+   ชื่อตัวแปร/ฟังก์ชันขึ้นต้น FW/fw (ระวัง: fw-c/fw-d/fw-t ในแผงรายละเอียดเป็นของ CBI เดิม) */
+const FWU=BN_BASE.replace(/burn\/$/,'fwi/'),FWSRC='https://fdrs.forest.go.th/index.php',FWNR='https://natural-resources.canada.ca/forests-forestry/wildland-fires/canada-fire-weather-index-system';
+/* [ชื่อสั้น, ชื่อไทย, ชื่ออังกฤษ, หน่วย, ทศนิยม, คำอธิบาย] */
+const FWV={
+ FWI:['FWI','ดัชนีความรุนแรงของไฟ','Fire Weather Index','',1,'รวม ISI กับ BUI — ความรุนแรงของไฟที่คาดว่าจะเกิด (พลังงานต่อความยาวหน้าไฟ) ใช้เป็น<b>ดัชนีอันตรายไฟป่าโดยรวม</b>'],
+ ISI:['ISI','ดัชนีการลุกลามเริ่มต้น','Initial Spread Index','',1,'รวม FFMC กับความเร็วลม — อัตราการลุกลามของไฟที่คาดว่าจะเกิดเมื่อเริ่มติด (ยังไม่คิดปริมาณเชื้อเพลิง)'],
+ BUI:['BUI','ดัชนีเชื้อเพลิงสะสม','Buildup Index','',0,'รวม DMC กับ DC — ปริมาณเชื้อเพลิงทั้งหมดที่พร้อมเผาไหม้'],
+ FFMC:['FFMC','รหัสความชื้นเชื้อเพลิงละเอียด','Fine Fuel Moisture Code','',1,'ความชื้นของใบไม้แห้ง กิ่งเล็ก และเชื้อเพลิงละเอียดบนผิวดิน ตอบสนองต่ออากาศเร็ว (ภายในวัน) — <b>ความง่ายในการติดไฟ</b> ค่าสูงสุด 101 · ตั้งแต่ ~87 ขึ้นไปติดไฟง่าย'],
+ DMC:['DMC','รหัสความชื้นของอินทรียวัตถุชั้นบน','Duff Moisture Code','',0,'ความชื้นของชั้นอินทรียวัตถุที่ย่อยสลายบางส่วนใต้ใบไม้ (ลึก ~7 ซม.) ตอบสนองภายใน ~2 สัปดาห์ — โอกาสที่ไฟจะไหม้ลงชั้นอินทรียวัตถุและไม้ขนาดกลาง'],
+ DC:['DC','รหัสความแห้งแล้ง','Drought Code','',0,'ความชื้นของอินทรียวัตถุชั้นลึกและไม้ขนาดใหญ่ (ลึก ~18 ซม.) ตอบสนองช้า (~2 เดือน) — <b>ภาวะแล้งสะสมตามฤดูกาล</b> ไฟที่ไหม้ลึก/คุกรุ่นดับยาก'],
+ Temp_noon:['อุณหภูมิ','อุณหภูมิเที่ยงวัน','Temperature (noon)','°C',1,''],
+ Rh_noon:['ความชื้น','ความชื้นสัมพัทธ์เที่ยงวัน','Relative humidity (noon)','%',0,''],
+ Wsp_noon:['ลม','ความเร็วลมเที่ยงวัน','Wind speed (noon)','กม./ชม.',0,''],
+ Precip_24hr:['ฝน 24 ชม.','ฝนสะสม 24 ชม.','24-h precipitation','มม.',1,'']};
+const FWIX=['FWI','ISI','BUI','FFMC','DMC','DC'],FWWX=['Temp_noon','Wsp_noon','Precip_24hr'];
+/* สี 5 ระดับตามต้นทาง (Low/Moderate/High/Very High/Extreme) */
+const FWC=['#2ec670','#f1c95b','#f07800','#ff2424','#710e0e'],FWT=['#1e8a4b','#8a6a00','#c05a00','#d61c1c','#710e0e'],FWN=['ต่ำ','ปานกลาง','สูง','สูงมาก','รุนแรงมาก'],FWE=['Low','Moderate','High','Very High','Extreme'];
+const FWRGB=FWC.map((c,k)=>hx(c).concat([85,150,165,175,185][k])); /* ระดับต่ำโปร่งกว่า ไม่ให้ทั้งกรอบเป็นสีเขียวทึบช่วงที่อันตรายต่ำ */
+const FWA={all:'กลุ่มป่าฯ',ky:'อช.เขาใหญ่',tl:'อช.ทับลาน',ps:'อช.ปางสีดา',tp:'อช.ตาพระยา',dy:'ขสป.ดงใหญ่',ks:'ขหล.โคกสูง',kc:'ขหล.เขาฉกรรจ์'};
+let FWX=null,FWXP=null,FWDC={},FWS=null,FWG=null,FWGD=null,FWK='',FWIU=BLANK,FWCO=[[0,1],[1,1],[1,0],[0,0]],FWQ=0;
+const fwB=v=>FWX&&FWX.bounds&&FWX.bounds[v];
+const fwCat=(x,b)=>x<b[0]?0:x<b[1]?1:x<b[2]?2:x<b[3]?3:4;
+const fwN=(v,x)=>x==null||isNaN(x)?'–':nf(x,FWV[v][4]);
+const fwCell=x=>x<10?x.toFixed(1):String(Math.round(x));
+const fwTday=()=>new Date(Date.now()+7*36e5).toISOString().slice(0,10);
+const fwDate=(d,o)=>new Date(d+'T00:00:00Z').toLocaleDateString('th-TH',Object.assign({timeZone:'UTC'},o||{weekday:'short',day:'numeric',month:'short'}));
+const fwVar=()=>FWV[S.fwv]&&S.fwv!=='Rh_noon'?S.fwv:'FWI';
+/* ค่าที่มีสีตามระดับ (ข้อความ) */
+const fwB2=(v,x)=>{const b=fwB(v);if(x==null||isNaN(x))return'–';if(!b)return`<b>${fwN(v,x)}</b>`;const k=fwCat(x,b);return`<b style="color:${FWT[k]}">${fwN(v,x)}</b>`};
+function fwLoad(force){if(force)FWXP=null;return FWXP||(FWXP=fetch(FWU+'index.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{if(!FWX||FWX.run!==j.run||FWX.upd!==j.upd){FWX=j;FWK=''}FWX.at=Date.now();return FWX}).catch(e=>{FWXP=null;throw e}))}
+/* ไฟล์รายวัน (แคช 5 วันล่าสุดที่เปิด) — คีย์รวมรอบ เพราะไฟล์วันพยากรณ์ถูกแทนเมื่อมีรอบใหม่ */
+function fwGet(x){const key=x.d+'|'+x.run+'|'+(x.lm||'');if(FWDC[key])return FWDC[key];
+ const p=fetch(FWU+x.d+'.json?r='+encodeURIComponent(x.run+'_'+(x.lm||''))).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{j.A={};return j}).catch(e=>{delete FWDC[key];throw e});
+ const ks=Object.keys(FWDC);if(ks.length>=5)delete FWDC[ks[0]];return FWDC[key]=p}
+function fwArr(G,v){if(G.A[v])return G.A[v];const s=G.v&&G.v[v];if(!s)return null;const b=atob(s),n=G.nx*G.ny,a=new Float32Array(n);
+ for(let i=0;i<n;i++){let x=b.charCodeAt(2*i)|b.charCodeAt(2*i+1)<<8;if(x>32767)x-=65536;a[i]=x===-32768?NaN:x/G.q}return G.A[v]=a}
+/* ค่าที่จุด: ประมาณเชิงเส้นสองทางจาก 4 เซลล์รอบจุด (เซลล์ที่ไม่มีข้อมูลไม่นับ) — ตรรกะเดียวกับ scripts/sync_fwi.js (สรุปรายพื้นที่) */
+function fwAt(G,a,lo,la){if(!G||!a)return null;const fx=(lo-G.x0)/G.dx,fy=(la-G.y0)/G.dy;if(fx<0||fy<0||fx>G.nx-1||fy>G.ny-1)return null;
+ const i=Math.min(G.nx-2,Math.floor(fx)),j=Math.min(G.ny-2,Math.floor(fy)),p=fx-i,q=fy-j,o=j*G.nx+i;let s=0,w=0;
+ const t=(v,ww)=>{if(!isNaN(v)&&ww>0){s+=v*ww;w+=ww}};t(a[o],(1-p)*(1-q));t(a[o+1],p*(1-q));t(a[o+G.nx],(1-p)*q);t(a[o+G.nx+1],p*q);return w>.25?s/w:null}
+/* วันที่เลือก: FWS → วันนี้ (เวลาไทย) ถ้ามี → วันของรอบล่าสุด */
+function fwIdx(){if(!FWX||!FWX.days.length)return-1;const D=FWX.days;let i=FWS?D.findIndex(x=>x.d===FWS):-1;if(i<0)i=D.findIndex(x=>x.d===fwTday());if(i<0)i=D.findIndex(x=>x.d===FWX.run);return i<0?D.length-1:i}
+function fwImg(G,a,v){const x0=G.x0-G.dx/2,x1=G.x0+(G.nx-.5)*G.dx,yN=G.y0-G.dy/2,yS=G.y0+(G.ny-.5)*G.dy,b=fwB(v);
+ const W=512,H=Math.min(1024,Math.max(128,Math.round(W*(mY(yN)-mY(yS))/((x1-x0)*Math.PI/180)))),cv=document.createElement('canvas');cv.width=W;cv.height=H;
+ const x=cv.getContext('2d'),im=x.createImageData(W,H),ya=mY(yN),yb=mY(yS);
+ for(let py=0;py<H;py++){const la=iY(ya+(yb-ya)*(py+.5)/H);for(let px=0;px<W;px++){const z=fwAt(G,a,x0+(x1-x0)*(px+.5)/W,la);if(z!=null&&b)im.data.set(FWRGB[fwCat(z,b)],(py*W+px)*4)}}
+ x.putImageData(im,0,0);FWIU=cv.toDataURL();FWCO=[[x0,yN],[x1,yN],[x1,yS],[x0,yS]];const s=map.getSource('fwi');s&&s.updateImage({url:FWIU,coordinates:FWCO})}
+function fwLayer(){if(!map.getSource('cons'))return;const bef=typeof wxBef==='function'?wxBef():undefined;
+ if(!map.getSource('fwi')){map.addSource('fwi',{type:'image',url:FWIU,coordinates:FWCO});map.addLayer({id:'fwi-f',type:'raster',source:'fwi',paint:{'raster-fade-duration':0}},bef)}
+ map.setLayoutProperty('fwi-f','visibility',S.fwi?'visible':'none')}
+function fwLegend(v){const b=fwB(v);if(!b){tx('fwi-lg','');return}const u=FWV[v][3],r=k=>k===0?'<'+nf(b[0],b[0]%1?1:0):k===4?'≥'+nf(b[3],b[3]%1?1:0):nf(b[k-1],b[k-1]%1?1:0)+'–'+nf(b[k],b[k]%1?1:0),wx=FWWX.includes(v);
+ tx('fwi-lg',FWC.map((c,k)=>`<div title="${FWN[k]} (${FWE[k]})"><i style="background:${c}"></i>${wx?`<b>${r(k)}</b>${u}`:`<b>${FWN[k]}</b>${r(k)}`}</div>`).join(''))}
+function fwExplain(){const a=$('#fwi-ad');if(!a||a.innerHTML)return;const b=FWX&&FWX.bounds;
+ a.innerHTML=`<p>ระบบดัชนีอันตรายไฟป่าของแคนาดา (<a href="${FWNR}" target="_blank" rel="noopener">Canadian Forest Fire Weather Index System</a>) ประเมินผลของ<b>สภาพอากาศ</b>ต่อความชื้นของเชื้อเพลิงและพฤติกรรมไฟ คำนวณวันละครั้งจากค่าเที่ยงวัน (อุณหภูมิ ความชื้นสัมพัทธ์ ความเร็วลม) และฝนสะสม 24 ชม. โดยรหัสความชื้นทั้งสามนำค่าของ<b>วันก่อนหน้า</b>มาคิดต่อ จึงสะท้อนความแห้งที่สะสมมา ไม่ใช่แค่อากาศวันเดียว · ไม่ได้คิดชนิดหรือปริมาณเชื้อเพลิงจริงและภูมิประเทศ</p>
+ <div class="fwfl"><span>อากาศเที่ยงวัน + ฝน</span><em>→</em><span>FFMC · DMC · DC</span><em>→</em><span>ISI = FFMC + ลม</span><span>BUI = DMC + DC</span><em>→</em><span><b>FWI</b> = ISI + BUI</span></div>
+ <table>${FWIX.map(v=>`<tr><td>${FWV[v][0]}<br><span class="sm">${FWV[v][2]}</span></td><td><b>${FWV[v][1]}</b> — ${FWV[v][5]}${b&&b[v]?`<br><span class="sm">เกณฑ์: ปานกลาง ≥${b[v][0]} · สูง ≥${b[v][1]} · สูงมาก ≥${b[v][2]} · รุนแรงมาก ≥${b[v][3]}</span>`:''}</td></tr>`).join('')}</table>
+ <p class="sm">ค่ายิ่งสูง = อันตรายยิ่งมาก (ทุกดัชนี) · <b>เกณฑ์ 5 ระดับ</b>ปรับเทียบสำหรับประเทศไทยโดย Natasha Jurko (Great Lakes Forestry Centre, Natural Resources Canada) และ Prof. Mike Wotton (University of Toronto) ตามระบบ TFDRS — ต่างจากเกณฑ์ของแคนาดา · ต่างจากชั้น "อากาศแห้ง เสี่ยงเกิดไฟป่า" ซึ่งเป็นดัชนี CBI ที่คำนวณเองจาก Open-Meteo</p>`}
+function fwSt(s){tx('fwi-st',s)}
+async function fwDraw(){if(!S.fwi)return;fwExplain();const v=fwVar();$$('#fwi-v button,#fwi-w button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+ if(!FWX){tx('fwi-dc','');tx('fwi-pt','');tx('fwi-pth','');tx('fwi-dv','กำลังโหลดข้อมูล TFDRS…');return}
+ const D=FWX.days,i=fwIdx(),d=D[i],today=fwTday();fwLegend(v);
+ tx('fwi-dc',D.map((x,k)=>{const s=x.a&&x.a.all&&x.a.all[v],b=fwB(v),c=s&&b?FWC[fwCat(s[0],b)]:'transparent';
+  return`<button class="chip${k===i?' on':''}${x.f?' fc':''}" data-i="${k}" title="${fwDate(x.d,{weekday:'long',day:'numeric',month:'long'})}${x.f?` · พยากรณ์ล่วงหน้า ${x.f} วัน (รอบ ${fwDate(x.run,{day:'numeric',month:'short'})})`:' · ค่าเที่ยงวัน'}${s?` · ${FWV[v][0]} เฉลี่ยกลุ่มป่า ${fwN(v,s[0])}`:''}">${fwDate(x.d,{weekday:'narrow'})}<b>${fwDate(x.d,{day:'numeric'})}</b><small>${x.d===today?'วันนี้':x.f?'พยากรณ์':'&nbsp;'}</small><i style="background:${c}"></i></button>`}).join(''));
+ const on=$('#fwi-dc .on');if(on){const bx=$('#fwi-dc');bx.scrollLeft=Math.max(0,on.offsetLeft-bx.clientWidth/2+on.offsetWidth/2)}
+ const al=d.a&&d.a.all&&d.a.all[v];
+ $('#fwi-dv').innerHTML=`<b>${FWV[v][0]}</b> ${FWV[v][1]} · ${fwDate(d.d,{weekday:'short',day:'numeric',month:'short'})}${d.d===today?' (วันนี้)':''} `+(d.f?`<b>พยากรณ์ล่วงหน้า ${d.f} วัน</b>`:'ค่าเที่ยงวัน')+(al?`<br><span class="sm">ทั้งกลุ่มป่า: เฉลี่ย ${fwB2(v,al[0])} · ${fwN(v,al[1])}–${fwN(v,al[2])}${FWV[v][3]?' '+FWV[v][3]:''}</span>`:'');
+ const ab=d.a&&d.a.all&&d.a.all[v];tx('fwi-t',ab&&fwB(v)?`<span style="color:${FWT[fwCat(ab[0],fwB(v))]};font-weight:600">${FWN[fwCat(ab[0],fwB(v))]}</span>`:'');
+ /* ตารางรายพื้นที่อนุรักษ์ × วัน (ค่าเฉลี่ยพื้นที่) */
+ const b=fwB(v),K=Object.keys(FWA).filter(k=>D.some(x=>x.a&&x.a[k]&&x.a[k][v]));
+ tx('fwi-pth',`<b>ค่าเฉลี่ยในพื้นที่อนุรักษ์</b> ${FWV[v][0]}${FWV[v][3]?' ('+FWV[v][3]+')':''} · แตะตัวเลข = เลือกวัน · ชี้/แตะดูช่วงค่าภายในพื้นที่`);
+ let s=`<div class="vrtb" style="grid-template-columns:70px repeat(${D.length},1fr)"><span></span>${D.map((x,k)=>`<span class="h${k===i?' on':''}" data-i="${k}" title="${fwDate(x.d)}${x.f?' (พยากรณ์)':''}">${fwDate(x.d,{day:'numeric'})}${x.f?'*':''}</span>`).join('')}`;
+ for(const k of K){s+=`<span class="n" title="${k==='all'?'ทุกพื้นที่อนุรักษ์ในกลุ่มป่า (รวม ขสป.ดงใหญ่)':esc(FWA[k])}">${FWA[k]}</span>`;
+  D.forEach((x,j)=>{const t=x.a&&x.a[k]&&x.a[k][v];if(!t){s+='<span>–</span>';return}const c=b?fwCat(t[0],b):-1;
+   const sh=t[3]?`\nสัดส่วนพื้นที่ (จุดตัวอย่างทุก 0.02°): `+FWN.map((n,q)=>t[3][q]?`${n} ${Math.round(t[3][q]*100)}%`:'').filter(Boolean).join(' · '):'';
+   const tip=`${FWA[k]} · ${fwDate(x.d)}${x.f?' (พยากรณ์ล่วงหน้า '+x.f+' วัน)':''}\n${FWV[v][0]} เฉลี่ยทั้งพื้นที่ ${fwN(v,t[0])}${FWV[v][3]?' '+FWV[v][3]:''}${c>=0?' ('+FWN[c]+')':''}\nภายในพื้นที่: ต่ำสุด ${fwN(v,t[1])} – สูงสุด ${fwN(v,t[2])}${sh}`;
+   s+=`<span class="c${j===i?' on':''}" data-i="${j}" data-tip="${esc(tip)}" style="${c>=0?`background:${FWC[c]};color:${c===1?'#3a2e00':'#fff'}`:''}">${fwCell(t[0])}</span>`})}
+ tx('fwi-pt',s+`</div><div class="sm" style="margin-top:3px">* วันพยากรณ์ · สีตามระดับของค่าเฉลี่ย — บางส่วนของพื้นที่อาจสูงกว่านี้ (ดูช่วงค่าในป้าย)</div>`);
+ const rl=FWX.days.find(x=>x.d===FWX.run);
+ fwSt(`ข้อมูล <a href="${FWSRC}" target="_blank" rel="noopener">TFDRS กรมป่าไม้</a> (Thailand Fire Danger Rating System) พัฒนาโดยหน่วยวิจัยไฟป่าฯ (WFSRU) คณะวนศาสตร์ ม.เกษตรศาสตร์ ร่วมกับกรมป่าไม้และ Natural Resources Canada · คำนวณด้วยโค้ด cffdrs-ng จากอากาศพยากรณ์ WRF ของ สสน. · ตาราง ~3 กม. · รอบล่าสุด ${fwDate(FWX.run,{day:'numeric',month:'short'})}${rl&&rl.lm?' (ออก '+thTime(Date.parse(rl.lm))+' น.)':''} — ต้นทางออกวันละครั้งช่วงบ่าย ระบบนี้ตรวจรอบใหม่วันละ 4 ครั้ง`);
+ /* ภาพบนแผนที่ (โหลดไฟล์ของวันนั้น) */
+ const key=d.d+'|'+d.run+'|'+(d.lm||'')+'|'+v;if(FWK===key&&FWGD===d)return;const q=++FWQ;
+ try{const G=await fwGet(d);if(q!==FWQ)return;const a=fwArr(G,v);if(!a)throw new Error('ไม่มีตัวแปร '+v);fwImg(G,a,v);FWG=G;FWGD=d;FWK=key}
+ catch(e){if(q===FWQ)fwSt('โหลดข้อมูลวันที่ '+esc(d.d)+' ไม่ได้ ('+esc(e.message||e)+')')}}
+function fwApply(){const bx=$('#fwibox');if(!bx)return;bx.hidden=!S.fwi;try{fwLayer()}catch(e){}
+ if(!S.fwi){tx('fwi-t','');return}fwDraw();fwLoad().then(fwDraw).catch(e=>{fwSt('โหลดข้อมูล TFDRS ไม่ได้ ('+esc(e.message||e)+')');tx('fwi-dv','โหลดข้อมูลไม่ได้')})}
+const fwPick=i=>{if(!FWX||!FWX.days[i])return;FWS=FWX.days[i].d;if(FWS===fwTday())FWS=null;fwDraw()};
+$('#fwi-dc').onclick=e=>{const b=e.target.closest('[data-i]');if(b)fwPick(+b.dataset.i)};
+$('#fwi-pt').onclick=e=>{const b=e.target.closest('[data-i]');if(b)fwPick(+b.dataset.i)};
+$$('#fwi-v button,#fwi-w button').forEach(b=>b.onclick=()=>{S.fwv=b.dataset.v;fwDraw()});
+/* ค่าทั้งหมดที่จุด (ป๊อปอัปแตะแผนที่ / แผงรายละเอียดจุดความร้อน) */
+function fwAll(G,lo,la){const o={};for(const v of Object.keys(FWV))o[v]=fwAt(G,fwArr(G,v),lo,la);return o}
+const fwEm=(v,x)=>{const b=fwB(v);if(x==null)return'–';if(!b)return fwN(v,x);const k=fwCat(x,b);return`<em style="background:${FWC[k]};color:${k===1?'#3a2e00':'#fff'}">${fwN(v,x)} ${FWN[k]}</em>`};
+function fwHtml(o,d){return`<b>FWI</b> ${fwEm('FWI',o.FWI)} · ISI ${fwB2('ISI',o.ISI)} · BUI ${fwB2('BUI',o.BUI)}<br>FFMC ${fwB2('FFMC',o.FFMC)} · DMC ${fwB2('DMC',o.DMC)} · DC ${fwB2('DC',o.DC)}<br>`+
+ `<span style="opacity:.85">อากาศเที่ยงวัน ${fwN('Temp_noon',o.Temp_noon)} °C · ความชื้น ${fwN('Rh_noon',o.Rh_noon)}% · ลม ${fwN('Wsp_noon',o.Wsp_noon)} กม./ชม. · ฝน 24 ชม. ${fwN('Precip_24hr',o.Precip_24hr)} มม.</span>`}
+function fwPop(lo,la){if(!S.fwi||!FWG||!FWGD)return'';const o=fwAll(FWG,lo,la);if(o.FWI==null)return'';const d=FWGD;
+ return`<div class="sm fwpp" style="margin:0 0 4px"><b>ดัชนีอันตรายไฟป่า</b> (TFDRS) ${fwDate(d.d,{day:'numeric',month:'short'})}${d.f?' พยากรณ์':''}<br>${fwHtml(o,d)}</div>`}
+/* แผงรายละเอียดจุดความร้อน: ค่า FWI System ของวันที่ตรวจพบ (หรือวันล่าสุดที่มี) — โหลดเองแม้ไม่ได้เปิดชั้น */
+async function fwDetail(h){const el=$('#fw-tf');if(!el||!h)return;el.innerHTML='<span style="opacity:.7">กำลังโหลดดัชนี FWI ของกรมป่าไม้…</span>';
+ try{await fwLoad();if(CUR!==h)return;const ds=new Date(h.t+7*36e5).toISOString().slice(0,10),D=FWX.days;let d=D.find(x=>x.d===ds);
+  if(!d){const ob=D.filter(x=>!x.f&&x.d<=ds);d=ob.length?ob[ob.length-1]:null}
+  if(!d){el.innerHTML='';return}const G=await fwGet(d);if(CUR!==h)return;const o=fwAll(G,h.lon,h.lat);
+  if(o.FWI==null){el.innerHTML='<span style="opacity:.7">ดัชนี FWI กรมป่าไม้: จุดนี้อยู่นอกขอบเขตข้อมูล</span>';return}
+  el.innerHTML=`<b>ระบบ FWI กรมป่าไม้ (TFDRS)</b> ${fwDate(d.d,{day:'numeric',month:'short'})}${d.d!==ds?' (วันล่าสุดที่มี)':''}${d.f?' · พยากรณ์':' · ค่าเที่ยงวัน'}<br>${fwHtml(o,d)}`}
+ catch(e){if(CUR===h)el.innerHTML='<span style="opacity:.7">โหลดดัชนี FWI ของกรมป่าไม้ไม่ได้</span>'}}
+{const od=openDetail;openDetail=function(h){od.apply(this,arguments);try{fwDetail(h)}catch(e){}}}
+/* ป้ายค่าที่ชี้เมาส์ — ต่อท้ายป้ายของชั้นอื่นที่เปิดพร้อมกัน */
+map.on('mousemove',e=>{if(!S.fwi||!FWG||!FWGD)return;const v=fwVar(),z=fwAt(FWG,fwArr(FWG,v),e.lngLat.lng,e.lngLat.lat);if(z==null)return;const t=$('#tip'),b=fwB(v);
+ const s=`${FWV[v][0]} ${fwN(v,z)}${FWV[v][3]?' '+FWV[v][3]:''}${b?' ('+FWN[fwCat(z,b)]+')':''} · ${fwDate(FWGD.d,{day:'numeric',month:'short'})}${FWGD.f?' พยากรณ์':''} · TFDRS`;
+ const keep=t.style.display==='block'&&(S.vr||S.dry||S.wx)&&t.textContent&&!t.textContent.includes('TFDRS');
+ t.textContent=keep?t.textContent+' | '+s:s;t.style.display='block';t.style.left=e.originalEvent.clientX+14+'px';t.style.top=e.originalEvent.clientY+14+'px'});
+/* ตรวจรอบใหม่ทุก 30 นาทีขณะเปิดชั้น (ต้นทางออกวันละครั้ง) */
+setInterval(()=>{if(!S.fwi||document.hidden||!FWX)return;if(Date.now()-(FWX.at||0)>30*6e4)fwLoad(true).then(fwDraw).catch(()=>{})},5*6e4);
+try{fwApply()}catch(e){}
+</script>
 
 </body>
 </html>
