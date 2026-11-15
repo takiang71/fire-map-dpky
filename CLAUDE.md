@@ -17,8 +17,9 @@
 2. **รัน `node --test test/` (ชุดทดสอบหน่วย <1 วิ) ทุกครั้งที่แก้ `scripts/` หรือ `index.html` · รัน `node scripts/check_site.js` ก่อน commit ทุกครั้งที่แก้ `index.html`** (~3 นาที; syntax ทุก `<script>` + Chrome headless 1440/390 กดปุ่มหลักนับ error) ต้องได้ `✅ ผ่าน` · เพิ่มปุ่ม/แผงใหม่ ต้องเพิ่มขั้นใน `DESK`/`MOB` ของสคริปต์ → [testing.md](docs/arch/testing.md)
 3. **ห้ามแก้บล็อกข้อมูลด้วยมือ**: `hdata` (Excel กรมอุทยานฯ — **ห้ามแก้ก่อนผู้ใช้อนุญาต**), `adata`, `wdata`, `wadata`, `fxdata` สร้างจากสคริปต์เท่านั้น (`excel_to_hdata.js`, `sync_hotspots.js`, `import_watch.js`, `import_fx.js`) → [data-blocks.md](docs/arch/data-blocks.md)
 4. แก้ `index.html` ด้วย Node ใช้ `split(a).join(b)` **ห้ามใช้ `String.replace`** (`$$`/`$&` เพี้ยน) · แทรกก่อน `</body>` ต้องใช้ `lastIndexOf` (มี `</body>` ในสตริงของโมดูลพิมพ์แผนที่)
+4a. เรียกเครือข่ายใน index.html ใช้ `fetchT(url,opt,FTO.main|tile|big|aux)` ห้าม `fetch(` ตรง · catch ในเส้นทางโหลดข้อมูลใช้ `dbg('ชื่อ',e)` ไม่ปล่อยว่าง · สคริปต์แรกใน `<head>` (ตรวจเบราว์เซอร์เก่า) ต้อง ES5 → [gotchas.md](docs/arch/gotchas.md)
 5. **ห้ามใส่หมายเหตุ `//` ท้ายบรรทัดที่มีโค้ดต่อ** (เคยกลืนโค้ดจนปุ่มเสีย; `node --check` ไม่จับ) ใช้ `/* */`
-6. ชื่อที่**ชนกันแล้วห้ามใช้ซ้ำ**: `PM`/`PMD`/`PMQ`, `HM`, `WG`, `WLT`, `STM`, คลาส `mb`, id `pm-*`, ชั้น `fx`, `fw-c/fw-d/fw-t`, id `w-src`, `data-k` ใน `#hcard` · โมดูลใหม่ตั้ง prefix เฉพาะ 2–3 ตัวอักษร → [gotchas.md](docs/arch/gotchas.md)
+6. ชื่อที่**ชนกันแล้วห้ามใช้ซ้ำ**: `FT` (ชนิดป่า), `fetchT`/`FTO`/`dbg`, `PM`/`PMD`/`PMQ`, `HM`, `WG`, `WLT`, `STM`, คลาส `mb`, id `pm-*`, ชั้น `fx`, `fw-c/fw-d/fw-t`, id `w-src`, `data-k` ใน `#hcard` · โมดูลใหม่ตั้ง prefix เฉพาะ 2–3 ตัวอักษร → [gotchas.md](docs/arch/gotchas.md)
 7. `apply()`/`setup()` ถูกเรียกก่อนสไตล์โหลด: ห่อ `try`, ห้ามใช้ `isStyleLoaded()` ตัดสิน ใช้ `map.getSource('dem')` · สลับแผนที่ฐานต้องคง `setStyle(...,{diff:false})`
 8. แก้ `scripts/lib/orbit.js` แล้วต้องรัน `node scripts/embed_orbit.js` (สำเนาฝังใน index.html)
 9. **แก้ฟีเจอร์แล้วต้องแก้คู่มือ `manual/index.html` ตาม** (ไอคอน = SVG จริงจากแอป, ภาพ `manual/img/*.jpg` ถ่ายด้วย `manual_shots.mjs`) · แหล่งข้อมูลของเมนูเปลี่ยน → แก้ `srcUpd()` + ตาราง `#src-menu` ในคู่มือ
@@ -62,5 +63,5 @@
 
 ## งานค้าง
 
-ดู **`docs/review-2569-11-15.md`** (ประเด็น A–E + ฟังก์ชันใหม่ F + roadmap) · ประวัติงานค้างเดิมอยู่ใน [decisions.md](docs/arch/decisions.md)
+ดู **`docs/review-2569-11-15.md`** (ประเด็น A–E + ฟังก์ชันใหม่ F + roadmap) · ประวัติงานค้างเดิมอยู่ใน [decisions.md](docs/arch/decisions.md) · **แผนทำแอป Android** (Capacitor + ฝังข้อมูล + OTA, ยังไม่เริ่ม): `docs/android-app-plan.md`
 ยังเปิดอยู่จากรายการเดิม: จุดกรมอุทยานฯ ปีงบ 2569 ที่ API ไม่มี 16 จุด (FIRMS มี 15) · หลายฟีเจอร์ยังไม่เคยลองบนอุปกรณ์/โปรแกรมจริง (นิ้วบนมือถือ, QGIS/Acrobat/เครื่องพิมพ์, แชร์ LINE PC) — ดูข้อ D7 ของรายงาน
