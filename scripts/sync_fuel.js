@@ -111,7 +111,12 @@ async function month(m, files) {
   for (const m of todo) old[m] = { m, grids: Object.keys(per[m]).sort(), sig: sig(per[m]), ...(await month(m, per[m])) };
   // ลบเดือนที่เกิน KEEP
   for (const m of Object.keys(old)) if (!ms.includes(m)) { delete old[m]; fs.rmSync(path.join(DIR, m), { recursive: true, force: true }) }
-  if (!todo.length && Object.keys(old).length === (idx.months || []).length) return;
-  writeSafe(IDX, JSON.stringify({ v: 1, src: 'ตามรอยเผา (tamroypao.hii.or.th) SAVI', zmin: ZMIN, zmax: ZMAX, pal: PAL, ar: ARN, st: STN, upd: new Date().toISOString(), months: Object.values(old).sort((a, b) => a.m < b.m ? -1 : 1) }));
+  // A6: checked = วันที่ (เวลาไทย) ที่ตรวจต้นทางล่าสุด · srcLatest = เดือนล่าสุดที่ต้นทางมี — เขียนทุกรอบแต่เฉพาะเมื่อค่าเปลี่ยน (วันละครั้ง, ไม่ commit เปล่าทุกรอบ)
+  const checked = new Date(Date.now() + 7 * 36e5).toISOString().slice(0, 10), srcLatest = Object.keys(per).sort().at(-1) || idx.srcLatest || null;
+  if (!todo.length && Object.keys(old).length === (idx.months || []).length) {
+    if (idx.checked !== checked || idx.srcLatest !== srcLatest) { writeSafe(IDX, JSON.stringify({ ...idx, checked, srcLatest })); console.log('บันทึกวันที่ตรวจต้นทาง', checked, '· ล่าสุด', srcLatest) }
+    return;
+  }
+  writeSafe(IDX, JSON.stringify({ v: 1, src: 'ตามรอยเผา (tamroypao.hii.or.th) SAVI', zmin: ZMIN, zmax: ZMAX, pal: PAL, ar: ARN, st: STN, upd: new Date().toISOString(), checked, srcLatest, months: Object.values(old).sort((a, b) => a.m < b.m ? -1 : 1) }));
   console.log('บันทึก data/fuel/index.json');
 })().catch(e => { console.error('ผิดพลาด:', e.stack || e); process.exit(1) });

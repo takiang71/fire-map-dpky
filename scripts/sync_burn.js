@@ -53,6 +53,15 @@ async function scan(S) {
 const lastDay = ym => ym + String(new Date(Date.UTC(+ym.slice(0, 4), +ym.slice(4, 6), 0)).getUTCDate());
 const span = p => p.length === 17 ? [p.slice(0, 8), p.slice(9)] : p.length === 6 ? [p + '01', lastDay(p)] : [p.slice(0, 6) + '01', lastDay(p.slice(7))];
 
+// A6: checked = วันที่ (เวลาไทย) ที่ตรวจต้นทางล่าสุด · srcLatest[ชุด] = รอบล่าสุดที่ต้นทางมี — เขียนเฉพาะเมื่อค่าเปลี่ยน (กัน commit เปล่าทุกรอบ sync)
+function mark(key, lat) {
+  let o; try { o = JSON.parse(fs.readFileSync(IDX, 'utf8')) } catch (e) { return }
+  const checked = new Date(Date.now() + 7 * 36e5).toISOString().slice(0, 10), sl = { ...(o.srcLatest || {}) };
+  if (lat) sl[key] = lat;
+  if (o.checked === checked && JSON.stringify(sl) === JSON.stringify(o.srcLatest || {})) return;
+  o.checked = checked; o.srcLatest = sl; writeSafe(IDX, JSON.stringify(o));
+}
+
 async function run(key) {
   const S = SETS[key];
   fs.mkdirSync(path.join(DIR, key), { recursive: true });
@@ -62,7 +71,8 @@ async function run(key) {
   const sig = o => Object.keys(o).sort().map(g => o[g].map(f => `${g}:${f.s}:${f.m}`).sort().join('|')).join('|');
   const todo = Object.keys(per).sort().filter(p => REDO || !old[p] || old[p].sig !== sig(per[p]));
   console.log(`ตามรอยเผา ${key}: ${Object.keys(per).length} รอบ · ต้องประมวลผล ${todo.length} รอบ`);
-  if (!todo.length) return;
+  const lat = Object.keys(per).sort().at(-1) || null;
+  if (!todo.length) { mark(key, lat); return }
   // วนทีละกริด (สร้างแนวเขตครั้งเดียวต่อกริด) แล้วค่อยรวมผลรายรอบ
   const res = Object.fromEntries(todo.map(p => [p, { g: {}, ar: new Float64Array(ARN.length), st: new Float64Array(STN.length), c: new Float64Array(CLS.length + 1), n: 0 }]));
   const cen = Object.fromEntries(GRIDS.map(g => [g, gridCenter(g)]));
@@ -106,10 +116,10 @@ async function run(key) {
     old[p] = { p, d0, d1, grids: Object.keys(per[p]).sort(), sig: sig(per[p]), rai: Math.round(R.n * RAI), ar: rnd(R.ar), st: rnd(R.st), ...(key === 'c' ? { c: rnd(R.c) } : {}) };
   }
   // อ่าน index ใหม่ก่อนเขียน (อีกชุดอาจเพิ่งเขียนไป) แล้วแทนเฉพาะรายการของชุดนี้
-  try { const o = JSON.parse(fs.readFileSync(IDX, 'utf8')); idx.periods = o.periods || idx.periods; idx.cls = o.cls || idx.cls } catch (e) {}
+  try { const o = JSON.parse(fs.readFileSync(IDX, 'utf8')); idx.periods = o.periods || idx.periods; idx.cls = o.cls || idx.cls; if (o.checked) idx.checked = o.checked; if (o.srcLatest) idx.srcLatest = o.srcLatest } catch (e) {}
   idx[S.idx] = Object.values(old).sort((a, b) => a.p < b.p ? -1 : 1);
   idx.upd = new Date().toISOString();
-  writeSafe(IDX, JSON.stringify(idx));
+  writeSafe(IDX, JSON.stringify(idx)); mark(key, lat);
   const L = idx[S.idx], kb = L.reduce((s, p) => s + fs.statSync(path.join(DIR, key, p.p + '.json')).size, 0) / 1024;
   console.log(`บันทึก ${todo.length} รอบ · รวม ${L.length} รอบ ${kb.toFixed(0)} KB · ล่าสุด ${L.at(-1).p} = ${L.at(-1).rai.toLocaleString()} ไร่`);
 }
