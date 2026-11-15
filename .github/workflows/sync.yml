@@ -24,13 +24,18 @@ concurrency:
 
 jobs:
   sync:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 90
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
+      # ชุดทดสอบหน่วย (test/*.test.js — docs/arch/testing.md) ก่อนเขียนข้อมูลลง index.html/data
+      # ไม่ผ่าน = หยุดรอบนี้ ไม่ commit (เช่น ตัดจุดซ้ำผิดแล้วบันทึกลงฐานข้อมูลสะสม) — รอบถัดไปดึงย้อนหลังได้ตามปกติ · ขั้น check site ท้ายสุดยังทำงาน
+      - name: unit tests
+        timeout-minutes: 3
+        run: node --test test/
       # API ไทยขัดข้อง → เติมจาก NASA FIRMS (7 วันล่าสุดไม่ต้องใช้ key · เก่ากว่านั้นใช้ secret FIRMS_KEY ถ้าตั้งไว้)
       - run: node scripts/sync_hotspots.js
         env:

@@ -31,13 +31,13 @@ concurrency:
 
 jobs:
   wx:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       NEED: ${{ inputs.need }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
       - name: git identity
@@ -87,7 +87,7 @@ jobs:
       # ---------- PM2.5 CAMS (Open-Meteo) — ชุดที่ดึงค้าง (.cache/cams_part.json) เก็บข้าม run ด้วย actions/cache ----------
       - name: restore cams part
         if: env.NEED == '' || contains(env.NEED, 'cams')
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: .cache
           key: cams-part-${{ github.run_id }}
@@ -99,7 +99,7 @@ jobs:
         continue-on-error: true
       - name: save cams part
         if: always() && hashFiles('.cache/cams_part.json') != ''
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: .cache
           key: cams-part-${{ github.run_id }}

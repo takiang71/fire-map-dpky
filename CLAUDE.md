@@ -14,7 +14,7 @@
 ## กติกาที่ต้องทำตามทุกครั้ง
 
 1. **`git pull` ก่อนแก้ทุกครั้ง** (GitHub Actions commit เข้า main วันละหลายครั้ง) · เสร็จแล้ว commit + push (identity takiang71)
-2. **รัน `node scripts/check_site.js` ก่อน commit ทุกครั้งที่แก้ `index.html`** (~3 นาที; syntax ทุก `<script>` + Chrome headless 1440/390 กดปุ่มหลักนับ error) ต้องได้ `✅ ผ่าน` · เพิ่มปุ่ม/แผงใหม่ ต้องเพิ่มขั้นใน `DESK`/`MOB` ของสคริปต์ → [testing.md](docs/arch/testing.md)
+2. **รัน `node --test test/` (ชุดทดสอบหน่วย <1 วิ) ทุกครั้งที่แก้ `scripts/` หรือ `index.html` · รัน `node scripts/check_site.js` ก่อน commit ทุกครั้งที่แก้ `index.html`** (~3 นาที; syntax ทุก `<script>` + Chrome headless 1440/390 กดปุ่มหลักนับ error) ต้องได้ `✅ ผ่าน` · เพิ่มปุ่ม/แผงใหม่ ต้องเพิ่มขั้นใน `DESK`/`MOB` ของสคริปต์ → [testing.md](docs/arch/testing.md)
 3. **ห้ามแก้บล็อกข้อมูลด้วยมือ**: `hdata` (Excel กรมอุทยานฯ — **ห้ามแก้ก่อนผู้ใช้อนุญาต**), `adata`, `wdata`, `wadata`, `fxdata` สร้างจากสคริปต์เท่านั้น (`excel_to_hdata.js`, `sync_hotspots.js`, `import_watch.js`, `import_fx.js`) → [data-blocks.md](docs/arch/data-blocks.md)
 4. แก้ `index.html` ด้วย Node ใช้ `split(a).join(b)` **ห้ามใช้ `String.replace`** (`$$`/`$&` เพี้ยน) · แทรกก่อน `</body>` ต้องใช้ `lastIndexOf` (มี `</body>` ในสตริงของโมดูลพิมพ์แผนที่)
 5. **ห้ามใส่หมายเหตุ `//` ท้ายบรรทัดที่มีโค้ดต่อ** (เคยกลืนโค้ดจนปุ่มเสีย; `node --check` ไม่จับ) ใช้ `/* */`
@@ -40,7 +40,7 @@
 | [layers-weather.md](docs/arch/layers-weather.md) | Windy, อากาศรายชั่วโมง/ลม, เรดาร์, Himawari, สถานีกรมอุตุฯ, VR (GFS), FWI (TFDRS), PM2.5 CAMS/Air4Thai, ดาวเทียมรอบถัดไป | `S.vr` `gvMaxFn` `fwNow` `cmLoad` `tmLoad` `ORB` |
 | [decisions.md](docs/arch/decisions.md) | ความชอบ/การตัดสินใจของผู้ใช้ (เลย์เอาต์แผง, ค่าเริ่มต้นชั้นข้อมูล, เครดิต) + งานค้างเดิม (ประวัติ) | `homePad` `panFit` `sheetFit` `ctlFit` |
 | [gotchas.md](docs/arch/gotchas.md) | ชื่อชนกัน + บั๊กที่เคยเจอ | |
-| [testing.md](docs/arch/testing.md) | check_site (ในเครื่อง/CI), harness, วิธีตรวจ | `check_site` `--ci` |
+| [testing.md](docs/arch/testing.md) | ชุดทดสอบหน่วย `test/` (วิธีเพิ่มเทสต์), check_site (ในเครื่อง/CI), harness | `node --test` `check_site` `--ci` `UNIT` |
 
 เอกสารอื่น: `docs/line-bot.md` (ติดตั้ง LINE/cron-job.org/watchdog/health) · `docs/telegram-bot.md` · `docs/layers-backend.md` · `manual/index.html` (คู่มือผู้ใช้) · `docs/review-2569-11-15.md` (รายงานตรวจและงานค้าง)
 

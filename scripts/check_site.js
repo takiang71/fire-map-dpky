@@ -11,12 +11,13 @@
 //          ถ้า index.html ตรงกับรอบที่ตรวจแล้ว (sha ใน check.json บนเว็บ) ใช้ผลเดิม ไม่เปิด Chrome ซ้ำ
 //   exit code (ไม่ใช่ --ci): 0 ผ่าน · 1 ไม่ผ่าน · 2 ตรวจในเบราว์เซอร์ไม่ได้ (หา/เปิด Chrome ไม่ได้)
 // ตัวแปร: CHROME = ที่อยู่ Chrome · SITE_URL = เว็บที่ใช้เทียบ/ดึงฉบับก่อนหน้า · CHECK_FORCE=1 ตรวจใหม่แม้ sha เดิม
+//        UNIT=failure (--ci, site.yml ส่งผลขั้น node --test test/) = ชุดทดสอบหน่วยไม่ผ่าน → ถือว่าไม่ผ่าน ใช้ฉบับบนเว็บ ไม่ใช้ผลเดิม
 'use strict';
 const fs = require('fs'), path = require('path'), os = require('os'), vm = require('vm'), http = require('http'), crypto = require('crypto');
 const { spawn } = require('child_process');
 
 const ROOT = path.join(__dirname, '..');
-const args = process.argv.slice(2), CI = args.includes('--ci');
+const args = process.argv.slice(2), CI = args.includes('--ci'), UNIT_FAIL = CI && process.env.UNIT === 'failure';
 const DIR = path.resolve(ROOT, args.find(a => !a.startsWith('--')) || '.');
 const SITE = (process.env.SITE_URL || 'https://takiang71.github.io/fire-map-dpky/').replace(/\/?$/, '/');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -155,12 +156,14 @@ async function browser(dir) {
   const res = { at: new Date().toISOString(), sha, ok: null, errs: [], warn: [], net: 0 };
   let prev = null;
   if (CI && !process.env.CHECK_FORCE) try { const r = await fetch(SITE + 'check.json?t=' + Date.now(), { signal: AbortSignal.timeout(15e3) }); if (r.ok) prev = await r.json() } catch (e) { }
-  if (prev && prev.sha === sha && typeof prev.ok === 'boolean') {
+  // รอบก่อนไม่ผ่านเพราะชุดทดสอบหน่วย = ตรวจใหม่ (แก้แค่ scripts/ แล้ว index.html อาจ sha เดิม)
+  if (!UNIT_FAIL && prev && prev.sha === sha && typeof prev.ok === 'boolean' && prev.unit !== false) {
     Object.assign(res, prev, { at: res.at, reused: prev.reused || prev.at });
     console.log(`index.html เหมือนรอบที่ตรวจแล้ว (${prev.reused || prev.at}) → ใช้ผลเดิม: ${prev.ok ? 'ผ่าน' : 'ไม่ผ่าน'}`);
   } else {
+    if (UNIT_FAIL) { res.unit = false; res.errs.push('ชุดทดสอบหน่วยไม่ผ่าน (node --test test/) — ดู log ขั้น unit tests') }
     res.errs.push(...syntax(file), ...syntax(path.join(DIR, 'manual', 'index.html')), ...orbLib(file));
-    if (res.errs.length) console.log('syntax ผิด → ข้ามการเปิดในเบราว์เซอร์');
+    if (res.errs.length) console.log((UNIT_FAIL ? 'ชุดทดสอบหน่วยไม่ผ่าน' : 'syntax ผิด') + ' → ข้ามการเปิดในเบราว์เซอร์');
     else {
       const b = await browser(DIR);
       if (b.skip) { res.skip = b.skip; console.log('⚠', b.skip) }

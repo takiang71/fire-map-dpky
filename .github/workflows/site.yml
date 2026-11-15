@@ -26,14 +26,14 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
       # สถานะการแจ้งเตือนรอบก่อน (จุดที่แจ้งแล้ว / สรุปประจำวันส่งแล้วหรือยัง) จาก branch state → .state/ (scripts/lib/state.js)
@@ -59,6 +59,14 @@ jobs:
           mkdir -p data/fwi/g
           if git fetch -q --depth=1 origin fwi-grid; then git archive FETCH_HEAD | tar -x -C data/fwi/g; git rev-parse 'FETCH_HEAD^{tree}' > "$RUNNER_TEMP/fwi_tree"; else echo "ยังไม่มี branch fwi-grid"; fi
           ls data/fwi/g | wc -l
+      # ชุดทดสอบหน่วย (test/*.test.js — docs/arch/testing.md: ตัดจุดซ้ำ, วงโคจร, แนวเขต, ปีงบ, สรุปประจำวัน …) ใช้เวลา <5 วิ
+      # ไม่ผ่าน = ไม่ขึ้น index.html ฉบับใหม่ (ขั้น check site ใช้ฉบับบนเว็บแทน แบบเดียวกับตรวจหน้าเว็บไม่ผ่าน) + health.js แจ้งผู้ดูแล
+      # ไม่หยุดทั้งรอบ เพราะ live.json และการแจ้งเตือนจุดความร้อนต้องทำงานต่อ
+      - name: unit tests
+        id: unit
+        continue-on-error: true
+        timeout-minutes: 3
+        run: node --test test/
       # ถ้าดึงข้อมูลไม่สำเร็จก็ยังเผยแพร่หน้าเว็บ (หน้าเว็บจะถอยไปดึง API ตรงเอง)
       - run: node scripts/build_site.js || true
       # ต้นทาง FWI/FFMC (TFDRS) · อัตราการระบายอากาศ (GFS) · PM2.5 (CAMS) มีรอบใหม่กว่าที่เรามีไหม (คำขอเล็ก ≤10 วิ)
@@ -75,6 +83,9 @@ jobs:
         continue-on-error: true
         timeout-minutes: 6
         run: node scripts/check_site.js _site --ci
+        env:
+          # ผลชุดทดสอบหน่วย: failure = ถือว่าไม่ผ่าน (ใช้ index.html ฉบับบนเว็บ)
+          UNIT: ${{ steps.unit.outcome }}
       # แจ้งเตือนจุดใหม่เข้ากลุ่ม LINE (docs/line-bot.md) — ไม่ตั้ง secret ก็ยังเก็บสถานะ notify.json ไว้
       - run: node scripts/line_notify.js || true
         env:
@@ -118,22 +129,24 @@ jobs:
           git add -A
           git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm "state $(date -u +%FT%TZ)"
           for i in 1 2 3; do git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" state && break; sleep 5; done
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/configure-pages@v6
+      # v4 ขึ้นไปตัดไฟล์ที่ขึ้นต้นด้วยจุด (.nojekyll จาก build_site.js) ออกจาก artifact ถ้าไม่ตั้ง include-hidden-files — ตั้งไว้ให้เหมือน v3 เดิม
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
+          include-hidden-files: true
       # Pages บางครั้งยังถือว่ารอบก่อน "กำลัง deploy" อยู่หลังรอบนั้นจบแล้ว (เจอ 10 พ.ย. 69: push ตามหลังรอบ cron
       # → "Deployment request failed … due to in progress deployment" ติดกัน 2 รอบ หน้าเว็บช้าไป ~15 นาที) → รอแล้วลองใหม่ในรอบเดียวกัน
       - id: deployment
         continue-on-error: true
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
       - if: steps.deployment.outcome == 'failure'
         run: sleep 60
       - id: deployment2
         if: steps.deployment.outcome == 'failure'
         continue-on-error: true
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
       - if: steps.deployment.outcome == 'failure' && steps.deployment2.outcome == 'failure'
         run: sleep 120
       - if: steps.deployment.outcome == 'failure' && steps.deployment2.outcome == 'failure'
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
