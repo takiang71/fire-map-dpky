@@ -5,8 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
 <title>คู่มือการใช้งาน · แผนที่สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;800&display=swap" rel="stylesheet">
+<meta name="description" content="คู่มือการใช้งานแผนที่สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่ — วิธีอ่านจุดความร้อน ยอดสะสมปีงบ ชั้นข้อมูล เครื่องมือ และข้อจำกัด">
+<meta property="og:type" content="article">
+<meta property="og:title" content="คู่มือ — แผนที่สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่">
+<meta property="og:url" content="https://takiang71.github.io/fire-map-dpky/manual/">
+<meta property="og:image" content="https://takiang71.github.io/fire-map-dpky/img/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../img/icon.svg" type="image/svg+xml">
+<link rel="icon" href="../img/icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../img/apple-touch-icon.png">
+<!-- B3 (16 พ.ย. 69): ฟอนต์ Noto Sans Thai อยู่ในเว็บเอง (fonts/, SIL OFL — @fontsource/noto-sans-thai 5.2.8 = ไฟล์ชุดเดียวกับ Google Fonts) ไม่ต้องต่อ googleapis/gstatic · subset thai+latin น้ำหนัก 400/600/800 -->
+<link rel="preload" href="../fonts/noto-sans-thai-thai-400.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:'Noto Sans Thai';font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/noto-sans-thai-thai-400.woff2) format('woff2');unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:'Noto Sans Thai';font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/noto-sans-thai-latin-400.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Noto Sans Thai';font-style:normal;font-weight:600;font-display:swap;src:url(../fonts/noto-sans-thai-thai-600.woff2) format('woff2');unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:'Noto Sans Thai';font-style:normal;font-weight:600;font-display:swap;src:url(../fonts/noto-sans-thai-latin-600.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Noto Sans Thai';font-style:normal;font-weight:800;font-display:swap;src:url(../fonts/noto-sans-thai-thai-800.woff2) format('woff2');unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:'Noto Sans Thai';font-style:normal;font-weight:800;font-display:swap;src:url(../fonts/noto-sans-thai-latin-800.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+</style>
 <style>
 :root{--navy:#1B2A5E;--fire:#D93A1F;--ink:#1d2433;--mut:#5d6573;--line:#e3e6ee;--soft:#f5f6fa;--sel:#e6e8fb;--cream:#fff7ec;--ok:#1f7a4d;--warn:#b45309}
 *{box-sizing:border-box}
@@ -1324,6 +1341,8 @@ FWI = f(ISI, BUI)</div>
  <dd>อัปเดต Chrome/Safari (บน iPhone คือการอัปเดต iOS) หรือเปิดลิงก์ด้วย Chrome รุ่นปัจจุบัน — ดูรุ่นต่ำสุดในหัวข้อ<a href="#limits">ข้อจำกัด</a></dd>
  <dt>ขึ้น "ต้นทางตอบช้า ลองใหม่"</dt>
  <dd>สัญญาณอินเทอร์เน็ตอ่อนหรือเว็บต้นทางตอบช้า ข้อมูลที่โหลดไว้แล้วยังใช้ได้ รอสักครู่แล้วกดใหม่ · ถ้าเป็นบ่อยบนเครื่องเดิม ส่งบันทึกข้อผิดพลาดให้ผู้ดูแล (หัวข้อ<a href="#admin">สำหรับผู้ดูแลระบบ</a>)</dd>
+ <dt>แชร์ลิงก์แล้วไม่มีภาพหรือคำอธิบาย</dt>
+ <dd>แชร์ลิงก์หน้าแรก <code>https://takiang71.github.io/fire-map-dpky/</code> จะมีภาพแผนที่กลุ่มป่าและคำอธิบาย · ถ้าเคยแชร์ก่อน 16 พ.ย. 2569 แอปอาจจำตัวอย่างเดิม (ไม่มีภาพ) ไว้ระยะหนึ่ง</dd>
  <dt>แจ้งปัญหาหรือเสนอแนะ</dt>
  <dd>ติดต่อผู้ดูแลระบบ สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี) · แจ้งเหตุไฟป่า สายด่วน <b>1362</b></dd>
 </dl>
@@ -1365,6 +1384,12 @@ FWI = f(ISI, BUI)</div>
  <li><b>นำเข้า Excel จุดความร้อนกรมอุทยานฯ ปีงบที่จบแล้ว (ปีละครั้ง)</b> — ระบบแจ้งผู้ดูแลทาง LINE/Telegram เดือนละครั้งตั้งแต่ 1 ธ.ค. ถ้ายังไม่นำเข้า ("ยังไม่ได้นำเข้า Excel …") · ขั้นตอนใน <code>docs/arch/data-update.md</code> (<code>node scripts/excel_to_hdata.js &lt;ไฟล์.xlsx&gt;</code> → <code>node scripts/sync_hotspots.js</code> → ตรวจ → commit)</li>
  <li><b>ต้นทางตามรอยเผาหยุด</b> — แจ้งเตือน "แหล่งเชื้อเพลิง SAVI ไม่มีเดือนใหม่" (ทุก 30 วัน) และ "พื้นที่เผาไหม้ราย 7 วันไม่มีรอบใหม่" (ทุก 7 วัน เมื่อเกิน 21 วัน) เป็นข้อมูลให้ทราบ — แก้ที่ต้นทาง (สสน.) ไม่ใช่ที่ระบบ เว้นแต่ข้อความบอกว่า "ต้นทางมีแล้วแต่เว็บยังไม่มี" ให้ดูขั้น sync_fuel/sync_burn ใน Actions</li>
  <li><b>เครื่องดึง FWI</b> — เปิดเครื่องและล็อกอินไว้ช่วง 14:40–20:00 น. · ดู "ผู้ดูแลดึงล่าสุด" ในแผง FWI หรือไฟล์ <code>data/fwi/local_status.json</code> บนเว็บ · ปิดเครื่องนานได้ สรุปประจำวันใช้ค่าจาก LFA แทนชั่วคราว</li>
+</ul>
+<h3 id="m-files">ไฟล์ของหน้าเว็บบนโฮสต์</h3>
+<ul>
+ <li><b>ข้อมูลฝังแยกไฟล์</b> — บนเว็บจริง ข้อมูลย้อนหลัง (จุดกรมอุทยานฯ, จุดสะสม API, แนวเขต, จปร., การดับไฟ ~1 MB) แยกเป็นไฟล์ <code>data/emb/&lt;ชื่อ&gt;.&lt;รหัส&gt;.json</code> ให้หน้าแรกเปิดเร็วขึ้นและเปิดครั้งต่อไปใช้แคชได้ (ชื่อไฟล์เปลี่ยนเมื่อข้อมูลเปลี่ยน) · ไฟล์ <code>index.html</code> ในโฟลเดอร์โปรเจกต์ยังมีข้อมูลครบ ดับเบิลคลิกเปิดได้เหมือนเดิม · ถ้าเปิดไฟล์ <code>_site/index.html</code> แบบดับเบิลคลิก หน้าเว็บจะดึงข้อมูลจากเว็บจริง (ต้องต่ออินเทอร์เน็ต)</li>
+ <li><b>ฟอนต์</b> — Noto Sans Thai อยู่ในโฟลเดอร์ <code>fonts/</code> ของเว็บเอง (ไม่ต้องต่อ Google Fonts) · สัญญาอนุญาต SIL Open Font License (<code>fonts/LICENSE.txt</code>)</li>
+ <li><b>ภาพตัวอย่างเมื่อแชร์ลิงก์</b> — <code>img/og.jpg</code> (แผนที่กลุ่มป่า 1200×630) และไอคอน <code>img/icon.svg</code> · สร้างใหม่ด้วย <code>node scripts/make_og.js</code> · LINE/Facebook จำภาพเดิมไว้หลายวัน ถ้าเปลี่ยนภาพแล้วยังเห็นของเดิม ใช้ Facebook Sharing Debugger สั่งดึงใหม่</li>
 </ul>
 <h3 id="m-debug">บันทึกข้อผิดพลาดจากเครื่องผู้ใช้</h3>
 <p>เมื่อผู้ใช้แจ้งว่าแผนที่บนมือถือ/คอมพิวเตอร์ของเขาทำงานผิดปกติ (ชั้นข้อมูลไม่ขึ้น ข้อมูลไม่อัปเดต) ให้ขอบันทึกข้อผิดพลาดจากเครื่องนั้น:</p>

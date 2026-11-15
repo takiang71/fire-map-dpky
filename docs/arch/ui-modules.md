@@ -512,3 +512,12 @@
   · ทดสอบด้วย Chrome headless แล้ว (ค่าเริ่มต้น 2,687 จุด = 2 หน้า, ปีงบ 2569 = 83 จุด 5 หน้า)
   · `hRender`, `kpiCards`, `hMap`, `setup4`, `L4`, `histPopup`, `fyColor`/`FYP`, `normalize`/`readFile`/`openImport`
 
+
+## ส่วนหัวหน้าเว็บ: แชร์ลิงก์ ไอคอน ฟอนต์ (D2/B3, 16 พ.ย. 69)
+
+- **D2** `<meta name="description">` + Open Graph (`og:title/description/url/image/locale/site_name`, ภาพ 1200×630) + `twitter:card=summary_large_image` + `<link rel="icon">` (img/icon.svg, icon-32.png) + `apple-touch-icon` (180) ทั้งหน้าเว็บและคู่มือ · og:image/og:url เป็น URL เต็มของ Pages (LINE/Facebook ไม่รับ URL สัมพัทธ์)
+  · `node scripts/make_og.js` (รันมือ) สร้าง img/og.jpg จาก `mapSnap([],null)` (มุมมองทั้งกลุ่มป่า) + แถบชื่อ และไอคอน PNG จาก icon.svg · build_site คัดลอก `img/`
+  · ยังไม่ได้ลองแชร์ใน LINE/Telegram/Facebook จริง (D7 — ผู้ใช้) · LINE/Facebook แคชตัวอย่างลิงก์ไว้นาน ถ้าเปลี่ยนภาพใช้ Facebook Sharing Debugger ล้างแคช
+- **B3** ฟอนต์ Noto Sans Thai อยู่ใน `fonts/` (woff2 subset thai+latin × 400/600/800 ~58 KB, SIL OFL — จาก @fontsource/noto-sans-thai 5.2.8 = ไฟล์ชุดเดียวกับ Google Fonts; ดึงจาก jsdelivr เพราะ Google ให้ woff2 เฉพาะ UA เบราว์เซอร์ — ไม่ปลอม UA) · `@font-face` + `font-display:swap` + unicode-range แบบ Google · preload thai-400 · ไม่มีคำขอไป googleapis/gstatic แล้ว
+  · เปิดแบบ file:// ฟอนต์ยังโหลดได้ (@font-face) แต่ preload ที่มี crossorigin ถูก Chrome กัน (error ใน console 1 บรรทัด ไม่กระทบ)
+  · ตำแหน่ง: `fonts/` (หน้าเว็บ) · `../fonts/` (คู่มือ) · build_site คัดลอก `fonts/`

@@ -5,6 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
 <meta name="color-scheme" content="light">
+<!-- D2 (16 พ.ย. 69): คำอธิบาย + Open Graph/Twitter ให้แชร์ลิงก์ใน LINE/Telegram/Facebook มีภาพและข้อความ · ภาพสร้างด้วย scripts/make_og.js -->
+<meta name="description" content="แผนที่จุดความร้อนและสถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่ (อช.เขาใหญ่ ทับลาน ปางสีดา ตาพระยา ขสป.ดงใหญ่) — จุดความร้อนดาวเทียม VIIRS ล่าสุด ยอดสะสมปีงบ พื้นที่เผาไหม้ ดัชนีอันตรายไฟป่า FWI และ PM2.5 · สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="แผนที่สถานการณ์ไฟป่า สบอ.1">
+<meta property="og:locale" content="th_TH">
+<meta property="og:title" content="สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่">
+<meta property="og:description" content="จุดความร้อนดาวเทียมล่าสุด ยอดสะสมปีงบ พื้นที่เผาไหม้ ดัชนีอันตรายไฟป่า และ PM2.5 ของ อช.เขาใหญ่ ทับลาน ปางสีดา ตาพระยา และ ขสป.ดงใหญ่ — สบอ.1 (ปราจีนบุรี)">
+<meta property="og:url" content="https://takiang71.github.io/fire-map-dpky/">
+<meta property="og:image" content="https://takiang71.github.io/fire-map-dpky/img/og.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="แผนที่กลุ่มป่าดงพญาเย็น-เขาใหญ่ พร้อมชื่อเว็บสถานการณ์ไฟป่า">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่">
+<meta name="twitter:image" content="https://takiang71.github.io/fire-map-dpky/img/og.jpg">
+<link rel="icon" href="img/icon.svg" type="image/svg+xml">
+<link rel="icon" href="img/icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <title>สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่</title>
 <script>/* D8: เบราว์เซอร์รุ่นเก่า — ต้องเป็นสคริปต์แรกสุดและเขียนแบบ ES5 ล้วน (สคริปต์อื่นใช้ ?? · regex lookbehind · Array.at · structuredClone · DecompressionStream
    ถ้าไม่รองรับจะ SyntaxError ทั้งบล็อก = หน้าขาวเงียบ) · รุ่นต่ำสุด Chrome/Edge 98 · Safari 16.4 (iOS 16.4) · Firefox 113 · ตรวจใน check_site (ลบ DecompressionStream ก่อนโหลดหน้า) */
@@ -19,8 +38,16 @@ d.innerHTML='<div style="max-width:440px;margin:8vh auto 0"><div style="font-siz
 document.body.appendChild(d);if(l)l.style.display='none'}
 if(document.body)show();else document.addEventListener('DOMContentLoaded',show)})();
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;800&display=swap" rel="stylesheet">
+<!-- B3 (16 พ.ย. 69): ฟอนต์ Noto Sans Thai อยู่ในเว็บเอง (fonts/, SIL OFL — @fontsource/noto-sans-thai 5.2.8 = ไฟล์ชุดเดียวกับ Google Fonts) ไม่ต้องต่อ googleapis/gstatic · subset thai+latin น้ำหนัก 400/600/800 -->
+<link rel="preload" href="fonts/noto-sans-thai-thai-400.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:'Noto Sans Thai';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/noto-sans-thai-thai-400.woff2) format('woff2');unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:'Noto Sans Thai';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/noto-sans-thai-latin-400.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Noto Sans Thai';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/noto-sans-thai-thai-600.woff2) format('woff2');unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:'Noto Sans Thai';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/noto-sans-thai-latin-600.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Noto Sans Thai';font-style:normal;font-weight:800;font-display:swap;src:url(fonts/noto-sans-thai-thai-800.woff2) format('woff2');unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:'Noto Sans Thai';font-style:normal;font-weight:800;font-display:swap;src:url(fonts/noto-sans-thai-latin-800.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+</style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css">
 <style>
 :root{color-scheme:light;--navy:#1B2A5E;--on:#1B2A5E;--fire:#D93A1F;--bg:#fff;--ink:#1d2433;--mut:#6b7280;--line:#e3e6ee;--sel:#e6e8fb;--glass:rgba(255,255,255,.86);--sh:0 4px 18px rgba(20,30,60,.15)}
@@ -991,6 +1018,16 @@ function fetchT(u,opt,ms){const o=Object.assign({},opt),own=o.signal;ms=ms||FTO.
  o.signal=own?(AbortSignal.any?AbortSignal.any([own,sg]):own):sg;
  return fetch(u,o).catch(e=>{if(to&&e&&e.name==='AbortError')e=new DOMException('ต้นทางตอบช้าเกิน '+ms/1e3+' วินาที','TimeoutError');
   if(!(own&&own.aborted))dbg('fetch '+String(u).split('?')[0].slice(0,120),e);throw e})}
+/* B1 เฟส 1 (16 พ.ย. 69): ข้อมูลฝัง geo/hdata/adata/wdata/wadata/fxdata — embGet(id) คืน Promise ของข้อความ JSON
+   มีบล็อก <script type="application/json" id> (เปิดจากโฟลเดอร์ repo/ดับเบิลคลิก) = ใช้ทันที · ไม่มี (_site: build_site แยกเป็น data/emb/<id>.<sha8>.json + ดัชนี #emb)
+   = fetch ตามดัชนี แล้วสร้างบล็อกเดิม (id เดิม) ให้โค้ดที่อ่าน textContent ทำงานเหมือนเดิม · เปิด _site แบบ file:// = ดึงจากเว็บจริงแบบเดียวกับ BN_BASE */
+const EMB_SITE='https://takiang71.github.io/fire-map-dpky/';
+function embGet(id){const C=embGet.c||(embGet.c={});if(C[id])return C[id];
+ const b=document.getElementById(id);if(b&&b.textContent.trim())return C[id]=Promise.resolve(b.textContent);
+ const ix=document.getElementById('emb'),u=ix&&JSON.parse(ix.textContent)[id];
+ if(!u)return C[id]=Promise.reject(new Error('ไม่มีข้อมูลฝัง '+id));
+ return C[id]=fetchT((/^https?:$/.test(location.protocol)?'':EMB_SITE)+u,{},FTO.big).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status+' '+u);return r.text()})
+  .then(t=>{const e=b||document.createElement('script');e.type='application/json';e.id=id;e.textContent=t;if(!b)document.body.appendChild(e);return t})}
 /* ข้อความเมื่อผู้ใช้รอผล: เกินเวลา → "ต้นทางตอบช้า ลองใหม่" แทนข้อความเดิม */
 const slowMsg=(e,m)=>e&&e.name==='TimeoutError'?'ต้นทางตอบช้า ลองใหม่':m;
 /* ?debug=1: คัดลอก JSON ของ __LOG + UA + เวอร์ชันหน้าเว็บ (วันที่ไฟล์/ข้อมูล) ไปส่งผู้ดูแล · คัดลอกอัตโนมัติไม่ได้ → แสดงกล่องข้อความให้คัดลอกเอง */

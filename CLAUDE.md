@@ -1,6 +1,6 @@
 # แผนที่สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่ (Dong Phayayen–Khao Yai Forest Complex)
 
-เว็บแอปไฟล์เดียว (`index.html`, **2.38 MB** — gzip ~625 KB: ข้อมูลฝัง ~950 KB + โค้ด/CSS ~1 MB, ~6,700 บรรทัด) ภาษาไทย ใช้ MapLibre GL JS 4.7.1 จาก cdnjs
+เว็บแอปไฟล์เดียว (`index.html`, **2.4 MB** — ข้อมูลฝัง ~1 MB + โค้ด/CSS ~1.4 MB, ~6,800 บรรทัด · `_site/index.html` 1.3 MB: build_site แยกข้อมูลฝังเป็น `data/emb/*.json` → [data-blocks.md](docs/arch/data-blocks.md)) ภาษาไทย ใช้ MapLibre GL JS 4.7.1 จาก cdnjs
 เปิดด้วยดับเบิลคลิก หรือ `node scripts/serve.js` แล้วเข้า http://localhost:8000 (เครื่องผู้ใช้ไม่มี Python จริง มีแต่ alias ของ Store · มี Node 24 → สคริปต์ใหม่เขียนด้วย Node)
 ผู้ใช้สื่อสารภาษาไทย ตอบเป็นภาษาไทย · ข้อความบนหน้าเว็บเป็นภาษาไทยทั้งหมด
 สเปกตั้งต้นอยู่ที่ `docs/spec-v3.md` (เฟส 1–4)
@@ -15,7 +15,7 @@
 
 1. **`git pull` ก่อนแก้ทุกครั้ง** (GitHub Actions commit เข้า main วันละหลายครั้ง) · เสร็จแล้ว commit + push (identity takiang71)
 2. **รัน `node --test test/` (ชุดทดสอบหน่วย <1 วิ) ทุกครั้งที่แก้ `scripts/` หรือ `index.html` · รัน `node scripts/check_site.js` ก่อน commit ทุกครั้งที่แก้ `index.html`** (~3 นาที; syntax ทุก `<script>` + Chrome headless 1440/390 กดปุ่มหลักนับ error) ต้องได้ `✅ ผ่าน` · เพิ่มปุ่ม/แผงใหม่ ต้องเพิ่มขั้นใน `DESK`/`MOB` ของสคริปต์ → [testing.md](docs/arch/testing.md)
-3. **ห้ามแก้บล็อกข้อมูลด้วยมือ**: `hdata` (Excel กรมอุทยานฯ — **ห้ามแก้ก่อนผู้ใช้อนุญาต**), `adata`, `wdata`, `wadata`, `fxdata` สร้างจากสคริปต์เท่านั้น (`excel_to_hdata.js`, `sync_hotspots.js`, `import_watch.js`, `import_fx.js`) → [data-blocks.md](docs/arch/data-blocks.md)
+3. **ห้ามแก้บล็อกข้อมูลด้วยมือ**: `hdata` (Excel กรมอุทยานฯ — **ห้ามแก้ก่อนผู้ใช้อนุญาต**), `adata`, `wdata`, `wadata`, `fxdata` สร้างจากสคริปต์เท่านั้น (`excel_to_hdata.js`, `sync_hotspots.js`, `import_watch.js`, `import_fx.js`) · อ่านบล็อกด้วย `getElementById(id).textContent` ได้ตามเดิม (ใน `_site` ตัวโหลด `embGet` สร้างบล็อกให้ก่อนรันสคริปต์แอป) — สคริปต์ใหม่ต้องเป็น `<script>` ไม่มี attribute → [data-blocks.md](docs/arch/data-blocks.md)
 4. แก้ `index.html` ด้วย Node ใช้ `split(a).join(b)` **ห้ามใช้ `String.replace`** (`$$`/`$&` เพี้ยน) · แทรกก่อน `</body>` ต้องใช้ `lastIndexOf` (มี `</body>` ในสตริงของโมดูลพิมพ์แผนที่)
 4a. เรียกเครือข่ายใน index.html ใช้ `fetchT(url,opt,FTO.main|tile|big|aux)` ห้าม `fetch(` ตรง · catch ในเส้นทางโหลดข้อมูลใช้ `dbg('ชื่อ',e)` ไม่ปล่อยว่าง · สคริปต์แรกใน `<head>` (ตรวจเบราว์เซอร์เก่า) ต้อง ES5 → [gotchas.md](docs/arch/gotchas.md)
 5. **ห้ามใส่หมายเหตุ `//` ท้ายบรรทัดที่มีโค้ดต่อ** (เคยกลืนโค้ดจนปุ่มเสีย; `node --check` ไม่จับ) ใช้ `/* */`

@@ -47,11 +47,14 @@ function syntax(file) {
     const ty = (at.match(/type\s*=\s*["']?([^"'\s>]+)/i) || [])[1] || '';
     n++;
     if (/json/i.test(ty)) { try { JSON.parse(code) } catch (e) { errs.push(`${rel}:${line} ข้อมูล JSON ${(at.match(/id="([^"]+)"/) || [])[1] || ''} อ่านไม่ได้: ${e.message}`) } continue }
-    if (ty && !/javascript|module/i.test(ty)) continue;
+    if (ty && !/javascript|module|x-emb-app/i.test(ty)) continue; // x-emb-app = สคริปต์แอปที่ build_site พักไว้ให้ตัวโหลดรันหลังข้อมูลฝังมาครบ (B1)
     try { new vm.Script(code, { filename: rel, lineOffset: line - 1 }) }
     catch (e) { const w = (e.stack || '').split('\n')[0]; errs.push(`${w.includes(rel) ? w : rel + ':' + line} ${e.name}: ${e.message}`) }
   }
-  console.log(`syntax ${rel}: ${n} บล็อก, ผิด ${errs.length}`);
+  // B1: _site/index.html มีดัชนี #emb → ไฟล์ data/emb/*.json ต้องมีและเป็น JSON
+  const ix = h.match(/<script type="application\/json" id="emb">([\s\S]*?)<\/script>/);
+  if (ix) for (const [id, u] of Object.entries(JSON.parse(ix[1]))) { try { JSON.parse(fs.readFileSync(path.join(path.dirname(file), u), 'utf8')) } catch (e) { errs.push(`${rel} ข้อมูลฝัง ${id} (${u}) อ่านไม่ได้: ${e.message.slice(0, 120)}`) } }
+  console.log(`syntax ${rel}: ${n} บล็อก${ix ? ' + ข้อมูลฝังแยกไฟล์ ' + Object.keys(JSON.parse(ix[1])).length : ''}, ผิด ${errs.length}`);
   return errs;
 }
 
@@ -237,6 +240,10 @@ async function browser(dir) {
       const r = await fetch(SITE + 'index.html?t=' + Date.now(), { signal: AbortSignal.timeout(60e3) });
       const b = Buffer.from(await r.arrayBuffer());
       if (!r.ok || b.length < 1e5 || !b.includes('maplibre')) throw new Error('HTTP ' + r.status + ' ' + b.length + ' ไบต์');
+      // B1: ฉบับบนเว็บอ้างไฟล์ข้อมูลฝัง data/emb/<id>.<sha8>.json ของรอบนั้น — ดึงมาด้วย (deploy ใหม่แทนทั้งเว็บ ไฟล์เก่าจะหาย)
+      const ix = b.toString('utf8').match(/<script type="application\/json" id="emb">([\s\S]*?)<\/script>/);
+      if (ix) for (const u of Object.values(JSON.parse(ix[1]))) { const t = path.join(DIR, u); if (fs.existsSync(t)) continue;
+        const q = await fetch(SITE + u, { signal: AbortSignal.timeout(60e3) }); if (!q.ok) throw new Error('ข้อมูลฝัง ' + u + ' HTTP ' + q.status); fs.mkdirSync(path.dirname(t), { recursive: true }); fs.writeFileSync(t, Buffer.from(await q.arrayBuffer())) }
       fs.writeFileSync(file, b); res.fallback = crypto.createHash('sha1').update(b).digest('hex');
       console.log(`ใช้ index.html ฉบับบนเว็บแทน (${(b.length / 1024).toFixed(0)} KB) — live.json/ข้อมูลอื่นยังขึ้นตามปกติ`);
     } catch (e) { res.fallback = null; console.log('::warning::ดึง index.html ฉบับบนเว็บไม่ได้ (' + e.message + ') — ขึ้นฉบับใหม่ไปตามเดิม') }

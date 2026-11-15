@@ -188,10 +188,57 @@ function watchSum(W) {
   }) };
 }
 
-(async () => {
+// --- B1 เฟส 1 (16 พ.ย. 69): แยกข้อมูลฝังออกจาก _site/index.html (index.html ใน repo ไม่เปลี่ยน — ดับเบิลคลิกเปิดได้เหมือนเดิม) ---
+// บล็อก <script type="application/json" id="geo|hdata|adata|wdata|wadata|fxdata"> (~1 MB) → _site/data/emb/<id>.<sha8>.json (ชื่อเปลี่ยนเมื่อข้อมูลเปลี่ยน
+// → เบราว์เซอร์ใช้แคชได้ทุกครั้งที่ข้อมูลเดิม) · ที่ตำแหน่งบล็อกแรกใส่ดัชนี <script id="emb">{id:url}</script> + ตัวโหลด
+// สคริปต์แอปที่อยู่หลังจุดนั้น (<script> ไม่มี attribute) เปลี่ยนเป็น type="text/x-emb-app" (ยังไม่รัน) → ตัวโหลดเรียก embGet ครบทุกชุด
+// แล้วสร้าง <script> ใหม่ตามลำดับเดิม = โค้ดเดิมที่อ่าน textContent ตอนโหลดทำงานได้โดยไม่ต้องแก้ · HTML โครง (แผง/การ์ด) วาดก่อนข้อมูลมา
+const EMB_IDS = ['geo', 'hdata', 'adata', 'wdata', 'wadata', 'fxdata'];
+const EMB_LOADER = `/* B1 เฟส 1: รอข้อมูลฝังครบ (embGet — ไฟล์ data/emb/*.json) แล้วรันสคริปต์แอปตามลำดับเดิม · สร้างโดย scripts/build_site.js */
+(()=>{const ix=JSON.parse(document.getElementById('emb').textContent),t0=performance.now();
+ /* รอ HTML ทั้งหน้า parse เสร็จด้วย — เน็ตช้า ข้อมูลอาจมาครบก่อน แล้วสคริปต์แอปท้ายไฟล์ยังอ่านไม่ครบ (พบตอนวัด Fast 3G 16 พ.ย. 69: SyntaxError) */
+ const dom=()=>document.readyState==='loading'?new Promise(r=>document.addEventListener('DOMContentLoaded',r,{once:true})):0;
+ Promise.all([...Object.keys(ix).map(embGet),dom()]).then(()=>{window.__EMB_MS=Math.round(performance.now()-t0);
+  for(const s of [...document.querySelectorAll('script[type="text/x-emb-app"]')]){const n=document.createElement('script');n.textContent=s.textContent;s.replaceWith(n)}},
+  e=>{try{dbg('embGet',e)}catch(_){}fail('โหลดข้อมูลไม่สำเร็จ ('+(e&&e.message||e)+') — ลองรีโหลดหน้า')})})();`;
+function splitEmb(html, outDir) {
+  const crypto = require('crypto'), dir = path.join(outDir, 'data', 'emb'), ix = {};
+  fs.rmSync(dir, { recursive: true, force: true }); fs.mkdirSync(dir, { recursive: true });
+  // ไล่แท็ก <script> ระดับบนสุด (เนื้อหาสคริปต์จบที่ </script> แรก — ตามกติกา HTML) เพื่อไม่แตะสตริง "<script>" ในโค้ด
+  const tags = []; let i = 0;
+  for (; ;) {
+    const a = html.indexOf('<script', i); if (a < 0) break;
+    const gt = html.indexOf('>', a), e = html.indexOf('</script>', gt);
+    tags.push({ a, gt, e, attr: html.slice(a + 7, gt) }); i = e + 9;
+  }
+  let first = -1, out = '', last = 0;
+  for (const t of tags) {
+    const m = /^\s+type="application\/json"\s+id="(\w+)"\s*$/.exec(t.attr);
+    if (m && EMB_IDS.includes(m[1])) {
+      const body = html.slice(t.gt + 1, t.e), h = crypto.createHash('sha1').update(body).digest('hex').slice(0, 8), f = `${m[1]}.${h}.json`;
+      fs.writeFileSync(path.join(dir, f), body); ix[m[1]] = 'data/emb/' + f;
+      out += html.slice(last, t.a); if (first < 0) { first = out.length; out += '\u0000EMB\u0000' } last = t.e + 9;
+      // ตัดขึ้นบรรทัดหลังบล็อก
+      if (html[last] === '\n') last++;
+      continue;
+    }
+    if (first >= 0 && t.attr === '') { out += html.slice(last, t.a) + '<script type="text/x-emb-app">'; last = t.gt + 1; continue }
+  }
+  out += html.slice(last);
+  if (first < 0) return { html, ix };
+  const head = `<script type="application/json" id="emb">${JSON.stringify(ix)}</script>\n<script>${EMB_LOADER}</script>\n`;
+  return { html: out.split('\u0000EMB\u0000').join(head), ix };
+}
+
+module.exports = { summary, watchSum, splitEmb, EMB_IDS };
+if (require.main === module) (async () => {
   fs.mkdirSync(OUT, { recursive: true });
-  fs.copyFileSync(H, path.join(OUT, 'index.html'));
+  { const src = fs.readFileSync(H, 'utf8'), r = splitEmb(src, OUT);
+    fs.writeFileSync(path.join(OUT, 'index.html'), r.html);
+    console.log(`index.html: ${(Buffer.byteLength(src) / 1048576).toFixed(2)} → ${(Buffer.byteLength(r.html) / 1048576).toFixed(2)} MB · ข้อมูลฝังแยก ${Object.keys(r.ix).length} ไฟล์ (data/emb/)`) }
   fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
+  // ไอคอน/ภาพแชร์ลิงก์ (D2) และฟอนต์ Noto Sans Thai (B3)
+  for (const d of ['img', 'fonts']) if (fs.existsSync(path.join(ROOT, d))) fs.cpSync(path.join(ROOT, d), path.join(OUT, d), { recursive: true });
   // คู่มือการใช้งาน (manual/index.html + ภาพประกอบ) — ปุ่ม #bMan ในหน้าเว็บเปิดหน้านี้
   if (fs.existsSync(path.join(ROOT, 'manual'))) fs.cpSync(path.join(ROOT, 'manual'), path.join(OUT, 'manual'), { recursive: true });
   // พื้นที่เผาไหม้ (scripts/sync_burn.js), แหล่งเชื้อเพลิง (scripts/sync_fuel.js), ภาพแหล่งท่องเที่ยว (data/tour) และดัชนีอันตรายไฟป่า TFDRS (scripts/sync_fwi.js) — หน้าเว็บอ่านจาก data/ ทางเดียวกับตอนเปิดผ่าน serve.js

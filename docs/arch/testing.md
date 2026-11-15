@@ -45,6 +45,7 @@
   | `net.test.js` | `fetchT` (ตอบทันที/เกินเวลา=TimeoutError/ไม่มี AbortSignal.timeout ใช้ AbortController/ผู้เรียกยกเลิก/เครือข่ายล่ม) · `dbg` (200 รายการ, warn เฉพาะ ?debug=1) · `slowMsg` · **ไม่มี `fetch(` ตรงนอก fetchT** · สคริปต์ D8 เป็นสคริปต์แรก ES5 และตรวจครบ |
   | `hdfill.test.js` | C1 `hdFill` (ดึงจาก index.html) จำลอง 2 ต.ค. 2570: เติมเฉพาะปีงบ 2570 ด้วย indSat (SNPP ถึง 1 พ.ย. 69 / NOAA-20 จากนั้น ไม่รวม NOAA-21), ld/fu/sb/fa, `fyCum(2570)` ไม่เป็น 0, `hdfNote`/`hdfSats`, มี Excel แม้จุดเดียว = ไม่เติม |
   | `health.test.js` | health `xlsx`/`savi`/`b4` ด้วย `HEALTH_NOW` (รอยต่อ 1 ธ.ค., 90/21 วัน, ต้นทางใหม่กว่าเว็บ), ระยะทวนซ้ำใน `CHECKS` · ล้าง cache `lib/state` หลังโหลด (state.test.js ต้องได้ STATE_DIR ของตัวเอง) |
+  | `emb.test.js` | B1 `splitEmb` กับ index.html จริง (อ่านอย่างเดียว เขียนโฟลเดอร์ชั่วคราว): 6 ไฟล์ชื่อมี hash เนื้อหาตรงทุกไบต์, < 1.5 MB, สคริปต์แอปถูกพักครบ/ไม่เปลี่ยน/ลำดับเดิม, สคริปต์ส่วนหัวไม่ถูกแตะ, ตัวโหลดรอ DOMContentLoaded · D2 meta/ไอคอน · B3 ไม่มี googleapis + ไฟล์ woff2 มีจริง |
   | `fiscal.test.js` | ฟังก์ชันในหน้าเว็บ (ดึงจาก index.html): `fy0` `fyOfDay` (รอยต่อ 1 ต.ค.) `thDay` (เปลี่ยนวัน 17:00 UTC) `IND_SW`/`indSat` (2 พ.ย. 69) `fuOK` (+ dictionary จริงใน hdata) `dyAS` |
 - **ตรวจรับเมื่อสร้าง**: แก้เกณฑ์ใน dedup.js ให้ผิด 4 แบบ (TW 250→50, RATIO 0.6→0.05, PAIR 450→100, DT 3→0) → เทสต์ล้ม 4–7 ข้อทุกแบบ (ไม่ใช่แค่ข้อตรวจค่าเกณฑ์)
 - **วิธีเพิ่มเทสต์**
@@ -53,3 +54,19 @@
   3. ไฟล์ตัวอย่างเก็บใน `test/fixtures/` ให้เล็ก (≤10 KB) และ**ห้ามอ่านไฟล์ใน data/ ที่ sync เปลี่ยนทุกวัน** (เทสต์ต้องให้ผลเดิมทุกรอบ) — อ่านบล็อกใน index.html ได้เฉพาะที่ไม่เปลี่ยนตาม sync (`geo`, dictionary ของ `hdata`) และอ่านอย่างเดียว
   4. ห้ามต่อเน็ตในเทสต์ (จำลอง `global.fetch` แบบ state.test.js) · ใช้ `rng(seed)` จาก helpers.cjs แทน Math.random
   5. แก้เกณฑ์/ตรรกะโดยตั้งใจ → แก้ค่าที่คาดในเทสต์ด้วย และบอกเหตุผลในหมายเหตุ
+
+## เวลาโหลดก่อน/หลังแยกข้อมูลฝัง (B1 เฟส 1, 16 พ.ย. 69)
+
+Chrome headless 1440×900 · เสิร์ฟ `_site` จากเซิร์ฟเวอร์ในเครื่อง (ไม่บีบอัด gzip — Pages บีบอัด จึงช้ากว่าจริงทั้งสองฝั่ง) · ปิดแคช · ค่ามัธยฐานของ 3 รอบ · harness: `b1h.js time` ใน scratchpad ของเซสชัน (โค้ดสรุปในหัวข้อนี้)
+
+| | DOMContentLoaded | การ์ดมีตัวเลข (`#p-kp`) | `map.loaded()` | ขนาด index.html |
+|---|---|---|---|---|
+| ก่อน (ไม่จำกัดความเร็ว) | 2,141 ms | 2,164 ms | 5,140 ms | 2,401,445 B |
+| หลัง (ไม่จำกัดความเร็ว) | 203 ms | 1,755 ms | 4,343 ms | 1,378,884 B + data/emb 6 ไฟล์ ~1.03 MB |
+| ก่อน (Fast 3G 1.6 Mbps/150 ms) | 24,826 ms | 19,462 ms | 23,782 ms | |
+| หลัง (Fast 3G) | 13,752 ms | 14,584 ms | 24,356 ms | |
+
+- การ์ดมีตัวเลขเร็วขึ้น ~0.4 วิ (เน็ตเร็ว) / ~4.9 วิ (3G) · `map.loaded()` ใกล้เดิม (รอไทล์ภาพแผนที่จาก CDN เป็นหลัก) · HTML โครงขึ้นเร็วขึ้นมาก (DCL)
+- วัดเพิ่มที่ควรทำ: เปิดซ้ำ (แคช ETag/304) บน Pages จริง และมือถือจริง (D7)
+- วิธีวัด: `Page.navigate` แล้ว poll ทุก 100 ms ว่า `#p-kp` มีตัวเลข / `map.loaded()` · `performance.getEntriesByType('navigation')[0].domContentLoadedEventEnd` หลัง loadEventEnd · 3G = `Network.emulateNetworkConditions` (ไทล์ภายนอกก็ถูกจำกัดด้วย)
+- ตัวเลขอ้างอิง (`b1h.js ref`): นาฬิกาตายตัว 2026-11-15T16:00Z + บล็อก API/live.json/watch.json + Math.random ตายตัว → อ่านการ์ดหลัก, โหมดเทียบ, การ์ดสถิติแท็บ hs/ha/xt, การ์ด จปร. — ก่อนแก้ (repo, _site) = หลังแก้ (repo, _site) ทุกค่า

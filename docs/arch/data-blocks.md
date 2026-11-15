@@ -110,3 +110,15 @@
   · เปิดปุ่มแล้ว ปีงบ 2569 ในการ์ด = 83 (ตรงกับ LINE), สถิติย้อนหลัง 2,801 จาก 3,154
 - การ์ด: `fyNow` (adata + LIVE ที่ยังไม่อยู่ใน adata, กันซ้ำด้วย `hKey`) — ถ้าไม่มี adata จะ fallback `fyNowSample` + ป้ายตัวอย่าง
 
+
+## แยกข้อมูลฝังออกจาก _site/index.html (B1 เฟส 1, 16 พ.ย. 69)
+
+- **index.html ใน repo ไม่เปลี่ยน** — ยังมีบล็อก `geo` `hdata` `adata` `wdata` `wadata` `fxdata` ครบ ดับเบิลคลิกเปิดได้เหมือนเดิม · สคริปต์ทุกตัว (sync_hotspots, excel_to_hdata, lib/area, health, เทสต์) ยังอ่าน/เขียนบล็อกใน index.html ของ repo
+- `build_site.js` `splitEmb(html, OUT)`: บล็อกทั้ง 6 → `_site/data/emb/<id>.<sha8>.json` (เนื้อหาเดิมทุกไบต์ รวม `</`) · ที่ตำแหน่งบล็อกแรกใส่ดัชนี `<script type="application/json" id="emb">{id:url}</script>` + ตัวโหลด · `<script>` ไม่มี attribute ที่อยู่หลังจุดนั้น (สคริปต์แอป 17 ชุด) → `type="text/x-emb-app"` (ยังไม่รัน)
+  · ตัวโหลด: `Promise.all([...ids.map(embGet), DOMContentLoaded])` แล้วสร้าง `<script>` ใหม่แทนทีละตัวตามลำดับเดิม → โค้ดเดิมที่อ่าน `document.getElementById(id).textContent` ตอนโหลดทำงานโดยไม่ต้องแก้ · `window.__EMB_MS` = เวลารอข้อมูล
+  · **ต้องรอ DOMContentLoaded ด้วย**: วัด Fast 3G แล้วพบข้อมูลมาครบก่อน HTML parse เสร็จ → สคริปต์ท้ายไฟล์ยังอ่านไม่ครบ = SyntaxError (แก้แล้ว, เทสต์ใน emb.test.js)
+  · ไฟล์ชื่อมี hash → ข้อมูลเดิม = URL เดิม เบราว์เซอร์ใช้แคชได้ (Pages max-age 600 ยังมีผลกับ index.html แต่ไฟล์ข้อมูล ~1 MB ไม่ต้องโหลดใหม่ถ้าไม่เปลี่ยน — เช็กด้วย ETag/304)
+- หน้าเว็บ `embGet(id)` (สคริปต์แรกของแอป ถัดจาก fetchT): มีบล็อกที่ไม่ว่าง = ใช้ทันที · ไม่มี = `fetchT` ตามดัชนี `#emb` (`FTO.big` 60 วิ) แล้วสร้าง `<script type="application/json" id>` ใส่ body · เปิด `_site/index.html` แบบ file:// = ดึงจาก `EMB_SITE` (https://takiang71.github.io/fire-map-dpky/ — Pages ส่ง CORS *) แบบเดียวกับ `BN_BASE`
+- `check_site.js`: ตรวจ syntax ของ `text/x-emb-app` ด้วย + ไฟล์ตามดัชนี `#emb` ต้อง JSON.parse ได้ · โหมด `--ci` ไม่ผ่านแล้วใช้ index.html บนเว็บ → ดึงไฟล์ data/emb ที่ฉบับนั้นอ้างมาใส่ _site ด้วย (deploy แทนทั้งเว็บ ไฟล์ hash เก่าจะหาย)
+- ขนาด: index.html 2,401,445 → 1,378,884 ไบต์ (ไม่บีบอัด) · ข้อมูล 6 ไฟล์ ~1.03 MB · ตัวเลขการ์ด/สถิติทุกแท็บ/จปร./โหมดเทียบ เท่าเดิมทุกค่า (harness นาฬิกาตายตัว + บล็อก API) · summary.json + watch sum เท่าเดิม (live ชุดเดียวกัน เวลาเดียวกัน) · เวลาโหลด → [testing.md](testing.md)
+- **เฟส 2 (แยกโค้ดเป็น src/) ยังไม่ทำ** — ต้องให้ผู้ใช้ตัดสินก่อน (เปลี่ยนวิธีดับเบิลคลิกเปิด)
