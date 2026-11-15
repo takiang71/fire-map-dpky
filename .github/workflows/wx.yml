@@ -19,7 +19,7 @@ on:
   # ทดสอบหลังแก้สคริปต์/workflow นี้ (สั่งได้แค่ตอน push)
   push:
     branches: [main]
-    paths: [.github/workflows/wx.yml, scripts/sync_cams.js, scripts/sync_gfsvr.js, scripts/sync_fwi.js]
+    paths: [.github/workflows/wx.yml, scripts/sync_cams.js, scripts/sync_gfsvr.js, scripts/sync_fwi.js, scripts/fwi_lfa.js]
 
 permissions:
   contents: write
@@ -71,6 +71,17 @@ jobs:
       - name: publish fwi
         if: steps.fwi.outcome == 'success'
         run: bash scripts/wx_publish.sh "FWI/FFMC" data/fwi
+        env:
+          GH_TOKEN: ${{ github.token }}
+      # ---------- ทางสำรอง FWI (A5, 15 พ.ย. 69): รอบ TFDRS จากเครื่องผู้ดูแลเก่ากว่า 2 วัน → "ค่าของวัน" จาก LFA (API สาธารณะ ThaiREN)
+      # ให้สรุปประจำวัน LINE/Telegram ยังมี FWI (ป้าย "ค่าของวัน ไม่มีพยากรณ์") · ไม่เข้าเงื่อนไข/ค่า LFA เดิม = จบทันที (ไม่ commit)
+      - id: lfa
+        run: node scripts/fwi_lfa.js
+        timeout-minutes: 5
+        continue-on-error: true
+      - name: publish lfa
+        if: steps.lfa.outcome == 'success' && hashFiles('data/fwi/lfa.json') != ''
+        run: bash scripts/wx_publish.sh "FWI ค่าของวันจาก LFA" data/fwi/lfa.json
         env:
           GH_TOKEN: ${{ github.token }}
       # ---------- อัตราการระบายอากาศ (NOAA GFS) ----------

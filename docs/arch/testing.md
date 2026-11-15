@@ -39,10 +39,12 @@
   | `area.test.js` | `where()` จุดในทุกพื้นที่ (รวมเขาฉกรรจ์/โคกสูง/ดงใหญ่ สบอ.7), นอกแนวเขต, `SBP`, `watchAt` จปร., **`geoAt` ในหน้าเว็บให้พื้นที่/สถานีฯ เดียวกับ where() ทุก 0.05°** |
   | `near.test.js` | กันแจ้งซ้ำ: FIRMS→API รหัสใหม่, จุดข้างเคียง 1 พิกเซล, คนละดวง, >10 นาที, ชื่อดาวเทียมหลายแบบ, `prune` |
   | `state.test.js` | `loadState`: เลือกชุด updated ใหม่สุด, ไฟล์เสีย, เว็บล่ม (fetch จำลอง ไม่ต่อเน็ต — `STATE_DIR` ชั่วคราว, `STATE_RAW` ว่าง) |
-  | `summary.test.js` | `fwiSummary`/`vrSummary`/`camsSummary` กับ `fixtures/{fwi,gfs_vr,cams_grid}.json` (สังเคราะห์ ค่าเท่ากันทั้งพื้นที่ — ค่าที่ถูกคิดด้วยมือในหมายเหตุ) + เกณฑ์ระดับ VR/PM2.5 |
+  | `summary.test.js` | `fwiSummary` (+ ทางสำรอง LFA `fixtures/fwi_lfa.json`, `fwi_lfa` stale/summarize)/`vrSummary`/`camsSummary` กับ `fixtures/{fwi,gfs_vr,cams_grid}.json` (สังเคราะห์ ค่าเท่ากันทั้งพื้นที่ — ค่าที่ถูกคิดด้วยมือในหมายเหตุ) + เกณฑ์ระดับ VR/PM2.5 |
   | `xlsx.test.js` | `unzip`/`readXlsx` กับ xlsx ที่สร้างในเทสต์ (เก็บตรง+บีบอัด, shared/inline string, ตัวเลข/วันที่/ตรรกะ/สูตร/error, คอลัมน์ AA, แถวที่ข้าม) |
   | `tiff.test.js` | `llToUTM` เทียบสูตร Krüger อิสระ (<1 ซม.), แปลงกลับไปกลับมา, `readTiff` 8 บิต/16 บิตมีเครื่องหมาย+Deflate+predictor, EPSG/พิกเซล/มุม |
   | `net.test.js` | `fetchT` (ตอบทันที/เกินเวลา=TimeoutError/ไม่มี AbortSignal.timeout ใช้ AbortController/ผู้เรียกยกเลิก/เครือข่ายล่ม) · `dbg` (200 รายการ, warn เฉพาะ ?debug=1) · `slowMsg` · **ไม่มี `fetch(` ตรงนอก fetchT** · สคริปต์ D8 เป็นสคริปต์แรก ES5 และตรวจครบ |
+  | `hdfill.test.js` | C1 `hdFill` (ดึงจาก index.html) จำลอง 2 ต.ค. 2570: เติมเฉพาะปีงบ 2570 ด้วย indSat (SNPP ถึง 1 พ.ย. 69 / NOAA-20 จากนั้น ไม่รวม NOAA-21), ld/fu/sb/fa, `fyCum(2570)` ไม่เป็น 0, `hdfNote`/`hdfSats`, มี Excel แม้จุดเดียว = ไม่เติม |
+  | `health.test.js` | health `xlsx`/`savi`/`b4` ด้วย `HEALTH_NOW` (รอยต่อ 1 ธ.ค., 90/21 วัน, ต้นทางใหม่กว่าเว็บ), ระยะทวนซ้ำใน `CHECKS` · ล้าง cache `lib/state` หลังโหลด (state.test.js ต้องได้ STATE_DIR ของตัวเอง) |
   | `fiscal.test.js` | ฟังก์ชันในหน้าเว็บ (ดึงจาก index.html): `fy0` `fyOfDay` (รอยต่อ 1 ต.ค.) `thDay` (เปลี่ยนวัน 17:00 UTC) `IND_SW`/`indSat` (2 พ.ย. 69) `fuOK` (+ dictionary จริงใน hdata) `dyAS` |
 - **ตรวจรับเมื่อสร้าง**: แก้เกณฑ์ใน dedup.js ให้ผิด 4 แบบ (TW 250→50, RATIO 0.6→0.05, PAIR 450→100, DT 3→0) → เทสต์ล้ม 4–7 ข้อทุกแบบ (ไม่ใช่แค่ข้อตรวจค่าเกณฑ์)
 - **วิธีเพิ่มเทสต์**

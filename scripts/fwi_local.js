@@ -6,6 +6,8 @@
 //   2) node scripts/sync_fwi.js (ไม่มีรอบใหม่ = จบ ไม่ push)
 //   3) ตาราง g/ เปลี่ยน → force push branch fwi-grid (commit เดียว) ก่อน · แล้ว commit data/fwi/index.json เข้า main (pull --rebase ลองใหม่ 5 ครั้ง)
 //      push เข้า main = workflow site เผยแพร่เอง (trigger push)
+//   4) สถานะรอบล่าสุด {at, ok, run, msg} → data/fwi/local_status.json (push เมื่อได้รอบใหม่/ผลเปลี่ยน/เก่ากว่า 20 ชม.) → กล่อง FWI บนเว็บ + health
+//      เครื่องปิดนานจนรอบ TFDRS เก่ากว่า 2 วัน → workflow wx ดึง "ค่าของวัน" จาก LFA แทน (scripts/fwi_lfa.js → data/fwi/lfa.json)
 // บันทึก .fwi-local\fwi_local.log (ตัดเหลือ ~200 บรรทัด) · ใช้ credential ของ Git Credential Manager ที่ล็อกอินไว้แล้ว
 // ใช้: node scripts/fwi_local.js [--force]   (env FWI_DIR เปลี่ยนโฟลเดอร์, FWI_NO_PUSH=1 ทดสอบไม่ push)
 const fs = require('fs'), path = require('path'), cp = require('child_process');
@@ -22,6 +24,14 @@ function git(args, o = {}) {
   const r = cp.spawnSync(GIT, args, { cwd: o.cwd || R, encoding: o.buf ? 'buffer' : 'utf8', maxBuffer: 64 << 20, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } });
   if (r.status !== 0 && !o.ok) throw new Error('git ' + args.join(' ') + ' ล้ม: ' + (r.error ? r.error.message + ' ' : '') + String(r.stderr || '').trim().slice(0, 300));
   return o.buf ? r.stdout : String(r.stdout || '').trim();
+}
+// push commit ใน main (pull --rebase ลองใหม่ 5 ครั้ง) → true = สำเร็จ
+async function pushMain() {
+  for (let i = 1; i <= 5; i++) {
+    try { git(['pull', '-q', '--rebase', 'origin', 'main']); git(['push', '-q', 'origin', 'HEAD:main']); return true }
+    catch (e) { log('push main ไม่สำเร็จ ลองใหม่', i, e.message.slice(0, 120)); await new Promise(r => setTimeout(r, i * 5e3)) }
+  }
+  log('push main ไม่สำเร็จ'); return false;
 }
 function cfg(k) { try { return git(['config', k], { cwd: HERE }) } catch (e) { return '' } }
 (async () => {
@@ -44,10 +54,26 @@ function cfg(k) { try { return git(['config', k], { cwd: HERE }) } catch (e) { r
   const s = cp.spawnSync(process.execPath, [path.join(R, 'scripts', 'sync_fwi.js'), ...(FORCE ? ['--force'] : [])], { cwd: R, encoding: 'utf8' });
   const out = (String(s.stdout || '') + String(s.stderr || '')).trim().split('\n').filter(Boolean);
   out.slice(-8).forEach(l => log('  ' + l));
-  if (s.status !== 0) { log('sync_fwi ล้ม (exit ' + s.status + ')'); process.exitCode = 1; return }
-  const after = fs.readFileSync(path.join(R, 'data', 'fwi', 'index.json'), 'utf8');
-  if (after === before) { log('ไม่มีรอบใหม่ — ไม่ push'); return }
-  const run = JSON.parse(after).run;
+  const after = fs.readFileSync(path.join(R, 'data', 'fwi', 'index.json'), 'utf8'), changed = s.status === 0 && after !== before;
+  let run = null; try { run = JSON.parse(after).run } catch (e) { }
+  // A5 (15 พ.ย. 69): สถานะรอบล่าสุดของเครื่องผู้ดูแล → data/fwi/local_status.json (กล่อง FWI บนเว็บ "ผู้ดูแลดึงล่าสุด …" + health)
+  //   push เมื่อได้รอบใหม่ (ไปกับ index.json) · ผลเปลี่ยน สำเร็จ↔ล้มเหลว · หรือสถานะบนเว็บเก่ากว่า 20 ชม. (≈ วันละครั้ง ไม่ commit ทุกรอบ)
+  const SF = path.join(R, 'data', 'fwi', 'local_status.json');
+  let prev = null; try { prev = JSON.parse(fs.readFileSync(SF, 'utf8')) } catch (e) { }
+  const st = { at: new Date().toISOString(), ok: s.status === 0 ? 1 : 0, run, msg: s.status !== 0 ? 'sync_fwi ล้ม (exit ' + s.status + ') ' + (out.at(-1) || '').slice(0, 160) : changed ? 'ได้รอบใหม่ ' + run : 'ไม่มีรอบใหม่ (รอบล่าสุด ' + run + ')' };
+  const stNeed = changed || !prev || prev.ok !== st.ok || Date.now() - Date.parse(prev.at) > 20 * 36e5;
+  if (stNeed) fs.writeFileSync(SF, JSON.stringify(st));
+  if (s.status !== 0) log('sync_fwi ล้ม (exit ' + s.status + ')');
+  if (!changed) {
+    if (s.status === 0) log('ไม่มีรอบใหม่');
+    if (stNeed && !NOPUSH) {
+      git(['add', 'data/fwi/local_status.json']);
+      git(['commit', '-qm', `fwi: สถานะเครื่องผู้ดูแล ${st.ok ? 'สำเร็จ' : 'ล้มเหลว'} (${run || '-'})`]);
+      if (await pushMain()) log('push สถานะเครื่องผู้ดูแลแล้ว'); else process.exitCode = 1;
+    }
+    if (s.status !== 0) process.exitCode = 1;
+    return;
+  }
   if (NOPUSH) { log('FWI_NO_PUSH=1 — ได้รอบ', run, 'แต่ไม่ push'); return }
   // 3a) ตาราง g/ → branch fwi-grid (commit เดียว force push) ก่อน main ให้ site เห็นตารางครบเมื่อเห็นรอบใหม่
   const FG = path.join(DIR, 'fg'); fs.rmSync(FG, { recursive: true, force: true }); fs.mkdirSync(FG);
@@ -59,14 +85,9 @@ function cfg(k) { try { return git(['config', k], { cwd: HERE }) } catch (e) { r
     git(['push', '-qf', REPO, 'fwi-grid'], { cwd: FG }); log('push ตาราง g/ → branch fwi-grid แล้ว');
   } else log('ตาราง g/ ไม่เปลี่ยน');
   // 3b) index.json → main
-  git(['add', 'data/fwi/index.json']);
+  git(['add', 'data/fwi/index.json', 'data/fwi/local_status.json']);
   git(['commit', '-qm', `fwi: TFDRS รอบ ${run} (ดึงจากเครื่องผู้ดูแล — ต้นทางไม่อนุญาตเครื่อง GitHub)`]);
-  let ok = false;
-  for (let i = 1; i <= 5 && !ok; i++) {
-    try { git(['pull', '-q', '--rebase', 'origin', 'main']); git(['push', '-q', 'origin', 'HEAD:main']); ok = true }
-    catch (e) { log('push main ไม่สำเร็จ ลองใหม่', i, e.message.slice(0, 120)); await new Promise(r => setTimeout(r, i * 5e3)) }
-  }
-  if (!ok) { log('push main ไม่สำเร็จ'); process.exitCode = 1; return }
+  if (!await pushMain()) { process.exitCode = 1; return }
   log('push รอบ', run, 'เข้า main แล้ว (site เผยแพร่เองจาก push)');
 })().catch(e => { log('ผิดพลาด:', e.message); process.exitCode = 1 })
   .finally(() => { try { const L = fs.readFileSync(LOG, 'utf8').split('\n'); if (L.length > 400) fs.writeFileSync(LOG, L.slice(-200).join('\n')) } catch (e) { } });

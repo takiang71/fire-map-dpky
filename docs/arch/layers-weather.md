@@ -353,3 +353,12 @@
 
 - สถานีวัดฝุ่น: `getStations()` ดึง Air4Thai จริง ลองตามลำดับ `AIR4THAI_PROXY` → `air4thai` (serve.js) → ตรง (ติด CORS) → ข้อมูลตัวอย่าง + toast · `a4tParse` (PM25.value ค่า <0 หรือเก่ากว่า `A4T_STALE` 6 ชม. = null)
 
+
+## FWI: สถานะเครื่องผู้ดูแล + ทางสำรอง LFA (A5, 15 พ.ย. 69)
+
+- `scripts/fwi_local.js` (Task Scheduler "fire-map FWI") เขียน `data/fwi/local_status.json` {at, ok, run, msg} ทุกรอบ · push เมื่อได้รอบใหม่ (ไปกับ index.json), ผลเปลี่ยน สำเร็จ↔ล้มเหลว หรือสถานะบนเว็บเก่ากว่า 20 ชม. (`pushMain()`) — ไม่ commit ทุกรอบ
+- กล่อง `.dfr` ของ FWI (โหมด local) อ่าน `local_status.json` + `lfa.json` (`FRLS`/`FRLF` ใน frGet เมื่อเปิดชั้น FWI) → "ผู้ดูแลดึงล่าสุด … (… ที่แล้ว) — สำเร็จ/ล้มเหลว" และเมื่อรอบเก่า "สรุปประจำวัน LINE/Telegram ใช้ค่าของวันนี้จาก LFA แทน"
+- **ทางสำรอง**: `scripts/fwi_lfa.js` ใน workflow wx (ทุกรอบ, ก่อน GFS) — รอบ TFDRS ใน index.json เก่า ≥2 วัน (เวลาไทย) → ดึงค่าของวันจาก LFA `/api/raster/fdrs_fwi|fdrs_ffmc/value?lat=&lon=` (API สาธารณะ CORS * ของ ThaiREN ที่แสดงชั้น FDRS ของ TFDRS — ไม่ใช่การเลี่ยงบอต) ที่จุดตัวอย่างทุก 0.1° ใน 7 พื้นที่ (50 จุด × 2 ค่า, ~2 วิ) → `data/fwi/lfa.json` {d, upd (updated_at ของ LFA), a:{all|ky|…:{FWI|FFMC:[เฉลี่ย,ต่ำ,สูง,สัดส่วน 5 ระดับ]}}} → `wx_publish.sh` · ค่า LFA เดิม (upd เท่ากัน) = ไม่เขียน
+  · ทดลอง 15 พ.ย. 69: LFA FWI เฉลี่ย 2.5 สูงสุด 9.6 / FFMC 75.7 เทียบ TFDRS วันเดียวกัน (0.02°) 2.8 / 10.1 / 75.1
+- `lib/fwisum.js`: index.json ใช้ไม่ได้ (เก่ากว่า 3 วันหรือไม่มีวันนี้) แต่ `lfa.json` เป็นค่าของวันนี้ → `{lfa:1, days:[วันนี้]}` ไม่มีอากาศเที่ยงวัน · LINE (`fwiBlock` ใน worker/line-webhook.mjs — line_notify import ตรง ไม่ต้องวางโค้ด Worker ใหม่ เพราะ Worker ไม่ส่ง FWI) และ Telegram ติดป้าย "ค่าของวัน ไม่มีพยากรณ์ (TFDRS ผ่าน LFA)"
+- health `fwi` บอกสถานะเครื่องผู้ดูแลและว่ามีค่าจาก LFA แล้วหรือยัง · เทสต์ใน `test/summary.test.js` (`fixtures/fwi_lfa.json`)

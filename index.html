@@ -75,6 +75,7 @@ h1 small{display:block;font-size:.42em;font-weight:600;color:var(--mut);margin-t
 #dt-y{font:inherit;font-size:12.5px;border:1px solid var(--line);border-radius:8px;padding:4px 6px;background:#fff;color:var(--mut);max-width:100%}#dt-y.on{border-color:var(--navy);color:var(--navy);font-weight:700;background:#eef1f6}
 .wcmp{margin-top:8px;font-size:12px}.wcmp summary{cursor:pointer;color:var(--navy);font-weight:600}.wct{width:100%;border-collapse:collapse;margin:6px 0;font-size:11.5px}.wct th,.wct td{border-bottom:1px solid var(--line);padding:3px 4px;text-align:left;vertical-align:top}.wct small{display:block;color:var(--mut);font-size:10.5px}
 .dfr{margin:0 0 8px;padding:6px 10px;border-radius:10px;background:#f5f7fb;border:1px solid var(--line);border-left:4px solid #9aa3b2;font-size:11.5px;line-height:1.5;color:#4b5563}.dfr.ok{border-left-color:#2e9d5b}.dfr.nw{border-left-color:#d98c00;background:#fff8e8}.dfr.er{border-left-color:#c0392b}.dfr .fr1 b{color:#1f2937;font-weight:600}.dfr .fr3{margin-top:2px}.dfr.ok .fr3{color:#23784a}.dfr.nw .fr3{color:#8a5a00}.dfr.er{background:#fdf1ef}.dfr.er .fr3{color:#a12c20}
+b.hdf{color:#b45309}
 .dsrc{margin-top:8px;padding:7px 10px;border-radius:10px;background:#f5f7fb;border:1px solid var(--line);font-size:11.5px;line-height:1.55;color:#4b5563}.dsrc:empty{display:none}.dsrc b.t{color:var(--ink);font-weight:600}.dsrc ul{margin:2px 0 0;padding-left:16px}.dsrc li{margin:1px 0}.dsrc .w{color:#b45309}
 .btns{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:12px 0}.btns>.btn{grid-column:span 3}.btns>.btn.b3{grid-column:span 2;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:3px;padding:6px 4px;font-size:12px;line-height:1.2} /* แถว 3 มี 3 ปุ่ม (ผู้ใช้ขอ 6 พ.ย. 69) ไอคอนบน ข้อความล่าง */ /* 2 คอลัมน์เท่ากัน กว้างเต็มแผงเสมอกับกล่องบน-ล่าง (ผู้ใช้ขอ 5 พ.ย. 69) */
 .btns>.btn{justify-content:flex-start;min-width:0;min-height:42px;padding:6px 12px;line-height:1.25;text-align:left}.btns>.btn span{min-width:0}
@@ -1449,13 +1450,13 @@ function renderCard(){
   ((t,[c,p])=>`<div class="cfy"><div><span>ปีงบ ${Hh.P} ทั้งปี</span><b>${nf(t)}</b><small>จุด · 1 ต.ค. – 30 ก.ย.</small></div><div><span>ปีงบ ${F} ถึง ${dShort(T0)}</span><b>${nf(cn[T])}</b><small>จุด · เทียบทั้งปี ${Hh.P}</small></div><em class="${c}" title="ปีงบ ${F} (ถึงวันนี้) เทียบยอดรวมทั้งปีงบ ${Hh.P} · ลูกศรแดง = มากกว่า, เขียว = น้อยกว่า">${p}</em></div>`)(Hh.tot,dPct(cn[T],Hh.tot));
  $('#p-lg').innerHTML=`<span><i style="border-color:var(--fire)"></i>ปีงบ ${F}${sx}</span><span><i style="border-color:#3E6FD8"></i>ปีงบ ${Hh.P}</span>${Hh.av.map((a,j)=>`<span><i style="border-color:${AVC[j]};border-top-style:dashed"></i>เฉลี่ย ${a.n} ปี</span>`).join('')}<span><i style="border-color:#9aa3b5;border-top-style:dashed"></i>เฉลี่ย ${yr}</span><span><i class="sb"></i>ช่วงไฟป่า ม.ค.–เม.ย.</span>`;
  pChart(F,T,cn,Hh);
- $('#p-yr').innerHTML=`${n20?'<b>เทียบด้วย NOAA-20 ทุกปี</b> (ทุกจุดในแนวเขต จาก API ไทย / NASA FIRMS — ไม่ใช่ตัวเลขทางการ, เฉลี่ยปีงบ '+(Hh.yrs[0]||'')+' เป็นต้นไป) · ':''}ตัวชี้วัดกรมอุทยานฯ: ${ind}${ADI&&T0-ADI.to>2?` · <b>ข้อมูลสะสมถึง ${dShort(ADI.to)}</b>`:''}<br>ปีงบ ${Hh.P} ทั้งปี <b>${nf(Hh.tot)}</b> จุด${Hh.tot?` · มากสุดเดือน ${TMO[Hh.pm]} (${nf(Hh.pmN)}) · วันที่มากสุด ${dShort(Hh.pd[0])} (${nf(Hh.pd[1])} จุด)`:''} · กราฟเป็นยอดสะสมตั้งแต่ 1 ต.ค.`;
+ $('#p-yr').innerHTML=`${!n20&&hdfNote(Hh.yrs)?'<b class="hdf">⚠ '+hdfNote(Hh.yrs)+'</b><br>':''}${n20?'<b>เทียบด้วย NOAA-20 ทุกปี</b> (ทุกจุดในแนวเขต จาก API ไทย / NASA FIRMS — ไม่ใช่ตัวเลขทางการ, เฉลี่ยปีงบ '+(Hh.yrs[0]||'')+' เป็นต้นไป) · ':''}ตัวชี้วัดกรมอุทยานฯ: ${ind}${ADI&&T0-ADI.to>2?` · <b>ข้อมูลสะสมถึง ${dShort(ADI.to)}</b>`:''}<br>ปีงบ ${Hh.P} ทั้งปี <b>${nf(Hh.tot)}</b> จุด${Hh.tot?` · มากสุดเดือน ${TMO[Hh.pm]} (${nf(Hh.pmN)}) · วันที่มากสุด ${dShort(Hh.pd[0])} (${nf(Hh.pd[1])} จุด)`:''} · กราฟเป็นยอดสะสมตั้งแต่ 1 ต.ค.`;
  // ข้อมูลประกอบ: ดาวเทียม / ความเชื่อมั่น
  $('#p-mfy').textContent='จุดสะสมปีงบ '+F;$('#p-mcp').textContent='เทียบปีงบ '+(F-1);$('#p-cmf').textContent='เทียบทั้งปี '+(F-1);
  drawList()}
 // ตัวเลขบนแท็บ (จำนวนพื้นที่) + บรรทัดข้อมูลประกอบใต้รายการ ตามช่วงข้อมูล PM
 function listMeta(){const pt=PT;[['pv','pn'],['sb','pn-sb'],['pa','pn-pa'],['st','pn-st'],['pv','pn-pv2'],['am','pn-am'],['tm','pn-tm']].forEach(([t,id])=>{PT=t;$('#'+id).textContent=areaRows().filter(r=>!r.out).length});PT=pt;
- if(PM==='cmp'){const T0=thDay(),F=fyOfDay(T0),a=fyPts().length,b=prvPts().length,[c,t]=dPct(a,b);$('#p-meta').innerHTML=ADI?`${CM==='full'?`ปีงบ ${F} (1 ต.ค. – ${dShort(T0)}) <b>${nf(a)}</b> จุด · ปีงบ ${F-1} ทั้งปี`:`ช่วงเดียวกัน 1 ต.ค. – ${dShort(T0)}: ปีงบ ${F} <b>${nf(a)}</b> จุด · ปีงบ ${F-1}`} <b>${nf(b)}</b> จุด <b style="color:${c==='up'?'#c0301c':c==='dn'?'#1f7a4d':'inherit'}">${t}</b><br>แต่ละรายการ: จำนวนปีงบ ${F} · ใต้ตัวเลข = ปีงบ ${F-1} และ % เปลี่ยนแปลง (ลูกศรแดง = เพิ่มขึ้น, เขียว = ลดลง)`:'ยังไม่มีข้อมูลสะสม (ต้องรัน scripts/sync_hotspots.js)';return}
+ if(PM==='cmp'){const T0=thDay(),F=fyOfDay(T0),a=fyPts().length,b=prvPts().length,[c,t]=dPct(a,b);$('#p-meta').innerHTML=ADI?`${CM==='full'?`ปีงบ ${F} (1 ต.ค. – ${dShort(T0)}) <b>${nf(a)}</b> จุด · ปีงบ ${F-1} ทั้งปี`:`ช่วงเดียวกัน 1 ต.ค. – ${dShort(T0)}: ปีงบ ${F} <b>${nf(a)}</b> จุด · ปีงบ ${F-1}`} <b>${nf(b)}</b> จุด <b style="color:${c==='up'?'#c0301c':c==='dn'?'#1f7a4d':'inherit'}">${t}</b>${hdfNote([F-1])?'<br><b class="hdf">⚠ '+hdfNote([F-1])+'</b>':''}<br>แต่ละรายการ: จำนวนปีงบ ${F} · ใต้ตัวเลข = ปีงบ ${F-1} และ % เปลี่ยนแปลง (ลูกศรแดง = เพิ่มขึ้น, เขียว = ลดลง)`:'ยังไม่มีข้อมูลสะสม (ต้องรัน scripts/sync_hotspots.js)';return}
  if(PM==='fy'&&ADI){$('#p-fa [data-a=ind]').textContent='ดาวเทียมตัวชี้วัด ('+nf(fyPts(false).length)+')';$('#p-fa [data-a=all]').textContent='ทุกดาวเทียม ('+nf(fyPts(true).length)+')'} // จำนวนจุดในวงเล็บหลังปุ่ม (ผู้ใช้ขอ 6 พ.ย. 69)
  if(PM==='fy'&&FYA){const T0=thDay(),L=fyPts(),c={};L.forEach(h=>{const k=satKey(h.sat);c[k]=(c[k]||0)+1});$('#p-meta').innerHTML=ADI?'สะสม 1 ต.ค. – '+dShort(T0)+' รวม <b>'+nf(L.length)+'</b> จุด · <b>ทุกดาวเทียม</b> '+['SNPP','NOAA20','NOAA21'].filter(k=>c[k]).map(k=>SATN[k]+' '+nf(c[k])).join(' · ')+' (ตามปุ่มดาวเทียม) — <b>ไม่ใช่ยอดตัวชี้วัด</b> ดาวเทียมหลายดวงอาจพบไฟเดียวกันซ้ำ · ยอดตัวชี้วัด '+nf(fyPts(false).length)+' จุด · บนแผนที่แสดงเป็น<b style="color:#ff7a1a">วงกลมสีส้ม</b>':'ยังไม่มีข้อมูลสะสม (ต้องรัน scripts/sync_hotspots.js)';return}
  if(PM==='fy'){const T0=thDay(),L=fyPts();$('#p-meta').innerHTML=ADI?'สะสม 1 ต.ค. – '+dShort(T0)+' รวม <b>'+nf(L.length)+'</b> จุด · นับตามดาวเทียมตัวชี้วัด '+(indSpan(fyOfDay(T0))&&T0>=IND_SW?'Suomi NPP '+nf(L.filter(h=>h.sat==='SNPP').length)+' จุด (ถึง 1 พ.ย. 69) + NOAA-20 '+nf(L.length-L.filter(h=>h.sat==='SNPP').length)+' จุด (ตั้งแต่ 2 พ.ย. 69)':indName(T0))+' (ไม่ขึ้นกับปุ่มดาวเทียม) · บนแผนที่แสดงเป็น<b style="color:#ff7a1a">วงกลมสีส้ม</b>':'ยังไม่มีข้อมูลสะสม (ต้องรัน scripts/sync_hotspots.js)';return}
@@ -1506,18 +1507,18 @@ function dtRanges(){const F=fyOfDay(thDay());return[['24','24 ชม.'],['48','4
 /* ปีงบย้อนหลังทุกดาวเทียมจาก AD (API ไทย + NASA FIRMS ถึงปีงบ 2561 — ผู้ใช้ขอ 12 พ.ย. 69 ให้ดาวน์โหลดได้) · DT.rg = 'y<ปีงบ>' */
 const dtYears=()=>{const F=fyOfDay(thDay());return[...new Set(AD.map(r=>fyOfDay(r.d)))].filter(y=>y<F).sort((a,b)=>b-a)},dtY=()=>/^y\d{4}$/.test(DT.rg)?+DT.rg.slice(1):0;
 // ดาวเทียมที่เลือกได้ในตาราง: ช่วงปีงบมีจุด Suomi NPP ก่อนหยุดส่งข้อมูล จึงแสดงปุ่ม SNPP เสมอ (ปุ่มบนแผนที่ซ่อนตั้งแต่ 3 พ.ย. 69)
-const dtSats=()=>dtY()?['SNPP','NOAA20','NOAA21'].filter(k=>AD.some(r=>r.sat===k&&fyOfDay(r.d)===dtY())):DT.rg==='fyp'?['SNPP']:DT.rg==='fy'?['ind','SNPP','NOAA20','NOAA21']:satList(); // ind = ดาวเทียมตัวชี้วัดของแต่ละวัน = ชุดเดียวกับยอดสะสมในการ์ด (ผู้ใช้ขอ 6 พ.ย. 69) // fyp = ข้อมูลกรมอุทยานฯ มีแต่ Suomi NPP
+const dtSats=()=>dtY()?['SNPP','NOAA20','NOAA21'].filter(k=>AD.some(r=>r.sat===k&&fyOfDay(r.d)===dtY())):DT.rg==='fyp'?hdfSats(fyOfDay(thDay())-1):DT.rg==='fy'?['ind','SNPP','NOAA20','NOAA21']:satList(); // ind = ดาวเทียมตัวชี้วัดของแต่ละวัน = ชุดเดียวกับยอดสะสมในการ์ด (ผู้ใช้ขอ 6 พ.ย. 69) // fyp = ข้อมูลกรมอุทยานฯ มีแต่ Suomi NPP
 function dtRows(){const F=fyOfDay(thDay()),out=[];
  if(DT.rg==='24'||DT.rg==='48'){const L=+DT.rg;HS.filter(h=>ageH(h)<L).forEach(h=>{const x=new Date(h.t+7*36e5),g=h.geo||(h.geo=geoAt(h.lon,h.lat)),r=g.resp.find(f=>!/พื้นที่รอง/.test(f.properties.station))||g.resp[0];
   out.push({d:Math.floor(x/864e5),t:x.getUTCHours()*100+x.getUTCMinutes(),sat:satKey(h.sat),cf:CFN[h.conf]||h.conf||'-',la:h.lat,lo:h.lon,tm:h.tam,am:h.amp,pv:h.prov,ar:g.cons?g.cons.properties.name:'นอกพื้นที่อนุรักษ์',st:r?r.properties.station.replace(/\s*\(พื้นที่รอง\)/,''):'ไม่มี',sb:sbOf(h.prov,g),sts:g.resp.length?g.resp.map(f=>f.properties.station.replace(/\s*\(พื้นที่รอง\)/,'').trim()):['ไม่มี'],demo:!!h.demo,src:HSRC&&HSRC.fm?'Land Fire Alerts Thailand / NASA FIRMS (สำรอง)':'Land Fire Alerts Thailand'})})}
  // ปีงบก่อน = จุดกรมอุทยานฯ (Excel) ชุดเดียวกับการ์ด — ไม่รวมจุดจัดการเชื้อเพลิง/ตรวจสอบแล้วไม่พบไฟ (ผู้ใช้กำหนด 29 ต.ค. 69)
- else if(DT.rg==='fyp')HD.forEach(r=>{if(r.fy===F-1&&fuOK(r)){const[tb,am]=String(DIC.tm[r.tm]||'').split('|'),pv=DIC.pv[r.pv];out.push({d:r.d,t:r.t,sat:'SNPP',cf:'-',la:r.la,lo:r.lo,tm:tb,am:am||DIC.am[r.am],pv,ar:DIC.ar[r.ar],st:DIC.st[r.st],sb:SBP[pv]||DIC.sb[r.sb],src:'กรมอุทยานฯ (Excel)'})}});
+ else if(DT.rg==='fyp')HD.forEach(r=>{if(r.fy===F-1&&fuOK(r)){const[tb,am]=String(DIC.tm[r.tm]||'').split('|'),pv=DIC.pv[r.pv];out.push({d:r.d,t:r.t,sat:r.fa?r.sat:'SNPP',cf:'-',la:r.la,lo:r.lo,tm:tb,am:am||DIC.am[r.am],pv,ar:DIC.ar[r.ar],st:DIC.st[r.st],sb:SBP[pv]||DIC.sb[r.sb],src:r.fa?'API ไทย/NASA FIRMS (ยังไม่มีข้อมูลกรมอุทยานฯ)':'กรมอุทยานฯ (Excel)'})}});
  else{const Y=dtY()||F,s=fy0(Y),e=fy0(Y+1),seen=new Set();
   AD.forEach(r=>{if(r.d>=s&&r.d<e){seen.add(hKey(r.d,r.t,r.la,r.lo));const[tb,am]=r.tm.split('|');out.push({d:r.d,t:r.t,sat:r.sat,cf:CFN[r.cf]||r.cf,la:r.la,lo:r.lo,tm:tb,am:am||r.am,pv:r.pv,ar:r.ar,st:r.st,sb:SBP[r.pv]||r.sb,src:r.fm?'NASA FIRMS':'Land Fire Alerts Thailand'})}});
   if(Y===F)LIVE.forEach(h=>{const x=new Date(h.t+7*36e5),d=Math.floor(x/864e5),t=x.getUTCHours()*100+x.getUTCMinutes();if(d>=s&&!seen.has(hKey(d,t,h.lat,h.lon))){const g=h.geo||(h.geo=geoAt(h.lon,h.lat)),r=g.resp[0];out.push({d,t,sat:satKey(h.sat),cf:CFN[h.conf]||'-',la:h.lat,lo:h.lon,tm:h.tam,am:h.amp,pv:h.prov,sb:sbOf(h.prov,g),ar:g.cons?g.cons.properties.name:'นอกพื้นที่อนุรักษ์',st:r?r.properties.station.replace(/\s*\(พื้นที่รอง\)/,''):'ไม่มี',src:'Land Fire Alerts Thailand'})}})}
  return out.filter(r=>(DT.sat==='all'?DT.rg==='fyp'||satOn(r.sat):DT.sat==='ind'?r.sat===indSat(r.d):r.sat===DT.sat)&&!(S.xdy&&dyAS(r.ar,r.st))&&afMatch(r)).sort((a,b)=>a.d-b.d||a.t-b.t)} // เรียงจุดที่เกิดก่อนเป็นลำดับแรก (ผู้ใช้ขอ 2 พ.ย. 69)
 const dtSum=R=>{const m={};R.forEach(r=>m[r.sat]=(m[r.sat]||0)+1);return Object.entries(m).map(([k,v])=>(SATN[k]||k)+' '+nf(v)).join(' · ')};
-const dtLabel=()=>(dtRanges().find(r=>r[0]===DT.rg)||[0,'ปีงบ '+dtY()+' ทั้งปี (API ไทย/NASA FIRMS)'])[1]+' · '+(DT.rg==='fyp'?'ข้อมูลกรมอุทยานฯ (Suomi NPP · ไม่รวมจุดจัดการเชื้อเพลิง/ไม่พบไฟ)':DT.sat==='all'?dtSats().filter(k=>k!=='ind'&&satOn(k)).map(k=>SATN[k]).join(', '):DT.sat==='ind'?'ดาวเทียมตัวชี้วัด'+(indSpan(fyOfDay(thDay()))?' (Suomi NPP ถึง 1 พ.ย. 69 · NOAA-20 ตั้งแต่ 2 พ.ย. 69)':' '+indName(thDay())):SATN[DT.sat])+(S.xdy?' · ไม่รวม ขสป.ดงใหญ่':'')+(AF?' · เฉพาะ'+afText():'');
+const dtLabel=()=>(dtRanges().find(r=>r[0]===DT.rg)||[0,'ปีงบ '+dtY()+' ทั้งปี (API ไทย/NASA FIRMS)'])[1]+' · '+(DT.rg==='fyp'?(hdfNote([fyOfDay(thDay())-1])?hdfNote([fyOfDay(thDay())-1])+' · ดาวเทียมตัวชี้วัด':'ข้อมูลกรมอุทยานฯ (Suomi NPP · ไม่รวมจุดจัดการเชื้อเพลิง/ไม่พบไฟ)'):DT.sat==='all'?dtSats().filter(k=>k!=='ind'&&satOn(k)).map(k=>SATN[k]).join(', '):DT.sat==='ind'?'ดาวเทียมตัวชี้วัด'+(indSpan(fyOfDay(thDay()))?' (Suomi NPP ถึง 1 พ.ย. 69 · NOAA-20 ตั้งแต่ 2 พ.ย. 69)':' '+indName(thDay())):SATN[DT.sat])+(S.xdy?' · ไม่รวม ขสป.ดงใหญ่':'')+(AF?' · เฉพาะ'+afText():'');
 function openTable(){openModal('ตารางรายละเอียดจุดความร้อน',`<div class="dtc"><div class="sg" id="dt-rg">${dtRanges().map(([k,l])=>`<button data-v="${k}">${l}</button>`).join('')}</div><select id="dt-y" aria-label="ปีงบย้อนหลังทุกดาวเทียม" title="จุดความร้อนทุกดาวเทียมรายปีงบ: API ไทย (ตั้งแต่ 3 ส.ค. 67) + NASA FIRMS (ปีงบ 2561 – ก.ค. 67) — ไม่ใช่ตัวเลขทางการของกรมอุทยานฯ"><option value="">ปีงบย้อนหลัง (ทุกดาวเทียม)…</option>${dtYears().map(y=>`<option value="y${y}">ปีงบ ${y} (API/FIRMS)</option>`).join('')}</select><div class="sg" id="dt-sat"></div></div>
  <div class="pf" id="dt-af" hidden style="margin:0 0 8px"></div><div class="sm" id="dt-sum"></div><div class="dsrc" id="dt-src" style="margin:0 0 8px"></div><div class="dtw" id="dt-w"></div><div class="sm">คลิกแถวเพื่อซูมไปยังจุด · เวลาเป็นเวลาไทยที่ดาวเทียมสแกน · ${ADI?'ข้อมูลรายปีงบจากการเก็บสะสม (อัปเดต '+new Date(ADI.upd).toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Bangkok'})+' น.)':'ยังไม่มีข้อมูลรายปีงบ (ต้องรัน scripts/sync_hotspots.js)'}</div>
  <div class="pbt"><button id="dt-csv">ดาวน์โหลด CSV (เปิดด้วย Excel)</button><button id="dt-pdf">พิมพ์รายงาน / บันทึก PDF</button></div>`,true);
@@ -2713,6 +2714,16 @@ let AD=[],ADI=null;
 }catch(err){console.warn('อ่าน adata ไม่ได้',err)}})();
 // สบอ. ของฐานข้อมูลย้อนหลัง (Excel กรมอุทยานฯ) แยกตามจังหวัดที่เกิดจุด (ผู้ใช้กำหนด) — hdata ต้นฉบับไม่แก้
 HD.forEach(r=>{const s=SBP[DIC.pv[r.pv]];if(s)r.sb=hid('sb',s)});
+/* C1 (15 พ.ย. 69): ปีงบที่ "ไม่มีใน hdata เลย" และก่อนปีงบปัจจุบัน (เช่น 2570 เมื่อขึ้นปีงบ 2571 แต่ยังไม่นำเข้า Excel กรมอุทยานฯ) → เติมจาก AD
+   เฉพาะดาวเทียมตัวชี้วัดของวันนั้น (indSat — ชุดเดียวกับยอดสะสม fyNow ทุกจุดในแนวเขต) ในรูป mkRec: ld "ไม่มีข้อมูลประเภทพื้นที่" fu "ไม่มี" + ธง fa:1, sat
+   ไม่ใช้ r.api เดิม (การเติมจุดรายจุดที่ผู้ใช้ยกเลิก 29 ต.ค. 69) · ปีที่มีใน Excel แม้จุดเดียว = ไม่เติม · HDF = ปีงบที่เติม → ป้ายในการ์ด/แผงสถิติ/ตาราง/รายงาน */
+function hdFill(H,A,F){const have=new Set(H.map(r=>r.fy)),add=new Set();
+ A.forEach(r=>{const y=fyOfDay(r.d);if(y>=F||have.has(y)||r.sat!==indSat(r.d))return;add.add(y);
+  H.push(Object.assign(mkRec(r.d,r.t,r.la,r.lo,hid('pv',r.pv),hid('am',r.am),hid('tm',r.tm),hid('ar',r.ar),hid('ld','ไม่มีข้อมูลประเภทพื้นที่'),hid('fu','ไม่มี'),hid('st',r.st),hid('sb',SBP[r.pv]||r.sb)),{i:H.length,fa:1,sat:r.sat}))});
+ return[...add].sort((a,b)=>a-b)}
+let HDF=[];try{HDF=hdFill(HD,AD,fyOfDay(thDay()))}catch(e){dbg('hdFill',e)}
+const hdfNote=ys=>{const y=(ys||[]).filter(v=>HDF.includes(v));return y.length?'ปีงบ '+y.join(', ')+' ใช้จุดจาก API (ยังไม่มีข้อมูลกรมอุทยานฯ)':''};
+const hdfSats=P=>HDF.includes(P)?[...new Set(HD.filter(r=>r.fa&&r.fy===P).map(r=>r.sat))]:['SNPP'];
 /* ชุดข้อมูลของการ์ดสถิติย้อนหลัง (ผู้ใช้ขอ 12 พ.ย. 69 แยกแท็บ "ทุกดาวเทียม"): STD = ระเบียน, STI = dictionary, HF = ตัวกรองของชุดนั้น
    แท็บ hs = HD (Excel กรมอุทยานฯ) · แท็บ ha = HA (สร้างจาก AD = API ไทย + NASA FIRMS ย้อนหลังถึงปีงบ 2561, haBuild)
    ช่อง ld = ชนิดป่าจากชั้นชนิดป่า 2561 · fu = ดาวเทียม · cf = ความเชื่อมั่น (เฉพาะ ha) — ส่วนอื่นของหน้า (การ์ดหลัก/แผงรายละเอียด) ยังใช้ HD/DIC ตรง */
@@ -2785,7 +2796,7 @@ function kpiCards(F){const n=F.length,N=SB().length,ix=(k,v)=>STI[k].indexOf(v),
  +six('ตำบลพบสูงสุด',top(F,r=>r.tm),v=>'ต.'+STI.tm[v].split('|')[0],'tm')}
 function hRender(){const F=hfilt(),N=SB().length,fys=fyList();xdyBtns();
  tx('h-kp',kpiCards(F));
- tx('h-rng',STD.length?`ปีงบ ${fys[0]}–${fys.at(-1)}`:'');
+ tx('h-rng',(STD.length?`ปีงบ ${fys[0]}–${fys.at(-1)}`:'')+(STD===HD&&hdfNote(fys)?' · <b class="hdf">⚠ '+hdfNote(fys)+'</b>':''));
  vbars('c-fy','fy',fys,v=>String(v).slice(2));vbars('c-mo','mo',[...Array(12).keys()],v=>MON[v]);
  hbars('c-sb','sb',v=>shortSb(STI.sb[v]));hbars('c-ar','ar',v=>shortAr(STI.ar[v]));hbars('c-st','st',v=>stLab(STI.st[v]));hbars('c-pv','pv',v=>STI.pv[v]);hbars('c-am','am',v=>STI.am[v],8);hbars('c-tm','tm',tmName,8);
  {const a=HAM();tx('hq-ld',a?'ชนิดป่า (ชั้นชนิดป่า กรมป่าไม้ 2561)':'ประเภทพื้นที่');tx('hq-fu',a?'ดาวเทียม':'การจัดการเชื้อเพลิง / สถานะ');tx('h-co-ld',a?'ชนิดป่า':'ประเภทพื้นที่');tx('h-co-fu',a?'ดาวเทียม':'การจัดการเชื้อเพลิง')}
@@ -6706,7 +6717,7 @@ try{tmApply()}catch(e){}
    data/wxsrc.json เขียนโดย scripts/wx_check.js ในทุกรอบ workflow site (~5 นาที) {t, fwi|gfs|cams:{have,pub,upd,src,srcPub,ready}, need[], err{}}
    อ่านทุก 5 นาทีขณะเปิดชั้นใดชั้นหนึ่ง · รอบที่ขึ้นเว็บ (have) ใหม่กว่าที่หน้าโหลดไว้ = โหลดชั้นนั้นใหม่เอง */
 (()=>{
-const FRU=BN_BASE.replace(/burn\/$/,'wxsrc.json');let FR=null,FRT=0,FRP=null;
+const FRU=BN_BASE.replace(/burn\/$/,'wxsrc.json');let FR=null,FRT=0,FRP=null,FRLS=null,FRLF=null;
 const fd=(t,y)=>{if(t==null)return'-';const d=new Date(t);if(isNaN(d))return'-';return d.toLocaleString('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',...(y?{year:'2-digit'}:{}),hour:'2-digit',minute:'2-digit'})+' น.'};
 const fdd=s=>new Date(Date.parse(s)).toLocaleDateString('th-TH',{timeZone:'UTC',day:'numeric',month:'short',year:'2-digit'});
 const cyc=s=>{const t=Date.parse(String(s).replace(/Z$/,':00:00Z'));return isNaN(t)?s:`${fd(t,1)} (${s.slice(11,13)}Z)`};
@@ -6724,7 +6735,10 @@ function frDraw(k){const e=frEl(k);if(!e)return;const c=cur[k](),w=FR&&FR[k];
  let h=`<div class="fr1"><b>ข้อมูล${lab(k,c.have)}</b></div><div class="fr2">ต้นทางเผยแพร่ ${fd(c.pub||(w&&w.have===c.have?w.pub:null))} · ขึ้นเว็บ ${fd(c.upd)}</div>`,st='';
  if(w&&w.mode==='local'){ /* TFDRS ไม่อนุญาตเครื่อง GitHub (15 พ.ย. 69) — ไม่ได้ตรวจ/ดึงอัตโนมัติ */
   const td=new Date(Date.now()+7*36e5).toISOString().slice(0,10),lag=Math.round((Date.parse(td)-Date.parse(c.have))/864e5),old=lag>=2||(lag>=1&&new Date(Date.now()+7*36e5).getUTCHours()>=16);
-  st=old?'nw':'';h+=`<div class="fr3">ℹ เว็บ TFDRS ไม่อนุญาตเครื่องของ GitHub จึงดึงจากเครื่องผู้ดูแลแทน (14:40 15:40 17:00 20:00 น. เมื่อเครื่องเปิดอยู่) · ต้นทางออกรอบใหม่วันละครั้ง ~14:20 น.${old?` — <b>รอบนี้อาจไม่ใช่รอบล่าสุด</b> ดูค่าล่าสุดได้ที่ <a href="${FWSRC}" target="_blank" rel="noopener">TFDRS</a>`:''}</div>`}
+  st=old?'nw':'';h+=`<div class="fr3">ℹ เว็บ TFDRS ไม่อนุญาตเครื่องของ GitHub จึงดึงจากเครื่องผู้ดูแลแทน (14:40 15:40 17:00 20:00 น. เมื่อเครื่องเปิดอยู่) · ต้นทางออกรอบใหม่วันละครั้ง ~14:20 น.${old?` — <b>รอบนี้อาจไม่ใช่รอบล่าสุด</b> ดูค่าล่าสุดได้ที่ <a href="${FWSRC}" target="_blank" rel="noopener">TFDRS</a>`:''}</div>`;
+  /* A5: data/fwi/local_status.json จาก scripts/fwi_local.js · data/fwi/lfa.json = ค่าของวันจาก LFA (scripts/fwi_lfa.js ใน wx.yml เมื่อรอบ TFDRS เก่ากว่า 2 วัน) */
+  if(FRLS&&FRLS.at)h+=`<div class="fr2">ผู้ดูแลดึงล่าสุด ${fd(FRLS.at)} (${ago(FRLS.at)}) — ${FRLS.ok?'สำเร็จ':'<b>ล้มเหลว</b>'}${FRLS.msg?': '+esc(FRLS.msg):''}</div>`;
+  if(old&&FRLF&&FRLF.d===td)h+=`<div class="fr2">สรุปประจำวัน LINE/Telegram ใช้ค่าของวันนี้จาก LFA แทน (FWI เฉลี่ย ${FRLF.a&&FRLF.a.all&&FRLF.a.all.FWI?FRLF.a.all.FWI[0].toFixed(1):'-'} · ค่าของวัน ไม่มีพยากรณ์)</div>`}
  else if(w&&FR.t){
   const newer=w.src&&w.src!==c.have&&w.src>c.have,fetching=FR.need&&FR.need.includes(k);
   if(newer&&w.have&&w.have!==c.have&&w.have>c.have){st='nw';h+=`<div class="fr3">↻ มี${lab(k,w.have)}บนเว็บแล้ว กำลังโหลด…</div>`}
@@ -6738,6 +6752,7 @@ const on={fwi:()=>!!S.fwi,gfs:()=>!!S.vr,cams:()=>typeof cmOn==='function'&&cmOn
 const RL={fwi:()=>fwLoad(true).then(()=>{fwDraw()}),gfs:()=>{GVP=null;return gvLoad().then(()=>gvDraw())},cams:()=>{CMP0=null;return cmLoad()}};
 const FRL={};
 function frGet(force){if(!force&&Date.now()-FRT<4*6e4)return FRP||Promise.resolve(FR);FRT=Date.now();
+ if(S.fwi)for(const [f,set] of [['local_status.json',j=>FRLS=j],['lfa.json',j=>FRLF=j]])fetchT(FWU+f+'?t='+Math.floor(Date.now()/6e4),{cache:'no-cache'},FTO.aux).then(r=>r.ok?r.json():null).then(j=>{if(j){set(j);frDraw('fwi')}}).catch(e=>dbg('fwi '+f,e));
  return FRP=fetchT(FRU,{cache:'no-cache'},FTO.main).then(r=>r.ok?r.json():null).then(j=>{FRP=null;if(j)FR=j;frAll();
   /* รอบที่ขึ้นเว็บใหม่กว่าที่โหลดไว้ → โหลดชั้นนั้นใหม่ (กันโหลดซ้ำภายใน 2 นาที) */
   for(const k in BOX){const w=FR&&FR[k],c=cur[k]();if(on[k]()&&w&&w.have&&c&&c.have&&w.have!==c.have&&w.have>c.have&&Date.now()-(FRL[k]||0)>12e4){FRL[k]=Date.now();RL[k]().then(()=>frDraw(k)).catch(e=>dbg('wxsrc '+k,e))}}
@@ -6749,6 +6764,32 @@ for(const [fn,k] of [['fwDraw','fwi'],['gvDraw','gfs'],['cmDraw','cams']]){const
  window[fn]=function(){const r=f.apply(this,arguments);try{frDraw(k);if(on[k]()&&Date.now()-FRT>4*6e4)frGet()}catch(e){}return r}}
 setInterval(()=>{if(document.hidden)return;if(Object.keys(on).some(k=>on[k]()))frGet(true);else frAll()},5*6e4);
 setInterval(()=>{if(!document.hidden)frAll()},6e4); /* "…นาทีที่แล้ว" */
+/* A6 (15 พ.ย. 69): อายุข้อมูลแหล่งเชื้อเพลิง SAVI (#fubox) และพื้นที่เผาไหม้ B4 (#bnbox) — จาก data/fuel|burn/index.json
+   ช่อง checked (วันที่ sync ตรวจต้นทางล่าสุด) และ srcLatest (รอบล่าสุดที่ต้นทางมี) ที่ sync_fuel/sync_burn เขียนทุกวัน
+   SAVI เดือนล่าสุดจบเกิน 90 วัน / B4 รอบล่าสุดจบเกิน 21 วัน = ต้นทางหยุดหรือช้า (เกณฑ์เดียวกับ health savi/b4) */
+const THM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'],thM=m=>THM[+m.slice(4,6)-1]+' '+String(+m.slice(0,4)+543).slice(2),
+ ymdD=v=>Date.UTC(+v.slice(0,4),+v.slice(4,6)-1,+v.slice(6,8)),thD8=v=>(+v.slice(6,8))+' '+THM[+v.slice(4,6)-1]+' '+String(+v.slice(0,4)+543).slice(2),
+ isoD=v=>v.slice(0,4)+'-'+v.slice(4,6)+'-'+v.slice(6,8);
+function frSB(k){const b=document.getElementById(k==='fuel'?'fubox':'bnbox');if(!b)return;
+ const I=k==='fuel'?(typeof FUI!=='undefined'?FUI:null):(typeof BNI!=='undefined'?BNI:null);
+ let e=b.querySelector(':scope>.dfr');if(!e){e=document.createElement('div');e.className='dfr';e.id='fr-'+k;e.setAttribute('role','status');b.prepend(e)}
+ if(!I||I.err){e.hidden=true;return}
+ const chk=I.checked?' · ตรวจกับต้นทาง '+fdd(I.checked):'',now=Date.now();let h,st;
+ if(k==='fuel'){const L=(I.months||[]).at(-1);if(!L){e.hidden=true;return}const m=L.m,end=Date.UTC(+m.slice(0,4),+m.slice(4,6),1),src=I.srcLatest,ag=Math.floor((now-end)/864e5);
+  h=`<div class="fr1"><b>ข้อมูลเดือน ${thM(m)}</b></div><div class="fr2">ขึ้นเว็บ ${fd(I.upd)}${chk}</div>`;
+  if(src&&src>m){st='nw';h+=`<div class="fr3">↻ ต้นทางมีเดือน ${thM(src)} แล้ว — จะขึ้นเว็บในรอบ sync ถัดไป</div>`}
+  else if(ag>90){st='nw';h+=`<div class="fr3">⏳ ต้นทาง (สสน.) ยังไม่เผยแพร่เดือนใหม่ตั้งแต่ ${thM(m)} — แผนที่แสดงค่าของเดือนนั้น (${ag} วันมาแล้ว)</div>`}
+  else{st='ok';h+='<div class="fr3">✓ เป็นเดือนล่าสุดของตามรอยเผา (สสน.)</div>'}}
+ else{const L=(I.periods||[]).at(-1);if(!L){e.hidden=true;return}const end=ymdD(L.d1)+864e5,src=I.srcLatest&&I.srcLatest.b4,ag=Math.floor((now-end)/864e5);
+  h=`<div class="fr1"><b>ภาพราย 7 วันล่าสุด ${thD8(L.d0)} – ${thD8(L.d1)}</b></div><div class="fr2">ขึ้นเว็บ ${fd(I.upd)}${chk}</div>`;
+  if(src&&src>L.p){st='nw';h+=`<div class="fr3">↻ ต้นทางมีรอบ ${thD8(src.slice(0,8))} – ${thD8(src.slice(9))} แล้ว — จะขึ้นเว็บในรอบ sync ถัดไป</div>`}
+  else if(ag>21){st='nw';h+=`<div class="fr3">⏳ ต้นทาง (สสน.) ยังไม่ออกภาพรอบใหม่หลัง ${thD8(L.d1)} (${ag} วัน — ปกติออกราวสัปดาห์ละครั้ง)</div>`}
+  else{st='ok';h+='<div class="fr3">✓ เป็นรอบล่าสุดของตามรอยเผา (สสน.)</div>'}}
+ e.hidden=false;e.className='dfr '+st;e.innerHTML=h}
+window.frSB=frSB;
+for(const [fn,k] of [['LB','burn'],['LF','fuel']]){const f=window[fn];if(typeof f!=='function')continue;
+ window[fn]=function(){const r=f.apply(this,arguments);Promise.resolve(r).then(()=>{try{frSB(k)}catch(e){dbg('frSB '+k,e)}});return r}}
+try{frSB('fuel');frSB('burn')}catch(e){dbg('frSB',e)}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Object.keys(on).some(k=>on[k]())&&Date.now()-FRT>6e4)frGet(true)});
 frGet(true);
 })();

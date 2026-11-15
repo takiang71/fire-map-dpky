@@ -107,12 +107,12 @@ function fwiBlock(fw, now) {
   const ff = d => { const f = d.ffmc; if (!f) return []; const k = FWK[f.c];
     return [B('vertical', [T('FFMC ' + f.mean.toFixed(1) + ' ' + k[0], { size: 'xxs', weight: 'bold', align: 'center', color: k[2] })], { backgroundColor: k[1], cornerRadius: 'sm', margin: 'xs', paddingTop: '1px', paddingBottom: '1px' })] };
   const mx = x.max != null ? 'FWI สูงสุด ' + x.max.toFixed(1) + (x.cx > x.c ? ' (' + FWK[x.cx][0] + ')' : '') + (x.ffmc ? ' · FFMC สูงสุด ' + x.ffmc.max.toFixed(1) + (x.ffmc.cx > x.ffmc.c ? ' (' + FWK[x.ffmc.cx][0] + ')' : '') : '') + ' · ' : '';
-  return [sub('FWI อันตรายไฟป่า · FFMC การติดไฟ · เฉลี่ยกลุ่มป่า (กรมป่าไม้)'),
+  return [sub(fw.lfa ? 'FWI · FFMC · ค่าของวัน ไม่มีพยากรณ์ (TFDRS ผ่าน LFA)' : 'FWI อันตรายไฟป่า · FFMC การติดไฟ · เฉลี่ยกลุ่มป่า (กรมป่าไม้)'),
     B('horizontal', D.map(d => { const c = FWK[d.c]; return B('vertical', [T(dl(d), { size: 'xxs', align: 'center', color: c[2] }),
       T('FWI ' + d.mean.toFixed(1) + ' ' + c[0], { size: 'xs', weight: 'bold', align: 'center', color: c[2] }), ...ff(d)],
       { flex: 1, backgroundColor: c[1], cornerRadius: 'md', paddingAll: '3px' }) }), { spacing: 'xs', margin: 'xs' }),
     T('วันนี้: ' + mx + (x.hi > 0 ? 'ระดับสูงขึ้นไป ' + x.hi + '% ของพื้นที่ · ' : '') + (x.top ? 'มากสุด ' + x.top.n + ' ' + x.top.v.toFixed(1) + ' · ' : '') +
-      'เที่ยงวัน ' + [x.t != null ? Math.round(x.t) + '°C' : '', x.rh != null ? 'ชื้น ' + Math.round(x.rh) + '%' : '', x.ws != null ? 'ลม ' + Math.round(x.ws) + ' กม./ชม.' : '', x.pr != null ? 'ฝน ' + x.pr + ' มม.' : ''].filter(Boolean).join(' '),
+      (w => w ? 'เที่ยงวัน ' + w : fw.lfa ? 'เครื่องผู้ดูแลไม่ได้ดึง TFDRS — เฉลี่ยจากจุดตัวอย่างบนแผนที่ LFA' : '')([x.t != null ? Math.round(x.t) + '°C' : '', x.rh != null ? 'ชื้น ' + Math.round(x.rh) + '%' : '', x.ws != null ? 'ลม ' + Math.round(x.ws) + ' กม./ชม.' : '', x.pr != null ? 'ฝน ' + x.pr + ' มม.' : ''].filter(Boolean).join(' ')),
       { size: 'xxs', color: '#1D3557', wrap: true, margin: 'xs' })];
 }
 // pm = PM2.5 แบบจำลอง CAMS ของกลุ่มป่า วันนี้–2 วันข้างหน้า (scripts/lib/camssum.js จาก data/cams_grid.json — line_notify ส่งมาเฉพาะสรุปประจำวัน; Worker ไม่ส่ง · ผู้ใช้ขอ 14 พ.ย. 69)

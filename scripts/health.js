@@ -22,11 +22,45 @@ const H = 36e5, REMIND = 12 * H;
 const CHECKS = { api: ['ดึงจุดความร้อนจาก API ไม่ได้', H], src: ['ระบบต้นทางไม่อัปเดต', 0], sync: ['sync จุดความร้อนไม่ทำงาน', 0], gap: ['ข้อมูลสะสมค้าง', 0], line: ['LINE ใช้งานไม่ได้', H],
   tg: ['Telegram ใช้งานไม่ได้', H], tle: ['ข้อมูลวงโคจรดาวเทียมเก่า', 0], vr: ['ข้อมูลอัตราการระบายอากาศ (GFS) เก่า', 0], cams: ['ข้อมูล PM2.5 แบบจำลอง CAMS เก่า', 0], fwi: ['ข้อมูล FWI/FFMC (TFDRS) เก่า', 0], tgm: ['กลุ่ม Telegram ถูกอัปเกรดเป็น supergroup', 0],
   pages: ['หน้าเว็บ (GitHub Pages) ไม่อัปเดต', 0], ci: ['หน้าเว็บฉบับใหม่ไม่ผ่านการตรวจ', 0],
-  cron: ['cron-job.org ไม่ได้สั่งรอบ site ตามเวลา', H] };
+  cron: ['cron-job.org ไม่ได้สั่งรอบ site ตามเวลา', H],
+  // ช่องที่ 3 = ทวนซ้ำทุกเท่าไร (ไม่ใส่ = REMIND 12 ชม.) — เรื่องที่แก้ไม่ได้ทันที เตือนห่าง ๆ (15 พ.ย. 69 ข้อ C1/A6 ของรายงานตรวจ)
+  xlsx: ['ยังไม่ได้นำเข้า Excel จุดความร้อนกรมอุทยานฯ ปีงบที่จบแล้ว', 0, 30 * 24 * H], savi: ['แหล่งเชื้อเพลิง SAVI (ตามรอยเผา) ไม่มีเดือนใหม่', 0, 30 * 24 * H],
+  b4: ['พื้นที่เผาไหม้ราย 7 วัน (ตามรอยเผา B4) ไม่มีรอบใหม่', 0, 7 * 24 * H] };
 const now = +process.env.HEALTH_NOW || Date.now();
 const thTime = ms => { const d = new Date(ms + 7 * H); return `${d.getUTCDate()}/${d.getUTCMonth() + 1} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')} น.` };
 const hrs = ms => (ms / H).toFixed(ms < 10 * H ? 1 : 0);
 const readJ = f => { try { return JSON.parse(fs.readFileSync(f, 'utf8')) } catch (e) { return null } };
+const THM = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+const thM = m => THM[+m.slice(4, 6) - 1] + ' ' + String(+m.slice(0, 4) + 543).slice(2), thD8 = v => (+v.slice(6, 8)) + ' ' + thM(v);
+const fyOf = t => { const d = new Date(t + 7 * H), y = d.getUTCFullYear(), m = d.getUTCMonth() + 1; return y + 543 + (m >= 10 ? 1 : 0) };
+// C1: ปีงบล่าสุดใน hdata (Excel กรมอุทยานฯ) < ปีงบปัจจุบัน−1 ตั้งแต่ 1 ธ.ค. → เตือนนำเข้า (หน้าเว็บเติมจาก API ให้ระหว่างนี้ — hdFill)
+function chkXlsx(fys, t = now) {
+  if (!fys || !fys.length) return 'อ่านปีงบใน hdata (index.html) ไม่ได้';
+  const F = fyOf(t), last = Math.max(...fys), dec1 = Date.UTC(F - 544, 11, 1) - 7 * H;
+  if (last >= F - 1 || t < dec1) return null;
+  return `ข้อมูลกรมอุทยานฯ ในเว็บถึงปีงบ ${last} — นำเข้า Excel ปีงบ ${F - 1}: node scripts/excel_to_hdata.js <ไฟล์.xlsx> แล้ว node scripts/sync_hotspots.js (ขั้นตอนใน docs/arch/data-update.md) · ระหว่างนี้การ์ด/สถิติปีงบ ${last + 1}${F - 1 > last + 1 ? '–' + (F - 1) : ''} ใช้จุดจาก API`;
+}
+// A6: SAVI เดือนล่าสุด (บนเว็บหรือที่ต้นทางมี) จบเกิน 90 วัน · ต้นทางมีเดือนใหม่กว่าบนเว็บ = sync_fuel ไม่ทำงาน
+function chkSavi(fu, t = now) {
+  if (!fu) return 'อ่าน data/fuel/index.json ไม่ได้';
+  const web = ((fu.months || []).at(-1) || {}).m, src = fu.srcLatest, m = [web, src].filter(Boolean).sort().at(-1);
+  if (!m) return 'data/fuel/index.json ไม่มีเดือนข้อมูล';
+  const ck = fu.checked ? ` · sync ตรวจต้นทางล่าสุด ${fu.checked}` : ' · ยังไม่มีวันที่ตรวจต้นทาง (checked)';
+  if (src && web && src > web) return `ต้นทางมีเดือน ${thM(src)} แล้วแต่เว็บยังเป็น ${thM(web)} — ดูขั้น sync_fuel ใน workflow sync${ck}`;
+  const age = Math.floor((t - Date.UTC(+m.slice(0, 4), +m.slice(4, 6), 1)) / 864e5);
+  return age > 90 ? `ตามรอยเผา (สสน.) ยังไม่เผยแพร่ SAVI เดือนใหม่ตั้งแต่ ${thM(m)} (${age} วัน) — เว็บแสดงค่าของเดือนนั้นพร้อมป้ายอายุข้อมูล${ck}` : null;
+}
+// A6: พื้นที่เผาไหม้ B4 รอบล่าสุดจบเกิน 21 วัน (ปกติออกสัปดาห์ละครั้ง) · ต้นทางมีรอบใหม่กว่าบนเว็บ = sync_burn ไม่ทำงาน
+function chkB4(bn, t = now) {
+  if (!bn) return 'อ่าน data/burn/index.json ไม่ได้';
+  const L = (bn.periods || []).at(-1), src = bn.srcLatest && bn.srcLatest.b4;
+  if (!L) return 'data/burn/index.json ไม่มีรอบ B4';
+  const ck = bn.checked ? ` · sync ตรวจต้นทางล่าสุด ${bn.checked}` : '';
+  if (src && src > L.p) return `ต้นทางมีรอบ ${thD8(src.slice(0, 8))}–${thD8(src.slice(9))} แล้วแต่เว็บยังเป็นรอบ ${thD8(L.d0)}–${thD8(L.d1)} — ดูขั้น sync_burn ใน workflow sync${ck}`;
+  const age = Math.floor((t - Date.UTC(+L.d1.slice(0, 4), +L.d1.slice(4, 6) - 1, +L.d1.slice(6, 8) + 1)) / 864e5);
+  return age > 21 ? `ตามรอยเผา (สสน.) ยังไม่ออกภาพรอบใหม่หลัง ${thD8(L.d1)} (${age} วัน)${ck}` : null;
+}
+const hdFys = () => { try { const j = JSON.parse(fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').match(/id="hdata">([\s\S]*?)<\/script>/)[1]); return [...new Set(j.r.map(r => fyOf(r[0] * 864e5)))] } catch (e) { return null } };
 const { loadState } = require('./lib/state');
 const getJ = async f => { try { const r = await fetch(SITE + f + '?t=' + now, { signal: AbortSignal.timeout(20e3) }); return r.ok ? await r.json() : null } catch (e) { return null } };
 
@@ -82,10 +116,13 @@ function problems(pg) {
   // FWI/FFMC จาก TFDRS (scripts/sync_fwi.js ใน workflow wx) — ต้นทางออกวันละครั้ง ~14:20 น. · รอบเก่ากว่าเมื่อวาน (เวลาไทย) หลัง 18:00 น. หรือเก่ากว่า 2 วัน = ดึงไม่ได้
   // 15 พ.ย. 69 พบต้นทางตอบ 403 กับเครื่อง GitHub Actions (ข้อมูลเดิมมาจากการรันในเครื่อง) — สรุปประจำวันจะไม่มี FWI เมื่อรอบเก่ากว่า 3 วัน
   try { const fw = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'fwi', 'index.json'), 'utf8')), th = new Date(now + 7 * H), td = th.toISOString().slice(0, 10), lag = (Date.parse(td) - Date.parse(fw.run)) / 864e5;
-    if (!fw.run) P.fwi = 'data/fwi/index.json ไม่มีวันของรอบ'; else if (lag >= 2 || (lag >= 1 && th.getUTCHours() >= 18)) P.fwi = `รอบ TFDRS ที่ใช้อยู่ ${fw.run} (${lag} วัน) — TFDRS ไม่อนุญาตเครื่อง GitHub (หยุดดึงอัตโนมัติไว้ 15 พ.ย. 69) ดึงจากเครื่องผู้ดูแลด้วย Task Scheduler "fire-map FWI" (scripts/fwi_local.js) — เครื่องปิด/ไม่ได้ล็อกอิน? ดู .fwi-local/fwi_local.log หรือรัน node scripts/fwi_local.js เอง` } catch (e) { P.fwi = 'อ่าน data/fwi/index.json ไม่ได้' }
+    if (!fw.run) P.fwi = 'data/fwi/index.json ไม่มีวันของรอบ'; else if (lag >= 2 || (lag >= 1 && th.getUTCHours() >= 18)) P.fwi = `รอบ TFDRS ที่ใช้อยู่ ${fw.run} (${lag} วัน) — TFDRS ไม่อนุญาตเครื่อง GitHub (หยุดดึงอัตโนมัติไว้ 15 พ.ย. 69) ดึงจากเครื่องผู้ดูแลด้วย Task Scheduler "fire-map FWI" (scripts/fwi_local.js) — เครื่องปิด/ไม่ได้ล็อกอิน? ดู .fwi-local/fwi_local.log หรือรัน node scripts/fwi_local.js เอง${(() => { const l = readJ(path.join(ROOT, 'data', 'fwi', 'lfa.json')), s = readJ(path.join(ROOT, 'data', 'fwi', 'local_status.json')); return (s && s.at ? ` · เครื่องผู้ดูแลดึงล่าสุด ${thTime(Date.parse(s.at))} ${s.ok ? 'สำเร็จ' : 'ล้มเหลว: ' + String(s.msg || '').slice(0, 80)}` : '') + (l && l.d === td ? ` · สรุปประจำวันใช้ค่าของวันจาก LFA แทนแล้ว (FWI เฉลี่ย ${l.a && l.a.all && l.a.all.FWI ? l.a.all.FWI[0].toFixed(1) : '-'})` : lag >= 2 ? ' · ยังไม่มีค่าของวันจาก LFA (scripts/fwi_lfa.js ใน workflow wx)' : '') })()}` } catch (e) { P.fwi = 'อ่าน data/fwi/index.json ไม่ได้' }
   // วงโคจร NOAA-20/21 (scripts/sync_tle.js ใน sync.yml) — เก่ากว่า 4 วัน เวลานับถอยหลัง/สรุปประจำวันเริ่มคลาดเคลื่อน
   try { const tl = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'tle.json'), 'utf8')), ep = Object.values(tl.sats || {}).map(x => Date.parse(x.ep)).filter(isFinite);
     if (!ep.length) P.tle = 'data/tle.json ไม่มีข้อมูลดาวเทียม'; else if (now - Math.min(...ep) > 4 * 24 * H) P.tle = `ค่าวงโคจรล่าสุด ${thTime(Math.min(...ep))} (${Math.round((now - Math.min(...ep)) / 864e5)} วัน) — ดูขั้น sync_tle ใน workflow sync` } catch (e) { P.tle = 'อ่าน data/tle.json ไม่ได้' }
+  { const m = chkXlsx(hdFys()); if (m) P.xlsx = m }
+  { const m = chkSavi(readJ(path.join(ROOT, 'data', 'fuel', 'index.json'))); if (m) P.savi = m }
+  { const m = chkB4(readJ(path.join(ROOT, 'data', 'burn', 'index.json'))); if (m) P.b4 = m }
   if (nt && nt.line && nt.line.ok === 0 && TOKEN) P.line = nt.line.why || 'ตรวจโควตา/กลุ่มไม่ผ่าน';
   const tn = readJ(path.join(OUT, 'tg_notify.json'));
   if (tn && tn.tg && tn.tg.ok === 0) P.tg = tn.tg.why || 'ตรวจบอท/ห้องไม่ผ่าน';
@@ -99,7 +136,8 @@ function problems(pg) {
   return P;
 }
 
-(async () => {
+module.exports = { CHECKS, problems, chkXlsx, chkSavi, chkB4, hdFys, now };
+if (require.main === module) (async () => {
   if (process.argv.includes('--site')) {
     const nt = await loadState('notify.json', SITE, now), up = nt && Date.parse(nt.updated);
     if (up && now - up <= 90 * 60e3) { console.log('site ปกติ (notify.json อัปเดต', thTime(up) + ')'); return }
@@ -127,7 +165,7 @@ function problems(pg) {
   } catch (e) { console.log('ส่งข้อความยืนยันทาง Telegram ไม่สำเร็จ:', e.message) }
   for (const [k, m] of Object.entries(P)) {
     const c = st.checks[k] = { since: now, ...st.checks[k], msg: m };
-    if (now - c.since >= CHECKS[k][1] && (!c.alerted || now - c.alerted >= REMIND)) bad.push(k);
+    if (now - c.since >= CHECKS[k][1] && (!c.alerted || now - c.alerted >= (CHECKS[k][2] || REMIND))) bad.push(k);
   }
   for (const k of Object.keys(st.checks)) if (!(k in P)) { if (st.checks[k].alerted) ok.push(k); else delete st.checks[k] }
 

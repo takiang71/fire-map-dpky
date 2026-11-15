@@ -27,6 +27,41 @@ test('fwiSummary: รอบเก่ากว่า 3 วัน / ไม่ม�
   assert.equal(fwiSummary(NOW, 2, fixture('ไม่มีไฟล์.json')), null);
 });
 
+// A5 (15 พ.ย. 69): รอบ TFDRS เก่า (เครื่องผู้ดูแลปิด) → ค่าของวันจาก LFA (fixtures/fwi_lfa.json สังเคราะห์ ค่าของ 19 พ.ย.)
+test('fwiSummary: รอบ TFDRS เก่าเกิน 3 วัน → ใช้ค่าของวันจาก LFA วันเดียว ติดธง lfa', () => {
+  const T = Date.parse('2026-11-18T22:30:00Z'); // 05:30 น. 19 พ.ย. — index.json รอบ 15 พ.ย. ใช้ไม่ได้แล้ว
+  const R = fwiSummary(T, 2, fixture('fwi.json'), fixture('fwi_lfa.json'));
+  assert.equal(R.lfa, 1);
+  assert.equal(R.run, '2026-11-19');
+  assert.equal(R.days.length, 1, 'ไม่มีพยากรณ์ล่วงหน้า');
+  const [a] = R.days;
+  assert.deepEqual([a.d, a.f, a.mean, a.min, a.max, a.c, a.cx, a.hi], ['2026-11-19', 0, 35, 10, 60, 2, 4, 50]);
+  assert.deepEqual(a.top, { k: 'ky', n: 'อช.เขาใหญ่', v: 40, c: 3 });
+  assert.deepEqual(a.ffmc, { mean: 91, max: 95, c: 2, cx: 3 });
+  assert.deepEqual([a.t, a.rh, a.ws, a.pr], [null, null, null, null], 'ไม่มีอากาศเที่ยงวัน');
+});
+
+test('fwiSummary: รอบ TFDRS ยังใช้ได้ → ไม่ใช้ LFA · LFA ไม่ใช่ค่าของวันนี้ → null', () => {
+  const R = fwiSummary(NOW, 2, fixture('fwi.json'), fixture('fwi_lfa.json'));
+  assert.equal(R.lfa, undefined);
+  assert.equal(R.days.length, 2);
+  assert.equal(fwiSummary(Date.parse('2026-11-19T22:30:00Z'), 2, fixture('fwi.json'), fixture('fwi_lfa.json')), null, 'LFA เป็นค่าของเมื่อวาน');
+  assert.equal(fwiSummary(Date.parse('2026-11-18T22:30:00Z'), 2, fixture('ไม่มีไฟล์.json'), fixture('fwi_lfa.json')).lfa, 1, 'ไม่มี index.json ก็ยังใช้ LFA');
+});
+
+test('fwi_lfa: เกณฑ์รอบเก่า (≥2 วันตามเวลาไทย) และสรุปค่าจุดตัวอย่างแบบเดียวกับ sync_fwi', () => {
+  const { stale, summarize, samples } = require('../scripts/fwi_lfa');
+  assert.equal(stale({ run: '2026-11-15' }, Date.parse('2026-11-16T16:59:00Z')), false, '23:59 น. 16 พ.ย. = 1 วัน');
+  assert.equal(stale({ run: '2026-11-15' }, Date.parse('2026-11-16T17:00:00Z')), true, '00:00 น. 17 พ.ย. = 2 วัน');
+  assert.equal(stale(null), true);
+  const A = samples();
+  assert.equal(A.all.length, Object.keys(A).filter(k => k !== 'all').reduce((s, k) => s + A[k].length, 0));
+  for (const k of ['ky', 'tl', 'ps', 'tp', 'dy', 'ks', 'kc']) assert.ok(A[k] && A[k].length >= 1, k);
+  const S = summarize({ all: [[1, 1], [2, 2], [3, 3], [4, 4]], x: [[1, 1]] }, { FWI: new Map([['1,1', 10], ['2,2', 20], ['3,3', 45], ['4,4', null]]) });
+  assert.deepEqual(S.all.FWI, [25, 10, 45, [0.333, 0.333, 0, 0.333, 0]], 'ข้ามจุดที่ไม่มีค่า · 10 ต่ำ / 20 ปานกลาง / 45 สูงมาก (เกณฑ์ 17/31/40/54)');
+  assert.deepEqual(S.x.FWI, [10, 10, 10, [1, 0, 0, 0, 0]]);
+});
+
 test('vrSummary: วัน UTC (07:00–07:00 น.) ค่าเฉลี่ย/สูงสุด/ช่วงชั่วโมงระบายได้ (≥2,000)', () => {
   const R = vrSummary(NOW, 5, fixture('gfs_vr.json'));
   assert.equal(R.cyc, '2026-11-15T00Z');
