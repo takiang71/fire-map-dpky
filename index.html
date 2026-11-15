@@ -61,6 +61,7 @@ h1 small{display:block;font-size:.42em;font-weight:600;color:var(--mut);margin-t
 .sm{font-size:12px;color:var(--mut)}
 #dt-y{font:inherit;font-size:12.5px;border:1px solid var(--line);border-radius:8px;padding:4px 6px;background:#fff;color:var(--mut);max-width:100%}#dt-y.on{border-color:var(--navy);color:var(--navy);font-weight:700;background:#eef1f6}
 .wcmp{margin-top:8px;font-size:12px}.wcmp summary{cursor:pointer;color:var(--navy);font-weight:600}.wct{width:100%;border-collapse:collapse;margin:6px 0;font-size:11.5px}.wct th,.wct td{border-bottom:1px solid var(--line);padding:3px 4px;text-align:left;vertical-align:top}.wct small{display:block;color:var(--mut);font-size:10.5px}
+.dfr{margin:0 0 8px;padding:6px 10px;border-radius:10px;background:#f5f7fb;border:1px solid var(--line);border-left:4px solid #9aa3b2;font-size:11.5px;line-height:1.5;color:#4b5563}.dfr.ok{border-left-color:#2e9d5b}.dfr.nw{border-left-color:#d98c00;background:#fff8e8}.dfr.er{border-left-color:#c0392b}.dfr .fr1 b{color:#1f2937;font-weight:600}.dfr .fr3{margin-top:2px}.dfr.ok .fr3{color:#23784a}.dfr.nw .fr3{color:#8a5a00}
 .dsrc{margin-top:8px;padding:7px 10px;border-radius:10px;background:#f5f7fb;border:1px solid var(--line);font-size:11.5px;line-height:1.55;color:#4b5563}.dsrc:empty{display:none}.dsrc b.t{color:var(--ink);font-weight:600}.dsrc ul{margin:2px 0 0;padding-left:16px}.dsrc li{margin:1px 0}.dsrc .w{color:#b45309}
 .btns{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:12px 0}.btns>.btn{grid-column:span 3}.btns>.btn.b3{grid-column:span 2;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:3px;padding:6px 4px;font-size:12px;line-height:1.2} /* แถว 3 มี 3 ปุ่ม (ผู้ใช้ขอ 6 พ.ย. 69) ไอคอนบน ข้อความล่าง */ /* 2 คอลัมน์เท่ากัน กว้างเต็มแผงเสมอกับกล่องบน-ล่าง (ผู้ใช้ขอ 5 พ.ย. 69) */
 .btns>.btn{justify-content:flex-start;min-width:0;min-height:42px;padding:6px 12px;line-height:1.25;text-align:left}.btns>.btn span{min-width:0}
@@ -6372,7 +6373,7 @@ async function fwDraw(){if(!S.fwi)return;fwExplain();const v=fwVar();$$('#fwi-v 
    s+=`<span class="c${j===i?' on':''}" data-i="${j}" data-tip="${esc(tip)}" style="${c>=0?`background:${FWC[c]};color:${c===1?'#3a2e00':'#fff'}`:''}">${fwCell(t[0])}</span>`})}
  tx('fwi-pt',s+`</div><div class="sm" style="margin-top:3px">* วันพยากรณ์ · สีตามระดับของค่าเฉลี่ย — บางส่วนของพื้นที่อาจสูงกว่านี้ (ดูช่วงค่าในป้าย)</div>`);
  const rl=FWX.days.find(x=>x.d===FWX.run);
- fwSt(`ข้อมูล <a href="${FWSRC}" target="_blank" rel="noopener">TFDRS กรมป่าไม้</a> (Thailand Fire Danger Rating System) พัฒนาโดยหน่วยวิจัยไฟป่าฯ (WFSRU) คณะวนศาสตร์ ม.เกษตรศาสตร์ ร่วมกับกรมป่าไม้ จุฬาฯ Natural Resources Canada และคณะ · คำนวณด้วยโค้ด <a href="https://github.com/nrcan-cfs-fire/cffdrs-ng" target="_blank" rel="noopener">cffdrs-ng</a> (พัฒนาต่อโดย Marko Niinimaki และ Jittisak Yodkhum) จากอากาศพยากรณ์ <a href="https://tiservice.hii.or.th/wrf-roms/netcdf/" target="_blank" rel="noopener">WRF-ROMS</a> ของ สสน. · ตาราง ~3 กม. · แผนที่ระบายสีเฉพาะในแนวเขตพื้นที่อนุรักษ์และพื้นที่เฝ้าระวังพิเศษ · รอบล่าสุด ${fwDate(FWX.run,{day:'numeric',month:'short'})}${rl&&rl.lm?' (ออก '+thTime(Date.parse(rl.lm))+' น.)':''} — ต้นทางออกวันละครั้งช่วงบ่าย ระบบนี้ตรวจรอบใหม่วันละ 4 ครั้ง`);
+ fwSt(`ข้อมูล <a href="${FWSRC}" target="_blank" rel="noopener">TFDRS กรมป่าไม้</a> (Thailand Fire Danger Rating System) พัฒนาโดยหน่วยวิจัยไฟป่าฯ (WFSRU) คณะวนศาสตร์ ม.เกษตรศาสตร์ ร่วมกับกรมป่าไม้ จุฬาฯ Natural Resources Canada และคณะ · คำนวณด้วยโค้ด <a href="https://github.com/nrcan-cfs-fire/cffdrs-ng" target="_blank" rel="noopener">cffdrs-ng</a> (พัฒนาต่อโดย Marko Niinimaki และ Jittisak Yodkhum) จากอากาศพยากรณ์ <a href="https://tiservice.hii.or.th/wrf-roms/netcdf/" target="_blank" rel="noopener">WRF-ROMS</a> ของ สสน. · ตาราง ~3 กม. · แผนที่ระบายสีเฉพาะในแนวเขตพื้นที่อนุรักษ์และพื้นที่เฝ้าระวังพิเศษ · รอบล่าสุด ${fwDate(FWX.run,{day:'numeric',month:'short'})}${rl&&rl.lm?' (ออก '+thTime(Date.parse(rl.lm))+' น.)':''} — ต้นทางออกวันละครั้งช่วงบ่าย (~14:20 น.) ระบบตรวจรอบใหม่ทุก ~5 นาทีแล้วดึงทันที`);
  /* ภาพบนแผนที่ (โหลดไฟล์ของวันนั้น) */
  const key=d.d+'|'+d.run+'|'+(d.lm||'')+'|'+v;if(FWK===key&&FWGD===d)return;const q=++FWQ;
  try{const C=await fwGet(d);if(q!==FWQ)return;const a=fwArr(C,v);if(!a)throw new Error('ไม่มีตัวแปร '+v);fwImg(C,a,v);FWG=C;FWGA=a;FWGD=d;FWK=key}
@@ -6534,7 +6535,7 @@ $('#cm-op').oninput=e=>{S.cmop=+e.target.value;tx('cm-opv',S.cmop+'%');if(CMX)cm
 /* เล่น (ราย 3 ชม.): ข้อมูลอยู่ในเครื่องแล้ว จึงเดินทุก 0.7 วิ */
 $('#cm-pl').onclick=()=>{if(CMP)return cmStop();if(!CMX)return;if(cmMode()!=='t')S.cmm='t';const b=$('#cm-pl');b.textContent='⏸';b.setAttribute('aria-label','หยุดภาพเคลื่อนไหว');
  CMP=setInterval(()=>cmGo(CMI>=CMX.f.length-1?0:CMI+1),700)};
-setInterval(()=>{if(cmOn()&&!CMP&&!document.hidden){CMP0=null;cmLoad().catch(()=>{})}},60*6e4); /* รอบแบบจำลองใหม่ (sync วันละ 4 รอบ) */
+setInterval(()=>{if(cmOn()&&!CMP&&!document.hidden){CMP0=null;cmLoad().catch(()=>{})}},60*6e4); /* สำรอง — ปกติโหลดใหม่ตาม data/wxsrc.json ทันทีที่รอบใหม่ขึ้นเว็บ */
 try{cmApply()}catch(e){}
 </script>
 
@@ -6661,5 +6662,55 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.tmd&&Da
 try{tmApply()}catch(e){}
 </script>
 
+<script>
+/* ความสดของข้อมูลพยากรณ์ (ผู้ใช้ขอ 15 พ.ย. 69 "ให้บอกบนเว็บว่าข้อมูลล่าสุดเมื่อวันที่เท่าไร เวลากี่โมง" + ตามต้นทางให้เร็วที่สุด)
+   กล่อง .dfr บนสุดของ #fwibox #vrbox #cmbox: รอบข้อมูล · ต้นทางเผยแพร่ · ขึ้นเว็บ (เวลาที่เราดึง) · ผลตรวจต้นทางล่าสุด
+   data/wxsrc.json เขียนโดย scripts/wx_check.js ในทุกรอบ workflow site (~5 นาที) {t, fwi|gfs|cams:{have,pub,upd,src,srcPub,ready}, need[], err{}}
+   อ่านทุก 5 นาทีขณะเปิดชั้นใดชั้นหนึ่ง · รอบที่ขึ้นเว็บ (have) ใหม่กว่าที่หน้าโหลดไว้ = โหลดชั้นนั้นใหม่เอง */
+(()=>{
+const FRU=BN_BASE.replace(/burn\/$/,'wxsrc.json');let FR=null,FRT=0,FRP=null;
+const fd=(t,y)=>{if(t==null)return'-';const d=new Date(t);if(isNaN(d))return'-';return d.toLocaleString('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',...(y?{year:'2-digit'}:{}),hour:'2-digit',minute:'2-digit'})+' น.'};
+const fdd=s=>new Date(Date.parse(s)).toLocaleDateString('th-TH',{timeZone:'UTC',day:'numeric',month:'short',year:'2-digit'});
+const cyc=s=>{const t=Date.parse(String(s).replace(/Z$/,':00:00Z'));return isNaN(t)?s:`${fd(t,1)} (${s.slice(11,13)}Z)`};
+const ago=t=>{const m=Math.round((Date.now()-Date.parse(t))/6e4);return m<1?'เมื่อสักครู่':m<60?m+' นาทีที่แล้ว':m<1440?Math.floor(m/60)+' ชม. '+(m%60)+' นาทีที่แล้ว':Math.floor(m/1440)+' วันที่แล้ว'};
+/* ค่าที่หน้าโหลดไว้ */
+const cur={fwi:()=>typeof FWX!=='undefined'&&FWX?{have:FWX.run,pub:(FWX.days.find(x=>x.d===FWX.run&&!x.f)||{}).lm,upd:FWX.upd}:null,
+ gfs:()=>typeof GVG!=='undefined'&&GVG?{have:GVG.cyc,pub:GVG.pub,upd:GVG.upd}:null,
+ cams:()=>typeof CMX!=='undefined'&&CMX?{have:CMX.run,pub:CMX.avail,upd:CMX.upd}:null};
+const BOX={fwi:'fwibox',gfs:'vrbox',cams:'cmbox'},NM={fwi:'TFDRS',gfs:'NOAA GFS',cams:'CAMS'};
+const lab=(k,v)=>k==='fwi'?'รอบวันที่ '+fdd(v):'รอบ '+cyc(v);
+function frEl(k){const b=document.getElementById(BOX[k]);if(!b)return null;let e=b.querySelector(':scope>.dfr');
+ if(!e){e=document.createElement('div');e.className='dfr';e.id='fr-'+k;e.setAttribute('role','status');b.prepend(e)}return e}
+function frDraw(k){const e=frEl(k);if(!e)return;const c=cur[k](),w=FR&&FR[k];
+ if(!c||!c.have){e.hidden=true;return}e.hidden=false;
+ let h=`<div class="fr1"><b>ข้อมูล${lab(k,c.have)}</b></div><div class="fr2">ต้นทางเผยแพร่ ${fd(c.pub||(w&&w.have===c.have?w.pub:null))} · ขึ้นเว็บ ${fd(c.upd)}</div>`,st='';
+ if(w&&FR.t){
+  const newer=w.src&&w.src!==c.have&&w.src>c.have,fetching=FR.need&&FR.need.includes(k);
+  if(newer&&w.have&&w.have!==c.have&&w.have>c.have){st='nw';h+=`<div class="fr3">↻ มี${lab(k,w.have)}บนเว็บแล้ว กำลังโหลด…</div>`}
+  else if(newer){st='nw';h+=`<div class="fr3">⏳ ต้นทางออก${lab(k,w.src)} แล้ว${w.srcPub?' (เผยแพร่ '+fd(w.srcPub)+')':''} — ${w.ready===false?'รอต้นทางเขียนไฟล์ครบ':fetching?'กำลังดึง':'รอดึง'} จะขึ้นเว็บเองภายในไม่กี่นาที</div>`}
+  else if(FR.need&&FR.need.includes(k))st='nw',h+=`<div class="fr3">⏳ ต้นทางปรับข้อมูลรอบนี้ใหม่ — กำลังดึง</div>`;
+  else{st='ok';h+=`<div class="fr3">✓ เป็นรอบล่าสุดของ ${NM[k]} · ตรวจกับต้นทาง ${fd(FR.t)} (${ago(FR.t)})</div>`}
+  if(FR.err&&FR.err[k])st='er',h+=`<div class="fr3">ตรวจต้นทางรอบล่าสุดไม่ได้ (${esc(FR.err[k])})</div>`;
+ }
+ e.className='dfr '+st;e.innerHTML=h}
+const on={fwi:()=>!!S.fwi,gfs:()=>!!S.vr,cams:()=>typeof cmOn==='function'&&cmOn()};
+const RL={fwi:()=>fwLoad(true).then(()=>{fwDraw()}),gfs:()=>{GVP=null;return gvLoad().then(()=>gvDraw())},cams:()=>{CMP0=null;return cmLoad()}};
+const FRL={};
+function frGet(force){if(!force&&Date.now()-FRT<4*6e4)return FRP||Promise.resolve(FR);FRT=Date.now();
+ return FRP=fetch(FRU,{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(j=>{FRP=null;if(j)FR=j;frAll();
+  /* รอบที่ขึ้นเว็บใหม่กว่าที่โหลดไว้ → โหลดชั้นนั้นใหม่ (กันโหลดซ้ำภายใน 2 นาที) */
+  for(const k in BOX){const w=FR&&FR[k],c=cur[k]();if(on[k]()&&w&&w.have&&c&&c.have&&w.have!==c.have&&w.have>c.have&&Date.now()-(FRL[k]||0)>12e4){FRL[k]=Date.now();RL[k]().then(()=>frDraw(k)).catch(()=>{})}}
+  return FR}).catch(()=>{FRP=null;frAll();return FR})}
+function frAll(){for(const k in BOX)frDraw(k)}
+window.frAll=frAll;
+/* วาดใหม่หลังโหลด/วาดชั้น */
+for(const [fn,k] of [['fwDraw','fwi'],['gvDraw','gfs'],['cmDraw','cams']]){const f=window[fn];if(typeof f!=='function')continue;
+ window[fn]=function(){const r=f.apply(this,arguments);try{frDraw(k);if(on[k]()&&Date.now()-FRT>4*6e4)frGet()}catch(e){}return r}}
+setInterval(()=>{if(document.hidden)return;if(Object.keys(on).some(k=>on[k]()))frGet(true);else frAll()},5*6e4);
+setInterval(()=>{if(!document.hidden)frAll()},6e4); /* "…นาทีที่แล้ว" */
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Object.keys(on).some(k=>on[k]())&&Date.now()-FRT>6e4)frGet(true)});
+frGet(true);
+})();
+</script>
 </body>
 </html>

@@ -1,0 +1,109 @@
+# ข้อมูลพยากรณ์ 3 ชุด — FWI/FFMC (TFDRS กรมป่าไม้), อัตราการระบายอากาศ (NOAA GFS), PM2.5 (CAMS ผ่าน Open-Meteo)
+# ผู้ใช้ขอ 15 พ.ย. 69 ให้ตามต้นทางเร็วที่สุด: workflow site (ทุก ~5 นาที) รัน scripts/wx_check.js ตรวจรอบใหม่ของต้นทาง (คำขอเล็กๆ)
+# เจอรอบใหม่ → สั่ง workflow นี้ (input need = ชุดที่ต้องดึง) → ดึงเฉพาะชุดที่มีรอบใหม่ → commit ทีละชุดแล้วสั่ง site เผยแพร่ทันที
+# (เดิมอยู่ใน sync 4 รอบ/วัน: ช้ากว่าต้นทาง 0.5–6.5 ชม., GFS 12Z ไม่เคยขึ้นเว็บ, CAMS หมดเวลา 10 นาทีทุกรอบบน Actions)
+# แต่ละสคริปต์เช็กเองว่ารอบใหม่จริงไหม (ไม่ใหม่ = จบในไม่กี่วินาที) จึงรันซ้ำได้ปลอดภัย
+name: wx
+run-name: "wx [${{ inputs.need || 'all' }}] ${{ inputs.by }}"
+on:
+  workflow_dispatch:
+    inputs:
+      need:
+        description: "ชุดที่ต้องดึง คั่นจุลภาค: fwi,gfs,cams (ว่าง = ตรวจทุกชุด)"
+        required: false
+        default: ""
+      by:
+        description: "ผู้สั่งรัน"
+        required: false
+        default: ""
+  # ทดสอบหลังแก้สคริปต์/workflow นี้ (สั่งได้แค่ตอน push)
+  push:
+    branches: [main]
+    paths: [.github/workflows/wx.yml, scripts/sync_cams.js, scripts/sync_gfsvr.js, scripts/sync_fwi.js]
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: wx
+  cancel-in-progress: false
+
+jobs:
+  wx:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NEED: ${{ inputs.need }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      # ---------- FWI/FFMC (TFDRS) — ตาราง g/ อยู่ที่ branch fwi-grid ----------
+      - name: load fwi grids
+        if: env.NEED == '' || contains(env.NEED, 'fwi')
+        run: |
+          mkdir -p data/fwi/g
+          if git fetch -q --depth=1 origin fwi-grid; then git archive FETCH_HEAD | tar -x -C data/fwi/g; git rev-parse 'FETCH_HEAD^{tree}' > "$RUNNER_TEMP/fwi_tree"; else echo "ยังไม่มี branch fwi-grid"; fi
+      - id: fwi
+        if: env.NEED == '' || contains(env.NEED, 'fwi')
+        run: node scripts/sync_fwi.js
+        timeout-minutes: 8
+        continue-on-error: true
+      # ตารางเปลี่ยน → force push branch fwi-grid (commit เดียว) ก่อน commit index.json ใน main (site ต้องเห็นตารางครบเมื่อเห็นรอบใหม่)
+      - name: save fwi grids
+        if: steps.fwi.outcome == 'success'
+        continue-on-error: true
+        run: |
+          d="$RUNNER_TEMP/fg"; rm -rf "$d"; mkdir -p "$d"; cp -r data/fwi/g/. "$d"/; cd "$d"
+          [ -n "$(ls)" ] || { echo "ไม่มีไฟล์ตาราง FWI"; exit 0; }
+          git init -q -b fwi-grid; git add -A
+          new=$(git write-tree); old=$(cat "$RUNNER_TEMP/fwi_tree" 2>/dev/null || true)
+          [ "$new" != "$old" ] || { echo "ตาราง FWI ไม่เปลี่ยน"; exit 0; }
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm "fwi grids $(date -u +%FT%TZ)"
+          for i in 1 2 3; do git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" fwi-grid && break; sleep 5; done
+      - name: publish fwi
+        if: steps.fwi.outcome == 'success'
+        run: bash scripts/wx_publish.sh "FWI/FFMC" data/fwi
+        env:
+          GH_TOKEN: ${{ github.token }}
+      # ---------- อัตราการระบายอากาศ (NOAA GFS) ----------
+      - id: gfs
+        if: env.NEED == '' || contains(env.NEED, 'gfs')
+        run: node scripts/sync_gfsvr.js
+        timeout-minutes: 10
+        continue-on-error: true
+      - name: publish gfs
+        if: steps.gfs.outcome == 'success'
+        run: bash scripts/wx_publish.sh "อัตราการระบายอากาศ GFS" data/gfs_vr.json
+        env:
+          GH_TOKEN: ${{ github.token }}
+      # ---------- PM2.5 CAMS (Open-Meteo) — ชุดที่ดึงค้าง (.cache/cams_part.json) เก็บข้าม run ด้วย actions/cache ----------
+      - name: restore cams part
+        if: env.NEED == '' || contains(env.NEED, 'cams')
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache
+          key: cams-part-${{ github.run_id }}
+          restore-keys: cams-part-
+      - id: cams
+        if: env.NEED == '' || contains(env.NEED, 'cams')
+        run: node scripts/sync_cams.js
+        timeout-minutes: 12
+        continue-on-error: true
+      - name: save cams part
+        if: always() && hashFiles('.cache/cams_part.json') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: .cache
+          key: cams-part-${{ github.run_id }}
+      - name: publish cams
+        if: steps.cams.outcome == 'success'
+        run: bash scripts/wx_publish.sh "PM2.5 CAMS" data/cams_grid.json
+        env:
+          GH_TOKEN: ${{ github.token }}

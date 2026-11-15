@@ -52,46 +52,16 @@ jobs:
       - run: node scripts/sync_tle.js
         timeout-minutes: 3
         continue-on-error: true
-      # อัตราการระบายอากาศ NOAA GFS (VRATE) จาก NOMADS — ดึงเฉพาะเมื่อมีรอบใหม่ (~3 นาที, 161 ไฟล์) แหล่งเดียวกับกรมอุตุฯ
-      - run: node scripts/sync_gfsvr.js
-        timeout-minutes: 10
-        continue-on-error: true
-      # ตารางค่า PM2.5 แบบจำลอง CAMS global 0.4° ไทยและประเทศเพื่อนบ้าน ทุก 3 ชม. (Open-Meteo) → data/cams_grid.json ~270 KB — ดึงเฉพาะเมื่อมีรอบแบบจำลองใหม่ (วันละ 2 รอบ, ~4 นาที) ใช้ทั้งชั้นบนหน้าเว็บและสรุปประจำวัน LINE/Telegram
-      - run: node scripts/sync_cams.js
-        timeout-minutes: 10
-        continue-on-error: true
-      # ตาราง FWI กรอบรอบกลุ่มป่าของ TFDRS (data/fwi/g/<วันที่>.json 9 ไฟล์ ~3 MB — เลิกเก็บตารางเต็มพื้นที่ 14 พ.ย. 69) อยู่ที่ branch fwi-grid (commit เดียว force push ไม่สะสมประวัติ) ไม่ใช่ main
-      - name: load fwi grids
-        run: |
-          mkdir -p data/fwi/g
-          if git fetch -q --depth=1 origin fwi-grid; then git archive FETCH_HEAD | tar -x -C data/fwi/g; git rev-parse 'FETCH_HEAD^{tree}' > "$RUNNER_TEMP/fwi_tree"; else echo "ยังไม่มี branch fwi-grid"; fi
-          ls data/fwi/g | wc -l
-      # ระบบดัชนีอันตรายไฟป่า (FWI System) จาก TFDRS กรมป่าไม้ — รอบใหม่วันละครั้ง (~14:30 น.) ดึงเฉพาะเมื่อมีรอบใหม่ (HTTP Range เฉพาะแถวในกรอบ ~45 วินาที)
-      - id: fwi
-        run: node scripts/sync_fwi.js
-        timeout-minutes: 8
-        continue-on-error: true
-      # ตารางเปลี่ยน → force push branch fwi-grid (commit เดียว) · ไม่เปลี่ยน = ไม่ push
-      - name: save fwi grids
-        if: steps.fwi.outcome == 'success'
-        continue-on-error: true
-        run: |
-          d="$RUNNER_TEMP/fg"; rm -rf "$d"; mkdir -p "$d"; cp -r data/fwi/g/. "$d"/; cd "$d"
-          [ -n "$(ls)" ] || { echo "ไม่มีไฟล์ตาราง FWI"; exit 0; }
-          git init -q -b fwi-grid; git add -A
-          new=$(git write-tree); old=$(cat "$RUNNER_TEMP/fwi_tree" 2>/dev/null || true)
-          [ "$new" != "$old" ] || { echo "ตาราง FWI ไม่เปลี่ยน"; exit 0; }
-          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm "fwi grids $(date -u +%FT%TZ)"
-          for i in 1 2 3; do git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" fwi-grid && break; sleep 5; done
+      # FWI/FFMC (TFDRS), อัตราการระบายอากาศ (GFS), PM2.5 (CAMS) ย้ายไป workflow wx (15 พ.ย. 69) — site ตรวจรอบใหม่ของต้นทางทุก ~5 นาทีแล้วสั่ง wx ทันที
       - name: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html data/hotspots_api.json data/burn data/fuel data/tourism.json data/tle.json data/gfs_vr.json data/cams_grid.json data/fwi "data/FY2569_SNPP_ทั้งกลุ่มป่า.csv"
+          git add index.html data/hotspots_api.json data/burn data/fuel data/tourism.json data/tle.json "data/FY2569_SNPP_ทั้งกลุ่มป่า.csv"
           if git diff --cached --quiet; then echo "ไม่มีข้อมูลใหม่"; exit 0; fi
           git commit -m "sync: จุดความร้อนสะสม $(TZ=Asia/Bangkok date '+%Y-%m-%d %H:%M')"
-          git pull --rebase
-          git push
+          # workflow wx push ข้อมูลพยากรณ์เข้า main ได้ทุกเวลา → ดึงทับแล้วลองใหม่
+          for i in 1 2 3 4 5; do git pull --rebase && git push && break; sleep $((i * 5)); done
       - name: deploy now
         run: gh workflow run site.yml --ref main -f by=sync
         env:
