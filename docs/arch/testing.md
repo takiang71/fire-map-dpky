@@ -27,6 +27,8 @@
   · Node 22 ขึ้นไปถือ `test/` เป็นชื่อไฟล์ (ไม่ไล่หาไฟล์ในโฟลเดอร์แบบ Node 20) → Node แปลงเป็น **`test/index.js`** ซึ่งโหลด `test/*.test.js` ทุกไฟล์ให้รันในรอบเดียว
   · รันไฟล์เดียว: `node --test test/dedup.test.js` · อย่ารัน `node --test` เปล่าๆ (จะรันซ้ำสองรอบ เพราะ index.js ถูกนับเป็นไฟล์เทสต์ด้วย)
 - **ใน Actions**
+  · รันผ่าน `node scripts/unit_ci.js` (= `node --test --test-reporter=spec test/` + เทสต์ที่ล้มพิมพ์เป็น `::error title=ชุดทดสอบหน่วยไม่ผ่าน::ชื่อ — ข้อความ` → ดูได้ใน annotations ของรอบผ่าน API สาธารณะ `/check-runs/{job}/annotations` โดยไม่ต้องล็อกอิน) · ใช้ในเครื่องแทน node --test ได้
+  · **กับดัก Node**: timer ของ `AbortSignal.timeout` เป็นแบบ unref — เทสต์ที่รอแต่ timer นี้ต้องมี timer ปกติค้ำ event loop (`alive()` ใน net.test.js) ไม่งั้น Node 22 บน Actions ล้ม ทั้งที่ Node 24 บน Windows ผ่าน (15 พ.ย. 69)
   · `site.yml` ขั้น `unit tests` ก่อน build (continue-on-error) → ไม่ผ่าน = ส่ง `UNIT=failure` ให้ `check_site.js --ci` ซึ่งถือว่าไม่ผ่าน: ใช้ index.html ฉบับบนเว็บ, `check.json` มี `unit:false` + errs "ชุดทดสอบหน่วยไม่ผ่าน", health.js แจ้งผู้ดูแล (ปัญหา `ci`) — live.json/การแจ้งเตือนยังทำงาน · รอบที่ `unit:false` จะไม่ถูกใช้ผลเดิมตาม sha (แก้แค่ scripts/ แล้วตรวจใหม่ได้)
   · `sync.yml` ขั้นแรก (ไม่มี continue-on-error) → ไม่ผ่าน = หยุดรอบนั้น ไม่ commit ข้อมูล (รอบถัดไปดึงวันที่ขาด + 7 วันล่าสุดซ้ำอยู่แล้ว) · ขั้น `check site` (health --site) ยังรันเพราะ `if: always()`
 - **ไฟล์เทสต์** (แต่ละไฟล์มีหมายเหตุหัวไฟล์ว่าทดสอบอะไร)

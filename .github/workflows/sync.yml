@@ -35,7 +35,8 @@ jobs:
       # ไม่ผ่าน = หยุดรอบนี้ ไม่ commit (เช่น ตัดจุดซ้ำผิดแล้วบันทึกลงฐานข้อมูลสะสม) — รอบถัดไปดึงย้อนหลังได้ตามปกติ · ขั้น check site ท้ายสุดยังทำงาน
       - name: unit tests
         timeout-minutes: 3
-        run: node --test test/
+        # = node --test test/ + พิมพ์ชื่อเทสต์ที่ล้มเป็น annotation (อ่านได้โดยไม่ต้องล็อกอินเปิด log)
+        run: node scripts/unit_ci.js
       # API ไทยขัดข้อง → เติมจาก NASA FIRMS (7 วันล่าสุดไม่ต้องใช้ key · เก่ากว่านั้นใช้ secret FIRMS_KEY ถ้าตั้งไว้)
       - run: node scripts/sync_hotspots.js
         env:

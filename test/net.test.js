@@ -2,6 +2,8 @@
 // fetch จำลอง: ไม่ต่อเน็ต — 'hang' = ไม่ตอบจนกว่า signal จะยกเลิก · 'down' = เครือข่ายล่ม · อื่นๆ = ตอบทันที
 const test = require('node:test'), assert = require('node:assert/strict');
 const { grab, load, HTML } = require('./helpers.cjs');
+// timer ของ AbortSignal.timeout ใน Node เป็นแบบ unref (ไม่ค้ำ event loop) → ระหว่างรอให้มี timer ปกติค้ำไว้ ไม่งั้น Node บางรุ่นจบ process ก่อนครบเวลา (เบราว์เซอร์ไม่มีปัญหานี้)
+const alive = p => { const k = setInterval(() => { }, 20); return p.finally(() => clearInterval(k)) };
 
 const SRC = [
   grab(/const DBG=[^\n]*/), grab(/const dbg=[^\n]*/), grab(/const FTO=[^\n]*/),
@@ -31,7 +33,7 @@ test('fetchT: ตอบทันที = ส่ง Response ต่อ · ใส�
 
 test('fetchT: ไม่ตอบ → TimeoutError ตามเวลาที่กำหนด + บันทึกลง __LOG (ตัด query string)', async () => {
   const W = env(), t0 = Date.now();
-  await assert.rejects(W.fetchT('hang', {}, 150), e => e.name === 'TimeoutError');
+  await assert.rejects(alive(W.fetchT('hang', {}, 150)), e => e.name === 'TimeoutError');
   assert.ok(Date.now() - t0 < 2000);
   const L = W.log();
   assert.equal(L.length, 1);
@@ -43,7 +45,7 @@ test('fetchT: ไม่ตอบ → TimeoutError ตามเวลาที่
 
 test('fetchT: เบราว์เซอร์ไม่มี AbortSignal.timeout → ใช้ AbortController แทน แต่ยังได้ TimeoutError', async () => {
   const W = env({ noTimeout: true });
-  await assert.rejects(W.fetchT('hang', {}, 100), e => e.name === 'TimeoutError' && /0.1 วินาที/.test(e.message));
+  await assert.rejects(alive(W.fetchT('hang', {}, 100)), e => e.name === 'TimeoutError' && /0.1 วินาที/.test(e.message));
   assert.equal(W.log()[0].name, 'TimeoutError');
 });
 

@@ -66,7 +66,8 @@ jobs:
         id: unit
         continue-on-error: true
         timeout-minutes: 3
-        run: node --test test/
+        # = node --test test/ + พิมพ์ชื่อเทสต์ที่ล้มเป็น annotation (อ่านได้โดยไม่ต้องล็อกอินเปิด log)
+        run: node scripts/unit_ci.js
       # ถ้าดึงข้อมูลไม่สำเร็จก็ยังเผยแพร่หน้าเว็บ (หน้าเว็บจะถอยไปดึง API ตรงเอง)
       - run: node scripts/build_site.js || true
       # ต้นทาง FWI/FFMC (TFDRS) · อัตราการระบายอากาศ (GFS) · PM2.5 (CAMS) มีรอบใหม่กว่าที่เรามีไหม (คำขอเล็ก ≤10 วิ)
