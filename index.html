@@ -6,6 +6,19 @@
 <meta name="theme-color" content="#ffffff">
 <meta name="color-scheme" content="light">
 <title>สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่</title>
+<script>/* D8: เบราว์เซอร์รุ่นเก่า — ต้องเป็นสคริปต์แรกสุดและเขียนแบบ ES5 ล้วน (สคริปต์อื่นใช้ ?? · regex lookbehind · Array.at · structuredClone · DecompressionStream
+   ถ้าไม่รองรับจะ SyntaxError ทั้งบล็อก = หน้าขาวเงียบ) · รุ่นต่ำสุด Chrome/Edge 98 · Safari 16.4 (iOS 16.4) · Firefox 113 · ตรวจใน check_site (ลบ DecompressionStream ก่อนโหลดหน้า) */
+(function(){var ok=true;try{new Function('var a={b:1};a?.b;a??1;/(?<=x)y/;[1].at(-1)')}catch(e){ok=false}
+if(typeof DecompressionStream==='undefined'||typeof structuredClone==='undefined'||!Array.prototype.at)ok=false;
+if(ok)return;window.__OLD=1;
+function show(){if(document.getElementById('oldb'))return;var d=document.createElement('div'),l=document.getElementById('ld');d.id='oldb';d.setAttribute('role','alert');
+d.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#fff;color:#1f2937;overflow:auto;padding:32px 20px;text-align:center;font:16px/1.6 sans-serif';
+d.innerHTML='<div style="max-width:440px;margin:8vh auto 0"><div style="font-size:44px">&#9888;&#65039;</div><b style="font-size:21px">เบราว์เซอร์รุ่นเก่า กรุณาอัปเดต Chrome/Safari</b>'+
+'<p>แผนที่สถานการณ์ไฟป่าใช้ความสามารถของเบราว์เซอร์รุ่นใหม่ เบราว์เซอร์นี้จึงแสดงแผนที่ไม่ได้ กรุณาอัปเดต Chrome หรือ Safari (หรืออัปเดตระบบ iOS) แล้วเปิดหน้านี้อีกครั้ง</p>'+
+'<p style="font-size:13px;color:#6b7280">รุ่นต่ำสุด: Chrome / Edge 98 · Safari 16.4 (iOS/iPadOS 16.4) · Firefox 113<br>เบราว์เซอร์นี้: '+String(navigator.userAgent).replace(/[<>&"]/g,'')+'</p></div>';
+document.body.appendChild(d);if(l)l.style.display='none'}
+if(document.body)show();else document.addEventListener('DOMContentLoaded',show)})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css">
@@ -563,6 +576,10 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 @media(max-width:767px){.obpop .maplibregl-popup-content{font-size:11.5px;line-height:1.4;padding:8px 22px 8px 10px}}
 /* มือถือ: คลาส obm (เดิมชื่อ mb ชนกับ .mb{padding:14px 16px} ของหน้าต่าง modal → แถบย่อหนา 58 px บังแนวเขต — ผู้ใช้แจ้ง 13 พ.ย. 69) */
 #orb.obm{right:auto}#orb.obm:not(.cp){width:min(300px,calc(100% - 90px))}#orb.obm.cp .obh{padding:4px 10px 4px 8px;gap:5px}#orb.obm.cp .obh>svg{width:15px;height:15px}#orb.obm.cp .obq{font-size:11.5px}
+/* ?debug=1 (A3): ปุ่มคัดลอกบันทึกข้อผิดพลาดใน #attr · มือถือปกติซ่อน #attr → โหมด debug แสดงไว้บนสุด */
+#dg-cp{font:inherit;font-size:12px;font-weight:700;color:#c0392b;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+#dg-tx{position:fixed;left:8px;right:8px;top:8px;height:40vh;z-index:100;font:12px/1.4 monospace;border:2px solid #c0392b;border-radius:8px;padding:8px;background:#fff;color:#111}
+@media(max-width:767px){html.dbg #attr{display:block!important;top:calc(env(safe-area-inset-top,0px) + 2px);bottom:auto;z-index:40;padding:4px 10px}}
 </style>
 </head>
 <body>
@@ -962,8 +979,28 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 <script>
 /* ป้องกันหน้าโหลดค้าง: ถ้าสคริปต์พังหรือโหลด MapLibre ไม่ได้ จะแสดงสาเหตุแทนการค้างเงียบๆ */
 let failed=0;const fail=m=>{const l=document.getElementById('ld');if(l&&!failed){failed=1;l.style.padding='24px';l.style.textAlign='center';l.innerHTML='<div>แผนที่โหลดไม่สำเร็จ<br><small style="font-weight:400;color:#6b7280">'+m+'</small></div>'}};
-addEventListener('error',e=>fail(e.message));
-addEventListener('unhandledrejection',e=>fail(String(e.reason)));
+/* บันทึกข้อผิดพลาด (A3): dbg(ชื่อ, error) เก็บ 200 รายการล่าสุดใน window.__LOG · URL มี ?debug=1 → console.warn ด้วย + ปุ่ม "คัดลอกบันทึกข้อผิดพลาด" ใน #attr */
+const DBG=/[?&]debug=1(&|$)/.test(location.search);window.__LOG=[];
+const dbg=(tag,e)=>{try{const L=window.__LOG;L.push({t:new Date().toISOString(),tag:String(tag),name:(e&&e.name)||'',msg:String((e&&e.message)||e).slice(0,300)});if(L.length>200)L.splice(0,L.length-200);if(DBG)console.warn('[debug] '+tag,e)}catch(_){}};
+/* fetch ที่มีเวลารอสูงสุด (A2) — เน็ตช้าในป่าต้องไม่ค้างไม่มีกำหนด · ms: FTO.main ข้อมูลหลัก/API 20 วิ · FTO.tile ไทล์/ภาพ 30 วิ · FTO.big ไฟล์ใหญ่ (แนวเขต/กริด 0.3–2 MB) 60 วิ · FTO.aux แหล่งเสริม (Open-Meteo จุดเดียว, BigDataCloud) 10 วิ
+   เกินเวลา = error ชื่อ TimeoutError (นับรวมช่วงอ่าน body) · opt.signal เดิมยังยกเลิกได้ · ล้มเหลว = บันทึกลง __LOG แล้วโยนต่อเหมือน fetch · ที่อื่นในแอปห้ามเรียก fetch ตรง */
+const FTO={main:2e4,tile:3e4,big:6e4,aux:1e4};
+function fetchT(u,opt,ms){const o=Object.assign({},opt),own=o.signal;ms=ms||FTO.main;let sg,to=0;
+ if(window.AbortSignal&&AbortSignal.timeout)sg=AbortSignal.timeout(ms);else{const ac=new AbortController();setTimeout(()=>{to=1;ac.abort()},ms);sg=ac.signal}
+ o.signal=own?(AbortSignal.any?AbortSignal.any([own,sg]):own):sg;
+ return fetch(u,o).catch(e=>{if(to&&e&&e.name==='AbortError')e=new DOMException('ต้นทางตอบช้าเกิน '+ms/1e3+' วินาที','TimeoutError');
+  if(!(own&&own.aborted))dbg('fetch '+String(u).split('?')[0].slice(0,120),e);throw e})}
+/* ข้อความเมื่อผู้ใช้รอผล: เกินเวลา → "ต้นทางตอบช้า ลองใหม่" แทนข้อความเดิม */
+const slowMsg=(e,m)=>e&&e.name==='TimeoutError'?'ต้นทางตอบช้า ลองใหม่':m;
+/* ?debug=1: คัดลอก JSON ของ __LOG + UA + เวอร์ชันหน้าเว็บ (วันที่ไฟล์/ข้อมูล) ไปส่งผู้ดูแล · คัดลอกอัตโนมัติไม่ได้ → แสดงกล่องข้อความให้คัดลอกเอง */
+function dgCopy(){let ad='';try{ad=JSON.parse(document.getElementById('adata').textContent).upd}catch(e){}
+ const t=JSON.stringify({at:new Date().toISOString(),url:location.href,ua:navigator.userAgent,ver:{page:document.lastModified,data:ad},scr:[innerWidth,innerHeight,devicePixelRatio],online:navigator.onLine,n:__LOG.length,log:__LOG},null,1);dgCopy.last=t;
+ const say=m=>typeof toast==='function'?toast(m,null,4000):alert(m),
+  man=()=>{let x=document.getElementById('dg-tx');if(!x){x=document.createElement('textarea');x.id='dg-tx';x.readOnly=true;x.onblur=()=>x.remove();document.body.appendChild(x)}x.value=t;x.focus();x.select();dgCopy.how='manual';say('คัดลอกอัตโนมัติไม่ได้ — กดค้างที่กล่องข้อความแล้วเลือก "คัดลอก"')};
+ if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(()=>{dgCopy.how='clipboard';say('คัดลอกบันทึกแล้ว '+__LOG.length+' รายการ — วางส่งให้ผู้ดูแลระบบได้เลย')},man);else man()}
+if(DBG){document.documentElement.classList.add('dbg');const a=document.getElementById('attr');if(a){const b=document.createElement('button');b.id='dg-cp';b.type='button';b.textContent='คัดลอกบันทึกข้อผิดพลาด';b.onclick=dgCopy;a.prepend(b,' · ')}}
+addEventListener('error',e=>{dbg('error',e.error||e.message);fail(e.message)});
+addEventListener('unhandledrejection',e=>{dbg('unhandledrejection',e.reason);fail(String(e.reason))});
 setTimeout(()=>{const l=document.getElementById('ld');if(l&&window.maplibregl)l.remove()},8000);
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js"></script>
@@ -1046,26 +1083,27 @@ function liveList(j){const rows=alertRows(j);
 const HOTSPOT_HOME=HOTSPOT_API.replace(/api\/alerts$/,'');let LFAU={t:0,at:0};
 const lfaParse=html=>{const m=/Last update\s*:\s*(\d{1,2})\/(\d{1,2})\/(\d{4})\s*-\s*(\d{1,2})h(\d{2})/i.exec(html||'');return m?Date.UTC(+m[3],+m[2]-1,+m[1],+m[4]-7,+m[5]):0};
 async function sysTime(){if(Date.now()-LFAU.at<4*60e3)return LFAU.t;
- try{const u=HOTSPOT_PROXY?HOTSPOT_PROXY+encodeURIComponent(HOTSPOT_HOME):HOTSPOT_HOME,r=await fetch(u,{signal:AbortSignal.timeout(8000)});if(r.ok){const t=lfaParse(await r.text());if(t)LFAU={t,at:Date.now()}}}catch(_){}
+ try{const u=HOTSPOT_PROXY?HOTSPOT_PROXY+encodeURIComponent(HOTSPOT_HOME):HOTSPOT_HOME,r=await fetchT(u,{},8000);if(r.ok){const t=lfaParse(await r.text());if(t)LFAU={t,at:Date.now()}}}catch(e){dbg('sysTime',e)}
  return LFAU.t}
 // ดึงอัตโนมัติ: เฉพาะ POLL.part ชม. ล่าสุดทุก POLL.every (เบา) และเต็ม 48 ชม. ทุก POLL.full (ล้างจุดเก่า/รับข้อมูลที่ต้นทางแก้ย้อนหลัง)
 const POLL={every:5*60e3,full:30*60e3,part:3,last:0,lastFull:0};
 const liveKey=x=>x.t+'|'+x.lat.toFixed(4)+'|'+x.lon.toFixed(4)+'|'+x.sat;
 const LIVE_FILE='live.json',LIVE_MAXAGE=40*60e3;
-async function liveFile(){if(!/^https?:$/.test(location.protocol))return null;try{const r=await fetch(LIVE_FILE+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)return null;const j=await r.json(),m=j.meta||{};
+async function liveFile(){if(!/^https?:$/.test(location.protocol))return null;try{const r=await fetchT(LIVE_FILE+'?t='+Date.now(),{cache:'no-store'},FTO.main);if(!r.ok)return null;const j=await r.json(),m=j.meta||{};
  if(!(Date.now()-Date.parse(m.generated)<LIVE_MAXAGE))return null;const L=liveList(j);
- liveFile.w=null;try{const w=await fetch('watch.json?t='+Date.now(),{cache:'no-store'});if(w.ok){const wj=await w.json();liveFile.w=(wj.features||[]).map(f=>{const h=normAlert(f);if(h)h.wa=f.properties._w;return h}).filter(h=>h&&h.wa&&Date.now()-h.t<=48*H).sort((a,b)=>b.t-a.t)}}catch(_){}/* จุด 48 ชม. ในพื้นที่เฝ้าระวัง (build_site.js) */HSRC.total=m.nation_total;HSRC.fm=m.firms&&(m.firms.n||!m.nation_total||Object.values(m.firms.box||{}).some(v=>v>0))?m.firms:null;/* API ไทยขัดข้อง → build_site เติมจาก NASA FIRMS */const t=ptime(m.nation_last);if(isFinite(t))HSRC.lastAll=t;HSRC.via=LIVE_FILE;
- HSRC.sys=m.sys_update?Date.parse(m.sys_update):await sysTime();return L}catch(e){return null}}
-async function getHotspots(hr=48){
+ liveFile.w=null;try{const w=await fetchT('watch.json?t='+Date.now(),{cache:'no-store'},FTO.main);if(w.ok){const wj=await w.json();liveFile.w=(wj.features||[]).map(f=>{const h=normAlert(f);if(h)h.wa=f.properties._w;return h}).filter(h=>h&&h.wa&&Date.now()-h.t<=48*H).sort((a,b)=>b.t-a.t)}}catch(e){dbg('watch.json',e)}/* จุด 48 ชม. ในพื้นที่เฝ้าระวัง (build_site.js) */HSRC.total=m.nation_total;HSRC.fm=m.firms&&(m.firms.n||!m.nation_total||Object.values(m.firms.box||{}).some(v=>v>0))?m.firms:null;/* API ไทยขัดข้อง → build_site เติมจาก NASA FIRMS */const t=ptime(m.nation_last);if(isFinite(t))HSRC.lastAll=t;HSRC.via=LIVE_FILE;
+ HSRC.sys=m.sys_update?Date.parse(m.sys_update):await sysTime();return L}catch(e){dbg('liveFile',e);return null}}
+let HSERR=null;/* ข้อผิดพลาดรอบล่าสุดของ getHotspots (ปุ่ม ↻ ใช้แจ้ง) */
+async function getHotspots(hr=48){HSERR=null;
  {const L=await liveFile();if(L){POLL.last=POLL.lastFull=Date.now();LASTLIVE=L;WLAST=liveFile.w||WLAST.filter(x=>Date.now()-x.t<=48*H);hsrcShow();return L}}
- HSRC.fm=null;/* ดึง API ตรง = ไม่ใช่ข้อมูลสำรองจาก FIRMS */try{const api=HOTSPOT_API+hsQS(hr),url=HOTSPOT_PROXY?HOTSPOT_PROXY+encodeURIComponent(api):api,r=await fetch(url,{headers:{Accept:'application/json'}});if(!r.ok){let b='';try{b=(await r.text()).replace(/\s+/g,' ').slice(0,160)}catch(_){}throw new Error('HTTP '+r.status+(b?' · เซิร์ฟเวอร์ตอบ: '+b:''))}
+ HSRC.fm=null;/* ดึง API ตรง = ไม่ใช่ข้อมูลสำรองจาก FIRMS */try{const api=HOTSPOT_API+hsQS(hr),url=HOTSPOT_PROXY?HOTSPOT_PROXY+encodeURIComponent(api):api,r=await fetchT(url,{headers:{Accept:'application/json'}},FTO.main);if(!r.ok){let b='';try{b=(await r.text()).replace(/\s+/g,' ').slice(0,160)}catch(_){}throw new Error('HTTP '+r.status+(b?' · เซิร์ฟเวอร์ตอบ: '+b:''))}
   const prev=HSRC;let L=liveList(await r.json()),W=liveList.w||[];POLL.last=Date.now();
   if(hr<48){const sw=new Set(W.map(liveKey));W=W.concat(WLAST.filter(x=>!sw.has(liveKey(x))&&Date.now()-x.t<=48*H)).sort((a,b)=>b.t-a.t)}
   if(hr<48&&LASTLIVE){const seen=new Set(L.map(liveKey));L=L.concat(LASTLIVE.filter(x=>!seen.has(liveKey(x))&&Date.now()-x.t<=48*H)).sort((a,b)=>b.t-a.t);
    HSRC=Object.assign({},prev,{msg:'',sats:[...new Set(L.map(x=>x.sat))],last:L.length?L[0].t:0,lastAll:Math.max(prev.lastAll||0,HSRC.lastAll||0),inArea:L.length})}
   else{HSRC.sys=await sysTime();POLL.lastFull=POLL.last}
   LASTLIVE=L;WLAST=W;hsrcShow();return L}
- catch(e){const msg=/Failed to fetch|NetworkError|Load failed/i.test(e.message)?'เบราว์เซอร์เชื่อมต่อ API ไม่ได้ (อาจติด CORS หรือไม่ได้ต่ออินเทอร์เน็ต)':e.message;
+ catch(e){HSERR=e;dbg('getHotspots',e);const msg=e.name==='TimeoutError'?'ต้นทางตอบช้า (เกิน 20 วินาที)':/Failed to fetch|NetworkError|Load failed/i.test(e.message)?'เบราว์เซอร์เชื่อมต่อ API ไม่ได้ (อาจติด CORS หรือไม่ได้ต่ออินเทอร์เน็ต)':e.message;
   WLAST=WLAST.filter(x=>Date.now()-x.t<=48*H);
   if(LASTLIVE){LASTLIVE=LASTLIVE.filter(x=>Date.now()-x.t<=48*H);HSRC.msg='ดึงรอบล่าสุดไม่สำเร็จ ('+msg+') ใช้ข้อมูลรอบก่อน';hsrcShow();return LASTLIVE}
   HSRC={live:false,msg,sats:[],last:0};hsrcShow();return[]}}
@@ -1132,9 +1170,9 @@ const tileXY=(lon,lat,z)=>{const n=2**z,y=Math.log(Math.tan(Math.PI/4+lat*Math.P
 const idUrl=(base,c,lay)=>{const d=.002;return`${base}/identify?geometry=${c.lng},${c.lat}&geometryType=esriGeometryPoint&sr=4326&layers=${lay}&tolerance=0&mapExtent=${c.lng-d},${c.lat-d},${c.lng+d},${c.lat+d}&imageDisplay=256,256,96&returnGeometry=false&f=json`};
 const idAttr=(j,L)=>(j.results||[]).map(r=>r.attributes||{}).map(a=>({d:String(a['DATE (YYYYMMDD)']||a.SRC_DATE||''),src:a.SOURCE||a.NICE_DESC||a.SRC_DESC,res:a['RESOLUTION (M)']||a.SRC_RES,lo:+a.MinMapLevel,hi:+a.MaxMapLevel})).find(a=>a.lo<=L&&L<=a.hi&&/^\d{8}$/.test(a.d));
 async function wbScan(){if(S.base!=='sat'||imgOf()!=='esri')return;const c=map.getCenter(),L=Math.min(17,Math.max(12,Math.round(map.getZoom()+1))),[col,row]=tileXY(c.lng,c.lat,L),key=L+'/'+row+'/'+col;if(key===WBK)return;WBK=key;const q=++wbQ;WBV=[];WBL=null;itUI();
- try{if(!WBC){const j=await (await fetch(WB_CFG)).json();WBC=Object.entries(j).map(([k,v])=>({n:+k,rel:(String(v.itemTitle).match(/\d{4}-\d\d-\d\d/)||[''])[0],m:v.metadataLayerUrl})).filter(r=>r.rel&&r.m).sort((a,b)=>a.rel<b.rel?1:-1)}
+ try{if(!WBC){const j=await (await fetchT(WB_CFG,{},FTO.main)).json();WBC=Object.entries(j).map(([k,v])=>({n:+k,rel:(String(v.itemTitle).match(/\d{4}-\d\d-\d\d/)||[''])[0],m:v.metadataLayerUrl})).filter(r=>r.rel&&r.m).sort((a,b)=>a.rel<b.rel?1:-1)}
   const out=[];let i=0,last=null;
-  while(i<WBC.length){const x=await (await fetch(`${WB}/MapServer/tilemap/${WBC[i].n}/${L}/${row}/${col}`)).json();if(q!==wbQ)return;
+  while(i<WBC.length){const x=await (await fetchT(`${WB}/MapServer/tilemap/${WBC[i].n}/${L}/${row}/${col}`,{},FTO.main)).json();if(q!==wbQ)return;
    if(!x.data||!x.data[0]){i++;continue}
    let ai=x.select?WBC.findIndex(v=>v.n===x.select[0]):i;if(ai<i)ai=i;const sz=x.size&&x.size[0];
    if(!last||last.sz!==sz){last=Object.assign({},WBC[ai],{sz});out.push(last)}i=ai+1}
@@ -1146,7 +1184,7 @@ async function wbScan(){if(S.base!=='sat'||imgOf()!=='esri')return;const c=map.g
   WBP=out.length;itUI();
   // metadata ของ Wayback ช้ามาก (1–20 วิ/คำขอ, ยิงพร้อมกันมากจะ error แบบไม่มี CORS) → query ชั้นตามระดับไทล์ (id = 23−L) ทีละ 3 คำขอ รอได้ 25 วิ ลองซ้ำ 1 ครั้ง
   const lay=Math.max(0,Math.min(13,23-L)),qu=b=>`${b}/${lay}/query?geometry=${c.lng},${c.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=SRC_DATE,NICE_DESC,SRC_RES,MinMapLevel,MaxMapLevel&returnGeometry=false&f=json`;
-  const idq=async(u,ms)=>{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),ms);try{const j=await (await fetch(u,{signal:ac.signal})).json();return idAttr({results:j.features||j.results},L)||null}catch(e){return undefined}finally{clearTimeout(t)}};
+  const idq=async(u,ms)=>{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),ms);try{const j=await (await fetchT(u,{signal:ac.signal},ms)).json();return idAttr({results:j.features||j.results},L)||null}catch(e){return undefined}finally{clearTimeout(t)}};
   idq(idUrl(ESRI_MS,c,'all:0'),15000).then(a=>{if(a&&q===wbQ){WBL=a;fin()}});
   const job=[...out];await Promise.all([0,1,2].map(async()=>{let v;while((v=job.shift())){if(q!==wbQ)return;let a=await idq(qu(v.m),25000);if(a===undefined&&q===wbQ)a=await idq(qu(v.m),25000);if(q!==wbQ)return;if(a)Object.assign(v,a);else v.wf=1;fin()}}))}
  catch(e){WBK='';if(q===wbQ&&imgOf()==='esri')$('#it-v').textContent='ค้นหาภาพย้อนหลังไม่ได้'}}
@@ -1169,7 +1207,7 @@ async function imgDate(){const el=$('#imgdate'),q=++imgQ;if(!el)return;el.hidden
  const w=WBI!=null&&WBC&&WBC.find(x=>x.n===WBI),key=(w?w.n+':':'')+L+','+c.lng.toFixed(3)+','+c.lat.toFixed(3);if(IMC[key]){el.textContent=IMC[key];return}
  const wv=w&&WBV.find(x=>x.n===w.n&&x.d);if(wv){el.textContent=`ภาพถ่าย ${thD(new Date(wv.d.slice(0,4)+'-'+wv.d.slice(4,6)+'-'+wv.d.slice(6)))} · ${wv.src||'Esri'}${wv.res?' '+wv.res+' ม.':''} (กลางจอ) · ภาพย้อนหลัง Esri Wayback`;return} // ได้จากรอบค้นหาแล้ว (metadata บางรุ่นตอบช้ามาก)
  el.textContent='กำลังอ่านวันที่ภาพ…';
- try{const a=idAttr(await (await fetch(w?idUrl(w.m,c,'all'):idUrl(ESRI_MS,c,'all:0'))).json(),L),v=a&&a.d;
+ try{const a=idAttr(await (await fetchT(w?idUrl(w.m,c,'all'):idUrl(ESRI_MS,c,'all:0'),{},FTO.main)).json(),L),v=a&&a.d;
   const t=v?`ภาพถ่าย ${thD(new Date(v.slice(0,4)+'-'+v.slice(4,6)+'-'+v.slice(6)))} · ${a.src||'Esri'}${a.res?' '+a.res+' ม.':''} (กลางจอ)${w?' · ภาพย้อนหลัง Esri Wayback':''}`:'ไม่พบวันที่ของภาพบริเวณนี้';
   IMC[key]=t;if(q===imgQ)el.textContent=t}
  catch(e){if(q===imgQ)el.textContent='อ่านวันที่ภาพไม่ได้'}}
@@ -1256,7 +1294,7 @@ function setup(){ // เรียกทุกครั้งที่สลั�
 }
 function apply(){
  const set=(id,b)=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',b?'visible':'none');
- {const e=document.getElementById('hlg');if(e){e.hidden=!S.hot;try{hlgPos()}catch(x){}}}{const h=S.hot&&!window.PBH;set('hot-glow',h&&!S.d3);set('hot-icon',h&&!S.d3);set('hot-cl',h&&!S.d3);set('hot-cn',h&&!S.d3);set('hot-3d',h&&S.d3)}set('cons-f',S.cons);set('cons-l',S.cons);set('resp-f',S.resp);set('resp-l',S.resp);if(window.FSM)FSM.forEach(m=>m.getElement().style.display=S.stn?'':'none');if(window.WPM)WPM.forEach(m=>m.getElement().style.display=S.wpt?'':'none');if(S.rgr&&!window.RGM)rgLoad().catch(()=>{});if(window.RGM)RGM.forEach(m=>m.getElement().style.display=S.rgr?'':'none');if(S.fbs&&!window.FBM)fbLoad().catch(()=>{});if(window.FBM)FBM.forEach(m=>m.getElement().style.display=S.fbs?'':'none');
+ {const e=document.getElementById('hlg');if(e){e.hidden=!S.hot;try{hlgPos()}catch(x){}}}{const h=S.hot&&!window.PBH;set('hot-glow',h&&!S.d3);set('hot-icon',h&&!S.d3);set('hot-cl',h&&!S.d3);set('hot-cn',h&&!S.d3);set('hot-3d',h&&S.d3)}set('cons-f',S.cons);set('cons-l',S.cons);set('resp-f',S.resp);set('resp-l',S.resp);if(window.FSM)FSM.forEach(m=>m.getElement().style.display=S.stn?'':'none');if(window.WPM)WPM.forEach(m=>m.getElement().style.display=S.wpt?'':'none');if(S.rgr&&!window.RGM)rgLoad().catch(e=>dbg('rgLoad',e));if(window.RGM)RGM.forEach(m=>m.getElement().style.display=S.rgr?'':'none');if(S.fbs&&!window.FBM)fbLoad().catch(e=>dbg('fbLoad',e));if(window.FBM)FBM.forEach(m=>m.getElement().style.display=S.fbs?'':'none');
  ((map.getStyle()||{}).layers||[]).forEach(l=>{const s=l['source-layer'];if(!s)return;
   if(/^park$|protected|national_park/.test(s)){set(l.id,false);return}
   if(/boundary/.test(s))set(l.id,S.prov);else if(/water/.test(s))set(l.id,S.water);else if(/transportation|aeroway/.test(s))set(l.id,S.road)});
@@ -1599,7 +1637,7 @@ $('#it-p').onclick=()=>itSet(+$('#it-r').value-1,1);$('#it-n').onclick=()=>itSet
 $('#it-d').onchange=e=>{if(e.target.value)itSet(dNum(e.target.value),1)};
 $('#it-0').onclick=$('#it-0').onkeydown=e=>{if(e.type==='keydown'&&e.key!=='Enter'&&e.key!==' ')return;e.preventDefault();itSet(imgOf()==='s2'?S2YS.length-1:imgOf()==='esri'?wbArr().indexOf(null):1e9,1)};
 map.on('moveend',()=>{if(S.base==='sat'&&imgOf()==='esri'){clearTimeout(imgT);imgT=setTimeout(imgDate,400);clearTimeout(wbT);wbT=setTimeout(wbScan,700)}});
-$('#rf').onclick=async()=>{await load();toast('ดึงข้อมูลใหม่แล้ว')};
+$('#rf').onclick=async()=>{const b=$('#rf');if(b.disabled)return;b.disabled=true;try{await load()}catch(e){dbg('rf',e);HSERR=HSERR||e}finally{b.disabled=false}toast(HSERR?slowMsg(HSERR,'ดึงข้อมูลไม่สำเร็จ — ตรวจการเชื่อมต่ออินเทอร์เน็ต'):'ดึงข้อมูลใหม่แล้ว')};
 $('#sdef').onclick=()=>{try{localStorage.setItem('fm-v1',JSON.stringify(S));toast('บันทึกค่าเริ่มต้นแล้ว')}catch(e){toast('บันทึกไม่ได้ในเบราว์เซอร์นี้')}};
 addEventListener('keydown',e=>{
  if(e.key==='/'&&document.activeElement!==$('#q')){e.preventDefault();$('#pcard').hidden=false;$('#bHide').setAttribute('aria-pressed',true);$('#q').focus()}
@@ -1640,9 +1678,9 @@ map.on('click',e=>{
  const FPH=typeof fwPop==='function'?fwPop(lng,lat):''; /* เปิดชั้น FWI = แสดงครบทุกดัชนี ไม่งั้นบรรทัด FWI/FFMC สั้น (.pfw) */
  const pop=new maplibregl.Popup({maxWidth:'270px'}).setLngLat(e.lngLat).setHTML(`${uh?uh.html:''}${wchHtml(e.lngLat)}${areaHtml(g0)}${bnAt(e.lngLat)}${rpAt(e.lngLat)}<span class="pft"></span><b>พิกัด</b> ${ll}<br><div class="sm pw" style="margin:4px 0">กำลังดึงสภาพอากาศ…</div>${typeof vrPop==='function'?vrPop(lng,lat):''}${FPH||'<div class="sm pfw" style="margin:0 0 4px"></div>'}${typeof cmPop==='function'?cmPop(lng,lat):''}<span class="sm pt0">กำลังหาชื่อตำบล…</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}">นำทางด้วย Google Maps</a>`).addTo(map);if(uh)uh.bind(pop);
  if(!FPH&&typeof fwQuick==='function')fwQuick(lng,lat).then(x=>{const el=pop.getElement()&&pop.getElement().querySelector('.pfw');if(el){if(x)el.innerHTML=x;else el.remove()}}).catch(()=>{const el=pop.getElement()&&pop.getElement().querySelector('.pfw');if(el)el.remove()});
- ftLoad().then(()=>{const f=ftAt(lng,lat),el=pop.getElement()&&pop.getElement().querySelector('.pft');if(el&&f)el.innerHTML='<b>ชนิดป่า</b> '+ftTxt(f)+'<br>'}).catch(()=>{});
+ ftLoad().then(()=>{const f=ftAt(lng,lat),el=pop.getElement()&&pop.getElement().querySelector('.pft');if(el&&f)el.innerHTML='<b>ชนิดป่า</b> '+ftTxt(f)+'<br>'}).catch(e=>dbg('ftLoad',e));
  admLoad().then(()=>{const a=admAt(lng,lat),el=pop.getElement()&&pop.getElement().querySelector('.pt0');if(el){const p=a?null:prvAt(lng,lat);el.innerHTML=a?'<b>'+esc(admTxt(a,1))+'</b>':p?'<b>จ.'+esc(p)+'</b>':'นอกขอบเขตข้อมูลตำบล'}}).catch(()=>{const el=pop.getElement()&&pop.getElement().querySelector('.pt0');if(el)el.textContent='โหลดชื่อตำบลไม่ได้'});
- fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,precipitation&wind_speed_unit=kmh`).then(r=>r.json()).then(j=>{const c=j.current,el=pop.getElement().querySelector('.pw');
+ fetchT(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,precipitation&wind_speed_unit=kmh`,{},FTO.aux).then(r=>r.json()).then(j=>{const c=j.current,el=pop.getElement().querySelector('.pw');
   if(el)el.innerHTML=`${nf(c.temperature_2m,1)} °C · ความชื้น ${Math.round(c.relative_humidity_2m)}%<br>ลมจากทิศ${DIRN[Math.round(c.wind_direction_10m/45)%8]} ${Math.round(c.wind_speed_10m)} กม./ชม.<br>สูง ${Math.round(j.elevation)} ม.`}).catch(()=>{const el=pop.getElement()&&pop.getElement().querySelector('.pw');if(el)el.textContent='ดึงสภาพอากาศไม่ได้'})});
 
 
@@ -1754,7 +1792,7 @@ function fuelAt(g,z,f){if(f&&FTF[f.k]!=null){const i=FTF[f.k];return{i,why:'ช�
 function fuelAuto1(z){const f=fuelAt(CUR&&CUR.geo,z,CUR&&ftAt(CUR.lon,CUR.lat));P.fuel=f.i;tx('fuel-why','เลือกอัตโนมัติ: '+f.why)}
 function syncSl(){const v=(i,val,u)=>{$('#s-'+i).value=val;tx('v-'+i,Math.round(val)+u)};v('u',P.u,' กม./ชม.');v('f',P.from,'°');v('r',P.rh,'%');v('s',P.sl,'°');$('#fuel').value=P.fuel;$$('#dur button').forEach(b=>b.classList.toggle('on',+b.dataset.h===P.hr));$$('#sm button').forEach(b=>b.classList.toggle('on',b.dataset.m===P.sm))}
 function upd(){
- if(!CUR)return;if(!ADM)admLoad().then(()=>CUR&&upd()).catch(()=>{});const an=(lo,la)=>{const a=admAt(lo,la);return a?' <span style="font-weight:400">· '+esc(admTxt(a))+'</span>':''};
+ if(!CUR)return;if(!ADM)admLoad().then(()=>CUR&&upd()).catch(e=>dbg('admLoad',e));const an=(lo,la)=>{const a=admAt(lo,la);return a?' <span style="font-weight:400">· '+esc(admTxt(a))+'</span>':''};
  const r0=calc(P),h=CUR,HY=P.sm==='l'?huy(r0):null,r=HY?hyAdj(r0,HY):r0,L=LV[r.lvl];LASTR=r;const LG=P.sm==='l'?lag(h,r,HY):null,rch=LG?LG.reach:r.reach,fm=c=>c[1].toFixed(4)+', '+c[0].toFixed(4)+an(c[0],c[1]);
  const st=i=>{const x=P.hr*i/3;return x<1?Math.round(x*60)+' นาที':nf(x,x%1?1:0)+' ชม.'};
  tx('k-ah','พื้นที่เผาไหม้ ('+P.hr+' ชม.)');tx('k-a',nf(r.rai));tx('k-a2',nf(r.ha,1)+' เฮกตาร์ · ขอบไฟ '+nf(r.per/1000,1)+' กม.');
@@ -1792,9 +1830,9 @@ function openDetail(h){
  map.getSource('ring').setData({type:'FeatureCollection',features:[{type:'Feature',properties:{},geometry:{type:'Point',coordinates:[h.lon,h.lat]}}]});{const sp=map.getSource('selpt');sp&&sp.setData({type:'FeatureCollection',features:h.old?[{type:'Feature',properties:{},geometry:{type:'Point',coordinates:[h.lon,h.lat]}}]:[]})}
  map.flyTo({center:[h.lon,h.lat],zoom:11.2,duration:dur(1600),padding:innerWidth>767?{right:380}:{top:70,bottom:Math.round(innerHeight*.6)+16}});
  syncSl();upd();fillAq(h);
- ftLoad().then(()=>{if(CUR===h&&fuelAuto){fuelAuto1(h.el);syncSl();upd()}}).catch(()=>{});
- if(h.ns!=='api')admLoad().then(()=>{const a=CUR===h&&admAt(h.lon,h.lat);if(!a)return;tx('d-name','ตำบล'+esc(a.t)+' อำเภอ'+esc(a.a)+' จังหวัด'+esc(a.p));tx('d-nmn',(h.demo?'จุดตัวอย่างเพื่อดูการแสดงผล · ':'')+'ชื่อพื้นที่จากแนวเขตตำบล (กรมการปกครอง ผ่าน OCHA HDX)')}).catch(()=>{});
- fetch(`https://api.open-meteo.com/v1/forecast?latitude=${h.lat}&longitude=${h.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation&hourly=wind_speed_10m,wind_direction_10m&forecast_hours=26&wind_speed_unit=kmh`).then(r=>r.json()).then(j=>{
+ ftLoad().then(()=>{if(CUR===h&&fuelAuto){fuelAuto1(h.el);syncSl();upd()}}).catch(e=>dbg('openDetail',e));
+ if(h.ns!=='api')admLoad().then(()=>{const a=CUR===h&&admAt(h.lon,h.lat);if(!a)return;tx('d-name','ตำบล'+esc(a.t)+' อำเภอ'+esc(a.a)+' จังหวัด'+esc(a.p));tx('d-nmn',(h.demo?'จุดตัวอย่างเพื่อดูการแสดงผล · ':'')+'ชื่อพื้นที่จากแนวเขตตำบล (กรมการปกครอง ผ่าน OCHA HDX)')}).catch(e=>dbg('admLoad',e));
+ fetchT(`https://api.open-meteo.com/v1/forecast?latitude=${h.lat}&longitude=${h.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation&hourly=wind_speed_10m,wind_direction_10m&forecast_hours=26&wind_speed_unit=kmh`,{},FTO.aux).then(r=>r.json()).then(j=>{
   if(CUR!==h||!j.current)return;const c=j.current;if(j.hourly&&j.hourly.wind_speed_10m)WS={u:j.hourly.wind_speed_10m,d:j.hourly.wind_direction_10m};Object.assign(P,{T:c.temperature_2m,rh:c.relative_humidity_2m,u:c.wind_speed_10m,from:c.wind_direction_10m});
   h.el=j.elevation;if(fuelAuto)fuelAuto1(j.elevation);tx('d-el',Math.round(j.elevation)+' ม. รทก.');tx('d-wx','Open-Meteo ขณะนี้ · '+nf(c.temperature_2m,1)+' °C');syncSl();upd();fillWx(h,c)
  }).catch(()=>tx('d-wx','ใช้ค่าตัวอย่าง (ดึงสภาพอากาศไม่ได้)'))}
@@ -1838,7 +1876,7 @@ const FWD=['ความชื้นในอากาศและเชื้�
 const fwiLv=x=>cls('fwi',x);
 /* --- Open-Meteo: พยากรณ์รายวันหลายพิกัด (แบ่งชุดละ 50 จุด) --- */
 async function omDaily(co,days){const out=[];for(let i=0;i<co.length;i+=50){const c=co.slice(i,i+50);
- let j=await(await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${c.map(x=>x[1]).join(',')}&longitude=${c.map(x=>x[0]).join(',')}&hourly=relative_humidity_2m&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,wind_direction_10m_dominant&wind_speed_unit=kmh&forecast_days=${days}&timezone=Asia%2FBangkok`)).json();j=Array.isArray(j)?j:[j];
+ let j=await(await fetchT(`https://api.open-meteo.com/v1/forecast?latitude=${c.map(x=>x[1]).join(',')}&longitude=${c.map(x=>x[0]).join(',')}&hourly=relative_humidity_2m&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,wind_direction_10m_dominant&wind_speed_unit=kmh&forecast_days=${days}&timezone=Asia%2FBangkok`,{},FTO.main)).json();j=Array.isArray(j)?j:[j];
  j.forEach(p=>out.push(Array.from({length:days},(_,d)=>{const hs=p.hourly.relative_humidity_2m.slice(d*24,d*24+24).filter(x=>x!=null),tx=p.daily.temperature_2m_max[d],rh=Math.min(...hs),rain=p.daily.precipitation_sum[d]||0,w=p.daily.wind_speed_10m_max[d];
   return{tx,tn:p.daily.temperature_2m_min[d],rh,rain,w,dir:p.daily.wind_direction_10m_dominant[d],vpd:vpdOf(tx,rh),fwi:cbi(tx,rh,w,rain)}})))}
  return out}
@@ -1852,7 +1890,7 @@ function a4tParse(j){const now=Date.now();return(j.stations||[]).map(s=>{const L
   lat=+s.lat,lon=+s.long;if(!isFinite(lat)||!isFinite(lon))return null;
   return{name:(s.nameTH||s.nameEN||'').trim(),area:(s.areaTH||'').trim(),lat,lon,pm:isFinite(v)&&v>=0&&isFinite(t)&&now-t<A4T_STALE?v:null,t:isFinite(t)?t:null,src:'Air4Thai'}}).filter(Boolean)}
 async function getStations(){const web=/^https?:$/.test(location.protocol),urls=[AIR4THAI_PROXY,web?'air4thai.json':'',web?'air4thai':'',AIR4THAI_API].filter(Boolean);
- for(const u of urls)try{const r=await fetch(u,{headers:{Accept:'application/json'}});if(!r.ok)continue;const s=a4tParse(await r.json());if(s.length)return s}catch(e){}
+ for(const u of urls)try{const r=await fetchT(u,{headers:{Accept:'application/json'}},FTO.main);if(!r.ok)continue;const s=a4tParse(await r.json());if(s.length)return s}catch(e){dbg('air4thai',e)}
  toast('ดึงข้อมูลสถานีวัดฝุ่น Air4Thai ไม่ได้ (ติด CORS — ตั้ง AIR4THAI_PROXY หรือเปิดด้วย scripts/serve.js) แสดงข้อมูลตัวอย่าง');
  const t=Date.now();return[['ปากช่อง นครราชสีมา',14.71,101.42,18],['ศูนย์ราชการ นครราชสีมา',14.98,102.10,34],['องครักษ์ นครนายก',14.21,101.0,27],['เมือง ปราจีนบุรี',14.05,101.37,41],['กบินทร์บุรี ปราจีนบุรี',13.99,101.72,38],['วังน้ำเย็น สระแก้ว',13.95,102.0,24],['มวกเหล็ก สระบุรี',14.65,101.2,22],['เมือง บุรีรัมย์',14.99,103.1,null],['ปักธงชัย นครราชสีมา',14.7,102.0,29]].map(a=>({name:a[0],area:'',lat:a[1],lon:a[2],pm:a[3],t,src:'ข้อมูลตัวอย่าง'}))}
 function drawStations(){const far=map.getZoom()<7.5,on=S.pm&&S.pmst!==false;STM.forEach(m=>{const e=m.getElement(),p=e._pm;if(on){const l=p==null?-1:pcdLv(p);e.style.display='';e.style.background=l<0?'#9ca3af':PCD[l][2];e.style.color=l<0?'#fff':PCD[l][3];
@@ -1879,7 +1917,7 @@ function pqInfo(){if(!$('#pq-lg'))return;const st=S.pm&&S.pmst!==false,cm=typeof
  $('#pq-lg').innerHTML=st&&!cm?'<div class="sm" style="margin:2px 0 4px">PM2.5 (µg/m³) · เกณฑ์กรมควบคุมมลพิษ</div><div class="lgd">'+PCD.map(c=>`<div><i style="background:${c[2]}"></i><b style="min-width:72px">${c[4]}</b><span>${c[1]}</span></div>`).join('')+'</div>':'';
  const n=STN.filter(x=>x.pm!=null).length;tx('pq-st',!S.pm?'':st?(STN.length?`สถานี ${STN[0].src} ${STN.length} สถานี (มีค่าล่าสุด ${n}) · ซูมใกล้เพื่อดูตัวเลข`:'กำลังดึงข้อมูลสถานี…'):'ปิดการแสดงสถานีตรวจวัด');
  if(S.pm&&!cm)tx('cm-t',st?thTime(Date.now())+' น.':'')}
-async function loadDry(){if(DRYD)return;try{DRYD=await omDaily(GR,7)}catch(e){toast('ดึงพยากรณ์ความแห้งไม่ได้');return}drawDry()}
+async function loadDry(){if(DRYD)return;try{DRYD=await omDaily(GR,7)}catch(e){dbg('loadDry',e);toast(slowMsg(e,'ดึงพยากรณ์ความแห้งไม่ได้'));return}drawDry()}
 function drawDry(){if(!DRYD)return;const d=S2.dd,v=S2.dv,key=v==='fwi'?'fwi':v==='rh'?'rh':'vpd',lab=v==='fwi'?'CBI':v==='rh'?'ความชื้นต่ำสุด':'VPD',N=MI.length,pct=(f,x)=>Math.round(100*MI.filter(i=>f(DRYD[i][x])).length/N);
  DRYU=surf(i=>DRYD[i]?DRYD[i][d][key]:null,x=>{const c=ramp(DST[v],DCC,v==='rh'?-x:x);return[c[0],c[1],c[2],125]},(lo,la)=>inside([lo,la],TH));
  const s=map.getSource('dry');s&&s.updateImage({url:DRYU,coordinates:CO});
@@ -1955,11 +1993,11 @@ async function loadWx(force){if(!S.wx)return;const b=map.getBounds(),W=b.getWest
   dx=(x1-x0)/(nx-1),dy=(y1-y0)/(ny-1),la=[],lo=[],q=++WXQ;
  for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){la.push((y0+j*dy).toFixed(3));lo.push((((x0+i*dx+540)%360)-180).toFixed(3))}
  tx('wx-st','กำลังดึงข้อมูล…');
- try{const P=[];for(let i=0;i<la.length;i+=100){let j=await(await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la.slice(i,i+100).join(',')}&longitude=${lo.slice(i,i+100).join(',')}&hourly=${Object.values(WXK).join(',')}&past_hours=24&forecast_hours=48&timezone=Asia%2FBangkok`)).json();if(j.error)throw j.reason;P.push(...(Array.isArray(j)?j:[j]))}
+ try{const P=[];for(let i=0;i<la.length;i+=100){let j=await(await fetchT(`https://api.open-meteo.com/v1/forecast?latitude=${la.slice(i,i+100).join(',')}&longitude=${lo.slice(i,i+100).join(',')}&hourly=${Object.values(WXK).join(',')}&past_hours=24&forecast_hours=48&timezone=Asia%2FBangkok`,{},FTO.main)).json();if(j.error)throw j.reason;P.push(...(Array.isArray(j)?j:[j]))}
   if(q!==WXQ)return;const t=P[0].hourly.time,v={};for(const k in WXK)v[k]=P.map(p=>p.hourly[WXK[k]]);
   const hr=new Date().toLocaleString('sv-SE',{timeZone:'Asia/Bangkok'}).slice(0,13).replace(' ','T')+':00',now=Math.max(0,t.indexOf(hr));
   WX={x0,x1,y0,y1,dx,dy,nx,ny,t,v,now,at:Date.now()};tx('wx-st','ข้อมูล '+thTime(Date.now())+' น. · ตาราง '+nx+'×'+ny+' จุด');drawWx()}
- catch(e){if(q===WXQ){tx('wx-st','ดึงข้อมูลไม่ได้');toast('ดึงข้อมูลสภาพอากาศไม่ได้')}}}
+ catch(e){dbg('loadWx',e);if(q===WXQ){tx('wx-st',slowMsg(e,'ดึงข้อมูลไม่ได้'));toast(slowMsg(e,'ดึงข้อมูลสภาพอากาศไม่ได้'))}}}
 function drawWx(){const k=S2.wxv,M=WXV[k];$$('#wxseg button').forEach(b=>b.classList.toggle('on',b.dataset.v===k));
  tx('wx-lg',`<div class="wxb" style="background:linear-gradient(90deg,${k==='cc'?'rgba(107,122,144,.08),rgba(107,122,144,.9)':M[3].join(',')})"></div><div class="wxs">${M[2].map(s=>`<span>${k==='pr'&&s===.1?'<0.1':s}</span>`).join('')}</div><div class="sm">${M[0]} (${M[1]})${k==='pr'?' · ต่ำกว่า 0.1 มม. ไม่ระบายสี':''}</div>`);
  if(!WX)return;const h=wxH(),r=$('#wx-r');wgSet(h);r.max=WX.t.length-1;r.value=h;tx('wx-v',wxLab(h));tx('wx-t',thTime(Date.parse(WX.t[h]+':00+07:00'))+' น.');
@@ -1969,8 +2007,8 @@ function drawWx(){const k=S2.wxv,M=WXV[k];$$('#wxseg button').forEach(b=>b.class
 /* --- เรดาร์ฝน RainViewer (ฟรี ไม่ต้องใช้คีย์, ไทล์ถึงซูม 7) — 1 รอบภาพ = 1 ชั้น raster (rv<เวลา>) สลับด้วย opacity ภาพเคลื่อนไหวจึงไม่กะพริบ --- */
 let RV=null,RVI=0,RVP=0;
 async function loadRad(force){if(!S.rad)return;if(RV&&!force&&Date.now()-RV.at<10*6e4)return radLayer();
- try{const j=await(await fetch('https://api.rainviewer.com/public/weather-maps.json')).json(),f=(j.radar&&j.radar.past)||[];if(!f.length)throw 0;RV={h:j.host,f,at:Date.now()};RVI=f.length-1;radLayer()}
- catch(e){tx('rd-v','ดึงภาพเรดาร์ไม่ได้');toast('ดึงภาพเรดาร์ฝนไม่ได้')}}
+ try{const j=await(await fetchT('https://api.rainviewer.com/public/weather-maps.json',{},FTO.main)).json(),f=(j.radar&&j.radar.past)||[];if(!f.length)throw 0;RV={h:j.host,f,at:Date.now()};RVI=f.length-1;radLayer()}
+ catch(e){dbg('loadRad',e);tx('rd-v',slowMsg(e,'ดึงภาพเรดาร์ไม่ได้'));toast(slowMsg(e,'ดึงภาพเรดาร์ฝนไม่ได้'))}}
 function radLayer(){if(!RV||!map.getSource('cons'))return;const ids=RV.f.map(f=>'rv'+f.time),bef=wxBef();
  ((map.getStyle()||{}).layers||[]).forEach(l=>{if(/^rv\d/.test(l.id)&&!ids.includes(l.id)){map.removeLayer(l.id);map.removeSource(l.id)}});
  RV.f.forEach((f,i)=>{const id=ids[i];if(!map.getSource(id)){map.addSource(id,{type:'raster',tiles:[`${RV.h}${f.path}/256/{z}/{x}/{y}/2/1_1.png`],tileSize:256,maxzoom:7});
@@ -2035,9 +2073,9 @@ function wybScale(){const f=$('#wyb'),e=$('.maplibregl-ctrl-scale');if(f.hidden|
  if(a.bottom<=b.top-4||a.top>=b.bottom+4||a.right<=L-8||a.left>=b.right+8)return;
  if(innerWidth>=768&&L-8-WYBX[0]>=300)wybPut(WYBX[0],L-8,f.style.bottom);else f.style.bottom=(innerHeight-b.top+6)+'px'} // ไม่บังมาตราส่วน: หดช่องจากขวา ถ้าที่ไม่พอยกขึ้นเหนือมาตราส่วน
 async function wlQuick(){if(Date.now()-WLqat<20*6e4)return;WLqat=Date.now();const c=[(HOME[0][0]+HOME[1][0])/2,(HOME[0][1]+HOME[1][1])/2];
- try{const j=await(await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${c[1]}&longitude=${c[0]}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh&timezone=Asia%2FBangkok`)).json(),u=j.current;
+ try{const j=await(await fetchT(`https://api.open-meteo.com/v1/forecast?latitude=${c[1]}&longitude=${c[0]}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh&timezone=Asia%2FBangkok`,{},FTO.aux)).json(),u=j.current;
   tx('wyl-q',`<span title="ลมพัดมาจาก${dn(u.wind_direction_10m)}">ลม <b>${nf(u.wind_speed_10m,1)}</b> กม./ชม. จาก${DIRN[Math.round(u.wind_direction_10m/45)%8]}</span><span>อุณหภูมิ <b>${nf(u.temperature_2m,1)}</b> °C</span><span>ความชื้น <b>${Math.round(u.relative_humidity_2m)}</b>%</span><span>ฝน <b>${nf(u.precipitation,1)}</b> มม.</span><span class="sm">${thTime(Date.parse(u.time+':00+07:00'))} น.</span>`)}
- catch(e){WLqat=0;tx('wyl-q','ดึงข้อมูลไม่ได้')}}
+ catch(e){dbg('wlLoad',e);WLqat=0;tx('wyl-q',slowMsg(e,'ดึงข้อมูลไม่ได้'))}}
 function wlApply(){try{wlApply0()}catch(e){}} // apply() ถูกเรียกก่อนประกาศ WLB — กันไม่ให้ apply() หยุดกลางทาง (setup() เรียกซ้ำหลังโหลด)
 function wlApply0(){const on=!!S.wyl;$('#wylbox').hidden=!on;$('#wyb').hidden=!on;WLB.style.display=on?'':'none';document.body.classList.toggle('wyon',on); // ซ่อนแถบเครดิตไม่ให้บังแถบล่างของ Windy
  if(on!==wlApply.on){wlApply.on=on;map.setMaxZoom(on?WLMAX:22); // ซูมได้ไม่เกินที่ Windy แสดงได้
@@ -2069,9 +2107,9 @@ const bnDefault=I=>{if(BNK&&(/^fy/.test(BNK)||bnPer(I,BNK).length))return BNK;co
  bnFYk=(I,k)=>/^fy/.test(k)?+k.slice(2):bnFY(bnPer(I,k)[0]||I.periods[I.periods.length-1]),
  bnTtl=(D,F)=>{const p0=D.ps[0];return/^fy/.test(D.k)?'ปีงบ '+F+' สะสม (ราย 7 วัน)':D.C?(p0.p.length===6?'เดือน '+bnLab(p0):bnLab(p0))+' (แยกป่า/เกษตร)':'รอบ '+bnLab(p0)};
 async function bnIndex(){if(BNI&&!BNI.err)return BNI;
- try{const r=await fetch(BN_BASE+'index.json?h='+Math.floor(Date.now()/36e5));if(!r.ok)throw new Error('HTTP '+r.status);BNI=await r.json();BNI.cls=BNI.cls||[];BNI.cn=BNI.cn||[];
-  BNI.periods.forEach(p=>p.dir='b4');BNI.cls.forEach(p=>p.dir='c')}catch(e){BNI={periods:[],cls:[],cn:[],ar:[],st:[],err:e.message}}return BNI}
-const bnFile=p=>BNF[p.dir+p.p]||(BNF[p.dir+p.p]=fetch(BN_BASE+p.dir+'/'+p.p+'.json?v='+bnHash(p.sig)).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).catch(e=>{delete BNF[p.dir+p.p];throw e}));
+ try{const r=await fetchT(BN_BASE+'index.json?h='+Math.floor(Date.now()/36e5),{},FTO.main);if(!r.ok)throw new Error('HTTP '+r.status);BNI=await r.json();BNI.cls=BNI.cls||[];BNI.cn=BNI.cn||[];
+  BNI.periods.forEach(p=>p.dir='b4');BNI.cls.forEach(p=>p.dir='c')}catch(e){dbg('bnIndex',e);BNI={periods:[],cls:[],cn:[],ar:[],st:[],err:e.message}}return BNI}
+const bnFile=p=>BNF[p.dir+p.p]||(BNF[p.dir+p.p]=fetchT(BN_BASE+p.dir+'/'+p.p+'.json?v='+bnHash(p.sig),{},FTO.big).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).catch(e=>{delete BNF[p.dir+p.p];throw e}));
 // UTM → ลองจิจูด/ละติจูด (สูตรเดียวกับ scripts/lib/tiff.js) และพิกัดเมอร์เคเตอร์ 0..1
 function bnLL(E,N,zone){const A=6378137,F=1/298.257223563,K0=.9996,E2=F*(2-F),EP2=E2/(1-E2),x=E-5e5,mu=N/K0/(A*(1-E2/4-3*E2*E2/64-5*E2**3/256)),e1=(1-Math.sqrt(1-E2))/(1+Math.sqrt(1-E2)),
  p=mu+(3*e1/2-27*e1**3/32)*Math.sin(2*mu)+(21*e1*e1/16-55*e1**4/32)*Math.sin(4*mu)+(151*e1**3/96)*Math.sin(6*mu),s=Math.sin(p),c=Math.cos(p),t=Math.tan(p),n1=A/Math.sqrt(1-E2*s*s),t1=t*t,c1=EP2*c*c,r1=A*(1-E2)/Math.pow(1-E2*s*s,1.5),d=x/(n1*K0),
@@ -2149,7 +2187,7 @@ var RPD=null,RPV=null;
 const RPC=['#f6d365','#f08a1c','#c0301c','#5c0a14'],rpCol=n=>RPC[Math.min(n,4)-1],rpN=m=>{let b=0;for(;m;m>>=1)b+=m&1;return b},
  rpYrs=(D,m)=>D.fy.filter((f,i)=>m>>i&1);
 function rpData(){return RPD||(RPD=(async()=>{const I=await bnIndex();if(!I.rep)throw new Error(I.err||'ยังไม่มีข้อมูล');
- const r=await fetch(BN_BASE+'rep.json?v='+bnHash(I.rep.sig));if(!r.ok)throw new Error('HTTP '+r.status);
+ const r=await fetchT(BN_BASE+'rep.json?v='+bnHash(I.rep.sig),{},FTO.big);if(!r.ok)throw new Error('HTTP '+r.status);
  const f=await r.json(),dy=I.ar.map(a=>I.st.map(s=>dyAS(a,s))),R=[];
  const K=f.n||7,o8=K===8?1:0; // n 8 = มีบิตปีงบที่พบในชุดราย 7 วัน (b4) ต่อจาก mask
  for(const g in f.g){const o=f.g[g],rr=o.r;let y=0,x=0,le=0;
@@ -2450,7 +2488,7 @@ $('#bn-a').onkeydown=e=>{if(e.key==='Enter'){const b=e.target.closest('a[data-p]
 const ADM_URL=BN_BASE.replace(/burn\/$/,'admin.json');
 let ADM=null,ADMP=null;
 const admPolys=g=>g.type==='Polygon'?[g.coordinates]:g.coordinates;
-const admLoad=()=>ADMP||(ADMP=fetch(ADM_URL).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{
+const admLoad=()=>ADMP||(ADMP=fetchT(ADM_URL,{},FTO.big).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{
  for(const L of ['am','tm'])j[L].features.forEach(f=>{const b=[1e9,1e9,-1e9,-1e9];admPolys(f.geometry).forEach(p=>p[0].forEach(([x,y])=>{if(x<b[0])b[0]=x;if(y<b[1])b[1]=y;if(x>b[2])b[2]=x;if(y>b[3])b[3]=y}));f.bb=b});
  ADM=j;LA();return j}).catch(e=>{ADMP=null;throw e}));
 const admAt=(lon,lat)=>{if(!ADM)return null;const q=[lon,lat],f=ADM.tm.features.find(f=>lon>=f.bb[0]&&lon<=f.bb[2]&&lat>=f.bb[1]&&lat<=f.bb[3]&&admPolys(f.geometry).some(p=>inside(q,p[0])&&!p.slice(1).some(r=>inside(q,r))));return f?f.properties:null};
@@ -2462,14 +2500,14 @@ function setupAD(){const E={type:'FeatureCollection',features:[]};
 function LA(){try{LA0()}catch(e){}} // apply() ถูกเรียกก่อนบรรทัดนี้ทำงาน (ADM ยังไม่ประกาศ) — กันไม่ให้ apply() หยุดกลางทาง
 function LA0(){ // เปิดครั้งแรกจึงโหลดไฟล์
  const set=(id,b)=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',b?'visible':'none');set('adm-am',S.amp);set('adm-tm',S.tam);
- if((S.amp||S.tam)&&!ADM){admLoad().catch(e=>toast('โหลดแนวเขตอำเภอ/ตำบลไม่ได้: '+e.message));return}
+ if((S.amp||S.tam)&&!ADM){admLoad().catch(e=>{dbg('admLoad',e);toast(slowMsg(e,'โหลดแนวเขตอำเภอ/ตำบลไม่ได้: '+e.message))});return}
  if(ADM){const a=map.getSource('adm-am'),t=map.getSource('adm-tm');if(a&&!a._admOk){a.setData(ADM.am);a._admOk=1}if(t&&!t._admOk){t.setData(ADM.tm);t._admOk=1}}}
 /* ---------- แนวเขตจังหวัดทั้งประเทศ (กรมการปกครอง ผ่าน OCHA HDX COD-AB, 2565) ----------
    scripts/build_admin.js --prov → data/prov.json (77 จังหวัด ลดจุด ~130 ม., ~1 MB บีบอัดส่ง ~260 KB) โหลดเมื่อเปิดชั้น "จังหวัด"
    ใช้แทนเส้นเขตของแผนที่ฐาน (แผนที่ฐานแบบภาพ เช่น ธรรมชาติ/ดาวเทียม ไม่มีเส้นนี้) — โหลดไม่ได้จึงกลับไปใช้เส้นของแผนที่ฐาน */
 const PROV_URL=BN_BASE.replace(/burn\/$/,'prov.json');
 let PRV=null,PRVP=null;
-const prvLoad=()=>PRVP||(PRVP=fetch(PROV_URL).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{
+const prvLoad=()=>PRVP||(PRVP=fetchT(PROV_URL,{},FTO.big).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{
  j.pv.features.forEach(f=>{const b=[1e9,1e9,-1e9,-1e9];admPolys(f.geometry).forEach(p=>p[0].forEach(([x,y])=>{if(x<b[0])b[0]=x;if(y<b[1])b[1]=y;if(x>b[2])b[2]=x;if(y>b[3])b[3]=y}));f.bb=b});
  PRV=j;LP();return j}).catch(e=>{PRVP=null;throw e}));
 const prvAt=(lon,lat)=>{if(!PRV)return null;const q=[lon,lat],f=PRV.pv.features.find(f=>lon>=f.bb[0]&&lon<=f.bb[2]&&lat>=f.bb[1]&&lat<=f.bb[3]&&admPolys(f.geometry).some(p=>inside(q,p[0])&&!p.slice(1).some(r=>inside(q,r))));return f?f.properties.p:null};
@@ -2480,7 +2518,7 @@ function LP0(){const on=S.prov&&!!PRV;
  if(map.getLayer('adm-pv')){map.setLayoutProperty('adm-pv','visibility',on?'visible':'none');map.setPaintProperty('adm-pv','line-color',S.base==='sat'||S.base==='dark'?'#ffffff':'#4a4f5c')}
  // เส้นเขตของแผนที่ฐาน: ซ่อนเมื่อมีเส้นทางการแล้ว (กันเส้นซ้อน)
  ((map.getStyle()||{}).layers||[]).forEach(l=>{if(/boundary/.test(l['source-layer']||''))map.setLayoutProperty(l.id,'visibility',S.prov&&!PRV?'visible':'none')});
- if(S.prov&&!PRV)prvLoad().catch(()=>{}); // โหลดไม่ได้ = ใช้เส้นของแผนที่ฐานต่อ
+ if(S.prov&&!PRV)prvLoad().catch(e=>dbg('prvLoad',e)); // โหลดไม่ได้ = ใช้เส้นของแผนที่ฐานต่อ
  const s=map.getSource('adm-pv');if(PRV&&s&&!s._pvOk){s.setData(PRV.pv);s._pvOk=1}}
 /* ---------- แหล่งเชื้อเพลิง (SAVI รายเดือน ระบบตามรอยเผา 20 ม.) ----------
    scripts/sync_fuel.js ทำไทล์ PNG ตัดแนวเขตแล้ว (data/fuel/<YYYYMM>/{z}/{x}/{y}.png ซูม 8–12) + สถิติไร่ต่อระดับใน index.json
@@ -2488,10 +2526,10 @@ function LP0(){const on=S.prov&&!!PRV;
 const FU_BASE=BN_BASE.replace(/burn\/$/,'fuel/'),FUG=[['สูงมาก','#e10000'],['สูง','#e17d00'],['ปานกลาง','#ffe100'],['ต่ำ','#00e100'],['ต่ำมาก','#005000']];
 let FUI=null,FUM=null,FUBL=null;
 async function fuIndex(){if(FUI&&!FUI.err)return FUI;
- try{const r=await fetch(FU_BASE+'index.json?h='+Math.floor(Date.now()/36e5));if(!r.ok)throw new Error('HTTP '+r.status);FUI=await r.json();
+ try{const r=await fetchT(FU_BASE+'index.json?h='+Math.floor(Date.now()/36e5),{},FTO.main);if(!r.ok)throw new Error('HTTP '+r.status);FUI=await r.json();
   FUI.months.forEach(x=>x.set=new Set(Object.entries(x.tiles).flatMap(([z,l])=>l.map(t=>z+'_'+t))))}catch(e){FUI={months:[],err:e.message}}return FUI}
 maplibregl.addProtocol('fuel',async p=>{const m=p.url.match(/^fuel:\/\/(\d+)\/(\d+)\/(\d+)\?m=(\w+)/),I=await fuIndex(),M=I.months.find(x=>x.m===m[4]);
- if(M&&M.set.has(m[1]+'_'+m[2]+'_'+m[3])){const r=await fetch(FU_BASE+m[4]+'/'+m[1]+'/'+m[2]+'/'+m[3]+'.png');if(r.ok)return{data:await r.arrayBuffer()}}
+ if(M&&M.set.has(m[1]+'_'+m[2]+'_'+m[3])){const r=await fetchT(FU_BASE+m[4]+'/'+m[1]+'/'+m[2]+'/'+m[3]+'.png',{},FTO.tile);if(r.ok)return{data:await r.arrayBuffer()}}
  if(!FUBL)FUBL=await (await bnBlob(bnCanvas())).arrayBuffer();return{data:FUBL.slice(0)}});
 function setupFU(){map.addSource('fuel',{type:'raster',tiles:['fuel://{z}/{x}/{y}?m='+(FUM||'none')],tileSize:256,minzoom:8,maxzoom:12,bounds:BNB});
  map.addLayer({id:'fuel',type:'raster',source:'fuel',layout:{visibility:'none'},paint:{'raster-opacity':.72,'raster-resampling':'nearest','raster-fade-duration':0}},map.getLayer('burn')?'burn':'cons-l')}
@@ -2517,7 +2555,7 @@ $('#fu-s').onchange=e=>{FUM=e.target.value;LF()};
    ค่าในกริด: ชนิด (index ของ cn) | ระดับการเติม<<4 (ชุดเดิมจากภาพรายงาน 2568 — ชุด 2561 เป็น 0 เสมอ) | 128 = อยู่ในแนวเขต · โหลดครั้งแรกที่ใช้ (ชั้นแผนที่ ป๊อปอัป โมเดลไฟ) */
 const FT_URL=BN_BASE.replace(/burn\/$/,'ftype/ftype.json');
 let FT=null,FTP=null;
-const ftLoad=()=>FTP||(FTP=fetch(FT_URL).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{
+const ftLoad=()=>FTP||(FTP=fetchT(FT_URL,{},FTO.big).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{
  const g=new Uint8Array(j.w*j.h);j.r.forEach((row,y)=>{let x=y*j.w;for(let i=0;i<row.length;i+=2){g.fill(row[i+1],x,x+row[i]);x+=row[i]}});j.g=g;
  const c=[[j.x0,j.y0],[j.x0+j.w*j.px,j.y0],[j.x0,j.y0-j.h*j.px],[j.x0+j.w*j.px,j.y0-j.h*j.px]].map(([E,N])=>bnLL(E,N,j.z));
  j.bb=[Math.min(...c.map(p=>p[0])),Math.min(...c.map(p=>p[1])),Math.max(...c.map(p=>p[0])),Math.max(...c.map(p=>p[1]))];FT=j;return j}).catch(e=>{FTP=null;throw e}));
@@ -2609,8 +2647,8 @@ function renderAq(){if(!AQV)return;const l=Math.max(0,pcdLv(AQV.pm)),c=AQV.cams=
  tx('aq-c',c<0?'–':`${nf(AQV.cams,1)} µg/m³ · <span style="background:${PCD[c][2]};color:${PCD[c][3]};border-radius:4px;padding:0 5px">${PCD[c][1]}</span>`);
  tx('aq-h',PCDH[l]+' · ระดับตามเกณฑ์กรมควบคุมมลพิษ (PM2.5 เฉลี่ย 24 ชม. ปี 2566: ≤15 ดีมาก · ≤25 ดี · ≤37.5 ปานกลาง · ≤75 เริ่มมีผลกระทบ · >75 มีผลกระทบ)'+(AQV.near?'':' · ไม่มีสถานีที่อัปเดตในระยะ 50 กม.'))}
 async function fillAq(h){AQV=null;tx('aq-n','–');tx('aq-l','กำลังดึง…');tx('aq-s','');tx('aq-c','–');tx('aq-h','');
- let cams=null;try{const j=await(await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${h.lat}&longitude=${h.lon}&hourly=pm2_5&past_hours=24&forecast_hours=1&timezone=Asia%2FBangkok`)).json(),v=j.hourly.pm2_5.filter(x=>x!=null);if(v.length)cams=v.reduce((a,b)=>a+b)/v.length}catch(e){}
- if(CUR!==h)return;await loadPM().catch(()=>{});const km=(a,b)=>Math.hypot((a.lat-b.lat)*110.6,(a.lon-b.lon)*111.3*Math.cos(a.lat*Math.PI/180)),st=STN.filter(s=>s.pm!=null).map(s=>({s,d:km(h,s)})).filter(x=>x.d<=50).sort((a,b)=>a.d-b.d)[0];
+ let cams=null;try{const j=await(await fetchT(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${h.lat}&longitude=${h.lon}&hourly=pm2_5&past_hours=24&forecast_hours=1&timezone=Asia%2FBangkok`,{},FTO.aux)).json(),v=j.hourly.pm2_5.filter(x=>x!=null);if(v.length)cams=v.reduce((a,b)=>a+b)/v.length}catch(e){dbg('aq-cams',e)}
+ if(CUR!==h)return;await loadPM().catch(e=>dbg('loadPM',e));const km=(a,b)=>Math.hypot((a.lat-b.lat)*110.6,(a.lon-b.lon)*111.3*Math.cos(a.lat*Math.PI/180)),st=STN.filter(s=>s.pm!=null).map(s=>({s,d:km(h,s)})).filter(x=>x.d<=50).sort((a,b)=>a.d-b.d)[0];
  if(st)AQV={pm:st.s.pm,src:`สถานี${st.s.name} (${nf(st.d)} กม.) · ${st.s.src}`,cams,near:1};else if(cams!=null)AQV={pm:cams,src:'เฉลี่ย 24 ชม. · ประมาณจากแบบจำลอง CAMS',cams,near:0};
  if(AQV)renderAq();else tx('aq-l','ไม่มีข้อมูลฝุ่น')}
 function fillWx(h,c){const T=c.temperature_2m,RH=c.relative_humidity_2m,u=c.wind_speed_10m,fr=c.wind_direction_10m,es=.6108*Math.exp(17.27*T/(T+237.3)),vp=es*(1-RH/100),ad=216.7*(es*10*RH/100)/(T+273.15),ab=['เหนือ','ตอ.เหนือ','ตอ.','ตอ.ใต้','ใต้','ตต.ใต้','ตต.','ตต.เหนือ'],rain=c.precipitation||0;
@@ -2931,7 +2969,7 @@ let HTAB='hs';const HSP={hs:true,xt:true}; // สวิตช์ "แสดง�
 const hspOn=()=>HTAB==='wa'?!!S.wsp:HTAB==='xt'?!!S.xt:!!S.hist,hspSync=()=>{const b=document.getElementById('h-sp');if(b)b.setAttribute('aria-checked',HOPEN&&hspOn())}; // แท็บการ์ดสถิติย้อนหลัง: hs = จุดความร้อน · xt = การดับไฟป่า (ผู้ใช้ขอ 5 พ.ย. 69)
 function hOpen(play,tab){if(play)tab='hs';HOPEN=true;$('#left').classList.add('hm');$('#pcard').hidden=true;$('#hcard').hidden=false;hTab(tab||HTAB);
  if(play)pbStart('st');try{pcVis()}catch(e){}} // เล่นย้อนตามตัวกรองการ์ดสถิติ
-function hTab(t){if(t==='ha'&&!HA){toast('กำลังเตรียมข้อมูลทุกดาวเทียม…');haBuild().then(()=>{if(HOPEN)hTab('ha')}).catch(e=>toast('เตรียมข้อมูลไม่สำเร็จ: '+e.message));return}
+function hTab(t){if(t==='ha'&&!HA){toast('กำลังเตรียมข้อมูลทุกดาวเทียม…');haBuild().then(()=>{if(HOPEN)hTab('ha')}).catch(e=>{dbg('haBuild',e);toast(slowMsg(e,'เตรียมข้อมูลไม่สำเร็จ: '+e.message))});return}
  HTAB=t;hSet(t==='ha');const x=t==='xt',w=t==='wa';$('#hcard').classList.toggle('xtm',x);$('#hcard').classList.toggle('wam',w);$('#hcard').classList.toggle('ham',t==='ha');tx('h-ttl',x?'สถิติการดับไฟป่าย้อนหลัง':w?'พื้นที่เฝ้าระวังพิเศษ':t==='ha'?'สถิติจุดความร้อนย้อนหลัง (ทุกดาวเทียม)':'สถิติจุดความร้อนย้อนหลัง (กรมอุทยานฯ)');$$('#h-tab button').forEach(b=>b.classList.toggle('on',b.dataset.v===t));$('#hcard').scrollTop=0;
  if(w){if(PB.src==='st')pbClose();S.hist=false;S.xt=false;S.wst=true;apply();hspSync();wtRender();wFocus(true)} /* เข้าเมนูพื้นที่เฝ้าระวังพิเศษทุกครั้ง = ซูมไปที่พื้นที่ */
  else if(x){if(PB.src==='st')pbClose();S.hist=false;S.wst=false;S.xt=HSP.xt;apply();hspSync();xtRender();if(!hTab.xd){hTab.xd=1;xtFit()}}
@@ -2946,7 +2984,7 @@ function hClose(){const keep=innerWidth<768&&PB.src==='st'&&!$('#pbf').hidden&&(
  ld = ชนิดป่าจากชั้นชนิดป่า 2561 (ftAt, รอ ftLoad) · fu = ดาวเทียม · cf = ความเชื่อมั่น · ตัวกรองเริ่มต้น = NOAA-20 */
 function hSet(a){const want=a&&HA?HA:HD;if(STD===want)return;STD=want;STI=want===HA?DICA:DIC;HF=want===HA?HFA:HFH;HQ&&cancelAnimationFrame(HQ);HQ=0}
 let HAP=null;
-function haBuild(){return HAP||(HAP=ftLoad().catch(()=>null).then(()=>{const id=(k,v)=>{v=String(v==null?'':v).trim()||'ไม่ระบุ';let i=DICA[k].indexOf(v);if(i<0){i=DICA[k].length;DICA[k].push(v)}return i};
+function haBuild(){return HAP||(HAP=ftLoad().catch(e=>(dbg('ftLoad',e),null)).then(()=>{const id=(k,v)=>{v=String(v==null?'':v).trim()||'ไม่ระบุ';let i=DICA[k].indexOf(v);if(i<0){i=DICA[k].length;DICA[k].push(v)}return i};
  ['Suomi NPP','NOAA-20','NOAA-21'].forEach(v=>id('fu',v));['สูง','ปกติ','ต่ำ'].forEach(v=>id('cf',v));
  HA=AD.map((r,i)=>{const[tb,am]=String(r.tm||'').split('|'),f=FT?ftAt(r.lo,r.la):null,ld=f?f.n:FT&&ftIn(r.lo,r.la)?'ไม่ใช่พื้นที่ป่าไม้':'ไม่มีข้อมูลชนิดป่า';
   return Object.assign(mkRec(r.d,r.t,r.la,r.lo,id('pv',r.pv),id('am',r.am||am),id('tm',(tb||'ไม่ระบุ')+'|'+(am||r.am||'')),id('ar',r.ar),id('ld',ld),id('fu',SATN[r.sat]||r.sat),id('st',r.st),id('sb',SBP[r.pv]||r.sb)),{i,cf:id('cf',CFN[r.cf]||r.cf||'ไม่ระบุ'),fm:r.fm,sat:r.sat})});
@@ -3418,7 +3456,7 @@ const LNK={ky:'อุทยานแห่งชาติเขาใหญ่',
 async function deepLink(LD){
  const q=new URLSearchParams(location.search),num=k=>{const a=(q.get(k)||'').split(',').map(parseFloat);return a.every(isFinite)?a:[]};
  const hs=num('hs'),bb=num('bb'),ar=LNK[q.get('ar')],pts=(q.get('pts')||'').split(';').map(t=>t.split(',').map(parseFloat)).filter(a=>a.length===2&&a.every(isFinite)&&Math.abs(a[0])<=90).slice(0,60),bn=/^(fy\d{4}|c\d{6}(_\d{6})?|\d{8}_\d{8})$/.test(q.get('burn')||'')?q.get('burn'):null,wa=WAR.find(a=>a.id===q.get('wa'));if(hs.length!==2&&bb.length!==4&&!ar&&!bn&&!pts.length&&!wa)return;
- try{await LD}catch(e){}if(!map.isStyleLoaded())await new Promise(r=>map.once('idle',r));MOVED=true;
+ try{await LD}catch(e){dbg('deepLink',e)}if(!map.isStyleLoaded())await new Promise(r=>map.once('idle',r));MOVED=true;
  if(wa){S.wch=true;apply();sync();if(!pts.length){map.fitBounds([[wa.bb[0],wa.bb[1]],[wa.bb[2],wa.bb[3]]],{padding:linkPad(),maxZoom:13,duration:0});return toast('พื้นที่เฝ้าระวังพิเศษ: '+wa.n+' · แตะป้ายด้านล่างการ์ดเพื่อดูการติดตามรายวัน',()=>hOpen(false,'wa'),8000)}} // ลิงก์จากการ์ด LINE/Telegram พื้นที่เฝ้าระวังพิเศษ
  if(pts.length)return hsLink(pts);
  if(hs.length===2){hsRing([hs]);const[la,lo]=hs,h=HS.reduce((m,x)=>{const d=Math.hypot(x.lat-la,x.lon-lo);return d<m.d?{d,h:x}:m},{d:.004,h:null}).h||hsWA(la,lo);if(h)return openDetail(h);
@@ -3477,7 +3515,7 @@ async function bnLink(k){BNK=k;S.burn=true;if(innerWidth>767){closeDetail();$('#
   const ra=R.reduce((s,o)=>s+o.n*BNPX,0),na=new Set(R.map(o=>D.I.ar[o.a]).filter(a=>a&&!/^นอกพื้นที่อนุรักษ์/.test(a))).size,
    m='พื้นที่เผาไหม้ '+(/^fy/.test(D.k)?'ปีงบ '+D.k.slice(2)+' สะสม':'รอบ '+bnLab(D.ps[0]))+' · '+(ra>0&&ra<1?'<1':nf(ra))+' ไร่'+(na?' · '+na+' พื้นที่อนุรักษ์':'');
   innerWidth>767?toast(m,null,5000):toast(m+' · แตะดูรายละเอียด',()=>{closeDetail();$('#right').classList.add('open');sync();setTimeout(()=>$('#bnbox').scrollIntoView({block:'start'}),350)},15000)}
- catch(e){toast('โหลดพื้นที่เผาไหม้ไม่สำเร็จ')}}
+ catch(e){dbg('burn',e);toast(slowMsg(e,'โหลดพื้นที่เผาไหม้ไม่สำเร็จ'))}}
 sync();deepLink(load(true));consInfo();respLegend();
 function fitTitle(){const h1=$('#left h1'),m=$('.h1m');if(!h1||!m)return;h1.style.fontSize='';let fs=parseFloat(getComputedStyle(h1).fontSize);while(m.scrollWidth>m.clientWidth+1&&fs>15){fs-=1;h1.style.fontSize=fs+'px'}}
 fitTitle();addEventListener('resize',fitTitle);
@@ -3553,7 +3591,7 @@ const RG_URL=BN_BASE.replace(/burn\/$/,'ranger.json'),
 let RGP=null;
 function rgIcon(t){const k=RGT[t]||RGT['หน่วยพิทักษ์'];return`<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${k.c}" stroke="#fff" stroke-width="1.6"/>${k.f?`<path d="${k.f}" fill="#fff"/>`:`<path d="${k.s}" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>`}</svg>`}
 {const lg=$('#rgr-lg');if(lg)lg.innerHTML=`<div class="rgl">${Object.keys(RGT).map(t=>`<span>${rgIcon(t)}${t}</span>`).join('')}</div>`}
-function rgLoad(){if(RGP)return RGP;return RGP=fetch(RG_URL).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(j=>{
+function rgLoad(){if(RGP)return RGP;return RGP=fetchT(RG_URL,{},FTO.main).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(j=>{
  const T={};j.features.forEach(f=>T[f.properties.t]=(T[f.properties.t]||0)+1);$('#c-rgr').textContent=j.features.length+' แห่ง';
  const lg=$('#rgr-lg');if(lg)lg.innerHTML=`<div class="rgl">${Object.keys(RGT).filter(t=>T[t]).map(t=>`<span>${rgIcon(t)}${t} ${T[t]}</span>`).join('')}</div>`;/* ห่อด้วย .rgl เพราะป้าย #tt คัดลอกแค่ innerHTML */
  window.RGM=j.features.map(f=>{const p=f.properties,[lo,la]=f.geometry.coordinates,el=document.createElement('div');el.className='rgm';el.setAttribute('role','button');el.setAttribute('aria-label',p.n);
@@ -3561,16 +3599,16 @@ function rgLoad(){if(RGP)return RGP;return RGP=fetch(RG_URL).then(r=>{if(!r.ok)t
   el.addEventListener('click',ev=>{ev.stopPropagation();const ad=[p.tam&&'ต.'+p.tam,p.amp&&'อ.'+p.amp,p.prov&&'จ.'+p.prov].filter(Boolean).join(' ');
    new maplibregl.Popup({maxWidth:'280px',offset:[0,-10]}).setLngLat([lo,la]).setHTML(`<b>${esc(p.n)}</b>${p.s&&p.s!==p.n?`<br><span class="sm">${esc(p.s)}</span>`:''}<br><span class="sm">${esc(p.t)} · ${esc(p.p)}</span>${ad?`<br><span class="sm">${esc(ad)}</span>`:''}<br><span class="sm">${la.toFixed(5)}, ${lo.toFixed(5)}</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${la},${lo}">นำทางด้วย Google Maps</a>`).addTo(map)});
   const m=new maplibregl.Marker({element:el,anchor:'center'}).setLngLat([lo,la]).addTo(map);el.style.display=S.rgr?'':'none';return m});
- return window.RGM}).catch(e=>{RGP=null;toast('โหลดตำแหน่งหน่วยพิทักษ์ไม่ได้');throw e})}
+ return window.RGM}).catch(e=>{RGP=null;dbg('rgLoad',e);toast(slowMsg(e,'โหลดตำแหน่งหน่วยพิทักษ์ไม่ได้'));throw e})}
 /* ฐานปฏิบัติการป้องกันรักษาป่า (data/fbase.json จาก scripts/import_rangers.js, ผู้ใช้ส่ง 5 พ.ย. 69) — แบบเดียวกับหน่วยพิทักษ์ */
 const FB_URL=BN_BASE.replace(/burn\/$/,'fbase.json'),FBI='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#9f1239" stroke="#fff" stroke-width="1.6"/><path d="M12 6.2l5 2v3.6c0 3-2.2 5.2-5 6-2.8-.8-5-3-5-6V8.2z" fill="#fff"/><path d="M12 8.6v7" stroke="#9f1239" stroke-width="1.4"/></svg>';let FBP=null;
-function fbLoad(){if(FBP)return FBP;return FBP=fetch(FB_URL).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(j=>{$('#c-fbs').textContent=j.features.length+' แห่ง';
+function fbLoad(){if(FBP)return FBP;return FBP=fetchT(FB_URL,{},FTO.main).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(j=>{$('#c-fbs').textContent=j.features.length+' แห่ง';
  window.FBM=j.features.map(f=>{const p=f.properties,[lo,la]=f.geometry.coordinates,el=document.createElement('div');el.className='rgm fbm';el.setAttribute('role','button');el.setAttribute('aria-label',p.n);
   el.innerHTML=FBI+`<span style="color:#9f1239">${esc(p.s)}</span>`;
   el.addEventListener('click',ev=>{ev.stopPropagation();const ad=[p.ban&&(p.ban.startsWith('บ้าน')?p.ban:'บ้าน'+p.ban)+(p.mo?' หมู่ '+p.mo:''),p.tam&&'ต.'+p.tam,p.amp&&'อ.'+p.amp,p.prov&&'จ.'+p.prov].filter(Boolean).join(' ');
    new maplibregl.Popup({maxWidth:'280px',offset:[0,-10]}).setLngLat([lo,la]).setHTML(`<b>${esc(p.n)}</b><br><span class="sm">${esc(p.p)}</span>${ad?`<br><span class="sm">${esc(ad)}</span>`:''}${p.utm?`<br><span class="sm">UTM ${esc(String(p.utm[0]).toUpperCase())} ${p.utm[1]} ${p.utm[2]}</span>`:''}<br><span class="sm">${la.toFixed(5)}, ${lo.toFixed(5)}</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${la},${lo}">นำทางด้วย Google Maps</a>`).addTo(map)});
   const m=new maplibregl.Marker({element:el,anchor:'center'}).setLngLat([lo,la]).addTo(map);el.style.display=S.fbs?'':'none';return m});
- return window.FBM}).catch(e=>{FBP=null;toast('โหลดตำแหน่งฐานป้องกันรักษาป่าไม่ได้');throw e})}
+ return window.FBM}).catch(e=>{FBP=null;dbg('fbLoad',e);toast(slowMsg(e,'โหลดตำแหน่งฐานป้องกันรักษาป่าไม่ได้'));throw e})}
 map.on('zoom',()=>{const z=map.getZoom(),c=$('#map').classList;c.toggle('z9',z>=9.3);c.toggle('z11',z>=10.5)});apply();
 // รีเฟรชอัตโนมัติ: ตรวจทุกนาที · ไม่ดึงขณะแท็บถูกซ่อน แต่ดึงทันทีเมื่อกลับมาดูถ้าเลยรอบแล้ว
 let POLLING=false;
@@ -3713,7 +3751,7 @@ function ftFill(a){const e=$('#kb-ftb');if(!e)return;const go=()=>{const x=$('#k
 // ---------- นักท่องเที่ยวและเงินรายได้อุทยานแห่งชาติ (data/tourism.json จาก scripts/sync_tourism.js — รายงาน Power BI สาธารณะ 2 ฉบับ, ผู้ใช้ขอ 5 พ.ย. 69) โหลดครั้งแรกที่ใช้
 // โหมด TM: v = นักท่องเที่ยว (ไทย+ต่างชาติ) / r = เงินรายได้ / c = ยานพาหนะที่เข้าอุทยาน / w = ขยะ (รายปีงบ, wasBox/wasAll) — ปุ่มสลับ [data-im] ในการ์ด
 let INC=null,INCP=null,TM='v';const INC_URL=BN_BASE.replace(/burn\/$/,'tourism.json'),INCC='#1f8a5b',INCB='#9aa5b8';
-function incLoad(){return INCP||(INCP=fetch(INC_URL,{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(j=>INC=j).catch(e=>{INCP=null;throw e}))}
+function incLoad(){return INCP||(INCP=fetchT(INC_URL,{cache:'no-cache'},FTO.main).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(j=>INC=j).catch(e=>{INCP=null;throw e}))}
 // ปีงบปัจจุบันและดัชนีเดือนในปีงบ (เวลาไทย, 0 = ต.ค.)
 function incNow(){const d=new Date(Date.now()+7*36e5),m=d.getUTCMonth();return{fy:String(d.getUTCFullYear()+543+(m>=9?1:0)),mi:(m+3)%12}}
 const isum=(a,n=12)=>a?a.slice(0,n).reduce((x,y)=>x+y,0):0,Z12=()=>Array(12).fill(0),
@@ -3855,7 +3893,7 @@ function kbExtra(a){if(!a||!a.c)return;const id=a.id,go=()=>{if(KBI!==id)return;
   $$('#kb-c .kb-tr button').forEach(b=>{const t=a.tour[+b.dataset.ti],m=t&&clFind(id,t[0]),sp=b.querySelector('span:last-child');if(m&&sp&&!sp.querySelector('.kb-cl'))sp.insertAdjacentHTML('beforeend',clBadge(m))});
   if(INC.dark&&INC.dark.parks[id]){const tg=$('#kb-hero .kb-tags');if(tg&&!tg.querySelector('.ds'))tg.insertAdjacentHTML('beforeend','<span class="kb-tag ds">★ อุทยานท้องฟ้ามืด</span>')}
   if(KM&&KM.isStyleLoaded())kmDark(a)};
- INC?go():incLoad().then(go).catch(()=>{})}
+ INC?go():incLoad().then(go).catch(e=>dbg('incLoad',e))}
 // กรองแหล่งท่องเที่ยวตามประเภท ('' = ทั้งหมด): ซ่อนกลุ่มในรายการ + หมุดบนแผนที่ แล้วซูมไปหมุดที่เหลือ
 function tourFilter(c){$$('#kb-c .kb-tf button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tf===c));$$('#kb-c .kb-tg').forEach(g=>g.hidden=!!c&&g.dataset.cat!==c);
  if(KPOP){KPOP.remove();KPOP=null}const pts=[];KMK.forEach(m=>{const e=m.getElement();if(!e.classList.contains('kb-pin'))return;const on=!c||e.dataset.cat===c;e.style.display=on?'':'none';if(on)pts.push(m.getLngLat())});
@@ -3966,7 +4004,7 @@ function kbOpen(id){$('#kb').hidden=false;if(!$('#kb-nav').childElementCount)$('
 function kbClose(){$('#kb').hidden=true;if(KPOP){KPOP.remove();KPOP=null}}
 $('#bKnow').onclick=()=>kbOpen();$('#kb-x').onclick=kbClose;
 $('#kb-nav').onclick=e=>{const b=e.target.closest('button[data-tab]');if(b)kbTab(b.dataset.tab)};
-$('#kb-mt').onclick=e=>{const b=e.target.closest('button[data-b]');if(!b)return;if(b.dataset.b==='ft'){KMF=!KMF;if(KMF)ftLoad().then(()=>kmShow()).catch(()=>{})}else KMB=b.dataset.b;kmShow()};
+$('#kb-mt').onclick=e=>{const b=e.target.closest('button[data-b]');if(!b)return;if(b.dataset.b==='ft'){KMF=!KMF;if(KMF)ftLoad().then(()=>kmShow()).catch(e=>dbg('ftLoad',e))}else KMB=b.dataset.b;kmShow()};
 $('#kb-c').onclick=e=>{const tf=e.target.closest('[data-tf]');if(tf)return tourFilter(tf.dataset.tf);const kf=e.target.closest('[data-kf]');if(kf){KF=kf.dataset.kf;const a=KB.find(x=>x.id===KBI),el=document.getElementById('kb-fire');if(el)el.outerHTML=fireCard(a&&a.c?a:null);return}const im=e.target.closest('[data-im]');if(im){TM=im.dataset.im;const a=KB.find(x=>x.id===KBI);return incFill(a&&a.c?a:null)}const t=e.target.closest('[data-tab]');if(t)return kbTab(t.dataset.tab);const p=e.target.closest('button[data-ti]');if(p)return kbPin(+p.dataset.ti);
  const g=e.target.closest('[data-go]');if(g){const f=GEO.cons.features.find(f=>f.properties.name===g.dataset.go);kbClose();if(f)map.fitBounds(bbOf([f]),{padding:homePad(),duration:dur(900)})}};
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#kb').hidden)kbClose()});
@@ -4637,10 +4675,10 @@ function pmStyle(){const m=map.getStyle(),bl=new Set(BASEL);delete m.terrain;m.l
  for(const k in m.sources)if(!used.has(k))delete m.sources[k];if(!m.layers.length)m.layers=[{id:'pm-nodata',type:'background',paint:{'background-opacity':0}}];return m}
 async function pmBaseDef(b){if(b==='cur'){const m=map.getStyle(),bl=new Set(BASEL),L=m.layers.filter(l=>bl.has(l.id)&&l.id!=='hs'),u=new Set(L.map(l=>l.source)),src={};for(const k in m.sources)if(u.has(k))src[k]=m.sources[k];return{sources:src,layers:L,sprite:m.sprite,hs:S.base==='natural'}}
  if(b==='none')return{sources:{},layers:[{id:'bg',type:'background',paint:{'background-color':'#ffffff'}}]};
- const v=b==='sat'?ras(IMG[imgOf()].u(),IMG[imgOf()].mz):STY[b],B=typeof v==='string'?(PMBC[v]||(PMBC[v]=await(await fetch(v)).json())):JSON.parse(JSON.stringify(v));return{sources:B.sources,layers:JSON.parse(JSON.stringify(B.layers)),sprite:B.sprite,hs:b==='natural'}}
+ const v=b==='sat'?ras(IMG[imgOf()].u(),IMG[imgOf()].mz):STY[b],B=typeof v==='string'?(PMBC[v]||(PMBC[v]=await(await fetchT(v,{},FTO.main)).json())):JSON.parse(JSON.stringify(v));return{sources:B.sources,layers:JSON.parse(JSON.stringify(B.layers)),sprite:B.sprite,hs:b==='natural'}}
 const PMBC={};let PMBL=[],PMBS=[],PMBQ=0;
 async function pmSetBase(){if(!PMAP)return;const q=++PMBQ,st=$('#pm-st');let R;if(st)st.innerHTML='<span class="trst"><i class="trsp"></i>กำลังโหลดแผนที่ฐาน…</span>';
- try{R=await pmBaseDef(PP.base||'cur')}catch(e){if(st)st.textContent='';toast('โหลดแผนที่ฐานไม่ได้ (ตรวจการเชื่อมต่ออินเทอร์เน็ต)');return}if(q!==PMBQ||!PMAP)return;
+ try{R=await pmBaseDef(PP.base||'cur')}catch(e){if(st)st.textContent='';dbg('pmBase',e);toast(slowMsg(e,'โหลดแผนที่ฐานไม่ได้ (ตรวจการเชื่อมต่ออินเทอร์เน็ต)'));return}if(q!==PMBQ||!PMAP)return;
  PMBL.forEach(id=>{if(PMAP.getLayer(id))PMAP.removeLayer(id)});PMBS.forEach(id=>{try{if(PMAP.getSource(id))PMAP.removeSource(id)}catch(e){}});PMBL=[];PMBS=[];
  const ord=PMAP.getLayersOrder?PMAP.getLayersOrder():PMAP.style._order,first=ord[0];
  for(const k in R.sources){const id='pmb_'+k;try{PMAP.addSource(id,R.sources[k]);PMBS.push(id)}catch(e){}}
@@ -5476,7 +5514,7 @@ function ulExport(keys){const E=ulEnts().filter(e=>e.k[0]==='l'||e.o.dl||UL.me&&
 /* ---------- เซิร์ฟเวอร์ ---------- */
 const ulB64=s=>{const u=new TextEncoder().encode(s);let b='';for(let i=0;i<u.length;i+=8192)b+=String.fromCharCode(...u.subarray(i,i+8192));return btoa(b).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')};
 async function ulApi(p,o={}){const h={};if(UL.tok)h.authorization='Bearer '+UL.tok;let body=o.body;if(o.json!==undefined){h['content-type']='application/json';body=JSON.stringify(o.json)}if(o.meta)h['x-meta']=ulB64(JSON.stringify(o.meta));
- let r;try{r=await fetch(UL_API.replace(/\/$/,'')+p,{method:o.method||'GET',headers:h,body})}catch(e){throw Error('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้')}
+ let r;try{r=await fetchT(UL_API.replace(/\/$/,'')+p,{method:o.method||'GET',headers:h,body},(o.method&&o.method!=='GET'||o.raw?18e4:FTO.main))}catch(e){throw Error('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้')}
  if(o.raw&&r.ok)return r;const j=await r.json().catch(()=>null);if(!r.ok){if(r.status===401&&UL.tok&&p!=='/login'){ulLogout(1)}throw Error(j&&j.error||'เซิร์ฟเวอร์ตอบ '+r.status)}return j}
 async function ulSrvInit(){if(!UL_API){UL.st='err';UL.se='ยังไม่ได้ตั้งที่อยู่เซิร์ฟเวอร์';return ulList()}UL.st='load';ulList();
  UL.tok=ulLS('fm-ultk');UL.me=UL.tok?ulLS('fm-ulme'):null;
@@ -5486,7 +5524,7 @@ async function ulSrvList(){const j=await ulApi('/layers');const old=UL.S;UL.S=j.
  UL.S.forEach(s=>{if(ulSVis(s)&&!UL.SD[s.id])ulSLoad(s.id)});ulList()}
 async function ulSLoad(id,zoom){if(UL.SL[id])return;UL.SL[id]=1;ulList();
  try{const r=await ulApi('/layers/'+id,{raw:1}),fc=await r.json();(fc.features||[]).forEach(ulTag);fc.features=(fc.features||[]).filter(f=>f.geometry);UL.SD[id]=fc;ulRender('s'+id);if(zoom&&fc.features.length)ulZoom(fc)}
- catch(e){toast('โหลดชั้นไม่ได้: '+e.message)}finally{delete UL.SL[id];ulList()}}
+ catch(e){dbg('ulLoad',e);toast(slowMsg(e,'โหลดชั้นไม่ได้: '+e.message))}finally{delete UL.SL[id];ulList()}}
 function ulLogin(){openModal('เข้าสู่ระบบ',`<form class="ula" id="lg-f"><label class="blk" for="lg-u">ชื่อผู้ใช้</label><input type="text" id="lg-u" autocomplete="username" autocapitalize="none" spellcheck="false" required>
  <label class="blk" for="lg-p">รหัสผ่าน</label><input type="password" id="lg-p" autocomplete="current-password" required><div class="err" id="lg-e"></div><div class="acts"><button class="btn pri" type="submit">เข้าสู่ระบบ</button></div>
  <p class="sm" style="margin:10px 0 0">บัญชีสร้างโดยผู้ดูแลระบบ · ใช้ดูชั้นข้อมูลที่แชร์เฉพาะกลุ่ม · จำการเข้าสู่ระบบไว้ 30 วันในเบราว์เซอร์นี้</p></form>`);
@@ -5796,7 +5834,7 @@ const obCD=s=>{s=Math.max(0,Math.round(s));const h=Math.floor(s/3600),m=Math.flo
 const obDay=(t,now)=>{const a=new Date(t+7*36e5),b=new Date(now+7*36e5);return a.getUTCDate()===b.getUTCDate()?'':a.getUTCDate()===new Date(now+31*36e5).getUTCDate()?'พรุ่งนี้ ':a.getUTCDate()+' '+THMS[a.getUTCMonth()]+' '};
 const THMS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 function obLoad(){if(obLoad.p)return obLoad.p;
- obLoad.p=fetch(OB_URL,{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json()}).then(j=>{OBT=j;OBSR={};OBERR='';obLoad.at=Date.now();
+ obLoad.p=fetchT(OB_URL,{cache:'no-cache'},FTO.main).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json()}).then(j=>{OBT=j;OBSR={};OBERR='';obLoad.at=Date.now();
   for(const k in j.sats||{})try{OBSR[k]=ORB.parse(j.sats[k].l1,j.sats[k].l2,j.sats[k].n)}catch(e){console.warn('TLE',k,e)}
   OBPAT=0;OBTRKAT=0;OBMD=0;obTick();return j}).catch(e=>{obLoad.p=null;obLoad.ft=Date.now();OBERR='โหลดข้อมูลวงโคจรไม่ได้ ('+e.message+')';obTick()});
  return obLoad.p}
@@ -5935,7 +5973,7 @@ function obPlaceTxt(j){const inf=(j.localityInfo&&j.localityInfo.informative)||[
  const ct=inf.find(x=>/ทวีป|continent/i.test(x.description||''));return u([ct&&ct.name,th(j.locality||'')]).join(' · ')}
 function obPlace(la,lo){const key=Math.round(la/2)+','+Math.round(lo/2);let c=OBGC[key];if(c&&!(c.err&&Date.now()-c.at>6e4))return c.t;
  OBGC[key]={t:null,at:Date.now()};
- fetch(`https://api-bdc.io/data/reverse-geocode-client?latitude=${la.toFixed(2)}&longitude=${lo.toFixed(2)}&localityLanguage=th`).then(r=>r.ok?r.json():Promise.reject(Error('HTTP '+r.status)))
+ fetchT(`https://api-bdc.io/data/reverse-geocode-client?latitude=${la.toFixed(2)}&longitude=${lo.toFixed(2)}&localityLanguage=th`,{},FTO.aux).then(r=>r.ok?r.json():Promise.reject(Error('HTTP '+r.status)))
   .then(j=>{OBGC[key]={t:obPlaceTxt(j)||'',at:Date.now()};obPopUpd(Date.now(),1)}).catch(()=>{OBGC[key]={t:'',err:1,at:Date.now()}});return null}
 let OBPOP=null,OBFOL=false,OBFT=0;
 function obOff(){const o=visOff();try{const{y0,y1}=visArea();o[1]+=Math.round((y1-y0)*(innerWidth<768?.36:.18))}catch(e){}return o}
@@ -5979,15 +6017,15 @@ function hmPx(d,a){for(let i=0;i<d.length;i+=4){const r=d[i],g=d[i+1],b=d[i+2],m
   d[i]=Math.round(96+159*c);d[i+1]=Math.round(112+143*c);d[i+2]=Math.round(136+119*c);d[i+3]=Math.round(255*Math.min(1,k*3)*(.6+.38*k))}}
 async function hmEmpty(){if(!HIMEMP)HIMEMP=await (await bnBlob(bnCanvas())).arrayBuffer();return{data:HIMEMP.slice(0)}}
 maplibregl.addProtocol('hima',async(p,ac)=>{const m=p.url.match(/^hima:\/\/(\w+)\/(\d{14})\/(\d+)\/(\d+)\/(\d+)/);if(!m)return hmEmpty();
- const B=HIMB[m[1]],r=await fetch(`${HIM_BASE}${m[2]}/fd/${m[2]}/${B.p}/${m[3]}/${m[4]}/${m[5]}.jpg`,{signal:ac&&ac.signal});
+ const B=HIMB[m[1]],r=await fetchT(`${HIM_BASE}${m[2]}/fd/${m[2]}/${B.p}/${m[3]}/${m[4]}/${m[5]}.jpg`,{signal:ac&&ac.signal},FTO.tile);
  if(!r.ok)return hmEmpty();if(!B.a)return{data:await r.arrayBuffer()};
  const bm=await createImageBitmap(await r.blob()),c=bnCanvas(),g=c.getContext('2d',{willReadFrequently:true});g.drawImage(bm,0,0,256,256);
  const im=g.getImageData(0,0,256,256);hmPx(im.data,B.a);g.putImageData(im,0,0);return{data:await (await bnBlob(c)).arrayBuffer()}});
 const hmOn=()=>!!(S.him&&S.hmb!=='rd'); /* โหมดเรดาร์ฝน = ปิดภาพเมฆ */
 async function hmLoad(force){if(!hmOn())return;if(HIM&&!force&&Date.now()-HIM.at<10*6e4)return hmLayer();
- try{const j=await(await fetch(HIM_BASE+'targetTimes_fd.json',{cache:'no-cache'})).json(),f=j.map(o=>o.validtime).filter(t=>/^\d{14}$/.test(t)).sort().slice(-HIMN);
+ try{const j=await(await fetchT(HIM_BASE+'targetTimes_fd.json',{cache:'no-cache'},FTO.main)).json(),f=j.map(o=>o.validtime).filter(t=>/^\d{14}$/.test(t)).sort().slice(-HIMN);
   if(!f.length)throw 0;const L=!HIM||HIMI>=HIM.f.length-1;HIM={f,at:Date.now()};HIMI=L?f.length-1:Math.min(HIMI,f.length-1);hmLayer()}
- catch(e){tx('hm-v','ดึงภาพเมฆไม่ได้');tx('hm-st','ติดต่อเว็บ JMA ไม่ได้ ลองใหม่ภายหลัง');toast('ดึงภาพเมฆ Himawari-9 ไม่ได้')}}
+ catch(e){dbg('hmLoad',e);tx('hm-v',slowMsg(e,'ดึงภาพเมฆไม่ได้'));tx('hm-st','ติดต่อเว็บ JMA ไม่ได้ ลองใหม่ภายหลัง');toast(slowMsg(e,'ดึงภาพเมฆ Himawari-9 ไม่ได้'))}}
 function hmClear(){((map.getStyle()||{}).layers||[]).forEach(l=>{if(/^hm\d{14}$/.test(l.id)){map.removeLayer(l.id);map.removeSource(l.id)}})}
 function hmLayer(){if(!map.getSource('cons'))return;const ls=((map.getStyle()||{}).layers||[]).filter(l=>/^hm\d{14}$/.test(l.id));
  if(!hmOn()||!HIM){ls.forEach(l=>map.setLayoutProperty(l.id,'visibility','none'));return}
@@ -6090,7 +6128,7 @@ function gvMk(t,V){let D=gvDays(t).filter(d=>d.st+864e5>Date.now());if(!D.length
 /* ถอด base64 → Uint8 ต่อชั่วโมง (ค่า/100) */
 function gvPrep(j){const n=j.nx*j.ny,c0=Date.parse(j.cyc.replace('Z',':00Z')),V=j.v.map(s=>{const b=atob(s),a=new Uint8Array(n);for(let i=0;i<n;i++)a[i]=b.charCodeAt(i);return a});
  return{...j,c0,...gvMk(j.h.map(h=>c0+h*36e5),V),F:{}}}
-const gvLoad=()=>GVP||(GVP=fetch(GVR_URL,{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{GVG=gvPrep(j);gvSet();return GVG}).catch(e=>{GVP=null;throw e}));
+const gvLoad=()=>GVP||(GVP=fetchT(GVR_URL,{cache:'no-cache'},FTO.big).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{GVG=gvPrep(j);gvSet();return GVG}).catch(e=>{GVP=null;throw e}));
 /* สนามค่าของวัน (mean/max) หรือชั่วโมง k — Float32 ตร.ม./วินาที, แคชต่อชุดข้อมูล */
 function gvField(kind,i){const key=kind+i;if(GV.F[key])return GV.F[key];const n=GV.nx*GV.ny,f=new Float32Array(n);
  if(kind==='h'){const a=GV.V[i];for(let p=0;p<n;p++)f[p]=a[p]*GV.q}
@@ -6214,8 +6252,8 @@ function vrLayer(){if(!map.getSource('cons'))return;const bef=typeof wxBef==='fu
 function vrApply(){const bx=$('#vrbox');if(!bx)return;bx.hidden=!S.vr;gvSet();
  vrLegend();try{vrLayer()}catch(e){}
  if(!S.vr){vrX(false);tx('vr-t','');return}
- if(!GV)vrClear();gvDraw();admLoad().then(()=>vrRead()).catch(()=>{});
- prvLoad().then(()=>{if(GVA&&GVA.length<2)GVA=null;gvDraw()}).catch(()=>{});
+ if(!GV)vrClear();gvDraw();admLoad().then(()=>vrRead()).catch(e=>dbg('admLoad',e));
+ prvLoad().then(()=>{if(GVA&&GVA.length<2)GVA=null;gvDraw()}).catch(e=>dbg('prvLoad',e));
  gvLoad().then(()=>gvDraw()).catch(e=>{vrSt('โหลดข้อมูล GFS ไม่ได้ ('+esc(e.message||e)+')');tx('vr-dv','โหลดข้อมูลไม่ได้')})}
 /* บรรทัดในป๊อปอัปแตะแผนที่ (เฉพาะเมื่อเปิดชั้นนี้ ไม่ดึงข้อมูลเพิ่ม) */
 function vrPop(lo,la){if(!S.vr)return'';gvSet();if(!GV)return'';const i=gvDay(),mn=gvAt(gvField('mean',i),lo,la);if(mn==null)return'';
@@ -6236,7 +6274,7 @@ addEventListener('resize',()=>{if(S.vr)gvChart()});
 let VRRF=0,VRGT=0;
 map.on('move',()=>{if(!S.vr||!GV||VRRF)return;VRRF=requestAnimationFrame(()=>{VRRF=0;vrRead();const t=performance.now();if(vrGm()==='max'&&t-VRGT>120){VRGT=t;gvChart()}})});
 map.on('moveend',()=>{if(!S.vr)return;clearTimeout(VRT);VRT=setTimeout(gvChart,60)});
-setInterval(()=>{if(!S.vr||document.hidden)return;if(GVG&&Date.now()-Date.parse(GVG.upd||0)>3*36e5){GVP=null;gvLoad().then(gvDraw).catch(()=>{})}if(GV)gvDraw()},10*6e4); /* โหลดไฟล์ GFS ใหม่เมื่อเก่ากว่า 3 ชม. */
+setInterval(()=>{if(!S.vr||document.hidden)return;if(GVG&&Date.now()-Date.parse(GVG.upd||0)>3*36e5){GVP=null;gvLoad().then(gvDraw).catch(e=>dbg('gvLoad',e))}if(GV)gvDraw()},10*6e4); /* โหลดไฟล์ GFS ใหม่เมื่อเก่ากว่า 3 ชม. */
 /* แผงเปิด/ปิด (กลางพื้นที่ที่มองเห็นเปลี่ยน) → ย้ายกากบาท */
 {let T0=0;const mo=new MutationObserver(()=>{if(!S.vr||!GV)return;clearTimeout(T0);T0=setTimeout(gvChart,350)});[document.body,...['#left','#right','#ulm','#dp'].map(q=>document.querySelector(q))].filter(Boolean).forEach(el=>mo.observe(el,{attributes:true,attributeFilter:['class','hidden']}))}
 map.on('mousemove',e=>{if(!S.vr)return;gvSet();if(!GV)return;const t=$('#tip'),lo=e.lngLat.lng,la=e.lngLat.lat,v=gvVal(lo,la);if(v==null)return;const gm=vrGm(),h=gvHour();
@@ -6296,10 +6334,10 @@ const fwDate=(d,o)=>new Date(d+'T00:00:00Z').toLocaleDateString('th-TH',Object.a
 const fwVar=()=>FWV[S.fwv]&&!/_/.test(S.fwv)?S.fwv:'FWI'; /* ค่าอากาศ (Temp_noon ฯลฯ) ไม่ระบายบนแผนที่แล้ว — ดูที่หมวดสภาพอากาศ */
 /* ค่าที่มีสีตามระดับ (ข้อความ) */
 const fwB2=(v,x)=>{const b=fwB(v);if(x==null||isNaN(x))return'–';if(!b)return`<b>${fwN(v,x)}</b>`;const k=fwCat(x,b);return`<b style="color:${FWT[k]}">${fwN(v,x)}</b>`};
-function fwLoad(force){if(force)FWXP=null;return FWXP||(FWXP=fetch(FWU+'index.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{if(!FWX||FWX.run!==j.run||FWX.upd!==j.upd){FWX=j;FWK=''}FWX.at=Date.now();return FWX}).catch(e=>{FWXP=null;throw e}))}
+function fwLoad(force){if(force)FWXP=null;return FWXP||(FWXP=fetchT(FWU+'index.json',{cache:'no-cache'},FTO.main).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{if(!FWX||FWX.run!==j.run||FWX.upd!==j.upd){FWX=j;FWK=''}FWX.at=Date.now();return FWX}).catch(e=>{FWXP=null;throw e}))}
 /* ไฟล์รายวัน (แคช 5 วันล่าสุดที่เปิด) — คีย์รวมรอบ เพราะไฟล์วันพยากรณ์ถูกแทนเมื่อมีรอบใหม่ */
 function fwGet(x){const key=x.d+'|'+x.run+'|'+(x.lm||'');if(FWDC[key])return FWDC[key];
- const p=fetch(FWU+'g/'+x.d+'.json?r='+encodeURIComponent(x.run+'_'+(x.lm||''))).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{j.A={};return j}).catch(e=>{delete FWDC[key];throw e});
+ const p=fetchT(FWU+'g/'+x.d+'.json?r='+encodeURIComponent(x.run+'_'+(x.lm||'')),{},FTO.big).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{j.A={};return j}).catch(e=>{delete FWDC[key];throw e});
  const ks=Object.keys(FWDC);if(ks.length>=5)delete FWDC[ks[0]];return FWDC[key]=p}
 function fwArr(G,v){if(G.A[v])return G.A[v];const s=G.v&&G.v[v];if(!s)return null;const b=atob(s),n=G.nx*G.ny,a=new Float32Array(n);
  for(let i=0;i<n;i++){let x=b.charCodeAt(2*i)|b.charCodeAt(2*i+1)<<8;if(x>32767)x-=65536;a[i]=x===-32768?NaN:x/G.q}return G.A[v]=a}
@@ -6435,7 +6473,7 @@ map.on('mousemove',e=>{if(!S.fwi||!FWG||!FWGA||!FWGD||!fwIn(e.lngLat.lng,e.lngLa
  const keep=t.style.display==='block'&&(S.vr||S.dry||S.wx)&&t.textContent&&!t.textContent.includes('TFDRS');
  t.textContent=keep?t.textContent+' | '+s:s;t.style.display='block';t.style.left=e.originalEvent.clientX+14+'px';t.style.top=e.originalEvent.clientY+14+'px'});
 /* ตรวจรอบใหม่ทุก 30 นาทีขณะเปิดชั้น (ต้นทางออกวันละครั้ง) */
-setInterval(()=>{if(!S.fwi||document.hidden||!FWX)return;if(Date.now()-(FWX.at||0)>30*6e4)fwLoad(true).then(fwDraw).catch(()=>{})},5*6e4);
+setInterval(()=>{if(!S.fwi||document.hidden||!FWX)return;if(Date.now()-(FWX.at||0)>30*6e4)fwLoad(true).then(fwDraw).catch(e=>dbg('fwLoad',e))},5*6e4);
 try{fwApply()}catch(e){}
 </script>
 
@@ -6468,7 +6506,7 @@ const cmBg=v=>{const k=Math.min(2000,Math.max(0,Math.round(v*10)))*4,r=CMLUT[k],
 /* โหลด + ถอด base64 Uint16 (ค่า×q, 65535 = ไม่มี) · วัน = วันไทยที่มี ≥6 เวลา ตั้งแต่เมื่อวาน */
 const cmOn=()=>!!(S.pm&&S.pmc!==false); /* แบบจำลอง CAMS = สวิตช์ย่อยในแถวฝุ่น PM2.5 (รวมแถว 14 พ.ย. 69) */
 function cmLoad(){if(CMP0)return CMP0;tx('cm-v','กำลังโหลดตารางค่า…');
- return CMP0=fetch(CM_URL,{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{
+ return CMP0=fetchT(CM_URL,{cache:'no-cache'},FTO.big).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{
   const n=j.nx*j.ny,V=j.v.map(s=>{const b=atob(s),a=new Float32Array(n);for(let i=0;i<n;i++){const u=b.charCodeAt(2*i)|(b.charCodeAt(2*i+1)<<8);a[i]=u===65535?NaN:u/j.q}return a});
   const all=V.map((v,k)=>j.t0+k*j.dt),y0=(cmThD(Date.now())-1)*864e5-7*36e5,k0=Math.max(0,all.findIndex(t=>t>y0));
   const f=all.slice(k0),VV=V.slice(k0),D={};f.forEach((t,k)=>{const d=cmThD(t-1);(D[d]=D[d]||[]).push(k)}); /* t-1: 00:00 น. พอดีเป็นของวันก่อน (ช่วง 00:00–24:00 = 01:00…22:00 + ขอบท้าย) */
@@ -6476,7 +6514,7 @@ function cmLoad(){if(CMP0)return CMP0;tx('cm-v','กำลังโหลดต�
   const was=CMX&&CMX.f[CMI];CMX={...j,f,V:VV,days,at:Date.now()};CMF={};
   const k=was?f.indexOf(was):-1;CMI=k<0?cmNow():k;if(CMD==null||!days.some(x=>x.d===CMD))CMD=(days.find(x=>x.d===cmThD(Date.now()))||days[0]||{}).d;
   cmDraw();return CMX})
-  .catch(e=>{CMP0=null;tx('cm-v','โหลดตารางค่าไม่ได้');tx('cm-st','ยังไม่มีตารางค่า PM2.5 (data/cams_grid.json) หรือเชื่อมต่อไม่ได้ ลองใหม่ภายหลัง');throw e})}
+  .catch(e=>{dbg('cmLoad',e);CMP0=null;tx('cm-v',slowMsg(e,'โหลดตารางค่าไม่ได้'));tx('cm-st','ยังไม่มีตารางค่า PM2.5 (data/cams_grid.json) หรือเชื่อมต่อไม่ได้ ลองใหม่ภายหลัง');throw e})}
 /* สนามค่าที่แสดง: เฉลี่ย 24 ชม. ของวัน CMD หรือเวลา CMI */
 function cmField(){if(!CMX)return null;if(cmMode()==='t')return CMX.V[CMI];const day=CMX.days.find(x=>x.d===CMD);if(!day)return null;return cmDayF(day)}
 function cmDayF(day){const key='d'+day.d;if(CMF[key])return CMF[key];const n=CMX.nx*CMX.ny,f=new Float32Array(n);
@@ -6523,7 +6561,7 @@ function cmLegend(){$('#cm-op').value=+S.cmop||65;tx('cm-opv',(+S.cmop||65)+'%')
 function cmPop(lo,la){if(!cmOn()||!CMX)return'';const v=cmAt(cmField(),lo,la);if(v==null)return'';
  return`<div class="sm" style="margin:0 0 4px"><b>PM2.5 แบบจำลอง CAMS</b> ${cmMode()==='d'?'เฉลี่ย 24 ชม. '+cmDLab(CMD):cmLab(CMX.f[CMI])}<br>${cmFmt(v)}</div>`}
 function cmStop(){clearInterval(CMP);CMP=0;const b=$('#cm-pl');b.textContent='▶';b.setAttribute('aria-label','เล่นภาพเคลื่อนไหว')}
-function cmApply(){$("#cmbox").hidden=!cmOn();cmLegend();try{pqInfo()}catch(e){}if(cmOn()){if(CMX&&Date.now()-CMX.at>3*36e5)CMP0=null;cmLoad().catch(()=>{})}else cmStop();try{cmLayer()}catch(e){}}
+function cmApply(){$("#cmbox").hidden=!cmOn();cmLegend();try{pqInfo()}catch(e){}if(cmOn()){if(CMX&&Date.now()-CMX.at>3*36e5)CMP0=null;cmLoad().catch(e=>dbg('cmLoad',e))}else cmStop();try{cmLayer()}catch(e){}}
 function cmGo(i){if(!CMX)return;CMI=Math.max(0,Math.min(CMX.f.length-1,i));cmDraw()}
 $('#cm-md').onclick=e=>{const b=e.target.closest('button');if(!b)return;cmStop();S.cmm=b.dataset.v;cmDraw()};
 $('#cm-r').oninput=e=>{cmStop();cmGo(+e.target.value)};
@@ -6535,7 +6573,7 @@ $('#cm-op').oninput=e=>{S.cmop=+e.target.value;tx('cm-opv',S.cmop+'%');if(CMX)cm
 /* เล่น (ราย 3 ชม.): ข้อมูลอยู่ในเครื่องแล้ว จึงเดินทุก 0.7 วิ */
 $('#cm-pl').onclick=()=>{if(CMP)return cmStop();if(!CMX)return;if(cmMode()!=='t')S.cmm='t';const b=$('#cm-pl');b.textContent='⏸';b.setAttribute('aria-label','หยุดภาพเคลื่อนไหว');
  CMP=setInterval(()=>cmGo(CMI>=CMX.f.length-1?0:CMI+1),700)};
-setInterval(()=>{if(cmOn()&&!CMP&&!document.hidden){CMP0=null;cmLoad().catch(()=>{})}},60*6e4); /* สำรอง — ปกติโหลดใหม่ตาม data/wxsrc.json ทันทีที่รอบใหม่ขึ้นเว็บ */
+setInterval(()=>{if(cmOn()&&!CMP&&!document.hidden){CMP0=null;cmLoad().catch(e=>dbg('cmLoad',e))}},60*6e4); /* สำรอง — ปกติโหลดใหม่ตาม data/wxsrc.json ทันทีที่รอบใหม่ขึ้นเว็บ */
 try{cmApply()}catch(e){}
 </script>
 
@@ -6580,10 +6618,10 @@ function tmLayer(){if(!map.getSource('cons'))return;const bf=map.getLayer('hot-g
  ['tmd-c','tmd-a','tmd-t'].forEach(id=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',on?'visible':'none'))}
 async function tmLoad(force,q){if(!S.tmd&&!q)return;if(TMQ)return TMQ;const now=Date.now();if(TMN&&!force&&now-TMAT<10*6e4)return q?null:tmDraw();
  if(S.tmd)tx('tm-st',TMN?$('#tm-st').innerHTML:'กำลังดึงข้อมูลจากกรมอุตุนิยมวิทยา…');
- const get=e=>fetch(TM_API+e,{cache:'no-store'}).then(r=>{if(!r.ok)throw r.status;return r.json()}).then(j=>{if(!j||!Array.isArray(j.data))throw 0;return j.data});
- TMQ=(async()=>{try{const [n,r]=await Promise.all([get('awsnow'),!TMR||now-TMRAT>60*6e4?get('awsrainfall').catch(()=>null):null]);
+ const get=e=>fetchT(TM_API+e,{cache:'no-store'},FTO.main).then(r=>{if(!r.ok)throw r.status;return r.json()}).then(j=>{if(!j||!Array.isArray(j.data))throw 0;return j.data});
+ TMQ=(async()=>{try{const [n,r]=await Promise.all([get('awsnow'),!TMR||now-TMRAT>60*6e4?get('awsrainfall').catch(e=>(dbg('tmLoad rain',e),null)):null]);
    TMN=n.filter(s=>isFinite(s.station_lat)&&isFinite(s.station_lon)&&s.station_lat>0);TMAT=Date.now();TMNB=null;if(r){TMR=new Map(r.map(x=>[x.station_id,x]));TMRAT=Date.now()}if(S.tmd)tmDraw()}
-  catch(e){if(S.tmd)tx('tm-st','ดึงข้อมูลสถานีตรวจอากาศกรมอุตุฯ ไม่ได้ ('+esc(String(e&&e.message||e))+') — ลองใหม่ภายหลัง');if(!TMN&&S.tmd)toast('ดึงข้อมูลสถานีตรวจอากาศกรมอุตุฯ ไม่ได้')}
+  catch(e){dbg('tmLoad',e);if(S.tmd)tx('tm-st','ดึงข้อมูลสถานีตรวจอากาศกรมอุตุฯ ไม่ได้ ('+esc(String(e&&e.message||e))+') — ลองใหม่ภายหลัง');if(!TMN&&S.tmd)toast(slowMsg(e,'ดึงข้อมูลสถานีตรวจอากาศกรมอุตุฯ ไม่ได้'))}
   finally{TMQ=null}})();return TMQ}
 /* สถานีใกล้กลุ่มป่า: ระยะถึงแนวเขตพื้นที่อนุรักษ์ (จุดยอดของ GEO.cons) ≤ TM_NEAR กม. */
 function tmNear(){if(TMNB)return TMNB;const V=[];for(const f of GEO.cons.features){const g=f.geometry,P=g.type==='Polygon'?[g.coordinates]:g.coordinates;for(const p of P)for(const r of p)for(let i=0;i<r.length;i+=2)V.push(r[i])}
@@ -6611,7 +6649,7 @@ function tmPopup(id,ll){const s=(TMN||[]).find(x=>x.station_id==id);if(!s)return
  <a class="sm" href="${TM_WEB}" target="_blank" rel="noopener">แผนที่สถานีในเว็บกรมอุตุนิยมวิทยา ↗</a></div>`;
  const P=new maplibregl.Popup({maxWidth:'300px',focusAfterOpen:false}).setLngLat(ll||[s.station_lon,s.station_lat]).setHTML(h).addTo(map);
  tmHist(s.station_id).then(H=>{const el=P.getElement()&&P.getElement().querySelector('#tmg-'+s.station_id);if(el)el.innerHTML=tmChart(H)}).catch(()=>{const el=P.getElement()&&P.getElement().querySelector('#tmg-'+s.station_id);if(el)el.innerHTML='<span class="sm">โหลดข้อมูลย้อนหลังไม่ได้</span>'});return P}
-async function tmHist(id){const c=TMH[id];if(c&&Date.now()-c.at<10*6e4)return c.d;const j=await(await fetch(TM_API+'awsnowbyid?id='+encodeURIComponent(id),{cache:'no-store'})).json();
+async function tmHist(id){const c=TMH[id];if(c&&Date.now()-c.at<10*6e4)return c.d;const j=await(await fetchT(TM_API+'awsnowbyid?id='+encodeURIComponent(id),{cache:'no-store'},FTO.main)).json();
  const d=(j&&j.data||[]).map(x=>({t:tmT(x),T:tmNum(x.temperature),H:tmRhBad(x)?null:tmNum(x.humidity),W:tmNum(x.windspeed),D:tmNum(x.winddirection),R:tmNum(x.precip_1hr)})).filter(x=>isFinite(x.t)).sort((a,b)=>a.t-b.t);TMH[id]={at:Date.now(),d};return d}
 function tmChart(H){if(!H.length)return'<span class="sm">ไม่มีข้อมูลย้อนหลัง</span>';const W=268,Hh=92,L=26,R=26,T=8,B=16,t0=H[0].t,t1=H[H.length-1].t||t0+1,X=t=>L+(W-L-R)*(t-t0)/Math.max(1,t1-t0);
  const Ts=H.map(x=>x.T).filter(v=>v!=null),tmn=Math.floor(Math.min(...Ts)),tmx=Math.ceil(Math.max(...Ts)),YT=v=>T+(Hh-T-B)*(1-(v-tmn)/Math.max(1,tmx-tmn)),YH=v=>T+(Hh-T-B)*(1-v/100);
@@ -6628,7 +6666,7 @@ function tmHit(e){if(!S.tmd||!TMN)return false;const ids=['tmd-a','tmd-c'].filte
  const f=map.queryRenderedFeatures([[e.point.x-6,e.point.y-6],[e.point.x+6,e.point.y+6]],{layers:ids})[0];if(!f)return false;tmPopup(f.properties.id);return true}
 function tmGo(id){const s=(TMN||[]).find(x=>x.station_id==id);if(!s)return;MOVED=true;map.once('moveend',()=>tmPopup(id)); /* ผูกก่อน easeTo: ลดการเคลื่อนไหว (dur=0) moveend ยิงทันที */
  map.easeTo({center:[s.station_lon,s.station_lat],zoom:Math.max(map.getZoom(),10),offset:visOff(),duration:dur(700)})}
-function tmApply(){$('#tmbox').hidden=!S.tmd;tmLegend();if(S.tmd)tmLoad().catch(()=>{});try{tmLayer()}catch(e){}}
+function tmApply(){$('#tmbox').hidden=!S.tmd;tmLegend();if(S.tmd)tmLoad().catch(e=>dbg('tmLoad',e));try{tmLayer()}catch(e){}}
 /* แผงรายละเอียดจุดความร้อน: สถานีกรมอุตุฯ 2 แห่งที่ใกล้สุด (≤60 กม.) ค่าล่าสุด + ค่าชั่วโมงที่ใกล้เวลาดาวเทียมสแกน (จุดไม่เกิน 47 ชม. จาก awsnowbyid) */
 const tmKm=(lo,la,lo2,la2)=>{const k=Math.cos((la+la2)/2*Math.PI/180),dx=(lo2-lo)*k,dy=la2-la;return{km:Math.hypot(dx,dy)*111.2,br:(Math.atan2(dx,dy)*180/Math.PI+360)%360}};
 function tmCells(o){const f=(v,d)=>v==null?'–':nf(v,d),ws=o.W,lo=o.H!=null&&o.H<40;
@@ -6651,14 +6689,14 @@ async function tmDetail(h){const el=$('#tm-d');if(!el||!h)return;el.innerHTML='<
    e2.innerHTML=`<span class="sm"><b>ขณะดาวเทียมสแกน</b> ${tmHM(h.t)} น. (ค่าของ ${tmHM(b.t)} น.)</span>${tmCells({...b,R:R3,rl:'ฝน 3 ชม.'})}`}}
  catch(e){if(CUR===h)el.innerHTML='<span class="sm" style="opacity:.7">ดึงข้อมูลสถานีตรวจอากาศกรมอุตุฯ ไม่ได้</span>'}}
 {const od=openDetail;openDetail=function(h){od.apply(this,arguments);try{tmDetail(h)}catch(e){}}}
-$('#tm-d').addEventListener('click',e=>{const a=e.target.closest('[data-tmon]');if(!a)return;const b=document.querySelector('.sw[data-k="tmd"]');if(b&&!S.tmd)b.click();tmLoad().then(()=>tmGo(a.dataset.tmon)).catch(()=>{})});
+$('#tm-d').addEventListener('click',e=>{const a=e.target.closest('[data-tmon]');if(!a)return;const b=document.querySelector('.sw[data-k="tmd"]');if(b&&!S.tmd)b.click();tmLoad().then(()=>tmGo(a.dataset.tmon)).catch(e=>dbg('tmLoad',e))});
 $$('#tmseg button').forEach(b=>b.onclick=()=>{if(S.tmv===b.dataset.v)return;S.tmv=b.dataset.v;tmDraw()});
 $('#tm-ar').addEventListener('click',e=>{const a=e.target.closest('[data-tm]');if(a)tmGo(a.dataset.tm)});
 $('#tm-ar').addEventListener('keydown',e=>{const a=e.target.closest('[data-tm]');if(a&&(e.key==='Enter'||e.key===' ')){e.preventDefault();tmGo(a.dataset.tm)}});
 let TMCUR=false;map.on('mousemove',e=>{const ids=S.tmd?['tmd-a','tmd-c'].filter(id=>map.getLayer(id)):[],f=ids.length&&map.queryRenderedFeatures([[e.point.x-5,e.point.y-5],[e.point.x+5,e.point.y+5]],{layers:ids})[0];
  if(f){map.getCanvas().style.cursor='pointer';TMCUR=true}else if(TMCUR){map.getCanvas().style.cursor='';TMCUR=false}});
-setInterval(()=>{if(S.tmd&&!document.hidden)tmLoad(true).catch(()=>{})},10*6e4);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.tmd&&Date.now()-TMAT>10*6e4)tmLoad(true).catch(()=>{})});
+setInterval(()=>{if(S.tmd&&!document.hidden)tmLoad(true).catch(e=>dbg('tmLoad',e))},10*6e4);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.tmd&&Date.now()-TMAT>10*6e4)tmLoad(true).catch(e=>dbg('tmLoad',e))});
 try{tmApply()}catch(e){}
 </script>
 
@@ -6700,10 +6738,10 @@ const on={fwi:()=>!!S.fwi,gfs:()=>!!S.vr,cams:()=>typeof cmOn==='function'&&cmOn
 const RL={fwi:()=>fwLoad(true).then(()=>{fwDraw()}),gfs:()=>{GVP=null;return gvLoad().then(()=>gvDraw())},cams:()=>{CMP0=null;return cmLoad()}};
 const FRL={};
 function frGet(force){if(!force&&Date.now()-FRT<4*6e4)return FRP||Promise.resolve(FR);FRT=Date.now();
- return FRP=fetch(FRU,{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(j=>{FRP=null;if(j)FR=j;frAll();
+ return FRP=fetchT(FRU,{cache:'no-cache'},FTO.main).then(r=>r.ok?r.json():null).then(j=>{FRP=null;if(j)FR=j;frAll();
   /* รอบที่ขึ้นเว็บใหม่กว่าที่โหลดไว้ → โหลดชั้นนั้นใหม่ (กันโหลดซ้ำภายใน 2 นาที) */
-  for(const k in BOX){const w=FR&&FR[k],c=cur[k]();if(on[k]()&&w&&w.have&&c&&c.have&&w.have!==c.have&&w.have>c.have&&Date.now()-(FRL[k]||0)>12e4){FRL[k]=Date.now();RL[k]().then(()=>frDraw(k)).catch(()=>{})}}
-  return FR}).catch(()=>{FRP=null;frAll();return FR})}
+  for(const k in BOX){const w=FR&&FR[k],c=cur[k]();if(on[k]()&&w&&w.have&&c&&c.have&&w.have!==c.have&&w.have>c.have&&Date.now()-(FRL[k]||0)>12e4){FRL[k]=Date.now();RL[k]().then(()=>frDraw(k)).catch(e=>dbg('wxsrc '+k,e))}}
+  return FR}).catch(e=>{dbg('wxsrc',e);FRP=null;frAll();return FR})}
 function frAll(){for(const k in BOX)frDraw(k)}
 window.frAll=frAll;
 /* วาดใหม่หลังโหลด/วาดชั้น */

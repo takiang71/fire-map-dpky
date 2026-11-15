@@ -10,6 +10,7 @@
   · **รันก่อน commit ทุกครั้งที่แก้ index.html**
   · ทดสอบแล้วจับได้: syntax ผิด, `//` กลืนโค้ดแล้วตัวแปรหาย (error ตอนกดปุ่ม), `let` ชื่อซ้ำข้ามบล็อก
   · ถ้าเพิ่มปุ่ม/แผงใหม่ ให้เพิ่มขั้นใน DESK/MOB
+  · **ขั้นท้าย (15 พ.ย. 69, A2/A3/D8)**: เปิด `?debug=1` (1440) → มี `__LOG`/`dbg`/`fetchT` + ปุ่ม `#attr #dg-cp` · `fetchT('__hang',{},800)` (เซิร์ฟเวอร์ในสคริปต์ไม่ตอบ 5 วิ) ต้องได้ TimeoutError <4 วิ และลง __LOG · `Network.emulateNetworkConditions` ออฟไลน์แล้วกด ↻ ต้องมี toast "ดึงข้อมูล…/ต้นทาง…" ภายใน 22 วิ (ไม่ใช่ "ดึงข้อมูลใหม่แล้ว") และ __LOG เพิ่ม · กดปุ่มคัดลอกได้ JSON (ua/ver/log) → `info.debug` ใน check.json · แล้ว `Page.addScriptToEvaluateOnNewDocument('delete window.DecompressionStream')` โหลดใหม่ → ต้องขึ้น `#oldb` เต็มจอ (error ของแอปในขั้นนี้ย้ายไปคำเตือน เพราะเบราว์เซอร์จริงไม่เก่า)
   - ใน `site.yml` ขั้น `check site` (continue-on-error, 6 นาที) ต่อจาก build: `--ci` เขียน `_site/check.json` {sha, ok, errs, warn, fallback}
     · **ไม่ผ่าน = แทน _site/index.html ด้วยฉบับบนเว็บ** (ข้อมูลอื่นขึ้นปกติ) + `::error` + health.js เช็ก `ci` แจ้งผู้ดูแล
     · sha ตรงกับ check.json บนเว็บ = ใช้ผลเดิม ไม่เปิด Chrome (รอบ cron ส่วนใหญ่)
@@ -39,6 +40,7 @@
   | `summary.test.js` | `fwiSummary`/`vrSummary`/`camsSummary` กับ `fixtures/{fwi,gfs_vr,cams_grid}.json` (สังเคราะห์ ค่าเท่ากันทั้งพื้นที่ — ค่าที่ถูกคิดด้วยมือในหมายเหตุ) + เกณฑ์ระดับ VR/PM2.5 |
   | `xlsx.test.js` | `unzip`/`readXlsx` กับ xlsx ที่สร้างในเทสต์ (เก็บตรง+บีบอัด, shared/inline string, ตัวเลข/วันที่/ตรรกะ/สูตร/error, คอลัมน์ AA, แถวที่ข้าม) |
   | `tiff.test.js` | `llToUTM` เทียบสูตร Krüger อิสระ (<1 ซม.), แปลงกลับไปกลับมา, `readTiff` 8 บิต/16 บิตมีเครื่องหมาย+Deflate+predictor, EPSG/พิกเซล/มุม |
+  | `net.test.js` | `fetchT` (ตอบทันที/เกินเวลา=TimeoutError/ไม่มี AbortSignal.timeout ใช้ AbortController/ผู้เรียกยกเลิก/เครือข่ายล่ม) · `dbg` (200 รายการ, warn เฉพาะ ?debug=1) · `slowMsg` · **ไม่มี `fetch(` ตรงนอก fetchT** · สคริปต์ D8 เป็นสคริปต์แรก ES5 และตรวจครบ |
   | `fiscal.test.js` | ฟังก์ชันในหน้าเว็บ (ดึงจาก index.html): `fy0` `fyOfDay` (รอยต่อ 1 ต.ค.) `thDay` (เปลี่ยนวัน 17:00 UTC) `IND_SW`/`indSat` (2 พ.ย. 69) `fuOK` (+ dictionary จริงใน hdata) `dyAS` |
 - **ตรวจรับเมื่อสร้าง**: แก้เกณฑ์ใน dedup.js ให้ผิด 4 แบบ (TW 250→50, RATIO 0.6→0.05, PAIR 450→100, DT 3→0) → เทสต์ล้ม 4–7 ข้อทุกแบบ (ไม่ใช่แค่ข้อตรวจค่าเกณฑ์)
 - **วิธีเพิ่มเทสต์**

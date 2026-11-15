@@ -2,6 +2,9 @@
 //  1) syntax: แยก <script> ทุกบล็อกใน index.html (+ manual/index.html) คอมไพล์ด้วย vm.Script / JSON.parse บล็อกข้อมูล
 //  2) smoke test: เปิดหน้าใน Chrome headless (เดสก์ท็อป 1440 + มือถือ 390) กดปุ่มเมนู/เครื่องมือหลัก
 //     แล้วนับ error ที่ไม่ถูกจับ (Runtime.exceptionThrown) — error เครือข่าย (โหลดไทล์/API ไม่ได้) ไม่นับ
+//  3) ?debug=1: มี __LOG/dbg/fetchT + ปุ่ม #dg-cp · fetchT('/__hang', 0.8 วิ) ต้องได้ TimeoutError · ออฟไลน์แล้วกด ↻ ต้องมี toast ภายใน 22 วิ
+//     และ __LOG เพิ่ม · ปุ่มคัดลอกได้ JSON (ua/ver/log) · info.debug ใน check.json
+//  4) จำลองเบราว์เซอร์รุ่นเก่า (ลบ DecompressionStream ก่อนโหลดหน้า) → ต้องขึ้นกล่อง #oldb เต็มจอ
 //
 // ใช้ในเครื่อง:  node scripts/check_site.js            (ตรวจ index.html ในโฟลเดอร์โปรเจกต์)
 //               node scripts/check_site.js _site       (ตรวจผลของ build_site)
@@ -64,6 +67,8 @@ const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '
 function serve(dir) {
   const s = http.createServer((q, r) => {
     let p = decodeURIComponent(q.url.split('?')[0]); if (p.endsWith('/')) p += 'index.html';
+    // ปลายทางที่ไม่ตอบ 5 วิ — ใช้ตรวจว่า fetchT ตัดตามเวลาที่กำหนด (A2)
+    if (p === '/__hang') { setTimeout(() => { try { r.writeHead(204); r.end() } catch (e) { } }, 5000); return }
     const f = path.join(dir, p);
     if (!f.startsWith(dir) || !fs.existsSync(f) || !fs.statSync(f).isFile()) { r.writeHead(404); return r.end() }
     r.writeHead(200, { 'Content-Type': TYPES[path.extname(f).toLowerCase()] || 'application/octet-stream' }); fs.createReadStream(f).pipe(r);
@@ -120,13 +125,15 @@ async function browser(dir) {
     await send('Page.enable'); await send('Runtime.enable');
     await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
     const info = {};
+    // รอแผนที่โหลดสไตล์ (สูงสุด 45 วิ)
+    const waitMap = async () => { let ok = false; for (let i = 0; i < 90 && !ok; i++) { await sleep(500); try { ok = await ev(`typeof map!=='undefined'&&!!map&&map.isStyleLoaded&&map.isStyleLoaded()`) } catch (e) { } } return ok };
     for (const [nm, w, h, steps] of [['เดสก์ท็อป', 1440, 900, DESK], ['มือถือ', 390, 844, MOB]]) {
       const mob = w < 768; stage = `${nm}: โหลดหน้า`;
       await send('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: mob });
       await send('Emulation.setTouchEmulationEnabled', mob ? { enabled: true, maxTouchPoints: 5 } : { enabled: false });
       await send('Page.navigate', { url });
-      // รอแผนที่โหลดสไตล์ (สูงสุด 45 วิ) แล้วรอข้อมูลอีก 4 วิ
-      let ok = false; for (let i = 0; i < 90 && !ok; i++) { await sleep(500); try { ok = await ev(`typeof map!=='undefined'&&!!map&&map.isStyleLoaded&&map.isStyleLoaded()`) } catch (e) { } }
+      // รอแผนที่โหลดสไตล์ แล้วรอข้อมูลอีก 4 วิ
+      const ok = await waitMap();
       if (!ok) warn.push(`[${nm}] แผนที่โหลดสไตล์ไม่เสร็จใน 45 วิ (WebGL/เครือข่าย?)`);
       await sleep(4000);
       const st = await ev(`({left:!!document.querySelector('#left')&&document.querySelector('#left').innerText.length,card:!!document.querySelector('#pcard'),layers:(typeof map!=='undefined'&&map.getStyle&&map.getStyle())?map.getStyle().layers.length:0})`).catch(e => ({ err: e.message }));
@@ -144,6 +151,50 @@ async function browser(dir) {
       }
       await sleep(1500);
     }
+
+    // ---------- ?debug=1 (A3) · fetchT เกินเวลา + ออฟไลน์แล้วกด ↻ (A2) ----------
+    stage = 'debug: โหลดหน้า ?debug=1';
+    await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await send('Emulation.setTouchEmulationEnabled', { enabled: false });
+    await send('Page.navigate', { url: url + '?debug=1' });
+    if (!await waitMap()) warn.push(`[${stage}] แผนที่โหลดสไตล์ไม่เสร็จใน 45 วิ`);
+    await sleep(2000);
+    const chk = (r, ex) => { if (r) (r.startsWith('error') ? errs : warn).push(`[${stage}] ${r}`); if (ex) info.debug = Object.assign(info.debug || {}, ex) };
+    stage = 'debug: __LOG/fetchT เกินเวลา';
+    chk(await ev(`(async()=>{const r=[];
+      if(!Array.isArray(window.__LOG)||typeof dbg!=='function'||typeof fetchT!=='function')return 'error: ไม่มี __LOG/dbg/fetchT';
+      if(window.__OLD||document.getElementById('oldb'))r.push('error: เบราว์เซอร์ปกติแต่ขึ้นกล่องเบราว์เซอร์รุ่นเก่า');
+      if(!document.querySelector('#attr #dg-cp'))r.push('error: ?debug=1 แล้วไม่มีปุ่ม #dg-cp ใน #attr');
+      const t0=Date.now(),e=await fetchT('__hang',{},800).then(()=>null,e=>e),ms=Date.now()-t0;
+      if(!e||e.name!=='TimeoutError')r.push('error: fetchT ไม่ตัดเมื่อเกินเวลา ('+(e&&e.name)+')');else if(ms>4000)r.push('error: fetchT ตัดช้า '+ms+' ms');
+      if(!__LOG.some(x=>/__hang/.test(x.tag)&&x.name==='TimeoutError'))r.push('error: __LOG ไม่มีรายการเกินเวลาของ fetchT');
+      return r.join(' ; ')})()`).catch(e => 'error: ' + e.message));
+    stage = 'debug: ออฟไลน์แล้วกด ↻';
+    await send('Network.enable');
+    await send('Network.emulateNetworkConditions', { offline: true, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+    const n0 = await ev('__LOG.length'), ts = Date.now();
+    await ev(`(()=>{const t=document.getElementById('toast');if(t)t.classList.remove('show');document.getElementById('rf').click()})()`);
+    let tt = '';
+    for (let i = 0; i < 44 && !tt; i++) { await sleep(500); tt = await ev(`(()=>{const t=document.getElementById('toast');return t&&t.classList.contains('show')&&/ดึงข้อมูล|ต้นทาง/.test(t.textContent)?t.textContent:''})()`).catch(() => '') }
+    const sec = Math.round((Date.now() - ts) / 100) / 10;
+    await send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+    const n1 = await ev('__LOG.length');
+    chk(!tt ? 'error: ออฟไลน์แล้วกด ↻ ไม่มี toast ภายใน 22 วิ (ค้าง?)' : /ดึงข้อมูลใหม่แล้ว/.test(tt) ? 'error: ออฟไลน์แต่ toast บอกว่าดึงข้อมูลสำเร็จ' : n1 > n0 ? '' : 'error: ออฟไลน์แล้ว __LOG ไม่มีรายการเพิ่ม', { offline: { toast: tt, sec, log: n1 - n0 } });
+    stage = 'debug: คัดลอกบันทึกข้อผิดพลาด';
+    await sleep(1500);
+    chk(await ev(`(async()=>{document.getElementById('dg-cp').click();await new Promise(r=>setTimeout(r,800));let j;try{j=JSON.parse(dgCopy.last||'')}catch(e){return 'error: กดปุ่มแล้วไม่ได้ JSON'}
+      const x=document.getElementById('dg-tx');if(x)x.remove();return j.ua&&j.ver&&Array.isArray(j.log)&&j.log.length?'':'error: JSON ไม่มี ua/ver/log'})()`).catch(e => 'error: ' + e.message), { copy: await ev('dgCopy.how||""').catch(() => '') });
+
+    // ---------- กล่องเบราว์เซอร์รุ่นเก่า (D8): ลบ DecompressionStream ก่อนสคริปต์ของหน้า ----------
+    stage = 'เบราว์เซอร์รุ่นเก่า (จำลอง)';
+    const e0 = errs.length, sc = await send('Page.addScriptToEvaluateOnNewDocument', { source: 'delete window.DecompressionStream' });
+    await send('Page.navigate', { url }); await sleep(3000);
+    const ob = await ev(`(()=>{const d=document.getElementById('oldb');if(!d)return 'error: ไม่ขึ้นกล่อง #oldb';const r=d.getBoundingClientRect();
+      if(getComputedStyle(d).display==='none'||r.width<innerWidth*.9||r.height<innerHeight*.9)return 'error: กล่องไม่เต็มจอ';return /เบราว์เซอร์รุ่นเก่า/.test(d.innerText)&&window.__OLD===1?'':'error: ข้อความ/ธง __OLD ไม่ตรง'})()`).catch(e => 'error: ' + e.message);
+    await send('Page.removeScriptToEvaluateOnNewDocument', { identifier: sc.identifier });
+    // error ของแอปที่ยังทำงานต่อหลังกล่อง (เบราว์เซอร์จริงไม่ได้เก่า) ไม่นับ
+    warn.push(...errs.splice(e0)); chk(ob);
+    await send('Page.navigate', { url: 'about:blank' });
     return { errs, warn, net, info };
   } catch (e) { return { skip: 'ตรวจในเบราว์เซอร์ไม่สำเร็จ: ' + e.message, errs, warn, net } }
   finally { done() }
@@ -173,6 +224,7 @@ async function browser(dir) {
     res.ok = res.errs.length ? false : res.skip ? null : true;
   }
   res.sec = Math.round((Date.now() - t0) / 1000);
+  if (res.info && res.info.debug) console.log('?debug=1:', JSON.stringify(res.info.debug));
   if (res.warn.length) console.log('คำเตือน:\n  ' + res.warn.slice(0, 15).join('\n  '));
   if (res.errs.length) console.log('ข้อผิดพลาด:\n  ' + res.errs.slice(0, 15).join('\n  '));
   console.log(res.ok === true ? `✅ ผ่าน (${res.sec} วิ)` : res.ok === false ? `❌ ไม่ผ่าน ${res.errs.length} รายการ` : '⚠ ตรวจในเบราว์เซอร์ไม่ได้ (syntax ผ่าน)');
