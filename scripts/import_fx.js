@@ -16,7 +16,7 @@ if (!file) { console.error('ใช้: node scripts/import_fx.js <ไฟล์ .
 const sheet = readXlsx(file)[0], head = sheet.rows[0].map(h => String(h || '').trim());
 const C = (n, x) => { const i = head.findIndex(h => x ? h === n : h.startsWith(n)); if (i < 0) throw new Error('ไม่พบคอลัมน์ ' + n); return i };
 const K = { seq: C('ลำดับ'), fy: C('ปีงบ'), d: C('วัน'), m: C('เดือน'), y: C('ปี', 1), tr: C('เวลารับแจ้ง'), rp: C('รับแจ้งเหตุจาก'), fr: C('พื้นที่ป่า'), pl: C('สถานที่'), moo: C('หมู่'), tm: C('ตำบล'), am: C('อำเภอ'), pv: C('จังหวัด'), E: C('E'), N: C('N'), ts: C('เข้าดับไฟ'), te: C('เสร็จสิ้น'), rai: C('พื้นที่เสียหาย'), cs: C('สาเหตุ'), st: C('ดำเนินการโดย') };
-const MO = { 'มกราคม': 1, 'กุมภาพันธ์': 2, 'มีนาคม': 3, 'เมษายน': 4, 'พฤษภาคม': 5, 'พฤษถาคม': 5, 'มิถุนายน': 6, 'กรกฎาคม': 7, 'สิงหาคม': 8, 'กันยายน': 9, 'ตุลาคม': 10, 'พฤศจิกายน': 11, 'ธันวาคม': 12 };
+const MO = { 'มกราคม': 1, 'กุมภาพันธ์': 2, 'มีนาคม': 3, 'เมษายน': 4, 'พฤษภาคม': 5, 'พฤษถาคม': 5, 'มิถุนายน': 6, 'กรกฎาคม': 7, 'สิงหาคม': 8, 'กันยายน': 9, 'ตุลาคม': 10, 'พฤศจิกายน': 11, 'ธันวาคม': 12, 'ม.ค.': 1, 'ก.พ.': 2, 'มี.ค.': 3, 'เม.ย.': 4, 'พ.ค.': 5, 'มิ.ย.': 6, 'ก.ค.': 7, 'ส.ค.': 8, 'ก.ย.': 9, 'ต.ค.': 10, 'พ.ย.': 11, 'ธ.ค.': 12 };
 const cl = v => String(v == null ? '' : v).replace(/\s+/g, ' ').trim(), blank = v => !v || v === 'undefined' || v === '-';
 
 // ---- ชื่อพื้นที่การปกครอง: เทียบกับ admin.json (กรมการปกครอง) แก้คำสะกดผิด ----
@@ -37,7 +37,7 @@ const adm = admIndex();
 
 // ---- พิกัด ----
 const zoneOf = E => E > 500000 ? 47 : 48;
-const okE = E => E >= 150000 && E <= 880000, okN = N => N >= 1450000 && N <= 1700000;
+const okE = E => E >= 150000 && E <= 950000, okN = N => N >= 1450000 && N <= 1700000;
 const ll = (E, N) => { const [lo, la] = utmToLL(E, N, zoneOf(E)); return [lo, la] };
 const variants = v => { const s = String(Math.round(v)), o = new Set(); for (let i = 0; i < s.length; i++) o.add(+(s.slice(0, i) + s.slice(i + 1))); for (let i = 0; i <= s.length; i++) for (let d = 0; d <= 9; d++) o.add(+(s.slice(0, i) + d + s.slice(i))); return [...o] };
 function fixXY(E, N, tm, am, pv) {
@@ -53,6 +53,9 @@ function fixXY(E, N, tm, am, pv) {
 function cause(v) {
   v = cl(v); let d = '';
   const m = v.match(/^มาจากสาเหตุอื่นๆ\s*(.*)$/); if (m) { d = m[1].trim(); v = /ลักลอบจุด/.test(d) ? 'ลักลอบจุด' : 'สาเหตุอื่นๆ'; if (v === 'ลักลอบจุด') d = '' }
+  if (/ไฟข้ามเขตจากประเทศเพื่อนบ้าน/.test(v + d)) { v = 'ไฟข้ามเขตจากประเทศเพื่อนบ้าน'; d = '' }
+  if (/ฝึกซ้อมยิงปืน/.test(v + d)) { d = (d || v).replace(/^การ/, ''); v = 'ฝึกซ้อมยิงปืนของทหาร' }
+  if (/^(การ)?ลักลอบทำไม้$/.test(v)) v = 'ลักลอบทำไม้';
   if (/^อุบัติเหตุ/.test(v)) v = 'อุบัติเหตุ/ประมาท/เลินเล่อ';
   if (/^คึกคะนอง/.test(v)) v = 'คึกคะนอง/จุดเล่น';
   return [v || 'ไม่ระบุ', d];
@@ -60,13 +63,24 @@ function cause(v) {
 function report(v) {
   v = cl(v).replace(/เเ/g, 'แ');
   if (/ผู้นำชุมชน/.test(v)) return 'ผู้นำชุมชน (กำนัน ผู้ใหญ่บ้าน)';
-  if (/^ชุดจุดตรวจจุดสกัด/.test(v)) return 'ชุดจุดตรวจ/จุดสกัด/จุดเฝ้าระวังไฟป่า';
+  if (/^ชุดจุดตรวจจุดสกัด|^จุดเฝ้าระวังไฟป่า$/.test(v)) return 'ชุดจุดตรวจ/จุดสกัด/จุดเฝ้าระวังไฟป่า';
+  if (/เครือข่ายไฟป่า/.test(v)) return 'เครือข่ายไฟป่าและหมอกควัน (อส.อส)';
+  if (/ชาวบ้าน/.test(v)) return 'ชาวบ้านในพื้นที่';
+  if (/ดาวเทียม/.test(v)) return 'ดาวเทียม (Hotspot)';
   if (/1362/.test(v)) return 'สายด่วนพิทักษ์ป่า 1362';
   if (/warroom/i.test(v)) return 'ศูนย์สั่งการฯ ไฟป่าและหมอกควัน (War room)';
-  if (/Hotspot/i.test(v)) return 'แจ้งเตือนจุดความร้อน (Hotspot)';
+  if (/Hotspot/i.test(v)) return 'ดาวเทียม (Hotspot)';
   return v || 'ไม่ระบุ';
 }
-const forest = v => { v = cl(v); if (blank(v)) return 'ไม่ระบุ'; return v.replace(/^เขตอุทยานแห่งชาติทับลาน ปี 2524$/, 'อุทยานแห่งชาติทับลาน (แนวเขตปี 2524)') };
+const forest = v => { v = cl(v); if (blank(v)) return 'ไม่ระบุ'; return v.replace(/^เขตอุทยานแห่งชาติทับลาน ปี 2524$/, 'อุทยานแห่งชาติทับลาน (แนวเขตปี 2524)').replace(/^เตรียมการ(เขตห้ามล่าสัตว์ป่า.+)$/, '$1 (เตรียมการ)').replace(/^นอกพื้นที่ป่าฯ?$/, 'นอกพื้นที่ป่าอนุรักษ์') };
+// ดำเนินการโดย: ฉบับปีงบ 2569 เป็นข้อความอิสระ (หลายหน่วยงาน) → สถานีฯ แรกที่พบ · ไม่มีสถานีฯ = "ไม่มีสถานีฯ ร่วมดำเนินการ" · ข้อความเต็มเก็บแยก (op)
+const STR = /สถานีควบคุมไฟป่า\s*([ก-๙]+(?:-[ก-๙]+)?)(\s*\(ด้านทิศ[ก-๙]+\))?/;
+function oper(v) {
+  v = cl(v); if (blank(v) || v === 'ไม่มี') return ['ไม่ระบุ', ''];
+  const m = v.match(STR); if (!m) return ['ไม่มีสถานีฯ ร่วมดำเนินการ', v];
+  const st = 'สถานีควบคุมไฟป่า' + m[1] + (m[2] ? ' ' + m[2].trim() : '');
+  return [st, v === st ? '' : v];
+}
 const frac = v => typeof v === 'number' ? Math.round((v % 1) * 1440) : -1, hhmm = m => m < 0 ? -1 : Math.floor(m / 60) % 24 * 100 + m % 60;
 
 // ---- แปลงทุกแถว ----
@@ -86,15 +100,19 @@ for (const r of sheet.rows.slice(1)) {
   if (okE(E) && okN(N)) { [lo, la] = ll(E, N); const a = adm && adm(lo, la); if (a && (a.t !== tm || a.p !== pv)) log.mis++ }
   else { const f = fixXY(E, N, tm, am, pv); if (f) { [lo, la] = f; xy = 1; log.fixed.push(`#${r[K.seq]} ${E}/${N} → ${f[2].join(' หรือ ')} (ต.${tm} อ.${am} จ.${pv})`) } else { xy = 2; log.none.push(`#${r[K.seq]} ${E}/${N} (ต.${tm} อ.${am} จ.${pv})`) } }
   const w = xy < 2 ? where(lo, la) : null; if (xy < 2 && !w) log.outside++;
-  const st = cl(r[K.st]) || 'ไม่ระบุ', [cs, cd] = cause(r[K.cs]);
+  const [st, op] = oper(r[K.st]), [cs, cd] = cause(r[K.cs]);
   const t0 = frac(r[K.tr]), ts = frac(r[K.ts]), te = frac(r[K.te]);
   out.push([day, hhmm(t0), Math.round(la * 1e5), Math.round(lo * 1e5), xy,
     id('pv', pv), id('am', am + '|' + pv), id('tm', tm + '|' + am + '|' + pv), id('ar', w ? w.ar : xy === 2 ? 'ไม่ทราบ (พิกัดใช้ไม่ได้)' : 'นอกพื้นที่อนุรักษ์'), id('st', st), id('sb', SBP[pv] || (w && w.sb) || 'ไม่ระบุ'),
     +r[K.rai] || 0, id('cs', cs), id('rp', report(r[K.rp])), id('fr', forest(r[K.fr])), hhmm(ts), hhmm(te),
-    Math.round(E) || 0, Math.round(N) || 0, cl(r[K.moo]).replace(/^(undefined|-)$/, ''), blank(cl(r[K.pl])) ? '' : cl(r[K.pl]), cd, +r[K.seq]]);
+    Math.round(E) || 0, Math.round(N) || 0, cl(r[K.moo]).replace(/^(undefined|-)$/, ''), blank(cl(r[K.pl])) ? '' : cl(r[K.pl]), cd, +r[K.seq], op]);
 }
 out.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-const J = { src: path.basename(file), upd: new Date().toISOString().slice(0, 10), q: { fixed: log.fixed.length, none: log.none.length, mis: log.mis, out: log.outside }, ...DIC, r: out };
+const fyOf = d => { const [y, m] = new Date(d * 864e5).toISOString().slice(0, 7).split('-').map(Number); return y + 543 + (m >= 10 ? 1 : 0) }, EQ = {};
+out.forEach(r => { const f = fyOf(r[0]), o = EQ[f] = EQ[f] || [0, 0]; o[1]++; if (r[1] >= 0 && r[1] === r[15]) o[0]++ });
+const noArr = Object.keys(EQ).filter(f => EQ[f][1] >= 10 && EQ[f][0] / EQ[f][1] >= .9).map(Number);
+if (noArr.length) console.log('ปีงบที่เวลาเข้าดับไฟ = เวลารับแจ้งเกือบทุกแถว (ไม่นับเวลาเข้าถึง):', noArr.join(', '));
+const J = { src: path.basename(file), upd: new Date().toISOString().slice(0, 10), q: { fixed: log.fixed.length, none: log.none.length, mis: log.mis, out: log.outside, noArr }, ...DIC, r: out };
 const txt = JSON.stringify(J).split('</').join('<\\/');
 let html = fs.readFileSync(H, 'utf8');
 const tag = '<script type="application/json" id="fxdata">', re = /<script type="application\/json" id="fxdata">[\s\S]*?<\/script>\n?/;
