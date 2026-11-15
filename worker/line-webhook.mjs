@@ -103,11 +103,15 @@ const FWK = [['ต่ำ', '#2EC670', '#0B3D20'], ['ปานกลาง', '#F1
 function fwiBlock(fw, now) {
   const D = fw.days, today = new Date(now + 7 * 36e5).toISOString().slice(0, 10), x = D[0];
   const dl = d => { const y = new Date(Date.parse(d.d)); return (d.d === today ? 'วันนี้ ' : '') + y.getUTCDate() + ' ' + MONS[y.getUTCMonth()] };
-  return [sub('ดัชนีอันตรายไฟป่า FWI กลุ่มป่า · ค่าเฉลี่ย (กรมป่าไม้)'),
+  // FFMC (ดัชนีการติดไฟ) แสดงคู่ในไทล์เดียวกัน — กล่องย่อยสีตามระดับ FFMC เอง (ระดับเท่ากับ FWI = กลืนกับไทล์) (ผู้ใช้ขอ 15 พ.ย. 69)
+  const ff = d => { const f = d.ffmc; if (!f) return []; const k = FWK[f.c];
+    return [B('vertical', [T('FFMC ' + f.mean.toFixed(1) + ' ' + k[0], { size: 'xxs', weight: 'bold', align: 'center', color: k[2] })], { backgroundColor: k[1], cornerRadius: 'sm', margin: 'xs', paddingTop: '1px', paddingBottom: '1px' })] };
+  const mx = x.max != null ? 'FWI สูงสุด ' + x.max.toFixed(1) + (x.cx > x.c ? ' (' + FWK[x.cx][0] + ')' : '') + (x.ffmc ? ' · FFMC สูงสุด ' + x.ffmc.max.toFixed(1) + (x.ffmc.cx > x.ffmc.c ? ' (' + FWK[x.ffmc.cx][0] + ')' : '') : '') + ' · ' : '';
+  return [sub('FWI อันตรายไฟป่า · FFMC การติดไฟ · เฉลี่ยกลุ่มป่า (กรมป่าไม้)'),
     B('horizontal', D.map(d => { const c = FWK[d.c]; return B('vertical', [T(dl(d), { size: 'xxs', align: 'center', color: c[2] }),
-      T(d.mean.toFixed(1) + ' ' + c[0], { size: 'xs', weight: 'bold', align: 'center', color: c[2] }), T('สูงสุด ' + d.max.toFixed(1) + (d.cx > d.c ? ' (' + FWK[d.cx][0] + ')' : ''), { size: 'xxs', align: 'center', color: c[2] })],
+      T('FWI ' + d.mean.toFixed(1) + ' ' + c[0], { size: 'xs', weight: 'bold', align: 'center', color: c[2] }), ...ff(d)],
       { flex: 1, backgroundColor: c[1], cornerRadius: 'md', paddingAll: '3px' }) }), { spacing: 'xs', margin: 'xs' }),
-    T('วันนี้: ' + (x.hi > 0 ? 'ระดับสูงขึ้นไป ' + x.hi + '% ของพื้นที่ · ' : '') + (x.top ? 'มากสุด ' + x.top.n + ' ' + x.top.v.toFixed(1) + ' · ' : '') +
+    T('วันนี้: ' + mx + (x.hi > 0 ? 'ระดับสูงขึ้นไป ' + x.hi + '% ของพื้นที่ · ' : '') + (x.top ? 'มากสุด ' + x.top.n + ' ' + x.top.v.toFixed(1) + ' · ' : '') +
       'เที่ยงวัน ' + [x.t != null ? Math.round(x.t) + '°C' : '', x.rh != null ? 'ชื้น ' + Math.round(x.rh) + '%' : '', x.ws != null ? 'ลม ' + Math.round(x.ws) + ' กม./ชม.' : '', x.pr != null ? 'ฝน ' + x.pr + ' มม.' : ''].filter(Boolean).join(' '),
       { size: 'xxs', color: '#1D3557', wrap: true, margin: 'xs' })];
 }
