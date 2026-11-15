@@ -26,3 +26,6 @@ data/fwi/g/
 
 # ชุดที่ดึงค้างของ sync_cams.js (workflow wx เก็บด้วย actions/cache)
 .cache/
+
+# โคลนแยก + บันทึกของ scripts/fwi_local.js (Task Scheduler "fire-map FWI" ดึง FWI จากเครื่องผู้ดูแล)
+.fwi-local/
