@@ -6,6 +6,8 @@
 // NOMADS จำกัด ~120 ครั้ง/นาที → เว้น 0.6 วิต่อคำขอ (~2 นาที) · NOMADS ไม่เปิด CORS หน้าเว็บจึงอ่านจากไฟล์นี้
 // ผล data/gfs_vr.json {src,cyc,pub (ต้นทางเผยแพร่ครบ 180 ชม. ISO),y0,x0,d,nx,ny,q:100,h:[ชั่วโมงพยากรณ์],v:[base64 Uint8 ค่า/100 (สูงสุด 255) แถวใต้→เหนือ]}
 // ใช้: node scripts/sync_gfsvr.js [--force] [--cyc YYYYMMDDHH]
+// บน GitHub Actions ข้อความผิดพลาดขึ้นเป็น annotation ด้วย (อ่านได้สาธารณะโดยไม่ต้องล็อกอิน — log ต้องล็อกอิน)
+if (process.env.GITHUB_ACTIONS) { const ce = console.error; console.error = (...a) => { ce(...a); ce("::error title=" + require("path").basename(__filename) + "::" + a.map(x => x && x.message || String(x)).join(" ").replace(/s+/g, " ").slice(0, 300)) } }
 const fs = require('fs'), path = require('path');
 const { decode } = require('./lib/grib');
 const ROOT = path.join(__dirname, '..'), OUT = path.join(ROOT, 'data', 'gfs_vr.json');

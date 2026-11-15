@@ -23,7 +23,9 @@ const addD = (d, n) => new Date(Date.parse(d) + n * 864e5).toISOString().slice(0
 const iso = t => t == null || isNaN(t) ? null : new Date(t).toISOString();
 async function head(u) { // Last-Modified (ms) ถ้ามีไฟล์ · null = ไม่มี (404) · throw = เชื่อมต่อไม่ได้
   const r = await fetch(u, { method: 'HEAD', headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(8e3) });
-  if (r.status === 404) return null; if (!r.ok) throw new Error('HTTP ' + r.status);
+  if (r.status === 404) return null;
+  if (r.status === 403) throw new Error('HTTP 403 ต้นทางปฏิเสธ (' + ['server', 'cf-mitigated'].map(k => r.headers.get(k) && k + ': ' + r.headers.get(k)).filter(Boolean).join(', ') + ')'); // TFDRS ปฏิเสธเครื่อง GitHub (15 พ.ย. 69)
+  if (!r.ok) throw new Error('HTTP ' + r.status);
   const m = Date.parse(r.headers.get('last-modified') || ''); return isNaN(m) ? NOW : m;
 }
 

@@ -20,7 +20,7 @@ const ACTIONS = 'https://github.com/takiang71/fire-map-dpky/actions';
 const H = 36e5, REMIND = 12 * H;
 // เรื่องที่ตรวจ: ชื่อ + ต้องเป็นต่อเนื่องนานเท่าไรจึงแจ้ง (กันขัดข้องชั่วคราว)
 const CHECKS = { api: ['ดึงจุดความร้อนจาก API ไม่ได้', H], src: ['ระบบต้นทางไม่อัปเดต', 0], sync: ['sync จุดความร้อนไม่ทำงาน', 0], gap: ['ข้อมูลสะสมค้าง', 0], line: ['LINE ใช้งานไม่ได้', H],
-  tg: ['Telegram ใช้งานไม่ได้', H], tle: ['ข้อมูลวงโคจรดาวเทียมเก่า', 0], vr: ['ข้อมูลอัตราการระบายอากาศ (GFS) เก่า', 0], cams: ['ข้อมูล PM2.5 แบบจำลอง CAMS เก่า', 0], tgm: ['กลุ่ม Telegram ถูกอัปเกรดเป็น supergroup', 0],
+  tg: ['Telegram ใช้งานไม่ได้', H], tle: ['ข้อมูลวงโคจรดาวเทียมเก่า', 0], vr: ['ข้อมูลอัตราการระบายอากาศ (GFS) เก่า', 0], cams: ['ข้อมูล PM2.5 แบบจำลอง CAMS เก่า', 0], fwi: ['ข้อมูล FWI/FFMC (TFDRS) เก่า', 0], tgm: ['กลุ่ม Telegram ถูกอัปเกรดเป็น supergroup', 0],
   pages: ['หน้าเว็บ (GitHub Pages) ไม่อัปเดต', 0], ci: ['หน้าเว็บฉบับใหม่ไม่ผ่านการตรวจ', 0],
   cron: ['cron-job.org ไม่ได้สั่งรอบ site ตามเวลา', H] };
 const now = +process.env.HEALTH_NOW || Date.now();
@@ -78,7 +78,11 @@ function problems(pg) {
   // ตารางค่า PM2.5 แบบจำลอง CAMS (scripts/sync_cams.js ใน sync.yml, Open-Meteo) — ผู้ใช้ขอ 14 พ.ย. 69 · ดึงเมื่อมีรอบใหม่ (00/12UTC) ปกติรอบที่ใช้อายุไม่เกิน ~23 ชม.
   // เกิน 42 ชม. = sync_cams ล้มหลายรอบติดกัน (Open-Meteo ล่ม/โควตาเต็ม) → ชั้นบนเว็บเริ่มขาดวันข้างหน้า และสรุปประจำวันไม่มีส่วน PM2.5 เมื่อเกิน 2 วัน
   try { const c = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'cams_grid.json'), 'utf8')), u = Date.parse(String(c.run).replace('Z', ':00Z'));
-    if (!isFinite(u)) P.cams = 'data/cams_grid.json ไม่มีเวลารอบแบบจำลอง'; else if (now - u > 42 * H) P.cams = `รอบ CAMS ที่ใช้อยู่ ${thTime(u)} (${hrs(now - u)} ชม.) — ดูขั้น sync_cams ใน workflow sync (Open-Meteo อาจล่มหรือโควตาเต็ม)` } catch (e) { P.cams = 'อ่าน data/cams_grid.json ไม่ได้' }
+    if (!isFinite(u)) P.cams = 'data/cams_grid.json ไม่มีเวลารอบแบบจำลอง'; else if (now - u > 42 * H) P.cams = `รอบ CAMS ที่ใช้อยู่ ${thTime(u)} (${hrs(now - u)} ชม.) — ดูขั้น sync_cams ใน workflow wx (Open-Meteo อาจล่มหรือโควตาเต็ม — annotation ของ run บอกสาเหตุ)` } catch (e) { P.cams = 'อ่าน data/cams_grid.json ไม่ได้' }
+  // FWI/FFMC จาก TFDRS (scripts/sync_fwi.js ใน workflow wx) — ต้นทางออกวันละครั้ง ~14:20 น. · รอบเก่ากว่าเมื่อวาน (เวลาไทย) หลัง 18:00 น. หรือเก่ากว่า 2 วัน = ดึงไม่ได้
+  // 15 พ.ย. 69 พบต้นทางตอบ 403 กับเครื่อง GitHub Actions (ข้อมูลเดิมมาจากการรันในเครื่อง) — สรุปประจำวันจะไม่มี FWI เมื่อรอบเก่ากว่า 3 วัน
+  try { const fw = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'fwi', 'index.json'), 'utf8')), th = new Date(now + 7 * H), td = th.toISOString().slice(0, 10), lag = (Date.parse(td) - Date.parse(fw.run)) / 864e5;
+    if (!fw.run) P.fwi = 'data/fwi/index.json ไม่มีวันของรอบ'; else if (lag >= 2 || (lag >= 1 && th.getUTCHours() >= 18)) P.fwi = `รอบ TFDRS ที่ใช้อยู่ ${fw.run} (${lag} วัน) — ดูขั้น sync_fwi ใน workflow wx (ต้นทางอาจปฏิเสธเครื่อง GitHub: HTTP 403)` } catch (e) { P.fwi = 'อ่าน data/fwi/index.json ไม่ได้' }
   // วงโคจร NOAA-20/21 (scripts/sync_tle.js ใน sync.yml) — เก่ากว่า 4 วัน เวลานับถอยหลัง/สรุปประจำวันเริ่มคลาดเคลื่อน
   try { const tl = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'tle.json'), 'utf8')), ep = Object.values(tl.sats || {}).map(x => Date.parse(x.ep)).filter(isFinite);
     if (!ep.length) P.tle = 'data/tle.json ไม่มีข้อมูลดาวเทียม'; else if (now - Math.min(...ep) > 4 * 24 * H) P.tle = `ค่าวงโคจรล่าสุด ${thTime(Math.min(...ep))} (${Math.round((now - Math.min(...ep)) / 864e5)} วัน) — ดูขั้น sync_tle ใน workflow sync` } catch (e) { P.tle = 'อ่าน data/tle.json ไม่ได้' }

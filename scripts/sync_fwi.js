@@ -10,6 +10,8 @@
 //     = กรอบรอบกลุ่มป่า BOX ทุกตัวแปร {d,f,run,x0,y0 (กลางเซลล์มุมบนซ้าย),dx,dy (ติดลบ = แถวเหนือ→ใต้),nx,ny,q:10,v:{ตัวแปร: base64 Int16LE ค่า×10, -32768 = ไม่มีข้อมูล}} ~340 KB
 //     (ภาพบนแผนที่ ป๊อปอัป แผงรายละเอียด · 3 ไฟล์เปลี่ยนต่อวัน ถ้า commit ใน main ประวัติจะโต ~370 MB/ปี จึงเก็บที่ branch)
 // ใช้: node scripts/sync_fwi.js [--force] [--keep 7]
+// บน GitHub Actions ข้อความผิดพลาดขึ้นเป็น annotation ด้วย (อ่านได้สาธารณะโดยไม่ต้องล็อกอิน — log ต้องล็อกอิน)
+if (process.env.GITHUB_ACTIONS) { const ce = console.error; console.error = (...a) => { ce(...a); ce("::error title=" + require("path").basename(__filename) + "::" + a.map(x => x && x.message || String(x)).join(" ").replace(/s+/g, " ").slice(0, 300)) } }
 const fs = require('fs'), path = require('path');
 const { GEO } = require('./lib/area');
 const ROOT = path.join(__dirname, '..'), OUT = path.join(ROOT, 'data', 'fwi'), GD = path.join(OUT, 'g'), IDX = path.join(OUT, 'index.json');
@@ -29,9 +31,11 @@ async function get(url, range, tries = 3) {
     try {
       const r = await fetch(url, { headers: { 'User-Agent': UA, ...(range ? { Range: 'bytes=' + range } : {}) }, signal: AbortSignal.timeout(90e3) });
       if (r.status === 404) return null;
+      // 15 พ.ย. 69: ต้นทาง (หลัง Cloudflare) ตอบ 403 กับเครื่องของ GitHub Actions — FWI ไม่เคยดึงได้บน Actions (ข้อมูลที่มีมาจากการรันในเครื่อง) · บอกหัวตอบไว้ดูสาเหตุ ไม่ลองซ้ำ
+      if (r.status === 403) { const e = new Error('HTTP 403 — ต้นทางปฏิเสธเครื่องนี้ (' + ['server', 'cf-mitigated', 'cf-ray'].map(k => r.headers.get(k) && k + ': ' + r.headers.get(k)).filter(Boolean).join(', ') + ')'); e.fatal = 1; throw e }
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return { b: Buffer.from(await r.arrayBuffer()), part: r.status === 206, lm: r.headers.get('last-modified') };
-    } catch (e) { if (a >= tries - 1) throw e; await sleep(2000 * (a + 1)) }
+    } catch (e) { if (e.fatal || a >= tries - 1) throw e; await sleep(2000 * (a + 1)) }
   }
 }
 
@@ -164,7 +168,7 @@ const wr = (p, o) => { fs.writeFileSync(p + '.tmp', JSON.stringify(o)); fs.renam
     const o = has(w.d), file = path.join(GD, w.d + '.json');
     const same = o && o.f === w.f && o.run === w.run && ok && has0(w.d) && (w.run !== run || !lmRun || o.rlm === lmRun);
     if (same && !FORCE) { days.push(o); continue }
-    let R; try { R = await day(w.run, w.d, w.f) } catch (e) { console.log('  ดึง', w.d, 'ไม่ได้:', e.message); R = undefined }
+    let R; try { R = await day(w.run, w.d, w.f) } catch (e) { console.error('  ดึง', w.d, 'ไม่ได้:', e.message); R = undefined }
     if (!R) { if (o && has0(w.d)) days.push(o); else if (R === null) console.log('  ไม่มีข้อมูลวัน', w.d, w.f ? '(พยากรณ์)' : ''); continue }
     wr(file, { d: w.d, f: w.f, run: w.run, ...enc(R.G, R.V) });
     days.push({ d: w.d, f: w.f, run: w.run, lm: R.lm, ...(w.run === run && lmRun ? { rlm: lmRun } : {}), a: stats(R.G, R.V, bounds, A) }); ch = true;

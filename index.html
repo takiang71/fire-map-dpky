@@ -61,7 +61,7 @@ h1 small{display:block;font-size:.42em;font-weight:600;color:var(--mut);margin-t
 .sm{font-size:12px;color:var(--mut)}
 #dt-y{font:inherit;font-size:12.5px;border:1px solid var(--line);border-radius:8px;padding:4px 6px;background:#fff;color:var(--mut);max-width:100%}#dt-y.on{border-color:var(--navy);color:var(--navy);font-weight:700;background:#eef1f6}
 .wcmp{margin-top:8px;font-size:12px}.wcmp summary{cursor:pointer;color:var(--navy);font-weight:600}.wct{width:100%;border-collapse:collapse;margin:6px 0;font-size:11.5px}.wct th,.wct td{border-bottom:1px solid var(--line);padding:3px 4px;text-align:left;vertical-align:top}.wct small{display:block;color:var(--mut);font-size:10.5px}
-.dfr{margin:0 0 8px;padding:6px 10px;border-radius:10px;background:#f5f7fb;border:1px solid var(--line);border-left:4px solid #9aa3b2;font-size:11.5px;line-height:1.5;color:#4b5563}.dfr.ok{border-left-color:#2e9d5b}.dfr.nw{border-left-color:#d98c00;background:#fff8e8}.dfr.er{border-left-color:#c0392b}.dfr .fr1 b{color:#1f2937;font-weight:600}.dfr .fr3{margin-top:2px}.dfr.ok .fr3{color:#23784a}.dfr.nw .fr3{color:#8a5a00}
+.dfr{margin:0 0 8px;padding:6px 10px;border-radius:10px;background:#f5f7fb;border:1px solid var(--line);border-left:4px solid #9aa3b2;font-size:11.5px;line-height:1.5;color:#4b5563}.dfr.ok{border-left-color:#2e9d5b}.dfr.nw{border-left-color:#d98c00;background:#fff8e8}.dfr.er{border-left-color:#c0392b}.dfr .fr1 b{color:#1f2937;font-weight:600}.dfr .fr3{margin-top:2px}.dfr.ok .fr3{color:#23784a}.dfr.nw .fr3{color:#8a5a00}.dfr.er{background:#fdf1ef}.dfr.er .fr3{color:#a12c20}
 .dsrc{margin-top:8px;padding:7px 10px;border-radius:10px;background:#f5f7fb;border:1px solid var(--line);font-size:11.5px;line-height:1.55;color:#4b5563}.dsrc:empty{display:none}.dsrc b.t{color:var(--ink);font-weight:600}.dsrc ul{margin:2px 0 0;padding-left:16px}.dsrc li{margin:1px 0}.dsrc .w{color:#b45309}
 .btns{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:12px 0}.btns>.btn{grid-column:span 3}.btns>.btn.b3{grid-column:span 2;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:3px;padding:6px 4px;font-size:12px;line-height:1.2} /* แถว 3 มี 3 ปุ่ม (ผู้ใช้ขอ 6 พ.ย. 69) ไอคอนบน ข้อความล่าง */ /* 2 คอลัมน์เท่ากัน กว้างเต็มแผงเสมอกับกล่องบน-ล่าง (ผู้ใช้ขอ 5 พ.ย. 69) */
 .btns>.btn{justify-content:flex-start;min-width:0;min-height:42px;padding:6px 12px;line-height:1.25;text-align:left}.btns>.btn span{min-width:0}
@@ -6690,8 +6690,8 @@ function frDraw(k){const e=frEl(k);if(!e)return;const c=cur[k](),w=FR&&FR[k];
   else if(newer){st='nw';h+=`<div class="fr3">⏳ ต้นทางออก${lab(k,w.src)} แล้ว${w.srcPub?' (เผยแพร่ '+fd(w.srcPub)+')':''} — ${w.ready===false?'รอต้นทางเขียนไฟล์ครบ':fetching?'กำลังดึง':'รอดึง'} จะขึ้นเว็บเองภายในไม่กี่นาที</div>`}
   else if(FR.need&&FR.need.includes(k))st='nw',h+=`<div class="fr3">⏳ ต้นทางปรับข้อมูลรอบนี้ใหม่ — กำลังดึง</div>`;
   else{st='ok';h+=`<div class="fr3">✓ เป็นรอบล่าสุดของ ${NM[k]} · ตรวจกับต้นทาง ${fd(FR.t)} (${ago(FR.t)})</div>`}
-  if(FR.err&&FR.err[k])st='er',h+=`<div class="fr3">ตรวจต้นทางรอบล่าสุดไม่ได้ (${esc(FR.err[k])})</div>`;
  }
+ else if(FR&&FR.t&&FR.err&&FR.err[k]){st='er';h+=`<div class="fr3">⚠ ระบบตรวจกับต้นทางไม่ได้ (${fd(FR.t)}: ${esc(FR.err[k])}) — อาจไม่ใช่รอบล่าสุด ดูรอบล่าสุดที่ต้นทางได้จากลิงก์ที่มาข้อมูลด้านล่าง</div>`}
  e.className='dfr '+st;e.innerHTML=h}
 const on={fwi:()=>!!S.fwi,gfs:()=>!!S.vr,cams:()=>typeof cmOn==='function'&&cmOn()};
 const RL={fwi:()=>fwLoad(true).then(()=>{fwDraw()}),gfs:()=>{GVP=null;return gvLoad().then(()=>gvDraw())},cams:()=>{CMP0=null;return cmLoad()}};
