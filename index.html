@@ -6684,7 +6684,10 @@ function frEl(k){const b=document.getElementById(BOX[k]);if(!b)return null;let e
 function frDraw(k){const e=frEl(k);if(!e)return;const c=cur[k](),w=FR&&FR[k];
  if(!c||!c.have){e.hidden=true;return}e.hidden=false;
  let h=`<div class="fr1"><b>ข้อมูล${lab(k,c.have)}</b></div><div class="fr2">ต้นทางเผยแพร่ ${fd(c.pub||(w&&w.have===c.have?w.pub:null))} · ขึ้นเว็บ ${fd(c.upd)}</div>`,st='';
- if(w&&FR.t){
+ if(w&&w.mode==='local'){ /* TFDRS ไม่อนุญาตเครื่อง GitHub (15 พ.ย. 69) — ไม่ได้ตรวจ/ดึงอัตโนมัติ */
+  const td=new Date(Date.now()+7*36e5).toISOString().slice(0,10),lag=Math.round((Date.parse(td)-Date.parse(c.have))/864e5),old=lag>=2||(lag>=1&&new Date(Date.now()+7*36e5).getUTCHours()>=16);
+  st=old?'nw':'';h+=`<div class="fr3">ℹ ตอนนี้ระบบดึงจาก TFDRS อัตโนมัติไม่ได้ (เว็บต้นทางไม่อนุญาตเครื่องของ GitHub) ผู้ดูแลดึงให้เป็นครั้งคราว · ต้นทางออกรอบใหม่วันละครั้ง ~14:20 น.${old?` — <b>รอบนี้อาจไม่ใช่รอบล่าสุด</b> ดูค่าล่าสุดได้ที่ <a href="${FWSRC}" target="_blank" rel="noopener">TFDRS</a>`:''}</div>`}
+ else if(w&&FR.t){
   const newer=w.src&&w.src!==c.have&&w.src>c.have,fetching=FR.need&&FR.need.includes(k);
   if(newer&&w.have&&w.have!==c.have&&w.have>c.have){st='nw';h+=`<div class="fr3">↻ มี${lab(k,w.have)}บนเว็บแล้ว กำลังโหลด…</div>`}
   else if(newer){st='nw';h+=`<div class="fr3">⏳ ต้นทางออก${lab(k,w.src)} แล้ว${w.srcPub?' (เผยแพร่ '+fd(w.srcPub)+')':''} — ${w.ready===false?'รอต้นทางเขียนไฟล์ครบ':fetching?'กำลังดึง':'รอดึง'} จะขึ้นเว็บเองภายในไม่กี่นาที</div>`}

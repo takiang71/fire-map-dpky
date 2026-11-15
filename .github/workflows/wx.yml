@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       need:
-        description: "ชุดที่ต้องดึง คั่นจุลภาค: fwi,gfs,cams (ว่าง = ตรวจทุกชุด)"
+        description: "ชุดที่ต้องดึง คั่นจุลภาค: fwi,gfs,cams (ว่าง = gfs+cams · fwi ต้องระบุเอง)"
         required: false
         default: ""
       by:
@@ -45,13 +45,14 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       # ---------- FWI/FFMC (TFDRS) — ตาราง g/ อยู่ที่ branch fwi-grid ----------
+      # TFDRS ตอบ 403 (Cloudflare challenge) กับเครื่อง GitHub → หยุดดึงจาก GitHub ไว้ก่อน (15 พ.ย. 69 ผู้ใช้สั่ง) รันเฉพาะเมื่อสั่ง need มี fwi เอง
       - name: load fwi grids
-        if: env.NEED == '' || contains(env.NEED, 'fwi')
+        if: contains(env.NEED, 'fwi')
         run: |
           mkdir -p data/fwi/g
           if git fetch -q --depth=1 origin fwi-grid; then git archive FETCH_HEAD | tar -x -C data/fwi/g; git rev-parse 'FETCH_HEAD^{tree}' > "$RUNNER_TEMP/fwi_tree"; else echo "ยังไม่มี branch fwi-grid"; fi
       - id: fwi
-        if: env.NEED == '' || contains(env.NEED, 'fwi')
+        if: contains(env.NEED, 'fwi')
         run: node scripts/sync_fwi.js
         timeout-minutes: 8
         continue-on-error: true

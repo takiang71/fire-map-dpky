@@ -32,6 +32,9 @@ async function head(u) { // Last-Modified (ms) ถ้ามีไฟล์ · nu
 async function fwi() {
   const j = rd('fwi/index.json'), run = j && j.run, d0 = run && j.days.find(x => x.d === run && !x.f);
   const o = { have: run || null, pub: d0 && d0.lm ? iso(Date.parse(d0.lm)) : null, upd: j && j.upd || null, src: run || null, srcPub: null, ready: true };
+  // TFDRS (Cloudflare) ตอบ 403 challenge กับเครื่อง GitHub (15 พ.ย. 69) — ผู้ใช้สั่งหยุดตรวจ/ดึงจาก GitHub ไว้ก่อนจนกว่าจะได้รับอนุญาต
+  // (ไม่ส่งคำขอที่ถูกปฏิเสธซ้ำทุก 5 นาที) → รายงานเฉพาะรอบที่มี (mode local = ดึงจากเครื่องผู้ดูแล) · WX_FWI=1 = ตรวจต้นทางแบบเดิม
+  if (process.env.WX_FWI !== '1') { o.mode = 'local'; o.src = null; return o }
   const today = new Date(NOW + 7 * 36e5).toISOString().slice(0, 10);
   if (!run) { o.src = null; o.need = true; return o }
   // รอบใหม่: วันถัดจากรอบที่มีถึงวันนี้ (เวลาไทย) ใหม่สุดก่อน
