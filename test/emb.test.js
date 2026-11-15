@@ -54,3 +54,45 @@ test('B3: ไม่โหลดฟอนต์จาก googleapis/gstatic · @f
     for (const u of urls) assert.ok(fs.existsSync(path.join(base, u)), u);
   }
 });
+
+// embGet ในหน้าเว็บ (ดึงโค้ดจริงจาก index.html): บล็อกฝังมีอยู่ = ใช้ทันที · ไม่มี = fetch ตามดัชนี #emb + ลองใหม่เมื่อ 5xx/เครือข่ายล้ม (ไม่ลองใหม่เมื่อ 4xx)
+const { grab, load } = require('./helpers.cjs');
+const EMB_SRC = grab(/const EMB_SITE=[^\n]*/) + '\n' + grab(/function embGet\(id\)\{[\s\S]*?return t\}\)\}/);
+function page({ blocks = {}, ix = null, replies = [], protocol = 'https:' } = {}) {
+  const els = {}, calls = [], logs = [];
+  for (const [id, t] of Object.entries(blocks)) els[id] = { id, textContent: t };
+  if (ix) els.emb = { id: 'emb', textContent: JSON.stringify(ix) };
+  const document = { getElementById: id => els[id] || null, createElement: () => ({}), body: { appendChild: e => { els[e.id] = e } } };
+  const fetchT = u => { calls.push(u); const r = replies.shift(); return r instanceof Error ? Promise.reject(r) : Promise.resolve({ ok: r < 400, status: r, text: () => Promise.resolve('{"ok":' + r + '}') }) };
+  const W = load(EMB_SRC, ['embGet'], { document, location: { protocol }, fetchT, FTO: { big: 6e4 }, dbg: (t, e) => logs.push(t), setTimeout: f => f() });
+  return { ...W, calls, logs, els };
+}
+
+test('embGet: มีบล็อกฝัง (repo/ดับเบิลคลิก) = ใช้ทันทีไม่ต่อเน็ต · ผลแคชต่อ id', async () => {
+  const P = page({ blocks: { geo: '{"cons":1}' } });
+  assert.equal(await P.embGet('geo'), '{"cons":1}');
+  assert.equal(P.embGet('geo'), P.embGet('geo'), 'Promise เดียวกัน');
+  assert.equal(P.calls.length, 0);
+});
+
+test('embGet: _site ไม่มีบล็อก → fetch ตามดัชนีแล้วสร้างบล็อก id เดิม · file:// ดึงจากเว็บจริง', async () => {
+  const P = page({ ix: { adata: 'data/emb/adata.12345678.json' }, replies: [200] });
+  assert.equal(await P.embGet('adata'), '{"ok":200}');
+  assert.deepEqual(P.calls, ['data/emb/adata.12345678.json']);
+  assert.equal(P.els.adata.textContent, '{"ok":200}', 'โค้ดเดิมอ่าน getElementById(id).textContent ได้');
+  assert.equal(P.els.adata.type, 'application/json');
+  const F = page({ ix: { geo: 'data/emb/geo.1.json' }, replies: [200], protocol: 'file:' });
+  await F.embGet('geo');
+  assert.deepEqual(F.calls, ['https://takiang71.github.io/fire-map-dpky/data/emb/geo.1.json']);
+});
+
+test('embGet: 503 / เครือข่ายล้ม → ลองใหม่ได้ 2 ครั้ง · 404 ไม่ลองใหม่ · ไม่มีในดัชนี = error', async () => {
+  const A = page({ ix: { hdata: 'h.json' }, replies: [503, new TypeError('Failed to fetch'), 200] });
+  assert.equal(await A.embGet('hdata'), '{"ok":200}');
+  assert.equal(A.calls.length, 3); assert.equal(A.logs.length, 2);
+  const B = page({ ix: { hdata: 'h.json' }, replies: [503, 503, 503, 200] });
+  await assert.rejects(B.embGet('hdata'), /HTTP 503/); assert.equal(B.calls.length, 3, 'ลองรวม 3 ครั้งแล้วหยุด');
+  const C = page({ ix: { hdata: 'h.json' }, replies: [404, 200] });
+  await assert.rejects(C.embGet('hdata'), /HTTP 404/); assert.equal(C.calls.length, 1);
+  await assert.rejects(page({ ix: {} }).embGet('wdata'), /ไม่มีข้อมูลฝัง wdata/);
+});

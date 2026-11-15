@@ -1026,7 +1026,10 @@ function embGet(id){const C=embGet.c||(embGet.c={});if(C[id])return C[id];
  const b=document.getElementById(id);if(b&&b.textContent.trim())return C[id]=Promise.resolve(b.textContent);
  const ix=document.getElementById('emb'),u=ix&&JSON.parse(ix.textContent)[id];
  if(!u)return C[id]=Promise.reject(new Error('ไม่มีข้อมูลฝัง '+id));
- return C[id]=fetchT((/^https?:$/.test(location.protocol)?'':EMB_SITE)+u,{},FTO.big).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status+' '+u);return r.text()})
+ /* ลองใหม่ 2 ครั้ง (1.5/3 วิ) เมื่อ 5xx/เครือข่ายล้ม — Pages ตอบ 503 ชั่วคราวได้ (พบช่วง deploy 16 พ.ย. 69) และถ้าชุดใดล้ม สคริปต์แอปจะไม่รันทั้งหน้า */
+ const get=k=>fetchT((/^https?:$/.test(location.protocol)?'':EMB_SITE)+u,{},FTO.big).then(r=>{if(!r.ok){const e=new Error('HTTP '+r.status+' '+u);e.st=r.status;throw e}return r.text()})
+  .catch(e=>{if(k>=2||(e.st&&e.st<500))throw e;dbg('embGet '+id+' ลองใหม่',e);return new Promise(r=>setTimeout(r,1500*(k+1))).then(()=>get(k+1))});
+ return C[id]=get(0)
   .then(t=>{const e=b||document.createElement('script');e.type='application/json';e.id=id;e.textContent=t;if(!b)document.body.appendChild(e);return t})}
 /* ข้อความเมื่อผู้ใช้รอผล: เกินเวลา → "ต้นทางตอบช้า ลองใหม่" แทนข้อความเดิม */
 const slowMsg=(e,m)=>e&&e.name==='TimeoutError'?'ต้นทางตอบช้า ลองใหม่':m;
