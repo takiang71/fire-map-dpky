@@ -18,6 +18,7 @@
 'use strict';
 const fs = require('fs'), path = require('path'), os = require('os'), vm = require('vm'), http = require('http'), crypto = require('crypto');
 const { spawn } = require('child_process');
+const CSP = require('./lib/csp'), LINT = require('./lint_html');
 
 const ROOT = path.join(__dirname, '..');
 const args = process.argv.slice(2), CI = args.includes('--ci'), UNIT_FAIL = CI && process.env.UNIT === 'failure';
@@ -75,7 +76,10 @@ function serve(dir) {
     if (p === '/__hang') { setTimeout(() => { try { r.writeHead(204); r.end() } catch (e) { } }, 5000); return }
     const f = path.join(dir, p);
     if (!f.startsWith(dir) || !fs.existsSync(f) || !fs.statSync(f).isFile()) { r.writeHead(404); return r.end() }
-    r.writeHead(200, { 'Content-Type': TYPES[path.extname(f).toLowerCase()] || 'application/octet-stream' }); fs.createReadStream(f).pipe(r);
+    const hd = { 'Content-Type': TYPES[path.extname(f).toLowerCase()] || 'application/octet-stream' };
+    // E2: หน้า HTML ได้ CSP แบบรายงานอย่างเดียว (scripts/lib/csp.js) เหมือน serve.js / sw.js บนโฮสต์ — ไม่บล็อกอะไร
+    if (path.extname(f).toLowerCase() === '.html') hd[CSP.HEADER] = CSP.policy(fs.readFileSync(f, 'utf8'));
+    r.writeHead(200, hd); fs.createReadStream(f).pipe(r);
   });
   return new Promise(res => s.listen(0, '127.0.0.1', () => res(s)));
 }
@@ -86,6 +90,23 @@ const NET = /Failed to fetch|NetworkError|Load failed|AJAXError|AbortError|abort
 const GZQ = (q, cond) => `(async()=>{const i=document.getElementById('gz-q');if(!i||document.getElementById('gz').hidden)return 'error: ช่องค้นหาไม่เปิด';i.value=${JSON.stringify(q)};i.dispatchEvent(new Event('input'));const ok=e=>e&&(${cond});for(let k=0;k<40&&!ok(GZ.R[0]);k++)await new Promise(r=>setTimeout(r,250));const e=GZ.R[0];return ok(e)?'':'error: ค้น '+${JSON.stringify(JSON.stringify(q))}+' ได้ '+(e?e.k+' '+e.n:'ไม่มีผล')+' · '+document.getElementById('gz-n').textContent})()`;
 const GZ4 = [['  ค้น "บุพราหมณ์"', GZQ('บุพราหมณ์', "e.k==='tm'&&e.n==='ต.บุพราหมณ์'&&/อ\.นาดี/.test(e.s)")], ['  ค้น "ทับลาน"', GZQ('ทับลาน', "e.k==='pa'&&e.n==='อุทยานแห่งชาติทับลาน'")], ['  ค้น "47 820000 1560000"', GZQ('47 820000 1560000', "e.k==='co'&&Math.abs(e.pt[1]-14.09275)<1e-4&&Math.abs(e.pt[0]-101.96324)<1e-4")], ['  ค้น "14.1,101.9"', GZQ('14.1,101.9', "e.k==='co'&&Math.abs(e.pt[1]-14.1)<1e-6&&Math.abs(e.pt[0]-101.9)<1e-6")]];
 // ขั้นตอนที่กดในหน้า: [ชื่อ, โค้ด JS] — ไม่พบปุ่ม = เตือน (ไม่นับเป็นผิด) · ปุ่มปิดกดเฉพาะเมื่อมองเห็น
+// E2 (16 พ.ย. 69): KML ที่ชื่อไฟล์/ชื่อชั้น/ชื่อวัตถุ/คำอธิบาย (CDATA)/ExtendedData เป็น <img src=x onerror=alert(1)> ผ่าน GIO.load (ulImport)
+// → รายการชั้น + ป๊อปอัปวัตถุต้องแสดงเป็นข้อความ: alert ไม่ถูกเรียก, ไม่มี <img src="x"> ในหน้า, ข้อความ "<img src=x" อยู่ใน textContent · แล้วลบชั้นทดสอบ
+const XSS = `(async()=>{const P='<img src=x onerror=alert(1)>',X=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'),sl=ms=>new Promise(r=>setTimeout(r,ms));
+ window.__xss=0;window.alert=()=>{window.__xss++};
+ const kml='<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>'+X(P)+'</name><Placemark><name>'+X(P)+'</name><description><![CDATA['+P+' <b>ตัวหนา</b>]]></description><ExtendedData><Data name="'+X(P)+'"><value>'+X(P)+'</value></Data><SchemaData><SimpleData name="f">'+X(P)+'</SimpleData></SchemaData></ExtendedData><Point><coordinates>101.9,14.3,0</coordinates></Point></Placemark></Document></kml>';
+ if(typeof ulImport!=='function'||typeof GIO==='undefined')return 'error: ไม่มี ulImport/GIO';
+ const n0=UL.L.length;await ulImport([new File([kml],P+'.kml',{type:'application/vnd.google-earth.kml+xml'})]);await sl(700);
+ if(UL.L.length!==n0+1)return 'error: นำเข้า KML ทดสอบไม่ได้';
+ const l=UL.L[UL.L.length-1],k='l'+l.id,f=l.fc.features[0];ulList();ulPop(k,f.properties._id,{lng:101.9,lat:14.3});await sl(500);
+ const pp=document.querySelector('.maplibregl-popup'),e=[];
+ if(window.__xss)e.push('alert ถูกเรียก '+window.__xss+' ครั้ง');
+ if(document.querySelector('img[src="x"]'))e.push('มี <img src="x"> ในหน้า (HTML จากไฟล์ถูกแปลเป็นแท็ก)');
+ if(!pp)e.push('ไม่มีป๊อปอัปวัตถุ');else if(!pp.textContent.includes(P))e.push('ป๊อปอัปไม่แสดงชื่อ/คำอธิบายเป็นข้อความ');
+ if(!(document.getElementById('ul-ll')||document.body).textContent.includes(P))e.push('รายการชั้นไม่แสดงชื่อเป็นข้อความ');
+ window.__ckXss={popup:pp?pp.textContent.split(P).length-1:0,list:(document.getElementById('ul-ll')||document.body).textContent.split(P).length-1,alert:window.__xss};
+ UL.L=UL.L.filter(x=>x!==l);try{ULDB.del(l.id).catch(()=>{})}catch(_){}try{ulDrop(k)}catch(_){}if(ULP)ULP.remove();ulList();
+ return e.length?'error: XSS — '+e.join(' · '):''})()`;
 const DESK = [
   ['การ์ดสถิติย้อนหลัง', `C('bStat')`], ['  แท็บการดับไฟป่า', `Q('#h-tab [data-v="xt"]')`], ['  ตารางการดับไฟ', `C('x-tbl')`], ['  ปิดตาราง', `C('md-x',1)`], ['  Excel แบบ อส. (F1)', `C('x-xls')`], ['  แท็บจุดความร้อน', `Q('#h-tab [data-v="hs"]')`], ['  ตารางสถิติ', `C('h-tbl')`], ['  ปิดตาราง', `C('md-x',1)`], ['  แท็บทุกดาวเทียม', `Q('#h-tab [data-v="ha"]')`], ['  ตารางทุกดาวเทียม', `C('h-tbl')`], ['  ปิดตาราง', `C('md-x',1)`], ['  รายงานประจำเดือน (F3)', `(async()=>{const b=document.getElementById('h-mrep');if(!b)return 'ไม่พบ #h-mrep';b.click();const B=()=>document.getElementById('md-b').textContent;for(let k=0;k<40&&/กำลังโหลด/.test(B());k++)await new Promise(r=>setTimeout(r,250));return document.querySelector('#md-b table.dt a[href*="reports/"]')||/ยังไม่มีรายงาน/.test(B())?'':'รายการรายงานประจำเดือนไม่ขึ้น: '+B().slice(0,80)})()`], ['  ปิด', `C('md-x',1)`], ['  ปิดการ์ดสถิติ', `C('h-x',1)`],
   ['พื้นที่เฝ้าระวังพิเศษ', `C('bWch')`], ['  ตาราง จปร.', `C('w-tbl')`], ['  ปิดตาราง', `C('md-x',1)`], ['  ปิด', `C('bWch')`],
@@ -94,7 +115,7 @@ const DESK = [
   ['แผงชั้นข้อมูล', `C('bLay')`], ['  ภาพเมฆ Himawari-9', `Q('.sw[data-k="him"]')`], ['  ยอดเมฆ', `Q('#hmseg [data-v="ct"]')`], ['  เล่นภาพ', `C('hm-pl')`], ['  หยุด', `C('hm-pl')`], ['  อินฟราเรด', `Q('#hmseg [data-v="ir"]')`], ['  เรดาร์ฝน', `Q('#hmseg [data-v="rd"]')`], ['  เล่นเรดาร์', `C('rd-pl')`], ['  หยุดเรดาร์', `C('rd-pl')`], ['  กลับอินฟราเรด', `Q('#hmseg [data-v="ir"]')`], ['  ปิดเมฆและเรดาร์ฝน', `Q('.sw[data-k="him"]')`], ['  สภาพอากาศแบบจำลอง', `Q('.sw[data-k="wx"]')`], ['  ลม', `Q('#wxseg [data-v="ws"]')`], ['  ชั่วโมงถัดไป', `C('wx-nx')`], ['  ปิดเส้นลม', `Q('.sw[data-k="wxw"]')`], ['  อุณหภูมิ', `Q('#wxseg [data-v="t"]')`], ['  เปิดเส้นลม', `Q('.sw[data-k="wxw"]')`], ['  ปิดสภาพอากาศแบบจำลอง', `Q('.sw[data-k="wx"]')`], ['  ฝุ่น PM2.5', `Q('.sw[data-k="pm"]')`], ['  วันพรุ่งนี้ (CAMS)', `Q('#cm-dc .chip:nth-child(3)')`], ['  เล่น (CAMS)', `C('cm-pl')`], ['  หยุด (CAMS)', `C('cm-pl')`], ['  ตอนนี้ (CAMS)', `C('cm-0')`], ['  ปิดแบบจำลอง CAMS', `Q('.sw[data-k="pmc"]')`], ['  ปิดสถานี', `Q('.sw[data-k="pmst"]')`], ['  เปิดสถานี', `Q('.sw[data-k="pmst"]')`], ['  เปิดแบบจำลอง CAMS', `Q('.sw[data-k="pmc"]')`], ['  ปิดฝุ่น PM2.5', `Q('.sw[data-k="pm"]')`], ['  อัตราการระบายอากาศ', `Q('.sw[data-k="vr"]')`], ['  วันถัดไป (GFS)', `Q('#vr-dc [data-i="3"]')`], ['  สูงสุดของวัน', `Q('#vr-gm [data-v="max"]')`], ['  เลื่อนแถบรายชั่วโมง', `(()=>{const r=document.getElementById('vr-gr');if(!r)return 'ไม่พบแถบ';r.value=+r.value+5;r.dispatchEvent(new Event('input'));return ''})()`], ['  ชั่วโมงถัดไป', `C('vr-gn')`], ['  ชั่วโมงก่อนหน้า', `C('vr-gp')`], ['  เฉลี่ยทั้งวัน', `Q('#vr-gm [data-v="mean"]')`], ['  วันนี้', `C('vr-g0')`], ['  ปิดระบายอากาศ', `Q('.sw[data-k="vr"]')`], ['  พื้นที่เสี่ยงไฟป่า (F2)', `Q('.sw[data-k="rk"]')`], ['  รอตารางพื้นที่เสี่ยง', `(async()=>{for(let k=0;k<40&&!document.querySelector('#rk-tb table')&&!/ไม่ได้|ไม่มีข้อมูล/.test(document.getElementById('rk-n').textContent);k++)await new Promise(r=>setTimeout(r,250));return document.querySelector('#rk-tb tr[data-i]')&&map.getLayer('rk-f')?'':'ตาราง/ชั้นพื้นที่เสี่ยงไม่ขึ้น (ไม่มี risk.json?): '+document.getElementById('rk-n').textContent.slice(0,80)})()`], ['  แปลงสถานีฯ', `Q('#rk-u [data-v="st"]')`], ['  พรุ่งนี้', `Q('#rk-dc [data-i="1"]')`], ['  แตะแถวแรก', `Q('#rk-tb tr[data-i="0"]')`], ['  ตำบล', `Q('#rk-u [data-v="tm"]')`], ['  ปิดพื้นที่เสี่ยง', `Q('.sw[data-k="rk"]')`], ['  ดัชนีอันตรายไฟป่า FWI', `Q('.sw[data-k="fwi"]')`], ['  วันพยากรณ์ (FWI)', `Q('#fwi-dc .chip.fc')`], ['  ดัชนี DC', `Q('#fwi-v [data-v="DC"]')`], ['  ลม (FWI)', `Q('#fwi-w [data-v="Wsp_noon"]')`], ['  เลือกวันจากตาราง', `Q('#fwi-pt [data-i="0"]')`], ['  ดัชนี FWI', `Q('#fwi-v [data-v="FWI"]')`], ['  ปิดดัชนี FWI', `Q('.sw[data-k="fwi"]')`], ['  สถานีตรวจอากาศ กรมอุตุฯ', `Q('.sw[data-k="tmd"]')`], ['  ความชื้น (กรมอุตุฯ)', `Q('#tmseg [data-v="rh"]')`], ['  ลม (กรมอุตุฯ)', `Q('#tmseg [data-v="ws"]')`], ['  ฝน 7 วัน (กรมอุตุฯ)', `Q('#tmseg [data-v="r7"]')`], ['  แตะสถานีในตาราง', `Q('#tm-ar [data-tm]')`], ['  อุณหภูมิ (กรมอุตุฯ)', `Q('#tmseg [data-v="t"]')`], ['  ปิดสถานีกรมอุตุฯ', `Q('.sw[data-k="tmd"]')`], ['  ปิดแผง', `C('xr',1)`],
   ['ข้อมูลพื้นฐาน', `C('bKnow')`], ['  ปิด', `C('kb-x',1)`],
   ['เครื่องมือวัด', `C('bMs')`], ['  ปิด', `C('bMs')`],
-  ['ชั้นข้อมูลของฉัน', `C('bUl')`], ['  ปิด', `C('bUl')`],
+  ['ชั้นข้อมูลของฉัน', `C('bUl')`], ['  นำเข้า KML ชื่อ/คำอธิบายเป็น HTML (E2)', XSS], ['  ปิด', `C('bUl')`],
   ['วิเคราะห์ภูมิประเทศ', `C('bTr')`], ['  ปิด', `C('bTr')`],
   ['พิมพ์แผนที่', `C('bPm')`], ['  ปิด', `C('pm-x',1)`],
   ['ดาวเทียมรอบถัดไป: ย่อ', `Q('#orb .obh')`], ['  ขยาย', `Q('#orb .obh')`], ['  แถว NOAA-21', `Q('#orb .obr[data-ob="NOAA21"]')`], ['  แผนที่โลกย่อ', `Q('#orb .obwm')`], ['  สวิตช์บนแผนที่ สลับ', `(()=>{const v=()=>map.getLayer('ob-tf')&&map.getLayoutProperty('ob-tf','visibility');const a=v(),r=__ck.Q('#orb .obh .hsp');return r||(v()!==a?'':'error: กดสวิตช์บนแผนที่แล้วชั้นวงโคจรไม่เปลี่ยน')})()`], ['  สวิตช์บนแผนที่ คืนค่า', `Q('#orb .obh .hsp')`], ['  ปิดชั้น', `Q('.sw[data-k="orb"]')`], ['  เปิดกลับ', `Q('.sw[data-k="orb"]')`],
@@ -161,6 +182,16 @@ async function browser(dir) {
         await sleep(r ? 150 : 1300);
       }
       await sleep(1500);
+      if (!mob) { const x = await ev('window.__ckXss||null').catch(() => null); if (x) info.xss = x }
+      // E2 CSP แบบรายงานอย่างเดียว: ต้องมี __CSPV (ตัวฟัง) และ header ทำงาน — ลองโหลดภาพจากโดเมนที่ไม่อยู่ในนโยบาย ต้องได้ violation แบบ report (ไม่ถูกบล็อก)
+      stage = `${nm}: CSP แบบรายงานอย่างเดียว (E2)`;
+      const cv = await ev(`(async()=>{if(!Array.isArray(window.__CSPV))return {e:'ไม่มี window.__CSPV (ตัวฟัง securitypolicyviolation)'};const n0=__CSPV.length;new Image().src='https://csp-probe.invalid/x.png?'+Date.now();await new Promise(r=>setTimeout(r,800));
+        const p=__CSPV.slice(n0).find(v=>/csp-probe/.test(v.u));const L=__CSPV.filter(v=>!/csp-probe/.test(v.u)).map(v=>v.d+' '+v.u.replace(/^(https?:[/][/][^/]+).*$/,'$1'));
+        return {probe:p?p.m:null,n:L.length,u:[...new Set(L)].slice(0,15)}})()`).catch(e => ({ e: e.message }));
+      if (cv.e) errs.push(`[${stage}] ${cv.e}`);
+      else { if (cv.probe !== 'report') errs.push(`[${stage}] header Content-Security-Policy-Report-Only ไม่ทำงาน (โดเมนนอกนโยบายไม่ขึ้น violation แบบ report: ${cv.probe})`);
+        if (cv.n) warn.push(`[${stage}] ถ้าบังคับใช้จะบล็อก ${cv.n} ครั้ง: ${cv.u.join(' · ')}`);
+        (info.csp = info.csp || {})[nm] = { probe: cv.probe, n: cv.n, u: cv.u } }
     }
 
     // ---------- D3 ลิงก์มุมมอง ?v=&l= เปิดคืน (ตำแหน่ง/ซูม/ทิศ/ชั้น/แผนที่ฐาน) · URL ไม่ถูกเขียนเอง · ?bb มาก่อน v ----------
@@ -273,6 +304,11 @@ async function browser(dir) {
   } else {
     if (UNIT_FAIL) { res.unit = false; res.errs.push('ชุดทดสอบหน่วยไม่ผ่าน (node --test test/) — ดู log ขั้น unit tests') }
     res.errs.push(...syntax(file), ...syntax(path.join(DIR, 'manual', 'index.html')), ...orbLib(file), ...orbLib(file, 'risk', 'RISK'));
+    // E2: ค่าที่เข้า innerHTML/insertAdjacentHTML/setHTML โดยไม่ผ่าน esc() จุดใหม่ (นอก scripts/lint_html_base.json) = คำเตือน ไม่ทำให้ไม่ผ่าน
+    try { const A = LINT.lintDir(DIR), N = LINT.fresh(A); res.lint = { all: A.length, new: N.length };
+      console.log(`lint_html: ${A.length} จุดไม่ผ่าน esc() · ตรวจแล้ว ${A.length - N.length} · ใหม่ ${N.length}`);
+      res.warn.push(...N.slice(0, 10).map(r => `[lint_html] ${r.file}:${r.line} ${r.sink} {${r.expr}} ไม่ผ่าน esc() — ค่าภายนอกให้ใส่ esc() · ค่าจากโค้ดใช้ node scripts/lint_html.js --update-base`)) }
+    catch (e) { res.warn.push('[lint_html] ตรวจไม่ได้: ' + e.message) }
     if (res.errs.length) console.log((UNIT_FAIL ? 'ชุดทดสอบหน่วยไม่ผ่าน' : 'syntax ผิด') + ' → ข้ามการเปิดในเบราว์เซอร์');
     else {
       const b = await browser(DIR);
@@ -284,6 +320,7 @@ async function browser(dir) {
   }
   res.sec = Math.round((Date.now() - t0) / 1000);
   if (res.info && res.info.debug) console.log('?debug=1:', JSON.stringify(res.info.debug));
+  if (res.info && (res.info.xss || res.info.csp)) console.log('E2 XSS/CSP:', JSON.stringify({ xss: res.info.xss || null, csp: res.info.csp || null }));
   if (res.warn.length) console.log('คำเตือน:\n  ' + res.warn.slice(0, 15).join('\n  '));
   if (res.errs.length) console.log('ข้อผิดพลาด:\n  ' + res.errs.slice(0, 15).join('\n  '));
   console.log(res.ok === true ? `✅ ผ่าน (${res.sec} วิ)` : res.ok === false ? `❌ ไม่ผ่าน ${res.errs.length} รายการ` : '⚠ ตรวจในเบราว์เซอร์ไม่ได้ (syntax ผ่าน)');

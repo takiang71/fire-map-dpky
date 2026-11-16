@@ -265,9 +265,11 @@ function pwaFiles(html, ix) {
   const fonts = fs.existsSync(path.join(ROOT, 'fonts')) ? fs.readdirSync(path.join(ROOT, 'fonts')).filter(f => f.endsWith('.woff2')).sort().map(f => 'fonts/' + f) : [];
   const shell = ['index.html', 'manifest.webmanifest', 'img/icon.svg', 'img/icon-192.png', 'img/icon-512.png', ...fonts, ...Object.values(ix), ...lib];
   const ver = crypto.createHash('sha1').update(html).update(man).update(tpl).update(shell.join('|')).digest('hex').slice(0, 12);
-  const a = "'dev'/*__SW_VERSION__*/", b = '/*__SW_SHELL__*/';
-  if (!tpl.includes(a) || !tpl.includes(b)) throw new Error('sw.js ไม่มีตำแหน่งแทนรุ่น/รายการ shell');
-  return { ver, shell, sw: tpl.split(a).join(`'${ver}'`).split(b).join(shell.map(s => JSON.stringify(s)).join(',')) };
+  const a = "'dev'/*__SW_VERSION__*/", b = '/*__SW_SHELL__*/', c = "''/*__SW_CSP__*/";
+  if (!tpl.includes(a) || !tpl.includes(b) || !tpl.includes(c)) throw new Error('sw.js ไม่มีตำแหน่งแทนรุ่น/รายการ shell/CSP');
+  // E2: CSP แบบรายงานอย่างเดียว (scripts/lib/csp.js) ที่ service worker ใส่ให้หน้าแรก
+  const csp = require('./lib/csp').policy(html);
+  return { ver, shell, csp, sw: tpl.split(a).join(`'${ver}'`).split(b).join(shell.map(s => JSON.stringify(s)).join(',')).split(c).join(JSON.stringify(csp)) };
 }
 
 module.exports = { summary, watchSum, splitEmb, EMB_IDS, pwaFiles };

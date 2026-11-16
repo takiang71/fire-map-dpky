@@ -96,3 +96,23 @@ Chrome headless 1440×900 · เสิร์ฟ `_site` จากเซิร์
 
 - syntax: สำเนา `scripts/lib/risk.js` ใน index.html ต้องตรง (`orbLib(file,'risk','RISK')`)
 - DESK แผงชั้นข้อมูล (ก่อน FWI): สวิตช์ `rk` → รอ ≤10 วิ ต้องมีแถว `#rk-tb tr[data-i]` และชั้น `rk-f` (ไม่มี = คำเตือน — โฟลเดอร์ repo ไม่มี risk.json; ใน CI ตรวจ _site) → แปลงสถานีฯ → พรุ่งนี้ → แตะแถวแรก → ตำบล → ปิด
+
+## ตัวตรวจ XSS / CSP / ตัวเลข (E1/E2/C2, 16 พ.ย. 69)
+
+- **`node scripts/lint_html.js [โฟลเดอร์|ไฟล์] [--all] [--json] [--update-base]`** (E2, <1 วิ): ตัวแบ่ง token อย่างง่าย (สตริง/คอมเมนต์/regex/template ซ้อน) หา `x.innerHTML=`/`+=`, `outerHTML=`, `insertAdjacentHTML(ตำแหน่ง, …)`, `.setHTML(…)` แล้วตรวจทุก `${…}` ในนิพจน์ด้านขวา (รวม template ใน `.map(…)`)
+  · ปลอดภัย = `esc()` · ตัวเลข (nf/Number/Math/toFixed/toLocaleString/.length/เลขคณิต) · สตริงตรง · `a?b:c` (ตรวจ b,c) · `a&&b` (ตรวจ b) · `a||b` · `.map(cb).join()` ที่ cb เป็น template · ชื่อตัวพิมพ์ใหญ่ (SATN[k]) · `/*xss-ok*/` ใน `${…}`
+  · **ratchet**: `scripts/lint_html_base.json` = 322 จุดที่ตรวจด้วยตาแล้ว (ค่าจากโค้ด/ตัวเลข/HTML ที่แอปสร้างเอง) คีย์ `app|manual` + sink + นิพจน์ (ไม่มีเลขบรรทัด) · เตือนเฉพาะจุดใหม่ · ตรวจจุดใหม่แล้วว่าเป็นค่าจากโค้ด → `--update-base` · ค่าภายนอก (API/ไฟล์ผู้ใช้/เซิร์ฟเวอร์) → ใส่ esc() ห้ามเพิ่มเข้ารายการ
+  · ข้อจำกัด: ไม่ตามค่าข้ามตัวแปร — `h=(template); el.innerHTML=h` ตรวจแค่ว่า `h` เป็นตัวแปร (อยู่ในรายการแล้ว) ไม่ได้ตรวจ template ตอนสร้าง h · ฟังก์ชันที่คืน HTML (ftBox, fwHtml …) นับเป็นตัวสร้างของแอป
+  · ตรวจด้วยตารอบแรกพบค่าภายนอกไม่ผ่าน esc 5 แห่ง → แก้แล้ว: ป๊อปอัปสถานี Air4Thai (`st.name/area/src`), ชื่อดาวเทียมจาก API ในแถบแหล่งข้อมูล (`f.sats`), `data-tmon` สถานีกรมอุตุฯ, `data-i` ชั้นเซิร์ฟเวอร์, ข้อความ `fail()` ตอนโหลดไม่สำเร็จ
+- **`node scripts/verify_numbers.js [โฟลเดอร์=_site] [--ci] [--all]`** (C2, ~1 วิ) → [pipelines.md](pipelines.md)
+- **check_site เพิ่ม** (16 พ.ย. 69)
+  · ขั้น syntax: `lint_html` จุดใหม่ = คำเตือน (≤10 แถว) + `res.lint {all,new}` ใน check.json — ไม่ทำให้ไม่ผ่าน
+  · เซิร์ฟเวอร์ในสคริปต์ส่ง header `Content-Security-Policy-Report-Only` ให้ .html (เหมือน serve.js)
+  · DESK "ชั้นข้อมูลของฉัน" → **นำเข้า KML ทดสอบ XSS** (`XSS`): ชื่อไฟล์/ชื่อชั้น/ชื่อวัตถุ/คำอธิบาย (CDATA)/ExtendedData/SimpleData = `<img src=x onerror=alert(1)>` ผ่าน `ulImport` → `GIO.load` → รายการชั้น + `ulPop` · ต้อง: alert ไม่ถูกเรียก (แทน window.alert ด้วยตัวนับ), ไม่มี `img[src="x"]`, ข้อความอยู่ใน textContent ของป๊อปอัปและรายการ → `info.xss` แล้วลบชั้นทดสอบ
+  · ท้ายรอบเดสก์ท็อป/มือถือ: **CSP probe** โหลดภาพจาก `https://csp-probe.invalid` → ต้องได้ violation `disposition: report` ใน `window.__CSPV` (= header ทำงานและไม่บล็อก) ไม่ได้ = error · violation อื่น = คำเตือน "ถ้าบังคับใช้จะบล็อก …" → `info.csp`
+- **ไฟล์เทสต์เพิ่ม**
+  | ไฟล์ | ทดสอบ |
+  |---|---|
+  | `lint.test.js` | E2 `safeExpr` ปลอดภัย/ไม่ปลอดภัย · `lint` จับ 4 sink + template ซ้อน ข้ามสตริง/คอมเมนต์/regex/JSON · ratchet นับซ้ำ · index.html+คู่มือไม่มีจุดใหม่ และจุดที่แก้ใช้ esc() |
+  | `csp.test.js` | E1 ทุก `<script>`/`<link>` ภายนอก (index+คู่มือ) มี sha384+crossorigin, ตัวโหลด xlsx/proj4 ตั้ง integrity, MapLibre 4.7.1 · E2 นโยบายครอบทุกโดเมนใน index.html (grep) + EXTRA, Report-Only เท่านั้น, ไม่มี meta CSP บังคับ · sw.js ใน vm ใส่ header ให้ navigate (ฉบับเผยแพร่) / ไม่ใส่ (dev) / ไม่ทับ header เดิม |
+  | `numbers.test.js` | C2 เวลาจำลอง 20 เม.ย. 2569 (adata ทุกพื้นที่) และวันหลัง adata.to + live.json สังเคราะห์ 5 จุด (มีดงใหญ่) → หน้าเว็บ = summary = LINE = Telegram · แก้ summary +1 จุด → ok:false ชี้พื้นที่ (~3 วิ เพราะเรียก telegram_notify --preview) |

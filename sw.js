@@ -9,6 +9,11 @@
      - ไทล์ OpenFreeMap ที่ผู้ใช้กด "เก็บพื้นที่นี้ไว้ดูออฟไลน์" (แคช ofm-v1 — หน้าเว็บเขียนเอง) = ไทล์ .pbf cache-first · style/TileJSON/sprite/glyph เครือข่ายก่อน
      - API ภายนอก/ไทล์ Esri/Google/อื่น ๆ = ไม่แตะ (ไม่แคช) */
 const SW_VERSION = 'dev'/*__SW_VERSION__*/, SHELL = [/*__SW_SHELL__*/];
+// E2: Content-Security-Policy-Report-Only ของหน้าแรก (GitHub Pages ตั้ง header ไม่ได้ / <meta> ใช้กับ Report-Only ไม่ได้) — build_site.js ใส่นโยบายจาก scripts/lib/csp.js
+// รายงานอย่างเดียว ไม่บล็อก · รุ่น dev = '' (serve.js ส่ง header เองอยู่แล้ว)
+const CSP = ''/*__SW_CSP__*/;
+const withCSP = r => { if (!CSP || !r || r.type === 'opaque' || r.headers.has('Content-Security-Policy-Report-Only')) return r;
+  const h = new Headers(r.headers); h.set('Content-Security-Policy-Report-Only', CSP); return new Response(r.body, { status: r.status, statusText: r.statusText, headers: h }) };
 const DEV = SW_VERSION === 'dev', C_SHELL = 'shell-' + SW_VERSION, C_DATA = 'data-v1', C_OFM = 'ofm-v1';
 const SCOPE = new URL(self.registration.scope), ROOT = SCOPE.pathname;
 const MAPLIBRE = /^https:\/\/cdnjs\.cloudflare\.com\/ajax\/libs\/maplibre-gl\//, OFM = /^https:\/\/tiles\.openfreemap\.org\//;
@@ -60,7 +65,7 @@ self.addEventListener('fetch', e => {
     if (req.mode === 'navigate') {
       if (p !== '' && p !== 'index.html') return;
       const k = new URL('index.html', SCOPE).href;
-      e.respondWith(DEV ? networkFirst(new Request(k), C_SHELL, k) : cacheFirst(new Request(k), C_SHELL, k).catch(() => networkFirst(req, C_SHELL, k)));
+      e.respondWith((DEV ? networkFirst(new Request(k), C_SHELL, k) : cacheFirst(new Request(k), C_SHELL, k).catch(() => networkFirst(req, C_SHELL, k))).then(withCSP));
       return;
     }
     if (SHELL_RE.test(p)) { e.respondWith(DEV ? networkFirst(req, C_SHELL, keyOf(req.url)) : cacheFirst(req, C_SHELL, keyOf(req.url))); return }

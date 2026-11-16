@@ -123,6 +123,15 @@
   · **ตรวจตัวเลขกับแผงสถิติหน้าเว็บ (`HB()` ปุ่มดงใหญ่เปิด)**: มี.ค. 2569 ตัวชี้วัด 21 / มี.ค. 2568 12 / สะสม ต.ค.–มี.ค. 58 vs 164 / อช.ทับลาน มี.ค. 15 / ปีงบ 2569 ทั้งปี 96 — ตรงทุกค่า
   · รายงานแรก: ตุลาคม 2569 (สร้างมือ 16 พ.ย. 69, 0 จุด) — รายงานอัตโนมัติฉบับแรก = พฤศจิกายน 2569 วันที่ 1 ธ.ค. 69
 
+## ตรวจความสอดคล้องตัวเลข (C2, 16 พ.ย. 69)
+
+- `site.yml` ขั้น **verify numbers** (continue-on-error, 2 นาที) ต่อจาก check site ก่อน line_notify: `node scripts/verify_numbers.js _site --ci`
+  · หน้าเว็บ: ดึงโค้ดจริงจาก `_site/index.html` เป็นช่วง (`liveList` ตั้งแต่ `HOTSPOT_TZ`, `geoAt`, `dyAS/xAD/xLive`, `thDay/fy0/fyOfDay`, `fuOK`, `fyCum`, `hKey`, `fyNow`, `fyPts`, `SB1/SBP`, ช่วง `esc`…`hdFill` = อ่าน hdata/adata) รันใน `new Function` ด้วยข้อมูลฝัง `data/emb/*.json` + live.json · เวลา = `summary.generated` (Date จำลอง) · หาโค้ดไม่เจอ = ok:null + ::warning (ไม่ใช่ตัวเลขผิด)
+  · เทียบ (ค่าเริ่มต้นหน้าเว็บ ไม่รวมดงใหญ่): ปีงบ · สะสมทุกพื้นที่ (`fyNow` S.xdy=false = summary.total = ผลรวม areas) · สะสมไม่รวมดงใหญ่ (fyNow = จำนวน fyPts = ผลรวม areas ที่ไม่ใช่ดงใหญ่ = แถว "รวม" การ์ด LINE = "รวม" Telegram) · ปีงบก่อนทั้งปี/ช่วงเดียวกัน (HD fuOK xHD) · รายพื้นที่อนุรักษ์ (geoAt ชื่อ "เตรียมประกาศเป็น…" → "… (เตรียมการ)") · รายจังหวัด
+  · LINE = `carousel({live,sum,now,daily:true})` การ์ดแรก (แถวชื่อย่อ AREAS + "รวม") · Telegram = `telegram_notify.js --preview` (ไม่ส่ง; `NOTIFY_DIR` = โฟลเดอร์, `TG_NOW`) ส่วน "สรุปประจำวัน"
+  · ผล `_site/numcheck.json` {at, now, ok, fy, n, diff, checks} (ขึ้น Pages ด้วย) → health.js `num` (ต่อเนื่อง 1 ชม.) แจ้งผู้ดูแล · ต่าง = `::warning title=ตัวเลขหน้าเว็บ/summary.json/LINE/Telegram ไม่ตรงกัน::`
+  · ตรวจรับ: กลางปีงบ 2569 ตรงกัน 17 รายการ (สะสม 100 ไม่รวมดงใหญ่/138 ทั้งหมด, 6 พื้นที่, 6 จังหวัด) · แก้ summary ทับลาน +1 → จับได้ 3 รายการ (รวมทุกพื้นที่, ไม่รวมดงใหญ่, ทับลาน) · `test/numbers.test.js`
+
 ## อื่นๆ ของโฮสต์
 
 - หน้าเว็บ: `liveFile()` อ่าน `live.json` ก่อน (ถ้าเก่ากว่า `LIVE_MAXAGE` 40 นาทีหรือไม่มี → ดึง API ตรง) · `getStations` ลอง `air4thai.json` ก่อน

@@ -88,6 +88,12 @@ jobs:
         env:
           # ผลชุดทดสอบหน่วย: failure = ถือว่าไม่ผ่าน (ใช้ index.html ฉบับบนเว็บ)
           UNIT: ${{ steps.unit.outcome }}
+      # C2: ตัวเลขสะสมของหน้าเว็บ (โค้ดจริงจาก _site/index.html) ↔ summary.json ↔ การ์ด LINE ↔ สรุปประจำวัน Telegram ต้องเท่ากัน
+      # ต่างกัน = ::warning + _site/numcheck.json ok:false → health.js (`num`) แจ้งผู้ดูแล · ไม่หยุดรอบ (การแจ้งเตือนยังทำงาน)
+      - name: verify numbers
+        continue-on-error: true
+        timeout-minutes: 2
+        run: node scripts/verify_numbers.js _site --ci
       # แจ้งเตือนจุดใหม่เข้ากลุ่ม LINE (docs/line-bot.md) — ไม่ตั้ง secret ก็ยังเก็บสถานะ notify.json ไว้
       - run: node scripts/line_notify.js || true
         env:

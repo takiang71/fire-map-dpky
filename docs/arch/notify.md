@@ -59,6 +59,7 @@
     · push ข้อความธรรมดาถึง var `LINE_ADMIN_ID` คนเดียว (ไม่ตั้ง = บันทึกอย่างเดียว)
     · ตรวจ `CHECKS`: api (ไม่มี _site/live.json หรือ nation_total 0, รอ 1 ชม.) / src (meta.sys_update เก่ากว่า 18 ชม.) / sync (adata.upd เก่ากว่า 14 ชม.) / gap (adata.to เก่ากว่า 2 วัน) / line (notify.json line.ok=0, รอ 1 ชม.)
     · แจ้งเมื่อพบ ทวนทุก 12 ชม. แจ้ง ✅ เมื่อหาย รวมเป็นข้อความเดียวต่อรอบ
+    · `num` (C2, 16 พ.ย. 69): `_site/numcheck.json` ok:false ต่อเนื่อง 1 ชม. = ตัวเลขหน้าเว็บ/summary.json/LINE/Telegram ไม่ตรงกัน (scripts/verify_numbers.js — [pipelines.md](pipelines.md)) · ok:null (ตรวจไม่ได้) ไม่แจ้ง
     · สถานะใน `_site/health.json` (Pages, อ่านกลับจาก URL แบบ notify.json)
     · `--site` ใน sync.yml (if: always()) ตรวจ notify.json บนเว็บอัปเดตใน 90 นาที (cron-job.org/site หยุด) ไม่มีสถานะ = แจ้งทุกรอบ sync
     · ตั้ง/เปลี่ยน LINE_ADMIN_ID → ส่งข้อความยืนยัน 1 ครั้ง (`st.admin` = แฮช sha256 12 ตัว เพราะ health.json สาธารณะ)

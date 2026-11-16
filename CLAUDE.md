@@ -9,7 +9,7 @@
 ข้อมูลหลัก: จุดความร้อนสด (API ThaiREN 48 ชม.) · ย้อนหลังกรมอุทยานฯ Excel (SNPP ปีงบ 2561–2569) · API ไทย + NASA FIRMS ทุกดาวเทียมถึงปีงบ 2561 · การดับไฟ อส. 2564–2569 · พื้นที่เผาไหม้ GISTDA/HII · FWI กรมป่าไม้ · VR GFS · PM2.5 CAMS ฯลฯ
 ตัวชี้วัดกรมอุทยานฯ: Suomi NPP → **NOAA-20 ตั้งแต่ 2 พ.ย. 2569** (`IND_SW`) · แผนที่แสดงทุกดวง · ค่าเริ่มต้น **ไม่รวม ขสป.ดงใหญ่ (สบอ.7)**
 
-**รายละเอียดทั้งหมดอยู่ใน `docs/arch/*.md`** (ย้ายมาจาก CLAUDE.md เดิม 375 KB เมื่อ 15 พ.ย. 69 โดยไม่ตัดข้อเท็จจริง) — อ่านเฉพาะไฟล์ที่เกี่ยวกับงาน แล้วค้นชื่อฟังก์ชันใน `index.html` ด้วย grep
+**รายละเอียดทั้งหมดอยู่ใน `docs/arch/*.md`** (ย้ายจาก CLAUDE.md เดิม 15 พ.ย. 69) — อ่านเฉพาะไฟล์ที่เกี่ยวกับงาน แล้วค้นชื่อฟังก์ชันใน `index.html` ด้วย grep
 
 ## กติกาที่ต้องทำตามทุกครั้ง
 
@@ -43,7 +43,7 @@
 | [gotchas.md](docs/arch/gotchas.md) | ชื่อชนกัน + บั๊กที่เคยเจอ | |
 | [data-update.md](docs/arch/data-update.md) | ขั้นตอนนำเข้า Excel กรมอุทยานฯ ปีงบใหม่ (ทำปีละครั้ง) / ข้อมูลดับไฟ | `excel_to_hdata` `hdFill` `chkXlsx` |
 | [risk.md](docs/arch/risk.md) | F2 ดัชนีเสี่ยง (ไม่ใช่ค่าทางการ) ตรวจย้อนหลัง | `RISK` `fwiDay` |
-| [testing.md](docs/arch/testing.md) | ชุดทดสอบหน่วย `test/` (วิธีเพิ่มเทสต์), check_site (ในเครื่อง/CI), harness | `node --test` `check_site` `--ci` `UNIT` |
+| [testing.md](docs/arch/testing.md) | ชุดทดสอบหน่วย `test/` (วิธีเพิ่มเทสต์), check_site (ในเครื่อง/CI), ตัวตรวจ XSS/CSP/ตัวเลข | `node --test` `check_site` `--ci` `UNIT` `lint_html` `verify_numbers` |
 
 เอกสารอื่น: `docs/line-bot.md` (ติดตั้ง LINE/cron-job.org/watchdog/health) · `docs/telegram-bot.md` · `docs/layers-backend.md` · `manual/index.html` (คู่มือผู้ใช้) · `docs/review-2569-11-15.md` (รายงานตรวจและงานค้าง)
 

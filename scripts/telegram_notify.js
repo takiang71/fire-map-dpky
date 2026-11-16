@@ -15,7 +15,8 @@
 //    --chats = แสดงรหัสห้องที่บอทอยู่ (จาก getUpdates — เชิญบอทเข้ากลุ่มแล้วพิมพ์อะไรก็ได้ในกลุ่มก่อน) · TG_API = เปลี่ยนปลายทาง (เซิร์ฟเวอร์จำลอง)
 const fs = require('fs'), path = require('path'), { pathToFileURL } = require('url');
 
-const ROOT = path.join(__dirname, '..'), OUT = path.join(ROOT, '_site');
+// NOTIFY_DIR = โฟลเดอร์เว็บอื่นแทน _site (scripts/verify_numbers.js เรียก --preview กับโฟลเดอร์ทดสอบ)
+const ROOT = path.join(__dirname, '..'), OUT = process.env.NOTIFY_DIR ? path.resolve(process.env.NOTIFY_DIR) : path.join(ROOT, '_site');
 const SITE = process.env.SITE_URL || 'https://takiang71.github.io/fire-map-dpky/';
 // TG_CHAT_ID: เก็บเฉพาะส่วนที่เป็นรหัสห้อง (ตัวเลข/@ชื่อช่อง) — กันวางทั้งบรรทัดจาก log "TG_CHAT_ID = -100… (supergroup) ชื่อกลุ่ม" (3 พ.ย. 69)
 const IDS = (process.env.TG_CHAT_ID || '').replace(/["'`]/g, ' ').split(/[\s,;]+/).filter(Boolean), isId = x => /^-?\d{5,}$|^@\w{4,}$/.test(x);

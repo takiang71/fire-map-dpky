@@ -22,6 +22,8 @@ const H = 36e5, REMIND = 12 * H;
 const CHECKS = { api: ['ดึงจุดความร้อนจาก API ไม่ได้', H], src: ['ระบบต้นทางไม่อัปเดต', 0], sync: ['sync จุดความร้อนไม่ทำงาน', 0], gap: ['ข้อมูลสะสมค้าง', 0], line: ['LINE ใช้งานไม่ได้', H],
   tg: ['Telegram ใช้งานไม่ได้', H], tle: ['ข้อมูลวงโคจรดาวเทียมเก่า', 0], vr: ['ข้อมูลอัตราการระบายอากาศ (GFS) เก่า', 0], cams: ['ข้อมูล PM2.5 แบบจำลอง CAMS เก่า', 0], fwi: ['ข้อมูล FWI/FFMC (TFDRS) เก่า', 0], tgm: ['กลุ่ม Telegram ถูกอัปเกรดเป็น supergroup', 0],
   pages: ['หน้าเว็บ (GitHub Pages) ไม่อัปเดต', 0], ci: ['หน้าเว็บฉบับใหม่ไม่ผ่านการตรวจ', 0],
+  // C2: scripts/verify_numbers.js — ยอดสะสมของหน้าเว็บ/summary.json/การ์ด LINE/Telegram ต่างกัน (ต่อเนื่อง 1 ชม. กันรอบที่ข้อมูลกำลังเปลี่ยน)
+  num: ['ตัวเลขหน้าเว็บ / summary.json / LINE / Telegram ไม่ตรงกัน', H],
   cron: ['cron-job.org ไม่ได้สั่งรอบ site ตามเวลา', H],
   // ช่องที่ 3 = ทวนซ้ำทุกเท่าไร (ไม่ใส่ = REMIND 12 ชม.) — เรื่องที่แก้ไม่ได้ทันที เตือนห่าง ๆ (15 พ.ย. 69 ข้อ C1/A6 ของรายงานตรวจ)
   xlsx: ['ยังไม่ได้นำเข้า Excel จุดความร้อนกรมอุทยานฯ ปีงบที่จบแล้ว', 0, 30 * 24 * H], savi: ['แหล่งเชื้อเพลิง SAVI (ตามรอยเผา) ไม่มีเดือนใหม่', 0, 30 * 24 * H],
@@ -132,6 +134,9 @@ function problems(pg) {
   if (pu && now - pu > H) P.pages = `live.json บนเว็บสร้างเมื่อ ${thTime(pu)} (${hrs(now - pu)} ชม.) ทั้งที่ workflow site รันปกติ — deploy ขึ้นสำเร็จแต่ Pages ไม่เปลี่ยน`;
   // ผลตรวจหน้าเว็บก่อน deploy (scripts/check_site.js --ci)
   const ck = readJ(path.join(OUT, 'check.json'));
+  // C2 ตัวเลขไม่ตรงกัน (scripts/verify_numbers.js → _site/numcheck.json) · ok:null = ตรวจไม่ได้ ไม่แจ้ง
+  const nc = readJ(path.join(OUT, 'numcheck.json'));
+  if (nc && nc.ok === false) P.num = `${(nc.diff || []).slice(0, 3).join(' ; ').slice(0, 400)}${nc.diff && nc.diff.length > 3 ? ` (+อีก ${nc.diff.length - 3})` : ''} — ตรวจ: node scripts/verify_numbers.js _site --all`;
   if (ck && ck.ok === false) P.ci = `${String(ck.errs && ck.errs[0] || '').split(' | ')[0].slice(0, 220)}${ck.errs && ck.errs.length > 1 ? ` (+อีก ${ck.errs.length - 1})` : ''} — ${ck.fallback ? 'หน้าเว็บยังใช้ฉบับก่อนหน้า ข้อมูลจุดความร้อนยังอัปเดตตามปกติ' : 'ดึงฉบับก่อนหน้าไม่ได้ ฉบับใหม่ขึ้นเว็บไปแล้ว'} · ดู log ขั้น check site`;
   return P;
 }
