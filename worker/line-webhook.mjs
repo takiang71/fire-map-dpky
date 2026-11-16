@@ -129,7 +129,7 @@ function pmBlock(pm, now) {
     T('วันนี้: ' + x.parks.filter(p => p[1] != null).map(p => p[0] + ' ' + pmF(p[1])).join(' · ') + ' · สูงสุด ' + pmF(x.pk) + ' (' + hm(x.pkT) + ' น. ' + x.pkN + ') · ค่าแบบจำลอง ไม่ใช่ค่าตรวจวัด',
       { size: 'xxs', color: '#1D3557', wrap: true, margin: 'xs' })];
 }
-function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaLeft = null, per = 4, test = false, daily = false, orb = null, vr = null, fwi = null, pm = null }) {
+function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaLeft = null, per = 4, test = false, daily = false, orb = null, vr = null, fwi = null, pm = null, risk = null }) {
   const alert = !!fresh;
   const pts = (live && live.features || []).filter(f => f.properties && !excluded(f.properties)), h24 = pts.filter(f => now - thMs(f.properties.full_date) < 24 * 36e5);
   const nw = (fresh || []).filter(f => !excluded(f.properties)), list = alert ? nw : h24;
@@ -163,6 +163,7 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
       ...(orb ? [T(`🛰 ดาวเทียมรอบถัดไป: ${orb.length ? orb.slice(0, 4).map(p => orbLab(p, now)).join(' · ') + ' น.' : 'ไม่มีรอบที่ผ่านกลางแถบสแกนใน 24 ชม.'}`, { size: 'xxs', color: '#1D3557', wrap: true, margin: 'sm' })] : []),
       ...(vr && vr.days && vr.days.length ? vrBlock(vr, now) : []),
       ...(fwi && fwi.days && fwi.days.length ? fwiBlock(fwi, now) : []),
+      ...(risk && risk.text ? [T((risk.n5 ? '🟥 ' : risk.n4 ? '🟧 ' : '🟩 ') + risk.text, { size: 'xxs', color: risk.n5 ? '#B3261E' : risk.n4 ? '#A35200' : '#1D3557', wrap: true, margin: 'sm' })] : []),
       ...(pm && pm.days && pm.days.length ? pmBlock(pm, now) : []),
       sub('รายพื้นที่ (สะสมปีงบ)', [[RED, String(fy)], [BLUE, `${fy - 1} ทั้งปี`]]),
       ...rows.map(([n, v, c]) => { const [t, tc] = dPct(v.fy, v.pfull);

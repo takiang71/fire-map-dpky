@@ -317,6 +317,12 @@ if (require.main === module) (async () => {
     const R = await reports();
     if (R) { fs.writeFileSync(path.join(OUT, 'reports.json'), JSON.stringify(R)); console.log(`reports.json: ${R.reports.length} รายงาน (ปีงบ ${R.fys.join('/')}) จาก${R.src === 'worker' ? 'เซิร์ฟเวอร์' : 'สำเนารอบก่อน'}`) }
   } catch (e) { console.log('reports.json ไม่สำเร็จ:', e.message) }
+  // F2 ดัชนีเสี่ยงไฟป่าล่วงหน้า (ดัชนีของระบบนี้ ไม่ใช่ค่าทางการ) วันนี้/พรุ่งนี้ ต่อตำบล/แปลงสถานีฯ — scripts/lib/risksum.js (โมเดล M2) · FWI จากตาราง TFDRS ที่ขั้น load fwi grids วางไว้ใน data/fwi/g
+  try {
+    const K = require('./lib/risksum').riskDays({ live: L ? L.features : [] });
+    fs.writeFileSync(path.join(OUT, 'risk.json'), JSON.stringify(K));
+    console.log('risk.json:', K.days.map(d => `${d.d} (${d.src === 'grid' ? 'ตาราง FWI' : 'FWI เฉลี่ย'}) สูงขึ้นไป ${d.tm.filter(x => x[3] >= 4).length}/${d.tm.length} ตำบล`).join(' · ') || 'ไม่มีข้อมูล FWI');
+  } catch (e) { console.log('risk.json ไม่สำเร็จ:', e.message) }
   try {
     const b = await air4thai();
     JSON.parse(b); // ตรวจว่าเป็น JSON จริง

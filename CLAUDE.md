@@ -62,7 +62,7 @@
 - FWI: TFDRS บล็อกเครื่อง GitHub (403) → Task Scheduler "fire-map FWI" บนเครื่องผู้ใช้ (`fwi_local.js`) · เก่า ≥2 วัน → LFA (`fwi_lfa.js`)
 - ต้นทางช้า/หยุด: SAVI มีแค่ 202601 · พื้นที่เผาไหม้ B4 รอบล่าสุด 22–28 ต.ค. 69
 - **F1** ผลตรวจสอบจากหน้างาน (`VF` + Worker `/reports`, วาง Worker แล้ว `rep:true` 16 พ.ย. 69) → [ui-modules.md](docs/arch/ui-modules.md)
-- **F2** ดัชนีเสี่ยง **รอผู้ใช้อนุมัติก่อนทำ UI** → risk.md · **F3** `monthly_report.js` (sync วันที่ 1 → `reports/`) → pipelines.md
+- **F2** ดัชนีเสี่ยง M2 (ผู้ใช้อนุมัติ) ชั้น `rk-*` + risk.json → risk.md · **F3** `monthly_report.js` (sync วันที่ 1 → `reports/`) → pipelines.md
 - LINE ยังเป็นกลุ่มทดสอบ — ย้ายกลุ่มจริงต้องแก้ `LINE_GROUP_ID` และคิดเรื่องโควตา (11–30 คน × สรุปรายวัน เกินโควตาฟรี)
 - **ปีงบ 2571 (1 ต.ค. 70):** ถ้ายังไม่นำเข้า Excel ปีงบ 2570 เว็บเติมจาก API ให้เอง (`hdFill` + ป้าย ⚠) และ health `xlsx` เตือนตั้งแต่ 1 ธ.ค. — ควรนำเข้าตาม data-update.md
 

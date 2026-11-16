@@ -136,6 +136,10 @@
   - เสนอ cron-job.org เรียก `workflow_dispatch` ของ site ทุก 10 นาที (fine-grained PAT Actions:write) เพราะ schedule ของ GitHub รันจริงทุก 2–5 ชม.
   - ทดสอบแล้วด้วย LINE API จำลอง (seed/ส่ง/ไม่ซ้ำ/โควตาไม่พอ/ลายเซ็นผิด/คำสั่ง/ตัดดงใหญ่) + ดูหน้าตาการ์ดด้วยตัวแสดงผลจำลอง (ไม่ใช่แอป LINE จริง) — **ยังไม่เคยทดสอบกับ LINE และ Cloudflare จริง**
 
+## พื้นที่เสี่ยงไฟป่า (F2) ในสรุปประจำวัน
+
+- `scripts/lib/risksum.js` `riskLine()` จาก `_site/risk.json` → Telegram บรรทัดต่อจาก FWI (+ลิงก์ `?v=&l=rk`) · LINE `carousel({risk})` ข้อความเล็กต่อจากกล่อง FWI · ข้อความมี "ดัชนีของระบบ ไม่ใช่ค่าทางการ" เสมอ · ไม่มีไฟล์ = ไม่มีบรรทัด · ไม่ต้องวาง line-webhook.mjs ใหม่ (พารามิเตอร์ใหม่ค่าเริ่มต้น null)
+
 ## รายงานประจำเดือน (F3) ใน LINE/Telegram
 
 - `scripts/lib/mrep.js` `pending(index, st.mrep, now)` + `text(r,{site,html})` ใช้ทั้งสองระบบ · อ่าน `_site/reports/index.json` (build_site คัดลอกจาก reports/)

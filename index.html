@@ -806,6 +806,14 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
    <div class="lgd"><div><i style="background:#e8741c;border-radius:50%"></i><span style="flex:1">พื้นที่เสี่ยงสูงขึ้นไป (CBI ≥ 75)</span><b id="dr-s1"></b></div><div><i style="background:#c0503c;border-radius:50%"></i><span style="flex:1">เสี่ยงสูงมาก–วิกฤต (CBI ≥ 90)</span><b id="dr-s2"></b></div><div><i style="background:#7e0023;border-radius:50%"></i><span style="flex:1">ความชื้นต่ำสุดในประเทศ</span><b id="dr-s3"></b></div></div>
    <p class="note" style="margin-left:0"><span id="dr-n"></span></p>
    <button class="lk" id="dr-r">↻ คำนวณใหม่</button></div>
+  <div class="row" data-tip="ดัชนีเสี่ยงไฟป่าล่วงหน้าที่ระบบนี้คำนวณเอง (ไม่ใช่ค่าทางการ) ต่อตำบล/แปลงสถานีฯ วันนี้และพรุ่งนี้: ความถี่การเกิดจุดความร้อนในช่วงเดียวกันของปีในอดีต + ดัชนี FWI ของ TFDRS + จุดความร้อนในพื้นที่ภายใน 3 วัน → 5 ระดับ · ตรวจย้อนหลังปีงบ 2569 แล้ว · ใช้จัดลำดับพื้นที่ที่ควรเฝ้าระวัง"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l9 16H3z" style="fill:#f08a1c;stroke:#8a3d00"/><path d="M12 10v4M12 16.5v.5" style="stroke:#fff;stroke-width:2.2"/></svg><b>พื้นที่เสี่ยงไฟป่าล่วงหน้า</b><span class="sm" id="rk-t"></span><button class="sw" data-k="rk" role="switch" aria-label="พื้นที่เสี่ยงไฟป่าล่วงหน้า"></button></div>
+  <div id="rkbox" hidden>
+   <div class="seg" id="rk-u" role="group" aria-label="หน่วยพื้นที่"><button data-v="tm">ตำบล</button><button data-v="st">แปลงสถานีฯ</button></div>
+   <div class="chips" id="rk-dc" role="group" aria-label="เลือกวัน"></div>
+   <div class="lgd" id="rk-lg"></div>
+   <div class="tsv"><span id="rk-dv" style="flex:1">ชี้หรือแตะพื้นที่บนแผนที่เพื่อดูระดับ</span></div>
+   <div class="vrc"><div class="sm" id="rk-th"></div><div id="rk-tb"></div></div>
+   <p class="note" style="margin-left:0"><span id="rk-n"></span></p></div>
   <div class="row" data-tip="ระบบดัชนีอันตรายไฟป่าของแคนาดา (Canadian Forest Fire Weather Index System) คำนวณโดยระบบ TFDRS ของกรมป่าไม้ จากอุณหภูมิ ความชื้น ลมเที่ยงวัน และฝน 24 ชม. (แบบจำลอง WRF ของ สสน.) · เกณฑ์ 5 ระดับปรับเทียบสำหรับประเทศไทย · ตาราง ~3 กม. วันละครั้ง ย้อนหลัง 7 วัน + พยากรณ์ 2 วัน · 6 ดัชนี: FFMC DMC DC (ความชื้นเชื้อเพลิง) → ISI BUI → FWI · ชี้เมาส์บนแผนที่เพื่อดูค่า"><svg class="i" viewBox="0 0 24 24"><path d="M3.5 17a8.5 8.5 0 0117 0"/><path d="M12 17l4.5-5.5"/><circle cx="12" cy="17" r="1.4"/><path d="M6 12.6l1.2.8M12 8.5v1.4M18 12.6l-1.2.8"/></svg><b>ดัชนีอันตรายไฟป่า FWI</b><span class="tag">กรมป่าไม้</span><span class="sm" id="fwi-t"></span><button class="sw" data-k="fwi" role="switch" aria-label="ดัชนีอันตรายไฟป่า FWI System กรมป่าไม้"></button></div>
   <div id="fwibox" hidden>
    <div class="seg fwseg" id="fwi-v" role="group" aria-label="เลือกดัชนี"><button data-v="FWI" title="ดัชนีความรุนแรงของไฟ (Fire Weather Index) — ดัชนีอันตรายไฟป่าโดยรวม">FWI</button><button data-v="ISI" title="ดัชนีการลุกลามเริ่มต้น (Initial Spread Index)">ISI</button><button data-v="BUI" title="ดัชนีเชื้อเพลิงสะสม (Buildup Index)">BUI</button><button data-v="FFMC" title="รหัสความชื้นเชื้อเพลิงละเอียด (Fine Fuel Moisture Code)">FFMC</button><button data-v="DMC" title="รหัสความชื้นของอินทรียวัตถุชั้นบน (Duff Moisture Code)">DMC</button><button data-v="DC" title="รหัสความแห้งแล้ง (Drought Code)">DC</button></div>
@@ -1204,7 +1212,7 @@ const areaHtml=g=>{let s='';if(g.cons)s+=`<b>${esc(g.cons.properties.name)}</b><
  return s||'<span class="sm">อยู่นอกพื้นที่อนุรักษ์และพื้นที่รับผิดชอบไฟป่าตามไฟล์แนวเขต</span><br>'};
 
 /* ---------- สถานะ + จำค่าที่ผู้ใช้เลือก ---------- */
-let S={base:'natural',img:'google',d3:false,hot:true,prov:false,cons:true,resp:false,stn:false,wpt:false,rgr:false,fbs:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,orb:true,orbm:false,wch:true,wst:false,wsp:true,demo:false,water:true,road:true,wxw:true,pm:false,pmst:true,pmc:true,cmm:'d',cmop:65,dry:false,fwi:false,fwv:'FWI',wx:false,vr:false,vrg:'mean',rad:false,him:false,tmd:false,tmv:'t',hmb:'ir',hmop:85,wyl:false,wyo:'wind',wyop:60,hist:false,xt:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',rep:false,rpm:2,hcd:1,hcg:2,hcr:200};
+let S={base:'natural',img:'google',d3:false,hot:true,prov:false,cons:true,resp:false,stn:false,wpt:false,rgr:false,fbs:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,orb:true,orbm:false,wch:true,wst:false,wsp:true,demo:false,water:true,road:true,wxw:true,pm:false,pmst:true,pmc:true,cmm:'d',cmop:65,dry:false,rk:false,rku:'tm',fwi:false,fwv:'FWI',wx:false,vr:false,vrg:'mean',rad:false,him:false,tmd:false,tmv:'t',hmb:'ir',hmop:85,wyl:false,wyo:'wind',wyop:60,hist:false,xt:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',rep:false,rpm:2,hcd:1,hcg:2,hcr:200};
 const VWD=JSON.parse(JSON.stringify(S)); /* D3 ค่าตั้งต้นของโค้ด ก่อนรวมค่าที่ผู้ใช้บันทึก (ลิงก์มุมมอง ?l= เทียบกับค่านี้) */
 try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;S.wst=false;S.dry=false;S.wpt=false;/* รวมแถวหมวดสภาพอากาศ 14 พ.ย. 69: ลม→สภาพอากาศแบบจำลอง · เรดาร์→เมฆและเรดาร์ฝน · PM2.5 CAMS→ฝุ่น PM2.5 */if(S.cms){S.pm=true;S.pmc=true}if(S.rad){S.him=true;S.hmb='rd'}if(S.wind){S.wx=true;S.wxw=true}delete S.cms;delete S.wind;if(!['wind','rain','temp','rh'].includes(S.wyo))S.wyo='wind';if(S.base==='road')S.base='detail';/* แถวอากาศแห้ง/จุดเฝ้าระวังถูกเอาออกจากแผงชั้นข้อมูล 14 พ.ย. 69 — ค่าที่บันทึกไว้ต้องไม่เปิดค้าง */
 const toast=(m,fn,ms)=>{const t=$('#toast');t.textContent=m;t.classList.add('show');t.classList.toggle('act',!!fn);t.onclick=fn?()=>{t.classList.remove('show','act');fn()}:null;
@@ -1322,7 +1330,7 @@ function setup(){ // เรียกทุกครั้งที่สลั�
  map.addSource('resp',{type:'geojson',data:respSmooth()});
  map.addLayer({id:'resp-f',type:'fill',source:'resp',paint:{'fill-color':['get','sc'],'fill-opacity':.07}});
  map.addLayer({id:'resp-l',type:'line',source:'resp',layout:{'line-join':'round'},paint:{'line-color':['get','sc'],'line-width':2.4,'line-dasharray':[3,1.6]}});
- setupBN();setupRP();setupFU();setupFT();setupAD();setupPV();setup3();setup4();try{setupXT()}catch(e){console.warn('setupXT',e)}try{if(typeof vfSetup==='function')vfSetup()}catch(e){console.warn('vfSetup',e)}try{setupWT()}catch(e){console.warn('setupWT',e)}setupHC();setupHR();try{pcLayers()}catch(e){console.warn('pcLayers',e)}
+ setupBN();setupRP();setupFU();setupFT();setupAD();setupPV();setup3();setup4();try{setupXT()}catch(e){console.warn('setupXT',e)}try{if(typeof vfSetup==='function')vfSetup()}catch(e){console.warn('vfSetup',e)}try{if(typeof rkLayers==='function')rkLayers()}catch(e){console.warn('rkLayers',e)}try{setupWT()}catch(e){console.warn('setupWT',e)}setupHC();setupHR();try{pcLayers()}catch(e){console.warn('pcLayers',e)}
  if(typeof ulLayers==='function')ulLayers(); // ชั้นข้อมูลของผู้ใช้ (สคริปต์ท้ายไฟล์)
  if(typeof trLayers==='function')trLayers(); // วิเคราะห์ภูมิประเทศ (สคริปต์ท้ายไฟล์)
  if(typeof msLayers==='function')msLayers(); // เครื่องมือวัด (สคริปต์ท้ายไฟล์) — บนสุด
@@ -2027,6 +2035,7 @@ function L3(){ // เรียกจาก apply() ทุกครั้งท�
  if(S.rad)loadRad();else{rdStop();radLayer()}
  try{window.hmApply&&hmApply()}catch(e){}
  try{window.vrApply&&vrApply()}catch(e){}
+ try{window.rkApply&&rkApply()}catch(e){}
  try{window.fwApply&&fwApply()}catch(e){}
  try{window.cmApply&&cmApply()}catch(e){}
  try{window.tmApply&&tmApply()}catch(e){}
@@ -3539,7 +3548,7 @@ const LNK={ky:'อุทยานแห่งชาติเขาใหญ่',
    URL เปลี่ยน (history.replaceState) เฉพาะเมื่อเปิดสวิตช์ "จำมุมมองใน URL" (#vw-on, localStorage fm-vw: หลังเลื่อน/ซูม หรือแตะปุ่มใดๆ หน่วง 500 ms) หรือกดคัดลอก/แชร์ — ไม่ทำเอง
    deepLink: ?hs ?bb ?ar ?burn ?pts ?wa มาก่อนเสมอ (มีอย่างใดอย่างหนึ่ง = ไม่ใช้ v/l) · ?kb ?wy เปิดหน้าต่างของตัวเองอยู่แล้ว ใช้ร่วมกับ v ได้
    เขียน URL = ลบพารามิเตอร์ลิงก์ตรงเหล่านี้ออก (กดรีโหลดแล้วไม่เปิดซ้ำ) คงพารามิเตอร์อื่น เช่น debug */
-const VWB=['hot','cons','resp','stn','rgr','fbs','prov','amp','tam','water','road','wch','xdy','orb','hist','xt','hcl','hgp','har','rep','burn','fuel','ftype','fwi','vr','wx','wxw','pm','pmst','pmc','him','tmd','wyl','d3'],
+const VWB=['hot','cons','resp','stn','rgr','fbs','prov','amp','tam','water','road','wch','xdy','orb','hist','xt','hcl','hgp','har','rep','burn','fuel','ftype','rk','fwi','vr','wx','wxw','pm','pmst','pmc','him','tmd','wyl','d3'],
  VWO={burn:[null,v=>/^(fy\d{4}|c\d{6}(_\d{6})?|\d{8}_\d{8})$/.test(v)],fwi:['fwv','#fwi-v button,#fwi-w button'],vr:['vrg','#vr-gm button'],him:['hmb','#hmseg button'],tmd:['tmv','#tmseg button'],wyl:['wyo',v=>['wind','rain','temp','rh'].includes(v)]},
  VWS={base:['natural','flat','sat','detail','dark'],img:['google','esri','s2','day']},VWX=['hs','bb','ar','burn','pts','wa','kb','wy','v','l'];
 let VWT=0,VWU=false;
@@ -7217,6 +7226,238 @@ async function vfXlsx(){const R=xRows().slice().sort((a,b)=>a.d-b.d||a.t-b.t);if
 {const b=document.getElementById('x-xls');if(b)b.onclick=()=>vfXlsx().catch(e=>{dbg('vfXlsx',e);toast('สร้างไฟล์ไม่สำเร็จ: '+e.message)})}
 try{vfSetup()}catch(e){dbg('vfSetup',e)}
 setTimeout(()=>vfLoad(true),1200);setInterval(()=>vfLoad(),5*60e3);
+</script>
+<script>
+/*RISK-LIB-BEGIN*/
+/* ดัชนีเสี่ยงไฟป่าล่วงหน้าของระบบนี้ (F2 — docs/review-2569-11-15.md) — ไม่ใช่ค่าทางการของกรมอุทยานฯ/กรมป่าไม้
+ * ใช้ร่วมกันทั้ง Node (scripts/risk_backtest.js, build_site ในอนาคต) และหน้าเว็บ (ฝังสำเนาระหว่างเครื่องหมาย RISK-LIB แบบ orbit.js — ยังไม่ฝังจนกว่าผู้ใช้อนุมัติผลตรวจย้อนหลัง)
+ * ไม่มี I/O ไม่มีเครือข่าย — ฟังก์ชันล้วน
+ *  - fwiDay(prev, w, lat, month): ระบบ FWI ของแคนาดา (Van Wagner 1987) รายวัน จากอุณหภูมิ/ความชื้น/ลม ตอนเที่ยง + ฝน 24 ชม. (ใช้เมื่อไม่มีค่า TFDRS เช่น ตรวจย้อนหลังด้วย ERA5)
+ *  - dekad(day): ช่วง 10 วันของปี 0–35 (เดือน×3 + วันที่ 1–10/11–20/21–สิ้นเดือน)
+ *  - climBuild(...): ความถี่ "วันที่มีจุดความร้อน" ต่อหน่วยพื้นที่ต่อช่วง 10 วัน (หดเข้าค่าเฉลี่ยรวม + ทำให้เรียบ ±1 ช่วง)
+ *  - feats/prob/level: คะแนน = logistic(สัมประสิทธิ์ M) ของ logit(ความถี่ในอดีต) + ln(1+FWI) [+ จุดความร้อน 3 วันก่อน] → ระดับ 1–5 ตามเกณฑ์ LV
+ *  - fitLogit / auc / confusion: ใช้ตอนตรวจย้อนหลัง
+ */
+(function (G) {
+  'use strict';
+  const R = {};
+  const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+  // ---------- ระบบ FWI (Van Wagner 1987; สมการเดียวกับ cffdrs) ----------
+  // ความยาววันสำหรับ DMC / ปัจจัยวันสำหรับ DC (ปรับตามละติจูดแบบ cffdrs): >30°N ตารางมาตรฐานของแคนาดา · 10–30°N DMC ตาราง EL10 · −10–10° DMC = 9 · −20–20° DC = 1.4 ทุกเดือน
+  const EL = [6.5, 7.5, 9.0, 12.8, 13.9, 13.9, 12.4, 10.9, 9.4, 8.0, 7.0, 6.0], FL = [-1.6, -1.6, -1.6, 0.9, 3.8, 5.8, 6.4, 5.0, 2.4, 0.4, -1.6, -1.6];
+  const EL10 = [7.9, 8.4, 8.9, 9.5, 9.9, 10.2, 10.1, 9.7, 9.1, 8.6, 8.1, 7.8];
+  R.FWI0 = { ffmc: 85, dmc: 6, dc: 15 };
+  function ffmcDay(f0, T, H, W, P) {
+    let mo = 147.2 * (101 - f0) / (59.5 + f0);
+    if (P > 0.5) {
+      const rf = P - 0.5;
+      mo += 42.5 * rf * Math.exp(-100 / (251 - mo)) * (1 - Math.exp(-6.93 / rf)) + (mo > 150 ? 0.0015 * (mo - 150) ** 2 * Math.sqrt(rf) : 0);
+      if (mo > 250) mo = 250;
+    }
+    const ed = 0.942 * H ** 0.679 + 11 * Math.exp((H - 100) / 10) + 0.18 * (21.1 - T) * (1 - Math.exp(-0.115 * H));
+    let m = mo;
+    if (mo > ed) {
+      const ko = 0.424 * (1 - (H / 100) ** 1.7) + 0.0694 * Math.sqrt(W) * (1 - (H / 100) ** 8), kd = ko * 0.581 * Math.exp(0.0365 * T);
+      m = ed + (mo - ed) * 10 ** -kd;
+    } else {
+      const ew = 0.618 * H ** 0.753 + 10 * Math.exp((H - 100) / 10) + 0.18 * (21.1 - T) * (1 - Math.exp(-0.115 * H));
+      if (mo < ew) {
+        const kl = 0.424 * (1 - ((100 - H) / 100) ** 1.7) + 0.0694 * Math.sqrt(W) * (1 - ((100 - H) / 100) ** 8), kw = kl * 0.581 * Math.exp(0.0365 * T);
+        m = ew - (ew - mo) * 10 ** -kw;
+      }
+    }
+    return clamp(59.5 * (250 - m) / (147.2 + m), 0, 101);
+  }
+  function dmcDay(d0, T, H, P, el) {
+    T = Math.max(T, -1.1);
+    const rk = 1.894 * (T + 1.1) * (100 - H) * el * 1e-6;
+    let pr = d0;
+    if (P > 1.5) {
+      const rw = 0.92 * P - 1.27, wmi = 20 + 280 / Math.exp(0.023 * d0);
+      const b = d0 <= 33 ? 100 / (0.5 + 0.3 * d0) : d0 <= 65 ? 14 - 1.3 * Math.log(d0) : 6.2 * Math.log(d0) - 17.2;
+      const wmr = wmi + 1000 * rw / (48.77 + b * rw);
+      pr = Math.max(43.43 * (5.6348 - Math.log(wmr - 20)), 0);
+    }
+    return Math.max(pr + 100 * rk, 0);
+  }
+  function dcDay(c0, T, P, fl) {
+    T = Math.max(T, -2.8);
+    let dr = c0;
+    if (P > 2.8) {
+      const rd = 0.83 * P - 1.27, qo = 800 * Math.exp(-c0 / 400), qr = qo + 3.937 * rd;
+      dr = Math.max(400 * Math.log(800 / qr), 0);
+    }
+    const v = Math.max(0.36 * (T + 2.8) + fl, 0);
+    return Math.max(dr + 0.5 * v, 0);
+  }
+  const isiOf = (ffmc, W) => { const m = 147.2 * (101 - ffmc) / (59.5 + ffmc); return 0.208 * Math.exp(0.05039 * W) * 91.9 * Math.exp(-0.1386 * m) * (1 + m ** 5.31 / 4.93e7) };
+  const buiOf = (dmc, dc) => {
+    if (dmc <= 0 && dc <= 0) return 0;
+    const b = dmc <= 0.4 * dc ? 0.8 * dmc * dc / (dmc + 0.4 * dc) : dmc - (1 - 0.8 * dc / (dmc + 0.4 * dc)) * (0.92 + (0.0114 * dmc) ** 1.7);
+    return Math.max(b, 0);
+  };
+  const fwiOf = (isi, bui) => {
+    const fd = bui <= 80 ? 0.626 * bui ** 0.809 + 2 : 1000 / (25 + 108.64 * Math.exp(-0.023 * bui)), b = 0.1 * isi * fd;
+    return b > 1 ? Math.exp(2.72 * (0.434 * Math.log(b)) ** 0.647) : b;
+  };
+  /* prev = {ffmc,dmc,dc} ของวันก่อน (ไม่มี = FWI0) · w = {t (°C), h (%), w (กม./ชม.), p (มม./24 ชม.)} ตอนเที่ยง · month 1–12 */
+  R.fwiDay = function (prev, w, lat, month) {
+    const p = prev || R.FWI0, H = clamp(w.h, 0, 100), W = Math.max(w.w, 0), P = Math.max(w.p || 0, 0), T = w.t, mi = month - 1;
+    const el = lat > 30 ? EL[mi] : lat > 10 ? EL10[mi] : lat > -10 ? 9 : EL[(mi + 6) % 12];
+    const fl = lat > 20 ? FL[mi] : lat > -20 ? 1.4 : FL[(mi + 6) % 12];
+    const ffmc = ffmcDay(p.ffmc, T, H, W, P), dmc = dmcDay(p.dmc, T, H, P, el), dc = dcDay(p.dc, T, P, fl);
+    const isi = isiOf(ffmc, W), bui = buiOf(dmc, dc);
+    return { ffmc, dmc, dc, isi, bui, fwi: fwiOf(isi, bui) };
+  };
+
+  // ---------- เวลา ----------
+  /* day = วันนับจาก 1970-01-01 (วันที่ไทย) → ช่วง 10 วัน 0–35 */
+  R.dekad = function (day) { const d = new Date(day * 864e5); return d.getUTCMonth() * 3 + Math.min(2, Math.floor((d.getUTCDate() - 1) / 10)) };
+  /* ปีงบ พ.ศ. ของวัน (1 ต.ค. ขึ้นปีงบใหม่) */
+  R.fyOf = function (day) { const d = new Date(day * 864e5); return d.getUTCFullYear() + 543 + (d.getUTCMonth() >= 9 ? 1 : 0) };
+  R.fyDays = function (fy) { const a = Date.UTC(fy - 544, 9, 1) / 864e5; return [a, Date.UTC(fy - 543, 9, 1) / 864e5 - 1] };
+
+  // ---------- ความถี่ในอดีต ----------
+  /* fire: {unit: Set(วัน)} วันที่หน่วยนั้นมีจุดความร้อน ≥1 · units: รายชื่อหน่วย · fys: ปีงบที่ใช้สร้าง (ตรวจย้อนหลังต้องไม่รวมปีที่ทดสอบ)
+   * → {g:[36] ค่ารวมทุกหน่วย, u:{unit:[36]}} ความน่าจะเป็นที่หน่วยจะมีจุดในวันหนึ่งของช่วงนั้น
+   * หด: (n + A·g)/(N + A) — หน่วยที่มีประวัติน้อยเข้าใกล้ค่ารวม · เรียบ: [¼,½,¼] รอบปี (ช่วง 35 ติดกับ 0) */
+  R.CLIM_A = 60;
+  R.climBuild = function (fire, units, fys, A) {
+    A = A == null ? R.CLIM_A : A;
+    const N = new Array(36).fill(0);
+    for (const fy of fys) { const [a, b] = R.fyDays(fy); for (let d = a; d <= b; d++) N[R.dekad(d)]++ }
+    const cnt = {}, tot = new Array(36).fill(0), fs = new Set(fys);
+    for (const u of units) {
+      const c = cnt[u] = new Array(36).fill(0);
+      for (const d of fire[u] || []) if (fs.has(R.fyOf(d))) { const k = R.dekad(d); c[k]++; tot[k]++ }
+    }
+    const sm = a => a.map((v, i) => 0.25 * a[(i + 35) % 36] + 0.5 * v + 0.25 * a[(i + 1) % 36]);
+    const g0 = tot.map((t, k) => N[k] ? t / (N[k] * units.length) : 0), u = {};
+    for (const x of units) u[x] = sm(cnt[x].map((n, k) => (n + A * g0[k]) / (N[k] + A)));
+    return { g: sm(g0), u, fys: fys.slice() };
+  };
+
+  // ---------- คะแนน ----------
+  const logit = p => { p = clamp(p, 1e-5, 1 - 1e-5); return Math.log(p / (1 - p)) };
+  R.logit = logit;
+  /* ตัวแปร: [1, logit(ความถี่ในอดีต), ln(1+FWI), มีจุดในหน่วยภายใน 3 วันก่อน (0/1)] — โมเดลที่ไม่ใช้ตัวใดให้สัมประสิทธิ์ 0 */
+  R.feats = function (clim, fwi, recent) { return [1, logit(clim), Math.log1p(Math.max(fwi || 0, 0)), recent ? 1 : 0] };
+  /* สัมประสิทธิ์ที่ใช้งาน = โมเดล M2 (ความถี่ในอดีต + FWI + จุด 3 วันก่อน) fit จากปีงบ 2561–2568 ด้วย scripts/risk_backtest.js ไฟจริง = ทุกดาวเทียม
+     ทดสอบปีงบ 2569: ตำบล AUC 0.905 · แปลงสถานีฯ 0.908 — ผู้ใช้อนุมัติ M2 16 พ.ย. 69 · LV = ควอนไทล์ 50/75/90/97% ในฤดูไฟของปีที่ fit · ดู docs/arch/risk.md */
+  R.M = { v: 'M2 (fit ปีงบ 2561–2568, อนุมัติ 16 พ.ย. 2569)', tm: { b: [-3.34, 0.727, 0.68, 1.35], LV: [0.0143, 0.0271, 0.048, 0.122] }, st: { b: [-4.05, 0.572, 0.792, 1.54], LV: [0.0393, 0.0713, 0.184, 0.354] } };
+  R.M.b = R.M.tm.b;
+  /* เกณฑ์ความน่าจะเป็น → ระดับ 1–5 (ต่ำมาก/ต่ำ/ปานกลาง/สูง/สูงมาก) — ค่าเริ่มต้น = ของตำบล */
+  R.LV = R.M.tm.LV;
+  R.LVN = ['ต่ำมาก', 'ต่ำ', 'ปานกลาง', 'สูง', 'สูงมาก'];
+  R.prob = function (x, b) { b = b || R.M.b; let z = 0; for (let i = 0; i < x.length; i++) z += x[i] * (b[i] || 0); return 1 / (1 + Math.exp(-z)) };
+  R.level = function (p, lv) { lv = lv || R.LV; let k = 1; for (const t of lv) if (p >= t) k++; return k };
+
+  // ---------- ตรวจย้อนหลัง ----------
+  /* logistic regression แบบ Newton (IRLS) + ridge เล็กน้อย (ไม่ลงโทษค่าคงที่) · X = แถวตัวแปร, y = 0/1 · cols = ดัชนีคอลัมน์ที่ใช้ */
+  R.fitLogit = function (X, y, cols, ridge) {
+    ridge = ridge == null ? 1e-3 : ridge;
+    const k = cols.length, b = new Array(k).fill(0);
+    for (let it = 0; it < 50; it++) {
+      const g = new Array(k).fill(0), Hm = Array.from({ length: k }, () => new Array(k).fill(0));
+      for (let i = 0; i < X.length; i++) {
+        let z = 0; for (let a = 0; a < k; a++) z += b[a] * X[i][cols[a]];
+        const p = 1 / (1 + Math.exp(-z)), w = p * (1 - p), e = y[i] - p;
+        for (let a = 0; a < k; a++) { const xa = X[i][cols[a]]; g[a] += e * xa; for (let c = a; c < k; c++) Hm[a][c] += w * xa * X[i][cols[c]] }
+      }
+      for (let a = 0; a < k; a++) { for (let c = 0; c < a; c++) Hm[a][c] = Hm[c][a]; if (a) { Hm[a][a] += ridge * X.length; g[a] -= ridge * X.length * b[a] } }
+      const d = solve(Hm, g); let mx = 0;
+      for (let a = 0; a < k; a++) { b[a] += d[a]; mx = Math.max(mx, Math.abs(d[a])) }
+      if (mx < 1e-7) break;
+    }
+    const full = new Array(Math.max(...cols) + 1).fill(0); cols.forEach((c, i) => { full[c] = b[i] });
+    return full;
+  };
+  function solve(A, v) {
+    const n = v.length, M = A.map((r, i) => r.concat([v[i]]));
+    for (let i = 0; i < n; i++) {
+      let p = i; for (let r = i + 1; r < n; r++) if (Math.abs(M[r][i]) > Math.abs(M[p][i])) p = r;
+      [M[i], M[p]] = [M[p], M[i]];
+      if (Math.abs(M[i][i]) < 1e-12) continue;
+      for (let r = 0; r < n; r++) if (r !== i) { const f = M[r][i] / M[i][i]; for (let c = i; c <= n; c++) M[r][c] -= f * M[i][c] }
+    }
+    return M.map((r, i) => Math.abs(r[i]) < 1e-12 ? 0 : r[n] / r[i]);
+  }
+  /* AUC (Mann–Whitney, คะแนนเท่ากันนับครึ่ง) */
+  R.auc = function (s, y) {
+    const ix = s.map((v, i) => i).sort((a, b) => s[a] - s[b]);
+    let rank = 0, sp = 0, np = 0, i = 0;
+    while (i < ix.length) {
+      let j = i; while (j + 1 < ix.length && s[ix[j + 1]] === s[ix[i]]) j++;
+      const r = (i + j) / 2 + 1; for (let k = i; k <= j; k++) if (y[ix[k]]) { sp += r; np++ }
+      rank = j + 1; i = j + 1;
+    }
+    const nn = ix.length - np;
+    return np && nn ? (sp - np * (np + 1) / 2) / (np * nn) : NaN;
+  };
+  /* ตารางสับสน: แถว = ระดับ 1–5 → {n หน่วย-วัน, fire หน่วย-วันที่มีจุด, rate} + 2×2 ที่เกณฑ์ ระดับ ≥ cut */
+  R.confusion = function (lv, y, cut) {
+    cut = cut || 4;
+    const rows = [1, 2, 3, 4, 5].map(k => ({ lv: k, n: 0, fire: 0 }));
+    let tp = 0, fp = 0, fn = 0, tn = 0;
+    for (let i = 0; i < lv.length; i++) {
+      const r = rows[lv[i] - 1]; r.n++; if (y[i]) r.fire++;
+      const hi = lv[i] >= cut; if (hi && y[i]) tp++; else if (hi) fp++; else if (y[i]) fn++; else tn++;
+    }
+    rows.forEach(r => { r.rate = r.n ? r.fire / r.n : 0 });
+    return { rows, cut, tp, fp, fn, tn, pod: tp / (tp + fn || 1), far: fp / (tp + fp || 1), pofd: fp / (fp + tn || 1), csi: tp / (tp + fp + fn || 1) };
+  };
+  /* Brier skill เทียบค่าคงที่ (อัตราเฉลี่ย) */
+  R.brier = function (p, y) { let s = 0, m = 0; for (let i = 0; i < y.length; i++) m += y[i]; m /= y.length || 1; let r = 0; for (let i = 0; i < y.length; i++) { s += (p[i] - y[i]) ** 2; r += (m - y[i]) ** 2 } return { bs: s / y.length, bss: r ? 1 - s / r : 0 } };
+
+  if (typeof module !== 'undefined' && module.exports) module.exports = R; else G.RISK = R;
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+/*RISK-LIB-END*/
+/* ---------- F2 พื้นที่เสี่ยงไฟป่าล่วงหน้า (16 พ.ย. 69, ผู้ใช้อนุมัติโมเดล M2) — ดัชนีของระบบนี้ ไม่ใช่ค่าทางการ ----------
+   ข้อมูล risk.json (scripts/build_site.js + scripts/lib/risksum.js ทุกรอบ site) วันนี้/พรุ่งนี้ ต่อตำบล/แปลงสถานีฯ · ชั้น rk-f/rk-l ใต้แนวเขตพื้นที่อนุรักษ์
+   ตำบล = รูปจาก admin.json (admLoad) · แปลงสถานีฯ = GEO.resp (ไม่รวมดงใหญ่) · ชี้/แตะพื้นที่ = บรรทัด #rk-dv (ไม่เปิดป๊อปอัป — ไม่ชนการแตะจุดความร้อน) · ตาราง 10 อันดับ แตะแถว = เลื่อนแผนที่ไป
+   เลขระดับ/ชื่อจาก RISK (สำเนา scripts/lib/risk.js — node scripts/embed_risk.js) · เปิดไฟล์ตรง (file://) = ดึง risk.json จากเว็บ EMB_SITE */
+const RKC=['#3a9a48','#a5cf5a','#f2c919','#f08a1c','#c8281e'],RKTC=['#fff','#1f2a1f','#1f2a1f','#fff','#fff'];
+let RKJ=null,RKP=null,RKT=0,RKD=0,RKFC={type:'FeatureCollection',features:[]},RKHV=false;
+const rkNorm=s=>String(s||'').replace(/\s*\(พื้นที่รอง\)/,'').trim();
+const rkName=(u,k)=>{if(u==='st')return String(k).replace(/^สถานีควบคุมไฟป่า/,'สถานีฯ ');const [t,a]=String(k).split('|');return 'ต.'+t+(a?' อ.'+a:'')};
+const rkLoad=()=>{if(RKP&&Date.now()-RKT<30*60e3)return RKP;RKT=Date.now();return RKP=fetchT((location.protocol==='file:'?EMB_SITE:'')+'risk.json',{cache:'no-cache'},FTO.aux).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{RKJ=j;if(RKD>=((j.days||[]).length||1))RKD=0;return j}).catch(e=>{RKP=null;throw e})};
+const rkDay=()=>RKJ&&RKJ.days&&RKJ.days[RKD]||null;
+function rkLayers(){if(map.getSource('rk'))return;const vis=S.rk?'visible':'none';
+ map.addSource('rk',{type:'geojson',data:RKFC});
+ map.addLayer({id:'rk-f',type:'fill',source:'rk',layout:{visibility:vis},paint:{'fill-color':['match',['get','lv'],1,RKC[0],2,RKC[1],3,RKC[2],4,RKC[3],5,RKC[4],'#999'],'fill-opacity':['match',['get','lv'],1,.22,2,.32,3,.42,.52]}},'cons-l');
+ map.addLayer({id:'rk-l',type:'line',source:'rk',layout:{visibility:vis},paint:{'line-color':['match',['get','lv'],4,'#a35200',5,'#7a120c','#6b5d4a'],'line-width':['match',['get','lv'],4,1.4,5,1.8,.6],'line-opacity':.8}},'cons-l');
+ if(!RKHV){RKHV=true;const hv=e=>{if(!S.rk||!map.getLayer('rk-f'))return;const f=map.queryRenderedFeatures(e.point,{layers:['rk-f']})[0];if(!f){if(e.type==='click')tx('rk-dv','ไม่ได้อยู่ในหน่วยที่คำนวณ (ตำบล/แปลงที่เคยมีจุดความร้อนในแนวเขต)');return}const p=f.properties;
+  tx('rk-dv',`<b>${esc(p.n)}</b> · <b style="color:${RKC[p.lv-1]}">${RISK.LVN[p.lv-1]}</b> · FWI ${p.fwi==null||p.fwi==='null'?'–':esc(p.fwi)}${+p.rec?' · มีจุดใน 3 วันก่อน':''} · อันดับ ${esc(p.rank)}`)};
+  map.on('mousemove',hv);map.on('click',hv)}}
+function rkFeatures(u,rows){const R={};rows.forEach((x,i)=>{R[x[0]]={lv:x[3],fwi:x[5],rec:x[6],rank:i+1}});const out=[];
+ if(u==='st'){for(const f of GEO.resp.features){const k=rkNorm(f.properties.station),r=R[k];if(r)out.push({type:'Feature',geometry:f.geometry,properties:Object.assign({k,n:rkName(u,k)},r)})}}
+ else if(ADM){for(const f of ADM.tm.features){const k=f.properties.t+'|'+f.properties.a,r=R[k];if(r)out.push({type:'Feature',geometry:f.geometry,properties:Object.assign({k,n:rkName(u,k)},r)})}}
+ return {type:'FeatureCollection',features:out}}
+function rkDraw(){const d=rkDay(),u=S.rku;$$('#rk-u button').forEach(b=>b.classList.toggle('on',b.dataset.v===u));
+ if(!d){tx('rk-dc','');tx('rk-lg','');tx('rk-tb','');tx('rk-th','');tx('rk-t','');tx('rk-n',RKJ?'ยังไม่มีข้อมูล FWI ของวันนี้ (ต้นทาง TFDRS) จึงคำนวณไม่ได้':'กำลังโหลด…');return}
+ const rows=d[u]||[],today=new Date(Date.now()+7*36e5).toISOString().slice(0,10),dl=s=>{const t=new Date(s+'T00:00Z');return t.getUTCDate()+' '+['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][t.getUTCMonth()]};
+ tx('rk-dc',RKJ.days.map((x,i)=>{const m=Math.max(...(x[u]||[]).map(r=>r[3]),1);return `<button class="chip${i===RKD?' on':''}" data-i="${i}" style="border-bottom:4px solid ${RKC[m-1]}"><b>${x.d===today?'วันนี้':x.lead===1||x.d>today?'พรุ่งนี้':'เมื่อวาน'}</b>${dl(x.d)}</button>`}).join(''));
+ const c=[0,0,0,0,0];rows.forEach(r=>c[r[3]-1]++);
+ tx('rk-lg',RISK.LVN.map((n,i)=>`<div><i style="background:${RKC[i]}"></i><span style="flex:1">${n}</span><b>${c[i]}</b></div>`).reverse().join(''));
+ const hi=c[3]+c[4];tx('rk-t',hi?`สูงขึ้นไป ${hi} ${u==='st'?'แปลง':'ตำบล'}`:'');
+ tx('rk-th',`${u==='st'?'แปลงสถานีฯ ทั้งหมด':'10 อันดับตำบล'} · ${d.d===today?'วันนี้':dl(d.d)} · แตะแถวเพื่อดูบนแผนที่`);
+ tx('rk-tb','<table class="dt"><thead><tr><th>#</th><th style="text-align:left">'+(u==='st'?'แปลงสถานีฯ':'ตำบล')+'</th><th>ระดับ</th><th>FWI</th><th title="มีจุดความร้อนในพื้นที่ภายใน 3 วันก่อน">จุด 3 วัน</th></tr></thead><tbody>'+rows.slice(0,u==='st'?20:10).map((r,i)=>`<tr data-i="${i}" style="cursor:pointer"><td>${i+1}</td><td>${esc(rkName(u,r[0]))}</td><td style="text-align:center"><span style="display:inline-block;min-width:54px;border-radius:6px;padding:0 4px;background:${RKC[r[3]-1]};color:${RKTC[r[3]-1]}">${RISK.LVN[r[3]-1]}</span></td><td style="text-align:center">${r[5]==null?'–':r[5]}</td><td style="text-align:center">${r[6]?'มี':'–'}</td></tr>`).join('')+'</tbody></table>');
+ tx('rk-n',`<b>ดัชนีของระบบนี้ ไม่ใช่ค่าทางการ</b> · ใช้จัดลำดับพื้นที่ที่ควรเฝ้าระวัง ไม่ใช่การพยากรณ์ว่าจะเกิดไฟ · คำนวณจากความถี่การเกิดจุดความร้อนช่วงเดียวกันของปีในอดีต (ปีงบ ${RKJ.fys?RKJ.fys.join('–'):'2561–'}) + FWI ของ TFDRS กรมป่าไม้${d.src==='grid'?'':' (ค่าเฉลี่ยกลุ่มป่า — ไม่มีตารางรายพื้นที่ของวันนี้)'} + จุดความร้อนภายใน 3 วัน · ตรวจย้อนหลังปีงบ 2569: AUC 0.91 · <a href="manual/index.html#m-risk" target="_blank" rel="noopener">วิธีคิด</a> · ปรับปรุง ${new Date(RKJ.generated).toLocaleString('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} น.`);
+ RKFC=rkFeatures(u,rows);const s=map.getSource('rk');if(s)s.setData(RKFC)}
+function rkApply(){const bx=$('#rkbox');if(!bx)return;bx.hidden=!S.rk;
+ try{if(!map.getSource('rk')&&map.getSource('cons'))rkLayers();for(const id of ['rk-f','rk-l'])if(map.getLayer(id))map.setLayoutProperty(id,'visibility',S.rk?'visible':'none')}catch(e){}
+ if(!S.rk){tx('rk-t','');return}rkDraw();
+ const need=[rkLoad()];if(S.rku==='tm'&&!ADM)need.push(admLoad());
+ Promise.all(need).then(rkDraw).catch(e=>{dbg('rk',e);tx('rk-n','โหลดข้อมูลพื้นที่เสี่ยงไม่ได้ ('+esc(e.message||e)+')'+(navigator.onLine===false?' — ออฟไลน์':''))})}
+$('#rk-u').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;S.rku=b.dataset.v;rkApply()};
+$('#rk-dc').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;RKD=+b.dataset.i;rkDraw()};
+$('#rk-tb').onclick=e=>{const t=e.target.closest('tr[data-i]'),d=rkDay();if(!t||!d)return;const r=(d[S.rku]||[])[+t.dataset.i];if(!r)return;
+ const f=RKFC.features.find(x=>x.properties.k===r[0]);if(f){const b=[1e9,1e9,-1e9,-1e9];(f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates).forEach(p=>p[0].forEach(([x,y])=>{if(x<b[0])b[0]=x;if(y<b[1])b[1]=y;if(x>b[2])b[2]=x;if(y>b[3])b[3]=y}));
+  try{if(typeof gzFit==='function'){gzFit([[b[0],b[1]],[b[2],b[3]]])}else map.easeTo({center:[r[2],r[1]],zoom:Math.max(map.getZoom(),11),offset:visOff(),duration:dur(800)})}catch(x){dbg('rk-fit',x)}}
+ else map.easeTo({center:[r[2],r[1]],zoom:Math.max(map.getZoom(),11),offset:visOff(),duration:dur(800)});
+ const p=f?f.properties:{n:rkName(S.rku,r[0]),lv:r[3],fwi:r[5],rec:r[6],rank:+t.dataset.i+1};tx('rk-dv',`<b>${esc(p.n)}</b> · <b style="color:${RKC[p.lv-1]}">${RISK.LVN[p.lv-1]}</b> · FWI ${p.fwi==null?'–':esc(p.fwi)}${p.rec?' · มีจุดใน 3 วันก่อน':''} · อันดับ ${p.rank}`)};
+try{if(map.getSource('cons'))rkLayers()}catch(e){}
+try{rkApply()}catch(e){dbg('rkApply',e)}
 </script>
 </body>
 </html>

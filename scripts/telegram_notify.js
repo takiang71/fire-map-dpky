@@ -144,6 +144,8 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
     return [`🌫 อัตราระบายอากาศ กลุ่มป่า (สูงสุดของวัน ตร.ม./วินาที): ${R.days.map(d => `${dl(d)} <b>${nf(d.max)}</b> ${V.vrLevel(d.max)}`).join(' · ')}`,
       `   ${lab}: ${f.a ? `ระบายได้ (≥2,000) ${hm(f.a)}–${hm(f.z)} น.` : 'อากาศปิดทั้งวัน ไม่ควรเผา'} · เฉลี่ยทั้งวัน ${nf(f.mean)} (${V.vrLevel(f.mean)}) · NOAA GFS เกณฑ์กรมอุตุฯ`] };
   // ดัชนีอันตรายไฟป่า FWI ของกลุ่มป่า วันนี้/พรุ่งนี้ (TFDRS กรมป่าไม้) — บรรทัดในสรุปประจำวัน เหมือนการ์ด LINE (ผู้ใช้ขอ 14 พ.ย. 69)
+  // F2 พื้นที่เสี่ยงไฟป่าล่วงหน้า (ดัชนีของระบบนี้ ไม่ใช่ค่าทางการ) — 1 บรรทัดจาก _site/risk.json (scripts/lib/risksum.js) · ไม่มีไฟล์ = ไม่มีบรรทัด
+  const rkLines = () => { try { const L = require('./lib/risksum').riskLine(JSON.parse(fs.readFileSync(path.join(OUT, 'risk.json'), 'utf8')), now); return L ? [`${L.n5 ? '🟥' : L.n4 ? '🟧' : '🟩'} ${esc(L.text)} · <a href="${SITE}?v=&amp;l=rk">ดูบนแผนที่</a>`] : [] } catch (e) { return [] } };
   const fwLines = () => { let F; try { F = require('./lib/fwisum') } catch (e) { return [] } const R = F.fwiSummary(now); if (!R) return [];
     const today = new Date(now + 7 * 36e5).toISOString().slice(0, 10), x = R.days[0], ic = ['🟢', '🟡', '🟠', '🔴', '🟤'];
     const dl = d => { const y = new Date(Date.parse(d.d)); return (d.d === today ? 'วันนี้ ' : '') + y.getUTCDate() + ' ' + ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'][y.getUTCMonth()] };
@@ -165,6 +167,7 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
       ...(() => { const O = orb(); return O ? [`🛰 ดาวเทียมรอบถัดไป: ${O.length ? O.slice(0, 4).map(p => esc(require('./lib/orbit').label(p, now))).join(' · ') + ' น.' : 'ไม่มีรอบที่ผ่านกลางแถบสแกนใน 24 ชม.'}`] : [] })(),
       ...vrLines(),
       ...fwLines(),
+      ...rkLines(),
       ...pmLines(),
       ...(sum ? ['', ...areaTable(new Set(h24.map(f => AREAS.some(a => a.k === f.properties._ar) ? f.properties._ar : OUTA)), '24 ชม.')] : []),
       ...(all.fy ? [`📍 พบมากสุด: ${tops(all)}`] : []),

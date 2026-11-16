@@ -13,7 +13,7 @@ const DEV = SW_VERSION === 'dev', C_SHELL = 'shell-' + SW_VERSION, C_DATA = 'dat
 const SCOPE = new URL(self.registration.scope), ROOT = SCOPE.pathname;
 const MAPLIBRE = /^https:\/\/cdnjs\.cloudflare\.com\/ajax\/libs\/maplibre-gl\//, OFM = /^https:\/\/tiles\.openfreemap\.org\//;
 const SHELL_RE = /^(index\.html|manifest\.webmanifest|fonts\/.+\.woff2|img\/icon[\w-]*\.(png|svg)|data\/emb\/.+\.json)$/;
-const DATA_RE = /^(live|summary|watch|air4thai|wxsrc|burn_summary)\.json$|^data\/.+\.json$/;
+const DATA_RE = /^(live|summary|watch|air4thai|wxsrc|burn_summary|risk)\.json$|^data\/.+\.json$/;
 
 self.addEventListener('install', e => {
   e.waitUntil((async () => {

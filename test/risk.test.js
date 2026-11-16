@@ -46,3 +46,31 @@ test('fitLogit กู้สัมประสิทธิ์จากข้อ�
   f.forEach((v, i) => near(v, b[i], 0.15, 'b' + i));
   const g = R.fitLogit(X, y, [0, 2], 0); assert.equal(g[1], 0, 'คอลัมน์ที่ไม่ใช้ = 0');
 });
+
+// F2 ใช้งานจริง (16 พ.ย. 69): โมเดล M2 ที่ผู้ใช้อนุมัติ + scripts/lib/risksum.js (ตาราง FWI ของ TFDRS, บรรทัดสรุปประจำวัน)
+test('R.M = M2 ตำบล/แปลงสถานีฯ · ระดับเพิ่มตามความเสี่ยง', () => {
+  for (const k of ['tm', 'st']) { assert.equal(R.M[k].b.length, 4); assert.equal(R.M[k].LV.length, 4); assert.ok(R.M[k].LV.every((v, i, a) => !i || v > a[i - 1])) }
+  const lo = R.prob(R.feats(0.001, 2, false), R.M.tm.b), hi = R.prob(R.feats(0.05, 40, true), R.M.tm.b);
+  assert.equal(R.level(lo, R.M.tm.LV), 1); assert.equal(R.level(hi, R.M.tm.LV), 5);
+});
+test('risksum.grid อ่านตาราง TFDRS (Int16LE ×10, -32768 = ไม่มี → เฉลี่ยรอบข้าง)', () => {
+  const fs = require('fs'), os = require('os'), path = require('path'), S = require('../scripts/lib/risksum');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rk-')); fs.mkdirSync(path.join(dir, 'g'));
+  const a = new Int16Array([100, 200, -32768, 400]), G = { d: '2026-03-01', f: 0, run: '2026-03-01', x0: 101, y0: 14.1, dx: 0.1, dy: -0.1, nx: 2, ny: 2, q: 10, v: { FWI: Buffer.from(a.buffer).toString('base64') } };
+  fs.writeFileSync(path.join(dir, 'g', '2026-03-01.json'), JSON.stringify(G));
+  const g = S.grid(dir, '2026-03-01');
+  assert.equal(g.val(101, 14.1), 10); assert.equal(g.val(101.1, 14.1), 20); assert.equal(g.val(101.1, 14.0), 40);
+  assert.ok(Math.abs(g.val(101, 14.0) - (10 + 20 + 40) / 3) < 1e-9, 'เซลล์ไม่มีข้อมูล = เฉลี่ย 3×3');
+  assert.equal(S.grid(dir, '2026-03-02'), null);
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+test('risksum.riskLine: นับระดับสูงขึ้นไป · ไม่มี = บอกหน่วยสูงสุด · บอกว่าไม่ใช่ค่าทางการ', () => {
+  const S = require('../scripts/lib/risksum'), now = Date.UTC(2026, 2, 1, 1);
+  const row = (k, lv) => [k, 14, 102, lv, 0.1, 30, 0, 0.01];
+  const J = { LVN: R.LVN, days: [{ d: '2026-03-01', tm: [row('ก|ข', 5), row('ค|ง', 4), row('จ|ฉ', 4), row('ช|ซ', 2)] }] };
+  const L = S.riskLine(J, now, 2);
+  assert.deepEqual([L.lab, L.n5, L.n4], ['วันนี้', 1, 2]); assert.match(L.text, /ไม่ใช่ค่าทางการ/); assert.match(L.text, /ต\.ก อ\.ข, ต\.ค อ\.ง และอีก 1/);
+  const Z = S.riskLine({ LVN: R.LVN, days: [{ d: '2026-03-01', tm: [row('ก|ข', 2)] }] }, now);
+  assert.match(Z.text, /ไม่มีตำบลระดับสูงขึ้นไป · สูงสุด ต\.ก อ\.ข \(ต่ำ\)/);
+  assert.equal(S.riskLine(null, now), null);
+});
