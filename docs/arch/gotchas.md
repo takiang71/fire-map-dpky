@@ -22,6 +22,7 @@
 | `.kb-ch svg{width:100%}` | กราฟในหน้าข้อมูลพื้นฐาน | ไอคอนใช้ `.kb-ch svg.kb-fi` |
 | คีย์ขึ้นต้น `i` ใน `PP.E` | กล่องรูปภาพของผู้ใช้ | ตรวจด้วย `/^id/` |
 | `fetchT` `FTO` `dbg` `DBG` `slowMsg` `dgCopy` `HSERR`, `window.__LOG` `window.__OLD`, id `dg-cp` `dg-tx` `oldb` | ตัวช่วยเครือข่าย/บันทึกข้อผิดพลาด (A2/A3) และกล่องเบราว์เซอร์เก่า (D8) — 15 พ.ย. 69 | `FT` = ชนิดป่า (ใช้อยู่ก่อน จึงตั้ง `FTO`) |
+| `gz*` `GZ*` id `gz` `gz-*` `bSr` ชั้น `gz-hl` · `vw*` `VW*` (`VWD` `VWB` `VWO` `VWS` `VWX` `VWT` `VWU`) id `vw-*` localStorage `fm-vw` · `window.gzKB` | ค้นหา (D4) / ลิงก์มุมมอง (D3), 16 พ.ย. 69 | — |
 
 ทุกโมดูลใหม่ตั้ง prefix เฉพาะ 2–3 ตัวอักษร และค้นด้วย grep ก่อนตั้งชื่อ
 

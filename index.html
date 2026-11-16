@@ -765,6 +765,8 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 <section id="right" aria-label="ชั้นข้อมูล"><div class="gb"></div>
  <div class="rh"><b>ชั้นข้อมูล</b><a id="sdef" role="button" tabindex="0">ตั้งที่เลือกเป็นค่าเริ่มต้น</a><button class="cb" id="xr" aria-label="ปิดแผง" style="width:36px;height:36px;box-shadow:none"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
  <div class="rb">
+  <div id="vw-box"><div class="vwr"><button class="btn" id="vw-cp" type="button" title="คัดลอกลิงก์ที่เปิดแล้วได้ตำแหน่ง ซูม และชั้นข้อมูลเดียวกับที่เห็นตอนนี้"><svg class="i" viewBox="0 0 24 24"><path d="M10 14a4.5 4.5 0 006.4 0l3-3a4.5 4.5 0 00-6.4-6.4l-1 1M14 10a4.5 4.5 0 00-6.4 0l-3 3a4.5 4.5 0 006.4 6.4l1-1"/></svg>คัดลอกลิงก์มุมมองนี้</button><button class="btn" id="vw-sh" type="button" title="แชร์ลิงก์มุมมองนี้ผ่านแอปในเครื่อง (LINE, Telegram …)"><svg class="i" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg>แชร์</button></div>
+   <div class="row" data-tip="เปิดไว้ = ช่องที่อยู่ของเบราว์เซอร์อัปเดตตามตำแหน่ง ซูม และชั้นข้อมูลที่เปิด (บุ๊กมาร์กหรือรีโหลดแล้วได้มุมมองเดิม) · ปิดไว้ = ไม่เปลี่ยน URL เอง"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16v12H4zM4 10h16"/></svg><b>จำมุมมองใน URL</b><button class="sw" id="vw-on" role="switch" aria-checked="false" aria-label="จำมุมมองใน URL"></button></div></div>
   <h3>แผนที่ฐาน</h3>
   <div class="seg" id="seg"><button data-b="natural" data-src="Esri World Topo · เงาภูเขา AWS Terrain">ธรรมชาติ</button><button data-b="flat" data-src="OpenFreeMap Positron · © OpenStreetMap">เรียบ</button><button data-b="sat" data-src="">ดาวเทียม</button><button data-b="detail" data-src="OpenFreeMap Liberty · © OpenStreetMap — ถนน หมู่บ้าน วัด โรงเรียน อาคาร">ถนน/ชุมชน</button><button data-b="dark" data-src="OpenFreeMap Dark · © OpenStreetMap — โทนมืด จุดไฟเด่น เหมาะจอห้องปฏิบัติการ/กลางคืน">โทนมืด</button></div>
   <div class="sg" id="imgsrc" hidden aria-label="แหล่งภาพดาวเทียม"><button data-i="google">Google</button><button data-i="esri">Esri</button><button data-i="s2">Sentinel-2</button><button data-i="day">NOAA-20</button></div>
@@ -981,6 +983,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 <nav id="ctl" aria-label="ปุ่มควบคุมแผนที่">
  <button class="cb" id="bLoc" aria-label="ตำแหน่งของฉัน"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
  <button class="cb" id="bLay" aria-label="ชั้นข้อมูล"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"/></svg></button>
+ <button class="cb" id="bSr" aria-label="ค้นหาสถานที่หรือพิกัด" title="ค้นหาสถานที่หรือพิกัด (Ctrl+K)" aria-expanded="false" aria-controls="gz"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
  <div class="tw"><button class="cb" id="bTo" aria-label="เครื่องมือแผนที่" aria-expanded="false" aria-controls="ctx"><svg class="i" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg></button><div class="ctx" id="ctx" role="group" aria-label="เครื่องมือแผนที่">
  <button class="cb" id="bMs" aria-label="วัดระยะทางและพื้นที่" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><path d="M3 16.5L16.5 3 21 7.5 7.5 21zM7 12.5l2 2M10 9.5l2.5 2.5M13 6.5l2 2"/></svg></button>
  <button class="cb" id="bUl" aria-label="วาดและจัดการชั้นข้อมูล" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M14.5 21.5l1-3.5 5-5 2.5 2.5-5 5z"/><path d="M3 13l9 5 2-1.1"/></svg></button>
@@ -1202,6 +1205,7 @@ const areaHtml=g=>{let s='';if(g.cons)s+=`<b>${esc(g.cons.properties.name)}</b><
 
 /* ---------- สถานะ + จำค่าที่ผู้ใช้เลือก ---------- */
 let S={base:'natural',img:'google',d3:false,hot:true,prov:false,cons:true,resp:false,stn:false,wpt:false,rgr:false,fbs:false,sats:{SNPP:true,NOAA20:true,NOAA21:true},xdy:true,orb:true,orbm:false,wch:true,wst:false,wsp:true,demo:false,water:true,road:true,wxw:true,pm:false,pmst:true,pmc:true,cmm:'d',cmop:65,dry:false,fwi:false,fwv:'FWI',wx:false,vr:false,vrg:'mean',rad:false,him:false,tmd:false,tmv:'t',hmb:'ir',hmop:85,wyl:false,wyo:'wind',wyop:60,hist:false,xt:false,burn:false,fuel:false,ftype:false,amp:false,tam:false,hcl:false,hgp:false,har:false,hcp:'7',rep:false,rpm:2,hcd:1,hcg:2,hcr:200};
+const VWD=JSON.parse(JSON.stringify(S)); /* D3 ค่าตั้งต้นของโค้ด ก่อนรวมค่าที่ผู้ใช้บันทึก (ลิงก์มุมมอง ?l= เทียบกับค่านี้) */
 try{Object.assign(S,JSON.parse(localStorage.getItem('fm-v1')||'{}'))}catch(e){}S.demo=false;S.wst=false;S.dry=false;S.wpt=false;/* รวมแถวหมวดสภาพอากาศ 14 พ.ย. 69: ลม→สภาพอากาศแบบจำลอง · เรดาร์→เมฆและเรดาร์ฝน · PM2.5 CAMS→ฝุ่น PM2.5 */if(S.cms){S.pm=true;S.pmc=true}if(S.rad){S.him=true;S.hmb='rd'}if(S.wind){S.wx=true;S.wxw=true}delete S.cms;delete S.wind;if(!['wind','rain','temp','rh'].includes(S.wyo))S.wyo='wind';if(S.base==='road')S.base='detail';/* แถวอากาศแห้ง/จุดเฝ้าระวังถูกเอาออกจากแผงชั้นข้อมูล 14 พ.ย. 69 — ค่าที่บันทึกไว้ต้องไม่เปิดค้าง */
 const toast=(m,fn,ms)=>{const t=$('#toast');t.textContent=m;t.classList.add('show');t.classList.toggle('act',!!fn);t.onclick=fn?()=>{t.classList.remove('show','act');fn()}:null;
  clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show','act'),ms||2200)}; // fn = แตะป้ายแล้วทำ (ป้ายค้างนานขึ้น)
@@ -3519,9 +3523,58 @@ map.once('style.load',hRender);fitHome(false);
 //  ?pts=ละติจูด,ลองจิจูด;… = จุดในข้อความแจ้งเตือน (วงล้อม + ป้ายแตะดูรายการ — hsLink) · ?bb=ตะวันตก,ใต้,ตะวันออก,เหนือ = ซูมกรอบของหลายจุด · ?ar=<รหัส ky tl ps tp dy ks kc เดียวกับหน้าความสำคัญ> = ซูมพื้นที่อนุรักษ์
 //  ?burn=<รหัสรอบ เช่น 20261022_20261028 | fy2570 | c202603> = เปิดชั้นพื้นที่เผาไหม้ เลือกรอบนั้น แล้วซูมกรอบของรอยเผา (ข้อความ Telegram/LINE ผู้ใช้ขอ 5 พ.ย. 69)
 const LNK={ky:'อุทยานแห่งชาติเขาใหญ่',tl:'อุทยานแห่งชาติทับลาน',ps:'อุทยานแห่งชาติปางสีดา',tp:'อุทยานแห่งชาติตาพระยา',dy:'เขตรักษาพันธุ์สัตว์ป่าดงใหญ่',ks:'เตรียมประกาศเป็นเขตห้ามล่าสัตว์ป่าโคกสูง',kc:'เตรียมประกาศเป็นเขตห้ามล่าสัตว์ป่าเขาฉกรรจ์'};
+/* D3 ลิงก์มุมมอง (16 พ.ย. 69 ตาม docs/review-2569-11-15.md): ?v=ละติจูด,ลองจิจูด,ซูม[,ทิศ,มุมเอียง] &l=ชั้นที่ต่างจากค่าเริ่มต้น คั่นด้วย ","
+   "ชื่อ" = เปิด · "-ชื่อ" = ปิดชั้นที่ปกติเปิด · "ชื่อ:ค่า" = เปิดพร้อมตัวเลือก (burn:รอบ fwi:ดัชนี vr:mean|max him:ภาพ tmd:ค่า wyl:ชั้น) · base:แผนที่ฐาน img:แหล่งภาพ
+   เทียบกับ VWD (ค่าตั้งต้นของโค้ด ก่อนรวม fm-v1) → ผู้เปิดลิงก์ได้ชั้นเดียวกับผู้ส่ง แม้บันทึกค่าเริ่มต้นของตัวเองไว้ต่างกัน (ไม่บันทึกทับ fm-v1)
+   URL เปลี่ยน (history.replaceState) เฉพาะเมื่อเปิดสวิตช์ "จำมุมมองใน URL" (#vw-on, localStorage fm-vw: หลังเลื่อน/ซูม หรือแตะปุ่มใดๆ หน่วง 500 ms) หรือกดคัดลอก/แชร์ — ไม่ทำเอง
+   deepLink: ?hs ?bb ?ar ?burn ?pts ?wa มาก่อนเสมอ (มีอย่างใดอย่างหนึ่ง = ไม่ใช้ v/l) · ?kb ?wy เปิดหน้าต่างของตัวเองอยู่แล้ว ใช้ร่วมกับ v ได้
+   เขียน URL = ลบพารามิเตอร์ลิงก์ตรงเหล่านี้ออก (กดรีโหลดแล้วไม่เปิดซ้ำ) คงพารามิเตอร์อื่น เช่น debug */
+const VWB=['hot','cons','resp','stn','rgr','fbs','prov','amp','tam','water','road','wch','xdy','orb','hist','xt','hcl','hgp','har','rep','burn','fuel','ftype','fwi','vr','wx','wxw','pm','pmst','pmc','him','tmd','wyl','d3'],
+ VWO={burn:[null,v=>/^(fy\d{4}|c\d{6}(_\d{6})?|\d{8}_\d{8})$/.test(v)],fwi:['fwv','#fwi-v button,#fwi-w button'],vr:['vrg','#vr-gm button'],him:['hmb','#hmseg button'],tmd:['tmv','#tmseg button'],wyl:['wyo',v=>['wind','rain','temp','rh'].includes(v)]},
+ VWS={base:['natural','flat','sat','detail','dark'],img:['google','esri','s2','day']},VWX=['hs','bb','ar','burn','pts','wa','kb','wy','v','l'];
+let VWT=0,VWU=false;
+const vwOpt=k=>{const o=VWO[k];return o?(o[0]?S[o[0]]:BNK):null},
+ vwOk=(k,v)=>{const c=VWO[k][1];return typeof c==='function'?c(v):$$(c).some(b=>b.dataset.v===v)};
+function vwEnc(){const L=[];for(const k in VWS)if(S[k]!==VWD[k])L.push(k+':'+S[k]);
+ VWB.forEach(k=>{const on=!!S[k],d=!!VWD[k],o=VWO[k],ov=vwOpt(k),od=o&&o[0]?VWD[o[0]]:null;
+  if(on&&(!d||(o&&ov!=null&&ov!==od)))L.push(k+(o&&ov!=null&&ov!==''&&/^[\w.-]+$/.test(ov)?':'+ov:''));else if(!on&&d)L.push('-'+k)});
+ return L.join(',')}
+const vwLL=()=>{const c=map.getCenter(),b=map.getBearing(),p=map.getPitch();return[c.lat.toFixed(5),c.lng.toFixed(5),map.getZoom().toFixed(2)].concat(Math.abs(b)>.5||p>.5?[Math.round(b),Math.round(p)]:[]).join(',')};
+const vwQS=()=>{const l=vwEnc();return'v='+vwLL()+(l?'&l='+l:'')};
+function vwURL(){const og=document.querySelector('meta[property="og:url"]'),b=/^https?:$/.test(location.protocol)?location.origin+location.pathname:og?og.content:'https://takiang71.github.io/fire-map-dpky/';return b+'?'+vwQS()}
+function vwSet(){const q=new URLSearchParams(location.search);VWX.forEach(k=>q.delete(k));const r=q.toString();
+ try{history.replaceState(history.state,'',location.pathname+'?'+vwQS()+(r?'&'+r:'')+location.hash)}catch(e){dbg('vwSet',e)}}
+function vwParse(q){const v=(q.get('v')||'').split(',').map(Number);
+ if(v.length<3||!v.slice(0,3).every(isFinite)||Math.abs(v[0])>85||Math.abs(v[1])>180||v[2]<0||v[2]>22)return null;
+ return{la:v[0],lo:v[1],z:v[2],b:isFinite(v[3])?v[3]:0,p:isFinite(v[4])?Math.min(85,Math.max(0,v[4])):0,L:(q.get('l')||'').split(',').filter(t=>/^-?[a-z0-9]+(:[\w.-]+)?$/i.test(t))}}
+/* ตั้งชั้นตามลิงก์: คืนค่าตั้งต้นทุกชั้นในรายการก่อน แล้วเปิด/ปิด/ตั้งตัวเลือกตาม l · ค่าที่ไม่รู้จัก = ข้าม */
+function vwApply(o){const b0=S.base,i0=S.img,x0=S.xdy;
+ VWB.forEach(k=>{S[k]=VWD[k];const x=VWO[k];if(x&&x[0])S[x[0]]=VWD[x[0]]});for(const k in VWS)S[k]=VWD[k];
+ o.L.forEach(t=>{const off=t[0]==='-',[k,v]=t.replace(/^-/,'').split(':');
+  if(VWS[k]){if(VWS[k].includes(v))S[k]=v;return}if(!VWB.includes(k))return;S[k]=!off;
+  if(!off&&v!=null&&VWO[k]&&vwOk(k,v)){if(VWO[k][0])S[VWO[k][0]]=v;else BNK=v}});
+ if(S.wyl&&S.d3)S.d3=false;
+ if(S.base!==b0||S.img!==i0)map.setStyle(sty(),{diff:false});apply();sync();return S.xdy!==x0}
+async function vwGo(o,LD){const xd=vwApply(o);MOVED=true;VWU=false;const cam={center:[o.lo,o.la],zoom:o.z,bearing:o.b,pitch:o.p};map.jumpTo(cam);
+ map.on('movestart',vwUser);try{await LD}catch(e){dbg('deepLink',e)}if(!map.isStyleLoaded())await new Promise(r=>map.once('idle',r));map.off('movestart',vwUser);
+ const c=map.getCenter();if(!VWU&&(Math.abs(c.lat-o.la)>1e-4||Math.abs(c.lng-o.lo)>1e-4||Math.abs(map.getZoom()-o.z)>.01))map.jumpTo(cam);
+ if(xd)try{refreshHS()}catch(e){dbg('vwGo',e)}
+ toast('เปิดมุมมองจากลิงก์'+(o.L.length?' พร้อมชั้นข้อมูลที่ผู้ส่งเปิดไว้':''),null,3000)}
+function vwUser(e){if(e&&e.originalEvent)VWU=true}
+const vwOn=()=>{try{return localStorage.getItem('fm-vw')==='1'}catch(e){return false}};
+function vwSched(){if(!vwOn())return;clearTimeout(VWT);VWT=setTimeout(()=>{if(vwOn())vwSet()},500)}
+async function vwCopy(){const u=vwURL();vwSet();let ok=false;try{await navigator.clipboard.writeText(u);ok=true}catch(e){}
+ if(!ok){const t=document.createElement('textarea');t.value=u;t.setAttribute('readonly','');t.style.cssText='position:fixed;left:-9999px;top:0';document.body.append(t);t.select();try{ok=document.execCommand('copy')}catch(e){}t.remove()}
+ vwCopy.last=u;toast(ok?'คัดลอกลิงก์มุมมองนี้แล้ว — วางใน LINE/Telegram ได้':'คัดลอกอัตโนมัติไม่ได้ — คัดลอกจากช่องที่อยู่ของเบราว์เซอร์แทน',null,3500);return u}
+async function vwShare(){if(!navigator.share)return vwCopy();const u=vwURL();vwSet();vwCopy.last=u;
+ try{await navigator.share({title:document.title,text:'แผนที่สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่ (มุมมองนี้)',url:u})}catch(e){if(e&&e.name!=='AbortError')vwCopy()}}
+{const s=$('#vw-on');if(s){s.setAttribute('aria-checked',vwOn());s.onclick=()=>{const on=!vwOn();try{localStorage.setItem('fm-vw',on?'1':'0')}catch(e){}s.setAttribute('aria-checked',on);clearTimeout(VWT);
+  if(on){vwSet();toast('จำมุมมองใน URL แล้ว — บุ๊กมาร์ก/รีโหลดได้มุมมองเดิม',null,3000)}else toast('เลิกจำมุมมองใน URL',null,2000)}}
+ $('#vw-cp').onclick=vwCopy;$('#vw-sh').onclick=vwShare;if(!navigator.share)$('#vw-sh').hidden=true;
+ map.on('moveend',vwSched);document.addEventListener('click',vwSched,true)}
 async function deepLink(LD){
  const q=new URLSearchParams(location.search),num=k=>{const a=(q.get(k)||'').split(',').map(parseFloat);return a.every(isFinite)?a:[]};
- const hs=num('hs'),bb=num('bb'),ar=LNK[q.get('ar')],pts=(q.get('pts')||'').split(';').map(t=>t.split(',').map(parseFloat)).filter(a=>a.length===2&&a.every(isFinite)&&Math.abs(a[0])<=90).slice(0,60),bn=/^(fy\d{4}|c\d{6}(_\d{6})?|\d{8}_\d{8})$/.test(q.get('burn')||'')?q.get('burn'):null,wa=WAR.find(a=>a.id===q.get('wa'));if(hs.length!==2&&bb.length!==4&&!ar&&!bn&&!pts.length&&!wa)return;
+ const hs=num('hs'),bb=num('bb'),ar=LNK[q.get('ar')],pts=(q.get('pts')||'').split(';').map(t=>t.split(',').map(parseFloat)).filter(a=>a.length===2&&a.every(isFinite)&&Math.abs(a[0])<=90).slice(0,60),bn=/^(fy\d{4}|c\d{6}(_\d{6})?|\d{8}_\d{8})$/.test(q.get('burn')||'')?q.get('burn'):null,wa=WAR.find(a=>a.id===q.get('wa'));if(hs.length!==2&&bb.length!==4&&!ar&&!bn&&!pts.length&&!wa){const vw=vwParse(q);if(vw)return vwGo(vw,LD);return}
  try{await LD}catch(e){dbg('deepLink',e)}if(!map.isStyleLoaded())await new Promise(r=>map.once('idle',r));MOVED=true;
  if(wa){S.wch=true;apply();sync();if(!pts.length){map.fitBounds([[wa.bb[0],wa.bb[1]],[wa.bb[2],wa.bb[3]]],{padding:linkPad(),maxZoom:13,duration:0});return toast('พื้นที่เฝ้าระวังพิเศษ: '+wa.n+' · แตะป้ายด้านล่างการ์ดเพื่อดูการติดตามรายวัน',()=>hOpen(false,'wa'),8000)}} // ลิงก์จากการ์ด LINE/Telegram พื้นที่เฝ้าระวังพิเศษ
  if(pts.length)return hsLink(pts);
@@ -4075,6 +4128,7 @@ $('#kb-c').onclick=e=>{const tf=e.target.closest('[data-tf]');if(tf)return tourF
  const g=e.target.closest('[data-go]');if(g){const f=GEO.cons.features.find(f=>f.properties.name===g.dataset.go);kbClose();if(f)map.fitBounds(bbOf([f]),{padding:homePad(),duration:dur(900)})}};
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#kb').hidden)kbClose()});
 // ลิงก์ตรง ?kb=<รหัสแท็บ> (all ky tl ps tp dy ks kc ft) เปิดหน้าความสำคัญทันที
+window.gzKB=()=>({KB,KBT}); /* D4 ค้นหาแหล่งท่องเที่ยว (โมดูลค้นหาท้ายไฟล์) */
 const KQ=new URLSearchParams(location.search).get('kb');if(KQ!=null)kbOpen(KB.some(a=>a.id===KQ)?KQ:'all');
 })();
 </script>
@@ -6921,6 +6975,118 @@ addEventListener('online',()=>{pwaBar();load().catch(e=>dbg('load',e))});addEven
 const pb=()=>{try{pwaBar()}catch(e){}};pb();setTimeout(pb,4000);setInterval(pb,6e4);
 if(document.readyState==='complete')pwaReg();else addEventListener('load',pwaReg);
 })();
+</script>
+<style>
+/* D3 ลิงก์มุมมอง (แผงชั้นข้อมูล) */
+#vw-box{margin:2px 0 4px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+#vw-box .vwr{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 2px}
+#vw-box .btn{min-height:36px;padding:0 12px;font-size:12.5px;box-shadow:none;border:1px solid var(--line)}
+#vw-box .btn[hidden]{display:none}
+/* D4 ค้นหาสถานที่/พิกัด (16 พ.ย. 69) — เดสก์ท็อป: กล่องลอยมุมบนซ้ายของพื้นที่แผนที่ · มือถือ: ช่องค้นหาด้านบนข้างคอลัมน์ปุ่ม + ผลเป็นแผ่นล่าง (สูงไม่เกิน --sh0 = ใต้คอลัมน์ปุ่ม) */
+#gz{position:fixed;z-index:56;top:calc(12px + env(safe-area-inset-top));left:calc(var(--lw) + 12px);width:min(420px,calc(100% - var(--lw) - 24px));background:var(--bg);border-radius:14px;box-shadow:var(--sh);font-size:13px;color:var(--ink)}
+#gz[hidden],#gz-s[hidden],#gz-r[hidden]{display:none}
+#gz .gzh{display:flex;align-items:center;gap:6px;padding:4px 4px 4px 12px}
+#gz .gzh>svg{width:18px;height:18px;flex:none;fill:none;stroke:var(--navy);stroke-width:2;stroke-linecap:round}
+#gz input{flex:1;min-width:0;border:0;outline:0;background:none;font:inherit;font-size:16px;padding:8px 2px;color:inherit}
+#gz .gzx{width:36px;height:36px;box-shadow:none;flex:none}
+#gz-s{border-top:1px solid var(--line)}
+#gz-r{max-height:min(60vh,520px);overflow-y:auto;overscroll-behavior:contain;padding:4px 0}
+#gz-r button{display:flex;gap:9px;align-items:flex-start;width:100%;text-align:left;background:none;border:0;padding:7px 12px;font:inherit;color:inherit;cursor:pointer;line-height:1.35}
+#gz-r button:hover,#gz-r button.on{background:rgba(27,42,94,.08)}
+#gz-r i{flex:none;width:10px;height:10px;border-radius:50%;margin-top:4px;background:var(--c);box-shadow:0 0 0 2px #fff,0 0 0 3px var(--c)}
+#gz-r b{font-weight:600}
+#gz-r .t{margin-left:auto;flex:none;font-size:11px;color:var(--mut);white-space:nowrap;padding-left:6px}
+#gz-r .sm,#gz-n{font-size:11.5px;color:var(--mut)}
+#gz-n{padding:8px 12px;line-height:1.5}
+#gz-n:empty{display:none}
+@media(max-width:767px){
+ #gz{left:12px;right:66px;width:auto;background:none;box-shadow:none;border-radius:0}
+ #gz .gzh{background:var(--bg);border-radius:12px;box-shadow:var(--sh)}
+ #gz-s{position:fixed;left:0;right:0;bottom:0;max-height:min(var(--sh0,34vh),calc(100% - 70px - env(safe-area-inset-top)));display:flex;flex-direction:column;background:var(--bg);border-radius:16px 16px 0 0;box-shadow:0 -2px 12px rgba(20,30,60,.18);border-top:0;padding-bottom:env(safe-area-inset-bottom)}
+ #gz-s::before{content:'';flex:none;width:40px;height:4px;border-radius:2px;background:var(--line);margin:7px auto 2px}
+ #gz-r{max-height:none;flex:1;min-height:0}
+}
+</style>
+<script>
+/* ---------- D4 ค้นหาสถานที่/พิกัด (16 พ.ย. 69 ตาม docs/review-2569-11-15.md — เดิมค้นได้แค่รายการจังหวัดในแผงซ้าย) ----------
+   ปุ่ม #bSr ใน #ctl (หรือ Ctrl+K) → ช่องค้นหา #gz ค้นจากข้อมูลของเว็บเองทั้งหมด ไม่ใช้ geocoder ภายนอก (data/*.json ถูก sw.js แคช → ค้นออฟไลน์ได้หลังเคยเปิด):
+   ตำบล/อำเภอ/จังหวัด (data/admin.json ผ่าน admLoad) · พื้นที่อนุรักษ์/สถานีฯ/จุดเฝ้าระวัง (GEO) · หน่วยพิทักษ์/จุดสกัด/ฐาน (ranger.json/fbase.json)
+   · พื้นที่เฝ้าระวังพิเศษ (WAR) · แหล่งท่องเที่ยว (KB.tour ผ่าน window.gzKB) · พิกัด ละติจูด/ลองจิจูด หรือ UTM 47/48 (udCoParse — ไม่ระบุโซนลองทั้ง 47/48 เก็บที่ตกในไทย)
+   เลือกผล = ซูม + เส้นแนวเขต (gz-hl) หรือหมุด + ป๊อปอัป · ปิดป๊อปอัป = ล้างหมุด/เส้น */
+const GZT={co:['พิกัด','#d93a1f',12],pa:['พื้นที่อนุรักษ์','#1f8a5b',11],st:['สถานีควบคุมไฟป่า','#b45309',10],pv:['จังหวัด','#5b3f86',9],am:['อำเภอ','#5b3f86',8],tm:['ตำบล','#7a6a58',7],wa:['พื้นที่เฝ้าระวังพิเศษ','#0e7490',7],rg:['หน่วยพิทักษ์/จุดสกัด','#2f7d32',6],fb:['ฐานป้องกันรักษาป่า','#9f1239',6],wp:['จุดเฝ้าระวัง','#c2410c',5],tr:['แหล่งท่องเที่ยว','#2a7fc0',4]},
+ GZH={'ต':'tm','ตำบล':'tm','อ':'am','อำเภอ':'am','จ':'pv','จังหวัด':'pv'},
+ GZHINT='พิมพ์ชื่อ ตำบล อำเภอ จังหวัด พื้นที่อนุรักษ์ สถานีฯ หน่วยพิทักษ์/จุดสกัด/ฐาน จุดเฝ้าระวัง แหล่งท่องเที่ยว<br>หรือพิกัด เช่น <b>14.1, 101.9</b> · <b>47 820000 1560000</b> (UTM โซน E N)',
+ GZ={src:{},st:{},R:[],sel:0,mk:null,pop:null,t:0};
+const gzN=s=>String(s==null?'':s).toLowerCase().replace(/[\s.\-·()"'“”,]/g,'');
+const gzCore=s=>String(s||'').replace(/^(เตรียมประกาศเป็น)?(อุทยานแห่งชาติ|เขตรักษาพันธุ์สัตว์ป่า|เขตห้ามล่าสัตว์ป่า|สถานีควบคุมไฟป่า|หน่วยพิทักษ์อุทยานแห่งชาติ|หน่วยพิทักษ์ป่า|ฐานปฏิบัติการป้องกันรักษาป่า|ที่ทำการ|จุดเฝ้าระวัง)\s*/,'');
+const gzAdr=p=>[p.tam&&'ต.'+p.tam,p.amp&&'อ.'+p.amp,p.prov&&'จ.'+p.prov].filter(Boolean).join(' ');
+function gzBB(fs){const b=[180,90,-180,-90],f=c=>{if(typeof c[0]==='number'){if(c[0]<b[0])b[0]=c[0];if(c[1]<b[1])b[1]=c[1];if(c[0]>b[2])b[2]=c[0];if(c[1]>b[3])b[3]=c[1]}else c.forEach(f)};fs.forEach(x=>f(x.geometry.coordinates));return b}
+function gzE(k,n,s,o){return Object.assign({k,n,s:s||'',nk:gzN(gzCore(n)),key:gzN(n+' '+(s||''))},o)}
+function gzGeo(){const A=[];
+ GEO.cons.features.forEach(f=>{const p=f.properties;A.push(gzE('pa',p.name,[p.kindTh,p.paro].filter(Boolean).join(' · '),{bb:gzBB([f]),g:[f]}))});
+ GEO.stn.features.forEach(f=>{const p=f.properties;A.push(gzE('st',p.name,gzAdr(p),{pt:f.geometry.coordinates}))});
+ GEO.wpt.features.forEach(f=>{const p=f.properties;A.push(gzE('wp','จุดเฝ้าระวัง '+p.name,[p.vil,gzAdr(p),p.station&&'สถานีฯ '+p.station].filter(Boolean).join(' · '),{pt:f.geometry.coordinates}))});
+ WAR.forEach(a=>{if(a.bb)A.push(gzE('wa',a.n,a.s&&a.s!==a.n?a.s:'',{bb:a.bb,ak:gzN(a.s)}))});
+ try{const x=window.gzKB&&window.gzKB(),seen={};if(x)x.KB.forEach(a=>(a.tour||[]).forEach(t=>{if(t[2]==null||t[3]==null||seen[t[0]+t[2]])return;seen[t[0]+t[2]]=1;
+  A.push(gzE('tr',t[0],[(x.KBT[t[1]]||[])[0],a.id==='all'?'':a.n].filter(Boolean).join(' · '),{pt:[t[2],t[3]],d:t[4]||''}))}))}catch(e){dbg('gzKB',e)}
+ return A}
+function gzAdm(j){const A=[],P={};
+ j.tm.features.forEach(f=>{const p=f.properties;A.push(gzE('tm','ต.'+p.t,'อ.'+p.a+' จ.'+p.p,{bb:f.bb,g:[f],nk:gzN(p.t)}))});
+ j.am.features.forEach(f=>{const p=f.properties;A.push(gzE('am','อ.'+p.a,'จ.'+p.p,{bb:f.bb,g:[f],nk:gzN(p.a)}));(P[p.p]=P[p.p]||[]).push(f)});
+ Object.entries(P).forEach(([n,fs])=>A.push(gzE('pv','จ.'+n,'',{bb:fs.reduce((m,f)=>[Math.min(m[0],f.bb[0]),Math.min(m[1],f.bb[1]),Math.max(m[2],f.bb[2]),Math.max(m[3],f.bb[3])],[180,90,-180,-90]),g:fs,nk:gzN(n)})));
+ return A}
+const gzPts=(j,k)=>j.features.map(f=>{const p=f.properties;return gzE(k,p.n,[p.s&&p.s!==p.n?p.s:'',k==='rg'?p.t:'',p.p,gzAdr(p)].filter(Boolean).join(' · '),{pt:f.geometry.coordinates,ak:gzN(gzCore(p.s)),key:gzN([p.n,p.s,p.p,p.ban,p.tam,p.amp,p.prov].filter(Boolean).join(' '))})});
+const gzJson=u=>()=>fetchT(u,{},FTO.main).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()});
+function gzLoad(){if(!GZ.src.geo)GZ.src.geo=gzGeo();
+ const go=(id,p,f)=>{if(GZ.st[id]==='…'||GZ.st[id]==='ok')return;GZ.st[id]='…';p().then(j=>{GZ.src[id]=f(j);GZ.st[id]='ok'}).catch(e=>{GZ.st[id]='err';dbg('gz:'+id,e)}).then(()=>{if(!$('#gz').hidden)gzRun()})};
+ go('adm',admLoad,gzAdm);go('rg',gzJson(RG_URL),j=>gzPts(j,'rg'));go('fb',gzJson(FB_URL),j=>gzPts(j,'fb'))}
+function gzFind(q){let h=null;q=q.trim().replace(/^(ตำบล|อำเภอ|จังหวัด|ต\.|อ\.|จ\.)\s*/,(m,a)=>{h=GZH[a.replace('.','')];return''});const n=gzN(q);if(!n)return[];const R=[];
+ for(const s of Object.values(GZ.src))for(const e of s){const i=e.key.indexOf(n);if(i<0)continue;
+  const m=x=>x?(x===n?60:x.startsWith(n)?35:x.includes(n)?20:0):0;R.push([GZT[e.k][2]*10+Math.max(m(e.nk),m(e.ak))+(h&&e.k===h?45:0)-Math.min(i,30)*.2-e.n.length*.02,e])}
+ return R.sort((a,b)=>b[0]-a[0]).slice(0,40).map(x=>x[1])}
+/* พิกัด: ลองแบบละติจูด/ลองจิจูดก่อน ไม่ได้จึงลอง UTM (3 ค่า = โซน E N · 2 ค่า = ลองโซน 47 และ 48) · ใช้ udCoParse ของเครื่องมือวาด (สลับ UDCO.f ชั่วคราวแล้วคืนค่า) */
+function gzCo(q){const t=String(q).trim();if(!/\d/.test(t)||!/^[\d\s.,;:°º'"′″NSEWnsew+-]+$/.test(t))return[];
+ const f0=UDCO.f,z0=UDCO.z,R=[],ok=r=>r.P.length===1&&!r.E.length,n=t.replace(/(?<=\d),(?=\d{3}(?!\d))/g,'').match(/\d+(?:\.\d+)?/g)||[];
+ try{UDCO.f='ll';let r=udCoParse(t);if(ok(r))R.push({p:r.P[0],z:0});
+  if(!R.length&&(n.length===3||n.length===2)){UDCO.f='utm';for(const z of n.length===3?[0]:[47,48]){if(z)UDCO.z=z;r=udCoParse(t);if(ok(r))R.push({p:r.P[0],z:z||+n[0],g:!z})}}}
+ catch(e){dbg('gzCo',e)}finally{UDCO.f=f0;UDCO.z=z0}
+ return R.filter(o=>o.p[0]>=97&&o.p[0]<=106&&o.p[1]>=5&&o.p[1]<=21).map(o=>{const[lo,la]=o.p,z=o.z||(lo<102?47:48),u=GIO.utmFwd(z).fwd(lo,la).map(Math.round);
+  return{k:'co',n:la.toFixed(5)+', '+lo.toFixed(5),s:'UTM '+z+'N '+u[0]+' '+u[1]+(o.g?' (โซนตามที่พิมพ์)':o.z?' (ไม่ระบุโซน — ใช้โซน '+o.z+')':''),pt:[lo,la],nk:'',key:''}})}
+function gzRun(){const q=$('#gz-q').value,R=gzCo(q).concat(gzFind(q)),L=$('#gz-r'),N=$('#gz-n'),qt=q.trim(),busy=Object.values(GZ.st).includes('…'),
+  bad={adm:'ตำบล/อำเภอ/จังหวัด',rg:'หน่วยพิทักษ์/จุดสกัด',fb:'ฐานป้องกันรักษาป่า'},err=Object.keys(bad).filter(k=>GZ.st[k]==='err').map(k=>bad[k]);
+ GZ.R=R;GZ.sel=0;GZ.q=q;
+ L.innerHTML=R.map((e,i)=>`<button type="button" data-i="${i}" style="--c:${GZT[e.k][1]}"${i?'':' class="on"'}><i></i><span><b>${esc(e.n)}</b>${e.s?'<br><span class="sm">'+esc(e.s)+'</span>':''}</span><span class="t">${GZT[e.k][0]}</span></button>`).join('');L.hidden=!R.length;L.scrollTop=0;
+ N.innerHTML=!qt?GZHINT:(R.length?'':(busy?'กำลังโหลดรายชื่อสถานที่…':'ไม่พบ "'+esc(qt)+'" — ลองพิมพ์บางส่วนของชื่อ หรือพิกัด เช่น 14.1, 101.9'))+(err.length?(R.length?'':'<br>')+'โหลดรายชื่อ'+err.join(' ')+'ไม่ได้ (ออฟไลน์?) — ค้นได้เฉพาะส่วนที่มีในเครื่อง':'');
+ $('#gz-s').hidden=false}
+function gzSel(i){const B=$$('#gz-r button');if(!B.length)return;GZ.sel=(i+B.length)%B.length;B.forEach((b,j)=>b.classList.toggle('on',j===GZ.sel));B[GZ.sel].scrollIntoView({block:'nearest'})}
+function gzClr(){const p=GZ.pop;GZ.pop=null;if(p)p.remove();if(GZ.mk){GZ.mk.remove();GZ.mk=null}try{const s=map.getSource('gz-hl');if(s)s.setData({type:'FeatureCollection',features:[]})}catch(e){}}
+function gzGo(e){if(!e)return;gzClr();MOVED=true;const pt=e.pt,c=pt||[(e.bb[0]+e.bb[2])/2,(e.bb[1]+e.bb[3])/2],[lo,la]=c;
+ if(e.g)try{if(!map.getSource('gz-hl')){map.addSource('gz-hl',{type:'geojson',data:{type:'FeatureCollection',features:[]}});map.addLayer({id:'gz-hl',type:'line',source:'gz-hl',paint:{'line-color':'#d93a1f','line-width':3,'line-dasharray':[2,1.2],'line-opacity':.9}})}
+  map.getSource('gz-hl').setData({type:'FeatureCollection',features:e.g.map(f=>({type:'Feature',properties:{},geometry:f.geometry}))})}catch(x){dbg('gz-hl',x)}
+ if(pt){GZ.mk=new maplibregl.Marker({color:'#d93a1f'}).setLngLat(pt).addTo(map);map.easeTo({center:pt,zoom:Math.max(map.getZoom(),e.k==='co'?13:14),offset:visOff(),duration:dur(900)})}
+ else map.fitBounds([[e.bb[0],e.bb[1]],[e.bb[2],e.bb[3]]],{padding:linkPad(),maxZoom:13,duration:dur(900)});
+ const z=lo<102?47:48,u=GIO.utmFwd(z).fwd(lo,la).map(Math.round),g=geoAt(lo,la),ad=admAt(lo,la),
+  h=`<b>${esc(e.n)}</b><br><span class="sm">${GZT[e.k][0]}${e.s&&e.k!=='co'?' · '+esc(e.s):''}</span>`+(e.d?`<br><span class="sm">${esc(e.d)}</span>`:'')+
+  (pt?(e.k==='co'?(ad?'<br>'+esc(admTxt(ad,1)):'')+'<br>'+(g.cons?esc(g.cons.properties.name):'<span class="sm">นอกพื้นที่อนุรักษ์</span>'):'')+
+   `<br><span class="sm">${la.toFixed(5)}, ${lo.toFixed(5)} · UTM ${z}N ${u[0]} ${u[1]}</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${la.toFixed(6)},${lo.toFixed(6)}">นำทางด้วย Google Maps</a>`:'');
+ const p=new maplibregl.Popup({maxWidth:'290px',offset:pt?[0,-34]:0,className:'gzp',focusAfterOpen:false}).setLngLat(c).setHTML(h).addTo(map);GZ.pop=p;p.on('close',()=>{if(GZ.pop===p)gzClr()});
+ $('#gz-s').hidden=true;if(innerWidth<768)$('#gz-q').blur();
+ if(e.k==='co'&&!ADM)admLoad().then(()=>{const a=admAt(lo,la);if(a&&GZ.pop===p){const el=p.getElement&&p.getElement(),b=el&&el.querySelector('.maplibregl-popup-content b');if(b)b.insertAdjacentHTML('afterend','<br>'+esc(admTxt(a,1)))}}).catch(x=>dbg('admLoad',x))}
+function gzOpen(q){const g=$('#gz'),b=$('#bSr');g.hidden=false;b.classList.add('on');b.setAttribute('aria-expanded','true');for(const k in GZ.st)if(GZ.st[k]==='err')GZ.st[k]=null;
+ if(q!=null)$('#gz-q').value=q;gzLoad();gzRun();setTimeout(()=>$('#gz-q').focus(),30)}
+function gzClose(){$('#gz').hidden=true;const b=$('#bSr');b.classList.remove('on');b.setAttribute('aria-expanded','false');$('#gz-q').blur()}
+{const d=document.createElement('div');d.id='gz';d.hidden=true;d.setAttribute('role','search');d.setAttribute('aria-label','ค้นหาสถานที่หรือพิกัด');
+ d.innerHTML='<div class="gzh"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="gz-q" type="search" enterkeyhint="search" autocomplete="off" spellcheck="false" placeholder="ค้นหาสถานที่ หรือพิกัด" aria-label="ค้นหาสถานที่ หรือพิกัด" aria-controls="gz-r"><button class="cb gzx" id="gz-x" type="button" aria-label="ปิดการค้นหา" title="ปิด (Esc)"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div id="gz-s" hidden><div id="gz-r" role="listbox" aria-label="ผลการค้นหา"></div><div id="gz-n" aria-live="polite"></div></div>';
+ document.body.append(d)}
+$('#bSr').onclick=()=>$('#gz').hidden?gzOpen():gzClose();
+$('#gz-x').onclick=gzClose;
+$('#gz-q').addEventListener('input',()=>{clearTimeout(GZ.t);GZ.t=setTimeout(gzRun,120)});
+$('#gz-q').addEventListener('focus',()=>{if($('#gz-s').hidden)gzRun()});
+$('#gz-q').addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();gzSel(GZ.sel+(e.key==='ArrowDown'?1:-1))}
+ else if(e.key==='Enter'){e.preventDefault();clearTimeout(GZ.t);if(GZ.q!==$('#gz-q').value)gzRun();gzGo(GZ.R[GZ.sel])}
+ else if(e.key==='Escape'){e.stopPropagation();$('#gz-s').hidden?gzClose():($('#gz-s').hidden=true)}});
+$('#gz-r').addEventListener('click',e=>{const b=e.target.closest('button[data-i]');if(b)gzGo(GZ.R[+b.dataset.i])});
+addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&!e.altKey&&(e.key==='k'||e.key==='K')){e.preventDefault();gzOpen()}});
 </script>
 </body>
 </html>

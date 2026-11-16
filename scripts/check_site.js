@@ -81,6 +81,9 @@ function serve(dir) {
 // error ที่มาจากเครือข่าย/ต้นทางภายนอก ไม่ใช่โค้ดเรา
 const NET = /Failed to fetch|NetworkError|Load failed|AJAXError|AbortError|aborted|timed? ?out|ERR_|net::|status (0|4\d\d|5\d\d)|HTTP [45]\d\d|Unexpected token '<'|is not valid JSON|webgl|WebGL/i;
 
+// D4 ค้นหา (16 พ.ย. 69): พิมพ์ในช่อง #gz-q แล้วรอผลแรกตรงเงื่อนไข ≤10 วิ (admin.json/ranger.json โหลดตอนเปิดช่องครั้งแรก)
+const GZQ = (q, cond) => `(async()=>{const i=document.getElementById('gz-q');if(!i||document.getElementById('gz').hidden)return 'error: ช่องค้นหาไม่เปิด';i.value=${JSON.stringify(q)};i.dispatchEvent(new Event('input'));const ok=e=>e&&(${cond});for(let k=0;k<40&&!ok(GZ.R[0]);k++)await new Promise(r=>setTimeout(r,250));const e=GZ.R[0];return ok(e)?'':'error: ค้น '+${JSON.stringify(JSON.stringify(q))}+' ได้ '+(e?e.k+' '+e.n:'ไม่มีผล')+' · '+document.getElementById('gz-n').textContent})()`;
+const GZ4 = [['  ค้น "บุพราหมณ์"', GZQ('บุพราหมณ์', "e.k==='tm'&&e.n==='ต.บุพราหมณ์'&&/อ\.นาดี/.test(e.s)")], ['  ค้น "ทับลาน"', GZQ('ทับลาน', "e.k==='pa'&&e.n==='อุทยานแห่งชาติทับลาน'")], ['  ค้น "47 820000 1560000"', GZQ('47 820000 1560000', "e.k==='co'&&Math.abs(e.pt[1]-14.09275)<1e-4&&Math.abs(e.pt[0]-101.96324)<1e-4")], ['  ค้น "14.1,101.9"', GZQ('14.1,101.9', "e.k==='co'&&Math.abs(e.pt[1]-14.1)<1e-6&&Math.abs(e.pt[0]-101.9)<1e-6")]];
 // ขั้นตอนที่กดในหน้า: [ชื่อ, โค้ด JS] — ไม่พบปุ่ม = เตือน (ไม่นับเป็นผิด) · ปุ่มปิดกดเฉพาะเมื่อมองเห็น
 const DESK = [
   ['การ์ดสถิติย้อนหลัง', `C('bStat')`], ['  แท็บการดับไฟป่า', `Q('#h-tab [data-v="xt"]')`], ['  ตารางการดับไฟ', `C('x-tbl')`], ['  ปิดตาราง', `C('md-x',1)`], ['  แท็บจุดความร้อน', `Q('#h-tab [data-v="hs"]')`], ['  ตารางสถิติ', `C('h-tbl')`], ['  ปิดตาราง', `C('md-x',1)`], ['  แท็บทุกดาวเทียม', `Q('#h-tab [data-v="ha"]')`], ['  ตารางทุกดาวเทียม', `C('h-tbl')`], ['  ปิดตาราง', `C('md-x',1)`], ['  ปิดการ์ดสถิติ', `C('h-x',1)`],
@@ -94,9 +97,12 @@ const DESK = [
   ['วิเคราะห์ภูมิประเทศ', `C('bTr')`], ['  ปิด', `C('bTr')`],
   ['พิมพ์แผนที่', `C('bPm')`], ['  ปิด', `C('pm-x',1)`],
   ['ดาวเทียมรอบถัดไป: ย่อ', `Q('#orb .obh')`], ['  ขยาย', `Q('#orb .obh')`], ['  แถว NOAA-21', `Q('#orb .obr[data-ob="NOAA21"]')`], ['  แผนที่โลกย่อ', `Q('#orb .obwm')`], ['  สวิตช์บนแผนที่ สลับ', `(()=>{const v=()=>map.getLayer('ob-tf')&&map.getLayoutProperty('ob-tf','visibility');const a=v(),r=__ck.Q('#orb .obh .hsp');return r||(v()!==a?'':'error: กดสวิตช์บนแผนที่แล้วชั้นวงโคจรไม่เปลี่ยน')})()`], ['  สวิตช์บนแผนที่ คืนค่า', `Q('#orb .obh .hsp')`], ['  ปิดชั้น', `Q('.sw[data-k="orb"]')`], ['  เปิดกลับ', `Q('.sw[data-k="orb"]')`],
+  ['ค้นหาสถานที่/พิกัด', `C('bSr')`], ...GZ4, ['  Enter = ซูมไปผลแรก + ป๊อปอัป', `(async()=>{document.getElementById('gz-q').dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}));await new Promise(r=>setTimeout(r,400));return GZ.pop&&GZ.mk?'':'error: Enter แล้วไม่มีป๊อปอัป/หมุด'})()`], ['  ปิดการค้นหา', `C('gz-x')`],
+  ['คัดลอกลิงก์มุมมองนี้ (D3)', `(async()=>{const u0=location.href;document.getElementById('vw-cp').click();await new Promise(r=>setTimeout(r,300));return /[?]v=-?[0-9]+[.][0-9]{5},-?[0-9]+[.][0-9]{5},[0-9]+[.][0-9]{2}/.test(vwCopy.last||'')&&/[?&]v=/.test(location.search)?'':'error: ลิงก์มุมมองผิดรูปแบบ '+vwCopy.last})()`],
   ['กลับมุมมองกลุ่มป่า', `C('bHome')`],
 ];
-const MOB = [['ปุ่มเครื่องมือ (มือถือ)', `C('bTo')`], ['  ปิด', `C('bTo')`], ['ดาวเทียมรอบถัดไป: ขยาย/ย่อ', `Q('#orb .obh')`], ['  ย่อ/ขยาย', `Q('#orb .obh')`], ['แผงชั้นข้อมูล', `C('bLay')`], ['  ปิดแผง', `C('xr',1)`], ['การ์ดสถิติ', `C('bStat')`], ['  ปิด', `C('h-x',1)`], ['ย้อนดูการลามของไฟ', `C('bPlay')`], ['  เล่น', `C('pb-p')`], ['  ปิด', `C('pb-x',1)`]];
+const MOB = [['ปุ่มเครื่องมือ (มือถือ)', `C('bTo')`], ['  ปิด', `C('bTo')`], ['ดาวเทียมรอบถัดไป: ขยาย/ย่อ', `Q('#orb .obh')`], ['  ย่อ/ขยาย', `Q('#orb .obh')`], ['แผงชั้นข้อมูล', `C('bLay')`], ['  ปิดแผง', `C('xr',1)`], ['การ์ดสถิติ', `C('bStat')`], ['  ปิด', `C('h-x',1)`], ['ย้อนดูการลามของไฟ', `C('bPlay')`], ['  เล่น', `C('pb-p')`], ['  ปิด', `C('pb-x',1)`],
+  ['ค้นหา (มือถือ)', `C('bSr')`], GZ4[0], ['  แผ่นผลค้นหาไม่บังคอลัมน์ปุ่ม', `(()=>{const s=document.getElementById('gz-s').getBoundingClientRect(),c=document.getElementById('ctl').getBoundingClientRect(),q=document.querySelector('#gz .gzh').getBoundingClientRect();if(document.getElementById('gz-s').hidden||s.height<40)return 'error: ไม่มีแผ่นผลค้นหา';if(Math.round(s.bottom)<innerHeight-2)return 'error: แผ่นผลไม่ชิดขอบล่าง';if(getComputedStyle(document.getElementById('ctl')).display!=='none'&&(s.top<c.bottom-1||q.right>c.left+1))return 'error: บังคอลัมน์ปุ่ม (แผ่นบน '+Math.round(s.top)+' ปุ่มล่าง '+Math.round(c.bottom)+')';return ''})()`], GZ4[2], ['  แตะผลแรก', `(async()=>{const b=document.querySelector('#gz-r button[data-i="0"]');if(!b)return 'error: ไม่มีผล';b.click();await new Promise(r=>setTimeout(r,400));return GZ.pop&&document.getElementById('gz-s').hidden?'':'error: แตะผลแล้วไม่มีป๊อปอัป/แผ่นไม่ปิด'})()`], ['  ปิดการค้นหา', `C('gz-x')`]];
 const HELP = `window.__ck={C(id,vis){const e=document.getElementById(id);if(!e)return 'ไม่พบ #'+id;if(vis&&!e.offsetParent&&getComputedStyle(e).position!=='fixed')return 'ข้าม';e.click();return ''},
 Q(s){const e=document.querySelector(s);if(!e)return 'ไม่พบ '+s;e.click();return ''},K(k){document.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true}));return ''}};`;
 
@@ -153,6 +159,25 @@ async function browser(dir) {
         await sleep(r ? 150 : 1300);
       }
       await sleep(1500);
+    }
+
+    // ---------- D3 ลิงก์มุมมอง ?v=&l= เปิดคืน (ตำแหน่ง/ซูม/ทิศ/ชั้น/แผนที่ฐาน) · URL ไม่ถูกเขียนเอง · ?bb มาก่อน v ----------
+    {
+      await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+      await send('Emulation.setTouchEmulationEnabled', { enabled: false });
+      const VQ = '?v=14.20000,101.60000,11.50,15,0&l=base:flat,-cons,amp,fwi:DC';
+      stage = 'ลิงก์มุมมอง ?v= (D3)'; await send('Page.navigate', { url: url + VQ });
+      if (!await waitMap()) warn.push(`[${stage}] แผนที่โหลดสไตล์ไม่เสร็จใน 45 วิ`);
+      await sleep(3000);
+      const r = await ev(`(()=>{const c=map.getCenter(),e=[];if(Math.abs(c.lat-14.2)>1e-4||Math.abs(c.lng-101.6)>1e-4||Math.abs(map.getZoom()-11.5)>.01||Math.round(map.getBearing())!==15)e.push('กล้อง '+c.lat.toFixed(4)+','+c.lng.toFixed(4)+' z'+map.getZoom().toFixed(2)+' b'+map.getBearing().toFixed(0));
+        if(S.base!=='flat'||S.cons||!S.amp||!S.fwi||S.fwv!=='DC')e.push('ชั้น '+JSON.stringify({base:S.base,cons:S.cons,amp:S.amp,fwi:S.fwi,fwv:S.fwv}));if(map.getLayer('cons-f')&&map.getLayoutProperty('cons-f','visibility')!=='none')e.push('ชั้นพื้นที่อนุรักษ์ยังแสดง');
+        if(location.search!==${JSON.stringify(VQ)})e.push('URL ถูกเขียนเองเป็น '+location.search);if(vwEnc()!=='base:flat,-cons,amp,fwi:DC')e.push('เข้ารหัสกลับได้ '+vwEnc());return e.length?'error: '+e.join(' ; '):''})()`).catch(e => 'error: ' + e.message);
+      if (r) (r.startsWith('error') ? errs : warn).push(`[${stage}] ${r}`); else info.viewlink = { url: VQ, ok: true };
+      stage = 'ลิงก์ตรง ?bb มาก่อน ?v (D3)'; await send('Page.navigate', { url: url + '?bb=101.0,14.0,101.2,14.2&v=14.9,102.6,12&l=-cons,amp' });
+      if (!await waitMap()) warn.push(`[${stage}] แผนที่โหลดสไตล์ไม่เสร็จใน 45 วิ`);
+      await sleep(2500);
+      const r2 = await ev(`(()=>{const c=map.getCenter();return S.cons&&!S.amp&&Math.abs(c.lat-14.9)+Math.abs(c.lng-102.6)>.05?'':'error: มี ?bb แต่ยังใช้ v/l ('+c.lat.toFixed(3)+','+c.lng.toFixed(3)+' cons '+S.cons+' amp '+S.amp+')'})()`).catch(e => 'error: ' + e.message);
+      if (r2) (r2.startsWith('error') ? errs : warn).push(`[${stage}] ${r2}`);
     }
 
     // ---------- ?debug=1 (A3) · fetchT เกินเวลา + ออฟไลน์แล้วกด ↻ (A2) ----------
