@@ -46,6 +46,7 @@
   | `hdfill.test.js` | C1 `hdFill` (ดึงจาก index.html) จำลอง 2 ต.ค. 2570: เติมเฉพาะปีงบ 2570 ด้วย indSat (SNPP ถึง 1 พ.ย. 69 / NOAA-20 จากนั้น ไม่รวม NOAA-21), ld/fu/sb/fa, `fyCum(2570)` ไม่เป็น 0, `hdfNote`/`hdfSats`, มี Excel แม้จุดเดียว = ไม่เติม |
   | `health.test.js` | health `xlsx`/`savi`/`b4` ด้วย `HEALTH_NOW` (รอยต่อ 1 ธ.ค., 90/21 วัน, ต้นทางใหม่กว่าเว็บ), ระยะทวนซ้ำใน `CHECKS` · ล้าง cache `lib/state` หลังโหลด (state.test.js ต้องได้ STATE_DIR ของตัวเอง) |
   | `emb.test.js` | B1 `splitEmb` กับ index.html จริง (อ่านอย่างเดียว เขียนโฟลเดอร์ชั่วคราว): 6 ไฟล์ชื่อมี hash เนื้อหาตรงทุกไบต์, < 1.5 MB, สคริปต์แอปถูกพักครบ/ไม่เปลี่ยน/ลำดับเดิม, สคริปต์ส่วนหัวไม่ถูกแตะ, ตัวโหลดรอ DOMContentLoaded · D2 meta/ไอคอน · B3 ไม่มี googleapis + ไฟล์ woff2 มีจริง |
+  | `pwa.test.js` | D1: manifest (start_url/scope/standalone/ไอคอนมีไฟล์), `pwaFiles` (รุ่น sha เปลี่ยนตาม HTML, shell มี fonts/emb/MapLibre, ไม่มีตำแหน่งแทนค้าง), sw.js ใน vm: คำขอที่ต้องแคช vs ห้ามแตะ (API, Esri, Google, คู่มือ, PNG), `pwaTiles` ≤300 แผ่น ซูม 9–13 |
   | `fiscal.test.js` | ฟังก์ชันในหน้าเว็บ (ดึงจาก index.html): `fy0` `fyOfDay` (รอยต่อ 1 ต.ค.) `thDay` (เปลี่ยนวัน 17:00 UTC) `IND_SW`/`indSat` (2 พ.ย. 69) `fuOK` (+ dictionary จริงใน hdata) `dyAS` |
 - **ตรวจรับเมื่อสร้าง**: แก้เกณฑ์ใน dedup.js ให้ผิด 4 แบบ (TW 250→50, RATIO 0.6→0.05, PAIR 450→100, DT 3→0) → เทสต์ล้ม 4–7 ข้อทุกแบบ (ไม่ใช่แค่ข้อตรวจค่าเกณฑ์)
 - **วิธีเพิ่มเทสต์**
@@ -70,3 +71,9 @@ Chrome headless 1440×900 · เสิร์ฟ `_site` จากเซิร์
 - วัดเพิ่มที่ควรทำ: เปิดซ้ำ (แคช ETag/304) บน Pages จริง และมือถือจริง (D7)
 - วิธีวัด: `Page.navigate` แล้ว poll ทุก 100 ms ว่า `#p-kp` มีตัวเลข / `map.loaded()` · `performance.getEntriesByType('navigation')[0].domContentLoadedEventEnd` หลัง loadEventEnd · 3G = `Network.emulateNetworkConditions` (ไทล์ภายนอกก็ถูกจำกัดด้วย)
 - ตัวเลขอ้างอิง (`b1h.js ref`): นาฬิกาตายตัว 2026-11-15T16:00Z + บล็อก API/live.json/watch.json + Math.random ตายตัว → อ่านการ์ดหลัก, โหมดเทียบ, การ์ดสถิติแท็บ hs/ha/xt, การ์ด จปร. — ก่อนแก้ (repo, _site) = หลังแก้ (repo, _site) ทุกค่า
+
+## check_site ขั้น PWA (D1, 16 พ.ย. 69)
+
+- ต่อจากขั้นเบราว์เซอร์รุ่นเก่า (ใช้ profile เดียวกัน): โหลดหน้า → `navigator.serviceWorker.ready` ≤20 วิ, active = activated, ถามรุ่นผ่าน postMessage → รีโหลดออนไลน์ 1 ครั้ง (ให้แคชระหว่างใช้งานเต็ม) → `Page.getAppManifest` (ไม่มี error ร้ายแรง) + `Page.getInstallabilityErrors` ต้องว่าง (= Lighthouse installable) → **ปิดเน็ต**: `Network.emulateNetworkConditions offline` ของหน้า + ปิดเซิร์ฟเวอร์ในเครื่อง (service worker เป็นอีก target ที่ emulate ไม่ถึง) → `Page.reload` ต้องมีแผนที่ + แหล่ง cons + การ์ดมีตัวเลข + HD > 0 + แถบ `#pwa-bar` ขึ้น · error ระหว่างออฟไลน์ (ไทล์/ฟอนต์ภายนอก) = คำเตือน · ผล → `info.debug.pwa` {sw (รุ่น), scope, installable, offline:{bar, hd, live, at}}
+- ผลครั้งแรก (_site ในเครื่อง): sw รุ่น e46e3d0b4d9f activated · installable true · ออฟไลน์รีโหลด: HD 3,154 · แถบ "📴 ออฟไลน์ · จุดความร้อนเมื่อ 16 พ.ย. 06:18 น."
+- ขั้นออฟไลน์เดิม (A2, ปุ่ม ↻) ล้มครั้งแรกหลังมี service worker เพราะ live.json มาจากแคช → toast "ดึงข้อมูลใหม่แล้ว" ทั้งที่ออฟไลน์ → แก้ข้อความปุ่ม ↻ เมื่อ `navigator.onLine===false`

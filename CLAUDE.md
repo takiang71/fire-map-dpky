@@ -52,6 +52,7 @@
 - `scripts/` — `sync_*.js` (ดึงข้อมูลบน Actions), `build_site.js` (→ `_site/`), `line_notify.js` `telegram_notify.js` `health.js`, `check_site.js`, `import_*.js` `excel_to_hdata.js` `kmz_to_geojson.js` `build_*.js` (นำเข้า/สร้างข้อมูล รันมือ), `serve.js`, `lib/` (area, dedup, firms, orbit, grib, tiff, png, xlsx, state, near, vrsum, fwisum, camssum …)
 - `worker/` — `line-webhook.mjs` (ผู้ใช้วางโค้ดใน dashboard เอง), `watchdog.mjs`, `layers.mjs`
 - `data/` — ข้อมูลที่ sync/สร้าง (burn, fuel, fwi, ftype, admin.json, prov.json, gfs_vr.json, cams_grid.json, tle.json, tourism.json, ranger.json …) · `data/kmz/` แนวเขตจริงจากผู้ใช้
+- `sw.js` `manifest.webmanifest` — PWA/ออฟไลน์ (build_site ใส่รุ่น) → [ui-modules.md](docs/arch/ui-modules.md) · `img/` ไอคอน/og · `fonts/` Noto Sans Thai
 - `manual/` — คู่มือ + `img/` · `.github/workflows/` — site, sync, wx, line-test, tg-test
 
 ## สถานะระบบ (15 พ.ย. 69)

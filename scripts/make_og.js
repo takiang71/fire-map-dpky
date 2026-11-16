@@ -1,6 +1,7 @@
 // สร้างภาพสำหรับแชร์ลิงก์ (D2 ของ docs/review-2569-11-15.md — 16 พ.ย. 69) — รันมือครั้งเดียว/เมื่ออยากเปลี่ยนภาพ ไม่อยู่ใน workflow
 //  - img/og.jpg 1200×630 = แผนที่กลุ่มป่าจาก mapSnap() ของหน้าเว็บ (มุมมองทั้งกลุ่มป่า) + แถบชื่อ — og:image/twitter:image
-//  - img/apple-touch-icon.png 180×180 และ img/icon-32.png / icon-192.png จาก img/icon.svg
+//  - img/apple-touch-icon.png 180×180 และ img/icon-32.png / icon-192.png / icon-512.png จาก img/icon.svg · img/icon-maskable-512.png จาก icon-maskable.svg (manifest)
+//  - เพิ่ม ONLY_ICONS=1 = สร้างเฉพาะไอคอน ไม่ทำ og.jpg
 // ใช้: node scripts/make_og.js   (ต้องมี Chrome · เปิดหน้าเว็บจากโฟลเดอร์ repo ผ่านเซิร์ฟเวอร์ชั่วคราวในสคริปต์ · ต่อเน็ตเพื่อโหลดไทล์)
 'use strict';
 const fs = require('fs'), path = require('path'), os = require('os'), http = require('http');
@@ -25,14 +26,16 @@ const TY = { '.html': 'text/html; charset=utf-8', '.json': 'application/json', '
   await send('Page.enable'); await send('Runtime.enable');
   const base = `http://127.0.0.1:${srv.address().port}/`;
   // ไอคอน PNG จาก SVG
-  for (const [f, n] of [['apple-touch-icon.png', 180], ['icon-192.png', 192], ['icon-32.png', 32]]) {
+  // icon-maskable = พื้นแดงเต็มกรอบ เปลวไฟอยู่ใน safe zone 70% (Android ตัดเป็นวงกลม/สี่เหลี่ยมมนเอง) — ไอคอนแอปจาก manifest (D1)
+  for (const [f, n, svg] of [['apple-touch-icon.png', 180], ['icon-192.png', 192], ['icon-32.png', 32], ['icon-512.png', 512], ['icon-maskable-512.png', 512, 'icon-maskable.svg']]) {
     await send('Emulation.setDeviceMetricsOverride', { width: n, height: n, deviceScaleFactor: 1, mobile: false });
-    await send('Page.navigate', { url: base + 'img/icon.svg' }); await sleep(800);
+    await send('Page.navigate', { url: base + 'img/' + (svg || 'icon.svg') }); await sleep(800);
     await ev(`(()=>{const s=document.documentElement;s.setAttribute('width','${n}');s.setAttribute('height','${n}');s.style.display='block'})()`); await sleep(200);
     const { data } = await send('Page.captureScreenshot', { format: 'png', clip: { x: 0, y: 0, width: n, height: n, scale: 1 } });
     fs.writeFileSync(path.join(IMG, f), Buffer.from(data, 'base64')); console.log(f, n + '×' + n);
   }
   // แผนที่ทั้งกลุ่มป่า 1200×630 แล้ววาดแถบชื่อทับ
+  if (process.env.ONLY_ICONS === '1') { ws.close(); ch.kill(); srv.close(); setTimeout(() => process.exit(0), 1000); return }
   await send('Emulation.setDeviceMetricsOverride', { width: 1200, height: 630, deviceScaleFactor: 1, mobile: false });
   await send('Page.navigate', { url: base + 'index.html' });
   for (let i = 0; i < 120; i++) { await sleep(500); if (await ev(`typeof map!=='undefined'&&!!map&&map.isStyleLoaded&&map.isStyleLoaded()`)) break }

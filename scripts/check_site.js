@@ -66,7 +66,7 @@ function findChrome() {
     '/usr/bin/chromium', '/usr/bin/chromium-browser', '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'];
   return c.find(p => p && fs.existsSync(p));
 }
-const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.css': 'text/css', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.gz': 'application/gzip' };
+const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.css': 'text/css', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2', '.gz': 'application/gzip' };
 function serve(dir) {
   const s = http.createServer((q, r) => {
     let p = decodeURIComponent(q.url.split('?')[0]); if (p.endsWith('/')) p += 'index.html';
@@ -197,6 +197,35 @@ async function browser(dir) {
     await send('Page.removeScriptToEvaluateOnNewDocument', { identifier: sc.identifier });
     // error ของแอปที่ยังทำงานต่อหลังกล่อง (เบราว์เซอร์จริงไม่ได้เก่า) ไม่นับ
     warn.push(...errs.splice(e0)); chk(ob);
+
+    // ---------- PWA (D1): service worker ลงทะเบียน · manifest + ติดตั้งได้ (CDP) · ปิดเน็ต/เว็บล่มแล้วรีโหลดหน้ายังขึ้น ----------
+    stage = 'PWA: ลงทะเบียน service worker';
+    await send('Page.navigate', { url }); await waitMap(); await sleep(2000);
+    const sw = await ev(`(async()=>{if(!('serviceWorker' in navigator))return{e:'ไม่มี serviceWorker'};const r=await Promise.race([navigator.serviceWorker.ready,new Promise(z=>setTimeout(()=>z(null),20000))]);
+      if(!r)return{e:'service worker ไม่พร้อมใน 20 วิ'};const v=await new Promise(z=>{const c=new MessageChannel();navigator.serviceWorker.addEventListener('message',m=>z(m.data&&m.data.sw),{once:true});r.active.postMessage('version');setTimeout(()=>z('?'),3000)});
+      return{scope:r.scope,state:r.active&&r.active.state,ctl:!!navigator.serviceWorker.controller,ver:v}})()`).catch(e => ({ e: e.message }));
+    chk(sw.e ? 'error: ' + sw.e : sw.state !== 'activated' ? 'error: service worker ไม่ activated (' + sw.state + ')' : '', { pwa: { sw: sw.ver, scope: sw.scope && sw.scope.replace(/^https?:\/\/[^/]+/, '') } });
+    // รีโหลดออนไลน์ 1 ครั้ง (หน้าอยู่ใต้ service worker แล้ว → เก็บแคชระหว่างใช้งาน)
+    await send('Page.reload', { ignoreCache: false }); await waitMap(); await sleep(3000);
+    stage = 'PWA: manifest/ติดตั้งได้';
+    const man = await send('Page.getAppManifest').catch(e => ({ e: e.message }));
+    const ins = await send('Page.getInstallabilityErrors').catch(e => ({ e: e.message }));
+    const mErr = (man.errors || []).filter(x => x.critical).map(x => x.message), iErr = (ins.installabilityErrors || []).map(x => x.errorId + (x.errorArguments || []).map(a => ' ' + a.value).join(''));
+    chk(man.e ? 'error: อ่าน manifest ไม่ได้ ' + man.e : !man.url ? 'error: ไม่พบ <link rel="manifest">' : mErr.length ? 'error: manifest ผิด ' + mErr.join(' ; ') : iErr.length ? 'error: ติดตั้งเป็นแอปไม่ได้ (' + iErr.join(', ') + ')' : '', { pwa: Object.assign(info.debug && info.debug.pwa || {}, { installable: !iErr.length && !mErr.length }) });
+    // ปิดเน็ต: หน้าเว็บ offline + เซิร์ฟเวอร์ในเครื่องหยุดตอบ (service worker เป็นอีก target ที่ emulate ไม่ถึง จึงตัดต้นทางจริงด้วย)
+    stage = 'PWA: ปิดเน็ตแล้วรีโหลด';
+    const e1 = errs.length;
+    await send('Network.emulateNetworkConditions', { offline: true, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+    srv.close(); if (srv.closeAllConnections) srv.closeAllConnections();
+    await send('Page.reload', { ignoreCache: false });
+    let up = false; for (let i = 0; i < 50 && !up; i++) { await sleep(500); up = await ev(`typeof map!=='undefined'&&!!map&&!!map.getSource&&!!map.getSource('cons')`).catch(() => false) }
+    await sleep(4000);
+    const off = await ev(`({title:document.title,kp:/\\d/.test((document.getElementById('p-kp')||{}).innerText||''),hd:typeof HD!=='undefined'?HD.length:0,cons:!!(map.getSource&&map.getSource('cons')),bar:((document.getElementById('pwa-bar')||{}).innerText||'').replace(/\\s+/g,' '),barOn:!!document.getElementById('pwa-bar')&&!document.getElementById('pwa-bar').hidden,at:typeof getHotspots!=='undefined'&&getHotspots.at||0,live:typeof LIVE!=='undefined'?LIVE.length:-1})`).catch(e => ({ e: e.message }));
+    // error ระหว่างออฟไลน์ (ไทล์/ฟอนต์ภายนอกโหลดไม่ได้) เป็นเรื่องปกติ → คำเตือน
+    warn.push(...errs.splice(e1));
+    chk(off.e ? 'error: ' + off.e : !up ? 'error: ปิดเน็ตแล้วรีโหลด หน้าเว็บไม่ขึ้น (ไม่มีแผนที่/แนวเขต)' : !(off.kp && off.hd && off.cons) ? 'error: ออฟไลน์แล้วการ์ด/ข้อมูลย้อนหลัง/แนวเขตไม่ครบ ' + JSON.stringify(off) : !off.barOn ? 'error: ออฟไลน์แต่ไม่ขึ้นแถบสถานะออฟไลน์' : '',
+      { pwa: Object.assign(info.debug && info.debug.pwa || {}, { offline: { bar: off.bar, hd: off.hd, live: off.live, at: off.at ? new Date(off.at).toISOString() : null } }) });
+    await send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
     await send('Page.navigate', { url: 'about:blank' });
     return { errs, warn, net, info };
   } catch (e) { return { skip: 'ตรวจในเบราว์เซอร์ไม่สำเร็จ: ' + e.message, errs, warn, net } }

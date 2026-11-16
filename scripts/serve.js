@@ -6,7 +6,7 @@ const { air4thai } = require('./lib/air4thai');
 
 const ROOT = process.argv[3] ? path.resolve(process.argv[3]) : path.join(__dirname, '..');
 const PORT = +process.env.PORT || +process.argv[2] || 8000;
-const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.svg': 'image/svg+xml' };
+const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2' };
 
 http.createServer(async (req, res) => {
   const p = decodeURIComponent(req.url.split('?')[0]);

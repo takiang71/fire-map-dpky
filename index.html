@@ -24,6 +24,12 @@
 <link rel="icon" href="img/icon.svg" type="image/svg+xml">
 <link rel="icon" href="img/icon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<!-- D1 (16 พ.ย. 69): ติดตั้งเป็นแอป (PWA) + ออฟไลน์ — manifest.webmanifest, sw.js (ลงทะเบียนในโมดูล pwa ท้ายไฟล์ เฉพาะ http/https) -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ไฟป่า ดพย.-ขญ.">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่</title>
 <script>/* D8: เบราว์เซอร์รุ่นเก่า — ต้องเป็นสคริปต์แรกสุดและเขียนแบบ ES5 ล้วน (สคริปต์อื่นใช้ ?? · regex lookbehind · Array.at · structuredClone · DecompressionStream
    ถ้าไม่รองรับจะ SyntaxError ทั้งบล็อก = หน้าขาวเงียบ) · รุ่นต่ำสุด Chrome/Edge 98 · Safari 16.4 (iOS 16.4) · Firefox 113 · ตรวจใน check_site (ลบ DecompressionStream ก่อนโหลดหน้า) */
@@ -103,6 +109,11 @@ h1 small{display:block;font-size:.42em;font-weight:600;color:var(--mut);margin-t
 .wcmp{margin-top:8px;font-size:12px}.wcmp summary{cursor:pointer;color:var(--navy);font-weight:600}.wct{width:100%;border-collapse:collapse;margin:6px 0;font-size:11.5px}.wct th,.wct td{border-bottom:1px solid var(--line);padding:3px 4px;text-align:left;vertical-align:top}.wct small{display:block;color:var(--mut);font-size:10.5px}
 .dfr{margin:0 0 8px;padding:6px 10px;border-radius:10px;background:#f5f7fb;border:1px solid var(--line);border-left:4px solid #9aa3b2;font-size:11.5px;line-height:1.5;color:#4b5563}.dfr.ok{border-left-color:#2e9d5b}.dfr.nw{border-left-color:#d98c00;background:#fff8e8}.dfr.er{border-left-color:#c0392b}.dfr .fr1 b{color:#1f2937;font-weight:600}.dfr .fr3{margin-top:2px}.dfr.ok .fr3{color:#23784a}.dfr.nw .fr3{color:#8a5a00}.dfr.er{background:#fdf1ef}.dfr.er .fr3{color:#a12c20}
 b.hdf{color:#b45309}
+/* D1: แถบสถานะออฟไลน์ + กล่องเก็บแผนที่ออฟไลน์ (prefix pwa) */
+#pwa-bar{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 8px);z-index:45;max-width:calc(100vw - 24px);display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:99px;background:#1f2937;color:#fff;font-size:12.5px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+#pwa-bar[hidden]{display:none}#pwa-bar b{color:#fde68a}#pwa-bar button{font:inherit;font-size:12px;color:#1f2937;background:#fde68a;border:0;border-radius:99px;padding:2px 10px;cursor:pointer}
+.pwa-box{margin:8px 0 2px;padding:8px 10px;border-radius:10px;background:var(--bg);border:1px solid var(--line);font-size:12.5px}.pwa-box[hidden]{display:none}
+.pwa-box .lk{margin:0 0 4px}.pwa-box #pwa-clr,.pwa-box #pwa-all{margin-right:12px;font-size:12px}
 .dsrc{margin-top:8px;padding:7px 10px;border-radius:10px;background:#f5f7fb;border:1px solid var(--line);font-size:11.5px;line-height:1.55;color:#4b5563}.dsrc:empty{display:none}.dsrc b.t{color:var(--ink);font-weight:600}.dsrc ul{margin:2px 0 0;padding-left:16px}.dsrc li{margin:1px 0}.dsrc .w{color:#b45309}
 .btns{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:12px 0}.btns>.btn{grid-column:span 3}.btns>.btn.b3{grid-column:span 2;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:3px;padding:6px 4px;font-size:12px;line-height:1.2} /* แถว 3 มี 3 ปุ่ม (ผู้ใช้ขอ 6 พ.ย. 69) ไอคอนบน ข้อความล่าง */ /* 2 คอลัมน์เท่ากัน กว้างเต็มแผงเสมอกับกล่องบน-ล่าง (ผู้ใช้ขอ 5 พ.ย. 69) */
 .btns>.btn{justify-content:flex-start;min-width:0;min-height:42px;padding:6px 12px;line-height:1.25;text-align:left}.btns>.btn span{min-width:0}
@@ -759,6 +770,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div class="sg" id="imgsrc" hidden aria-label="แหล่งภาพดาวเทียม"><button data-i="google">Google</button><button data-i="esri">Esri</button><button data-i="s2">Sentinel-2</button><button data-i="day">NOAA-20</button></div>
   <div id="imgtime" hidden><div class="itr"><button id="it-p" aria-label="ภาพก่อนหน้า">‹</button><input type="range" id="it-r" list="it-l" aria-label="เลื่อนดูภาพย้อนหลัง"><datalist id="it-l"></datalist><button id="it-n" aria-label="ภาพถัดไป">›</button></div>
    <div class="itv"><b id="it-v"></b><input type="date" id="it-d" aria-label="เลือกวันที่ภาพ"><a id="it-0" role="button" tabindex="0">ล่าสุด</a></div><div class="dsrc" id="it-src"></div></div>
+  <div class="pwa-box" id="pwa-box" hidden><button class="lk" id="pwa-save">⬇ เก็บพื้นที่นี้ไว้ดูออฟไลน์</button><div class="sm" id="pwa-st">แผนที่ฐาน OpenFreeMap ("เรียบ"/"ถนน/ชุมชน") ซูม 9–13 ในกรอบที่เห็น ไม่เกิน 300 แผ่น · แนวเขตและจุดความร้อนล่าสุดใช้ออฟไลน์ได้อยู่แล้ว</div><div><a id="pwa-clr" role="button" tabindex="0" hidden>ล้างแผนที่ออฟไลน์</a><a id="pwa-all" role="button" tabindex="0">ล้างแคชทั้งหมดแล้วโหลดใหม่</a></div></div>
   <div class="row" hidden data-tip="ภูมิประเทศนูนต่ำ เอียงและหมุนแผนที่ได้"><svg class="i" viewBox="0 0 24 24"><path d="M3 20l6-10 4 6 3-4 5 8z"/></svg><b>มุมมอง 3 มิติ</b><button class="sw" data-k="d3" role="switch" aria-label="มุมมอง 3 มิติ"></button></div>
 
   <h3>ไฟป่า</h3>
@@ -1131,22 +1143,25 @@ const POLL={every:5*60e3,full:30*60e3,part:3,last:0,lastFull:0};
 const liveKey=x=>x.t+'|'+x.lat.toFixed(4)+'|'+x.lon.toFixed(4)+'|'+x.sat;
 const LIVE_FILE='live.json',LIVE_MAXAGE=40*60e3;
 async function liveFile(){if(!/^https?:$/.test(location.protocol))return null;try{const r=await fetchT(LIVE_FILE+'?t='+Date.now(),{cache:'no-store'},FTO.main);if(!r.ok)return null;const j=await r.json(),m=j.meta||{};
- if(!(Date.now()-Date.parse(m.generated)<LIVE_MAXAGE))return null;const L=liveList(j);
+ const gen=Date.parse(m.generated),old=!(Date.now()-gen<LIVE_MAXAGE);/* D1: เก่าเกิน 40 นาที = ปกติไปดึง API ตรง · ออฟไลน์ = ใช้ฉบับนี้ (สำเนาจาก service worker) */
+ if(old){liveFile.old=j;if(navigator.onLine!==false)return null}liveFile.gen=gen;const L=liveList(j);
  liveFile.w=null;try{const w=await fetchT('watch.json?t='+Date.now(),{cache:'no-store'},FTO.main);if(w.ok){const wj=await w.json();liveFile.w=(wj.features||[]).map(f=>{const h=normAlert(f);if(h)h.wa=f.properties._w;return h}).filter(h=>h&&h.wa&&Date.now()-h.t<=48*H).sort((a,b)=>b.t-a.t)}}catch(e){dbg('watch.json',e)}/* จุด 48 ชม. ในพื้นที่เฝ้าระวัง (build_site.js) */HSRC.total=m.nation_total;HSRC.fm=m.firms&&(m.firms.n||!m.nation_total||Object.values(m.firms.box||{}).some(v=>v>0))?m.firms:null;/* API ไทยขัดข้อง → build_site เติมจาก NASA FIRMS */const t=ptime(m.nation_last);if(isFinite(t))HSRC.lastAll=t;HSRC.via=LIVE_FILE;
  HSRC.sys=m.sys_update?Date.parse(m.sys_update):await sysTime();return L}catch(e){dbg('liveFile',e);return null}}
 let HSERR=null;/* ข้อผิดพลาดรอบล่าสุดของ getHotspots (ปุ่ม ↻ ใช้แจ้ง) */
 async function getHotspots(hr=48){HSERR=null;
- {const L=await liveFile();if(L){POLL.last=POLL.lastFull=Date.now();LASTLIVE=L;WLAST=liveFile.w||WLAST.filter(x=>Date.now()-x.t<=48*H);hsrcShow();return L}}
+ {const L=await liveFile();if(L){getHotspots.at=liveFile.gen;POLL.last=POLL.lastFull=Date.now();LASTLIVE=L;WLAST=liveFile.w||WLAST.filter(x=>Date.now()-x.t<=48*H);hsrcShow();return L}}
  HSRC.fm=null;/* ดึง API ตรง = ไม่ใช่ข้อมูลสำรองจาก FIRMS */try{const api=HOTSPOT_API+hsQS(hr),url=HOTSPOT_PROXY?HOTSPOT_PROXY+encodeURIComponent(api):api,r=await fetchT(url,{headers:{Accept:'application/json'}},FTO.main);if(!r.ok){let b='';try{b=(await r.text()).replace(/\s+/g,' ').slice(0,160)}catch(_){}throw new Error('HTTP '+r.status+(b?' · เซิร์ฟเวอร์ตอบ: '+b:''))}
   const prev=HSRC;let L=liveList(await r.json()),W=liveList.w||[];POLL.last=Date.now();
   if(hr<48){const sw=new Set(W.map(liveKey));W=W.concat(WLAST.filter(x=>!sw.has(liveKey(x))&&Date.now()-x.t<=48*H)).sort((a,b)=>b.t-a.t)}
   if(hr<48&&LASTLIVE){const seen=new Set(L.map(liveKey));L=L.concat(LASTLIVE.filter(x=>!seen.has(liveKey(x))&&Date.now()-x.t<=48*H)).sort((a,b)=>b.t-a.t);
    HSRC=Object.assign({},prev,{msg:'',sats:[...new Set(L.map(x=>x.sat))],last:L.length?L[0].t:0,lastAll:Math.max(prev.lastAll||0,HSRC.lastAll||0),inArea:L.length})}
   else{HSRC.sys=await sysTime();POLL.lastFull=POLL.last}
-  LASTLIVE=L;WLAST=W;hsrcShow();return L}
+  getHotspots.at=Date.now();LASTLIVE=L;WLAST=W;hsrcShow();return L}
  catch(e){HSERR=e;dbg('getHotspots',e);const msg=e.name==='TimeoutError'?'ต้นทางตอบช้า (เกิน 20 วินาที)':/Failed to fetch|NetworkError|Load failed/i.test(e.message)?'เบราว์เซอร์เชื่อมต่อ API ไม่ได้ (อาจติด CORS หรือไม่ได้ต่ออินเทอร์เน็ต)':e.message;
   WLAST=WLAST.filter(x=>Date.now()-x.t<=48*H);
   if(LASTLIVE){LASTLIVE=LASTLIVE.filter(x=>Date.now()-x.t<=48*H);HSRC.msg='ดึงรอบล่าสุดไม่สำเร็จ ('+msg+') ใช้ข้อมูลรอบก่อน';hsrcShow();return LASTLIVE}
+  /* D1: เปิดหน้าใหม่ขณะเน็ตใช้ไม่ได้ — live.json ที่เก่าแล้ว (สำเนาจาก service worker) ดีกว่าว่างเปล่า */
+  if(liveFile.old){try{const L=liveList(liveFile.old);getHotspots.at=Date.parse(liveFile.old.meta.generated);LASTLIVE=L;hsrcShow();return L}catch(e2){dbg('liveFile.old',e2)}}
   HSRC={live:false,msg,sats:[],last:0};hsrcShow();return[]}}
 function hsrcShow(){const e=document.getElementById('hsrc');if(!e)return;const f=HSRC,fm=t=>new Date(t).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'})+' น.';
  e.innerHTML=f.live?`Land Fire Alerts Thailand (WFSRU/ThaiREN) · VIIRS 375 ม. · ${f.sats.join(', ')||'–'} · ${f.sys?`<span title="เวลาที่ระบบต้นทางประมวลผลข้อมูลล่าสุด (Last update ในหน้าแรกของ Land Fire Alerts Thailand) — เวลาที่ดาวเทียมสแกนดูได้ในแผงรายละเอียดจุด">ระบบต้นทางอัปเดต ${fm(f.sys)}</span>`:`สแกนล่าสุดทั้งประเทศ ${f.lastAll?fm(f.lastAll):'–'} <span title="ไม่พบเวลาอัปเดตของระบบต้นทาง จึงแสดงเวลาที่ดาวเทียมสแกนล่าสุดแทน">(ไม่พบเวลาอัปเดตของระบบ)</span>`} · ในกลุ่มป่าฯ ${f.inArea??0} จุด${f.fm?`<br><b style="color:#b45309" title="NASA FIRMS (VIIRS 375 ม. ชุดเดียวกัน) ล่าช้ากว่าการสแกน ~3 ชม. — จะกลับไปใช้ข้อมูลต้นทางเองเมื่อ API กลับมา">⚠ ${esc(f.fm.why)} — ${f.fm.err?'NASA FIRMS ก็ดึงไม่ได้':`จุดของ ${esc(f.fm.sats.map(x=>SATN[x]||x).join('/'))} มาจาก NASA FIRMS (${f.fm.n} จุดในกลุ่มป่าฯ, ล่าช้า ~3 ชม.)`}</b>`:''}${f.msg?`<br><b style="color:#c0392b">⚠ ${esc(f.msg)}</b>`:''}`
@@ -1678,7 +1693,7 @@ $('#it-p').onclick=()=>itSet(+$('#it-r').value-1,1);$('#it-n').onclick=()=>itSet
 $('#it-d').onchange=e=>{if(e.target.value)itSet(dNum(e.target.value),1)};
 $('#it-0').onclick=$('#it-0').onkeydown=e=>{if(e.type==='keydown'&&e.key!=='Enter'&&e.key!==' ')return;e.preventDefault();itSet(imgOf()==='s2'?S2YS.length-1:imgOf()==='esri'?wbArr().indexOf(null):1e9,1)};
 map.on('moveend',()=>{if(S.base==='sat'&&imgOf()==='esri'){clearTimeout(imgT);imgT=setTimeout(imgDate,400);clearTimeout(wbT);wbT=setTimeout(wbScan,700)}});
-$('#rf').onclick=async()=>{const b=$('#rf');if(b.disabled)return;b.disabled=true;try{await load()}catch(e){dbg('rf',e);HSERR=HSERR||e}finally{b.disabled=false}toast(HSERR?slowMsg(HSERR,'ดึงข้อมูลไม่สำเร็จ — ตรวจการเชื่อมต่ออินเทอร์เน็ต'):'ดึงข้อมูลใหม่แล้ว')};
+$('#rf').onclick=async()=>{const b=$('#rf');if(b.disabled)return;b.disabled=true;try{await load()}catch(e){dbg('rf',e);HSERR=HSERR||e}finally{b.disabled=false}if(navigator.onLine===false)dbg('rf',new Error('ออฟไลน์ — แสดงข้อมูลที่เก็บไว้'+(getHotspots.at?' (จุดเมื่อ '+new Date(getHotspots.at).toISOString()+')':'')));toast(navigator.onLine===false?'ออฟไลน์ — ดึงข้อมูลใหม่ไม่ได้ แสดงข้อมูลที่เก็บไว้'+(getHotspots.at?' (จุดความร้อนเมื่อ '+thTime(getHotspots.at)+' น.)':''):HSERR?slowMsg(HSERR,'ดึงข้อมูลไม่สำเร็จ — ตรวจการเชื่อมต่ออินเทอร์เน็ต'):'ดึงข้อมูลใหม่แล้ว',null,navigator.onLine===false?5000:0)};
 $('#sdef').onclick=()=>{try{localStorage.setItem('fm-v1',JSON.stringify(S));toast('บันทึกค่าเริ่มต้นแล้ว')}catch(e){toast('บันทึกไม่ได้ในเบราว์เซอร์นี้')}};
 addEventListener('keydown',e=>{
  if(e.key==='/'&&document.activeElement!==$('#q')){e.preventDefault();$('#pcard').hidden=false;$('#bHide').setAttribute('aria-pressed',true);$('#q').focus()}
@@ -6832,6 +6847,79 @@ for(const [fn,k] of [['LB','burn'],['LF','fuel']]){const f=window[fn];if(typeof 
 try{frSB('fuel');frSB('burn')}catch(e){dbg('frSB',e)}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Object.keys(on).some(k=>on[k]())&&Date.now()-FRT>6e4)frGet(true)});
 frGet(true);
+})();
+</script>
+<script>
+/* D1 (16 พ.ย. 69): PWA/ออฟไลน์ — prefix pwa · แผนแอป Android (docs/android-app-plan.md) ใช้ prefix AP แยกกัน
+   pwaReg: ลงทะเบียน sw.js เฉพาะ http(s) · รุ่นใหม่ติดตั้งเอง (skipWaiting) → ป้าย "อัปเดตแล้ว แตะเพื่อโหลดใหม่" · ?nosw=1 = ถอนการลงทะเบียน
+   pwaBar: แถบ "ออฟไลน์ · ข้อมูลเมื่อ …" เมื่อ !navigator.onLine หรือดึงจุดรอบล่าสุดไม่สำเร็จ (HSERR)
+   pwaSave: ไทล์ OpenFreeMap ซูม 9–13 ในกรอบที่เห็น ≤300 แผ่น พร้อมกัน ≤4 คำขอ → แคช ofm-v1 (sw.js ตอบจากแคชเมื่อออฟไลน์)
+     เงื่อนไข OpenFreeMap (ToS 14 ต.ค. 2026): ครั้งละ ≤3,000 แผ่นหรือ 50 MB, ≤4 คำขอพร้อมกัน, User-Agent ระบุแอป — เบราว์เซอร์ตั้ง User-Agent ไม่ได้
+     (ผู้ใช้เลือก 16 พ.ย. 69: ทำปุ่มต่อ และอีเมลแจ้ง info@openfreemap.org เอง) · ห้ามเก็บไทล์ Esri/Google */
+(()=>{
+const OK=/^https?:$/.test(location.protocol)&&'serviceWorker' in navigator,ZS=[9,13],MAXT=300,PAR=4,C_OFM='ofm-v1';
+let pwaUpd=0;
+function pwaReg(){if(!OK)return;
+ if(/[?&]nosw=1/.test(location.search)){navigator.serviceWorker.getRegistrations().then(R=>R.forEach(r=>r.unregister()));return}
+ navigator.serviceWorker.register('sw.js').then(r=>{window.__SWREG=r;
+  r.addEventListener('updatefound',()=>{const w=r.installing;if(w&&navigator.serviceWorker.controller)pwaUpd=1})}).catch(e=>dbg('sw register',e));
+ navigator.serviceWorker.addEventListener('controllerchange',()=>{if(pwaUpd)toast('อัปเดตแผนที่รุ่นใหม่แล้ว — แตะเพื่อโหลดใหม่',()=>location.reload(),12000)})}
+const hm=t=>new Date(t).toLocaleString('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+' น.';
+function pwaBar(){let b=document.getElementById('pwa-bar');
+ const off=navigator.onLine===false||(typeof HSERR!=='undefined'&&HSERR&&!/^HTTP [45]/.test(HSERR.message||''));
+ if(!off){if(b)b.hidden=true;return}
+ if(!b){b=document.createElement('div');b.id='pwa-bar';b.setAttribute('role','status');document.body.appendChild(b)}
+ const t=typeof getHotspots!=='undefined'&&getHotspots.at,saved=pwaMeta(),esri=S.base==='natural'||S.base==='sat';
+ b.innerHTML='<span>📴 <b>ออฟไลน์</b> · '+(t?'จุดความร้อนเมื่อ '+hm(t):'ยังไม่มีข้อมูลจุดความร้อนในเครื่อง')+'</span>'+(saved&&esri?'<button id="pwa-use">ใช้แผนที่ที่เก็บไว้</button>':'');
+ b.hidden=false;const u=document.getElementById('pwa-use');if(u)u.onclick=()=>{const k=document.querySelector('#seg [data-b="'+(saved.style==='liberty'?'detail':'flat')+'"]');if(k)k.click();pwaBar()}}
+const pwaMeta=()=>{try{return JSON.parse(localStorage.getItem('fm-ofl')||'null')}catch(e){return null}};
+/* เลขไทล์ของกรอบ */
+const lx=(lo,z)=>Math.floor((lo+180)/360*2**z),ly=(la,z)=>{const r=la*Math.PI/180;return Math.floor((1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*2**z)};
+function pwaTiles(bb){const out=[];let zmax=ZS[0]-1;
+ for(let z=ZS[0];z<=ZS[1];z++){const x0=lx(bb[0],z),x1=lx(bb[2],z),y0=ly(bb[3],z),y1=ly(bb[1],z),n=(x1-x0+1)*(y1-y0+1);if(out.length+n>MAXT)break;
+  for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++)out.push([z,x,y]);zmax=z}
+ return{tiles:out,zmax}}
+async function pwaSave(){const st=document.getElementById('pwa-st');
+ if(!('caches' in window))return toast('เบราว์เซอร์นี้เก็บแผนที่ออฟไลน์ไม่ได้');
+ if(navigator.onLine===false)return toast('ต้องต่ออินเทอร์เน็ตก่อนจึงจะเก็บแผนที่ได้');
+ const btn=document.getElementById('pwa-save');btn.disabled=true;
+ try{const b=map.getBounds(),bb=[b.getWest(),b.getSouth(),b.getEast(),b.getNorth()],{tiles,zmax}=pwaTiles(bb);
+  if(!tiles.length){toast('กรอบที่เห็นกว้างเกินไป — ซูมเข้าให้เห็นพื้นที่เล็กลงแล้วกดใหม่');return}
+  const style=S.base==='detail'?'liberty':'positron',c=await caches.open(C_OFM),U=new Set();
+  /* style ทั้งสองแบบ (ใช้ไทล์ชุดเดียวกัน) + TileJSON + sprite + glyph ช่วงอักษรละติน/ไทย/เครื่องหมาย ของทุก fontstack ที่ใช้ (รวมป้ายของแอป) */
+  let tpl=null;const stacks=new Set(),glyph=new Set();
+  const fonts=L=>(L||[]).forEach(l=>{const f=l.layout&&l.layout['text-font'];if(Array.isArray(f)&&f.every(x=>typeof x==='string'))stacks.add(f.join(','))});
+  for(const sn of ['positron','liberty']){const u=OFM+sn,j=await(await fetchT(u,{},FTO.main)).json();U.add(u);fonts(j.layers);if(j.glyphs)glyph.add(j.glyphs);
+   for(const s of Object.values(j.sources||{}))if(s.url){U.add(s.url);if(!tpl){const tj=await(await fetchT(s.url,{},FTO.main)).json();tpl=tj.tiles&&tj.tiles[0]}}
+   for(const sp of [].concat(j.sprite||[]).map(x=>typeof x==='string'?x:x.url))for(const e of ['.json','.png','@2x.json','@2x.png'])U.add(sp+e)}
+  fonts(map.getStyle().layers);const gs=map.getStyle().glyphs;if(gs&&/openfreemap/.test(gs))glyph.add(gs);
+  for(const g of glyph)for(const k of stacks)for(const r of ['0-255','256-511','3584-3839','8192-8447'])U.add(g.replace('{fontstack}',encodeURIComponent(k)).replace('{range}',r));
+  if(!tpl)throw new Error('ไม่พบ TileJSON ของ OpenFreeMap');
+  const list=[...U,...tiles.map(([z,x,y])=>tpl.replace('{z}',z).replace('{x}',x).replace('{y}',y))];
+  let i=0,ok=0,bad=0,bytes=0;const t0=Date.now();
+  const one=async u=>{try{const r=await fetchT(u,{},FTO.tile);if(!r.ok)throw new Error('HTTP '+r.status);const bl=await r.clone().blob();bytes+=bl.size;await c.put(u,r);ok++}catch(e){bad++;dbg('pwaSave '+u.split('/').slice(-3).join('/'),e)}
+   if(st)st.textContent='กำลังเก็บ '+(ok+bad)+'/'+list.length+' ไฟล์ ('+(bytes/1048576).toFixed(1)+' MB)…'};
+  await Promise.all(Array.from({length:PAR},async()=>{while(i<list.length)await one(list[i++])}));
+  const meta={at:Date.now(),n:tiles.length,zmax,bbox:bb.map(v=>+v.toFixed(4)),style,mb:+(bytes/1048576).toFixed(1),bad};
+  try{localStorage.setItem('fm-ofl',JSON.stringify(meta))}catch(e){}
+  pwaInfo();toast(bad?'เก็บแล้ว '+ok+' ไฟล์ (ไม่สำเร็จ '+bad+')':'เก็บแผนที่ออฟไลน์แล้ว '+tiles.length+' แผ่น ซูม 9–'+zmax+' ('+meta.mb+' MB, '+Math.round((Date.now()-t0)/1e3)+' วิ)',null,5000)}
+ catch(e){dbg('pwaSave',e);toast(slowMsg(e,'เก็บแผนที่ออฟไลน์ไม่สำเร็จ: '+e.message))}
+ finally{btn.disabled=false}}
+function pwaInfo(){const st=document.getElementById('pwa-st'),m=pwaMeta(),cl=document.getElementById('pwa-clr');if(cl)cl.hidden=!m;
+ if(st&&m)st.innerHTML='เก็บไว้แล้ว '+m.n+' แผ่น ซูม 9–'+m.zmax+' ('+m.mb+' MB) เมื่อ '+hm(m.at)+' · ออฟไลน์ใช้แผนที่ฐาน "'+(m.style==='liberty'?'ถนน/ชุมชน':'เรียบ')+'" · กดอีกครั้ง = เก็บกรอบที่เห็นตอนนี้เพิ่ม'}
+async function pwaClear(){try{await caches.delete(C_OFM);localStorage.removeItem('fm-ofl')}catch(e){dbg('pwaClear',e)}
+ const st=document.getElementById('pwa-st');if(st)st.textContent='ล้างแผนที่ออฟไลน์แล้ว';pwaInfo();toast('ล้างแผนที่ออฟไลน์แล้ว')}
+async function pwaAll(){if(!confirm('ล้างแคชของหน้าเว็บทั้งหมด (รวมแผนที่ออฟไลน์) แล้วโหลดหน้าใหม่จากเว็บ?'))return;
+ try{for(const k of await caches.keys())await caches.delete(k);for(const r of await navigator.serviceWorker.getRegistrations())await r.unregister();localStorage.removeItem('fm-ofl')}catch(e){dbg('pwaAll',e)}location.reload()}
+window.pwaBar=pwaBar;window.pwaTiles=pwaTiles;window.pwaSave=pwaSave;
+const box=document.getElementById('pwa-box');if(box&&OK&&'caches' in window){box.hidden=false;pwaInfo();
+ document.getElementById('pwa-save').onclick=pwaSave;document.getElementById('pwa-clr').onclick=pwaClear;document.getElementById('pwa-all').onclick=pwaAll}
+/* แถบออฟไลน์: หลังดึงจุดทุกรอบ + เหตุการณ์ online/offline */
+{const f=load;load=async function(){try{return await f.apply(this,arguments)}finally{try{pwaBar()}catch(e){dbg('pwaBar',e)}}}}
+addEventListener('online',()=>{pwaBar();load().catch(e=>dbg('load',e))});addEventListener('offline',pwaBar);
+/* การโหลดครั้งแรก (deepLink(load(true))) เริ่มก่อนโมดูลนี้ → ตรวจซ้ำหลัง 4 วิ และทุกนาที */
+const pb=()=>{try{pwaBar()}catch(e){}};pb();setTimeout(pb,4000);setInterval(pb,6e4);
+if(document.readyState==='complete')pwaReg();else addEventListener('load',pwaReg);
 })();
 </script>
 </body>

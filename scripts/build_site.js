@@ -230,12 +230,27 @@ function splitEmb(html, outDir) {
   return { html: out.split('\u0000EMB\u0000').join(head), ix };
 }
 
-module.exports = { summary, watchSum, splitEmb, EMB_IDS };
+// --- D1 (16 พ.ย. 69): PWA — sw.js ฉบับเผยแพร่ = รุ่น (sha ของ build: index.html + manifest + แม่แบบ sw.js + รายการไฟล์) + รายการ app shell ที่ precache
+// deploy ที่ index.html/ข้อมูลฝังเปลี่ยน = sw.js เปลี่ยน → เบราว์เซอร์ติดตั้งรุ่นใหม่ ลบแคช shell เก่า · sw.js ใน repo = รุ่น 'dev' (ไม่ precache, เครือข่ายก่อน)
+function pwaFiles(html, ix) {
+  const crypto = require('crypto'), tpl = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8'), man = fs.readFileSync(path.join(ROOT, 'manifest.webmanifest'), 'utf8');
+  const lib = [...html.matchAll(/(?:src|href)="(https:\/\/cdnjs\.cloudflare\.com\/ajax\/libs\/maplibre-gl\/[^"]+)"/g)].map(m => m[1]);
+  const fonts = fs.existsSync(path.join(ROOT, 'fonts')) ? fs.readdirSync(path.join(ROOT, 'fonts')).filter(f => f.endsWith('.woff2')).sort().map(f => 'fonts/' + f) : [];
+  const shell = ['index.html', 'manifest.webmanifest', 'img/icon.svg', 'img/icon-192.png', 'img/icon-512.png', ...fonts, ...Object.values(ix), ...lib];
+  const ver = crypto.createHash('sha1').update(html).update(man).update(tpl).update(shell.join('|')).digest('hex').slice(0, 12);
+  const a = "'dev'/*__SW_VERSION__*/", b = '/*__SW_SHELL__*/';
+  if (!tpl.includes(a) || !tpl.includes(b)) throw new Error('sw.js ไม่มีตำแหน่งแทนรุ่น/รายการ shell');
+  return { ver, shell, sw: tpl.split(a).join(`'${ver}'`).split(b).join(shell.map(s => JSON.stringify(s)).join(',')) };
+}
+
+module.exports = { summary, watchSum, splitEmb, EMB_IDS, pwaFiles };
 if (require.main === module) (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   { const src = fs.readFileSync(H, 'utf8'), r = splitEmb(src, OUT);
     fs.writeFileSync(path.join(OUT, 'index.html'), r.html);
-    console.log(`index.html: ${(Buffer.byteLength(src) / 1048576).toFixed(2)} → ${(Buffer.byteLength(r.html) / 1048576).toFixed(2)} MB · ข้อมูลฝังแยก ${Object.keys(r.ix).length} ไฟล์ (data/emb/)`) }
+    console.log(`index.html: ${(Buffer.byteLength(src) / 1048576).toFixed(2)} → ${(Buffer.byteLength(r.html) / 1048576).toFixed(2)} MB · ข้อมูลฝังแยก ${Object.keys(r.ix).length} ไฟล์ (data/emb/)`);
+    const P = pwaFiles(r.html, r.ix); fs.copyFileSync(path.join(ROOT, 'manifest.webmanifest'), path.join(OUT, 'manifest.webmanifest')); fs.writeFileSync(path.join(OUT, 'sw.js'), P.sw);
+    console.log(`sw.js: รุ่น ${P.ver} · app shell ${P.shell.length} ไฟล์`) }
   fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
   // ไอคอน/ภาพแชร์ลิงก์ (D2) และฟอนต์ Noto Sans Thai (B3)
   for (const d of ['img', 'fonts']) if (fs.existsSync(path.join(ROOT, d))) fs.cpSync(path.join(ROOT, d), path.join(OUT, d), { recursive: true });
