@@ -294,6 +294,10 @@ if (require.main === module) (async () => {
   // หน่วยพิทักษ์ จุดสกัด ฐานเฉพาะกิจ + ฐานป้องกันรักษาป่า (scripts/import_rangers.js)
   // วงโคจร NOAA-20/21 (scripts/sync_tle.js) — กล่องนับถอยหลังดาวเทียมรอบถัดไป + ชั้นวงโคจร
   for (const f of ['ranger.json', 'fbase.json', 'tle.json', 'gfs_vr.json', 'cams_grid.json']) if (fs.existsSync(path.join(ROOT, 'data', f))) fs.copyFileSync(path.join(ROOT, 'data', f), path.join(OUT, 'data', f));
+  // C5 ความครบถ้วนของ API เทียบ NASA FIRMS รายเดือน (scripts/firms_audit.js --from YYYY-MM ใน sync.yml) → คัดลอกทุกเดือน + firms_audit.json = เดือนล่าสุด (#p-src ในหน้าเว็บ)
+  { const L = fs.readdirSync(path.join(ROOT, 'data')).filter(f => /^firms_audit_\d{6}\.json$/.test(f)).sort();
+    for (const f of L) fs.copyFileSync(path.join(ROOT, 'data', f), path.join(OUT, 'data', f));
+    if (L.length) fs.copyFileSync(path.join(ROOT, 'data', L.at(-1)), path.join(OUT, 'data', 'firms_audit.json')) }
   if (fs.existsSync(path.join(ROOT, 'data', 'prov.json'))) fs.copyFileSync(path.join(ROOT, 'data', 'prov.json'), path.join(OUT, 'data', 'prov.json'));
   // ชนิดป่า (scripts/build_ftype.js)
   if (fs.existsSync(path.join(ROOT, 'data', 'ftype', 'ftype.json'))) { fs.mkdirSync(path.join(OUT, 'data', 'ftype'), { recursive: true }); fs.copyFileSync(path.join(ROOT, 'data', 'ftype', 'ftype.json'), path.join(OUT, 'data', 'ftype', 'ftype.json')) }

@@ -8,7 +8,7 @@ const { where, watchAt } = require('./area');
 const { admIndex } = require('./burnsum');
 
 const ROOT = path.join(__dirname, '..', '..');
-const BASE = 'https://firms.modaps.eosdis.nasa.gov';
+const BASE = process.env.FIRMS_BASE || 'https://firms.modaps.eosdis.nasa.gov'; /* FIRMS_BASE = เซิร์ฟเวอร์จำลองในเทสต์ (test/firms_audit.test.js) */
 const BOX = [100.5, 13, 103.9, 15.2]; // กรอบกลุ่มป่า (ตะวันตก ใต้ ตะวันออก เหนือ)
 const PUB = { SNPP: 'suomi-npp-viirs-c2/csv/SUOMI_VIIRS_C2', NOAA20: 'noaa-20-viirs-c2/csv/J1_VIIRS_C2', NOAA21: 'noaa-21-viirs-c2/csv/J2_VIIRS_C2' };
 const SRC = { SNPP: 'VIIRS_SNPP', NOAA20: 'VIIRS_NOAA20', NOAA21: 'VIIRS_NOAA21' };

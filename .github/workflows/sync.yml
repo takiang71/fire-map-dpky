@@ -65,12 +65,26 @@ jobs:
         timeout-minutes: 6
         continue-on-error: true
         run: node scripts/monthly_report.js --acc && node scripts/monthly_report.js
+      # C5 ความครบถ้วนของ API ไทยเทียบ NASA FIRMS รายเดือน: รอบแรกของเดือน (ยังไม่มีไฟล์ของเดือนก่อน — รอบนี้พลาดรอบถัดไปลองใหม่) → data/firms_audit_<YYYYMM>.json
+      # ใช้ secret FIRMS_KEY (ไม่มี = ข้าม) · ~20 คำขอต่อเดือน ไม่ถึงโควตา 5,000/10 นาที · หน้าเว็บแสดงใน #p-src (build_site คัดลอกเดือนล่าสุดเป็น data/firms_audit.json)
+      - name: firms audit
+        timeout-minutes: 10
+        continue-on-error: true
+        env:
+          FIRMS_KEY: ${{ secrets.FIRMS_KEY }}
+        run: |
+          M=$(TZ=Asia/Bangkok date -d "$(TZ=Asia/Bangkok date +%Y-%m-01) -1 day" +%Y-%m)
+          F="data/firms_audit_${M/-/}.json"
+          if [ -f "$F" ]; then echo "มี $F แล้ว"; exit 0; fi
+          if [ -z "$FIRMS_KEY" ]; then echo "::warning::ไม่มี secret FIRMS_KEY — ข้ามการเทียบ API กับ FIRMS"; exit 0; fi
+          node scripts/firms_audit.js --from "$M"
       # FWI/FFMC (TFDRS), อัตราการระบายอากาศ (GFS), PM2.5 (CAMS) ย้ายไป workflow wx (15 พ.ย. 69) — site ตรวจรอบใหม่ของต้นทางทุก ~5 นาทีแล้วสั่ง wx ทันที
       - name: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html data/hotspots_api.json data/burn data/fuel data/tourism.json data/tle.json data/fwi/daily.json reports "data/FY2569_SNPP_ทั้งกลุ่มป่า.csv"
+          if ls data/firms_audit_*.json >/dev/null 2>&1; then git add data/firms_audit_*.json; fi
           if git diff --cached --quiet; then echo "ไม่มีข้อมูลใหม่"; exit 0; fi
           git commit -m "sync: จุดความร้อนสะสม $(TZ=Asia/Bangkok date '+%Y-%m-%d %H:%M')"
           # workflow wx push ข้อมูลพยากรณ์เข้า main ได้ทุกเวลา → ดึงทับแล้วลองใหม่

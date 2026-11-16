@@ -41,7 +41,7 @@
 | [layers-weather.md](docs/arch/layers-weather.md) | Windy, อากาศรายชั่วโมง/ลม, เรดาร์, Himawari, สถานีกรมอุตุฯ, VR (GFS), FWI (TFDRS), PM2.5 CAMS/Air4Thai, ดาวเทียมรอบถัดไป | `S.vr` `gvMaxFn` `fwNow` `cmLoad` `tmLoad` `ORB` |
 | [decisions.md](docs/arch/decisions.md) | ความชอบ/การตัดสินใจของผู้ใช้ (เลย์เอาต์แผง, ค่าเริ่มต้นชั้นข้อมูล, เครดิต) + งานค้างเดิม (ประวัติ) | `homePad` `panFit` `sheetFit` `ctlFit` |
 | [gotchas.md](docs/arch/gotchas.md) | ชื่อชนกัน + บั๊กที่เคยเจอ | |
-| [data-update.md](docs/arch/data-update.md) | ขั้นตอนนำเข้า Excel กรมอุทยานฯ ปีงบใหม่ (ทำปีละครั้ง) / ข้อมูลดับไฟ | `excel_to_hdata` `hdFill` `chkXlsx` |
+| [data-update.md](docs/arch/data-update.md) | ตารางชุดข้อมูลนำเข้ามือ · Excel กรมอุทยานฯ ปีงบใหม่ / ดับไฟ | `import_all` `excel_to_hdata` `hdFill` `chkXlsx` |
 | [risk.md](docs/arch/risk.md) | F2 ดัชนีเสี่ยง (ไม่ใช่ค่าทางการ) ตรวจย้อนหลัง | `RISK` `fwiDay` |
 | [testing.md](docs/arch/testing.md) | ชุดทดสอบหน่วย `test/` (วิธีเพิ่มเทสต์), check_site (ในเครื่อง/CI), ตัวตรวจ XSS/CSP/ตัวเลข | `node --test` `check_site` `--ci` `UNIT` `lint_html` `verify_numbers` |
 

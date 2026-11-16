@@ -208,6 +208,7 @@
   · ไม่มีเล่นย้อนตามวันสำหรับแท็บนี้
   · ตรวจ Chrome headless 1440/390 แล้ว ไม่มี error
   · คู่มือ #sw-xt + #stats-xt + ภาพ sw_xt/stats_xt/stats_xt_full (อยู่ใน manual_shots_gen/base แล้ว)
+  · **C4 แถวที่ควรตรวจพิกัด** (16 พ.ย. 69): ปุ่ม `#x-chk` (ต่อจาก #x-xls) → `xqCSV()` (await `admLoad()`) → `xqRows()` เฉพาะแถว Excel (ไม่ใช่ `r.vf`, ไม่ติด `r.ck` = คอลัมน์ "ตรวจแล้ว") ไม่ขึ้นกับตัวกรอง เรียง `seq` · สาเหตุ xy=1 / xy=2 / คนละตำบล (`admAt` ≠ ตำบล\|จังหวัดตามรายงาน; นอกขอบเขต admin.json ก็นับพร้อมหมายเหตุ) / นอกแนวเขต (`ar` = นอกพื้นที่อนุรักษ์) — นับตรงกับ `q.fixed/none/mis/out` ของ import_fx (5/4/82/33 → 118 แถว) · `xqDist(f,lo,la)` ระยะ กม. ถึงขอบตำบลที่รายงาน (ข้างใน = 0) · `fire_suppression_check_coords_DPKY.csv` 22 คอลัมน์ (มีคอลัมน์ "ตรวจแล้ว" ว่างไว้) · prefix `xq` · เทสต์ `test/fxcheck.test.js` · check_site DESK ขั้น "แถวที่ควรตรวจพิกัด (C4)" · คู่มือ #xt-chk
 
 ## รายงานผลตรวจสอบจากหน้างาน (F1, 16 พ.ย. 69) — โมดูล `VF`
 

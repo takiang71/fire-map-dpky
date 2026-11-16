@@ -123,6 +123,13 @@
   · **ตรวจตัวเลขกับแผงสถิติหน้าเว็บ (`HB()` ปุ่มดงใหญ่เปิด)**: มี.ค. 2569 ตัวชี้วัด 21 / มี.ค. 2568 12 / สะสม ต.ค.–มี.ค. 58 vs 164 / อช.ทับลาน มี.ค. 15 / ปีงบ 2569 ทั้งปี 96 — ตรงทุกค่า
   · รายงานแรก: ตุลาคม 2569 (สร้างมือ 16 พ.ย. 69, 0 จุด) — รายงานอัตโนมัติฉบับแรก = พฤศจิกายน 2569 วันที่ 1 ธ.ค. 69
 
+## ความครบถ้วนของ API เทียบ NASA FIRMS รายเดือน (C5, 16 พ.ย. 69)
+
+- **sync.yml** ขั้น `firms audit` (ก่อน commit; continue-on-error, timeout 10 นาที, env `FIRMS_KEY` จาก secret): เดือนก่อน (เวลาไทย) ยังไม่มี `data/firms_audit_<YYYYMM>.json` → `node scripts/firms_audit.js --from <YYYY-MM>` = รอบแรกของเดือน (พลาด = รอบถัดไปลองใหม่) · ไม่มี secret = `::warning` แล้วข้าม · ขั้น commit `git add data/firms_audit_*.json` (เมื่อมีไฟล์)
+- ใช้คำขอ FIRMS ~20 ครั้ง/เดือน (≤5 วันต่อคำขอ × ดาวเทียม) ไม่ถึงโควตา 5,000/10 นาที · ทดสอบด้วยเซิร์ฟเวอร์จำลอง `FIRMS_BASE` (`test/firms_audit.test.js`) — ใช้โควตาจริงครั้งเดียว 16 พ.ย. 69 สร้าง `data/firms_audit_202610.json` (FIRMS 2 จุด = API 2 จุด → 100%, API มีข้อมูล 31/31 วัน)
+- จับคู่ด้วย `FM.match` (ดาวเทียมเดียวกัน วันเดียวกัน ≤10 นาที <400 หน่วย 1e-5°) · `pct` = จับคู่ได้ / จุด FIRMS · `miss` = FIRMS มีแต่ API ไม่มี (API ขาด) · `extra` = API มีแต่ FIRMS ไม่มี · `apiDays` = วันของเดือนที่มีใน `hotspots_api.json raw.days` · API ที่เติมจาก FIRMS (`src:'firms'`) ไม่นับ
+- build_site คัดลอก `data/firms_audit_*.json` → `_site/data/` และเดือนล่าสุดเป็น `_site/data/firms_audit.json` → หน้าเว็บ `faLoad()` (1.5 วิหลังโหลด, `BN_BASE` = เปิดจากไฟล์ใช้ของโฮสต์) → `FA` → `faLine(FA)` บรรทัดท้าย `#p-src` ใน `srcUpd()` · คู่มือ `#src-menu`
+
 ## ตรวจความสอดคล้องตัวเลข (C2, 16 พ.ย. 69)
 
 - `site.yml` ขั้น **verify numbers** (continue-on-error, 2 นาที) ต่อจาก check site ก่อน line_notify: `node scripts/verify_numbers.js _site --ci`

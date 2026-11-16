@@ -51,10 +51,14 @@
   | `search.test.js` | D4 `gzFind`/`gzCo` (ดึงจาก index.html + `udCoParse` + GIO): "บุพราหมณ์" → ต.บุพราหมณ์ อ.นาดี, "ทับลาน" → อช.ทับลาน แล้วสถานีฯ, คำนำหน้า ต./อ./จ., ชื่อย่อ จปร./ขญ.1, ค้นได้แม้ยังไม่มี admin/ranger, UTM 47/48 (มี/ไม่มีโซน), ละติจูด/ลองจิจูด (สลับลำดับ, องศา ลิปดา), ข้อความทั่วไปไม่ใช่พิกัด, คืนค่า UDCO · อ่าน data/admin.json ranger.json (ไม่เปลี่ยนตาม sync) |
   | `risk.test.js` | F2 `lib/risk.js`: FWI ชุดมาตรฐาน Van Wagner, ฝนลดดัชนี, DC เขตร้อน, dekad/ปีงบ, climBuild (หด/ไม่นับปีอื่น/เรียบ), auc/confusion/brier, fitLogit กู้สัมประสิทธิ์ (rng) |
   | `mrep.test.js` | F3 `lib/mrep.js`: เริ่มเก็บ/เดือนใหม่/เดือนเดิม/เกิน 7 วัน/ว่าง + ข้อความ HTML/LINE |
+  | `fxcheck.test.js` | C4 `xqRows`/`xqDist` (ดึงจาก index.html) กับ fxdata + `data/admin.json` (ไฟล์คงที่): สาเหตุนับตรงกับ `q` ของ import_fx, เรียงตามลำดับต้นฉบับ, ข้ามแถว ck/vf · `import_fx.js --dry --json` กับ xlsx 3 แถวที่สร้างในเทสต์: คอลัมน์ "ตรวจแล้ว" ข้ามคำเตือน + `r[24]=1`, ไม่มีคอลัมน์ = แถว 24 ช่อง |
+  | `firms_audit.test.js` | C5 `firms_audit.js --from 2026-10` กับเซิร์ฟเวอร์ FIRMS จำลอง (`FIRMS_BASE`, ตอบตามช่วงวัน UTC ที่ขอ): firms/api/match/miss/extra ต่อดาวเทียม, pct 66.7, ตัดจุด `src:'firms'`/นอกเดือน · `faLine` ในหน้าเว็บ |
+  | `import_all.test.js` | C3 `import_all.js --dry`: แยกชนิดจากหัวคอลัมน์/DBF ใน zip, hdata ต้องมี `--hdata`, ไฟล์ชนิดเดียวกันซ้ำ = หยุด (ไม่รันตัวนำเข้า) |
   | `viewlink.test.js` | D3 `vwEnc`/`vwParse`/`vwApply` ไป-กลับ (ผู้รับตั้งค่าเริ่มต้นต่างกันก็ได้ชั้นเดียวกัน), ค่าที่ไม่รู้จักข้าม, v ผิด = ไม่ใช้, deepLink ใช้ v เฉพาะเมื่อไม่มีลิงก์ตรงอื่น, `history.replaceState(` มีที่เดียว, vwSched ตรวจสวิตช์ซ้ำ, VWX ลบพารามิเตอร์ลิงก์ตรงครบ |
 - **ตรวจรับเมื่อสร้าง**: แก้เกณฑ์ใน dedup.js ให้ผิด 4 แบบ (TW 250→50, RATIO 0.6→0.05, PAIR 450→100, DT 3→0) → เทสต์ล้ม 4–7 ข้อทุกแบบ (ไม่ใช่แค่ข้อตรวจค่าเกณฑ์)
 - **วิธีเพิ่มเทสต์**
   1. สร้าง `test/<เรื่อง>.test.js` (CommonJS): `const test = require('node:test'), assert = require('node:assert/strict')` แล้ว `test('ชื่อภาษาไทยบอกสิ่งที่คาด', () => { … })` — ไม่ต้องแก้ index.js
+  1a. ตัวนำเข้า Excel: `xlsx(rows)`/`zip(files)` ใน helpers.cjs สร้างไฟล์ทดสอบในเทสต์ได้ (ไม่ต้องเก็บไฟล์จริง)
   2. ฟังก์ชันใน `index.html`: `const { grab, load } = require('./helpers.cjs')` → `grab(/regex ของโค้ด/)` (ไม่เจอ = เทสต์ล้มพร้อมบอก regex) แล้ว `load(src, ['ชื่อ'], { ตัวแปรที่โค้ดอ้างถึง })` · เวลาปัจจุบันจำลองด้วย class ที่ extends Date แล้วแทน `now()` (ดู fiscal.test.js)
   3. ไฟล์ตัวอย่างเก็บใน `test/fixtures/` ให้เล็ก (≤10 KB) และ**ห้ามอ่านไฟล์ใน data/ ที่ sync เปลี่ยนทุกวัน** (เทสต์ต้องให้ผลเดิมทุกรอบ) — อ่านบล็อกใน index.html ได้เฉพาะที่ไม่เปลี่ยนตาม sync (`geo`, dictionary ของ `hdata`) และอ่านอย่างเดียว
   4. ห้ามต่อเน็ตในเทสต์ (จำลอง `global.fetch` แบบ state.test.js) · ใช้ `rng(seed)` จาก helpers.cjs แทน Math.random

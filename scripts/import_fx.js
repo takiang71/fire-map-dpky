@@ -5,17 +5,22 @@
 // · พิกัดที่ตัวเลขขาด/เกิน 1 หลัก: ลองตัด/แทรกตัวเลข 1 หลัก รับเฉพาะเมื่อผลอยู่ในตำบลที่รายงาน (admin.json) และทุกค่าที่ผ่านห่างกันไม่เกิน 1.5 กม. → xy=1 · แก้ไม่ได้ = xy=2 (ไม่แสดงบนแผนที่ แต่นับในสถิติ)
 // · วันที่ใช้คอลัมน์ วัน/เดือน/ปี (ช่องเวลารับแจ้งเหตุบางแถวมีแต่เวลา) · เวลาเข้าดับไฟ/เสร็จสิ้นใช้เฉพาะส่วนเวลา (ส่วนวันที่ในต้นฉบับไม่ตรงกับวันเกิดเหตุ)
 // · ไม่เก็บชื่อผู้รายงาน
+// · คอลัมน์ "ตรวจแล้ว" (ไม่บังคับ, C4 16 พ.ย. 69): ช่องไม่ว่าง (ยกเว้น ไม่/no/0/-) = ผู้ใช้ตรวจพิกัดแถวนี้แล้ว → ไม่นับในคำเตือนพิกัด (fixed/none/mis/out)
+//   และติดธงช่องที่ 25 ของแถว (=1) ให้หน้าเว็บไม่ส่งออกใน CSV "แถวที่ควรตรวจพิกัด" · ไม่มีคอลัมน์นี้ = ผลเหมือนเดิมทุกไบต์
+// · --dry = ไม่เขียน index.html (พิมพ์สรุป + sha1 ของข้อมูลไม่รวมวันที่ upd) · --json <ไฟล์> = เขียนผล JSON ไปไฟล์นั้นด้วย (ใช้ในเทสต์)
 const fs = require('fs'), path = require('path');
 const { readXlsx } = require('./lib/xlsx');
 const { utmToLL } = require('./lib/tiff');
 const { H, where, SBP } = require('./lib/area');
 const { admIndex } = require('./lib/burnsum');
 
-const file = process.argv[2];
+const argv = process.argv.slice(2), opt = k => { const i = argv.indexOf(k); return i < 0 ? null : argv[i + 1] }, DRY = argv.includes('--dry'), JOUT = opt('--json');
+const file = argv.find((a, i) => !a.startsWith('--') && argv[i - 1] !== '--json');
 if (!file) { console.error('ใช้: node scripts/import_fx.js <ไฟล์ .xlsx>'); process.exit(1) }
 const sheet = readXlsx(file)[0], head = sheet.rows[0].map(h => String(h || '').trim());
 const C = (n, x) => { const i = head.findIndex(h => x ? h === n : h.startsWith(n)); if (i < 0) throw new Error('ไม่พบคอลัมน์ ' + n); return i };
 const K = { seq: C('ลำดับ'), fy: C('ปีงบ'), d: C('วัน'), m: C('เดือน'), y: C('ปี', 1), tr: C('เวลารับแจ้ง'), rp: C('รับแจ้งเหตุจาก'), fr: C('พื้นที่ป่า'), pl: C('สถานที่'), moo: C('หมู่'), tm: C('ตำบล'), am: C('อำเภอ'), pv: C('จังหวัด'), E: C('E'), N: C('N'), ts: C('เข้าดับไฟ'), te: C('เสร็จสิ้น'), rai: C('พื้นที่เสียหาย'), cs: C('สาเหตุ'), st: C('ดำเนินการโดย') };
+const CK = head.findIndex(h => /^ตรวจแล้ว/.test(h)), isCk = r => { if (CK < 0) return false; const v = cl(r[CK]); return !!v && !/^(ไม่.*|no|n|false|0|-)$/i.test(v) };
 const MO = { 'มกราคม': 1, 'กุมภาพันธ์': 2, 'มีนาคม': 3, 'เมษายน': 4, 'พฤษภาคม': 5, 'พฤษถาคม': 5, 'มิถุนายน': 6, 'กรกฎาคม': 7, 'สิงหาคม': 8, 'กันยายน': 9, 'ตุลาคม': 10, 'พฤศจิกายน': 11, 'ธันวาคม': 12, 'ม.ค.': 1, 'ก.พ.': 2, 'มี.ค.': 3, 'เม.ย.': 4, 'พ.ค.': 5, 'มิ.ย.': 6, 'ก.ค.': 7, 'ส.ค.': 8, 'ก.ย.': 9, 'ต.ค.': 10, 'พ.ย.': 11, 'ธ.ค.': 12 };
 const cl = v => String(v == null ? '' : v).replace(/\s+/g, ' ').trim(), blank = v => !v || v === 'undefined' || v === '-';
 
@@ -93,7 +98,7 @@ const frac = v => typeof v === 'number' ? Math.round((v % 1) * 1440) : -1, hhmm 
 
 // ---- แปลงทุกแถว ----
 const DIC = { pv: [], am: [], tm: [], ar: [], st: [], sb: [], cs: [], rp: [], fr: [] }, id = (k, v) => { v = cl(v) || 'ไม่ระบุ'; let i = DIC[k].indexOf(v); if (i < 0) { i = DIC[k].length; DIC[k].push(v) } return i };
-const out = [], log = { fixed: [], none: [], mis: 0, outside: 0 };
+const out = [], log = { fixed: [], none: [], mis: 0, outside: 0, ck: 0 };
 for (const r of sheet.rows.slice(1)) {
   if (!r || r[K.seq] == null) continue;
   const y = +cl(r[K.y]) - 543, m = MO[cl(r[K.m])], d = +r[K.d];
@@ -105,31 +110,36 @@ for (const r of sheet.rows.slice(1)) {
   // ตำบลที่รายงานไม่มีในจังหวัดนั้น แต่พิกัดตกในตำบลชื่อเดียวกัน (เช่น เนินหอม อ.เมือง "นครราชสีมา") → ใช้ชื่อตามพิกัด
   if (okE(E) && okN(N) && !TMS.some(t => t.t === tm && t.p === pv)) { const a = adm && adm(...ll(E, N)); if (a && a.t === tm) { fixes.set(`${tm}|${am}|${pv} → ${a.t}|${a.a}|${a.p} (ตามพิกัด)`, 1); am = a.a; pv = a.p } }
   let lo = 0, la = 0, xy = 0;
-  if (okE(E) && okN(N)) { [lo, la] = ll(E, N); const a = adm && adm(lo, la); if (a && (a.t !== tm || a.p !== pv)) log.mis++ }
-  else { const f = fixXY(E, N, tm, am, pv); if (f) { [lo, la] = f; xy = 1; log.fixed.push(`#${r[K.seq]} ${E}/${N} → ${f[2].join(' หรือ ')} (ต.${tm} อ.${am} จ.${pv})`) } else { xy = 2; log.none.push(`#${r[K.seq]} ${E}/${N} (ต.${tm} อ.${am} จ.${pv})`) } }
-  const w = xy < 2 ? where(lo, la) : null; if (xy < 2 && !w) log.outside++;
+  const ck = isCk(r), L = ck ? { fixed: [], none: [], mis: 0, outside: 0 } : log; if (ck) log.ck++;   /* ตรวจแล้ว = คำนวณเหมือนเดิมแต่ไม่นับคำเตือน */
+  if (okE(E) && okN(N)) { [lo, la] = ll(E, N); const a = adm && adm(lo, la); if (a && (a.t !== tm || a.p !== pv)) L.mis++ }
+  else { const f = fixXY(E, N, tm, am, pv); if (f) { [lo, la] = f; xy = 1; L.fixed.push(`#${r[K.seq]} ${E}/${N} → ${f[2].join(' หรือ ')} (ต.${tm} อ.${am} จ.${pv})`) } else { xy = 2; L.none.push(`#${r[K.seq]} ${E}/${N} (ต.${tm} อ.${am} จ.${pv})`) } }
+  const w = xy < 2 ? where(lo, la) : null; if (xy < 2 && !w) L.outside++;
   const [st, op] = oper(r[K.st], forest(r[K.fr])), [cs, cd] = cause(r[K.cs]);
   const t0 = frac(r[K.tr]), ts = frac(r[K.ts]), te = frac(r[K.te]);
   out.push([day, hhmm(t0), Math.round(la * 1e5), Math.round(lo * 1e5), xy,
     id('pv', pv), id('am', am + '|' + pv), id('tm', tm + '|' + am + '|' + pv), id('ar', w ? w.ar : xy === 2 ? 'ไม่ทราบ (พิกัดใช้ไม่ได้)' : 'นอกพื้นที่อนุรักษ์'), id('st', st), id('sb', SBP[pv] || (w && w.sb) || 'ไม่ระบุ'),
     +r[K.rai] || 0, id('cs', cs), id('rp', report(r[K.rp])), id('fr', forest(r[K.fr])), hhmm(ts), hhmm(te),
-    Math.round(E) || 0, Math.round(N) || 0, cl(r[K.moo]).replace(/^(undefined|-)$/, ''), blank(cl(r[K.pl])) ? '' : cl(r[K.pl]), cd, +r[K.seq], op]);
+    Math.round(E) || 0, Math.round(N) || 0, cl(r[K.moo]).replace(/^(undefined|-)$/, ''), blank(cl(r[K.pl])) ? '' : cl(r[K.pl]), cd, +r[K.seq], op].concat(ck ? [1] : []));
 }
 out.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
 const fyOf = d => { const [y, m] = new Date(d * 864e5).toISOString().slice(0, 7).split('-').map(Number); return y + 543 + (m >= 10 ? 1 : 0) }, EQ = {};
 out.forEach(r => { const f = fyOf(r[0]), o = EQ[f] = EQ[f] || [0, 0]; o[1]++; if (r[1] >= 0 && r[1] === r[15]) o[0]++ });
 const noArr = Object.keys(EQ).filter(f => EQ[f][1] >= 10 && EQ[f][0] / EQ[f][1] >= .9).map(Number);
 if (noArr.length) console.log('ปีงบที่เวลาเข้าดับไฟ = เวลารับแจ้งเกือบทุกแถว (ไม่นับเวลาเข้าถึง):', noArr.join(', '));
-const J = { src: path.basename(file), upd: new Date().toISOString().slice(0, 10), q: { fixed: log.fixed.length, none: log.none.length, mis: log.mis, out: log.outside, noArr }, ...DIC, r: out };
+const J = { src: path.basename(file), upd: new Date().toISOString().slice(0, 10), q: { fixed: log.fixed.length, none: log.none.length, mis: log.mis, out: log.outside, noArr, ...(log.ck ? { ck: log.ck } : {}) }, ...DIC, r: out };
 const txt = JSON.stringify(J).split('</').join('<\\/');
+if (JOUT) fs.writeFileSync(JOUT, JSON.stringify(J));
+if (DRY) console.log('--dry: ไม่เขียน index.html · sha1 ข้อมูล (ไม่รวมวันที่ upd) ' + require('crypto').createHash('sha1').update(JSON.stringify({ ...J, upd: '' })).digest('hex'));
+else {
 let html = fs.readFileSync(H, 'utf8');
 const tag = '<script type="application/json" id="fxdata">', re = /<script type="application\/json" id="fxdata">[\s\S]*?<\/script>\n?/;
 if (re.test(html)) html = html.replace(re, () => tag + txt + '</script>\n');
 else { const a = html.indexOf('<script type="application/json" id="adata">'), e = html.indexOf('</script>', a) + 10; html = html.slice(0, e) + tag + txt + '</script>\n' + html.slice(e) }
 fs.writeFileSync(H, html);
+}
 const byFy = {}; out.forEach(r => { const [y, m] = new Date(r[0] * 864e5).toISOString().slice(0, 7).split('-').map(Number); const f = y + 543 + (m >= 10 ? 1 : 0); byFy[f] = (byFy[f] || 0) + 1 });
 console.log(`นำเข้า ${out.length} ครั้ง`, byFy, `· ไร่รวม ${out.reduce((s, r) => s + r[11], 0)}`);
 console.log(`พิกัดแก้อัตโนมัติ ${log.fixed.length}:\n  ` + log.fixed.join('\n  '));
 console.log(`พิกัดใช้ไม่ได้ (ไม่แสดงบนแผนที่) ${log.none.length}:\n  ` + log.none.join('\n  '));
-console.log(`พิกัดอยู่คนละตำบลกับที่รายงาน ${log.mis} · อยู่นอกแนวเขตพื้นที่อนุรักษ์/พื้นที่รับผิดชอบ ${log.outside}`);
+console.log(`พิกัดอยู่คนละตำบลกับที่รายงาน ${log.mis} · อยู่นอกแนวเขตพื้นที่อนุรักษ์/พื้นที่รับผิดชอบ ${log.outside}` + (CK < 0 ? ' · ไม่มีคอลัมน์ "ตรวจแล้ว"' : ` · คอลัมน์ "ตรวจแล้ว" ${log.ck} แถว (ไม่นับในคำเตือน)`));
 console.log('แก้ชื่อพื้นที่:\n  ' + [...fixes].map(([k, n]) => k + ' ×' + n).join('\n  '));
