@@ -183,6 +183,26 @@ async function quotaOk() {
   }
 
   // ตรวจการตั้งค่าทุกชั่วโมง (ไม่ส่งข้อความ ไม่เสียโควตา): token ใช้ได้ไหม บอทอยู่ในกลุ่มไหม โควตาเหลือเท่าไร → ดูได้ที่ notify.json ช่อง line
+  // F1 (16 พ.ย. 69) ผลตรวจสอบจากหน้างาน — ข้อความตัวอักษร 1 ข้อความ (push แยก นับ 1 ครั้ง × สมาชิก) · LINE_REP=off = ปิด · กติกาเดียวกับ Telegram (st.vf, ≤48 ชม., รอบแรกจำไม่ส่ง)
+  let vrec = null;
+  try {
+    const VM = require('./lib/vfmsg'), rjs = JSON.parse(fs.readFileSync(path.join(OUT, 'reports.json'), 'utf8')), first = !st.vf; st.vf = st.vf || {};
+    const nw = VM.fresh(rjs.reports, st.vf, now), REP = !/^(off|0|no)$/i.test(process.env.LINE_REP || '');
+    if (first || seed) { for (const r of rjs.reports || []) st.vf[r.id] = r.c; if (nw.length) vrec = { vf: nw.length, why: 'เริ่มเก็บสถานะรายงาน (ไม่ส่ง)' } }
+    else if (nw.length) {
+      if (!TOKEN || !GROUP || !REP) { nw.forEach(r => { st.vf[r.id] = r.c }); vrec = { vf: nw.length, why: !REP ? 'LINE_REP=off' : 'ยังไม่ตั้ง LINE_TOKEN/LINE_GROUP_ID' } }
+      else if (MAX_DAY > 0 && (st.days[today] || 0) >= MAX_DAY) vrec = { vf: nw.length, why: `ครบ ${MAX_DAY} ครั้งของวันนี้แล้ว` };
+      else try {
+        const q = await quotaOk();
+        if (!q.ok) vrec = { vf: nw.length, why: `โควตาไม่พอ (เหลือ ${q.left} ต้องใช้ ${q.members})` };
+        else { const cs = (b => b ? JSON.parse(b[1]).cs || [] : [])(require('./lib/area').block('fxdata'));
+          await line('/v2/bot/message/push', { to: GROUP, messages: [{ type: 'text', text: VM.vfText(nw, { site: SITE, now, html: false, cs, per: 8 }).slice(0, 4900) }] });
+          st.days[today] = (st.days[today] || 0) + 1; nw.forEach(r => { st.vf[r.id] = r.c }); vrec = { vf: 1, ok: 1, n: nw.length, members: q.members, left: q.left } }
+      } catch (e) { vrec = { vf: 1, why: 'ส่งไม่สำเร็จ: ' + e.message, n: nw.length } }
+    }
+    for (const k in st.vf) if (now - st.vf[k] > 7 * 864e5) delete st.vf[k];
+  } catch (e) { if (e.code !== 'ENOENT') console.log('LINE ผลตรวจสอบ:', e.message) }
+
   if (!TOKEN || !GROUP) st.line = { ok: 0, why: `ยังไม่ตั้ง ${!TOKEN ? 'LINE_TOKEN ' : ''}${!GROUP ? 'LINE_GROUP_ID' : ''}`.trim(), at: new Date(now).toISOString() };
   else if (!st.line || !st.line.ok || now - Date.parse(st.line.at) > 36e5) {
     try { const q = await quotaOk(); st.line = { ok: 1, members: q.members, limit: q.limit ?? null, used: q.used ?? null, left: isFinite(q.left) ? q.left : null, pushes_left: isFinite(q.left) ? Math.max(0, Math.floor(q.left / q.members)) : null, at: new Date(now).toISOString() } }
@@ -192,6 +212,7 @@ async function quotaOk() {
   else console.log('LINE: ไม่มีจุดใหม่');
   if (drec) { st.log = [{ t: new Date(now).toISOString(), ...drec }, ...(st.log || [])].slice(0, 50); console.log('LINE สรุปประจำวัน:', JSON.stringify(drec)) }
   if (brec) { st.log = [{ t: new Date(now).toISOString(), ...brec }, ...(st.log || [])].slice(0, 50); console.log('LINE พื้นที่เผาไหม้:', JSON.stringify(brec)) }
+  if (vrec) { st.log = [{ t: new Date(now).toISOString(), ...vrec }, ...(st.log || [])].slice(0, 50); console.log('LINE ผลตรวจสอบ:', JSON.stringify(vrec)) }
   for (const k in st.sent) if (now - st.sent[k] > KEEP_H * 36e5) delete st.sent[k];
   NR.prune(st, now, KEEP_H);
   for (const d in st.days) if (d < thDate(now - 7 * 864e5)) delete st.days[d];

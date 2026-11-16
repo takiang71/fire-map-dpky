@@ -209,6 +209,25 @@
   · ตรวจ Chrome headless 1440/390 แล้ว ไม่มี error
   · คู่มือ #sw-xt + #stats-xt + ภาพ sw_xt/stats_xt/stats_xt_full (อยู่ใน manual_shots_gen/base แล้ว)
 
+## รายงานผลตรวจสอบจากหน้างาน (F1, 16 พ.ย. 69) — โมดูล `VF`
+
+- ที่มา: docs/review-2569-11-15.md ข้อ F1 · ผู้ใช้ยืนยันสคีมา/สิทธิ์ 16 พ.ย. 69 และ**ไม่เก็บภาพเฟสแรก** · Worker/KV → [../layers-backend.md](../layers-backend.md)
+- โค้ด: `<script>` ท้ายไฟล์ (ก่อน `</body>` สุดท้าย) prefix `VF`/`vf*`/id `vf-*`/ชั้น `vf-ic`/source `vfs` (ชื่อ RP = เผาซ้ำซาก, RV = VR ใช้ไปแล้ว)
+  · `VF{L,at,gen,src,K}` · `VFRES` {fire,out,none,plan} → [ชื่อ, สี] · `vfKey(h)` = `hKey` ของจุด (วันไทย|HHMM|lat×1e3|lon×1e3) · `vfFy(ms)` ปีงบไทย · `vfCan(r)` เจ้าของ ≤24 ชม. หรือ `UL.me.a`
+  · `vfLoad(force)`: `reports.json?t=` (http/https) → ไม่มี/เปิดจากไฟล์ = `ulApi('/reports?fy=')` ปีงบนี้+ปีก่อน · โหลดครั้งแรก 1.2 วิ หลังสคริปต์ + ทุก 5 นาที (ไม่ซ้ำภายใน 60 วิ) → `vfApply()` = `vfIndex` + `vfMap` + `vfXT` + `vfBox(CUR)`
+  · `vfOf(h)`: รายงานที่ตรง hk หรือ hs ใกล้ ±2 นาที ≤400 ม. (จุดเดียวกันจาก FIRMS/API/adata พิกัดเหลื่อม) เรียงใหม่สุดก่อน
+  · แผนที่: `vfSetup()` (เรียกใน setup() ต่อจาก setupXT และท้ายโมดูล, ห่อ try) addImage `vf-<res>` จาก canvas (`vfIcon`) + source `vfs` + symbol `vf-ic` offset [18,-18] · `vfFC()` 1 ป้ายต่อ hk (รายงานล่าสุด; ไม่มี hk ใช้ `pos`) · visibility ตาม S.hot ใน apply (`set('vf-ic',h)`) · **ลำดับชั้น**: hot-icon ถูกสร้างทีหลัง (ตอนข้อมูลจุดมา) จึง `moveLayer('vf-ic')` ขึ้นบนสุดหลัง addLayer hot-icon และใน `vfMap` (เจอใน browser pane 16 พ.ย. 69: ป้ายอยู่ใต้ไอคอนจุด) · คลิกป้าย → `vfPopup`
+  · แผงรายละเอียด: `#vf-box` (cream) ต่อจาก `#d-pa` เติมโดย `vfBox(h)` ท้าย openDetail (try) · ปุ่ม `#vf-add` → `vfForm(h,null)` หรือ `ulLogin()` · ปุ่มแก้ไข/ลบ `data-vf`
+  · ฟอร์ม `vfForm(h,r)` (modal `.ula`): `#vf-res` seg 4 ปุ่ม · ไร่/สาเหตุ(`XD.cs`)/เวลาเข้าถึง–เสร็จ/รับแจ้งจาก(`XD.rp` ค่าเริ่มต้น "ดาวเทียม (Hotspot)")/หน่วย/สถานที่/หมู่/หมายเหตุ · พิกัดจริง: `LOC.p` ถ้ามี, ปุ่มขอ `getCurrentPosition` · ar/st จาก `geoAt`, tm จาก `admAt` (ไม่มี = ชื่อจาก API) · POST/PUT → ใส่ `VF.L` ทันที · ยืนยันก่อนบันทึก 0 ไร่ (ไม่ใช่ "ไม่พบไฟ")
+  · แท็บการดับไฟ: `vfXT()` ลบแถว `vf` ท้าย XT แล้วเติมใหม่ (res ≠ none, มีพิกัด) ดัชนี i ต่อท้าย (แถว Excel คงเดิม) · dictionary ใหม่ push เข้า XD (`xd()`) · sb จาก `sbOf` · hs:0/hd:0 เมื่อผูกจุด · `op` = ชื่อ + "(ระบบรายงาน)" · `cd` = note · render: `xtRender()` เมื่อแท็บเปิด ไม่งั้น `xtMap()`
+  · การ์ด `#x-vf` (ต่อจาก #x-kp) เติมโดย `vfCard()` ท้าย xtRender (try): ปีงบปัจจุบัน นับตาม res + % ไม่พบไฟ (ไม่นับ plan) + รายพื้นที่
+  · ป๊อปอัป `xtPopup` แถว "ที่มา" เมื่อ `r.vf` · หัวตาราง openXTable บอกจำนวนแถวจากระบบรายงาน
+  · Excel แบบ อส.: ปุ่ม `#x-xls` → `vfXlsx()` เขียน .xlsx เอง (sheet inlineStr + 4 ไฟล์ XML, zip ด้วย `zip()` ของ Layer Manager) 21 คอลัมน์ตรงกับที่ `import_fx.js` อ่าน (ลำดับที่ ปีงบประมาณ วัน เดือน ปี เวลารับแจ้งเหตุ รับแจ้งเหตุจาก พื้นที่ป่า สถานที่ หมู่ที่ ตำบล อำเภอ จังหวัด E N เข้าดับไฟ เสร็จสิ้น พื้นที่เสียหาย(ไร่) สาเหตุการเกิด ดำเนินการโดย ผู้รายงาน) จาก `xRows()` เรียงวัน/เวลา
+- build_site `reports()` → `_site/reports.json` {generated, src worker|state, fys, reports} (ar/st คำนวณซ้ำด้วย where()) · สำเนา `.state/reports.json` ↔ branch state (site.yml) ใช้เมื่อ Worker ล่ม
+- แจ้งเตือน: `scripts/lib/vfmsg.js` (`fresh`, `vfText` HTML/ข้อความ) · telegram_notify/line_notify: `st.vf` {id: c} รอบแรกจำไม่ส่ง · ≤48 ชม. · `TG_REP`/`LINE_REP`=off ปิด · LINE นับใน `st.days`
+- check_site DESK: ปุ่ม `x-xls` + เปิด `vfForm` ด้วยจุดจำลอง เลือกผล ปิด · เทสต์ `test/vf.test.js` (vfmsg, vfKey/vfFy/vfOf/vfFC/vfCan, gzCam) + `test/layers.test.js`
+- ยังไม่ทำ (เฟสถัดไป): ภาพถ่าย · บันทึกออฟไลน์แล้วส่งทีหลัง · สถิติ false alarm ในการ์ดหลัก · ส่ง Excel อัตโนมัติปลายปี
+
 ## เครื่องมือวิเคราะห์ภูมิประเทศ / ความสูง / พิมพ์แผนที่ / ตำแหน่งของฉัน
 
 - **เครื่องมือวิเคราะห์ภูมิประเทศ** (ผู้ใช้ขอ 9 พ.ย. 69 ตามภาพตัวอย่าง Contours/Slope/Aspect): ปุ่ม `#bTr` ใน #ctl ต่อจาก #bUl

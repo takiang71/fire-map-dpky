@@ -160,6 +160,33 @@ function summary(L) {
 // --- พื้นที่เฝ้าระวังเป็นพิเศษ (ผู้ใช้ขอ 6 พ.ย. 69: โรงเรียนนายร้อยพระจุลจอมเกล้า) → watch.json ---
 // จุดสะสมนับ "ทุกดาวเทียม" ตามแบบไฟล์ข้อมูลย้อนหลังที่ผู้ใช้ส่ง (มีทั้ง S/N20/N21 ในปีเดียวกัน) — ไม่ใช่ดาวเทียมตัวชี้วัดแบบยอดกลุ่มป่า
 // ปีงบที่ไฟล์ย้อนหลัง (wdata, import_watch.js) ครอบคลุม ใช้ไฟล์นั้น · ปีงบหลังจากนั้นใช้ API (wadata จาก sync_hotspots.js) + จุด 48 ชม. ที่ยังไม่อยู่ใน wadata
+// --- F1 (16 พ.ย. 69) รายงานผลตรวจสอบจากหน้างาน: ดึงจาก Worker fire-layers (worker/layers.mjs GET /reports?fy=) ปีงบนี้ + ปีงบก่อน → _site/reports.json ---
+// ให้คนไม่ล็อกอินเห็นสถานะจุด/แถวในแท็บการดับไฟ และ line_notify/telegram_notify แจ้ง "ตรวจสอบแล้ว" · Worker ล่ม = ใช้สำเนารอบก่อนใน STATE_DIR/reports.json (site.yml เก็บที่ branch state)
+// พื้นที่อนุรักษ์/สถานีฯ ตรวจซ้ำด้วย where() จากพิกัดจุด (หน้าเว็บส่งมาแล้ว แต่ยึดแนวเขต KMZ ฝั่งนี้เป็นหลัก)
+const LAYERS_API = process.env.LAYERS_API || 'https://fire-layers.takiang71.workers.dev';
+const fyOfMs = ms => { const d = new Date(ms + 7 * 36e5); return d.getUTCFullYear() + 543 + (d.getUTCMonth() >= 9 ? 1 : 0) };
+async function reports() {
+  const fy = fyOfMs(Date.now()), fys = [fy - 1, fy], REP = path.join(STATE_DIR, 'reports.json');
+  let prev = null; try { prev = JSON.parse(fs.readFileSync(REP, 'utf8')) } catch (e) { }
+  let all = [], src = 'worker';
+  try {
+    for (const y of fys) {
+      const r = await fetch(`${LAYERS_API.replace(/\/$/, '')}/reports?fy=${y}`, { signal: AbortSignal.timeout(20e3) });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const j = await r.json(); if (!Array.isArray(j.reports)) throw new Error('รูปแบบไม่ถูกต้อง');
+      all = all.concat(j.reports);
+    }
+  } catch (e) {
+    if (!prev) throw e;
+    console.log('Worker reports ดึงไม่ได้:', e.message, '→ ใช้สำเนารอบก่อน'); all = prev.reports || []; src = 'state';
+  }
+  for (const r of all) { const p = r.hs ? [r.hs.lo, r.hs.la] : r.pos ? [r.pos[0], r.pos[1]] : null; if (!p) continue; const w = where(p[0], p[1]); r.ar = w ? w.ar : 'นอกพื้นที่อนุรักษ์'; r.st = w ? w.st : 'ไม่มี' }
+  all.sort((a, b) => a.c - b.c);
+  const R = { generated: new Date().toISOString(), src, fys, reports: all };
+  if (src === 'worker') try { fs.mkdirSync(STATE_DIR, { recursive: true }); fs.writeFileSync(REP, JSON.stringify(R)) } catch (e) { }
+  return R;
+}
+
 function watchSum(W) {
   const wd = block('wdata'); if (!wd) return null;
   const Hh = JSON.parse(wd[1].split('<\\/').join('</')), wa = block('wadata'), A = wa ? JSON.parse(wa[1]) : { r: [], ids: [], sat: [], tm: [], to: null };
@@ -286,6 +313,10 @@ if (require.main === module) (async () => {
     const S = summary(L);
     if (S) { fs.writeFileSync(path.join(OUT, 'summary.json'), JSON.stringify(S)); console.log(`summary.json: ปีงบ ${S.fy} ${S.ind} ${S.total} จุด`) }
   } catch (e) { console.log('summary.json ไม่สำเร็จ:', e.message) }
+  try {
+    const R = await reports();
+    if (R) { fs.writeFileSync(path.join(OUT, 'reports.json'), JSON.stringify(R)); console.log(`reports.json: ${R.reports.length} รายงาน (ปีงบ ${R.fys.join('/')}) จาก${R.src === 'worker' ? 'เซิร์ฟเวอร์' : 'สำเนารอบก่อน'}`) }
+  } catch (e) { console.log('reports.json ไม่สำเร็จ:', e.message) }
   try {
     const b = await air4thai();
     JSON.parse(b); // ตรวจว่าเป็น JSON จริง

@@ -5,6 +5,10 @@
 //     "d:<id>" = GeoJSON ของชั้น (เก็บเป็นข้อความตามที่อัปโหลด ไม่ parse — Worker ฟรีจำกัด CPU 10 ms)
 // สิทธิ์ดูชั้น acl.m: all = ทุกคน (ไม่ต้องล็อกอิน) · login = ผู้ที่ล็อกอิน · some = เฉพาะกลุ่ม acl.g / ผู้ใช้ acl.u · ผู้ดูแลเห็นทุกชั้น
 // แก้ไขได้เฉพาะผู้ดูแล (a = true หรือผู้ดูแลหลัก)
+// F1 (16 พ.ย. 69) รายงานผลตรวจสอบจุดความร้อน/การดับไฟจากหน้างาน — docs/arch/ui-modules.md หัวข้อ "รายงานผลตรวจสอบ"
+//     "rep:<ปีงบ>" = [ระเบียน] (ดัชนีต่อปีงบ อ่าน 1 ครั้งต่อรอบ site) · "r:<id>" = สำเนาระเบียนเดี่ยว (ตาข่ายนิรภัย: POST /reports/repair สร้างดัชนีใหม่จากสำเนา)
+//     ระเบียน {id,fy,hk,hs:{la,lo,t,sat},res,rai,cs,rp,ta,te,un,pl,moo,note,pos,ar,st,tm,by:{u,d},c,m} — เฟสแรกไม่เก็บภาพ (ผู้ใช้ตัดสิน 16 พ.ย. 69)
+//     อ่าน = ทุกคน (สาธารณะ) · บันทึก = ผู้ใช้ที่ล็อกอิน · แก้/ลบ = เจ้าของภายใน 24 ชม. หรือผู้ดูแล
 const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET,POST,PUT,DELETE,OPTIONS', 'access-control-allow-headers': 'authorization,content-type,x-meta', 'access-control-expose-headers': 'x-upd', 'access-control-max-age': '86400' };
 const J = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...CORS } });
 const E = (m, s = 400) => J({ error: m }, s);
@@ -74,11 +78,35 @@ async function readData(req) {
   return t;
 }
 
+
+// ---- F1 รายงานผลตรวจสอบจากหน้างาน ----
+const RES = ['fire', 'none', 'out', 'plan']; // พบไฟกำลังไหม้ · ไม่พบไฟ · ดับแล้ว · เผาตามแผน (ชิงเผา)
+const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/, REP_EDIT_MS = 24 * 36e5, REP_MAX = 8 * 1024;
+const fyOfMs = ms => { const d = new Date(ms + 7 * 36e5); return d.getUTCFullYear() + 543 + (d.getUTCMonth() >= 9 ? 1 : 0) }; // ปีงบไทย (ต.ค. = ปีถัดไป)
+const num = (v, lo, hi, dp) => { v = +v; if (!isFinite(v) || v < lo || v > hi) return null; return dp == null ? v : +v.toFixed(dp) };
+const idx = (v, hi) => v == null || v === '' ? null : (Number.isInteger(+v) && +v >= 0 && +v <= hi ? +v : null);
+const repKey = fy => 'rep:' + fy;
+async function getRep(env, fy) { return await env.LAYERS.get(repKey(fy), { type: 'json' }) || [] }
+async function putRep(env, fy, L) { await env.LAYERS.put(repKey(fy), JSON.stringify(L)) }
+// ค่าที่รับจากฟอร์ม (สร้างและแก้ใช้ตัวเดียวกัน) — ค่าผิดรูป = ไม่ใช้/ตัด ไม่ปฏิเสธทั้งระเบียน ยกเว้น res
+function applyRep(r, b) {
+  if (b.res != null) { if (!RES.includes(b.res)) throw Object.assign(new Error('ผลการตรวจสอบไม่ถูกต้อง'), { s: 400 }); r.res = b.res }
+  if (b.hk !== undefined) r.hk = b.hk == null ? null : txt(b.hk, 60);
+  if (b.hs !== undefined) { const h = b.hs || {}, la = num(h.la, -90, 90, 5), lo = num(h.lo, -180, 180, 5), t = num(h.t, 0, 4e12, 0); r.hs = la != null && lo != null && t != null ? { la, lo, t, sat: txt(h.sat, 20) } : null }
+  if (b.rai !== undefined) r.rai = num(b.rai, 0, 1e5, 2) ?? 0;
+  if (b.cs !== undefined) r.cs = idx(b.cs, 99);
+  if (b.rp !== undefined) r.rp = idx(b.rp, 99);
+  if (b.ta !== undefined) r.ta = HHMM.test(b.ta || '') ? b.ta : null;
+  if (b.te !== undefined) r.te = HHMM.test(b.te || '') ? b.te : null;
+  for (const [k, n] of [['un', 200], ['pl', 200], ['moo', 20], ['note', 1000], ['ar', 120], ['st', 120], ['tm', 160]]) if (b[k] !== undefined) r[k] = txt(b[k], n);
+  if (b.pos !== undefined) { const p = Array.isArray(b.pos) ? b.pos : [], lo = num(p[0], -180, 180, 6), la = num(p[1], -90, 90, 6); r.pos = lo != null && la != null ? [lo, la, num(p[2], 0, 1e6, 0) ?? 0] : null }
+}
+const repOwn = (r, U, now) => !!U && (U.a || (r.by && r.by.u === U.u && now - r.c < REP_EDIT_MS));
 export default {
   async fetch(req, env) {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
     const url = new URL(req.url), P = url.pathname.replace(/\/+$/, '').split('/').filter(Boolean), m = req.method;
-    if (!P.length) return J({ ok: true, app: 'fire-map layers', kv: !!env.LAYERS, admin: !!env.ADMIN_PASS });
+    if (!P.length) return J({ ok: true, app: 'fire-map layers', kv: !!env.LAYERS, admin: !!env.ADMIN_PASS, rep: true });
     if (!env.LAYERS) return E('ยังไม่ได้ผูก KV ชื่อ LAYERS กับ Worker นี้', 500);
     if (!env.ADMIN_PASS) return E('ยังไม่ได้ตั้ง Secret ADMIN_PASS', 500);
     try {
@@ -170,6 +198,36 @@ export default {
           M.layers.forEach(L => { L.acl.g = (L.acl.g || []).filter(x => x !== g.id) });
           await putMeta(env, M); return J({ ok: true });
         }
+      }
+      if (r0 === 'reports') {
+        const now = Date.now();
+        if (!r1 && m === 'GET') { const fy = +url.searchParams.get('fy') || fyOfMs(now); return J({ fy, reports: await getRep(env, fy) }) }
+        if (!U) return E('กรุณาเข้าสู่ระบบ', 401);
+        if (!r1 && m === 'POST') {
+          const t = await req.text(); if (t.length > REP_MAX) return E('ข้อมูลรายงานใหญ่เกิน 8 KB', 413);
+          let b; try { b = JSON.parse(t) } catch { return E('ข้อมูลไม่ใช่ JSON') }
+          if (!RES.includes(b.res)) return E('กรุณาเลือกผลการตรวจสอบ');
+          const r = { id: rid(), hk: null, hs: null, res: b.res, rai: 0, cs: null, rp: null, ta: null, te: null, un: '', pl: '', moo: '', note: '', pos: null, ar: '', st: '', tm: '', by: { u: U.u, d: U.d }, c: now, m: now };
+          applyRep(r, b); r.fy = fyOfMs(r.hs ? r.hs.t : now);
+          const L = await getRep(env, r.fy); L.push(r);
+          await env.LAYERS.put('r:' + r.id, JSON.stringify(r)); await putRep(env, r.fy, L);
+          return J({ report: r });
+        }
+        if (r1 === 'repair' && m === 'POST') { // ผู้ดูแล: สร้างดัชนี rep:<fy> ใหม่จากสำเนา r:<id> (กรณีเขียนชนกัน)
+          adm(); const fy = +url.searchParams.get('fy') || fyOfMs(now), L = [];
+          let cur; do { const l = await env.LAYERS.list({ prefix: 'r:', cursor: cur }); for (const k of l.keys) { const r = await env.LAYERS.get(k.name, { type: 'json' }); if (r && r.fy === fy) L.push(r) } cur = l.list_complete ? null : l.cursor } while (cur);
+          L.sort((a, b) => a.c - b.c); await putRep(env, fy, L); return J({ fy, n: L.length });
+        }
+        const fy = +url.searchParams.get('fy') || fyOfMs(now), L = await getRep(env, fy), r = L.find(x => x.id === r1);
+        if (!r) return E('ไม่พบรายงาน (ระบุ ?fy= ให้ตรงปีงบ)', 404);
+        if (!repOwn(r, U, now)) return E(r.by && r.by.u === U.u ? 'แก้ไขได้ภายใน 24 ชม. หลังบันทึก (ติดต่อผู้ดูแล)' : 'แก้ไขได้เฉพาะเจ้าของรายงานหรือผู้ดูแล', 403);
+        if (m === 'PUT') {
+          const t = await req.text(); if (t.length > REP_MAX) return E('ข้อมูลรายงานใหญ่เกิน 8 KB', 413);
+          let b; try { b = JSON.parse(t) } catch { return E('ข้อมูลไม่ใช่ JSON') }
+          applyRep(r, b); r.m = now; r.ed = { u: U.u, d: U.d };
+          await env.LAYERS.put('r:' + r.id, JSON.stringify(r)); await putRep(env, fy, L); return J({ report: r });
+        }
+        if (m === 'DELETE') { await putRep(env, fy, L.filter(x => x !== r)); await env.LAYERS.delete('r:' + r.id); return J({ ok: true }) }
       }
       return E('ไม่พบคำสั่ง', 404);
     } catch (e) { return E(e.message || String(e), e.s || 500) }

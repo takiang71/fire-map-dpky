@@ -60,6 +60,7 @@
 - Actions: site ~35–45 วิ/รอบ (cron-job.org ทุก 5 นาที + watchdog สำรอง), sync 4 รอบ/วัน, wx ตามต้นทางพยากรณ์ · health.json ok
 - FWI: TFDRS บล็อกเครื่อง GitHub (403) → ดึงจากเครื่องผู้ใช้ด้วยงาน Task Scheduler "fire-map FWI" (`scripts/fwi_local.js` + `local_status.json`) · รอบเก่า ≥2 วัน → wx ดึงค่าของวันจาก LFA (`fwi_lfa.js`) ให้สรุปประจำวัน
 - ต้นทางช้า/หยุด: SAVI มีแค่ 202601 · พื้นที่เผาไหม้ B4 รอบล่าสุด 22–28 ต.ค. 69
+- **F1 รายงานผลตรวจสอบจากหน้างาน** (16 พ.ย. 69, โมดูล `VF` + Worker `/reports`) → [ui-modules.md](docs/arch/ui-modules.md) · **ต้องวาง `worker/layers.mjs` ใหม่ใน Cloudflare** (GET / มี `rep:true`)
 - LINE ยังเป็นกลุ่มทดสอบ — ย้ายกลุ่มจริงต้องแก้ `LINE_GROUP_ID` และคิดเรื่องโควตา (11–30 คน × สรุปรายวัน เกินโควตาฟรี)
 - **ปีงบ 2571 (1 ต.ค. 70):** ถ้ายังไม่นำเข้า Excel ปีงบ 2570 เว็บเติมจาก API ให้เอง (`hdFill` + ป้าย ⚠) และ health `xlsx` เตือนตั้งแต่ 1 ธ.ค. — ควรนำเข้าตาม data-update.md
 

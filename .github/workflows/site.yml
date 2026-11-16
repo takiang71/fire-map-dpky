@@ -42,9 +42,10 @@ jobs:
         run: |
           mkdir -p .state
           if git fetch -q --depth=1 origin state; then
+            # reports.json = สำเนารายงานผลตรวจสอบจาก Worker fire-layers รอบก่อน (F1 — ใช้เมื่อ Worker ล่ม)
             # live_cache.json = จุดจาก API รอบก่อน (build_site.js ดึงแค่ 12 ชม. ล่าสุดแล้วรวมกับไฟล์นี้ ลดภาระ API ต้นทาง · ไม่มี = ดึงเต็ม 48 ชม.)
             # pass_lag.json = ความล่าช้าจริงของต้นทางต่อรอบดาวเทียม (scripts/pass_wait.js)
-            for f in notify.json tg_notify.json health.json live_cache.json pass_lag.json; do git show FETCH_HEAD:$f > .state/$f 2>/dev/null || rm -f .state/$f; done
+            for f in notify.json tg_notify.json health.json live_cache.json pass_lag.json reports.json; do git show FETCH_HEAD:$f > .state/$f 2>/dev/null || rm -f .state/$f; done
           else echo "ยังไม่มี branch state"; fi
           ls -l .state
       # ช่วงที่ข้อมูลรอบดาวเทียมกำลังเข้า (8–90 นาทีหลังผ่านกลุ่มป่า ตาม data/tle.json) และยังไม่เข้า → ถาม API ทุก 45 วิ ≤4 นาที
@@ -124,7 +125,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/st" && cd "$RUNNER_TEMP/st"
           n=0; for f in notify.json tg_notify.json health.json; do if [ -f "$GITHUB_WORKSPACE/_site/$f" ]; then cp "$GITHUB_WORKSPACE/_site/$f" .; n=$((n+1)); fi; done
           # แคช API ของ build_site.js อยู่ใน .state/ (ไม่ขึ้น Pages)
-          for f in live_cache.json pass_lag.json; do if [ -f "$GITHUB_WORKSPACE/.state/$f" ]; then cp "$GITHUB_WORKSPACE/.state/$f" .; n=$((n+1)); fi; done
+          for f in live_cache.json pass_lag.json reports.json; do if [ -f "$GITHUB_WORKSPACE/.state/$f" ]; then cp "$GITHUB_WORKSPACE/.state/$f" .; n=$((n+1)); fi; done
           [ "$n" -gt 0 ] || { echo "ไม่มีไฟล์สถานะ"; exit 0; }
           git init -q -b state
           git add -A

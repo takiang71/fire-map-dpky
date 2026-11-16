@@ -291,6 +291,21 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
 
   // ตรวจการตั้งค่าทุกชั่วโมง และทันทีเมื่อส่งไม่สำเร็จ/กลุ่มเพิ่งถูกอัปเกรด (ไม่ส่งข้อความ): token ใช้ได้ไหม บอทยังอยู่ในห้องไหม
   //  → ช่อง tg (scripts/health.js อ่าน ok:0 และ migrate ไปแจ้งผู้ดูแล)
+  // F1 (16 พ.ย. 69) ผลตรวจสอบจากหน้างาน — _site/reports.json (build_site.js ดึงจาก Worker fire-layers) · รายงานที่ยังไม่เคยแจ้ง (st.vf = {id: เวลาสร้าง}) อายุ ≤ 48 ชม.
+  //  รอบแรกที่เห็นไฟล์ (ไม่มี st.vf) = จำทั้งหมดโดยไม่ส่ง · ส่งไม่สำเร็จ = ลองรอบถัดไป (ยังไม่จำ) · TG_REP=off = ปิด · ข้อความจาก scripts/lib/vfmsg.js (ชุดเดียวกับ LINE)
+  try {
+    const VM = require('./lib/vfmsg'), rjs = JSON.parse(fs.readFileSync(path.join(OUT, 'reports.json'), 'utf8')), first = !st.vf; st.vf = st.vf || {};
+    const nw = VM.fresh(rjs.reports, st.vf, now), on2 = on && !/^(off|0|no)$/i.test(process.env.TG_REP || '');
+    if (first || seed) { for (const r of rjs.reports || []) st.vf[r.id] = r.c; if (nw.length) log({ vf: nw.length, why: 'เริ่มเก็บสถานะรายงาน (ไม่ส่ง)' }) }
+    else if (nw.length) {
+      if (!on2) { nw.forEach(r => { st.vf[r.id] = r.c }); log({ vf: nw.length, why: on ? 'TG_REP=off' : off }) }
+      else try { const cs = (b => b ? JSON.parse(b[1]).cs || [] : [])(require('./lib/area').block('fxdata'));
+        log({ vf: 1, ok: 1, n: nw.length, ...await sendB(s => msgOf(VM.vfText(nw, { site: SITE, now, html: true, cs, per: s ? 5 : 12 }), [[['🗺️ แผนที่ไฟป่า (แท็บการดับไฟป่า)', SITE + '?v=&l=xt']]])) }); nw.forEach(r => { st.vf[r.id] = r.c }) }
+      catch (e) { log({ vf: 1, why: 'ส่งไม่สำเร็จ: ' + e.message.slice(0, 300), n: nw.length }) }
+    }
+    for (const k in st.vf) if (now - st.vf[k] > 7 * 864e5) delete st.vf[k];
+  } catch (e) { if (e.code !== 'ENOENT') console.log('Telegram ผลตรวจสอบ:', e.message) }
+
   if (Object.keys(MIG).length) st.migrate = MIG; else delete st.migrate;
   if (!on) st.tg = { off: 1, why: off, at: new Date(now).toISOString() };
   else if (!st.tg || !st.tg.ok || now - Date.parse(st.tg.at) > 36e5 || sendErr || Object.keys(MIG).length > mig0) {
