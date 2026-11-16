@@ -306,6 +306,16 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
     for (const k in st.vf) if (now - st.vf[k] > 7 * 864e5) delete st.vf[k];
   } catch (e) { if (e.code !== 'ENOENT') console.log('Telegram ผลตรวจสอบ:', e.message) }
 
+  // F3 รายงานประจำเดือน (_site/reports/index.json) — แจ้งลิงก์ 1 ข้อความเมื่อมีเดือนใหม่ · TG_MREP=off = ปิด · ส่งไม่สำเร็จ = ลองรอบถัดไป
+  try {
+    const MR = require('./lib/mrep'), P = MR.pending(MR.readIndex(OUT), seed ? null : st.mrep, now);
+    if (P.seed) { st.mrep = P.latest.id; log({ mrep: P.latest.id, why: 'เริ่มเก็บสถานะรายงานประจำเดือน (ไม่ส่ง)' }) }
+    else if (P.r) {
+      if (!on || /^(off|0|no)$/i.test(process.env.TG_MREP || '')) { st.mrep = P.r.id; log({ mrep: P.r.id, why: on ? 'TG_MREP=off' : off }) }
+      else try { log({ mrep: P.r.id, ok: 1, ...await send(msgOf(MR.text(P.r, { site: SITE, html: true }), [[['📄 เปิดรายงาน', SITE + 'reports/' + (P.r.pdf || P.r.html)]]])) }); st.mrep = P.r.id } catch (e) { log({ mrep: P.r.id, why: 'ส่งไม่สำเร็จ: ' + e.message.slice(0, 300) }) }
+    }
+  } catch (e) { console.log('Telegram รายงานประจำเดือน:', e.message) }
+
   if (Object.keys(MIG).length) st.migrate = MIG; else delete st.migrate;
   if (!on) st.tg = { off: 1, why: off, at: new Date(now).toISOString() };
   else if (!st.tg || !st.tg.ok || now - Date.parse(st.tg.at) > 36e5 || sendErr || Object.keys(MIG).length > mig0) {

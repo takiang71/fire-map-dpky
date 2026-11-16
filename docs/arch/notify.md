@@ -136,6 +136,13 @@
   - เสนอ cron-job.org เรียก `workflow_dispatch` ของ site ทุก 10 นาที (fine-grained PAT Actions:write) เพราะ schedule ของ GitHub รันจริงทุก 2–5 ชม.
   - ทดสอบแล้วด้วย LINE API จำลอง (seed/ส่ง/ไม่ซ้ำ/โควตาไม่พอ/ลายเซ็นผิด/คำสั่ง/ตัดดงใหญ่) + ดูหน้าตาการ์ดด้วยตัวแสดงผลจำลอง (ไม่ใช่แอป LINE จริง) — **ยังไม่เคยทดสอบกับ LINE และ Cloudflare จริง**
 
+## รายงานประจำเดือน (F3) ใน LINE/Telegram
+
+- `scripts/lib/mrep.js` `pending(index, st.mrep, now)` + `text(r,{site,html})` ใช้ทั้งสองระบบ · อ่าน `_site/reports/index.json` (build_site คัดลอกจาก reports/)
+- สถานะ `st.mrep` = id ล่าสุดที่แจ้ง (notify.json / tg_notify.json) · ไม่มีสถานะ/seed = จำรายงานล่าสุดโดยไม่ส่ง · เดือนใหม่กว่า = ส่ง 1 ข้อความ · สร้างเกิน 7 วัน = จำโดยไม่ส่ง · ส่งไม่สำเร็จ = ลองรอบถัดไป
+- Telegram: HTML + ปุ่ม "📄 เปิดรายงาน" (PDF) · `TG_MREP=off` ปิด · LINE: ข้อความตัวอักษร (นับโควตา 1 ครั้ง × สมาชิก, นับใน st.days) · `LINE_MREP=off` ปิด · log ช่อง `mrep`
+- ยังไม่ได้ส่งจริง: รอบแรกหลัง deploy จะ "เริ่มเก็บสถานะ (ไม่ส่ง)" ที่ 2569-10 → ส่งจริงครั้งแรก 1 ธ.ค. 69 (2569-11)
+
 ## พื้นที่เฝ้าระวัง จปร. ใน LINE/Telegram
 
 - LINE: `watchCard()` ใน worker (1 ใบ/พื้นที่) → line_notify ส่งเป็นข้อความที่ 2 ใน push เดียวกัน (โควตาไม่เพิ่ม) + สรุปประจำวัน

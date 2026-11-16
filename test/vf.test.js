@@ -73,3 +73,12 @@ test('gzCam: padding ใหญ่คืน undefined → ใช้ padding ถ�
   assert.equal(G.gzCam(fake(() => false), [[0, 0], [1, 1]], [{ top: 300 }, 40, 0]), null);
   assert.equal(G.gzCam({ cameraForBounds: () => { throw new Error('x') } }, [[0, 0], [1, 1]], [0]), null, 'โยน error = ถือว่าไม่ได้');
 });
+
+test('gzPadFit: ช่องว่างแคบกว่า 240×180 = ย่อ padding ตามสัดส่วน · กว้างพอ = เท่าเดิม', () => {
+  const G = load(grab(/(function gzPadFit\(p,W,H\)\{[^\n]*\n)/), ['gzPadFit']), lp = { top: 75, bottom: 100, left: 456, right: 422 };
+  assert.deepEqual(G.gzPadFit(lp, 1440, 900), lp, '1440 เหลือ 562 px ไม่ย่อ');
+  const a = G.gzPadFit(lp, 1024, 700); assert.equal(1024 - a.left - a.right, 240); assert.deepEqual([a.left, a.right, a.top, a.bottom], [407, 377, 75, 100]);
+  const b = G.gzPadFit(lp, 900, 650); assert.ok(900 - b.left - b.right >= 239 && b.left > b.right, 'คงสัดส่วนซ้าย>ขวา');
+  const c = G.gzPadFit(lp, 300, 200); assert.ok(300 - c.left - c.right >= 149 && 200 - c.top - c.bottom >= 99, 'จอเล็กมาก = เหลือครึ่งจอ');
+  assert.equal(lp.left, 456, 'ไม่แก้ค่าเดิม');
+});

@@ -58,12 +58,19 @@ jobs:
       - run: node scripts/sync_tle.js
         timeout-minutes: 3
         continue-on-error: true
+      # F3 รายงานประจำเดือน: เก็บ FWI รายวันของ TFDRS (ต้นทางเก็บแค่ 7 วัน) → data/fwi/daily.json ทุกรอบ
+      # วันที่ 1–3 ของเดือน (เวลาไทย) ยังไม่มีรายงานเดือนก่อน = สร้าง reports/<ปี พ.ศ.>-<เดือน>.html + .pdf (Chrome headless ของ runner) + reports/index.json
+      # site.yml คัดลอกขึ้น _site/reports/ แล้ว telegram_notify/line_notify ส่งลิงก์ (scripts/lib/mrep.js)
+      - name: monthly report
+        timeout-minutes: 6
+        continue-on-error: true
+        run: node scripts/monthly_report.js --acc && node scripts/monthly_report.js
       # FWI/FFMC (TFDRS), อัตราการระบายอากาศ (GFS), PM2.5 (CAMS) ย้ายไป workflow wx (15 พ.ย. 69) — site ตรวจรอบใหม่ของต้นทางทุก ~5 นาทีแล้วสั่ง wx ทันที
       - name: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html data/hotspots_api.json data/burn data/fuel data/tourism.json data/tle.json "data/FY2569_SNPP_ทั้งกลุ่มป่า.csv"
+          git add index.html data/hotspots_api.json data/burn data/fuel data/tourism.json data/tle.json data/fwi/daily.json reports "data/FY2569_SNPP_ทั้งกลุ่มป่า.csv"
           if git diff --cached --quiet; then echo "ไม่มีข้อมูลใหม่"; exit 0; fi
           git commit -m "sync: จุดความร้อนสะสม $(TZ=Asia/Bangkok date '+%Y-%m-%d %H:%M')"
           # workflow wx push ข้อมูลพยากรณ์เข้า main ได้ทุกเวลา → ดึงทับแล้วลองใหม่

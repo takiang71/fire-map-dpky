@@ -42,6 +42,7 @@
 | [decisions.md](docs/arch/decisions.md) | ความชอบ/การตัดสินใจของผู้ใช้ (เลย์เอาต์แผง, ค่าเริ่มต้นชั้นข้อมูล, เครดิต) + งานค้างเดิม (ประวัติ) | `homePad` `panFit` `sheetFit` `ctlFit` |
 | [gotchas.md](docs/arch/gotchas.md) | ชื่อชนกัน + บั๊กที่เคยเจอ | |
 | [data-update.md](docs/arch/data-update.md) | ขั้นตอนนำเข้า Excel กรมอุทยานฯ ปีงบใหม่ (ทำปีละครั้ง) / ข้อมูลดับไฟ | `excel_to_hdata` `hdFill` `chkXlsx` |
+| [risk.md](docs/arch/risk.md) | F2 ดัชนีเสี่ยง (ไม่ใช่ค่าทางการ) ตรวจย้อนหลัง | `RISK` `fwiDay` |
 | [testing.md](docs/arch/testing.md) | ชุดทดสอบหน่วย `test/` (วิธีเพิ่มเทสต์), check_site (ในเครื่อง/CI), harness | `node --test` `check_site` `--ci` `UNIT` |
 
 เอกสารอื่น: `docs/line-bot.md` (ติดตั้ง LINE/cron-job.org/watchdog/health) · `docs/telegram-bot.md` · `docs/layers-backend.md` · `manual/index.html` (คู่มือผู้ใช้) · `docs/review-2569-11-15.md` (รายงานตรวจและงานค้าง)
@@ -57,10 +58,11 @@
 
 ## สถานะระบบ (15 พ.ย. 69)
 
-- Actions: site ~35–45 วิ/รอบ (cron-job.org ทุก 5 นาที + watchdog สำรอง), sync 4 รอบ/วัน, wx ตามต้นทางพยากรณ์ · health.json ok
-- FWI: TFDRS บล็อกเครื่อง GitHub (403) → ดึงจากเครื่องผู้ใช้ด้วยงาน Task Scheduler "fire-map FWI" (`scripts/fwi_local.js` + `local_status.json`) · รอบเก่า ≥2 วัน → wx ดึงค่าของวันจาก LFA (`fwi_lfa.js`) ให้สรุปประจำวัน
+- Actions: site ~40 วิ/รอบ (cron-job.org 5 นาที + watchdog), sync 4 รอบ/วัน, wx ตามต้นทาง
+- FWI: TFDRS บล็อกเครื่อง GitHub (403) → Task Scheduler "fire-map FWI" บนเครื่องผู้ใช้ (`fwi_local.js`) · เก่า ≥2 วัน → LFA (`fwi_lfa.js`)
 - ต้นทางช้า/หยุด: SAVI มีแค่ 202601 · พื้นที่เผาไหม้ B4 รอบล่าสุด 22–28 ต.ค. 69
-- **F1 รายงานผลตรวจสอบจากหน้างาน** (16 พ.ย. 69, โมดูล `VF` + Worker `/reports`) → [ui-modules.md](docs/arch/ui-modules.md) · **ต้องวาง `worker/layers.mjs` ใหม่ใน Cloudflare** (GET / มี `rep:true`)
+- **F1** ผลตรวจสอบจากหน้างาน (`VF` + Worker `/reports`, วาง Worker แล้ว `rep:true` 16 พ.ย. 69) → [ui-modules.md](docs/arch/ui-modules.md)
+- **F2** ดัชนีเสี่ยง **รอผู้ใช้อนุมัติก่อนทำ UI** → risk.md · **F3** `monthly_report.js` (sync วันที่ 1 → `reports/`) → pipelines.md
 - LINE ยังเป็นกลุ่มทดสอบ — ย้ายกลุ่มจริงต้องแก้ `LINE_GROUP_ID` และคิดเรื่องโควตา (11–30 คน × สรุปรายวัน เกินโควตาฟรี)
 - **ปีงบ 2571 (1 ต.ค. 70):** ถ้ายังไม่นำเข้า Excel ปีงบ 2570 เว็บเติมจาก API ให้เอง (`hdFill` + ป้าย ⚠) และ health `xlsx` เตือนตั้งแต่ 1 ธ.ค. — ควรนำเข้าตาม data-update.md
 

@@ -279,8 +279,8 @@ if (require.main === module) (async () => {
     const P = pwaFiles(r.html, r.ix); fs.copyFileSync(path.join(ROOT, 'manifest.webmanifest'), path.join(OUT, 'manifest.webmanifest')); fs.writeFileSync(path.join(OUT, 'sw.js'), P.sw);
     console.log(`sw.js: รุ่น ${P.ver} · app shell ${P.shell.length} ไฟล์`) }
   fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
-  // ไอคอน/ภาพแชร์ลิงก์ (D2) และฟอนต์ Noto Sans Thai (B3)
-  for (const d of ['img', 'fonts']) if (fs.existsSync(path.join(ROOT, d))) fs.cpSync(path.join(ROOT, d), path.join(OUT, d), { recursive: true });
+  // ไอคอน/ภาพแชร์ลิงก์ (D2), ฟอนต์ Noto Sans Thai (B3) และรายงานประจำเดือน (F3 — scripts/monthly_report.js สร้างใน sync.yml วันที่ 1 แล้ว commit ลง reports/; reports/*.html อ้างฟอนต์ ../fonts)
+  for (const d of ['img', 'fonts', 'reports']) if (fs.existsSync(path.join(ROOT, d))) fs.cpSync(path.join(ROOT, d), path.join(OUT, d), { recursive: true });
   // คู่มือการใช้งาน (manual/index.html + ภาพประกอบ) — ปุ่ม #bMan ในหน้าเว็บเปิดหน้านี้
   if (fs.existsSync(path.join(ROOT, 'manual'))) fs.cpSync(path.join(ROOT, 'manual'), path.join(OUT, 'manual'), { recursive: true });
   // พื้นที่เผาไหม้ (scripts/sync_burn.js), แหล่งเชื้อเพลิง (scripts/sync_fuel.js), ภาพแหล่งท่องเที่ยว (data/tour) และดัชนีอันตรายไฟป่า TFDRS (scripts/sync_fwi.js) — หน้าเว็บอ่านจาก data/ ทางเดียวกับตอนเปิดผ่าน serve.js

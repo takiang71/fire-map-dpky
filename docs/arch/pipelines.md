@@ -112,6 +112,17 @@
   · ยังแนะนำให้ติดต่อ WFSRU
   · **GitHub API แบบไม่ล็อกอินจำกัด 60 ครั้ง/ชม.** — อย่าวนถามสถานะ run ถี่ (เคยหมดโควตา)
 
+## รายงานประจำเดือน (F3)
+
+- `scripts/monthly_report.js` (16 พ.ย. 69) ขั้น `monthly report` ใน **sync.yml** (continue-on-error, 6 นาที) ก่อน commit: `--acc` ทุกรอบ แล้วโหมดปกติ
+  · `--acc`: วันที่ `f=0` (ไม่ใช่พยากรณ์) จาก data/fwi/index.json → **data/fwi/daily.json** `{d:{"YYYY-MM-DD":{all|ky|tl|…:{FWI:[เฉลี่ย,สูงสุด],FFMC:[…]}}}}` (ต้นทางเก็บแค่ 7 วัน; เริ่มสะสม 9 พ.ย. 69) — commit ใน sync
+  · ปกติ: วันที่ 1–3 (เวลาไทย) และยังไม่มี `reports/<พ.ศ.>-<MM>.html` ของเดือนก่อน = สร้าง (4 รอบ/วัน → รอบแรกที่สำเร็จ) · `--month YYYY-MM` (ค.ศ.) สร้างทับ · `--no-pdf` · `RM_NOW` จำลองเวลา · `RM_DIR` โฟลเดอร์ปลายทาง (ทดสอบ)
+  · ผลลัพธ์ **commit ลง `reports/` ใน main** (site.yml สร้าง _site ใหม่ทุก 5 นาที ไฟล์ใน _site อย่างเดียวจะหาย) → build_site คัดลอก `reports/` → `_site/reports/` · `reports/index.json` `{v,upd,list:[{id:"2569-10",m:"2026-10",t,html,pdf,n:{ind,all,indPrev,fy},partial?,gen}]}` ใหม่สุดก่อน · **ต้องมีโฟลเดอร์ reports/ เสมอ** (ขั้น commit ของ sync.yml `git add reports`)
+  · PDF: Chrome CLI `--headless=new --print-to-pdf --no-pdf-header-footer --virtual-time-budget=8000` (Linux + --no-sandbox) ของไฟล์ HTML ในที่ (ฟอนต์ `../fonts`) A4 · ไม่มี Chrome = มีแต่ HTML (index pdf:null)
+  · ตัวเลข (ไม่รวมดงใหญ่ `dyAS`): ตัวชี้วัด = hdata ของปีงบที่มี Excel / ไม่มี = adata `indSat` (= hdFill) · ทุกดาวเทียม = adata · เดือนเดียวกันปีก่อน + สะสมปีงบ ต.ค.→สิ้นเดือน เทียบปีก่อนช่วงเดียวกัน · รายพื้นที่/สถานีฯ · 10 ตำบล (ทุกดาวเทียม) · พื้นที่เผาไหม้ = รอบ 7 วันใน data/burn/index.json ที่กึ่งกลางรอบอยู่ในเดือน (`p.ar` คีย์เป็นดัชนี `B.ar`; ผลรวมรายรอบ) · ดับไฟ = fxdata + reports.json (F1) จากเว็บ · FWI = daily.json · แผนที่/กราฟเป็น SVG (ไม่มีไทล์)
+  · **ตรวจตัวเลขกับแผงสถิติหน้าเว็บ (`HB()` ปุ่มดงใหญ่เปิด)**: มี.ค. 2569 ตัวชี้วัด 21 / มี.ค. 2568 12 / สะสม ต.ค.–มี.ค. 58 vs 164 / อช.ทับลาน มี.ค. 15 / ปีงบ 2569 ทั้งปี 96 — ตรงทุกค่า
+  · รายงานแรก: ตุลาคม 2569 (สร้างมือ 16 พ.ย. 69, 0 จุด) — รายงานอัตโนมัติฉบับแรก = พฤศจิกายน 2569 วันที่ 1 ธ.ค. 69
+
 ## อื่นๆ ของโฮสต์
 
 - หน้าเว็บ: `liveFile()` อ่าน `live.json` ก่อน (ถ้าเก่ากว่า `LIVE_MAXAGE` 40 นาทีหรือไม่มี → ดึง API ตรง) · `getStations` ลอง `air4thai.json` ก่อน

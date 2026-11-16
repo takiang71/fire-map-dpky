@@ -203,6 +203,21 @@ async function quotaOk() {
     for (const k in st.vf) if (now - st.vf[k] > 7 * 864e5) delete st.vf[k];
   } catch (e) { if (e.code !== 'ENOENT') console.log('LINE ผลตรวจสอบ:', e.message) }
 
+  // F3 รายงานประจำเดือน (_site/reports/index.json) — ข้อความตัวอักษร 1 ข้อความ/เดือน (นับโควตา 1 ครั้ง × สมาชิก) · LINE_MREP=off = ปิด · กติกาเดียวกับ Telegram (lib/mrep.js)
+  let mrec = null;
+  try {
+    const MR = require('./lib/mrep'), P = MR.pending(MR.readIndex(OUT), seed ? null : st.mrep, now);
+    if (P.seed) { st.mrep = P.latest.id; mrec = { mrep: P.latest.id, why: 'เริ่มเก็บสถานะรายงานประจำเดือน (ไม่ส่ง)' } }
+    else if (P.r) {
+      if (!TOKEN || !GROUP || /^(off|0|no)$/i.test(process.env.LINE_MREP || '')) { st.mrep = P.r.id; mrec = { mrep: P.r.id, why: TOKEN && GROUP ? 'LINE_MREP=off' : 'ยังไม่ตั้ง LINE_TOKEN/LINE_GROUP_ID' } }
+      else try {
+        const q = await quotaOk();
+        if (!q.ok) mrec = { mrep: P.r.id, why: `โควตาไม่พอ (เหลือ ${q.left} ต้องใช้ ${q.members})` };
+        else { await line('/v2/bot/message/push', { to: GROUP, messages: [{ type: 'text', text: MR.text(P.r, { site: SITE, html: false }) }] }); st.days[today] = (st.days[today] || 0) + 1; st.mrep = P.r.id; mrec = { mrep: P.r.id, ok: 1, members: q.members, left: q.left } }
+      } catch (e) { mrec = { mrep: P.r.id, why: 'ส่งไม่สำเร็จ: ' + e.message } }
+    }
+  } catch (e) { console.log('LINE รายงานประจำเดือน:', e.message) }
+
   if (!TOKEN || !GROUP) st.line = { ok: 0, why: `ยังไม่ตั้ง ${!TOKEN ? 'LINE_TOKEN ' : ''}${!GROUP ? 'LINE_GROUP_ID' : ''}`.trim(), at: new Date(now).toISOString() };
   else if (!st.line || !st.line.ok || now - Date.parse(st.line.at) > 36e5) {
     try { const q = await quotaOk(); st.line = { ok: 1, members: q.members, limit: q.limit ?? null, used: q.used ?? null, left: isFinite(q.left) ? q.left : null, pushes_left: isFinite(q.left) ? Math.max(0, Math.floor(q.left / q.members)) : null, at: new Date(now).toISOString() } }
@@ -213,6 +228,7 @@ async function quotaOk() {
   if (drec) { st.log = [{ t: new Date(now).toISOString(), ...drec }, ...(st.log || [])].slice(0, 50); console.log('LINE สรุปประจำวัน:', JSON.stringify(drec)) }
   if (brec) { st.log = [{ t: new Date(now).toISOString(), ...brec }, ...(st.log || [])].slice(0, 50); console.log('LINE พื้นที่เผาไหม้:', JSON.stringify(brec)) }
   if (vrec) { st.log = [{ t: new Date(now).toISOString(), ...vrec }, ...(st.log || [])].slice(0, 50); console.log('LINE ผลตรวจสอบ:', JSON.stringify(vrec)) }
+  if (mrec) { st.log = [{ t: new Date(now).toISOString(), ...mrec }, ...(st.log || [])].slice(0, 50); console.log('LINE รายงานประจำเดือน:', JSON.stringify(mrec)) }
   for (const k in st.sent) if (now - st.sent[k] > KEEP_H * 36e5) delete st.sent[k];
   NR.prune(st, now, KEEP_H);
   for (const d in st.days) if (d < thDate(now - 7 * 864e5)) delete st.days[d];
