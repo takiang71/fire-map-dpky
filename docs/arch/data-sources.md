@@ -64,6 +64,7 @@
   · ไฟล์แต่ละรอบมี `p.dir` = b4|c
   · ค่าเริ่มต้น = ปีงบปัจจุบัน ถ้ายัง 0 ไร่ใช้ปีงบก่อน
   · `bnData(k)` รวมทุกรอบเป็นพิกเซลเดียว (ไม่นับซ้ำ, ค่า = จำนวนครั้งรวม, f/l = รอบแรก/ล่าสุด) แล้วแปลง UTM→เมอร์เคเตอร์ (`bnLL`,`bnM`)
+  · **B2 (17 พ.ย. 69) ส่วนรวมพิกเซล/แปลงพิกัดอยู่ใน Web Worker**: `bnFile` คืน**ข้อความ** JSON (ไม่ parse บน main thread) → `bnData` ส่ง `{files,C,dy(Uint8Array a×s = ดงใหญ่),ns,BNPX}` ให้ `wjLib.bnMerge` ผ่าน `WJ.job` → ได้ `v` Int32Array (y,x,n,v,a,s,f,l ต่อแถว) `q` `bb` Float64Array `dy` Uint8Array + `pr` → ประกอบ `R` โครงเดิม (`o.P` ไม่มีแล้ว — ไม่มีใครใช้) · `bnLL/bnM` บน main thread = `WJ.lib()` ชุดเดียวกัน (rpData/bnHot/bnAt ใช้ต่อ) · กล่อง `#bn-a` "กำลังโหลด…" → "กำลังคำนวณ…" เมื่อไฟล์มาครบ (เฉพาะคีย์ที่เลือก) · fallback main thread เมื่อ Worker ใช้ไม่ได้ · ผลเท่าเดิมทุกแถว (test/wj.test.js, equiv กับข้อมูลจริง 4 คีย์) · **ยังอยู่บน main thread**: `bnHot` (~80 ms ปีงบ 2568), `bnRingSet`, `bnStats`, `rpData` (rep.json ~190 ms) และ**การเข้ารหัส PNG ของไทล์ใน addProtocol (`convertToBlob` ~600 ms รวมทุกไทล์ ปีงบ 2568 ใน headless)** → งานต่อ: ไทล์ไป OffscreenCanvas ใน Worker → [testing.md](testing.md)
   · `bnStats` ไร่รวม/แยกพื้นที่อนุรักษ์/สถานีฯ + แท่งรายรอบของปีงบ (แตะเลือกรอบ)
   · `bnAt` บรรทัดในป๊อปอัปเมื่อแตะแผนที่
   · **วงล้อมรอยเผา** (ผู้ใช้ขอ 5 พ.ย. 69 — รอยเล็กเห็นเป็นจุดจิ๋ว): `bnRingSet(D)` (เรียกใน LB หลังโหลด) รวมแถวพิกเซลห่าง ≤600 ม. (union-find กริด) → จุดกลางกลุ่ม props `zm` = ซูมที่กลุ่มกว้าง 10 px (≤15)

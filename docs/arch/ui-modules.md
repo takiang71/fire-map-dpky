@@ -170,6 +170,10 @@
   · เส้นลูกศร = จุดเริ่มต้น → กึ่งกลางจุดของแต่ละวันถัดไป
   · พื้นที่ = convex hull ของจุดรวมระยะเผาไหม้รอบจุดละ `HCR` 200 ม. (`hcHull`, ไร่) — **ไม่ใช่พื้นที่เผาไหม้จริง และ convex จึงเกินจริงเมื่อกองยาวโค้ง**
   · `hcCalc` แคช `HCC` ตามคีย์ช่วง/ข้อมูล/ปุ่ม
+  · **B2 (17 พ.ย. 69) hcLink/hcHull ย้ายไป Web Worker**: อยู่ใน `wjLib()` (สคริปต์บล็อกแรกหลังข้อมูลฝัง คั่น `/*WJ-LIB-BEGIN*/…/*WJ-LIB-END*/`) เป็นฟังก์ชันบริสุทธิ์รับ `lo/la/d` Float64Array (โอน) คืน CSR `cOff/cIdx` (กองรายวัน) `gOff/gIdx` (กองรวม) + `ring` แบน/`rai` → `hcFin(k,R,P,o)` ประกอบกลับเป็น C/G โครงเดิม (ลำดับกอง = ลำดับสมาชิกตัวแรก, G เรียง n/ไร่) — ผลเท่าเดิมทุกค่า (test/wj.test.js + check_site `HCSYNC`)
+    · `hcCalc()` คืน HCC ทันทีเมื่อคีย์ตรงแคช หรือเมื่อ `WJ.sync()` (Worker ใช้ไม่ได้ เช่น file:// → คำนวณบน main thread ด้วย `WJ.main0`) · ไม่งั้นส่งงาน `WJ.job('hcGroups')` เก็บใน `HCJ={k,id}` แล้วคืน **null** → `LC()` เรียก `hcSel()` (ตัวเลือกช่วง/ช่องเงื่อนไข — แยกจาก hcBox) และแสดง "กำลังคำนวณ…" (คลาส `.trst/.trsp` ของภูมิประเทศ) · เสร็จ → ตั้ง HCC แล้วเรียก `LC()` ซ้ำ · เปลี่ยนตัวกรองระหว่างรอ = `WJ.cancel` งานเก่า (terminate ถ้ากำลังรัน) · คีย์ `HCC.k` เดิม
+    · ตัวเลขอ้างอิง 17 พ.ย. 69 (ไม่รวมดงใหญ่ ทุกดาวเทียม): ปีงบ 2569 344 จุด/126/111/30,566 ไร่ · ปีงบ 2563 2,322 จุด/563/331/324,636 ไร่ (ค่า 1,155 ด้านบนเป็นค่าเก่าตอนยังใช้ SNPP กรมอุทยานฯ) → [testing.md](testing.md)
+    · วัดแล้ว: กองจุดไม่เคยมี long task >200 ms อยู่แล้ว (สูงสุด 67 ms) — ย้ายเพื่อความสม่ำเสมอกับภูมิประเทศ/เผาไหม้
   · `setupHC` (เรียกใน setup ต่อจาก setup4) เลเยอร์ hca-f/hca-l/hcg-o (เส้นประ เมื่อปิดพื้นที่)/hcg-p/hcg-ar/hcc-c/hcc-n/hcg-i (ไอคอนวงเป้า `hc-ign`, กองจุดเดียวไอคอนเล็ก)
   · `LC()` เรียกจาก apply/refreshHS/load
   · คลิก hcg-i/hcc-c/hca-f → `hcPop`
@@ -245,6 +249,9 @@
   · `trGrid` ตารางตามพิกเซลเมอร์เคเตอร์ (+ขอบ 1 ช่อง, ช่องใหญ่ = เฉลี่ย ns×ns, หน้ากาก scanline, เพดาน 1.5M ช่อง → ปรับความละเอียดขึ้นแล้วแจ้ง) แคช 3 ชุด `TR.C`
   · `trSA`/`trHorn` (ทิศ = ลาดลง, <2° = ราบ)
   · `trContours` เกาส์ [1 4 6 4 1] + marching squares (คีย์ ขอบ×ระดับ, saddle ใช้ค่ากลาง) ต่อเส้น, เพดาน 400k จุดยอด
+  · **B2 (17 พ.ย. 69) ส่วนคำนวณอยู่ใน Web Worker** (`wjLib`: `trBuild` = สุ่มค่าลงตาราง + หน้ากาก + ar + el, `trSA`, `trContours`, และ `trW/trX/trY/trLo/trLa/trMpp/trHorn/trElev` ที่ main thread ดึงมาใช้ด้วย `const {…}=WJ.lib()`): `trGrid` โหลดแผ่น DEM บน main thread (demTile/DEMC เหมือนเดิม) แล้วคัดลอกแผ่นที่ใช้ (`slice`) + รูปในพิกัดช่อง `V` โอนให้ Worker ผ่าน `trJob(q,fn,mk)` (ตั้ง `TR.job` เมื่อ q≠null) → ได้ `E/M/ar/nin/el` (G.el แคชไว้ใช้ใน trRun) · `trSA(G,q)`/`trContours(G,iv,q)` เป็น async ส่ง E/M แบบคัดลอก (G อยู่ในแคช TR.C) ผล S/A และ `xy/off/kk` โอนกลับ → ประกอบ Feature บน main thread (e = kk×iv, ix = kk หาร 5 ลงตัว) · `elPoly` ใช้ `await trSA(G,null)`
+    · สถานะ: "กำลังโหลดข้อมูลความสูง a/b แผ่น…" → **"กำลังคำนวณ…"** (ตั้งใน prog เมื่อโหลดครบ และก่อนส่งงาน) · `trRun`/`trClear` เรียก `trAbort()` = `WJ.cancel(TR.job)` (งานเก่าที่กำลังรันถูก terminate) ร่วมกับ token `q` เดิม · คีย์แคช `TR.C` เดิม
+    · ผลเท่าเดิมทุกค่า (E/M/S/A/เส้นทุกจุด) · long task เขาใหญ่ทั้งอุทยาน เส้น 10 ม. 2,385 → 121 ms, 20 ม. 1,211 → 80 ms → [testing.md](testing.md) · check_site ขั้น "เขาใหญ่ เส้นชั้นความสูง 20 ม." + "ความลาดชัน"
   · ชั้น `tri` (image source, canvas → dataURL) / `trc-h`/`trc-l` เส้นทอง #f5b301 หนักทุก 5 ช่วง / `trc-t` ตัวเลข symbol-placement line (glyph Noto Sans Bold; เส้นหนักเสมอ ทุกเส้นเมื่อซูม ≥13.5) วางใต้ hot-glow
   · `trLayers` เรียกใน setup ก่อน msLayers
   · มีผลอยู่ = ซ่อนสีฟ้า msr-f (สีเพี้ยน)

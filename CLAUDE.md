@@ -1,6 +1,6 @@
 # แผนที่สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่ (Dong Phayayen–Khao Yai Forest Complex)
 
-เว็บแอปไฟล์เดียว (`index.html`, **2.4 MB** — ข้อมูลฝัง ~1 MB + โค้ด/CSS ~1.4 MB, ~6,800 บรรทัด · `_site/index.html` 1.3 MB: build_site แยกข้อมูลฝังเป็น `data/emb/*.json` → [data-blocks.md](docs/arch/data-blocks.md)) ภาษาไทย ใช้ MapLibre GL JS 4.7.1 จาก cdnjs
+เว็บแอปไฟล์เดียว (`index.html` 2.4 MB ~7,600 บรรทัด, ข้อมูลฝัง ~1 MB · `_site/index.html` 1.3 MB: build_site แยกข้อมูลฝังเป็น `data/emb/*.json` → [data-blocks.md](docs/arch/data-blocks.md)) ภาษาไทย ใช้ MapLibre GL JS 4.7.1 จาก cdnjs
 เปิดด้วยดับเบิลคลิก หรือ `node scripts/serve.js` แล้วเข้า http://localhost:8000 (เครื่องผู้ใช้ไม่มี Python จริง มีแต่ alias ของ Store · มี Node 24 → สคริปต์ใหม่เขียนด้วย Node)
 ผู้ใช้สื่อสารภาษาไทย ตอบเป็นภาษาไทย · ข้อความบนหน้าเว็บเป็นภาษาไทยทั้งหมด
 สเปกตั้งต้นอยู่ที่ `docs/spec-v3.md` (เฟส 1–4)
@@ -50,7 +50,7 @@
 ## โครงสร้างไฟล์ (ย่อ)
 
 - `index.html` — ทั้งแอป (CSS + HTML + JS) + บล็อกข้อมูล `<script type="application/json">` (`geo` `hdata` `adata` `fxdata` `wdata` `wadata`)
-- `scripts/` — `sync_*.js` (ดึงข้อมูลบน Actions), `build_site.js` (→ `_site/`), `line_notify.js` `telegram_notify.js` `health.js`, `check_site.js`, `import_*.js` `excel_to_hdata.js` `kmz_to_geojson.js` `build_*.js` (นำเข้า/สร้างข้อมูล รันมือ), `serve.js`, `lib/` (area, dedup, firms, orbit, grib, tiff, png, xlsx, state, near, vrsum, fwisum, camssum …)
+- `scripts/` — `sync_*.js` (ดึงข้อมูลบน Actions), `build_site.js` (→ `_site/`), `line_notify.js` `telegram_notify.js` `health.js`, `check_site.js`, `import_*.js` `excel_to_hdata.js` `kmz_to_geojson.js` `build_*.js` (นำเข้า/สร้างข้อมูล รันมือ), `serve.js`, `lib/` (area, dedup, firms, orbit, tiff, xlsx, state, near, *sum …)
 - `worker/` — `line-webhook.mjs` (ผู้ใช้วางโค้ดใน dashboard เอง), `watchdog.mjs`, `layers.mjs`
 - `data/` — ข้อมูลที่ sync/สร้าง (burn, fuel, fwi, ftype, admin.json, prov.json, gfs_vr.json, cams_grid.json, tle.json, tourism.json, ranger.json …) · `data/kmz/` แนวเขตจริงจากผู้ใช้
 - `sw.js` `manifest.webmanifest` — PWA/ออฟไลน์ (build_site ใส่รุ่น) → [ui-modules.md](docs/arch/ui-modules.md) · `img/` ไอคอน/og · `fonts/` Noto Sans Thai
@@ -63,10 +63,11 @@
 - ต้นทางช้า/หยุด: SAVI มีแค่ 202601 · พื้นที่เผาไหม้ B4 รอบล่าสุด 22–28 ต.ค. 69
 - **F1** ผลตรวจสอบจากหน้างาน (`VF` + Worker `/reports`, วาง Worker แล้ว `rep:true` 16 พ.ย. 69) → [ui-modules.md](docs/arch/ui-modules.md)
 - **F2** ดัชนีเสี่ยง M2 (ผู้ใช้อนุมัติ) ชั้น `rk-*` + risk.json → risk.md · **F3** `monthly_report.js` (sync วันที่ 1 → `reports/`) → pipelines.md
+- **B2** งานหนัก (กองจุด/ภูมิประเทศ/เผาไหม้) อยู่ใน Web Worker inline `WJ`/`wjLib` (ห้ามแตะ DOM) → gotchas.md, testing.md
 - LINE ยังเป็นกลุ่มทดสอบ — ย้ายกลุ่มจริงต้องแก้ `LINE_GROUP_ID` และคิดเรื่องโควตา (11–30 คน × สรุปรายวัน เกินโควตาฟรี)
 - **ปีงบ 2571 (1 ต.ค. 70):** ถ้ายังไม่นำเข้า Excel ปีงบ 2570 เว็บเติมจาก API ให้เอง (`hdFill` + ป้าย ⚠) และ health `xlsx` เตือนตั้งแต่ 1 ธ.ค. — ควรนำเข้าตาม data-update.md
 
 ## งานค้าง
 
 ดู **`docs/review-2569-11-15.md`** (ประเด็น A–E + ฟังก์ชันใหม่ F + roadmap) · ประวัติงานค้างเดิมอยู่ใน [decisions.md](docs/arch/decisions.md) · **แผนทำแอป Android** (Capacitor + ฝังข้อมูล + OTA, ยังไม่เริ่ม): `docs/android-app-plan.md`
-ยังเปิดอยู่จากรายการเดิม: จุดกรมอุทยานฯ ปีงบ 2569 ที่ API ไม่มี 16 จุด (FIRMS มี 15) · หลายฟีเจอร์ยังไม่เคยลองบนอุปกรณ์/โปรแกรมจริง (นิ้วบนมือถือ, QGIS/Acrobat/เครื่องพิมพ์, แชร์ LINE PC) — ดูข้อ D7 ของรายงาน
+ยังเปิดอยู่: จุดกรมอุทยานฯ ปีงบ 2569 ที่ API ไม่มี 16 จุด (FIRMS มี 15) · หลายฟีเจอร์ยังไม่ได้ลองบนอุปกรณ์/โปรแกรมจริง — ดู D7 ของรายงาน
