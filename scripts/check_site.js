@@ -25,6 +25,7 @@ const args = process.argv.slice(2), CI = args.includes('--ci'), UNIT_FAIL = CI &
 const DIR = path.resolve(ROOT, args.find(a => !a.startsWith('--')) || '.');
 const SITE = (process.env.SITE_URL || 'https://takiang71.github.io/fire-map-dpky/').replace(/\/?$/, '/');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+const STEP_TO = 180e3; // ขั้นใน DESK/MOB: นานกว่าเพดานรอในหน้าที่ยาวที่สุด (TRKY 600×250 ms = 150 วิ) — เดิม 30 วิ ทำให้ DEM โหลดช้าแล้วขั้นล้มทั้งที่ยังรออยู่
 const t0 = Date.now();
 // ปิดโปรแกรมหลังปล่อย handle ที่ค้าง (process.exit ทันทีบน Windows เคยเจอ assertion UV_HANDLE_CLOSING)
 const quit = c => { process.exitCode = c; setTimeout(() => process.exit(c), 800) };
@@ -105,6 +106,20 @@ const BNWAIT = `(async()=>{const T=()=>document.getElementById('bn-a').textConte
  if(/ไม่สำเร็จ/.test(T()))return 'พื้นที่เผาไหม้: '+T().slice(0,100);if(/กำลัง/.test(T()))return 'error: พื้นที่เผาไหม้ยังขึ้น "'+T().slice(0,30)+'" หลัง 90 วิ';
  if(!BNCUR||BNCUR.k!==BNK||!/ไร่/.test(T()))return 'error: กล่องพื้นที่เผาไหม้ไม่แสดงตัวเลข ('+T().slice(0,80)+')';
  window.__ckWJ=Object.assign(window.__ckWJ||{},{bn:{k:BNK,runs:BNCUR.R.length,rai:Math.round(BNCUR.R.reduce((s,o)=>s+(S.xdy&&o.dy?0:o.n*BNPX),0))}});return ''})()`;
+// B2 ต่อ (17 พ.ย. 69): ไทล์ burn/brep วาดใน Worker ต้องได้พิกเซลเท่ากับวาดบน main thread (bnTile0/rpTile0 = ทางเดิม) ทุกไทล์ที่สุ่ม
+// และจุดความร้อนใกล้รอยเผา (bnHotP ใน Worker) ต้องเท่ากับ bnHot เดิมทุกแถว · Worker วาดไม่ได้ (คืน null) = error
+const PXH = `const hash=async ab=>{const bm=await createImageBitmap(new Blob([ab],{type:'image/png'})),c=new OffscreenCanvas(256,256),g=c.getContext('2d');g.drawImage(bm,0,0);const d=g.getImageData(0,0,256,256).data;let h=2166136261,n=0;for(let i=0;i<d.length;i++)h=Math.imul(h^d[i],16777619)>>>0;for(let i=3;i<d.length;i+=4)if(d[i])n++;return h+':'+n};
+ const pick=(R,zs)=>{const L=[];for(const z of zs)for(const f of [0,.5,.99]){const o=R[Math.floor(f*(R.length-1))];if(o)L.push([z,Math.floor((o.bb[0]+o.bb[2])/2*2**z),Math.floor((o.bb[1]+o.bb[3])/2*2**z)])}return L};`;
+const BNTILE = `(async()=>{const D=BNCUR;if(!D||!D.pk||!D.R.length)return 'ข้าม';if(typeof OffscreenCanvas==='undefined')return 'ไม่มี OffscreenCanvas';${PXH}
+ const C=Object.assign({},D,{R:D.R.map(o=>Object.assign({},o)),hsDone:0,hsP:null});bnHot(C);const dh=D.R.findIndex((o,i)=>o.hs!==C.R[i].hs);if(dh>=0||C.hsPre!==D.hsPre)return 'error: จุดความร้อนใกล้รอยเผา Worker ≠ main thread (แถว '+dh+')';
+ let n=0;for(const xh of [false,true])for(const [z,x,y] of pick(D.R,[9,12,15])){const w=await bnTileW(D,z,x,y,!!S.xdy,xh);if(!w)return 'error: Worker วาดไทล์พื้นที่เผาไหม้ไม่ได้ ('+z+'/'+x+'/'+y+')';
+  const a=await hash(w),b=await hash(await bnTile0(D,z,x,y,!!S.xdy,xh));if(a!==b)return 'error: ไทล์พื้นที่เผาไหม้ '+z+'/'+x+'/'+y+(xh?' (เน้นสี)':'')+' Worker ≠ main thread ('+a+' / '+b+')';n++}
+ window.__ckWJ=Object.assign(window.__ckWJ||{},{bnTiles:n,hs:D.R.filter(o=>o.hs).length});return ''})()`;
+const RPTILE = `(async()=>{const T=()=>document.getElementById('rp-a').textContent;${WAIT(`typeof RPV!=='undefined'&&RPV&&!/กำลัง/.test(T())`, 240)}
+ if(!RPV)return /ไม่สำเร็จ/.test(T())?'เผาซ้ำซาก: '+T().slice(0,80):'error: พื้นที่เผาซ้ำซากไม่ขึ้นใน 60 วิ';if(typeof OffscreenCanvas==='undefined')return '';${PXH}
+ let n=0;for(const mn of [1,2])for(const [z,x,y] of pick(RPV.R.filter(o=>o.c>=mn),[9,13])){const w=await rpTileW(RPV,z,x,y,mn,!!S.xdy);if(!w)return 'error: Worker วาดไทล์เผาซ้ำซากไม่ได้';
+  const a=await hash(w),b=await hash(await rpTile0(RPV,z,x,y,mn,!!S.xdy));if(a!==b)return 'error: ไทล์เผาซ้ำซาก '+z+'/'+x+'/'+y+' m'+mn+' Worker ≠ main thread';n++}
+ window.__ckWJ=Object.assign(window.__ckWJ||{},{rpTiles:n,rpRows:RPV.R.length});return ''})()`;
 // ภูมิประเทศ: อช.เขาใหญ่ (รูปใหญ่สุดของแนวเขต) เส้นชั้นความสูง 20 ม. แล้วความลาดชัน — DEM จาก AWS (เน็ต) โหลดไม่ได้ = เตือน
 const TRWAIT = (cond, n) => `${WAIT(`(TR.R&&TR.st===''&&(${cond}))||(TR.st&&!/^กำลัง/.test(TR.st))`, n)}if(TR.st&&/โหลดข้อมูลความสูง/.test(TR.st))return 'ภูมิประเทศ: '+TR.st;if(TR.st)return 'error: ภูมิประเทศ: '+TR.st;if(!TR.R||!(${cond}))return 'error: ภูมิประเทศไม่มีผลตามที่คาด';`;
 const TRKY = `(async()=>{const g=JSON.parse(document.getElementById('geo').textContent).cons.features.find(f=>/เขาใหญ่/.test(f.properties.name)).geometry,P=g.type==='Polygon'?g.coordinates[0]:g.coordinates.map(p=>p[0]).sort((a,b)=>msArea(b)-msArea(a))[0];
@@ -136,7 +151,7 @@ const DESK = [
   ['ตารางจุดความร้อน', `C('p-tbl')`], ['  ปีงบย้อนหลัง (ทุกดาวเทียม)', `(()=>{const y=document.getElementById('dt-y');if(!y||y.options.length<2)return 'ไม่พบตัวเลือกปีงบย้อนหลัง';y.value=y.options[1].value;y.dispatchEvent(new Event('change'));return ''})()`], ['  ปิดตาราง', `C('md-x',1)`],
   ['แผงชั้นข้อมูล', `C('bLay')`], ['  ภาพเมฆ Himawari-9', `Q('.sw[data-k="him"]')`], ['  ยอดเมฆ', `Q('#hmseg [data-v="ct"]')`], ['  เล่นภาพ', `C('hm-pl')`], ['  หยุด', `C('hm-pl')`], ['  อินฟราเรด', `Q('#hmseg [data-v="ir"]')`], ['  เรดาร์ฝน', `Q('#hmseg [data-v="rd"]')`], ['  เล่นเรดาร์', `C('rd-pl')`], ['  หยุดเรดาร์', `C('rd-pl')`], ['  กลับอินฟราเรด', `Q('#hmseg [data-v="ir"]')`], ['  ปิดเมฆและเรดาร์ฝน', `Q('.sw[data-k="him"]')`], ['  สภาพอากาศแบบจำลอง', `Q('.sw[data-k="wx"]')`], ['  ลม', `Q('#wxseg [data-v="ws"]')`], ['  ชั่วโมงถัดไป', `C('wx-nx')`], ['  ปิดเส้นลม', `Q('.sw[data-k="wxw"]')`], ['  อุณหภูมิ', `Q('#wxseg [data-v="t"]')`], ['  เปิดเส้นลม', `Q('.sw[data-k="wxw"]')`], ['  ปิดสภาพอากาศแบบจำลอง', `Q('.sw[data-k="wx"]')`], ['  ฝุ่น PM2.5', `Q('.sw[data-k="pm"]')`], ['  วันพรุ่งนี้ (CAMS)', `Q('#cm-dc .chip:nth-child(3)')`], ['  เล่น (CAMS)', `C('cm-pl')`], ['  หยุด (CAMS)', `C('cm-pl')`], ['  ตอนนี้ (CAMS)', `C('cm-0')`], ['  ปิดแบบจำลอง CAMS', `Q('.sw[data-k="pmc"]')`], ['  ปิดสถานี', `Q('.sw[data-k="pmst"]')`], ['  เปิดสถานี', `Q('.sw[data-k="pmst"]')`], ['  เปิดแบบจำลอง CAMS', `Q('.sw[data-k="pmc"]')`], ['  ปิดฝุ่น PM2.5', `Q('.sw[data-k="pm"]')`], ['  อัตราการระบายอากาศ', `Q('.sw[data-k="vr"]')`], ['  วันถัดไป (GFS)', `Q('#vr-dc [data-i="3"]')`], ['  สูงสุดของวัน', `Q('#vr-gm [data-v="max"]')`], ['  เลื่อนแถบรายชั่วโมง', `(()=>{const r=document.getElementById('vr-gr');if(!r)return 'ไม่พบแถบ';r.value=+r.value+5;r.dispatchEvent(new Event('input'));return ''})()`], ['  ชั่วโมงถัดไป', `C('vr-gn')`], ['  ชั่วโมงก่อนหน้า', `C('vr-gp')`], ['  เฉลี่ยทั้งวัน', `Q('#vr-gm [data-v="mean"]')`], ['  วันนี้', `C('vr-g0')`], ['  ปิดระบายอากาศ', `Q('.sw[data-k="vr"]')`], ['  พื้นที่เสี่ยงไฟป่า (F2)', `Q('.sw[data-k="rk"]')`], ['  รอตารางพื้นที่เสี่ยง', `(async()=>{for(let k=0;k<40&&!document.querySelector('#rk-tb table')&&!/ไม่ได้|ไม่มีข้อมูล/.test(document.getElementById('rk-n').textContent);k++)await new Promise(r=>setTimeout(r,250));return document.querySelector('#rk-tb tr[data-i]')&&map.getLayer('rk-f')?'':'ตาราง/ชั้นพื้นที่เสี่ยงไม่ขึ้น (ไม่มี risk.json?): '+document.getElementById('rk-n').textContent.slice(0,80)})()`], ['  แปลงสถานีฯ', `Q('#rk-u [data-v="st"]')`], ['  พรุ่งนี้', `Q('#rk-dc [data-i="1"]')`], ['  แตะแถวแรก', `Q('#rk-tb tr[data-i="0"]')`], ['  ตำบล', `Q('#rk-u [data-v="tm"]')`], ['  ปิดพื้นที่เสี่ยง', `Q('.sw[data-k="rk"]')`], ['  ดัชนีอันตรายไฟป่า FWI', `Q('.sw[data-k="fwi"]')`], ['  วันพยากรณ์ (FWI)', `Q('#fwi-dc .chip.fc')`], ['  ดัชนี DC', `Q('#fwi-v [data-v="DC"]')`], ['  ลม (FWI)', `Q('#fwi-w [data-v="Wsp_noon"]')`], ['  เลือกวันจากตาราง', `Q('#fwi-pt [data-i="0"]')`], ['  ดัชนี FWI', `Q('#fwi-v [data-v="FWI"]')`], ['  ปิดดัชนี FWI', `Q('.sw[data-k="fwi"]')`], ['  สถานีตรวจอากาศ กรมอุตุฯ', `Q('.sw[data-k="tmd"]')`], ['  ความชื้น (กรมอุตุฯ)', `Q('#tmseg [data-v="rh"]')`], ['  ลม (กรมอุตุฯ)', `Q('#tmseg [data-v="ws"]')`], ['  ฝน 7 วัน (กรมอุตุฯ)', `Q('#tmseg [data-v="r7"]')`], ['  แตะสถานีในตาราง', `Q('#tm-ar [data-tm]')`], ['  อุณหภูมิ (กรมอุตุฯ)', `Q('#tmseg [data-v="t"]')`], ['  ปิดสถานีกรมอุตุฯ', `Q('.sw[data-k="tmd"]')`],
   ['  กองจุดความร้อนรายวัน', `Q('.sw[data-k="hcl"]')`], ['  กองรวม + จุดเริ่มต้นไฟ', `Q('.sw[data-k="hgp"]')`], ['  ปีงบ 2563 (รอ "กำลังคำนวณ…" หาย — Worker B2)', HC2563], ['  fallback บน main thread ให้ค่าเท่ากัน', HCSYNC], ['  ปิดกองรวม', `Q('.sw[data-k="hgp"]')`], ['  ปิดกองรายวัน', `Q('.sw[data-k="hcl"]')`],
-  ['  พื้นที่เผาไหม้', `Q('.sw[data-k="burn"]')`], ['  รอตัวเลขพื้นที่เผาไหม้ (Worker B2)', BNWAIT], ['  ปิดพื้นที่เผาไหม้', `Q('.sw[data-k="burn"]')`], ['  ปิดแผง', `C('xr',1)`],
+  ['  พื้นที่เผาไหม้', `Q('.sw[data-k="burn"]')`], ['  รอตัวเลขพื้นที่เผาไหม้ (Worker B2)', BNWAIT], ['  ไทล์/จุดความร้อนใกล้รอยเผา Worker = main thread', BNTILE], ['  ปิดพื้นที่เผาไหม้', `Q('.sw[data-k="burn"]')`], ['  พื้นที่เผาซ้ำซาก', `Q('.sw[data-k="rep"]')`], ['  ไทล์เผาซ้ำซาก Worker = main thread', RPTILE], ['  ปิดพื้นที่เผาซ้ำซาก', `Q('.sw[data-k="rep"]')`], ['  ปิดแผง', `C('xr',1)`],
   ['ข้อมูลพื้นฐาน', `C('bKnow')`], ['  ปิด', `C('kb-x',1)`],
   ['เครื่องมือวัด', `C('bMs')`], ['  ปิด', `C('bMs')`],
   ['ชั้นข้อมูลของฉัน', `C('bUl')`], ['  นำเข้า KML ชื่อ/คำอธิบายเป็น HTML (E2)', XSS], ['  ปิด', `C('bUl')`],
@@ -176,8 +191,9 @@ async function browser(dir) {
       }
       if (d.method === 'Runtime.consoleAPICalled' && d.params.type === 'error') { const s = d.params.args.map(a => a.value ?? a.description ?? '').join(' ').slice(0, 300); (NET.test(s) ? net : warn).push(`[${stage}] console.error: ${s}`) }
     };
-    const send = (method, params = {}) => new Promise((res, rej) => { const i = ++id; pend.set(i, { res, rej }); ws.send(JSON.stringify({ id: i, method, params })); setTimeout(() => pend.has(i) && (pend.delete(i), rej(new Error('CDP timeout ' + method))), 30e3) });
-    const ev = async e => { const r = await send('Runtime.evaluate', { expression: e, awaitPromise: true, returnByValue: true }); if (r.exceptionDetails) throw new Error((r.exceptionDetails.exception && r.exceptionDetails.exception.description) || r.exceptionDetails.text); return r.result.value };
+    // to = เพดานเวลารอคำตอบ CDP (ค่าปกติ 30 วิ) · ขั้นที่รอผลในหน้าเอง (B2: กองจุด/ภูมิประเทศเขาใหญ่/เผาไหม้ รอได้ถึง 150 วิ) ใช้ STEP_TO
+    const send = (method, params = {}, to = 30e3) => new Promise((res, rej) => { const i = ++id; pend.set(i, { res, rej }); ws.send(JSON.stringify({ id: i, method, params })); setTimeout(() => pend.has(i) && (pend.delete(i), rej(new Error('CDP timeout ' + method))), to) });
+    const ev = async (e, to) => { const r = await send('Runtime.evaluate', { expression: e, awaitPromise: true, returnByValue: true }, to); if (r.exceptionDetails) throw new Error((r.exceptionDetails.exception && r.exceptionDetails.exception.description) || r.exceptionDetails.text); return r.result.value };
     await send('Page.enable'); await send('Runtime.enable');
     await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
     const info = {};
@@ -201,7 +217,7 @@ async function browser(dir) {
       await ev(HELP);
       for (const [label, js] of steps) {
         stage = `${nm}: ${label.trim()}`;
-        const r = await ev(`(()=>{const{C,Q,K}=window.__ck;return ${js}})()`).catch(e => 'error: ' + e.message);
+        const r = await ev(`(()=>{const{C,Q,K}=window.__ck;return ${js}})()`, STEP_TO).catch(e => 'error: ' + e.message);
         if (r && r !== 'ข้าม') (r.startsWith('error') ? errs : warn).push(`[${stage}] ${r}`);
         await sleep(r ? 150 : 1300);
       }

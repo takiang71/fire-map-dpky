@@ -1187,14 +1187,46 @@ function wjLib(){'use strict';
   R.forEach((o,i)=>{const P=o.P,e0=P.x0+o.x*P.px,e1=e0+o.n*P.px,n0=P.y0-o.y*P.px,n1=n0-P.px,Q=[[e0,n0],[e1,n0],[e1,n1],[e0,n1]].flatMap(([E,N])=>bnM(bnLL(E,N,P.z)));
    v.set([o.y,o.x,o.n,o.v,o.a,o.s,o.f,o.l],i*8);q.set(Q,i*8);bb.set([Math.min(Q[0],Q[6]),Math.min(Q[1],Q[3]),Math.max(Q[2],Q[4]),Math.max(Q[5],Q[7])],i*4);dyo[i]=DY(o.a,o.s)?1:0});
   return{n,v,q,bb,dy:dyo,pr,__t:[v.buffer,q.buffer,bb.buffer,dyo.buffer]}}
- return{hcLink,hcHull,hcGroups,trW,trX,trY,trLo,trLa,trMpp,trBuild,trHorn,trSA,trElev,trContours,bnLL,bnM,bnMerge}}
+ // จุดความร้อนใกล้รอยเผา (สูตรเดียวกับ bnHot): แถว r มีจุด P=[lo,la,d,…] ห่างจากกรอบแถว bb ไม่เกิน R ม. และ d0[f] ≤ d ≤ d1[l] (fl = รอบแรก/ล่าสุดของแถว) → hs[r]=1
+ function bnHotCalc(o){const{bb,fl,d0,d1,P,R}=o,G=new Map(),n=bb.length/4,hs=new Uint8Array(n),lat=y=>Math.atan(Math.sinh(Math.PI*(1-2*y)))*180/Math.PI,pad=.011;
+  for(let i=0;i<P.length;i+=3){const lo=P[i],la=P[i+1],k=Math.floor(lo*100)+'|'+Math.floor(la*100);(G.get(k)||G.set(k,[]).get(k)).push([P[i+2],...bnM([lo,la]),Math.cos(la*Math.PI/180)])}
+  for(let r=0;r<n;r++){const b=[bb[4*r],bb[4*r+1],bb[4*r+2],bb[4*r+3]],a=d0[fl[2*r]],e=d1[fl[2*r+1]];let hit=false;
+   const i0=Math.floor((b[0]*360-180-pad)*100),i1=Math.floor((b[2]*360-180+pad)*100),j0=Math.floor((lat(b[3])-pad)*100),j1=Math.floor((lat(b[1])+pad)*100);
+   for(let i=i0;i<=i1&&!hit;i++)for(let j=j0;j<=j1&&!hit;j++){const L=G.get(i+'|'+j);if(!L)continue;
+    for(const [d,x,y,c] of L){if(d<a||d>e)continue;const dx=Math.max(b[0]-x,0,x-b[2]),dy=Math.max(b[1]-y,0,y-b[3]);if(Math.hypot(dx,dy)*40075017*c<=R){hit=true;break}}}
+   hs[r]=hit?1:0}
+  return{hs,__t:[hs.buffer]}}
+ // พื้นที่เผาซ้ำซาก rep.json (text หรือ object) → แถวพิกเซลเรียงตามจำนวนปีงบ (ไหม้หลายปีวาดทับทีหลัง) · iv[i*7..] = n,m,b4,c,a,s,cl · q/bb/dy เหมือน bnMerge
+ function rpMerge(o){const{text,dy,ns}=o,f=typeof text==='string'?JSON.parse(text):text,K=f.n||7,o8=K===8?1:0,R=[],cnt=m=>{let b=0;for(;m;m>>=1)b+=m&1;return b};
+  for(const g in f.g){const G=f.g[g],rr=G.r;let y=0,x=0,le=0;
+   for(let i=0;i<rr.length;i+=K){if(rr[i]){y+=rr[i];x=rr[i+1]}else x=le+rr[i+1];const n=rr[i+2];le=x+n;
+    const e0=G.x0+x*G.px,e1=e0+n*G.px,n0=G.y0-y*G.px,n1=n0-G.px,q=[[e0,n0],[e1,n0],[e1,n1],[e0,n1]].flatMap(([E,N])=>bnM(bnLL(E,N,G.z)));
+    const a=rr[i+4+o8],s=rr[i+5+o8];R.push({n,m:rr[i+3],b4:o8?rr[i+4]:-1,c:cnt(rr[i+3]),a,s,cl:rr[i+6+o8],q,dy:dy[a*ns+s]})}}
+  R.sort((a,b)=>a.c-b.c);
+  const N=R.length,iv=new Int32Array(N*7),q=new Float64Array(N*8),bb=new Float64Array(N*4),d=new Uint8Array(N);
+  R.forEach((r,i)=>{const Q=r.q;iv.set([r.n,r.m,r.b4,r.c,r.a,r.s,r.cl],i*7);q.set(Q,i*8);bb.set([Math.min(Q[0],Q[6]),Math.min(Q[1],Q[3]),Math.max(Q[2],Q[4]),Math.max(Q[5],Q[7])],i*4);d[i]=r.dy?1:0});
+  return{n:N,iv,q,bb,dy:d,fy:f.fy,hasB4:!!o8,__t:[iv.buffer,q.buffer,bb.buffer,d.buffer]}}
+ /* ===== ไทล์ raster ของพื้นที่เผาไหม้/เผาซ้ำซาก: วาดบน OffscreenCanvas แล้วเข้ารหัส PNG (ใน Worker) =====
+    ชั้นเก็บไว้ใน lib (Worker แต่ละตัว และ main thread ตอน fallback มีชุดของตัวเอง) ล่าสุด 8 ชั้น · ไม่มีชั้น = error 'tl-miss' → ผู้เรียกส่งชั้นใหม่แล้วลองอีกครั้ง
+    ชั้น: q (4 มุมเมอร์เคเตอร์ ×8) bb (×4) ci = ดัชนีสีใน pal · dy = ดงใหญ่ (ข้ามเมื่อ xd) · f = ค่ากรอง (ข้ามเมื่อ f<mn) · hs = มีจุดความร้อนใกล้ (0 = สี hv เมื่อมี hv) */
+ const TL=new Map();
+ function tlPut(id,o){TL.delete(id);TL.set(id,o);while(TL.size>8)TL.delete(TL.keys().next().value);return{n:o.bb.length/4}}
+ // สูตรเดียวกับ bnPaint เดิม: สูง <1.5 px = สี่เหลี่ยมอย่างน้อย 1 px (ซูมไกล) · ไม่งั้นรูป 4 มุม fill + stroke 0.6 px · ลำดับแถวเดิม · ตั้งสีเฉพาะเมื่อเปลี่ยน (พิกเซลเท่าเดิม เร็วกว่า)
+ async function tlTile(id,z,tx,ty,o){const L=TL.get(id);if(!L)throw new Error('tl-miss');if(typeof OffscreenCanvas==='undefined')throw new Error('tl-noc');
+  const{q,bb,ci,dy,f,hs}=L,n=bb.length/4,W=256*2**z,ox=tx*256,oy=ty*256,x0=ox/W,x1=(ox+256)/W,y0=oy/W,y1=(oy+256)/W,c=new OffscreenCanvas(256,256),g=c.getContext('2d');g.lineWidth=.6;let cur='';
+  for(let i=0;i<n;i++){if(o.xd&&dy[i])continue;if(f&&f[i]<o.mn)continue;const b=4*i,a0=bb[b],a1=bb[b+1],a2=bb[b+2],a3=bb[b+3];if(a2<x0||a0>x1||a3<y0||a1>y1)continue;
+   const col=o.hv&&hs&&!hs[i]?o.hv:o.pal[ci[i]];if(col!==cur){g.fillStyle=g.strokeStyle=col;cur=col}
+   const bw=(a2-a0)*W,bh=(a3-a1)*W;if(bh<1.5)g.fillRect(a0*W-ox,a1*W-oy,Math.max(bw,1),Math.max(bh,1));
+   else{const p=8*i;g.beginPath();for(let k=0;k<8;k+=2)g.lineTo(q[p+k]*W-ox,q[p+k+1]*W-oy);g.closePath();g.fill();g.stroke()}}
+  const png=await(await c.convertToBlob({type:'image/png'})).arrayBuffer();return{png,__t:[png]}}
+ return{hcLink,hcHull,hcGroups,trW,trX,trY,trLo,trLa,trMpp,trBuild,trHorn,trSA,trElev,trContours,bnLL,bnM,bnMerge,bnHotCalc,rpMerge,tlPut,tlTile}}
 /*WJ-LIB-END*/
-var WJ={w:null,L:null,n:0,P:new Map(),Q:[],cur:0,dead:false,
+var WJ={w:null,L:null,n:0,P:new Map(),Q:[],cur:0,dead:false,gen:0, // gen เพิ่มทุกครั้งที่สร้าง Worker ใหม่ (ชั้นไทล์ที่เก็บใน Worker เดิมหาย)
  lib(){return WJ.L||(WJ.L=wjLib())},
  sync(){return WJ.dead||typeof Worker==='undefined'||typeof Blob==='undefined'}, // ต้องรันบน main thread
- src(){return'const L=('+wjLib.toString()+')();self.onmessage=function(e){const d=e.data;let r;try{r=L[d.fn].apply(null,d.a)}catch(x){self.postMessage({id:d.id,e:String(x&&x.message||x)});return}const t=(r&&r.__t)||[];if(r)delete r.__t;self.postMessage({id:d.id,r:r},t)}'},
+ src(){return'const L=('+wjLib.toString()+')();self.onmessage=function(e){const d=e.data,er=function(x){self.postMessage({id:d.id,e:String(x&&x.message||x)})};let r;try{r=L[d.fn].apply(null,d.a)}catch(x){er(x);return}Promise.resolve(r).then(function(r){const t=(r&&r.__t)||[];if(r)delete r.__t;self.postMessage({id:d.id,r:r},t)},er)}'},
  mk(){if(WJ.w||WJ.dead)return WJ.w;
-  try{const u=URL.createObjectURL(new Blob([WJ.src()],{type:'text/javascript'})),w=new Worker(u);URL.revokeObjectURL(u);
+  try{const u=URL.createObjectURL(new Blob([WJ.src()],{type:'text/javascript'})),w=new Worker(u);URL.revokeObjectURL(u);WJ.gen++;
    w.onmessage=e=>{const d=e.data,j=WJ.P.get(d.id);if(WJ.cur===d.id)WJ.cur=0;if(j){WJ.P.delete(d.id);d.e?j.rej(new Error(d.e)):j.res(d.r)}WJ.next()};
    w.onerror=e=>{try{e.preventDefault()}catch(_){}WJ.die(e)};WJ.w=w}
   catch(e){WJ.die(e)}return WJ.w},
@@ -1202,7 +1234,7 @@ var WJ={w:null,L:null,n:0,P:new Map(),Q:[],cur:0,dead:false,
  die(e){WJ.dead=true;try{WJ.w&&WJ.w.terminate()}catch(_){}WJ.w=null;WJ.cur=0;WJ.Q.length=0;
   const m=e&&(e.message||(e.error&&e.error.message))||String(e);if(typeof dbg==='function')dbg('WJ',Object.assign(new Error('ใช้ Worker ไม่ได้ → คำนวณบน main thread: '+m),{name:'WorkerError'}));
   const P=[...WJ.P.values()];WJ.P.clear();P.forEach(j=>{const x=new Error('Worker ใช้ไม่ได้');x.died=true;j.rej(x)})},
- main0(fn,a){const r=WJ.lib()[fn].apply(null,a);if(r)delete r.__t;return r},
+ main0(fn,a){const r=WJ.lib()[fn].apply(null,a),cl=x=>{if(x)delete x.__t;return x};return r&&typeof r.then==='function'?r.then(cl):cl(r)},
  run(fn,a,t){const id=++WJ.n;let res,rej;const p=new Promise((s,j)=>{res=s;rej=j});p.id=id;
   if(WJ.sync()){try{res(WJ.main0(fn,a))}catch(e){rej(e)}return p}
   WJ.P.set(id,{fn,a,t:t||[],res,rej});WJ.Q.push(id);WJ.next();return p},
@@ -1213,7 +1245,9 @@ var WJ={w:null,L:null,n:0,P:new Map(),Q:[],cur:0,dead:false,
  job(fn,mk){const[a,t]=mk(),p=WJ.run(fn,a,t),q=p.catch(e=>{if(!e||!e.died)throw e;return WJ.main0(fn,mk()[0])});q.id=p.id;return q},
  cancel(id){const j=WJ.P.get(id);if(!j)return;WJ.P.delete(id);const i=WJ.Q.indexOf(id);if(i>=0)WJ.Q.splice(i,1);
   if(WJ.cur===id){WJ.cur=0;try{WJ.w.terminate()}catch(_){}WJ.w=null}
-  const e=new Error('ยกเลิก');e.cancel=true;j.rej(e);WJ.next()}};
+  const e=new Error('ยกเลิก');e.cancel=true;j.rej(e);WJ.next()},
+ // ยกเลิกโดยไม่ terminate (งานสั้น เช่น ไทล์ที่เลื่อนพ้นจอ): รออยู่ = ตัดจากคิว · กำลังรัน = ทิ้งผล (Worker และชั้นที่เก็บไว้ยังอยู่)
+ drop(id){const j=WJ.P.get(id);if(!j)return;WJ.P.delete(id);const i=WJ.Q.indexOf(id);if(i>=0)WJ.Q.splice(i,1);const e=new Error('ยกเลิก');e.cancel=true;e.name='AbortError';j.rej(e)}};
 </script>
 <script>
 'use strict';
@@ -2329,8 +2363,8 @@ function bnData(k){if(BND[k])return BND[k];
   if(k===BNK){const e=$('#bn-a');if(e&&/^กำลังโหลด/.test(e.textContent))e.innerHTML='<span class="sm">กำลังคำนวณ…</span>'}
   // รวมพิกเซลทุกรอบ + แปลง UTM→เมอร์เคเตอร์ = wjLib.bnMerge ใน Worker (ไฟล์ส่งเป็นข้อความ JSON · dy[a*ns+s] = ดงใหญ่) → แถวพิกเซล R โครงเดิม (y,x,n,v,a,s,f,l,q,bb,dy)
   const o=await WJ.job('bnMerge',()=>{const dy=new Uint8Array(I.ar.length*ns);I.ar.forEach((a,i)=>I.st.forEach((s,j)=>{dy[i*ns+j]=dyAS(a,s)?1:0}));return[[{files:fs,C,dy,ns,BNPX}],[dy.buffer]]}),R=[];
-  for(let i=0;i<o.n;i++){const b=i*8;R.push({y:o.v[b],x:o.v[b+1],n:o.v[b+2],v:o.v[b+3],a:o.v[b+4],s:o.v[b+5],f:o.v[b+6],l:o.v[b+7],q:Array.from(o.q.subarray(b,b+8)),bb:Array.from(o.bb.subarray(i*4,i*4+4)),dy:!!o.dy[i]})}
-  return{k,C,I,ps,pr:ps.map((p,i)=>Object.assign({p},o.pr[i])),R}})().catch(e=>{delete BND[k];throw e})}
+  for(let i=0;i<o.n;i++){const b=i*8;R.push({y:o.v[b],x:o.v[b+1],n:o.v[b+2],v:o.v[b+3],a:o.v[b+4],s:o.v[b+5],f:o.v[b+6],l:o.v[b+7],q:o.q.subarray(b,b+8),bb:o.bb.subarray(i*4,i*4+4),dy:!!o.dy[i]})} // view ไม่คัดลอก (อ่านด้วยดัชนีเท่านั้น)
+  return{k,C,I,ps,pr:ps.map((p,i)=>Object.assign({p},o.pr[i])),R,pk:{q:o.q,bb:o.bb,v:o.v,dy:o.dy}}})().catch(e=>{delete BND[k];throw e})}
 // จุดความร้อนใกล้รอยเผา (o.hs): ห่างจากแถวพิกเซลไม่เกิน BNR และวันที่อยู่ในช่วง [วันแรกของรอบแรกที่พบ − 10 วัน, วันสุดท้ายของรอบล่าสุดที่พบ]
 // ตั้งแต่ 1 ต.ค. 68 ใช้จุดจาก API ทุกดาวเทียม (AD) · ก่อนนั้นใช้จุดกรมอุทยานฯ (HD = Suomi NPP อย่างเดียว) จึงพบน้อยกว่า
 let BNHS=null;const BNV='#7c3aed',BNR=1000; // VIIRS 375 ม. + ตำแหน่งคลาดเคลื่อน — ตรวจ 29 ต.ค. 69 จุดส่วนใหญ่ห่างรอยเผา 0.5–1.5 กม.
@@ -2344,18 +2378,40 @@ function bnHot(D){if(D.hsDone)return;D.hsDone=1;
   for(let i=i0;i<=i1&&!o.hs;i++)for(let j=j0;j<=j1&&!o.hs;j++){const L=G.get(i+'|'+j);if(!L)continue;
    for(const [d,x,y,c] of L){if(d<d0||d>d1)continue;const dx=Math.max(b[0]-x,0,x-b[2]),dy=Math.max(b[1]-y,0,y-b[3]);if(Math.hypot(dx,dy)*40075017*c<=BNR){o.hs=true;break}}}}}
 const bnHsLine=(D,t,th)=>`<div class="bnhs">มีจุดความร้อนในรัศมี ${BNR>=1000?BNR/1000+' กม.':BNR+' ม.'} <b>${nf(th)}</b> ไร่ (${Math.round(th/t*100)}%) · <span style="color:${BNV}">ไม่พบจุดความร้อน <b>${nf(t-th)}</b> ไร่</span>
- <button id="bn-h" aria-pressed="${BNH}">${BNH?'✓ ':''}เน้นสีรอยเผาที่ไม่พบจุดความร้อน</button>${D.hsPre?'<div class="sm">ก่อน '+dShort(BNHS.a0)+' เทียบกับจุดของกรมอุทยานฯ (Suomi NPP อย่างเดียว) จึงพบจุดน้อยกว่าช่วงหลัง</div>':''}</div>`;
+ <button id="bn-h" aria-pressed="${BNH}">${BNH?'✓ ':''}เน้นสีรอยเผาที่ไม่พบจุดความร้อน</button>${D.hsPre?'<div class="sm">ก่อน '+dShort(bnHsPts().a0)+' เทียบกับจุดของกรมอุทยานฯ (Suomi NPP อย่างเดียว) จึงพบจุดน้อยกว่าช่วงหลัง</div>':''}</div>`;
+// B2 ต่อ (17 พ.ย. 69): bnHot ใน Worker (wjLib.bnHotCalc สูตรเดียวกัน) — bnHotP(D) ตั้ง o.hs/D.hsPre/D.hsDone ครั้งเดียวต่อ D · Worker ใช้ไม่ได้ = bnHot เดิมบน main thread
+// จุดที่ใช้เทียบเก็บครั้งเดียวเหมือน BNHS: AD ทั้งหมด + HD ก่อนวันแรกของ AD (a0) → P = [lo,la,d,…]
+let BNHQ=null;
+const bnHsPts=()=>BNHQ||(BNHQ=(()=>{const a0=AD.length?AD.reduce((m,r)=>Math.min(m,r.d),1e9):1e9,L=[];AD.forEach(r=>L.push(r.lo,r.la,r.d));HD.forEach(r=>{if(r.d<a0)L.push(r.lo,r.la,r.d)});return{P:Float64Array.from(L),a0}})());
+function bnHotP(D){if(D.hsDone)return Promise.resolve();return D.hsP||(D.hsP=(async()=>{const H=bnHsPts(),n=D.R.length;
+ const o=await WJ.job('bnHotCalc',()=>{const bb=D.pk?D.pk.bb.slice():Float64Array.from(D.R.flatMap(r=>Array.from(r.bb))),fl=new Int32Array(n*2),d0=Float64Array.from(D.ps,p=>bnDay(p.d0)-10),d1=Float64Array.from(D.ps,p=>bnDay(p.d1)),P=H.P.slice();
+  D.R.forEach((r,i)=>{fl[2*i]=r.f;fl[2*i+1]=r.l});return[[{bb,fl,d0,d1,P,R:BNR}],[bb.buffer,fl.buffer,d0.buffer,d1.buffer,P.buffer]]});
+ if(D.hsDone)return;D.hsPre=D.ps.some(p=>bnDay(p.d0)-10<H.a0);D.R.forEach((r,i)=>{r.hs=!!o.hs[i]});D.hsDone=1})().catch(e=>{D.hsP=null;dbg('bnHotP',e);bnHot(D)}))}
+/* ไทล์วาดใน Worker (wjLib.tlTile): ชั้นส่งครั้งเดียวต่อรุ่นของ Worker (TLG: id → WJ.gen) แบบคัดลอก · ไม่มีชั้นใน Worker = ส่งใหม่แล้วลองอีกครั้ง
+   ไทล์เลื่อนพ้นจอ (MapLibre abort) = WJ.drop · error อื่น/ไม่มี OffscreenCanvas = คืน null → วาดบน main thread แบบเดิม (bnTile0/rpTile0) */
+const TLG=new Map();
+const tlPack=(pk,R,ci,f,hs)=>{const n=R.length,c=new Uint8Array(n),F=f?new Uint8Array(n):null,H=hs?new Uint8Array(n):null;R.forEach((o,i)=>{c[i]=ci(o);if(F)F[i]=f(o);if(H)H[i]=o.hs?1:0});
+ return{q:pk.q.slice(),bb:pk.bb.slice(),dy:pk.dy.slice(),ci:c,f:F,hs:H}};
+async function tlTry(id,pk,z,tx,ty,op,ac){if(typeof OffscreenCanvas==='undefined')return null;const sig=ac&&ac.signal;
+ for(let t=0;t<2;t++){if(!WJ.sync())WJ.mk();const g=WJ.gen;
+  if(TLG.get(id)!==g){TLG.set(id,g);WJ.job('tlPut',()=>{const o=pk();return[[id,o],Object.values(o).filter(a=>a&&a.buffer).map(a=>a.buffer)]}).catch(e=>{if(TLG.get(id)===g)TLG.delete(id)})}
+  const p=WJ.job('tlTile',()=>[[id,z,tx,ty,op],[]]),ab=()=>WJ.drop(p.id);if(sig){if(sig.aborted)ab();else sig.addEventListener('abort',ab,{once:true})}
+  try{return(await p).png}catch(e){if(e&&e.cancel)throw e;if(e&&e.message==='tl-miss'&&!t){TLG.delete(id);continue}dbg('tlTile',e);return null}finally{sig&&sig.removeEventListener('abort',ab)}}
+ return null}
 const bnCanvas=()=>typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(256,256):Object.assign(document.createElement('canvas'),{width:256,height:256}),
  bnBlob=c=>c.convertToBlob?c.convertToBlob({type:'image/png'}):new Promise(r=>c.toBlob(r,'image/png'));
 function bnPaint(g,o,W,ox,oy){const b=o.bb,q=o.q,bw=(b[2]-b[0])*W,bh=(b[3]-b[1])*W;
  if(bh<1.5)g.fillRect(b[0]*W-ox,b[1]*W-oy,Math.max(bw,1),Math.max(bh,1)); // ซูมไกล: อย่างน้อย 1 px ให้รอยเล็กยังมองเห็น
  else{g.beginPath();for(let i=0;i<8;i+=2)g.lineTo(q[i]*W-ox,q[i+1]*W-oy);g.closePath();g.fill();g.stroke()}} // stroke บางๆ กันรอยต่อระหว่างแถวจาง
-maplibregl.addProtocol('burn',async p=>{
- const m=p.url.match(/^burn:\/\/(\d+)\/(\d+)\/(\d+)\?k=([^&]+)&x=(\d)(?:&h=(\d))?/),z=+m[1],tx=+m[2],ty=+m[3],xd=m[5]==='1',xh=m[6]==='1',D=await bnData(m[4]),W=256*2**z,ox=tx*256,oy=ty*256,
-  x0=ox/W,x1=(ox+256)/W,y0=oy/W,y1=(oy+256)/W,c=bnCanvas(),g=c.getContext('2d');g.lineWidth=.6;if(xh)bnHot(D);
+// วาดไทล์บน main thread (ทางเดิม): ใช้เมื่อ Worker วาดไม่ได้ และใน check_site เทียบพิกเซลกับ Worker
+async function bnTile0(D,z,tx,ty,xd,xh){const W=256*2**z,ox=tx*256,oy=ty*256,x0=ox/W,x1=(ox+256)/W,y0=oy/W,y1=(oy+256)/W,c=bnCanvas(),g=c.getContext('2d');g.lineWidth=.6;if(xh)bnHot(D);
  for(const o of D.R){if(xd&&o.dy)continue;const b=o.bb;if(b[2]<x0||b[0]>x1||b[3]<y0||b[1]>y1)continue;
   g.fillStyle=g.strokeStyle=xh&&!o.hs?BNV:D.C?BCC[o.v-1]:bnCol(o.v);bnPaint(g,o,W,ox,oy)}
- return{data:await (await bnBlob(c)).arrayBuffer()}});
+ return(await bnBlob(c)).arrayBuffer()}
+const bnTileW=(D,z,tx,ty,xd,xh,ac)=>tlTry('b|'+D.k+(xh?'|h':''),()=>tlPack(D.pk,D.R,o=>D.C?o.v-1:Math.min(o.v,3)-1,null,xh),z,tx,ty,{xd,pal:D.C?BCC:BNC,hv:xh?BNV:''},ac);
+maplibregl.addProtocol('burn',async(p,ac)=>{
+ const m=p.url.match(/^burn:\/\/(\d+)\/(\d+)\/(\d+)\?k=([^&]+)&x=(\d)(?:&h=(\d))?/),z=+m[1],tx=+m[2],ty=+m[3],xd=m[5]==='1',xh=m[6]==='1',D=await bnData(m[4]);if(xh)await bnHotP(D);
+ return{data:(D.pk&&await bnTileW(D,z,tx,ty,xd,xh,ac))||await bnTile0(D,z,tx,ty,xd,xh)}});
 const bnURL=()=>'burn://{z}/{x}/{y}?k='+(BNK||'none')+'&x='+(S.xdy?1:0)+'&h='+(BNH?1:0);
 function setupBN(){map.addSource('burn',{type:'raster',tiles:[bnURL()],tileSize:256,minzoom:5,maxzoom:16,bounds:BNB});
  map.addLayer({id:'burn',type:'raster',source:'burn',layout:{visibility:'none'},paint:{'raster-opacity':.92,'raster-fade-duration':0}},'cons-l');
@@ -2386,22 +2442,20 @@ const RPC=['#f6d365','#f08a1c','#c0301c','#5c0a14'],rpCol=n=>RPC[Math.min(n,4)-1
  rpYrs=(D,m)=>D.fy.filter((f,i)=>m>>i&1);
 function rpData(){return RPD||(RPD=(async()=>{const I=await bnIndex();if(!I.rep)throw new Error(I.err||'ยังไม่มีข้อมูล');
  const r=await fetchT(BN_BASE+'rep.json?v='+bnHash(I.rep.sig),{},FTO.big);if(!r.ok)throw new Error('HTTP '+r.status);
- const f=await r.json(),dy=I.ar.map(a=>I.st.map(s=>dyAS(a,s))),R=[];
- const K=f.n||7,o8=K===8?1:0; // n 8 = มีบิตปีงบที่พบในชุดราย 7 วัน (b4) ต่อจาก mask
- for(const g in f.g){const o=f.g[g],rr=o.r;let y=0,x=0,le=0;
-  for(let i=0;i<rr.length;i+=K){if(rr[i]){y+=rr[i];x=rr[i+1]}else x=le+rr[i+1];const n=rr[i+2];le=x+n;
-   const e0=o.x0+x*o.px,e1=e0+n*o.px,n0=o.y0-y*o.px,n1=n0-o.px,q=[[e0,n0],[e1,n0],[e1,n1],[e0,n1]].flatMap(([E,N])=>bnM(bnLL(E,N,o.z)));
-   const a=rr[i+4+o8],s=rr[i+5+o8];R.push({n,m:rr[i+3],b4:o8?rr[i+4]:-1,c:rpN(rr[i+3]),a,s,cl:rr[i+6+o8],q,bb:[Math.min(q[0],q[6]),Math.min(q[1],q[3]),Math.max(q[2],q[4]),Math.max(q[5],q[7])],dy:dy[a][s]})}}
- R.sort((a,b)=>a.c-b.c); // ไหม้หลายปีวาดทับทีหลัง
+ // แปลง rep.json เป็นแถวพิกเซล (UTM→เมอร์เคเตอร์ + เรียงตามจำนวนปีงบ) = wjLib.rpMerge ใน Worker (B2 ต่อ) · แถวใช้ view ของ typed array
+ const t=await r.text(),ns=I.st.length,o=await WJ.job('rpMerge',()=>{const dy=new Uint8Array(I.ar.length*ns);I.ar.forEach((a,i)=>I.st.forEach((s,j)=>{dy[i*ns+j]=dyAS(a,s)?1:0}));return[[{text:t,dy,ns}],[dy.buffer]]}),R=[];
+ for(let i=0;i<o.n;i++){const b=i*7;R.push({n:o.iv[b],m:o.iv[b+1],b4:o.iv[b+2],c:o.iv[b+3],a:o.iv[b+4],s:o.iv[b+5],cl:o.iv[b+6],q:o.q.subarray(i*8,i*8+8),bb:o.bb.subarray(i*4,i*4+4),dy:!!o.dy[i]})}
  // ช่วงข้อมูลจริงของแต่ละปีงบ (ปีงบแรก/ล่าสุดอาจไม่ครบปี)
  const span={};[...I.periods,...I.cls].forEach(p=>{const F=bnFY(p),a=bnDay(p.d0),b=bnDay(p.d1),s=span[F]||(span[F]=[a,b]);s[0]=Math.min(s[0],a);s[1]=Math.max(s[1],b)});
- return RPV={I,fy:f.fy,R,span,hasB4:!!o8}})().catch(e=>{RPD=null;throw e}))}
+ return RPV={I,fy:o.fy,R,span,hasB4:o.hasB4,pk:{q:o.q,bb:o.bb,dy:o.dy}}})().catch(e=>{RPD=null;throw e}))}
 function rpURL(){return'brep://{z}/{x}/{y}?m='+(S.rpm||2)+'&x='+(S.xdy?1:0)}
-maplibregl.addProtocol('brep',async p=>{
- const m=p.url.match(/^brep:\/\/(\d+)\/(\d+)\/(\d+)\?m=(\d)&x=(\d)/),z=+m[1],tx=+m[2],ty=+m[3],mn=+m[4],xd=m[5]==='1',D=await rpData(),W=256*2**z,ox=tx*256,oy=ty*256,
-  x0=ox/W,x1=(ox+256)/W,y0=oy/W,y1=(oy+256)/W,c=bnCanvas(),g=c.getContext('2d');g.lineWidth=.6;
+async function rpTile0(D,z,tx,ty,mn,xd){const W=256*2**z,ox=tx*256,oy=ty*256,x0=ox/W,x1=(ox+256)/W,y0=oy/W,y1=(oy+256)/W,c=bnCanvas(),g=c.getContext('2d');g.lineWidth=.6;
  for(const o of D.R){if(o.c<mn||(xd&&o.dy))continue;const b=o.bb;if(b[2]<x0||b[0]>x1||b[3]<y0||b[1]>y1)continue;g.fillStyle=g.strokeStyle=rpCol(o.c);bnPaint(g,o,W,ox,oy)}
- return{data:await (await bnBlob(c)).arrayBuffer()}});
+ return(await bnBlob(c)).arrayBuffer()}
+const rpTileW=(D,z,tx,ty,mn,xd,ac)=>tlTry('r',()=>tlPack(D.pk,D.R,o=>Math.min(o.c,4)-1,o=>o.c,false),z,tx,ty,{xd,mn,pal:RPC},ac);
+maplibregl.addProtocol('brep',async(p,ac)=>{
+ const m=p.url.match(/^brep:\/\/(\d+)\/(\d+)\/(\d+)\?m=(\d)&x=(\d)/),z=+m[1],tx=+m[2],ty=+m[3],mn=+m[4],xd=m[5]==='1',D=await rpData();
+ return{data:(D.pk&&await rpTileW(D,z,tx,ty,mn,xd,ac))||await rpTile0(D,z,tx,ty,mn,xd)}});
 function setupRP(){map.addSource('brep',{type:'raster',tiles:[rpURL()],tileSize:256,minzoom:5,maxzoom:16,bounds:BNB});
  map.addLayer({id:'brep',type:'raster',source:'brep',layout:{visibility:'none'},paint:{'raster-opacity':.92,'raster-fade-duration':0}},'burn')}
 async function LR(){const on=!!S.rep,vis=b=>map.getLayer('brep')&&map.setLayoutProperty('brep','visibility',b?'visible':'none');$('#rpbox').hidden=!on;
@@ -2603,7 +2657,7 @@ async function LB(){ // เรียกจาก apply() และเมื่�
  const C=bnIsC(BNK);$('#bn-lg').innerHTML=(C?I.cn.map((n,i)=>`<div><i style="background:${BCC[i]}"></i>${esc(n)}</div>`).join(''):'<div><i style="background:#f5a623"></i>พบ 1 ครั้ง</div><div><i style="background:#e8541c"></i>2 ครั้ง</div><div><i style="background:#a3171b"></i>3 ครั้งขึ้นไป</div>')+(BNH?'<div><i style="background:'+BNV+'"></i>ไม่พบจุดความร้อน</div>':'');
  const s=map.getSource('burn'),u=bnURL();if(s&&s.tiles&&s.tiles[0]!==u)s.setTiles([u]);vis(true);
  const k=BNK,F=bnFYk(I,k);$('#bn-a').innerHTML='<span class="sm">กำลังโหลด…</span>';
- try{const [D,DF]=await Promise.all([bnData(k),bnData((C?'cfy':'fy')+F)]);if(k!==BNK)return;BNCUR=D;bnRingSet(D);bnStats(D,DF,F);bnRpNote()}
+ try{const [D,DF]=await Promise.all([bnData(k),bnData((C?'cfy':'fy')+F)]);if(k!==BNK)return;await bnHotP(D);if(k!==BNK)return;BNCUR=D;bnRingSet(D);bnStats(D,DF,F);bnRpNote()}
  catch(e){$('#bn-a').innerHTML='<span class="sm">โหลดข้อมูลไม่สำเร็จ ('+esc(e.message)+')</span>'}}
 function bnSel(I){const sel=$('#bn-s'),fys=[...new Set(I.periods.map(bnFY))].sort((a,b)=>b-a),opt=(v,t)=>`<option value="${v}">${esc(t)}</option>`,
   ss=I.cls.filter(p=>p.p.length>6).reverse(),ms=I.cls.filter(p=>p.p.length===6).reverse();
@@ -2646,7 +2700,7 @@ const bnMonths=DF=>{const m=Array(12).fill(0);DF.pr.forEach(b=>{const d=Math.flo
 const bnRai=v=>v>0&&v<1?'<1':nf(v),bnStLab=n=>n==='ไม่มี'?NOST:n.replace(/^สถานีควบคุมไฟป่า\s*/,''),bnArLab=n=>n==='นอกพื้นที่อนุรักษ์'?n:paShort(n);
 // หัวข้อพื้นที่เผาไหม้ในรายงาน (n = เลขหัวข้อ) · คืน '' ถ้าโหลดข้อมูลไม่ได้
 async function bnReport(n){try{const I=await bnIndex();if(!I.periods.length)return'';const k=bnDefault(I),F=bnFYk(I,k),C=bnIsC(k);
- const [D,DF]=await Promise.all([bnData(k),bnData((C?'cfy':'fy')+F)]),s=bnSum(D),pc=v=>s.t?Math.round(v/s.t*100):0;
+ const [D,DF]=await Promise.all([bnData(k),bnData((C?'cfy':'fy')+F)]);await bnHotP(D);const s=bnSum(D),pc=v=>s.t?Math.round(v/s.t*100):0;
  const tb=(h,m,lab,byKey)=>`<table><thead><tr><th>${h}</th><th>ไร่</th><th>มีจุดความร้อน</th></tr></thead><tbody>${Object.entries(m).sort((a,b)=>byKey?a[0]-b[0]:b[1][0]-a[1][0]).map(([i,[r,x]])=>`<tr><td>${esc(lab(i))}</td><td class="n">${bnRai(r)}</td><td class="n">${r?Math.round(x/r*100):0}%</td></tr>`).join('')||'<tr><td colspan="3">–</td></tr>'}</tbody></table>`;
  const miss=D.ps.filter(p=>BNG.some(g=>!p.grids.includes(g))).length;
  return`<h2>${n}. พื้นที่เผาไหม้ (ระบบตามรอยเผา) — ${esc(bnTtl(D,F))}</h2>
@@ -2671,7 +2725,7 @@ async function buildBReport(){const img=await mapSnap(),I=await bnIndex(),k=bnDe
 async function printBReport(){toast('กำลังสร้างรายงาน…');await buildBReport();window.print()}
 // CSV: แถวละ รอบ × พื้นที่อนุรักษ์ × สถานีฯ × ประเภท ของช่วงที่เลือก (ปีงบ = ทุกรอบในปีงบ แยกรอบ)
 async function bnCSVText(){const I=await bnIndex(),k=bnDefault(I),C=bnIsC(k),ps=bnPer(I,k),iso=d=>d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8),q=v=>/[",\n]/.test(v=String(v))?'"'+v.replace(/"/g,'""')+'"':v,rows=[];
- for(const p of ps){const D=await bnData(C?'c'+p.p:p.p),m={};bnHot(D);
+ for(const p of ps){const D=await bnData(C?'c'+p.p:p.p),m={};await bnHotP(D);bnHot(D);
   for(const o of D.R){if(S.xdy&&o.dy)continue;const key=o.a+'|'+o.s+'|'+o.v,e=m[key]=m[key]||[0,0];e[0]+=o.n*BNPX;if(o.hs)e[1]+=o.n*BNPX}
   for(const key of Object.keys(m).sort()){const [a,st,v]=key.split('|').map(Number);
    rows.push([iso(p.d0),iso(p.d1),C?(p.p.length===6?'B2 รายเดือน':'B3 รายฤดูฝุ่น'):'B4 รายรอบ',C?I.cn[v-1]:'',C?'':v,I.ar[a],bnStLab(I.st[st]),m[key][0].toFixed(2),m[key][1].toFixed(2)].map(q).join(','))}}

@@ -12,7 +12,7 @@ const csr = (off, idx) => { const o = []; for (let i = 0; i < off.length - 1; i+
 
 test('wjLib ไม่อ้างถึง DOM/map/S/localStorage (ต้องรันใน Worker ได้)', () => {
   for (const re of [/\bdocument\b/, /\bwindow\b/, /\blocalStorage\b/, /\bmap\.(get|set|add|on)\w*\(/, /[^\w.]S\.(xdy|hc[lpdgr]|burn|sats|base)\b/, /\$\(/, /\bfetchT?\(/, /\bHCC\b|\bTR\.|\bBND\b|\bBNK\b/]) assert.ok(!re.test(SRC), 'พบ ' + re);
-  assert.deepStrictEqual(Object.keys(L).sort(), ['bnLL', 'bnM', 'bnMerge', 'hcGroups', 'hcHull', 'hcLink', 'trBuild', 'trContours', 'trElev', 'trHorn', 'trLa', 'trLo', 'trMpp', 'trSA', 'trW', 'trX', 'trY']);
+  assert.deepStrictEqual(Object.keys(L).sort(), ['bnHotCalc', 'bnLL', 'bnM', 'bnMerge', 'hcGroups', 'hcHull', 'hcLink', 'rpMerge', 'tlPut', 'tlTile', 'trBuild', 'trContours', 'trElev', 'trHorn', 'trLa', 'trLo', 'trMpp', 'trSA', 'trW', 'trX', 'trY']);
 });
 
 // ---------- กองจุดความร้อน ----------
@@ -133,4 +133,40 @@ test('bnMerge: โหมดแยกประเภท (C) ค่า = ประ
   assert.deepStrictEqual(rows.map(r => r[3]), [1, 1, 1, 1]);
   assert.deepStrictEqual(rows.map(r => [r[6], r[7]]), [[0, 0], [0, 1], [1, 1], [1, 1]]);
   const e = L.bnMerge({ files: [], C: false, dy: DY, ns: 2, BNPX: .25 }); assert.strictEqual(e.n, 0); assert.deepStrictEqual(e.pr, []);
+});
+
+// ---------- B2 ต่อ: จุดความร้อนใกล้รอยเผา / เผาซ้ำซาก / ไทล์ ----------
+test('bnHotCalc: มีจุดห่างกรอบ ≤ R ม. และวันอยู่ในช่วงรอบแรก−10 … รอบล่าสุด → hs=1', () => {
+  const o = L.bnMerge({ files: [F1, F2], C: false, dy: DY, ns: 2, BNPX: .25 }), n = o.n, fl = new Int32Array(n * 2);
+  for (let i = 0; i < n; i++) { fl[2 * i] = o.v[i * 8 + 6]; fl[2 * i + 1] = o.v[i * 8 + 7] }
+  const d0 = f64([90, 95]), d1 = f64([100, 105]); // รอบ 0 = วัน 90(−10)…100 · รอบ 1 = 95…105
+  const [lo, la] = L.bnLL(800010, 1599970, 47); // กลางแถวแรก (y=1 x=0)
+  const run = P => Array.from(L.bnHotCalc({ bb: o.bb.slice(), fl, d0, d1, P: f64(P), R: 1000 }).hs);
+  assert.deepStrictEqual(run([lo, la, 98]), [1, 1, 1, 1], 'จุดกลางแถวแรก วัน 98: ทุกแถวห่าง ≤1 กม. และวันอยู่ในช่วง');
+  assert.deepStrictEqual(run([lo, la, 103]), [0, 1, 1, 1], 'วัน 103: แถวแรก (รอบ 0 ถึงวัน 100) ไม่นับ · แถวที่ล่าสุดคือรอบ 1 (ถึง 105) นับ');
+  assert.deepStrictEqual(run([lo, la, 80]), [0, 0, 0, 0], 'วันก่อนช่วง');
+  assert.deepStrictEqual(run([lo + .05, la, 98]), [0, 0, 0, 0], 'ไกล ~5 กม.');
+  assert.deepStrictEqual(run([]), [0, 0, 0, 0]);
+});
+
+// rep.json ย่อ: กริดเดียว K=8 (มีบิต b4) · แถว: dy,dx,n,mask,b4,a,s,cl
+const REP = JSON.stringify({ fy: [2568, 2569, 2570], n: 8, g: { '47PQR': { z: 47, x0: 800000, y0: 1600000, px: 20, r: [1, 0, 2, 0b111, 0b001, 1, 1, 1, 0, 1, 1, 0b010, 0b010, 2, 0, 2, 1, 0, 3, 0b011, 0, 1, 1, 1] } } });
+test('rpMerge: นับปีงบจาก mask · เรียงตามจำนวนปี (คงลำดับเดิมเมื่อเท่ากัน) · b4 · ดงใหญ่ · พิกัดตรงกับ bnMerge', () => {
+  const o = L.rpMerge({ text: REP, dy: DY, ns: 2 });
+  assert.strictEqual(o.n, 3); assert.deepStrictEqual(o.fy, [2568, 2569, 2570]); assert.strictEqual(o.hasB4, true);
+  const rows = []; for (let i = 0; i < o.n; i++) rows.push(Array.from(o.iv.subarray(i * 7, i * 7 + 7)));
+  assert.deepStrictEqual(rows, [[1, 2, 2, 1, 2, 0, 2], [3, 3, 0, 2, 1, 1, 1], [2, 7, 1, 3, 1, 1, 1]], 'n,m,b4,c,a,s,cl เรียง c 1,2,3');
+  assert.deepStrictEqual(Array.from(o.dy), [1, 0, 0]);
+  const b = L.bnMerge({ files: [JSON.stringify({ g: { '47PQR': { z: 47, x0: 800000, y0: 1600000, px: 20, r: [1, 0, 2, 1, 1, 1] } } })], C: false, dy: DY, ns: 2, BNPX: .25 });
+  assert.deepStrictEqual(Array.from(o.q.subarray(16, 24)), Array.from(b.q.subarray(0, 8)), 'แถว y=1 x=0 n=2 พิกัดเท่ากับ bnMerge');
+  const k7 = L.rpMerge({ text: { fy: [2569], g: { '47PQR': { z: 47, x0: 800000, y0: 1600000, px: 20, r: [1, 0, 1, 1, 1, 1, 3] } } }, dy: DY, ns: 2 });
+  assert.deepStrictEqual(Array.from(k7.iv), [1, 1, -1, 1, 1, 1, 3], 'K=7 ไม่มี b4 → -1'); assert.strictEqual(k7.hasB4, false);
+});
+
+test('tlPut/tlTile: เก็บล่าสุด 8 ชั้น · ไม่มีชั้น = tl-miss · ไม่มี OffscreenCanvas = tl-noc (ผู้เรียกวาดบน main thread แทน)', async () => {
+  const lib = load(SRC, ['wjLib']).wjLib(), o = () => ({ q: f64(Array(8).fill(.5)), bb: f64([.4, .4, .6, .6]), ci: Uint8Array.from([0]), dy: Uint8Array.from([0]), f: null, hs: null });
+  for (let i = 0; i < 9; i++) assert.deepStrictEqual(lib.tlPut('t' + i, o()), { n: 1 });
+  await assert.rejects(lib.tlTile('t0', 1, 0, 0, { pal: ['#000'] }), /tl-miss/, 'ชั้นเก่าสุดถูกตัด');
+  await assert.rejects(lib.tlTile('x', 1, 0, 0, { pal: ['#000'] }), /tl-miss/);
+  if (typeof OffscreenCanvas === 'undefined') await assert.rejects(lib.tlTile('t8', 1, 0, 0, { pal: ['#000'] }), /tl-noc/);
 });
