@@ -22,6 +22,7 @@
 | `.kb-ch svg{width:100%}` | กราฟในหน้าข้อมูลพื้นฐาน | ไอคอนใช้ `.kb-ch svg.kb-fi` |
 | คีย์ขึ้นต้น `i` ใน `PP.E` | กล่องรูปภาพของผู้ใช้ | ตรวจด้วย `/^id/` |
 | `fetchT` `FTO` `dbg` `DBG` `slowMsg` `dgCopy` `HSERR`, `window.__LOG` `window.__OLD`, id `dg-cp` `dg-tx` `oldb` | ตัวช่วยเครือข่าย/บันทึกข้อผิดพลาด (A2/A3) และกล่องเบราว์เซอร์เก่า (D8) — 15 พ.ย. 69 | `FT` = ชนิดป่า (ใช้อยู่ก่อน จึงตั้ง `FTO`) |
+| `ULMAX` `ulBig` `ulLogAll` `ulALog` `ualDraw` `ualWhat` `UALA` `UALR` `UALK` `UA.lk` `UA.LG` id `ua-lk` `ua-lt` `data-a="lall"` · worker `TGRE` · check_site `E3UI` | E3 หลังบ้าน (บันทึกการใช้งาน/ออกทุกอุปกรณ์/8 MB) · A7 ลิงก์เชิญ Telegram — 17 พ.ย. 69 | — |
 | `gz*` `GZ*` id `gz` `gz-*` `bSr` ชั้น `gz-hl` · `vw*` `VW*` (`VWD` `VWB` `VWO` `VWS` `VWX` `VWT` `VWU`) id `vw-*` localStorage `fm-vw` · `window.gzKB` | ค้นหา (D4) / ลิงก์มุมมอง (D3), 16 พ.ย. 69 | — |
 | `WJ` `wjLib` `wj*` เครื่องหมาย `/*WJ-LIB-BEGIN*/…END*/` · `HCJ` `hcFin` `hcSel` · `TR.job` `trJob` `trAbort` · `TL` `TLG` `tl*` (`tlPut` `tlTile` `tlPack` `tlTry`) `bnHotP` `bnHsPts` `BNHQ` `bnTile0` `bnTileW` `rpTile0` `rpTileW` `WJ.drop` `WJ.gen` | Web Worker งานหนัก (B2, 17 พ.ย. 69) — ฟังก์ชันใน wjLib ชื่อซ้ำกับของแอป (`hcLink` `hcHull` `trSA` `trHorn` `trElev` `trContours` `bnLL` `bnM` `trX`…) | สคริปต์ที่ค้น/แก้ index.html ด้วย indexOf/split ต้องเริ่มค้น**หลัง** `/*WJ-LIB-END*/` (เคยตัดโค้ดช่วงกว้างเพราะเจอ `function trSA(` ในบล็อก lib ก่อน) |
 

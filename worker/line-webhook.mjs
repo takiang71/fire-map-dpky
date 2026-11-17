@@ -74,15 +74,19 @@ export const quickReply = site => ({ items: [['📊 สรุป', 'สรุป
 
 // live = live.json, sum = summary.json, fresh = จุดใหม่ที่จะแจ้งเตือน (null = โหมดสรุป แสดงจุด 24 ชม. แทน)
 // LINE จำกัด JSON ของ carousel ไม่เกิน 50 KB → ถ้าเกิน 48,000 ไบต์ (UTF-8: อักษรไทยตัวละ 3 ไบต์) ลดจำนวนจุดที่แสดงต่อการ์ดลง
+export const TGRE = /^https:\/\/(t\.me|telegram\.me)\/[A-Za-z0-9_+\-\/=?]{2,200}$/;
 export const bytes = m => new TextEncoder().encode(JSON.stringify(m)).length;
 // รอบผ่านของดาวเทียม → "NOAA-20 ☀ 13:42" (+ "(14 พ.ย.)" ถ้าคนละวัน) — รูปแบบเดียวกับ label() ใน scripts/lib/orbit.js
 const orbLab = (p, now) => { const d = new Date(p.t + 7 * 36e5), n = new Date(now + 7 * 36e5), z = x => String(x).padStart(2, '0'); return `${p.n} ${p.day ? '☀' : '☾'} ${z(d.getUTCHours())}:${z(d.getUTCMinutes())}${d.getUTCDate() !== n.getUTCDate() ? ` (${d.getUTCDate()} ${['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'][d.getUTCMonth()]})` : ''}` };
 export function carousel(o) {
   let m;
-  for (const per of [4, 2, 1, 0]) { m = build({ ...o, per }); if (bytes(m) < 48000) break }
+  // A7 (17 พ.ย. 69): สรุปประจำวันครบทุกกล่อง + ทุกพื้นที่มีจุด 24 ชม. = 49.8 KB แม้ 0 จุด/การ์ด → ขั้นสุดท้ายตัดกราฟรายเดือนของการ์ดรายพื้นที่ (lite) ก่อนลดจุดต่อ
+  for (const [per, lite] of [[4, 0], [2, 0], [1, 0], [2, 1], [1, 1], [0, 1]]) { m = build({ ...o, per, lite }); if (bytes(m) < 48000) break }
   return m;
 }
 // daily = สรุปประจำวันที่ line_notify.js push เข้ากลุ่ม (เปลี่ยนแค่หัวการ์ดและ altText)
+// mode/tg (A7, 17 พ.ย. 69) = LINE_MODE และ TG_INVITE ของ line_notify.js: mode 'daily' + tg (ลิงก์เชิญ https://t.me/…) → บรรทัดสั้นบนสุดของใบ 1 "แจ้งเตือนจุดใหม่ทันทีดูที่ Telegram" แตะเปิดลิงก์เชิญ
+//   ไม่ส่ง (Worker / LINE_MODE=all / ไม่ตั้ง TG_INVITE) = ไม่มีบรรทัด · ท้ายการ์ด mode 'daily' เขียน "ส่งได้อีก ~N ครั้ง" แทน "แจ้งเตือนได้อีก"
 // orb = รอบที่ดาวเทียมผ่านกลุ่มป่า 24 ชม. ข้างหน้า (scripts/lib/orbit.js next() — line_notify ส่งมาเฉพาะสรุปประจำวัน; Worker ไม่ส่ง)
 // vr = อัตราการระบายอากาศของกลุ่มป่า 5 วัน (scripts/lib/vrsum.js จาก NOAA GFS — line_notify ส่งมาเฉพาะสรุปประจำวัน; Worker ไม่ส่ง · ผู้ใช้ขอ 14 พ.ย. 69)
 // เกณฑ์/สีตามกรมอุตุฯ แบบเดียวกับหน้าเว็บ (VRC ใน index.html) · สีใน Flex ต้อง #RRGGBB เต็ม
@@ -129,8 +133,8 @@ function pmBlock(pm, now) {
     T('วันนี้: ' + x.parks.filter(p => p[1] != null).map(p => p[0] + ' ' + pmF(p[1])).join(' · ') + ' · สูงสุด ' + pmF(x.pk) + ' (' + hm(x.pkT) + ' น. ' + x.pkN + ') · ค่าแบบจำลอง ไม่ใช่ค่าตรวจวัด',
       { size: 'xxs', color: '#1D3557', wrap: true, margin: 'xs' })];
 }
-function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaLeft = null, per = 4, test = false, daily = false, orb = null, vr = null, fwi = null, pm = null, risk = null }) {
-  const alert = !!fresh;
+function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaLeft = null, per = 4, lite = 0, test = false, daily = false, orb = null, vr = null, fwi = null, pm = null, risk = null, mode = 'all', tg = null }) {
+  const alert = !!fresh, tgOn = mode === 'daily' && typeof tg === 'string' && TGRE.test(tg);
   const pts = (live && live.features || []).filter(f => f.properties && !excluded(f.properties)), h24 = pts.filter(f => now - thMs(f.properties.full_date) < 24 * 36e5);
   const nw = (fresh || []).filter(f => !excluded(f.properties)), list = alert ? nw : h24;
   const A = Object.entries(sum && sum.areas || {}).filter(([k]) => !EX.test(k)), z = () => ({ fy: 0, prv: 0, pfull: 0, m: Array(12).fill(0), pm: Array(12).fill(0), pv: {}, am: {}, tm: {} });
@@ -155,9 +159,10 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
     type: 'bubble', size: 'mega',
     header: head(`🔥 ${daily ? 'สรุปประจำวัน' : 'สถานการณ์ไฟป่า'} ปีงบ ${fy}`, '#B3261E'),
     body: B('vertical', [
+      ...(tgOn ? [T('x', { size: 'xxs', wrap: true, margin: 'none', contents: [{ type: 'span', text: '📲 แจ้งเตือนจุดใหม่ทันทีดูที่ Telegram ', color: '#1D3557' }, { type: 'span', text: 'แตะเข้ากลุ่ม ›', color: '#1C7ED6', weight: 'bold' }], action: { type: 'uri', label: 'Telegram', uri: tg } })] : []),
       ...(alert ? [banner(`${test ? '🧪 ทดสอบ · ' : ''}พบจุดใหม่ ${nw.length} จุด${nwBy ? ': ' + nwBy : ''}`)] : []),
       B('baseline', [T('สะสมปีงบ', { size: 'xs', color: MUT, flex: 0 }), T(String(all.fy), { size: 'xxl', weight: 'bold', color: RED, flex: 0, margin: 'sm' }), T('จุด', { size: 'xs', color: MUT, flex: 0, margin: 'sm' }),
-        T(dt, { size: 'xs', weight: 'bold', color: dc, flex: 0, margin: 'md' }), T(`เทียบทั้งปีงบ ${fy - 1} (${all.pfull})`, { size: 'xxs', color: MUT, margin: 'sm' })], { margin: alert ? 'sm' : 'none' }),
+        T(dt, { size: 'xs', weight: 'bold', color: dc, flex: 0, margin: 'md' }), T(`เทียบทั้งปีงบ ${fy - 1} (${all.pfull})`, { size: 'xxs', color: MUT, margin: 'sm' })], { margin: alert || tgOn ? 'sm' : 'none' }),
       B('horizontal', [tile(h24.length, 'จุดใน 24 ชม.'), tile(all.pfull, `ทั้งปีงบ ${fy - 1}`, BLUE), tile(ind.replace('Suomi ', ''), 'ดาวเทียมตัวชี้วัด', '#444444')], { spacing: 'sm', margin: 'sm' }),
       B('horizontal', [topTile('pv'), topTile('am'), topTile('tm')], { spacing: 'sm', margin: 'sm' }),
       ...(orb ? [T(`🛰 ดาวเทียมรอบถัดไป: ${orb.length ? orb.slice(0, 4).map(p => orbLab(p, now)).join(' · ') + ' น.' : 'ไม่มีรอบที่ผ่านกลางแถบสแกนใน 24 ชม.'}`, { size: 'xxs', color: '#1D3557', wrap: true, margin: 'sm' })] : []),
@@ -177,7 +182,7 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
       B('horizontal', [T('รวม', { flex: 9, weight: 'bold' }), T(String(all.fy), { flex: 2, align: 'end', weight: 'bold', color: RED }), T(String(all.pfull), { flex: 2, align: 'end', weight: 'bold', color: BLUE }), T(dt, { flex: 3, align: 'end', weight: 'bold', color: dc })].map(x => ({ ...x, size: 'xxs' })), { margin: 'sm', spacing: 'sm' }),
       sub('รายเดือน', [[RED, String(fy)], [BLUE, String(fy - 1)]]),
       ...months(all.m, all.pm),
-      T(`ไม่รวม ขสป.ดงใหญ่ · ปีก่อนไม่รวมจุดจัดการเชื้อเพลิง/ไม่พบไฟ${fy === 2570 ? ' · ตั้งแต่ 2 พ.ย. 69 ตัวชี้วัดใช้ NOAA-20 แทน SNPP (ปีก่อน = SNPP)' : ''}${quotaLeft != null ? ` · แจ้งเตือนได้อีก ~${quotaLeft} ครั้ง` : ''}`, { size: 'xxs', color: MUT, margin: 'sm', wrap: true }),
+      T(`ไม่รวม ขสป.ดงใหญ่ · ปีก่อนไม่รวมจุดจัดการเชื้อเพลิง/ไม่พบไฟ${fy === 2570 ? ' · ตั้งแต่ 2 พ.ย. 69 ตัวชี้วัดใช้ NOAA-20 แทน SNPP (ปีก่อน = SNPP)' : ''}${quotaLeft != null ? ` · ${mode === 'daily' ? 'LINE ส่งได้อีก' : 'แจ้งเตือนได้อีก'} ~${quotaLeft} ครั้ง` : ''}`, { size: 'xxs', color: MUT, margin: 'sm', wrap: true }),
     ], { paddingAll: '10px' }),
     footer: menuFooter(site),
   };
@@ -195,8 +200,7 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
         T('x', { size: 'xxs', margin: 'sm', wrap: true, contents: [{ type: 'span', text: t + ' ', color: c, weight: 'bold' }, { type: 'span', text: `ปีงบ ${fy} เทียบทั้งปีงบ ${fy - 1}`, color: MUT }] }),
         // จังหวัด/อำเภอ/ตำบลที่พบจุดสูงสุดในพื้นที่ — ข้อความบรรทัดเดียว (ไทล์ทำให้กรณีหนักสุดเกินเพดาน 50 KB, ผู้ใช้เลือก 3 พ.ย. 69) · ไม่มีจุดในปีงบ = ไม่แสดง
         ...(v.fy ? [T('สูงสุด ' + ['pv', 'am', 'tm'].map(l => { const [x] = topN(v[l], 1); return x ? `${{ pv: 'จ.', am: 'อ.', tm: 'ต.' }[l]}${x[0].split('|')[0]} ${x[1]}` : '' }).filter(Boolean).join(' · '), { size: 'xxs', color: '#444444', wrap: true, margin: 'sm' })] : []),
-        sub('รายเดือน', [[a.c, `ปีงบ ${fy}`]]),
-        ...months(v.m, null, a.c, 24),
+        ...(lite ? [] : [sub('รายเดือน', [[a.c, `ปีงบ ${fy}`]]), ...months(v.m, null, a.c, 24)]),
         sub(alert ? 'จุดใหม่รอบนี้ (แตะเพื่อเปิดแผนที่)' : 'จุดใน 24 ชม. (แตะเพื่อเปิดแผนที่)'),
         ...(L.length ? L.slice(0, per).map(ptRow) : [T(alert ? 'ไม่มีจุดใหม่ในพื้นที่นี้รอบนี้' : 'ไม่พบจุดความร้อนใน 24 ชม.', { size: 'xxs', color: '#2E7D32', margin: 'sm' })]),
         ...(L.length > per ? [T(`…และอีก ${L.length - per} จุด`, { size: 'xxs', color: MUT })] : []),

@@ -32,3 +32,5 @@ jobs:
         env:
           LINE_TOKEN: ${{ secrets.LINE_TOKEN }}
           LINE_GROUP_ID: ${{ vars.LINE_GROUP_ID }}
+          LINE_MODE: ${{ vars.LINE_MODE }}
+          TG_INVITE: ${{ vars.TG_INVITE }}

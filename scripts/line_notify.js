@@ -17,9 +17,14 @@
 //    → watchCard() เป็นข้อความที่ 2 ใน push เดียวกับการ์ดจุดความร้อน (หรือข้อความเดียวถ้ามีจุดใหม่เฉพาะพื้นที่นี้) · สรุปประจำวันแนบการ์ดนี้ด้วย
 //    LINE นับโควตาต่อครั้งที่ push × สมาชิก ไม่ใช่ต่อข้อความ จึงไม่เสียโควตาเพิ่ม · --watch = ส่งการ์ดพื้นที่เฝ้าระวังเข้ากลุ่ม 1 ครั้ง (ทดสอบ)
 //  - LINE_API = เปลี่ยนปลายทาง API (ใช้ทดสอบกับเซิร์ฟเวอร์จำลอง) ค่าเริ่มต้น https://api.line.me
+//  - LINE_MODE (A7, 17 พ.ย. 69 — แผนย้ายกลุ่มจริง docs/line-rollout.md): all (ไม่ตั้ง = all เหมือนเดิม) | daily = ส่งเฉพาะสรุปประจำวัน + การ์ดพื้นที่เผาไหม้
+//    daily: จุดใหม่/พื้นที่เฝ้าระวัง/ผลตรวจสอบ F1/รายงานประจำเดือน ไม่ส่งทาง LINE (ยังจำว่าเห็นแล้ว — สลับกลับเป็น all จะไม่ส่งจุดเก่าย้อนหลัง) · Telegram ส่งตามปกติ
+//    TG_INVITE = ลิงก์เชิญกลุ่ม Telegram (https://t.me/…) → ใบ 1 ของสรุปประจำวันมีบรรทัด "แจ้งเตือนจุดใหม่ทันทีดูที่ Telegram" เฉพาะ LINE_MODE=daily (ไม่ตั้ง = ไม่แสดง)
+//    สาเหตุที่ไม่ส่งลง notify.json ทุกรอบ: log (why = LINE_MODE=daily / โควตาไม่พอ / ไม่มีจุดใหม่ — รอบติดกันที่เหตุเดียวกันรวมเป็นรายการเดียว x = จำนวนรอบ, t0 = รอบแรก) + st.last (ผลรอบล่าสุดทุกช่อง)
+//  - LINE_OUT = โฟลเดอร์ _site (ทดสอบ) · LINE_NOW = เวลาจำลอง (ms, ทดสอบ)
 const fs = require('fs'), path = require('path'), { pathToFileURL } = require('url');
 
-const ROOT = path.join(__dirname, '..'), OUT = path.join(ROOT, '_site');
+const ROOT = path.join(__dirname, '..'), OUT = process.env.LINE_OUT || path.join(ROOT, '_site');
 const SITE = process.env.SITE_URL || 'https://takiang71.github.io/fire-map-dpky/';
 const TOKEN = process.env.LINE_TOKEN, GROUP = process.env.LINE_GROUP_ID;
 const MAX_DAY = +(process.env.LINE_MAX_DAY || 0);      // ส่งได้ไม่เกินกี่ครั้งต่อวัน (0/ไม่ตั้ง = ไม่จำกัด; เดิมค่าเริ่มต้น 4)
@@ -29,6 +34,11 @@ const DAILY_WIN_H = 4;
 const BURN = !/^(off|0|no)$/i.test(process.env.LINE_BURN || ''), API = process.env.LINE_API || 'https://api.line.me';
 const MAX_AGE_H = 12;                                 // ไม่แจ้งจุดที่สแกนนานกว่านี้ (API เติมข้อมูลย้อนหลังได้ เช่น 24–27 ต.ค. 69)
 const KEEP_H = 72;
+const MODE_RAW = String(process.env.LINE_MODE || '').trim().toLowerCase(), MODE = MODE_RAW === 'daily' ? 'daily' : 'all';
+if (MODE_RAW && MODE_RAW !== 'all' && MODE_RAW !== 'daily') console.log(`LINE_MODE="${MODE_RAW}" ไม่รู้จัก — ใช้ all (ค่าที่ใช้ได้: all | daily)`);
+const TG_RAW = String(process.env.TG_INVITE || '').trim();
+const qWhy = q => `โควตาไม่พอ (เหลือ ${q.left} ข้อความ · ส่ง 1 ครั้งใช้ ${q.members} = จำนวนสมาชิก)`;
+const MWHY = 'LINE_MODE=daily — ส่งทาง Telegram เท่านั้น';
 const satKey = s => { s = String(s == null ? '' : s); return /21/.test(s) ? 'NOAA21' : /20/.test(s) ? 'NOAA20' : /npp|suomi/i.test(s) ? 'SNPP' : s };
 const thMs = fd => Date.parse(String(fd).replace(' ', 'T') + '+07:00'); // full_date เป็นเวลาไทย
 const NR = require('./lib/near'); // กันแจ้งซ้ำเมื่อจุดเดียวกันมาจาก NASA FIRMS / API ไทย หรือ API ไทยมีระเบียนซ้ำ
@@ -55,8 +65,11 @@ async function quotaOk() {
 
 
 (async () => {
-  const now = Date.now(), today = thDate(now);
-  const { carousel, excluded, burnCard, watchCard } = await import(pathToFileURL(path.join(ROOT, 'worker', 'line-webhook.mjs')).href);
+  const now = +process.env.LINE_NOW || Date.now(), today = thDate(now);
+  const { carousel, excluded, burnCard, watchCard, TGRE } = await import(pathToFileURL(path.join(ROOT, 'worker', 'line-webhook.mjs')).href);
+  const TGI = TG_RAW && TGRE.test(TG_RAW) ? TG_RAW : null;
+  if (TG_RAW && !TGI) console.log('TG_INVITE ไม่ใช่ลิงก์ https://t.me/… — ไม่แสดงบรรทัด Telegram');
+  if (TGI && MODE !== 'daily') console.log('ตั้ง TG_INVITE แล้วแต่ LINE_MODE ไม่ใช่ daily — ไม่แสดงบรรทัด Telegram');
   let live, sum = null;
   try { live = JSON.parse(fs.readFileSync(path.join(OUT, 'live.json'), 'utf8')) } catch (e) { console.log('ไม่มี live.json — ข้าม'); return }
   try { sum = JSON.parse(fs.readFileSync(path.join(OUT, 'summary.json'), 'utf8')) } catch (e) { }
@@ -74,10 +87,10 @@ async function quotaOk() {
   const fws = () => { try { return require('./lib/fwisum').fwiSummary(now) } catch (e) { return null } };
   // PM2.5 แบบจำลอง CAMS ของกลุ่มป่า วันนี้–2 วันข้างหน้า (Copernicus/ECMWF, data/cams_grid.json จาก sync_cams) — เฉพาะสรุปประจำวัน (ผู้ใช้ขอ 14 พ.ย. 69)
   const pms = () => { try { return require('./lib/camssum').camsSummary(now) } catch (e) { return null } };
-  const msg = (fresh, q, daily = false) => carousel({ live, sum, fresh, site: SITE, now, daily, orb: daily ? orb() : null, vr: daily ? vrs() : null, fwi: daily ? fws() : null, risk: daily ? rks() : null, pm: daily ? pms() : null, quotaLeft: q && isFinite(q.left) ? Math.max(0, Math.floor((q.left - q.members) / q.members)) : null });
+  const msg = (fresh, q, daily = false) => carousel({ live, sum, fresh, site: SITE, now, daily, orb: daily ? orb() : null, vr: daily ? vrs() : null, fwi: daily ? fws() : null, risk: daily ? rks() : null, pm: daily ? pms() : null, mode: MODE, tg: TGI, quotaLeft: q && isFinite(q.left) ? Math.max(0, Math.floor((q.left - q.members) / q.members)) : null });
   if (process.argv.includes('--validate')) {
     const ex = live.features.slice(0, 3);
-    for (const [n, m] of [['แจ้งเตือน', msg(ex, null)], ['สรุป', msg(null, null)], ['สรุปประจำวัน', msg(null, null, true)], ...(bsum ? [['พื้นที่เผาไหม้', burnCard(bsum, { site: SITE })]] : []), ...(wmsg(null) ? [['พื้นที่เฝ้าระวังพิเศษ', wmsg(null)], ['พื้นที่เฝ้าระวังพิเศษ (แจ้งเตือน)', wmsg((wjs.features || []).slice(0, 3).length ? wjs.features.slice(0, 3) : null) || wmsg(null)]] : [])]) {
+    for (const [n, m] of [['แจ้งเตือน', msg(ex, null)], ['สรุป', msg(null, null)], ['สรุปประจำวัน', msg(null, null, true)], ['สรุปประจำวัน (LINE_MODE=daily + ลิงก์ Telegram)', carousel({ live, sum, fresh: null, site: SITE, now, daily: true, orb: orb(), vr: vrs(), fwi: fws(), risk: rks(), pm: pms(), mode: 'daily', tg: TGI || 'https://t.me/+ExampleInvite0', quotaLeft: 9 })], ...(bsum ? [['พื้นที่เผาไหม้', burnCard(bsum, { site: SITE })]] : []), ...(wmsg(null) ? [['พื้นที่เฝ้าระวังพิเศษ', wmsg(null)], ['พื้นที่เฝ้าระวังพิเศษ (แจ้งเตือน)', wmsg((wjs.features || []).slice(0, 3).length ? wjs.features.slice(0, 3) : null) || wmsg(null)]] : [])]) {
       try { await line('/v2/bot/message/validate/push', { messages: [m] }); console.log(n, ': รูปแบบถูกต้อง', JSON.stringify(m).length, 'ไบต์') } catch (e) { console.log(n, ': ไม่ผ่าน', e.message); process.exitCode = 1 }
     }
     return;
@@ -136,16 +149,18 @@ async function quotaOk() {
   const wfresh = wpts.filter(f => NR.isNew(st, f, idOf) && now - thMs(f.properties.full_date) < MAX_AGE_H * 36e5);
   wpts.forEach(f => NR.remember(st, f, idOf, now));
   const nAll = fresh.length + wfresh.length;
+  console.log(`LINE_MODE=${MODE}${TGI ? ' · TG_INVITE ตั้งแล้ว' : ''}`);
 
   let rec = null;
   const wn = wfresh.length ? { w: wfresh.length } : {};
   if (seed) rec = { why: 'เริ่มเก็บสถานะ (ไม่ส่ง)', n: pts.length + wpts.length };
-  else if (!nAll) rec = null;
+  else if (!nAll) rec = { why: 'ไม่มีจุดใหม่' };
+  else if (MODE === 'daily') rec = { why: MWHY, mode: 'daily', n: fresh.length, ...wn };
   else if (!TOKEN || !GROUP) rec = { why: 'ยังไม่ตั้ง LINE_TOKEN/LINE_GROUP_ID', n: fresh.length, ...wn };
   else if (MAX_DAY > 0 && (st.days[today] || 0) >= MAX_DAY) rec = { why: `ครบ ${MAX_DAY} ครั้งของวันนี้แล้ว`, n: fresh.length, ...wn };
   else try {
     const q = await quotaOk();
-    if (!q.ok) rec = { why: `โควตาไม่พอ (เหลือ ${q.left} ต้องใช้ ${q.members})`, n: fresh.length, ...wn };
+    if (!q.ok) rec = { why: qWhy(q), quota: 1, n: fresh.length, ...wn };
     else {
       // การ์ดกลุ่มป่า (ถ้ามีจุดใหม่) + การ์ดพื้นที่เฝ้าระวัง (ถ้ามีจุดใหม่) ใน push เดียว
       await line('/v2/bot/message/push', { to: GROUP, messages: [fresh.length ? msg(fresh, q) : null, wfresh.length ? wmsg(wfresh) : null].filter(Boolean) });
@@ -160,7 +175,7 @@ async function quotaOk() {
   const d0 = DAILY && DAILY.split(':').reduce((h, m) => +h * 60 + +m);
   if (DAILY && !seed && TOKEN && GROUP && st.daily !== today && tmin >= d0 && tmin < d0 + DAILY_WIN_H * 60 && !(rec && rec.ok)) try {
     const q = await quotaOk();
-    if (!q.ok) { drec = { daily: 1, why: `โควตาไม่พอ (เหลือ ${q.left} ต้องใช้ ${q.members})` }; st.daily = today }
+    if (!q.ok) { drec = { daily: 1, why: qWhy(q) + ' — ข้ามสรุปวันนี้', quota: 1 }; st.daily = today }
     else {
       await line('/v2/bot/message/push', { to: GROUP, messages: [msg(null, q, true), wmsg(null, true)].filter(Boolean) });
       st.daily = today;
@@ -179,7 +194,7 @@ async function quotaOk() {
     else if ((rec && rec.ok) || (drec && drec.ok)) { }
     else try {
       const q = await quotaOk();
-      if (!q.ok) { st.burn = bsum.p; brec = { burn: bsum.p, why: `โควตาไม่พอ (เหลือ ${q.left} ต้องใช้ ${q.members})` } }
+      if (!q.ok) { st.burn = bsum.p; brec = { burn: bsum.p, why: qWhy(q) + ' — ข้ามรอบนี้', quota: 1 } }
       else { await line('/v2/bot/message/push', { to: GROUP, messages: [burnCard(bsum, { site: SITE })] }); st.burn = bsum.p; brec = { burn: bsum.p, ok: 1, rai: bsum.rai, members: q.members, left: q.left } }
     } catch (e) { brec = { burn: bsum.p, why: 'ส่งไม่สำเร็จ: ' + e.message } }
   }
@@ -192,11 +207,11 @@ async function quotaOk() {
     const nw = VM.fresh(rjs.reports, st.vf, now), REP = !/^(off|0|no)$/i.test(process.env.LINE_REP || '');
     if (first || seed) { for (const r of rjs.reports || []) st.vf[r.id] = r.c; if (nw.length) vrec = { vf: nw.length, why: 'เริ่มเก็บสถานะรายงาน (ไม่ส่ง)' } }
     else if (nw.length) {
-      if (!TOKEN || !GROUP || !REP) { nw.forEach(r => { st.vf[r.id] = r.c }); vrec = { vf: nw.length, why: !REP ? 'LINE_REP=off' : 'ยังไม่ตั้ง LINE_TOKEN/LINE_GROUP_ID' } }
+      if (!TOKEN || !GROUP || !REP || MODE === 'daily') { nw.forEach(r => { st.vf[r.id] = r.c }); vrec = { vf: nw.length, why: MODE === 'daily' ? MWHY : !REP ? 'LINE_REP=off' : 'ยังไม่ตั้ง LINE_TOKEN/LINE_GROUP_ID', ...(MODE === 'daily' ? { mode: 'daily' } : {}) } }
       else if (MAX_DAY > 0 && (st.days[today] || 0) >= MAX_DAY) vrec = { vf: nw.length, why: `ครบ ${MAX_DAY} ครั้งของวันนี้แล้ว` };
       else try {
         const q = await quotaOk();
-        if (!q.ok) vrec = { vf: nw.length, why: `โควตาไม่พอ (เหลือ ${q.left} ต้องใช้ ${q.members})` };
+        if (!q.ok) vrec = { vf: nw.length, why: qWhy(q), quota: 1 };
         else { const cs = (b => b ? JSON.parse(b[1]).cs || [] : [])(require('./lib/area').block('fxdata'));
           await line('/v2/bot/message/push', { to: GROUP, messages: [{ type: 'text', text: VM.vfText(nw, { site: SITE, now, html: false, cs, per: 8 }).slice(0, 4900) }] });
           st.days[today] = (st.days[today] || 0) + 1; nw.forEach(r => { st.vf[r.id] = r.c }); vrec = { vf: 1, ok: 1, n: nw.length, members: q.members, left: q.left } }
@@ -211,10 +226,10 @@ async function quotaOk() {
     const MR = require('./lib/mrep'), P = MR.pending(MR.readIndex(OUT), seed ? null : st.mrep, now);
     if (P.seed) { st.mrep = P.latest.id; mrec = { mrep: P.latest.id, why: 'เริ่มเก็บสถานะรายงานประจำเดือน (ไม่ส่ง)' } }
     else if (P.r) {
-      if (!TOKEN || !GROUP || /^(off|0|no)$/i.test(process.env.LINE_MREP || '')) { st.mrep = P.r.id; mrec = { mrep: P.r.id, why: TOKEN && GROUP ? 'LINE_MREP=off' : 'ยังไม่ตั้ง LINE_TOKEN/LINE_GROUP_ID' } }
+      if (!TOKEN || !GROUP || MODE === 'daily' || /^(off|0|no)$/i.test(process.env.LINE_MREP || '')) { st.mrep = P.r.id; mrec = { mrep: P.r.id, why: MODE === 'daily' ? MWHY : TOKEN && GROUP ? 'LINE_MREP=off' : 'ยังไม่ตั้ง LINE_TOKEN/LINE_GROUP_ID', ...(MODE === 'daily' ? { mode: 'daily' } : {}) } }
       else try {
         const q = await quotaOk();
-        if (!q.ok) mrec = { mrep: P.r.id, why: `โควตาไม่พอ (เหลือ ${q.left} ต้องใช้ ${q.members})` };
+        if (!q.ok) mrec = { mrep: P.r.id, why: qWhy(q), quota: 1 };
         else { await line('/v2/bot/message/push', { to: GROUP, messages: [{ type: 'text', text: MR.text(P.r, { site: SITE, html: false }) }] }); st.days[today] = (st.days[today] || 0) + 1; st.mrep = P.r.id; mrec = { mrep: P.r.id, ok: 1, members: q.members, left: q.left } }
       } catch (e) { mrec = { mrep: P.r.id, why: 'ส่งไม่สำเร็จ: ' + e.message } }
     }
@@ -222,15 +237,18 @@ async function quotaOk() {
 
   if (!TOKEN || !GROUP) st.line = { ok: 0, why: `ยังไม่ตั้ง ${!TOKEN ? 'LINE_TOKEN ' : ''}${!GROUP ? 'LINE_GROUP_ID' : ''}`.trim(), at: new Date(now).toISOString() };
   else if (!st.line || !st.line.ok || now - Date.parse(st.line.at) > 36e5) {
-    try { const q = await quotaOk(); st.line = { ok: 1, members: q.members, limit: q.limit ?? null, used: q.used ?? null, left: isFinite(q.left) ? q.left : null, pushes_left: isFinite(q.left) ? Math.max(0, Math.floor(q.left / q.members)) : null, at: new Date(now).toISOString() } }
+    try { const q = await quotaOk(); st.line = { ok: 1, members: q.members, limit: q.limit ?? null, used: q.used ?? null, left: isFinite(q.left) ? q.left : null, pushes_left: isFinite(q.left) ? Math.max(0, Math.floor(q.left / q.members)) : null, mode: MODE, at: new Date(now).toISOString() } }
     catch (e) { st.line = { ok: 0, why: e.message.slice(0, 200), at: new Date(now).toISOString() } }
   }
-  if (rec) { st.log = [{ t: new Date(now).toISOString(), ...rec }, ...(st.log || [])].slice(0, 50); console.log('LINE:', JSON.stringify(rec)) }
-  else console.log('LINE: ไม่มีจุดใหม่');
-  if (drec) { st.log = [{ t: new Date(now).toISOString(), ...drec }, ...(st.log || [])].slice(0, 50); console.log('LINE สรุปประจำวัน:', JSON.stringify(drec)) }
-  if (brec) { st.log = [{ t: new Date(now).toISOString(), ...brec }, ...(st.log || [])].slice(0, 50); console.log('LINE พื้นที่เผาไหม้:', JSON.stringify(brec)) }
-  if (vrec) { st.log = [{ t: new Date(now).toISOString(), ...vrec }, ...(st.log || [])].slice(0, 50); console.log('LINE ผลตรวจสอบ:', JSON.stringify(vrec)) }
-  if (mrec) { st.log = [{ t: new Date(now).toISOString(), ...mrec }, ...(st.log || [])].slice(0, 50); console.log('LINE รายงานประจำเดือน:', JSON.stringify(mrec)) }
+  // บันทึก: รายการที่ไม่ได้ส่งด้วยเหตุเดียวกับรายการบนสุด (เช่น "ไม่มีจุดใหม่" ทุก 5 นาที) รวมเป็นรายการเดียว — x = จำนวนรอบ, t0 = รอบแรก, t = รอบล่าสุด
+  const T = new Date(now).toISOString(), same = (a, b) => { const k = o => JSON.stringify(Object.keys(o).filter(x => !/^(t|t0|x)$/.test(x)).sort().map(x => [x, o[x]])); return k(a) === k(b) };
+  const addLog = (lab, r) => { if (!r) return; console.log(lab, JSON.stringify(r)); st.log = st.log || [];
+    if (!r.ok && st.log[0] && !st.log[0].ok && same(st.log[0], r)) { st.log[0].t0 = st.log[0].t0 || st.log[0].t; st.log[0].t = T; st.log[0].x = (st.log[0].x || 1) + 1 }
+    else st.log = [{ t: T, ...r }, ...st.log].slice(0, 50) };
+  addLog('LINE:', rec); addLog('LINE สรุปประจำวัน:', drec); addLog('LINE พื้นที่เผาไหม้:', brec); addLog('LINE ผลตรวจสอบ:', vrec); addLog('LINE รายงานประจำเดือน:', mrec);
+  // ผลรอบล่าสุดทุกช่อง (ดูได้ทันทีว่าทำไมรอบนี้ไม่ส่ง) — null = ไม่มีอะไรต้องส่งในช่องนั้น
+  const lw = r => r ? (r.ok ? 'ส่งแล้ว' : r.why) : null;
+  st.last = { t: T, mode: MODE, alert: lw(rec), daily: lw(drec) || (st.daily === today ? 'ส่งแล้ววันนี้' : DAILY ? `รอเวลา ${DAILY} น.` : 'LINE_DAILY=off'), burn: lw(brec), vf: lw(vrec), mrep: lw(mrec) };
   for (const k in st.sent) if (now - st.sent[k] > KEEP_H * 36e5) delete st.sent[k];
   NR.prune(st, now, KEEP_H);
   for (const d in st.days) if (d < thDate(now - 7 * 864e5)) delete st.days[d];

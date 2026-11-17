@@ -485,7 +485,8 @@
     · อัปโหลด POST /layers (body GeoJSON + `x-meta` base64url)
     · ผู้ใช้ทั่วไปแก้ไม่ได้ ดู/ส่งออก/คัดลอกลงเครื่อง (ถ้า dl)
     · ผู้ดูแลแก้ชั้นเซิร์ฟเวอร์: คัดลอกลงเครื่อง (ผูก `srv`) → แก้ → อัปเดตชั้นบนเซิร์ฟเวอร์
-    · หน้าหลังบ้าน `ulAdmin(tab)` ใน `#md` กว้าง แท็บ ชั้นข้อมูล/ผู้ใช้/กลุ่ม
+    · หน้าหลังบ้าน `ulAdmin(tab)` ใน `#md` กว้าง แท็บ ชั้นข้อมูล/ผู้ใช้/กลุ่ม/**บันทึกการใช้งาน** (E3 17 พ.ย. 69: `ulALog`→`GET /log`, `ualDraw` ตาราง เวลา|ผู้ใช้|การกระทำ+รายการ 3 คอลัมน์พอดีมือถือ, select `#ua-lk` กรองประเภท, Worker เก่า = "เซิร์ฟเวอร์ยังไม่รองรับ")
+    · แถบบัญชี `#ul-acc`: เปลี่ยนรหัสผ่าน · ออกจากระบบ · **ออกจากระบบทุกอุปกรณ์** (`data-a="lall"` → `ulLogAll` confirm → `POST /logout-all` → ล้าง token ในเครื่อง) · `ulApi` ตรวจขนาด body ของ `/layers`, `/layers/<id>/data` ด้วย `ulBig` (> `ULMAX` 8 MB = error ข้อความเดียวกับ Worker ก่อนส่ง) → [layers-backend.md](../layers-backend.md)
     · ทดสอบ API กับ KV จำลองในเครื่องแล้ว 29 ข้อ (scratchpad mockworker.mjs/wtest.mjs) — บน Cloudflare จริง: GET / ตอบ kv/admin true แล้ว
 
 ## โมเดลไฟ / แผนที่ฐาน / เฟส 3

@@ -105,6 +105,10 @@ jobs:
           LINE_DAILY: ${{ vars.LINE_DAILY }}
           # การ์ดพื้นที่เผาไหม้เมื่อมีรอบใหม่ ("off" = ปิด)
           LINE_BURN: ${{ vars.LINE_BURN }}
+          # A7 แผนย้ายกลุ่มจริง (docs/line-rollout.md): all (ไม่ตั้ง) | daily = LINE ส่งเฉพาะสรุปประจำวัน + การ์ดเผาไหม้
+          LINE_MODE: ${{ vars.LINE_MODE }}
+          # ลิงก์เชิญกลุ่ม Telegram https://t.me/… — แสดงในสรุปประจำวันของ LINE เฉพาะ LINE_MODE=daily
+          TG_INVITE: ${{ vars.TG_INVITE }}
       # แจ้งเตือนคู่ขนานทาง Telegram (docs/telegram-bot.md) — สถานะแยกใน tg_notify.json · ไม่ตั้ง secret ก็ข้าม
       - run: node scripts/telegram_notify.js || true
         env:

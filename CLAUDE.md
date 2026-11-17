@@ -64,7 +64,7 @@
 - **F1** ผลตรวจสอบจากหน้างาน (`VF` + Worker `/reports`, วาง Worker แล้ว `rep:true` 16 พ.ย. 69) → [ui-modules.md](docs/arch/ui-modules.md)
 - **F2** ดัชนีเสี่ยง M2 (ผู้ใช้อนุมัติ) ชั้น `rk-*` + risk.json → risk.md · **F3** `monthly_report.js` (sync วันที่ 1 → `reports/`) → pipelines.md
 - **B2** งานหนัก (กองจุด/ภูมิประเทศ/เผาไหม้) อยู่ใน Web Worker inline `WJ`/`wjLib` (ห้ามแตะ DOM) → gotchas.md, testing.md
-- LINE ยังเป็นกลุ่มทดสอบ — ย้ายกลุ่มจริงต้องแก้ `LINE_GROUP_ID` และคิดเรื่องโควตา (11–30 คน × สรุปรายวัน เกินโควตาฟรี)
+- LINE ยังเป็นกลุ่มทดสอบ — แผนย้าย/โควตา/`LINE_MODE=daily`+`TG_INVITE` → `docs/line-rollout.md` (A7) · E3 บันทึกการใช้งาน/ออกทุกอุปกรณ์ → layers-backend.md
 - **ปีงบ 2571 (1 ต.ค. 70):** ถ้ายังไม่นำเข้า Excel ปีงบ 2570 เว็บเติมจาก API ให้เอง (`hdFill` + ป้าย ⚠) และ health `xlsx` เตือนตั้งแต่ 1 ธ.ค. — ควรนำเข้าตาม data-update.md
 
 ## งานค้าง

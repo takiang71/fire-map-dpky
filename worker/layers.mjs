@@ -9,13 +9,16 @@
 //     "rep:<ปีงบ>" = [ระเบียน] (ดัชนีต่อปีงบ อ่าน 1 ครั้งต่อรอบ site) · "r:<id>" = สำเนาระเบียนเดี่ยว (ตาข่ายนิรภัย: POST /reports/repair สร้างดัชนีใหม่จากสำเนา)
 //     ระเบียน {id,fy,hk,hs:{la,lo,t,sat},res,rai,cs,rp,ta,te,un,pl,moo,note,pos,ar,st,tm,by:{u,d},c,m} — เฟสแรกไม่เก็บภาพ (ผู้ใช้ตัดสิน 16 พ.ย. 69)
 //     อ่าน = ทุกคน (สาธารณะ) · บันทึก = ผู้ใช้ที่ล็อกอิน · แก้/ลบ = เจ้าของภายใน 24 ชม. หรือผู้ดูแล
+// E3 (17 พ.ย. 69): อัปโหลดชั้นไม่เกิน 8 MB (ตอบ 413) · POST /logout-all = ออกจากระบบทุกอุปกรณ์ (เปลี่ยน v ของบัญชีตัวเอง; ผู้ดูแลหลักใช้ meta.rv)
+//     "log" = บันทึกการใช้งาน 200 รายการล่าสุด [{t,u,d,a,k,id,n,fy,x}] (ใคร/การกระทำ/ชั้นหรือรายงาน/เวลา — ไม่เก็บรหัสผ่าน/token/เนื้อหาข้อมูล) · GET /log เฉพาะผู้ดูแล
+//     KV ไม่มี transaction: สองคำขอพร้อมกันอาจทำให้บันทึกหายบางรายการ (บันทึกเป็นตัวช่วยตรวจสอบ ไม่ใช่หลักฐานครบถ้วน)
 const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET,POST,PUT,DELETE,OPTIONS', 'access-control-allow-headers': 'authorization,content-type,x-meta', 'access-control-expose-headers': 'x-upd', 'access-control-max-age': '86400' };
 const J = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...CORS } });
 const E = (m, s = 400) => J({ error: m }, s);
 const te = new TextEncoder(), td = new TextDecoder();
 const b64u = b => btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const ub64 = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4)), c => c.charCodeAt(0));
-const MAXD = 20 * 1024 * 1024; // KV รับค่าได้ 25 MiB
+const MAXD = 8 * 1024 * 1024; // E3: 8 MB ต่อชั้น (KV รับค่าได้ 25 MiB — เดิมยอม 20 MB) · นับเป็นไบต์ของ body
 const USER_RE = /^[a-z0-9_.-]{3,32}$/;
 const ITER = 10000; // PBKDF2 — มากกว่านี้เสี่ยงเกิน CPU 10 ms ของ Worker ฟรี (เก็บจำนวนรอบไว้ในบัญชี r.i เผื่อเปลี่ยนภายหลัง)
 
@@ -36,6 +39,16 @@ async function getMeta(env) {
   return Object.assign({ users: {}, groups: [], layers: [] }, m || {});
 }
 const putMeta = (env, m) => env.LAYERS.put('meta', JSON.stringify(m));
+const rootV = (env, M) => sha(M.rv ? env.ADMIN_PASS + '|' + M.rv : env.ADMIN_PASS);
+// บันทึกการใช้งาน (E3) — รับเฉพาะช่องที่กำหนด ตัดความยาว · ไม่ให้ความล้มเหลวของบันทึกทำให้คำสั่งหลักล้ม
+const LOG_MAX = 200, LOGK = ['k', 'id', 'n', 'fy', 'x'];
+async function audit(env, U, a, o = {}) {
+  try {
+    const L = await env.LAYERS.get('log', { type: 'json' }) || [], e = { t: Date.now(), u: U ? String(U.u) : '', d: U ? txt(U.d, 80) : '', a };
+    for (const k of LOGK) if (o[k] != null && o[k] !== '') e[k] = typeof o[k] === 'number' ? o[k] : txt(o[k], 160);
+    L.unshift(e); await env.LAYERS.put('log', JSON.stringify(L.slice(0, LOG_MAX)));
+  } catch (e) { }
+}
 
 // ผู้ใช้จาก token: {u, d, a, g[]} หรือ null · v = รุ่นรหัสผ่าน (เปลี่ยนรหัส/ปิดบัญชี = token เก่าใช้ไม่ได้)
 async function who(req, env, M) {
@@ -45,7 +58,7 @@ async function who(req, env, M) {
   let o; try { o = JSON.parse(td.decode(ub64(p))) } catch { return null }
   if (!o.exp || o.exp < Date.now()) return null;
   const AU = env.ADMIN_USER || 'admin';
-  if (o.u === AU) return o.v === await sha(env.ADMIN_PASS) ? { u: AU, d: 'ผู้ดูแลหลัก', a: true, g: [], root: true } : null;
+  if (o.u === AU) return o.v === await rootV(env, M) ? { u: AU, d: 'ผู้ดูแลหลัก', a: true, g: [], root: true } : null;
   const r = M.users[o.u];
   if (!r || r.x || r.v !== o.v) return null;
   return { u: o.u, d: r.d || o.u, a: !!r.a, g: r.g || [] };
@@ -71,9 +84,11 @@ function applyLayer(L, b, M) {
   if (b.typ != null) L.typ = txt(b.typ, 40);
 }
 function metaHdr(req) { const h = req.headers.get('x-meta'); if (!h) return {}; try { return JSON.parse(td.decode(ub64(h))) } catch { return {} } }
+const tooBig = n => Object.assign(new Error(`ไฟล์ใหญ่เกิน 8 MB (ขนาด ${(n / 1048576).toFixed(1)} MB) — ลดจำนวนวัตถุ/จุดของเส้น หรือแบ่งเป็นหลายชั้น`), { s: 413 });
 async function readData(req) {
-  const t = await req.text();
-  if (t.length > MAXD) throw Object.assign(new Error('ไฟล์ใหญ่เกิน 20 MB'), { s: 413 });
+  const cl = +req.headers.get('content-length'); if (cl > MAXD) throw tooBig(cl); // ตัดก่อนอ่าน body
+  const ab = await req.arrayBuffer(); if (ab.byteLength > MAXD) throw tooBig(ab.byteLength);
+  const t = td.decode(ab);
   if (!/^\s*\{/.test(t) || !/"FeatureCollection"/.test(t.slice(0, 2000))) throw Object.assign(new Error('ข้อมูลต้องเป็น GeoJSON FeatureCollection'), { s: 400 });
   return t;
 }
@@ -106,7 +121,7 @@ export default {
   async fetch(req, env) {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
     const url = new URL(req.url), P = url.pathname.replace(/\/+$/, '').split('/').filter(Boolean), m = req.method;
-    if (!P.length) return J({ ok: true, app: 'fire-map layers', kv: !!env.LAYERS, admin: !!env.ADMIN_PASS, rep: true });
+    if (!P.length) return J({ ok: true, app: 'fire-map layers', kv: !!env.LAYERS, admin: !!env.ADMIN_PASS, rep: true, log: true, max_mb: MAXD / 1048576 });
     if (!env.LAYERS) return E('ยังไม่ได้ผูก KV ชื่อ LAYERS กับ Worker นี้', 500);
     if (!env.ADMIN_PASS) return E('ยังไม่ได้ตั้ง Secret ADMIN_PASS', 500);
     try {
@@ -120,20 +135,29 @@ export default {
         const fk = 'f:' + u.slice(0, 40), f = await env.LAYERS.get(fk, { type: 'json' }) || { n: 0 };
         if (f.n >= 8) return E('ใส่รหัสผิดหลายครั้ง กรุณารอ 15 นาที', 429);
         let ok = null;
-        if (u === AU) { if (same(await sha(p, 99), await sha(env.ADMIN_PASS, 99))) ok = { u, v: await sha(env.ADMIN_PASS), d: 'ผู้ดูแลหลัก', a: true, g: [], root: true } }
+        if (u === AU) { if (same(await sha(p, 99), await sha(env.ADMIN_PASS, 99))) ok = { u, v: await rootV(env, M), d: 'ผู้ดูแลหลัก', a: true, g: [], root: true } }
         else { const r = M.users[u]; if (r && !r.x && same(await pwHash(p, ub64(r.s), r.i || ITER), r.h)) ok = { u, v: r.v, d: r.d || u, a: !!r.a, g: r.g || [] } }
-        if (!ok) { await env.LAYERS.put(fk, JSON.stringify({ n: f.n + 1 }), { expirationTtl: 900 }); return E('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 401) }
+        if (!ok) { await env.LAYERS.put(fk, JSON.stringify({ n: f.n + 1 }), { expirationTtl: 900 });
+          if (f.n + 1 === 8 && (u === AU || M.users[u])) await audit(env, { u, d: (M.users[u] || {}).d || '' }, 'lock', { k: 'auth', x: 'ใส่รหัสผิด 8 ครั้ง ล็อก 15 นาที' }); // บันทึกเฉพาะชื่อที่มีจริง (กันรหัสผ่านที่พิมพ์ผิดช่องลงบันทึก)
+          return E('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 401) }
+        await audit(env, ok, 'login', { k: 'auth' });
         const pay = b64u(te.encode(JSON.stringify({ u, v: ok.v, exp: Date.now() + 30 * 864e5 })));
         return J({ token: pay + '.' + await hmac(env, pay), user: { u, d: ok.d, a: ok.a, g: ok.g, root: !!ok.root } });
       }
       if (r0 === 'me' && m === 'GET') return J({ user: U && { u: U.u, d: U.d, a: U.a, g: U.g, root: !!U.root } });
+      if (r0 === 'logout-all' && m === 'POST') { // E3 ออกจากระบบทุกอุปกรณ์ (รวมเครื่องนี้) — token ทุกใบของบัญชีนี้ใช้ไม่ได้ทันที
+        if (!U) return E('กรุณาเข้าสู่ระบบ', 401);
+        if (U.root) M.rv = rid(); else M.users[U.u].v = rid();
+        await putMeta(env, M); await audit(env, U, 'logout-all', { k: 'auth' }); return J({ ok: true });
+      }
+      if (r0 === 'log' && m === 'GET') { adm(); return J({ log: await env.LAYERS.get('log', { type: 'json' }) || [], max: LOG_MAX }) }
       if (r0 === 'password' && m === 'POST') { // เปลี่ยนรหัสผ่านตัวเอง (ผู้ดูแลหลักเปลี่ยนที่ Secret ADMIN_PASS)
         if (!U) return E('กรุณาเข้าสู่ระบบ', 401); if (U.root) return E('ผู้ดูแลหลักเปลี่ยนรหัสผ่านที่ Secret ADMIN_PASS ใน Cloudflare');
         const b = await body(), r = M.users[U.u];
         if (!same(await pwHash(String(b.old || ''), ub64(r.s), r.i || ITER), r.h)) return E('รหัสผ่านเดิมไม่ถูกต้อง', 401);
         if (String(b.p || '').length < 8) return E('รหัสผ่านใหม่ต้องยาวอย่างน้อย 8 ตัวอักษร');
         const s = crypto.getRandomValues(new Uint8Array(16)); r.s = b64u(s); r.h = await pwHash(String(b.p), s); r.i = ITER; r.v = rid(); await putMeta(env, M);
-        return J({ ok: true });
+        await audit(env, U, 'password', { k: 'auth' }); return J({ ok: true });
       }
 
       if (r0 === 'layers') {
@@ -142,7 +166,7 @@ export default {
           adm(); const d = await readData(req), b = metaHdr(req), L = { id: rid(), name: 'ชั้นข้อมูล', color: '#e8741c', on: false, dl: true, acl: { m: 'login', g: [], u: [] } };
           applyLayer(L, b, M); L.kb = Math.round(d.length / 1024); L.upd = Date.now(); L.by = U.u;
           await env.LAYERS.put('d:' + L.id, d); M.layers.push(L); await putMeta(env, M);
-          return J({ layer: pubL(L, U) });
+          await audit(env, U, 'layer-add', { k: 'layer', id: L.id, n: L.name, x: L.kb + ' KB' }); return J({ layer: pubL(L, U) });
         }
         const L = M.layers.find(x => x.id === r1);
         if (!L) return E('ไม่พบชั้นข้อมูล', 404);
@@ -153,12 +177,12 @@ export default {
           return new Response(s, { headers: { 'content-type': 'application/geo+json; charset=utf-8', 'cache-control': 'no-store', 'x-upd': String(L.upd), ...CORS } });
         }
         adm();
-        if (!r2 && m === 'PUT') { applyLayer(L, await body(), M); L.upd = Date.now(); await putMeta(env, M); return J({ layer: pubL(L, U) }) }
+        if (!r2 && m === 'PUT') { applyLayer(L, await body(), M); L.upd = Date.now(); await putMeta(env, M); await audit(env, U, 'layer-edit', { k: 'layer', id: L.id, n: L.name }); return J({ layer: pubL(L, U) }) }
         if (r2 === 'data' && m === 'PUT') {
           const d = await readData(req); applyLayer(L, metaHdr(req), M); L.kb = Math.round(d.length / 1024); L.upd = Date.now(); L.by = U.u;
-          await env.LAYERS.put('d:' + L.id, d); await putMeta(env, M); return J({ layer: pubL(L, U) });
+          await env.LAYERS.put('d:' + L.id, d); await putMeta(env, M); await audit(env, U, 'layer-data', { k: 'layer', id: L.id, n: L.name, x: L.kb + ' KB' }); return J({ layer: pubL(L, U) });
         }
-        if (!r2 && m === 'DELETE') { M.layers = M.layers.filter(x => x !== L); await putMeta(env, M); await env.LAYERS.delete('d:' + L.id); return J({ ok: true }) }
+        if (!r2 && m === 'DELETE') { M.layers = M.layers.filter(x => x !== L); await putMeta(env, M); await env.LAYERS.delete('d:' + L.id); await audit(env, U, 'layer-del', { k: 'layer', id: L.id, n: L.name }); return J({ ok: true }) }
       }
 
       if (r0 === 'users') {
@@ -171,32 +195,32 @@ export default {
           if (String(b.p || '').length < 8) return E('รหัสผ่านต้องยาวอย่างน้อย 8 ตัวอักษร');
           const s = crypto.getRandomValues(new Uint8Array(16)), gs = new Set(M.groups.map(g => g.id));
           M.users[u] = { d: txt(b.d, 80), s: b64u(s), h: await pwHash(String(b.p), s), i: ITER, g: (b.g || []).filter(g => gs.has(g)), a: !!b.a, x: false, v: rid(), c: Date.now() };
-          await putMeta(env, M); return J({ user: pubU(u, M.users[u]) });
+          await putMeta(env, M); await audit(env, U, 'user-add', { k: 'user', id: u, n: M.users[u].d, x: M.users[u].a ? 'ผู้ดูแล' : '' }); return J({ user: pubU(u, M.users[u]) });
         }
         const r = M.users[r1]; if (!r) return E('ไม่พบผู้ใช้', 404);
         if (m === 'PUT') {
-          const b = await body(), gs = new Set(M.groups.map(g => g.id));
-          if (b.d != null) r.d = txt(b.d, 80);
-          if (b.g != null) r.g = b.g.filter(g => gs.has(g));
-          if (b.a != null) r.a = !!b.a;
-          if (b.x != null && !!b.x !== !!r.x) { r.x = !!b.x; r.v = rid() }
-          if (b.p) { if (String(b.p).length < 8) return E('รหัสผ่านต้องยาวอย่างน้อย 8 ตัวอักษร'); const s = crypto.getRandomValues(new Uint8Array(16)); r.s = b64u(s); r.h = await pwHash(String(b.p), s); r.i = ITER; r.v = rid() }
-          await putMeta(env, M); return J({ user: pubU(r1, r) });
+          const b = await body(), gs = new Set(M.groups.map(g => g.id)), ch = [];
+          if (b.d != null && txt(b.d, 80) !== (r.d || '')) { r.d = txt(b.d, 80); ch.push('ชื่อที่แสดง') }
+          if (b.g != null) { const g = b.g.filter(g => gs.has(g)); if (g.join() !== (r.g || []).join()) ch.push('กลุ่ม'); r.g = g }
+          if (b.a != null && !!b.a !== !!r.a) { r.a = !!b.a; ch.push(r.a ? 'ให้สิทธิ์ผู้ดูแล' : 'ถอนสิทธิ์ผู้ดูแล') }
+          if (b.x != null && !!b.x !== !!r.x) { r.x = !!b.x; r.v = rid(); ch.push(r.x ? 'ปิดใช้งาน' : 'เปิดใช้งาน') }
+          if (b.p) { if (String(b.p).length < 8) return E('รหัสผ่านต้องยาวอย่างน้อย 8 ตัวอักษร'); const s = crypto.getRandomValues(new Uint8Array(16)); r.s = b64u(s); r.h = await pwHash(String(b.p), s); r.i = ITER; r.v = rid(); ch.push('ตั้งรหัสผ่านใหม่') }
+          await putMeta(env, M); await audit(env, U, 'user-edit', { k: 'user', id: r1, n: r.d, x: ch.join(' · ') }); return J({ user: pubU(r1, r) });
         }
-        if (m === 'DELETE') { delete M.users[r1]; M.layers.forEach(L => { L.acl.u = (L.acl.u || []).filter(u => u !== r1) }); await putMeta(env, M); return J({ ok: true }) }
+        if (m === 'DELETE') { const dn = r.d; delete M.users[r1]; M.layers.forEach(L => { L.acl.u = (L.acl.u || []).filter(u => u !== r1) }); await putMeta(env, M); await audit(env, U, 'user-del', { k: 'user', id: r1, n: dn }); return J({ ok: true }) }
       }
 
       if (r0 === 'groups') {
         adm();
         if (!r1 && m === 'GET') return J({ groups: M.groups });
-        if (!r1 && m === 'POST') { const b = await body(), n = txt(b.n, 80).trim(); if (!n) return E('กรุณาใส่ชื่อกลุ่ม'); const g = { id: rid().slice(0, 8), n }; M.groups.push(g); await putMeta(env, M); return J({ group: g }) }
+        if (!r1 && m === 'POST') { const b = await body(), n = txt(b.n, 80).trim(); if (!n) return E('กรุณาใส่ชื่อกลุ่ม'); const g = { id: rid().slice(0, 8), n }; M.groups.push(g); await putMeta(env, M); await audit(env, U, 'group-add', { k: 'group', id: g.id, n }); return J({ group: g }) }
         const g = M.groups.find(x => x.id === r1); if (!g) return E('ไม่พบกลุ่ม', 404);
-        if (m === 'PUT') { const b = await body(); if (b.n) g.n = txt(b.n, 80).trim() || g.n; await putMeta(env, M); return J({ group: g }) }
+        if (m === 'PUT') { const b = await body(), o = g.n; if (b.n) g.n = txt(b.n, 80).trim() || g.n; await putMeta(env, M); await audit(env, U, 'group-edit', { k: 'group', id: g.id, n: g.n, x: o !== g.n ? 'เดิม ' + o : '' }); return J({ group: g }) }
         if (m === 'DELETE') {
           M.groups = M.groups.filter(x => x !== g);
           Object.values(M.users).forEach(r => { r.g = (r.g || []).filter(x => x !== g.id) });
           M.layers.forEach(L => { L.acl.g = (L.acl.g || []).filter(x => x !== g.id) });
-          await putMeta(env, M); return J({ ok: true });
+          await putMeta(env, M); await audit(env, U, 'group-del', { k: 'group', id: g.id, n: g.n }); return J({ ok: true });
         }
       }
       if (r0 === 'reports') {
@@ -211,12 +235,12 @@ export default {
           applyRep(r, b); r.fy = fyOfMs(r.hs ? r.hs.t : now);
           const L = await getRep(env, r.fy); L.push(r);
           await env.LAYERS.put('r:' + r.id, JSON.stringify(r)); await putRep(env, r.fy, L);
-          return J({ report: r });
+          await audit(env, U, 'rep-add', { k: 'report', id: r.id, fy: r.fy, n: r.tm || r.ar, x: r.res }); return J({ report: r });
         }
         if (r1 === 'repair' && m === 'POST') { // ผู้ดูแล: สร้างดัชนี rep:<fy> ใหม่จากสำเนา r:<id> (กรณีเขียนชนกัน)
           adm(); const fy = +url.searchParams.get('fy') || fyOfMs(now), L = [];
           let cur; do { const l = await env.LAYERS.list({ prefix: 'r:', cursor: cur }); for (const k of l.keys) { const r = await env.LAYERS.get(k.name, { type: 'json' }); if (r && r.fy === fy) L.push(r) } cur = l.list_complete ? null : l.cursor } while (cur);
-          L.sort((a, b) => a.c - b.c); await putRep(env, fy, L); return J({ fy, n: L.length });
+          L.sort((a, b) => a.c - b.c); await putRep(env, fy, L); await audit(env, U, 'rep-repair', { k: 'report', fy, x: L.length + ' รายการ' }); return J({ fy, n: L.length });
         }
         const fy = +url.searchParams.get('fy') || fyOfMs(now), L = await getRep(env, fy), r = L.find(x => x.id === r1);
         if (!r) return E('ไม่พบรายงาน (ระบุ ?fy= ให้ตรงปีงบ)', 404);
@@ -225,9 +249,9 @@ export default {
           const t = await req.text(); if (t.length > REP_MAX) return E('ข้อมูลรายงานใหญ่เกิน 8 KB', 413);
           let b; try { b = JSON.parse(t) } catch { return E('ข้อมูลไม่ใช่ JSON') }
           applyRep(r, b); r.m = now; r.ed = { u: U.u, d: U.d };
-          await env.LAYERS.put('r:' + r.id, JSON.stringify(r)); await putRep(env, fy, L); return J({ report: r });
+          await env.LAYERS.put('r:' + r.id, JSON.stringify(r)); await putRep(env, fy, L); await audit(env, U, 'rep-edit', { k: 'report', id: r.id, fy, n: r.tm || r.ar, x: r.res }); return J({ report: r });
         }
-        if (m === 'DELETE') { await putRep(env, fy, L.filter(x => x !== r)); await env.LAYERS.delete('r:' + r.id); return J({ ok: true }) }
+        if (m === 'DELETE') { await putRep(env, fy, L.filter(x => x !== r)); await env.LAYERS.delete('r:' + r.id); await audit(env, U, 'rep-del', { k: 'report', id: r.id, fy, n: r.tm || r.ar, x: r.res }); return J({ ok: true }) }
       }
       return E('ไม่พบคำสั่ง', 404);
     } catch (e) { return E(e.message || String(e), e.s || 500) }

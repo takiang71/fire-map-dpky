@@ -144,6 +144,26 @@ const XSS = `(async()=>{const P='<img src=x onerror=alert(1)>',X=s=>s.replace(/&
  window.__ckXss={popup:pp?pp.textContent.split(P).length-1:0,list:(document.getElementById('ul-ll')||document.body).textContent.split(P).length-1,alert:window.__xss};
  UL.L=UL.L.filter(x=>x!==l);try{ULDB.del(l.id).catch(()=>{})}catch(_){}try{ulDrop(k)}catch(_){}if(ULP)ULP.remove();ulList();
  return e.length?'error: XSS — '+e.join(' · '):''})()`;
+// E3 (17 พ.ย. 69): หลังบ้านชั้นข้อมูล — แท็บ "บันทึกการใช้งาน" (ผู้ดูแล) + ปุ่ม "ออกจากระบบทุกอุปกรณ์" + ตรวจขนาด 8 MB ก่อนอัปโหลด
+// ใช้ ulApi จำลองในหน้า (ไม่ต่อ Worker จริง ไม่ล็อกอินจริง) แล้วคืนค่าเดิม · ชื่อชั้นในบันทึกเป็น HTML ต้องแสดงเป็นข้อความ · มือถือ: ตารางบันทึกต้องไม่ล้นแนวนอน
+const E3UI = `(async()=>{if(typeof ulALog!=='function'||typeof ulLogAll!=='function')return 'error: ไม่มี ulALog/ulLogAll';
+ const o=ulApi,me=UL.me,tk=UL.tok,op=UL.open,sl=ms=>new Promise(r=>setTimeout(r,ms)),calls=[],c0=window.confirm,X='<img src=x onerror=alert(1)>';window.__xss=window.__xss||0;window.alert=()=>{window.__xss++};
+ ulApi=async(p,x={})=>{calls.push(p);if(p==='/users')return{users:[],groups:[],root:'admin'};if(p==='/layers')return{layers:[],groups:[]};
+  if(p==='/log')return{log:[{t:Date.now(),u:'admin',d:'ผู้ดูแลหลัก',a:'layer-add',k:'layer',id:'ab12',n:X,x:'12 KB'},{t:Date.now()-6e4,u:'somchai',d:'สมชาย',a:'rep-add',k:'report',id:'cd34',fy:2570,n:'บุพราหมณ์|นาดี|ปราจีนบุรี',x:'none'},{t:Date.now()-12e4,u:'somchai',d:'สมชาย',a:'login',k:'auth'}],max:200};
+  if(p==='/logout-all')return{ok:true};return o(p,x)};
+ try{UL.me={u:'admin',d:'ผู้ดูแลหลัก',a:true,root:true,g:[]};UL.tok='ck-fake';
+  const big='{"type":"FeatureCollection","features":[{"properties":{"n":"'+'ก'.repeat(2.9e6)+'"}}]}';let er='';try{await o('/layers',{method:'POST',body:big})}catch(e){er=e.message}
+  if(!/ใหญ่เกิน 8 MB/.test(er))return 'error: ไม่ตรวจขนาด 8 MB ก่อนอัปโหลด ('+er+')';
+  await ulAdmin('log');for(let k=0;k<20&&!document.getElementById('ua-lt');k++)await sl(100);
+  const b=document.getElementById('ua-b'),t=b?b.textContent:'';if(!document.getElementById('ua-lt'))return 'error: แท็บบันทึกการใช้งานไม่มีตาราง: '+t.slice(0,100);
+  if(!/อัปโหลดชั้นใหม่/.test(t)||!/บันทึกผลตรวจสอบ/.test(t)||!/ต\\.บุพราหมณ์ อ\\.นาดี/.test(t)||!/ไม่พบไฟ/.test(t)||!t.includes(X))return 'error: บันทึกแสดงไม่ครบ: '+t.slice(0,160);
+  if(document.querySelector('img[src="x"]')||window.__xss)return 'error: XSS ในบันทึกการใช้งาน';
+  const sel=document.getElementById('ua-lk');sel.value='report';sel.dispatchEvent(new Event('change'));if(document.querySelectorAll('#ua-lt tr').length!==2)return 'error: กรองประเภท "ผลตรวจสอบ" ไม่ได้ 1 แถว';
+  const md=document.getElementById('md-b'),ov=md&&md.scrollWidth-md.clientWidth;window.__ckE3={rows:3,ov};if(ov>2)return 'error: ตารางบันทึกล้นแนวนอน '+ov+' px';
+  closeModal();if(!UL.open)ulOpen(true);ulList();const a=document.querySelector('#ul-acc [data-a="lall"]');if(!a)return 'error: ไม่มีปุ่ม "ออกจากระบบทุกอุปกรณ์" ในแผงชั้นข้อมูลของฉัน';
+  window.confirm=()=>true;a.click();for(let k=0;k<20&&UL.tok;k++)await sl(100);
+  if(!calls.includes('/logout-all'))return 'error: ไม่ได้เรียก /logout-all';if(UL.tok||UL.me)return 'error: กดแล้วยังไม่ออกจากระบบในเครื่องนี้';
+  return ''}finally{window.confirm=c0;await sl(200);ulApi=o;UL.tok=tk;UL.me=me;try{closeModal()}catch(_){}if(!op&&UL.open)ulOpen(false);else ulList()}})()`;
 const DESK = [
   ['การ์ดสถิติย้อนหลัง', `C('bStat')`], ['  แท็บการดับไฟป่า', `Q('#h-tab [data-v="xt"]')`], ['  ตารางการดับไฟ', `C('x-tbl')`], ['  ปิดตาราง', `C('md-x',1)`], ['  Excel แบบ อส. (F1)', `C('x-xls')`], ['  แถวที่ควรตรวจพิกัด (C4)', `C('x-chk')`], ['  แท็บจุดความร้อน', `Q('#h-tab [data-v="hs"]')`], ['  ตารางสถิติ', `C('h-tbl')`], ['  ปิดตาราง', `C('md-x',1)`], ['  แท็บทุกดาวเทียม', `Q('#h-tab [data-v="ha"]')`], ['  ตารางทุกดาวเทียม', `C('h-tbl')`], ['  ปิดตาราง', `C('md-x',1)`], ['  รายงานประจำเดือน (F3)', `(async()=>{const b=document.getElementById('h-mrep');if(!b)return 'ไม่พบ #h-mrep';b.click();const B=()=>document.getElementById('md-b').textContent;for(let k=0;k<40&&/กำลังโหลด/.test(B());k++)await new Promise(r=>setTimeout(r,250));return document.querySelector('#md-b table.dt a[href*="reports/"]')||/ยังไม่มีรายงาน/.test(B())?'':'รายการรายงานประจำเดือนไม่ขึ้น: '+B().slice(0,80)})()`], ['  ปิด', `C('md-x',1)`], ['  ปิดการ์ดสถิติ', `C('h-x',1)`],
   ['พื้นที่เฝ้าระวังพิเศษ', `C('bWch')`], ['  ตาราง จปร.', `C('w-tbl')`], ['  ปิดตาราง', `C('md-x',1)`], ['  ปิด', `C('bWch')`],
@@ -154,7 +174,7 @@ const DESK = [
   ['  พื้นที่เผาไหม้', `Q('.sw[data-k="burn"]')`], ['  รอตัวเลขพื้นที่เผาไหม้ (Worker B2)', BNWAIT], ['  ไทล์/จุดความร้อนใกล้รอยเผา Worker = main thread', BNTILE], ['  ปิดพื้นที่เผาไหม้', `Q('.sw[data-k="burn"]')`], ['  พื้นที่เผาซ้ำซาก', `Q('.sw[data-k="rep"]')`], ['  ไทล์เผาซ้ำซาก Worker = main thread', RPTILE], ['  ปิดพื้นที่เผาซ้ำซาก', `Q('.sw[data-k="rep"]')`], ['  ปิดแผง', `C('xr',1)`],
   ['ข้อมูลพื้นฐาน', `C('bKnow')`], ['  ปิด', `C('kb-x',1)`],
   ['เครื่องมือวัด', `C('bMs')`], ['  ปิด', `C('bMs')`],
-  ['ชั้นข้อมูลของฉัน', `C('bUl')`], ['  นำเข้า KML ชื่อ/คำอธิบายเป็น HTML (E2)', XSS], ['  ปิด', `C('bUl')`],
+  ['ชั้นข้อมูลของฉัน', `C('bUl')`], ['  นำเข้า KML ชื่อ/คำอธิบายเป็น HTML (E2)', XSS], ['  หลังบ้าน: บันทึกการใช้งาน + ออกจากระบบทุกอุปกรณ์ + 8 MB (E3, API จำลอง)', E3UI], ['  ปิด', `C('bUl')`],
   ['วิเคราะห์ภูมิประเทศ', `C('bTr')`], ['  เขาใหญ่ เส้นชั้นความสูง 20 ม. (รอ "กำลังคำนวณ…" หาย — Worker B2)', TRKY], ['  ความลาดชัน (Worker B2)', TRSLOPE], ['  ปิด', `C('bTr')`],
   ['พิมพ์แผนที่', `C('bPm')`], ['  ปิด', `C('pm-x',1)`],
   ['ดาวเทียมรอบถัดไป: ย่อ', `Q('#orb .obh')`], ['  ขยาย', `Q('#orb .obh')`], ['  แถว NOAA-21', `Q('#orb .obr[data-ob="NOAA21"]')`], ['  แผนที่โลกย่อ', `Q('#orb .obwm')`], ['  สวิตช์บนแผนที่ สลับ', `(()=>{const v=()=>map.getLayer('ob-tf')&&map.getLayoutProperty('ob-tf','visibility');const a=v(),r=__ck.Q('#orb .obh .hsp');return r||(v()!==a?'':'error: กดสวิตช์บนแผนที่แล้วชั้นวงโคจรไม่เปลี่ยน')})()`], ['  สวิตช์บนแผนที่ คืนค่า', `Q('#orb .obh .hsp')`], ['  ปิดชั้น', `Q('.sw[data-k="orb"]')`], ['  เปิดกลับ', `Q('.sw[data-k="orb"]')`],
@@ -164,6 +184,7 @@ const DESK = [
   ['กลับมุมมองกลุ่มป่า', `C('bHome')`],
 ];
 const MOB = [['ปุ่มเครื่องมือ (มือถือ)', `C('bTo')`], ['  ปิด', `C('bTo')`], ['ดาวเทียมรอบถัดไป: ขยาย/ย่อ', `Q('#orb .obh')`], ['  ย่อ/ขยาย', `Q('#orb .obh')`], ['แผงชั้นข้อมูล', `C('bLay')`], ['  กองจุดความร้อนรายวัน', `Q('.sw[data-k="hcl"]')`], ['  ปีงบ 2563 (รอ "กำลังคำนวณ…" หาย — Worker B2)', HC2563], ['  ปิดกองรายวัน', `Q('.sw[data-k="hcl"]')`], ['  ปิดแผง', `C('xr',1)`], ['การ์ดสถิติ', `C('bStat')`], ['  ปิด', `C('h-x',1)`], ['ย้อนดูการลามของไฟ', `C('bPlay')`], ['  เล่น', `C('pb-p')`], ['  ปิด', `C('pb-x',1)`],
+  ['หลังบ้านชั้นข้อมูล (มือถือ, E3 API จำลอง)', E3UI],
   ['ค้นหา (มือถือ)', `C('bSr')`], GZ4[0], ['  แผ่นผลค้นหาไม่บังคอลัมน์ปุ่ม', `(()=>{const s=document.getElementById('gz-s').getBoundingClientRect(),c=document.getElementById('ctl').getBoundingClientRect(),q=document.querySelector('#gz .gzh').getBoundingClientRect();if(document.getElementById('gz-s').hidden||s.height<40)return 'error: ไม่มีแผ่นผลค้นหา';if(Math.round(s.bottom)<innerHeight-2)return 'error: แผ่นผลไม่ชิดขอบล่าง';if(getComputedStyle(document.getElementById('ctl')).display!=='none'&&(s.top<c.bottom-1||q.right>c.left+1))return 'error: บังคอลัมน์ปุ่ม (แผ่นบน '+Math.round(s.top)+' ปุ่มล่าง '+Math.round(c.bottom)+')';return ''})()`], GZ4[2], ['  แตะผลแรก', `(async()=>{const b=document.querySelector('#gz-r button[data-i="0"]');if(!b)return 'error: ไม่มีผล';b.click();await new Promise(r=>setTimeout(r,400));return GZ.pop&&document.getElementById('gz-s').hidden?'':'error: แตะผลแล้วไม่มีป๊อปอัป/แผ่นไม่ปิด'})()`], ['  ปิดการค้นหา', `C('gz-x')`]];
 const HELP = `window.__ck={C(id,vis){const e=document.getElementById(id);if(!e)return 'ไม่พบ #'+id;if(vis&&!e.offsetParent&&getComputedStyle(e).position!=='fixed')return 'ข้าม';e.click();return ''},
 Q(s){const e=document.querySelector(s);if(!e)return 'ไม่พบ '+s;e.click();return ''},K(k){document.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true}));return ''}};`;

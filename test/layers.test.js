@@ -1,6 +1,7 @@
 // Worker ระบบหลังบ้าน (worker/layers.mjs) กับ KV จำลองในหน่วยความจำ — ไม่ต่อเน็ต
 //  · เดิมทดสอบด้วย mockworker.mjs ใน scratchpad (หายไปแล้ว) → ย้ายมาเป็นเทสต์ถาวร 16 พ.ย. 69
 //  · ครอบคลุม: GET / · login ผู้ดูแลหลัก/ผู้ใช้ · ชั้นข้อมูล (สร้าง/อ่านตามสิทธิ์) · F1 รายงานผลตรวจสอบ (สิทธิ์ 24 ชม., ตรวจค่า, ดัชนีต่อปีงบ, repair)
+//  · E3 (17 พ.ย. 69): อัปโหลดเกิน 8 MB = 413 (นับไบต์ ไม่ใช่ตัวอักษร) · ออกจากระบบทุกอุปกรณ์ (ผู้ใช้/ผู้ดูแลหลัก) · บันทึกการใช้งาน (ครบการกระทำ, ไม่มีรหัสผ่าน/token, 200 รายการ, ผู้ใช้ทั่วไปอ่านไม่ได้)
 const test = require('node:test'), assert = require('node:assert/strict');
 const path = require('path'), { pathToFileURL } = require('url');
 
@@ -25,7 +26,7 @@ test.before(async () => {
 const fyNow = () => { const d = new Date(Date.now() + 7 * 36e5); return d.getUTCFullYear() + 543 + (d.getUTCMonth() >= 9 ? 1 : 0) };
 
 let ADM, U1, U2;
-test('GET / บอกสถานะ kv/admin/rep', async () => { const r = await api('/'); assert.equal(r.s, 200); assert.deepEqual(r.j, { ok: true, app: 'fire-map layers', kv: true, admin: true, rep: true }) });
+test('GET / บอกสถานะ kv/admin/rep/log', async () => { const r = await api('/'); assert.equal(r.s, 200); assert.deepEqual(r.j, { ok: true, app: 'fire-map layers', kv: true, admin: true, rep: true, log: true, max_mb: 8 }) });
 test('login ผู้ดูแลหลักถูก/ผิด', async () => {
   const bad = await api('/login', { m: 'POST', body: { u: 'admin', p: 'wrong' } }); assert.equal(bad.s, 401);
   const ok = await api('/login', { m: 'POST', body: { u: 'admin', p: 'admin-secret-pass' } }); assert.equal(ok.s, 200); assert.ok(ok.j.token); assert.equal(ok.j.user.a, true); ADM = ok.j.token;
@@ -107,4 +108,96 @@ test('reports: GET อ่าน KV แค่ meta + ดัชนี (ไม่�
   const g0 = kv.get.bind(kv); let n = 0; kv.get = (...a) => { n++; return g0(...a) };
   await api('/reports?fy=2570'); kv.get = g0;
   assert.equal(n, 2);
+});
+
+// ---- E3 หลังบ้าน: จำกัดขนาด · ออกจากระบบทุกอุปกรณ์ · บันทึกการใช้งาน ----
+const SECRETS = () => ['admin-secret-pass', 'pass-somchai', 'pass-somying', 'new-pass-1234', 'reset-pass-999', 'wrong-pass-' + 'x', ADM, U1, U2].filter(Boolean);
+test('E3 อัปโหลดเกิน 8 MB = 413 ข้อความไทย (นับไบต์: ไทย 2.9 ล้านตัว = 8.7 MB) · ต่ำกว่าเพดานผ่าน', async () => {
+  const fc = name => JSON.stringify({ type: 'FeatureCollection', features: [{ type: 'Feature', geometry: { type: 'Point', coordinates: [101, 14] }, properties: { name } }] });
+  const big = fc('ก'.repeat(2.9e6)); assert.ok(big.length < 8 * 1048576 && Buffer.byteLength(big) > 8 * 1048576, 'ตัวอักษรไม่เกิน แต่ไบต์เกิน');
+  const r = await api('/layers', { m: 'POST', tok: ADM, body: big, meta: { name: 'ใหญ่' } });
+  assert.equal(r.s, 413); assert.match(r.j.error, /ไฟล์ใหญ่เกิน 8 MB \(ขนาด 8\.3 MB\)/);
+  const L0 = (await api('/layers', { tok: ADM })).j.layers.length;
+  const ascii = fc('x'.repeat(8 * 1048576)); assert.equal((await api('/layers', { m: 'POST', tok: ADM, body: ascii })).s, 413, 'ASCII เกิน 8 MB');
+  assert.equal((await api('/layers', { tok: ADM })).j.layers.length, L0, 'ไม่ถูกบันทึก');
+  const ok = await api('/layers', { m: 'POST', tok: ADM, body: fc('ข'.repeat(2.5e6)), meta: { name: 'เกือบเต็ม 7.2 MB' } });
+  assert.equal(ok.s, 200, ok.t); assert.equal(ok.j.layer.kb > 2400, true);
+  // แทนที่ข้อมูลชั้นเดิม (PUT /layers/<id>/data) ใช้เพดานเดียวกัน
+  assert.equal((await api('/layers/' + ok.j.layer.id + '/data', { m: 'PUT', tok: ADM, body: big })).s, 413);
+  assert.equal((await api('/layers/' + ok.j.layer.id + '/data', { m: 'PUT', tok: ADM, body: fc('เล็ก') })).s, 200);
+  assert.equal((await api('/layers/' + ok.j.layer.id, { m: 'DELETE', tok: ADM })).s, 200);
+});
+test('E3 Content-Length เกินเพดาน = 413 ก่อนอ่าน body', async () => {
+  const req = new Request('https://x.test/layers', { method: 'POST', headers: { authorization: 'Bearer ' + ADM }, body: '{"type":"FeatureCollection","features":[]}' });
+  const h = new Headers(req.headers); h.set('content-length', String(9 * 1048576));
+  const fake = { method: 'POST', url: req.url, headers: h, arrayBuffer: () => { throw new Error('ไม่ควรอ่าน body') }, text: req.text.bind(req), json: req.json.bind(req) };
+  const r = await W.fetch(fake, env); assert.equal(r.status, 413); assert.match((await r.json()).error, /เกิน 8 MB \(ขนาด 9\.0 MB\)/);
+});
+test('E3 ออกจากระบบทุกอุปกรณ์: token ทุกใบของบัญชีนั้นใช้ไม่ได้ · บัญชีอื่นไม่กระทบ · เข้าสู่ระบบใหม่ได้', async () => {
+  const lg = async () => (await api('/login', { m: 'POST', body: { u: 'somchai', p: 'pass-somchai' } })).j.token;
+  const S = (await api('/login', { m: 'POST', body: { u: 'somying', p: 'pass-somying' } })).j.token;
+  const A = await lg(), B = await lg(); /* 2 อุปกรณ์ */
+  assert.equal((await api('/me', { tok: A })).j.user.u, 'somchai'); assert.equal((await api('/me', { tok: B })).j.user.u, 'somchai');
+  assert.equal((await api('/logout-all', { m: 'POST' })).s, 401, 'ไม่ล็อกอิน = 401');
+  const r = await api('/logout-all', { m: 'POST', tok: A }); assert.equal(r.s, 200); assert.deepEqual(r.j, { ok: true });
+  assert.equal((await api('/me', { tok: A })).j.user, null, 'เครื่องนี้ออกด้วย'); assert.equal((await api('/me', { tok: B })).j.user, null, 'อุปกรณ์อื่นออก');
+  assert.equal((await api('/me', { tok: U1 })).j.user, null, 'token เก่าก่อนหน้าก็ใช้ไม่ได้');
+  assert.equal((await api('/reports', { m: 'POST', tok: B, body: { res: 'none' } })).s, 401, 'token เดิมบันทึกรายงานไม่ได้');
+  U2 = (await api('/login', { m: 'POST', body: { u: 'somying', p: 'pass-somying' } })).j.token; /* token เดิมของ somying ใช้ไม่ได้แล้วจากเทสต์ปิด/เปิดใช้งาน */
+  assert.equal((await api('/me', { tok: S })).j.user.u, 'somying', 'บัญชีอื่นไม่กระทบ');
+  U1 = await lg(); assert.equal((await api('/me', { tok: U1 })).j.user.u, 'somchai', 'เข้าสู่ระบบใหม่ได้');
+});
+test('E3 ออกจากระบบทุกอุปกรณ์: ผู้ดูแลหลัก (meta.rv) — token เดิมใช้ไม่ได้ รหัสผ่านเดิมยังเข้าได้', async () => {
+  const old = ADM; assert.equal((await api('/logout-all', { m: 'POST', tok: old })).s, 200);
+  assert.equal((await api('/me', { tok: old })).j.user, null); assert.equal((await api('/users', { tok: old })).s, 401);
+  const n = await api('/login', { m: 'POST', body: { u: 'admin', p: 'admin-secret-pass' } }); assert.equal(n.s, 200); ADM = n.j.token;
+  assert.equal((await api('/me', { tok: ADM })).j.user.root, true); assert.notEqual(ADM, old);
+});
+test('E3 บันทึกการใช้งาน: เปลี่ยนรหัส/ตั้งรหัสใหม่/ล็อก ลงบันทึกโดยไม่มีรหัสผ่าน', async () => {
+  assert.equal((await api('/users', { m: 'POST', tok: ADM, body: { u: 'lockme', p: 'pass-lockme', d: 'ทดสอบล็อก' } })).s, 200);
+  const T = (await api('/login', { m: 'POST', body: { u: 'lockme', p: 'pass-lockme' } })).j.token;
+  assert.equal((await api('/password', { m: 'POST', tok: T, body: { old: 'pass-lockme', p: 'new-pass-1234' } })).s, 200);
+  assert.equal((await api('/users/lockme', { m: 'PUT', tok: ADM, body: { p: 'reset-pass-999', x: true } })).s, 200);
+  for (let i = 0; i < 8; i++) await api('/login', { m: 'POST', body: { u: 'lockme', p: 'wrong-pass-x' } });
+  for (let i = 0; i < 8; i++) await api('/login', { m: 'POST', body: { u: 'wrong-pass-x', p: 'y' } }); // ชื่อที่ไม่มีจริง (เช่น พิมพ์รหัสผ่านผิดช่อง) ไม่ลงบันทึก
+  const L = (await api('/log', { tok: ADM })).j.log;
+  assert.ok(L.find(e => e.a === 'password' && e.u === 'lockme'));
+  const ue = L.find(e => e.a === 'user-edit' && e.id === 'lockme'); assert.ok(ue && /ตั้งรหัสผ่านใหม่/.test(ue.x) && /ปิดใช้งาน/.test(ue.x), JSON.stringify(ue));
+  assert.equal(L.filter(e => e.a === 'lock').length, 1); assert.equal(L.find(e => e.a === 'lock').u, 'lockme');
+  assert.ok(!JSON.stringify(L).includes('wrong-pass-x'));
+});
+test('E3 บันทึกการใช้งาน: ครอบ /layers /reports ผู้ใช้ กลุ่ม login · ไม่มีรหัสผ่าน/token/เนื้อหารายงาน', async () => {
+  const r = await api('/log', { tok: ADM }); assert.equal(r.s, 200); assert.equal(r.j.max, 200);
+  const L = r.j.log, acts = new Set(L.map(e => e.a));
+  for (const a of ['login', 'logout-all', 'password', 'lock', 'layer-add', 'layer-edit', 'layer-data', 'layer-del', 'rep-add', 'rep-edit', 'rep-del', 'rep-repair', 'user-add', 'user-edit', 'group-add'])
+    assert.ok(acts.has(a), 'ไม่มีการกระทำ ' + a + ' ใน ' + [...acts]);
+  for (const e of L) {
+    assert.ok(e.t > 0 && typeof e.u === 'string' && typeof e.a === 'string');
+    assert.deepEqual(Object.keys(e).filter(k => !['t', 'u', 'd', 'a', 'k', 'id', 'n', 'fy', 'x'].includes(k)), [], 'ช่องเกิน: ' + JSON.stringify(e));
+  }
+  assert.ok(L[0].t >= L[L.length - 1].t, 'ใหม่สุดก่อน');
+  const ra = L.find(e => e.a === 'rep-add'); assert.equal(ra.k, 'report'); assert.ok(ra.fy >= 2569); assert.equal(ra.u, ra.u.toLowerCase());
+  assert.ok(L.find(e => e.a === 'rep-edit' && e.u === 'admin'), 'ผู้ดูแลแก้รายงานของคนอื่นลงชื่อผู้ดูแล');
+  const la = L.find(e => e.a === 'layer-add' && e.n === 'แปลงทดสอบ'); assert.ok(la && la.k === 'layer' && la.u === 'admin');
+  const s = JSON.stringify(L) + kv.m.get('log');
+  for (const x of SECRETS()) assert.ok(!s.includes(x), 'บันทึกมีข้อมูลลับ: ' + x.slice(0, 12));
+  assert.ok(!/Bearer|"p":|"h":|"s":|token/i.test(s), 'ไม่มี token/แฮชรหัสผ่าน');
+  assert.ok(!s.includes('ตรวจแล้วเป็นควันจากเผาไร่นอกเขต'), 'ไม่เก็บเนื้อหารายงาน (note)');
+});
+test('E3 บันทึกการใช้งาน: ผู้ใช้ทั่วไปอ่านไม่ได้ (403) · ไม่ล็อกอิน 401 · ผู้ดูแลที่ไม่ใช่ admin อ่านได้', async () => {
+  assert.equal((await api('/log', { tok: U1 })).s, 403);
+  assert.equal((await api('/log')).s, 401);
+  assert.equal((await api('/users', { m: 'POST', tok: ADM, body: { u: 'boss', p: 'pass-boss-01', d: 'หัวหน้า', a: true } })).s, 200);
+  const B = (await api('/login', { m: 'POST', body: { u: 'boss', p: 'pass-boss-01' } })).j.token;
+  const r = await api('/log', { tok: B }); assert.equal(r.s, 200); assert.ok(r.j.log.length > 0);
+});
+test('E3 บันทึกการใช้งานเก็บ 200 รายการล่าสุด', async () => {
+  const g = (await api('/groups', { m: 'POST', tok: ADM, body: { n: 'กลุ่มนับ' } })).j.group;
+  for (let i = 0; i < 210; i++) await api('/groups/' + g.id, { m: 'PUT', tok: ADM, body: { n: 'กลุ่มนับ ' + i } });
+  const L = (await api('/log', { tok: ADM })).j.log;
+  assert.equal(L.length, 200); assert.equal(L[0].n, 'กลุ่มนับ 209'); assert.equal(L[0].x, 'เดิม กลุ่มนับ 208'); assert.equal(L[199].n, 'กลุ่มนับ 10');
+});
+test('E3 บันทึกล้มเหลวไม่ทำให้คำสั่งหลักล้ม', async () => {
+  const p0 = kv.put.bind(kv); kv.put = (k, v, o) => k === 'log' ? Promise.reject(new Error('KV write limit')) : p0(k, v, o);
+  try { const r = await api('/groups', { m: 'POST', tok: ADM, body: { n: 'ระหว่าง KV เต็ม' } }); assert.equal(r.s, 200) } finally { kv.put = p0 }
 });
