@@ -165,6 +165,20 @@ const E3UI = `(async()=>{if(typeof ulALog!=='function'||typeof ulLogAll!=='funct
   window.confirm=()=>true;a.click();for(let k=0;k<20&&UL.tok;k++)await sl(100);
   if(!calls.includes('/logout-all'))return 'error: ไม่ได้เรียก /logout-all';if(UL.tok||UL.me)return 'error: กดแล้วยังไม่ออกจากระบบในเครื่องนี้';
   return ''}finally{window.confirm=c0;await sl(200);ulApi=o;UL.tok=tk;UL.me=me;try{closeModal()}catch(_){}if(!op&&UL.open)ulOpen(false);else ulList()}})()`;
+// F5 (18 พ.ย. 69): แผงรายละเอียดจุด → โมเดลไฟ: ที่มาของทุกค่า (#fq-src) · ข้อความศักยภาพ + พื้นที่ 1 ชม. (#fq-pot) · ค่าทดสอบ 7.3 = หัวไฟ 4.7 และ FFMC ที่มาทีหลังไม่ทับ
+// · ปุ่มสลับ FFMC/EMC (#fq-mm, FFMC จำลอง 88.5 เพราะไฟล์กรอบ FWI ของวันนี้อาจไม่มีในเครื่อง) · มือถือ: ตารางที่มาไม่ล้นแนวนอน
+const FQCK = `(async()=>{if(typeof fqPick!=='function')return 'error: ไม่มีโมดูล fq (F5)';
+ openDetail({id:9001,lat:14.4302,lon:101.3712,t:Date.now()-36e5,sat:'NOAA-20',frp:5,conf:'n',prov:'ไม่ระบุ',amp:'ไม่ระบุ',tam:'ไม่ระบุ',demo:true,ns:'sample'});
+ ${WAIT(`FQ.stOk&&FQ.ffOk&&FQ.om`, 60)}
+ const s=document.getElementById('fq-src').textContent,p=document.getElementById('fq-pot').textContent;
+ if(!/ลำดับที่มา/.test(s)||!/ความชื้นเชื้อเพลิง/.test(s)||!/ความลาดชัน/.test(s))return 'error: ไม่แสดงที่มาของค่า: '+s.slice(0,80);
+ if(!/ศักยภาพเมื่อไฟลามอิสระโดยไม่มีการดับ ไม่ใช่การพยากรณ์รอยไหม้จริง/.test(p)||!/ที่ 1 ชม/.test(p))return 'error: ไม่มีข้อความศักยภาพ/พื้นที่ 1 ชม.: '+p;
+ document.getElementById('d-test').click();if(Math.abs(LASTR.Rh-4.7)>1e-9)return 'error: ค่าทดสอบ 7.3 ได้หัวไฟ '+LASTR.Rh;
+ FQ.ff={v:88.5,m:ffM(88.5),d:fwTday(),f:1};FQ.ffOk=1;fqApply();upd();if(Math.abs(LASTR.Rh-4.7)>1e-9)return 'error: FFMC ที่มาทีหลังทับค่าทดสอบ';
+ document.querySelector('#fq-mm [data-m="f"]').click();if(Math.abs(LASTR.E-ffM(88.5))>1e-9||!/FFMC 88.5/.test(document.getElementById('fuel-why').textContent))return 'error: ปุ่ม FFMC ไม่ใช้ความชื้นจาก FFMC';
+ document.querySelector('#fq-mm [data-m="e"]').click();if(P.fm!=null)return 'error: ปุ่มจากอากาศ (EMC) ไม่สลับกลับ';FQ.mp='f';
+ const b=document.getElementById('fq-src'),ov=b.scrollWidth-b.clientWidth;window.__ckFq={st:FQ.st&&FQ.st.n,ff:FQ.ffOk,ov};if(ov>2)return 'error: ตารางที่มาล้นแนวนอน '+ov+' px';
+ return ''})()`;
 const DESK = [
   ['การ์ดสถิติย้อนหลัง', `C('bStat')`], ['  แท็บการดับไฟป่า', `Q('#h-tab [data-v="xt"]')`], ['  ตารางการดับไฟ', `C('x-tbl')`], ['  ปิดตาราง', `C('md-x',1)`], ['  Excel แบบ อส. (F1)', `C('x-xls')`], ['  แถวที่ควรตรวจพิกัด (C4)', `C('x-chk')`], ['  แท็บจุดความร้อน', `Q('#h-tab [data-v="hs"]')`], ['  ตารางสถิติ', `C('h-tbl')`], ['  ปิดตาราง', `C('md-x',1)`], ['  แท็บทุกดาวเทียม', `Q('#h-tab [data-v="ha"]')`], ['  ตารางทุกดาวเทียม', `C('h-tbl')`], ['  ปิดตาราง', `C('md-x',1)`], ['  รายงานประจำเดือน (F3)', `(async()=>{const b=document.getElementById('h-mrep');if(!b)return 'ไม่พบ #h-mrep';b.click();const B=()=>document.getElementById('md-b').textContent;for(let k=0;k<40&&/กำลังโหลด/.test(B());k++)await new Promise(r=>setTimeout(r,250));return document.querySelector('#md-b table.dt a[href*="reports/"]')||/ยังไม่มีรายงาน/.test(B())?'':'รายการรายงานประจำเดือนไม่ขึ้น: '+B().slice(0,80)})()`], ['  ปิด', `C('md-x',1)`], ['  ปิดการ์ดสถิติ', `C('h-x',1)`],
   ['พื้นที่เฝ้าระวังพิเศษ', `C('bWch')`], ['  ตาราง จปร.', `C('w-tbl')`], ['  ปิดตาราง', `C('md-x',1)`], ['  ปิด', `C('bWch')`],
@@ -182,10 +196,12 @@ const DESK = [
   ['ค้นหาสถานที่/พิกัด', `C('bSr')`], ...GZ4, ['  Enter = ซูมไปผลแรก + ป๊อปอัป', `(async()=>{document.getElementById('gz-q').dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}));await new Promise(r=>setTimeout(r,400));return GZ.pop&&GZ.mk?'':'error: Enter แล้วไม่มีป๊อปอัป/หมุด'})()`], ['  ปิดการค้นหา', `C('gz-x')`],
   ['คัดลอกลิงก์มุมมองนี้ (D3)', `(async()=>{const u0=location.href;document.getElementById('vw-cp').click();await new Promise(r=>setTimeout(r,300));return /[?]v=-?[0-9]+[.][0-9]{5},-?[0-9]+[.][0-9]{5},[0-9]+[.][0-9]{2}/.test(vwCopy.last||'')&&/[?&]v=/.test(location.search)?'':'error: ลิงก์มุมมองผิดรูปแบบ '+vwCopy.last})()`],
   ['ฟอร์มผลตรวจสอบจากหน้างาน (F1)', `(()=>{vfForm({lat:14.26532,lon:101.98765,t:Date.now()-36e5,sat:'NOAA-20',tam:'บุพราหมณ์',amp:'นาดี',prov:'ปราจีนบุรี'},null);return document.getElementById('vf-f')?'':'ไม่พบฟอร์ม #vf-f'})()`], ['  เลือกผล "ไม่พบไฟ"', `Q('#vf-res [data-v="none"]')`], ['  ปิด', `C('md-x',1)`],
+  ['แผงรายละเอียดจุด: โมเดลไฟ ที่มาของค่า/FFMC/ค่าทดสอบ (F5)', FQCK], ['  ปิดแผงรายละเอียด', `C('d-x',1)`],
   ['กลับมุมมองกลุ่มป่า', `C('bHome')`],
 ];
 const MOB = [['ปุ่มเครื่องมือ (มือถือ)', `C('bTo')`], ['  ปิด', `C('bTo')`], ['ดาวเทียมรอบถัดไป: ขยาย/ย่อ', `Q('#orb .obh')`], ['  ย่อ/ขยาย', `Q('#orb .obh')`], ['แผงชั้นข้อมูล', `C('bLay')`], ['  กองจุดความร้อนรายวัน', `Q('.sw[data-k="hcl"]')`], ['  ปีงบ 2563 (รอ "กำลังคำนวณ…" หาย — Worker B2)', HC2563], ['  ปิดกองรายวัน', `Q('.sw[data-k="hcl"]')`], ['  ปิดแผง', `C('xr',1)`], ['การ์ดสถิติ', `C('bStat')`], ['  ปิด', `C('h-x',1)`], ['ย้อนดูการลามของไฟ', `C('bPlay')`], ['  เล่น', `C('pb-p')`], ['  ปิด', `C('pb-x',1)`],
   ['หลังบ้านชั้นข้อมูล (มือถือ, E3 API จำลอง)', E3UI],
+  ['แผงรายละเอียดจุด: โมเดลไฟ (มือถือ, F5)', FQCK], ['  ปิดแผงรายละเอียด', `C('d-x',1)`],
   ['ค้นหา (มือถือ)', `C('bSr')`], GZ4[0], ['  แผ่นผลค้นหาไม่บังคอลัมน์ปุ่ม', `(()=>{const s=document.getElementById('gz-s').getBoundingClientRect(),c=document.getElementById('ctl').getBoundingClientRect(),q=document.querySelector('#gz .gzh').getBoundingClientRect();if(document.getElementById('gz-s').hidden||s.height<40)return 'error: ไม่มีแผ่นผลค้นหา';if(Math.round(s.bottom)<innerHeight-2)return 'error: แผ่นผลไม่ชิดขอบล่าง';if(getComputedStyle(document.getElementById('ctl')).display!=='none'&&(s.top<c.bottom-1||q.right>c.left+1))return 'error: บังคอลัมน์ปุ่ม (แผ่นบน '+Math.round(s.top)+' ปุ่มล่าง '+Math.round(c.bottom)+')';return ''})()`], GZ4[2], ['  แตะผลแรก', `(async()=>{const b=document.querySelector('#gz-r button[data-i="0"]');if(!b)return 'error: ไม่มีผล';b.click();await new Promise(r=>setTimeout(r,400));return GZ.pop&&document.getElementById('gz-s').hidden?'':'error: แตะผลแล้วไม่มีป๊อปอัป/แผ่นไม่ปิด'})()`], ['  ปิดการค้นหา', `C('gz-x')`]];
 const HELP = `window.__ck={C(id,vis){const e=document.getElementById(id);if(!e)return 'ไม่พบ #'+id;if(vis&&!e.offsetParent&&getComputedStyle(e).position!=='fixed')return 'ข้าม';e.click();return ''},
 Q(s){const e=document.querySelector(s);if(!e)return 'ไม่พบ '+s;e.click();return ''},K(k){document.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true}));return ''}};`;

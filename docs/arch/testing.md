@@ -50,6 +50,7 @@
   | `fiscal.test.js` | ฟังก์ชันในหน้าเว็บ (ดึงจาก index.html): `fy0` `fyOfDay` (รอยต่อ 1 ต.ค.) `thDay` (เปลี่ยนวัน 17:00 UTC) `IND_SW`/`indSat` (2 พ.ย. 69) `fuOK` (+ dictionary จริงใน hdata) `dyAS` |
   | `search.test.js` | D4 `gzFind`/`gzCo` (ดึงจาก index.html + `udCoParse` + GIO): "บุพราหมณ์" → ต.บุพราหมณ์ อ.นาดี, "ทับลาน" → อช.ทับลาน แล้วสถานีฯ, คำนำหน้า ต./อ./จ., ชื่อย่อ จปร./ขญ.1, ค้นได้แม้ยังไม่มี admin/ranger, UTM 47/48 (มี/ไม่มีโซน), ละติจูด/ลองจิจูด (สลับลำดับ, องศา ลิปดา), ข้อความทั่วไปไม่ใช่พิกัด, คืนค่า UDCO · อ่าน data/admin.json ranger.json (ไม่เปลี่ยนตาม sync) |
   | `risk.test.js` | F2 `lib/risk.js`: FWI ชุดมาตรฐาน Van Wagner, ฝนลดดัชนี, DC เขตร้อน, dekad/ปีงบ, climBuild (หด/ไม่นับปีอื่น/เรียบ), auc/confusion/brier, fitLogit กู้สัมประสิทธิ์ (rng) |
+  | `fq.test.js` | F5 ขั้น B (ดึงจาก index.html): `ffM` FFMC→ความชื้น (85 → 16.3%, สมการกลับ ±0.1) · `calc` ไม่มี p.fm = เดิม (7.3 → 4.7), p.fm ใช้แทน EMC, ชื้นเกิน 24% = 0.05, 1 ชม. = 6 ชม. ÷ 36 · `fqPick` ลำดับ ปรับเอง > สถานี > แบบจำลอง > ค่าตัวอย่าง ทีละค่า + FFMC เฉพาะเมื่อเลือกและมีค่า (mo ทับ mp) · `fqStn` ใกล้สุด ≤30 กม. ข้อมูล ≤1 ชม. RH <8% ไม่ใช้ ลมสงบไม่ใช้ทิศ |
   | `fmodel.test.js` | F5 `lib/fmodel.js` (ดึงโค้ดโมเดลไฟจาก index.html): ค่าทดสอบเดิม 7.3 → หัวไฟ 4.7 ม./นาที ~2,000 ไร่/6 ชม. ทิศ 270° · ชื้น/ลมแรงเปลี่ยนทิศทางถูก · `fuelAt` ตามความสูง/ชั้นชนิดป่ามาก่อน · `huy`+`hyAdj` ลมคงที่ ≈ วงรี (<5%) · `slopeAt` กับ demTile สังเคราะห์ (11.3° ลาดลงตะวันตก) · `lib/png.js readPNG` อ่าน palettePNG กลับได้ทุกพิกเซล |
   | `mrep.test.js` | F3 `lib/mrep.js`: เริ่มเก็บ/เดือนใหม่/เดือนเดิม/เกิน 7 วัน/ว่าง + ข้อความ HTML/LINE |
   | `fxcheck.test.js` | C4 `xqRows`/`xqDist` (ดึงจาก index.html) กับ fxdata + `data/admin.json` (ไฟล์คงที่): สาเหตุนับตรงกับ `q` ของ import_fx, เรียงตามลำดับต้นฉบับ, ข้ามแถว ck/vf · `import_fx.js --dry --json` กับ xlsx 3 แถวที่สร้างในเทสต์: คอลัมน์ "ตรวจแล้ว" ข้ามคำเตือน + `r[24]=1`, ไม่มีคอลัมน์ = แถว 24 ช่อง |
@@ -132,6 +133,10 @@ Chrome headless 1440×900 · เสิร์ฟ `_site` จากเซิร์
   | `lint.test.js` | E2 `safeExpr` ปลอดภัย/ไม่ปลอดภัย · `lint` จับ 4 sink + template ซ้อน ข้ามสตริง/คอมเมนต์/regex/JSON · ratchet นับซ้ำ · index.html+คู่มือไม่มีจุดใหม่ และจุดที่แก้ใช้ esc() |
   | `csp.test.js` | E1 ทุก `<script>`/`<link>` ภายนอก (index+คู่มือ) มี sha384+crossorigin, ตัวโหลด xlsx/proj4 ตั้ง integrity, MapLibre 4.7.1 · E2 นโยบายครอบทุกโดเมนใน index.html (grep) + EXTRA, Report-Only เท่านั้น, ไม่มี meta CSP บังคับ · sw.js ใน vm ใส่ header ให้ navigate (ฉบับเผยแพร่) / ไม่ใส่ (dev) / ไม่ทับ header เดิม |
   | `numbers.test.js` | C2 เวลาจำลอง 20 เม.ย. 2569 (adata ทุกพื้นที่) และวันหลัง adata.to + live.json สังเคราะห์ 5 จุด (มีดงใหญ่) → หน้าเว็บ = summary = LINE = Telegram · แก้ summary +1 จุด → ok:false ชี้พื้นที่ (~3 วิ เพราะเรียก telegram_notify --preview) |
+
+## check_site ขั้นแผงรายละเอียดจุด — โมเดลไฟ (F5, 18 พ.ย. 69)
+
+- `FQCK` (DESK + MOB ก่อนปิดแผง `#d-x`): `openDetail` จุดตัวอย่าง 14.4302,101.3712 → รอ FQ.stOk/ffOk/om ≤15 วิ → `#fq-src` มีที่มา/ความชื้นเชื้อเพลิง/ความลาด · `#fq-pot` ข้อความศักยภาพ + ที่ 1 ชม. · กด `#d-test` = หัวไฟ 4.7 · FFMC จำลอง 88.5 มาทีหลังไม่ทับค่าทดสอบ · ปุ่ม `#fq-mm` f ใช้ `ffM(88.5)` + #fuel-why มี "FFMC 88.5" · ปุ่ม e สลับกลับ · มือถือ `#fq-src` ไม่ล้นแนวนอน → `window.__ckFq`
 
 ## Web Worker สำหรับงานคำนวณหนัก (B2, 17 พ.ย. 69)
 

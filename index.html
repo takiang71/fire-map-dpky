@@ -354,6 +354,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 .bar{height:7px;border-radius:4px;background:#e8eaf0;overflow:hidden;margin:6px 0}.bar i{display:block;height:100%}
 .lv{border-radius:12px;background:#fff7e0;border-left:6px solid #e0a010;padding:10px 12px;margin:8px 0;font-size:13px;color:#1d2433}.lv h5{margin:0 0 4px;font-size:14px}
 .tb{display:grid;grid-template-columns:40% 60%;gap:6px 8px;font-size:12.5px;color:#1d2433}.tb span{color:var(--mut)}
+.fqs{font-size:12px;grid-template-columns:36% minmax(0,1fr)}.fqs i{font-style:normal;font-weight:400;color:var(--mut)}#fq-mm button:disabled{opacity:.45;cursor:not-allowed}
 .peach code,.eq code{background:#eceef3;border-radius:4px;padding:0 4px;font-size:11.5px;word-break:break-word}
 .eq{font-size:12.5px;background:#fff7e0;border-radius:12px;padding:10px;margin-top:6px;color:#1d2433}.eq p{margin:0 0 8px}
 .tl{background:none;border:0;color:var(--navy);text-decoration:underline;font-size:13px;display:block;margin:8px auto;min-height:32px}
@@ -991,6 +992,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
     <div class="sm" style="color:#1d2433;font-weight:600">เชื้อเพลิงป่าไม้ <span style="font-weight:400;color:var(--mut)">(<span id="fuel-why">เลือกอัตโนมัติ</span> · ปรับเองได้)</span></div>
     <select id="fuel" style="width:100%;min-height:40px;border:1px solid var(--line);border-radius:10px;margin:4px 0;font:inherit;padding:0 8px"></select>
     <div class="sm" style="color:#1d2433;font-weight:600;margin-top:6px">โมเดลกระจายควัน</div><div class="seg" id="sm"><button data-m="g">Gaussian (เร็ว)</button><button data-m="l">Lagrangian (ลมรายชั่วโมง)</button></div>
+    <div class="tb fqs" id="fq-src" style="margin-top:8px"></div>
     <button class="tl" id="d-adj">ปรับตัวแปรจำลอง (ลม / ความชื้น / ความชัน)</button>
     <div class="sl" id="sl" hidden>
      <label>ความเร็วลม <b id="v-u"></b></label><input type="range" id="s-u" min="0" max="60" step="1">
@@ -998,12 +1000,13 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
      <label>ความชื้นสัมพัทธ์ <b id="v-r"></b></label><input type="range" id="s-r" min="5" max="100" step="1">
      <label>ความชัน <b id="v-s"></b></label><input type="range" id="s-s" min="0" max="40" step="1">
      <button class="tl" id="d-test">ใช้ค่าทดสอบ (หัวข้อ 7.3)</button></div></div>
-   <div class="g2"><div class="wh"><small id="k-ah"></small><b id="k-a"></b> <em>ไร่</em><small id="k-a2"></small></div>
+   <div class="g2"><div class="wh"><small id="k-ah"></small><b id="k-a"></b> <em>ไร่</em><small id="k-a2"></small><small id="fq-a1"></small></div>
     <div class="wh"><small>อัตราไฟลามที่หัวไฟ</small><b id="k-r"></b> <em>ม./นาที</em><small id="k-r2"></small></div>
     <div class="wh"><small>ความรุนแรงหน้าไฟ (Byram)</small><b id="k-i"></b> <em>kW/m</em><small id="k-i2"></small></div>
     <div class="wh"><small>ฝุ่น PM2.5 ที่ปลดปล่อย</small><b id="k-p"></b> <em>ตัน</em><small id="k-p2"></small></div></div>
+   <div class="sm" id="fq-pot" style="margin:6px 0 0;color:#8a4b0f"></div>
    <div class="lg" id="lg"></div>
-   <div class="wh"><div style="display:flex;justify-content:space-between;font-size:12.5px"><span>ความชื้นสมดุลเชื้อเพลิงตาย (EMC)</span><b id="e-v"></b></div><div class="bar"><i id="e-b"></i></div><div class="sm" id="e-t"></div></div>
+   <div class="wh"><div style="display:flex;justify-content:space-between;font-size:12.5px"><span id="fq-eh">ความชื้นสมดุลเชื้อเพลิงตาย (EMC)</span><b id="e-v"></b></div><div class="bar"><i id="e-b"></i></div><div class="sm" id="e-t"></div><div class="seg" id="fq-mm"><button data-m="f">FFMC กรมป่าไม้</button><button data-m="e">จากอากาศ (EMC)</button></div></div>
    <div class="lv" id="lv"><h5 id="lv-h"></h5><div id="lv-b"></div><div class="wh" style="margin-top:8px" id="lv-c" hidden></div></div>
    <h4 style="margin:12px 0 6px;border-top:1px solid #f4c9a0;padding-top:10px">ประเมินผลกระทบสิ่งแวดล้อมและพื้นที่ใต้ลม</h4>
    <div class="tb" id="tb"></div>
@@ -1988,6 +1991,7 @@ const LV=[['#3b9a4c','ระดับที่ 1 · ไฟความรุน�
  ['#d93a1f','ระดับที่ 4 · ไฟความรุนแรงสูงมาก (เสี่ยงไฟเรือนยอด)','เสี่ยงไฟลามขึ้นเรือนยอดและไฟกระโดด ห้ามเข้าใกล้หัวไฟ ให้ถอนกำลังพลและป้องกันชุมชนใต้ลม']];
 const MORT=['1-3%','5-12%','12-30%','มากกว่า 30%'],REC=['1-2 ปี','2-4 ปี','4-8 ปี','8-15 ปี']; // ค่าประมาณ (สมมติ) ตามระดับความรุนแรง
 const emc=(T,H)=>H<10?.03229+.281073*H-.000578*H*T:H<50?2.22749+.160107*H-.014784*T:21.0606+.005565*H*H-.00035*H*T-.483199*H; // Simard 1968 (T °C ตามต้นแบบ)
+const ffM=F=>147.2*(101-F)/(59.5+F); /* F5: FFMC → ความชื้นเชื้อเพลิงละเอียด % (Van Wagner 1987) */
 const damp=r=>Math.max(0,1-2.59*r+5.11*r*r-3.52*r**3);
 const phiW=Uf=>{const s=1500;return 7.47*Math.exp(-.133*s**.55)*Math.pow(Uf,.02526*s**.54)};
 const phiS=d=>5.275*Math.pow(.01,-.3)*Math.tan(d*Math.PI/180)**2;
@@ -2002,7 +2006,7 @@ function spreadVec(p){const wt=(p.from+180)%360,fw=phiW(p.u/3.6*WAF*196.85),fs=p
  const up=(p.asp+180)%360,d=Math.PI/180,x=fw*Math.sin(wt*d)+fs*Math.sin(up*d),y=fw*Math.cos(wt*d)+fs*Math.cos(up*d),fe=Math.hypot(x,y);
  return{fe,dir:fe<1e-9?wt:(Math.atan2(x,y)/d+360)%360,wt,up,Ue:fe>0?Math.pow(fe/PWC,1/PWB)/196.85:0}}
 function calc(p){
- const f=FUEL[p.fuel],E=emc(p.T,p.rh),V=spreadVec(p),Um=V.Ue,Rh=Math.max(.05,R0*f.k*eta(E)*(1+V.fe));
+ const f=FUEL[p.fuel],E=p.fm!=null?p.fm:emc(p.T,p.rh),V=spreadVec(p),Um=V.Ue,Rh=Math.max(.05,R0*f.k*eta(E)*(1+V.fe));
  const LB=.936*Math.exp(.2566*Um)+.461*Math.exp(-.1548*Um)-.397,s=Math.sqrt(Math.max(0,LB*LB-1)),Rb=Rh*(LB-s)/(LB+s),Rf=(Rh+Rb)/(2*LB);
  const t=p.hr*60,a=(Rh+Rb)/2*t,b=Rf*t,off=(Rh-Rb)/2*t,ha=Math.PI*a*b/1e4,rai=ha*EH,per=Math.PI*(3*(a+b)-Math.sqrt((3*a+b)*(a+3*b)));
  const w=f.w*1000/1600,bio=rai*f.w*f.cf,I=HC*w*FRAC*Rh/60,Lf=.0775*Math.pow(I,.46),pm=bio*f.pm/1000,co=bio*f.co/1000;
@@ -2078,7 +2082,7 @@ function fuelAt(g,z,f){if(f&&FTF[f.k]!=null){const i=FTF[f.k];return{i,why:'ช�
  if(!c.length)return z==null?{i:0,why:'ค่าเริ่มต้น (รอข้อมูลความสูง)'}:{i:fuelByElev(z),why:'ตามความสูง'+zt};
  let i=c[0];if(c.length>1&&z!=null){if(c.includes(1)&&z<250)i=1;else if(c.includes(2)&&z>=500)i=2}
  return{i,why:'ชนิดป่าของแปลง: '+ft+(c.length>1?zt:'')}}
-function fuelAuto1(z){const f=fuelAt(CUR&&CUR.geo,z,CUR&&ftAt(CUR.lon,CUR.lat));P.fuel=f.i;tx('fuel-why','เลือกอัตโนมัติ: '+f.why)}
+function fuelAuto1(z){const f=fuelAt(CUR&&CUR.geo,z,CUR&&ftAt(CUR.lon,CUR.lat));P.fuel=f.i;fqWhy('เลือกอัตโนมัติ: '+f.why)}
 function syncSl(){const v=(i,val,u)=>{$('#s-'+i).value=val;tx('v-'+i,Math.round(val)+u)};v('u',P.u,' กม./ชม.');v('f',P.from,'°');v('r',P.rh,'%');v('s',P.sl,'°');$('#fuel').value=P.fuel;$$('#dur button').forEach(b=>b.classList.toggle('on',+b.dataset.h===P.hr));$$('#sm button').forEach(b=>b.classList.toggle('on',b.dataset.m===P.sm))}
 function upd(){
  if(!CUR)return;if(!ADM)admLoad().then(()=>CUR&&upd()).catch(e=>dbg('admLoad',e));const an=(lo,la)=>{const a=admAt(lo,la);return a?' <span style="font-weight:400">· '+esc(admTxt(a))+'</span>':''};
@@ -2097,32 +2101,33 @@ function upd(){
   <span>หมายเหตุตามชนิดป่า:</span><b style="font-weight:400">${r.f.t}</b>`);
  const pt=(d,b=r.windTo)=>{const c=dest(h,b,d);return c[1].toFixed(4)+', '+c[0].toFixed(4)+an(c[0],c[1])};
  tx('dw',`<span>หน้าไฟ (${nf((LG?LG.hLen:r.head)/1000,1)} กม.):</span><b>${LG?fm(LG.hEnd):pt(r.head,r.toDir)}</b><span>ใต้ลม 7 กม.:</span><b>${LG?fm(LG.p7):pt(7000)}</b><span>ปลาย${LG?'กลุ่ม':'กรวย'}ควัน (~${nf(rch)} กม.):</span><b>${LG?fm(LG.far):pt(r.reach*1000)}</b>`);
- tx('eq',`<p><b>1. ความชื้นสมดุลเชื้อเพลิง (Simard 1968 EMC):</b> จากอุณหภูมิ (${nf(P.T,1)} °C) และความชื้นสัมพัทธ์ (${Math.round(P.rh)}%) ได้ <code>EMC = ${nf(r.E,1)}%</code> และตัวคูณลดทอนความชื้น <code>η_M = ${nf(r.eta,2)}</code></p>
+ tx('eq',`<p><b>1. ${P.fm!=null&&FQ.ff?`ความชื้นเชื้อเพลิงละเอียดจาก FFMC (Van Wagner 1987):</b> <code>m = 147.2 · (101 − FFMC) ÷ (59.5 + FFMC)</code> จาก FFMC ${nf(FQ.ff.v,1)} ของ TFDRS กรมป่าไม้ (${fwDate(FQ.ff.d,{day:'numeric',month:'short'})}${FQ.ff.f?' พยากรณ์':' ค่าเที่ยงวัน'}) ได้ <code>m = ${nf(r.E,1)}%</code> (ใช้แทน EMC · สลับเป็นค่าจากอากาศได้)`:`ความชื้นสมดุลเชื้อเพลิง (Simard 1968 EMC):</b> จากอุณหภูมิ (${nf(P.T,1)} °C) และความชื้นสัมพัทธ์ (${Math.round(P.rh)}%) ได้ <code>EMC = ${nf(r.E,1)}%</code>`} และตัวคูณลดทอนความชื้น <code>η_M = ${nf(r.eta,2)}</code></p>
  <p><b>2. อัตราการลุกลามไฟผิวดิน (Rothermel 1972):</b> <code>R = R₀ · η_M · (1 + |φ_W + φ_S|)</code> รวมผลของลม (ปรับด้วยค่าบังลมของป่า WAF = ${WAF}) กับความชัน ${P.sl}° แบบเวกเตอร์${P.asp==null?' (ไม่ทราบทิศลาด: ถือว่าลาดขึ้นไปทางเดียวกับลม)':` (ลาดขึ้นไป${dn((P.asp+180)%360)} · หัวไฟลามไป${dn(r.toDir)})`} ได้หัวไฟ ${nf(r.Rh,1)} ข้างไฟ ${nf(r.Rf,1)} ท้ายไฟ ${nf(r.Rb,1)} ม./นาที</p>
  <p><b>3. เรขาคณิตวงรีไฟป่า (Anderson 1983):</b> <code>L/B = 0.936·e^(0.2566·U) + 0.461·e^(-0.1548·U) - 0.397 = ${nf(r.LB,2)}</code> (U = ${nf(r.Um,2)} ม./วินาที = ${P.asp==null?'ลมที่ 10 ม. x WAF':'ลมประสิทธิผลที่รวมผลความชันแล้ว'})${HY?' · โหมด Lagrangian: ขอบไฟโตแบบ Huygens (คลื่นวงรีจากทุกจุดบนขอบไฟ) ตามลมรายชั่วโมง พื้นที่และเส้นรอบวงมาจากรูปขอบไฟนี้':''}</p>
  <p><b>4. ความรุนแรงหน้าไฟและเปลวไฟ (Byram 1959):</b> <code>I_B = H · w · r = ${nf(r.I)} kW/m</code> (H = ${nf(HC)} kJ/kg) และ <code>L_f = 0.0775 · I_B^0.46 = ${nf(r.Lf,1)} ม.</code></p>
  <p style="margin:0"><b>5. การปลดปล่อยมลพิษและกรวยควัน (Seiler & Crutzen 1980 / Gaussian Plume):</b> จากมวลชีวมวลที่เผาไหม้จริง (x Cf ${r.f.cf}) x สัมประสิทธิ์ของ${r.f.n} (<code>EF_PM2.5 = ${r.f.pm} g/kg</code>, <code>EF_CO₂ = ${r.f.co} g/kg</code>) ${LG?'· ควันใช้ Lagrangian: <code>X(t+Δt) = X(t) + V·Δt</code>, <code>V = u_mean + u′</code> (random walk, K = 50 m²/s) ลม 10 ม. x 1.25 ('+(WS&&!manualWind?'พยากรณ์รายชั่วโมง':'ลมคงที่ตามสไลเดอร์')+') ชั้นผสม 1,000 ม. อนุภาค 2,000 ตัว':'· ค่าคงที่ R₀ ระยะควัน และตัวคูณฝุ่นใต้ลม สอบเทียบกับค่าทดสอบ 7.3'}</p>`);
+ fqRender(r);
  FXD={type:'FeatureCollection',features:[...(LG?LG.feats:[{type:'Feature',properties:{k:'cone'},geometry:{type:'Polygon',coordinates:[[[h.lon,h.lat],...[-18,-9,0,9,18].map(o=>dest(h,r.windTo+o,r.reach*1000)),[h.lon,h.lat]]]}}]),
   ...[[3,'#e8b020'],[2,'#f08a1c'],[1,'#e0301e']].map(([i,c])=>({type:'Feature',properties:{k:'ell',c},geometry:{type:'Polygon',coordinates:[HY?hyPoly(h,HY,i):ell(h,r,i/3)]}}))]};
  const src=map.getSource('fx');src&&src.setData(FXD);
  PLU=LG?LG.url:BLANK;PLC=LG?LG.co:CO;const pis=map.getSource('plimg');pis&&pis.updateImage({url:PLU,coordinates:PLC});map.getLayer('fx-pi')&&map.setLayoutProperty('fx-pi','visibility',LG?'visible':'none');
 }
 function openDetail(h){
- CUR=h;fuelAuto=true;manualWind=false;slManual=false;WS=null;P={sm:P.sm||'g',hr:6,fuel:0,u:11,from:90,rh:61,T:32.3,sl:4};$('#right').classList.remove('open');sync();$('#dp').classList.add('open');$('#dp .rb').scrollTop=0;
+ CUR=h;fuelAuto=true;manualWind=false;slManual=false;WS=null;P={sm:P.sm||'g',hr:6,fuel:0,u:11,from:90,rh:61,T:32.3,sl:4};fqReset(h);$('#right').classList.remove('open');sync();$('#dp').classList.add('open');$('#dp .rb').scrollTop=0;
  const u=utm(h.lat,h.lon),a=ageH(h);
  tx('d-sat',(h.demo?'จุดความร้อนตัวอย่าง (ไม่ใช่ข้อมูลจริง) · ':'จุดความร้อน · ')+h.sat);tx('d-name',h.ns==='unk'?'ไม่ทราบชื่อพื้นที่ · '+h.lat.toFixed(4)+', '+h.lon.toFixed(4):'ตำบล'+h.tam+' อำเภอ'+h.amp+' จังหวัด'+h.prov);fillHist(h);{const e=document.getElementById('d-pa'),g=geoAt(h.lon,h.lat);h.geo=g;if(e){e.style.display='block';
  e.innerHTML=(h.wa||watchAt(h.lon,h.lat)?`พื้นที่เฝ้าระวังพิเศษ: <b>${esc((WAR.find(x=>x.id===(h.wa||watchAt(h.lon,h.lat)))||{}).n)}</b><br>`:'')+(g.cons?`พื้นที่อนุรักษ์: <b>${esc(g.cons.properties.name)}</b>`:'พื้นที่อนุรักษ์: <b>อยู่นอกแนวเขต</b>')+(h.live&&h.pa&&(!g.cons||g.cons.properties.name.indexOf(h.pa.replace(/^อุทยานแห่งชาติ|^เขตรักษาพันธุ์สัตว์ป่า/,''))<0)?` <span style="opacity:.75">(API: ${esc(h.pa)})</span>`:'')
  +(g.resp.length?'<br>'+g.resp.map(r=>`สถานีฯ ที่รับผิดชอบ: <b>${esc(r.properties.station.replace(/^สถานีควบคุมไฟป่า/,''))}</b> · ${esc(r.properties.paro)}`).join('<br>'):'<br>สถานีฯ ที่รับผิดชอบ: <b>ไม่อยู่ในพื้นที่รับผิดชอบตามไฟล์</b>')+'<br>'+ftRow(h.lon,h.lat,'span');ftFill(e)}}fuelAuto1(null);{const m=Math.max(0,Math.round(a*60)),d=Math.floor(m/1440),hh=Math.floor(m%1440/60),mi=m%60,P=[];if(d)P.push([d,'วัน']);if(d||hh)P.push([hh,'ชม.']);P.push([mi,'นาที']);tx('d-age',P.map(([v,u])=>`<b>${v}</b><small>${u}</small>`).join(''));$('#d-age').classList.toggle('dd',!!d)}tx('d-frp',h.frp==null?'–':nf(h.frp,1));
  tx('d-tl',h.live?'เวลาที่ดาวเทียมสแกน':'เวลาที่ตรวจพบ');tx('d-t',new Date(h.t).toLocaleString('th-TH',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'})+' น.');tx('d-cf',h.conf==='h'?'สูง':h.conf==='l'?'ต่ำ':'ปกติ');
  tx('d-ll',h.lat.toFixed(5)+', '+h.lon.toFixed(5));tx('d-utm','UTM '+u.z+'N · E '+nf(u.E)+' N '+nf(u.N));tx('d-el','–');tx('d-sl','กำลังคำนวณ…');tx('d-wx','ค่าตัวอย่าง (กำลังดึง…)');
- slopeAt(h.lon,h.lat).then(r=>{if(CUR!==h)return;tx('d-sl',nf(r.s,1)+'° · ลาดลงไป'+dn(r.asp).replace(/ \(.*$/,''));P.asp=r.s>=1?r.asp:null;if(!slManual)P.sl=Math.min(40,Math.round(r.s));syncSl();upd()}).catch(()=>{if(CUR===h)tx('d-sl','– (ใช้ค่าเริ่มต้น 4°)')});
+ slopeAt(h.lon,h.lat).then(r=>{if(CUR!==h)return;tx('d-sl',nf(r.s,1)+'° · ลาดลงไป'+dn(r.asp).replace(/ \(.*$/,''));P.asp=r.s>=1?r.asp:null;if(!slManual)P.sl=Math.min(40,Math.round(r.s));FQ.sld=1;syncSl();upd()}).catch(()=>{if(CUR===h)tx('d-sl','– (ใช้ค่าเริ่มต้น 4°)')});
  map.getSource('ring').setData({type:'FeatureCollection',features:[{type:'Feature',properties:{},geometry:{type:'Point',coordinates:[h.lon,h.lat]}}]});{const sp=map.getSource('selpt');sp&&sp.setData({type:'FeatureCollection',features:h.old?[{type:'Feature',properties:{},geometry:{type:'Point',coordinates:[h.lon,h.lat]}}]:[]})}
  map.flyTo({center:[h.lon,h.lat],zoom:11.2,duration:dur(1600),padding:innerWidth>767?{right:380}:{top:70,bottom:Math.round(innerHeight*.6)+16}});
- syncSl();upd();fillAq(h);try{if(typeof vfBox==='function')vfBox(h)}catch(e){dbg('vfBox',e)}
+ syncSl();upd();fillAq(h);fqLoad(h);try{if(typeof vfBox==='function')vfBox(h)}catch(e){dbg('vfBox',e)}
  ftLoad().then(()=>{if(CUR===h&&fuelAuto){fuelAuto1(h.el);syncSl();upd()}}).catch(e=>dbg('openDetail',e));
  if(h.ns!=='api')admLoad().then(()=>{const a=CUR===h&&admAt(h.lon,h.lat);if(!a)return;tx('d-name','ตำบล'+esc(a.t)+' อำเภอ'+esc(a.a)+' จังหวัด'+esc(a.p));tx('d-nmn',(h.demo?'จุดตัวอย่างเพื่อดูการแสดงผล · ':'')+'ชื่อพื้นที่จากแนวเขตตำบล (กรมการปกครอง ผ่าน OCHA HDX)')}).catch(e=>dbg('admLoad',e));
  fetchT(`https://api.open-meteo.com/v1/forecast?latitude=${h.lat}&longitude=${h.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation&hourly=wind_speed_10m,wind_direction_10m&forecast_hours=26&wind_speed_unit=kmh`,{},FTO.aux).then(r=>r.json()).then(j=>{
-  if(CUR!==h||!j.current)return;const c=j.current;if(j.hourly&&j.hourly.wind_speed_10m)WS={u:j.hourly.wind_speed_10m,d:j.hourly.wind_direction_10m};Object.assign(P,{T:c.temperature_2m,rh:c.relative_humidity_2m,u:c.wind_speed_10m,from:c.wind_direction_10m});
+  if(CUR!==h||!j.current)return;const c=j.current;if(j.hourly&&j.hourly.wind_speed_10m)WS={u:j.hourly.wind_speed_10m,d:j.hourly.wind_direction_10m};FQ.om={T:c.temperature_2m,rh:c.relative_humidity_2m,u:c.wind_speed_10m,from:c.wind_direction_10m};fqApply();
   h.el=j.elevation;if(fuelAuto)fuelAuto1(j.elevation);tx('d-el',Math.round(j.elevation)+' ม. รทก.');tx('d-wx','Open-Meteo ขณะนี้ · '+nf(c.temperature_2m,1)+' °C');syncSl();upd();fillWx(h,c)
  }).catch(()=>tx('d-wx','ใช้ค่าตัวอย่าง (ดึงสภาพอากาศไม่ได้)'))}
 function closeDetail(){if(!$('#dp').classList.contains('open'))return;$('#dp').classList.remove('open');CUR=null;FXD={type:'FeatureCollection',features:[]};
@@ -2132,10 +2137,50 @@ $('#d-cp').onclick=()=>CUR&&navigator.clipboard.writeText(`${CUR.lat.toFixed(5)}
 $('#d-go').onclick=()=>CUR&&open(`https://www.google.com/maps/dir/?api=1&destination=${CUR.lat},${CUR.lon}`,'_blank','noopener');
 $$('#sm button').forEach(b=>b.onclick=()=>{P.sm=b.dataset.m;syncSl();upd()});
 $$('#dur button').forEach(b=>b.onclick=()=>{P.hr=+b.dataset.h;syncSl();upd()});
-$('#fuel').onchange=e=>{P.fuel=+e.target.value;fuelAuto=false;tx('fuel-why','เลือกเอง');upd()};
+$('#fuel').onchange=e=>{P.fuel=+e.target.value;fuelAuto=false;fqWhy('เลือกเอง');upd()};
 $('#d-adj').onclick=()=>{$('#sl').hidden=!$('#sl').hidden};$('#d-eq').onclick=()=>{$('#eq').hidden=!$('#eq').hidden};
-[['u','u'],['f','from'],['r','rh'],['s','sl']].forEach(([i,k])=>$('#s-'+i).oninput=e=>{P[k]=+e.target.value;if(k==='u'||k==='from')manualWind=true;if(k==='sl')slManual=true;syncSl();upd()});
-$('#d-test').onclick=()=>{Object.assign(P,{hr:6,fuel:0,u:11,from:90,rh:61,T:32.3,sl:4,asp:null});fuelAuto=false;manualWind=true;slManual=true;tx('fuel-why','ค่าทดสอบ');syncSl();upd()};
+[['u','u'],['f','from'],['r','rh'],['s','sl']].forEach(([i,k])=>$('#s-'+i).oninput=e=>{P[k]=+e.target.value;FQ.man[k]=1;FQ.test=0;if(k==='rh'&&fqMM()==='f')FQ.mo='e';if(k==='u'||k==='from')manualWind=true;if(k==='sl')slManual=true;fqApply();syncSl();upd()});
+$('#d-test').onclick=()=>{Object.assign(P,{hr:6,fuel:0,u:11,from:90,rh:61,T:32.3,sl:4,asp:null});fuelAuto=false;manualWind=true;slManual=true;FQ.test=1;FQ.man={T:1,rh:1,u:1,from:1};FQ.mo='e';fqApply();fqWhy('ค่าทดสอบ');syncSl();upd()};
+/* ---- F5 ที่มาของค่าในโมเดลไฟ (fq*) — ลำดับ: ผู้ใช้ปรับเอง > สถานีกรมอุตุฯ ใกล้สุด ≤30 กม. ข้อมูลไม่เกิน 1 ชม. > แบบจำลอง Open-Meteo (ขณะนี้)
+   ความชื้นเชื้อเพลิง: FFMC ของ TFDRS วันนี้ (เวลาไทย) ที่จุด → m = 147.2·(101−FFMC)/(59.5+FFMC) แทน EMC จากอากาศ · สลับกลับเป็น EMC ได้ (#fq-mm, จำค่าทั้งรอบที่เปิดหน้า)
+   เลื่อนความชื้นสัมพัทธ์เอง/ค่าทดสอบ = ใช้ EMC ของจุดนั้น · ไม่มี FFMC/สถานี = ค่าเดิมทุกตัว (ค่าทดสอบ 7.3 → หัวไฟ 4.7 ม./นาที) ---- */
+const FQK=['T','rh','u','from'],FQKM=30,FQAGE=60*6e4;
+let FQ={mp:'f',man:{},fw:''};
+function fqReset(h){FQ={mp:FQ.mp||'f',h,man:{},om:null,st:null,stv:null,ff:null,mo:null,sld:0,test:0,fw:FQ.fw||'',src:{}}}
+const fqMM=()=>FQ.mo||FQ.mp;
+/* เลือกค่าตามลำดับ (ฟังก์ชันบริสุทธิ์ — test/fq.test.js): Q = FQ, cur = P ปัจจุบัน → {v ค่า, s ที่มา u ปรับเอง | s สถานี | m แบบจำลอง | d ค่าตัวอย่าง, fm ความชื้นจาก FFMC หรือ null} */
+function fqPick(Q,cur){const v={},s={};for(const k of FQK){if(Q.man&&Q.man[k]){v[k]=cur[k];s[k]='u'}else if(Q.stv&&Q.stv[k]!=null){v[k]=Q.stv[k];s[k]='s'}else if(Q.om&&Q.om[k]!=null){v[k]=Q.om[k];s[k]='m'}else{v[k]=cur[k];s[k]='d'}}
+ const mm=Q.mo||Q.mp;return{v,s,fm:mm==='f'&&Q.ff&&isFinite(Q.ff.m)?Q.ff.m:null}}
+function fqApply(){const o=fqPick(FQ,P);Object.assign(P,o.v);FQ.src=o.s;if(o.fm!=null)P.fm=o.fm;else delete P.fm}
+/* สถานีกรมอุตุฯ ใกล้สุดภายใน FQKM กม. ที่ค่าล่าสุดไม่เกิน 1 ชม. (ใช้ TMN ชุดเดียวกับ tmDetail) · ความชื้น <8% = เซนเซอร์ผิด ไม่ใช้ · ลมสงบ (<1) ไม่ใช้ทิศ */
+function fqStn(L,lo,la,now){let b=null;for(const s of L||[]){const t=tmT(s);if(!(now-t<=FQAGE&&t-now<=FQAGE))continue;const d=tmKm(lo,la,s.station_lon,s.station_lat);if(d.km>FQKM||(b&&b.km<=d.km))continue;
+  const u=tmNum(s.windspeed),dr=tmNum(s.winddirection),v={T:tmNum(s.temperature),rh:tmRhBad(s)?null:tmNum(s.humidity),u,from:u!=null&&u>=1&&dr!=null?dr:null};
+  if(v.T==null&&v.rh==null&&v.u==null)continue;b={n:tmShort(s.station_name_th),id:s.station_id,km:d.km,br:d.br,t,v}}return b}
+function fqLoad(h){
+ if(typeof tmLoad==='function')tmLoad(false,true).then(()=>{if(CUR!==h||!TMN)return;FQ.st=fqStn(TMN,h.lon,h.lat,Date.now());FQ.stv=FQ.st&&FQ.st.v;FQ.stOk=1;fqApply();syncSl();upd()}).catch(e=>{dbg('fqLoad tm',e);if(CUR===h){FQ.stOk=2;upd()}});
+ if(typeof fwLoad==='function')fwLoad().then(()=>{const d=FWX.days.find(x=>x.d===fwTday());return d?fwAllAt(d,h.lon,h.lat).then(o=>({o,d})):null})
+  .then(r=>{if(CUR!==h)return;FQ.ffOk=1;if(r&&r.o.FFMC!=null&&isFinite(r.o.FFMC))FQ.ff={v:r.o.FFMC,m:ffM(r.o.FFMC),d:r.d.d,f:r.d.f};fqApply();syncSl();upd()}).catch(e=>{dbg('fqLoad fw',e);if(CUR===h){FQ.ffOk=2;upd()}})}
+function fqWhy(t){FQ.fw=t;fqFuel()}
+function fqFuel(){const m=P.fm!=null&&FQ.ff?'FFMC '+nf(FQ.ff.v,1)+' (TFDRS กรมป่าไม้)':'EMC จากอากาศ';tx('fuel-why',FQ.fw+' · ความชื้นเชื้อเพลิง: '+m)}
+const fqHM=t=>new Date(t).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'});
+/* แผงรายละเอียด: ที่มาของทุกค่า (#fq-src) + ป้ายความชื้นเชื้อเพลิง/ปุ่มสลับ (#fq-eh/#fq-mm) + ศักยภาพ/พื้นที่ 1 ชม. (#fq-pot/#fq-a1) — เรียกท้าย upd() */
+function fqRender(r){const S0=FQ.src||{},st=FQ.st,
+  lab=k=>S0[k]==='u'?(FQ.test?'ค่าทดสอบ':'ปรับเอง'):S0[k]==='s'?'สถานีกรมอุตุฯ':S0[k]==='m'?'แบบจำลอง Open-Meteo (ขณะนี้)':'ค่าตัวอย่าง'+(FQ.om?'':' (กำลังดึง…)'),
+  ff=FQ.ff,useF=P.fm!=null&&ff,fd=ff?fwDate(ff.d,{day:'numeric',month:'short'})+(ff.f?' พยากรณ์':' ค่าเที่ยงวัน'):'',
+  mw=useF?`${nf(r.E,1)}% · FFMC ${nf(ff.v,1)} (TFDRS กรมป่าไม้ ${fd})`:`${nf(r.E,1)}% · EMC จากอุณหภูมิ/ความชื้นสัมพัทธ์`+(ff?' (เลือกใช้ค่าจากอากาศ)':FQ.ffOk?' (ไม่มี FFMC ของวันนี้ที่จุดนี้)':' (กำลังดึง FFMC…)'),
+  wl=S0.u===S0.from?lab('u'):'ความเร็ว: '+lab('u')+' · ทิศ: '+lab('from');
+ tx('fq-src',`<span>อุณหภูมิ</span><b>${nf(P.T,1)} °C <i>· ${lab('T')}</i></b><span>ความชื้นสัมพัทธ์</span><b>${Math.round(P.rh)}% <i>· ${lab('rh')}</i></b>`
+  +`<span>ลม</span><b>${Math.round(P.u)} กม./ชม. จาก${dn(P.from).replace(/ \(.*$/,'')} <i>· ${wl}${P.sm==='l'&&!manualWind&&WS?' · โหมด Lagrangian ใช้ลมพยากรณ์รายชั่วโมง Open-Meteo ชั่วโมงถัดไป':''}</i></b>`
+  +`<span>ความชื้นเชื้อเพลิง</span><b>${mw}</b><span>ความลาดชัน</span><b>${P.sl}° <i>· ${slManual?(FQ.test?'ค่าทดสอบ':'ปรับเอง'):FQ.sld?'แบบจำลองความสูง (DEM) รอบจุด':'ค่าเริ่มต้น'}</i></b>`
+  +(st&&FQK.some(k=>S0[k]==='s')?`<span style="grid-column:1/-1;font-size:11.5px">สถานีกรมอุตุฯ: <b style="font-weight:600;color:#1d2433">${esc(st.n)}</b> ห่าง ${nf(st.km,st.km<10?1:0)} กม. ทางทิศ${DIRN[Math.round(st.br/45)%8]} · ค่าเวลา ${fqHM(st.t)} น.</span>`:'')
+  +`<span style="grid-column:1/-1;font-size:11.5px">ลำดับที่มา: ปรับเอง &gt; สถานีกรมอุตุฯ ใกล้สุด ≤${FQKM} กม. ข้อมูลไม่เกิน 1 ชม.${FQ.stOk&&!st?' (ไม่มีสถานีที่เข้าเกณฑ์)':''} &gt; แบบจำลอง Open-Meteo</span>`);
+ tx('fq-eh',useF?'ความชื้นเชื้อเพลิงละเอียด (FFMC กรมป่าไม้)':'ความชื้นสมดุลเชื้อเพลิงตาย (EMC)');
+ $$('#fq-mm button').forEach(b=>{b.classList.toggle('on',(b.dataset.m==='f')===!!useF);if(b.dataset.m==='f'){b.disabled=!ff;b.title=ff?'FFMC '+nf(ff.v,1)+' · TFDRS '+fd:'ไม่มีค่า FFMC ของวันนี้ที่จุดนี้'}});
+ fqFuel();
+ const a1=P.hr>1?calc({...P,hr:1}).rai:null;
+ tx('fq-a1',a1!=null?'ที่ 1 ชม. ≈ '+nf(a1)+' ไร่':'');
+ tx('fq-pot',`พื้นที่ ${P.hr} ชม. คือศักยภาพเมื่อไฟลามอิสระโดยไม่มีการดับ ไม่ใช่การพยากรณ์รอยไหม้จริง${a1!=null?` · ที่ 1 ชม. ≈ <b>${nf(a1)} ไร่</b>`:''}`)}
+$$('#fq-mm button').forEach(b=>b.onclick=()=>{if(b.disabled)return;FQ.mp=b.dataset.m;FQ.mo=null;fqApply();syncSl();upd()});
 $('#d-zm').onclick=()=>{if(!CUR||!LASTR)return;const pts=FXD.features.flatMap(f=>f.geometry.coordinates[0]),b=new maplibregl.LngLatBounds(pts[0],pts[0]);pts.forEach(q=>b.extend(q));
  map.fitBounds(b,{padding:{top:70,bottom:90,left:60,right:innerWidth>767?420:60},duration:dur(1200)})};
 

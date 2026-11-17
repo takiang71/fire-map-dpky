@@ -31,7 +31,7 @@ ${g('huy')}
 ${g('slope')}
 function setFT(j){${g('ftDec')}j.g=g;FT=j;return j}
 function setP(p,ws){P=p;WS=ws||null;manualWind=false}
-return {calc,spreadVec,FUEL,R0,EH,MX,WAF,emc,eta,fuelAt,fuelByElev,ftAt,geoAt,windAt,huy,hyAdj,slopeAt,setFT,setP};`;
+return {calc,spreadVec,FUEL,R0,EH,MX,WAF,emc,eta,ffM,fuelAt,fuelByElev,ftAt,geoAt,windAt,huy,hyAdj,slopeAt,setFT,setP};`;
 }
 
 // env: GEO (แนวเขตจากบล็อก geo) · demTile(z,x,y) → Promise<Float32Array 65536 ความสูง ม.> (เฉพาะเมื่อใช้ slopeAt)
