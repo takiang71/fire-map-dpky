@@ -16,4 +16,36 @@ function palettePNG(w, h, px, pal, alpha) {
   return Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk('IHDR', ih), chunk('PLTE', P), chunk('tRNS', Buffer.from(alpha)),
     chunk('IDAT', zlib.deflateSync(raw, { level: 9 })), chunk('IEND', Buffer.alloc(0))]);
 }
-module.exports = { palettePNG };
+// อ่าน PNG 8 บิต ไม่สลับแถว (เทา/RGB/พาเลต/เทา+อัลฟา/RGBA) → {w, h, rgba: Uint8Array w*h*4} — ใช้อ่านไทล์ความสูง Terrarium (fire_model_eval.js)
+function readPNG(buf) {
+  if (buf.readUInt32BE(0) !== 0x89504e47) throw new Error('ไม่ใช่ไฟล์ PNG');
+  let o = 8, w, h, bd, ct, il, pal = null, trn = null; const idat = [];
+  while (o < buf.length) {
+    const n = buf.readUInt32BE(o), t = buf.toString('latin1', o + 4, o + 8), d = buf.subarray(o + 8, o + 8 + n); o += 12 + n;
+    if (t === 'IHDR') { w = d.readUInt32BE(0); h = d.readUInt32BE(4); bd = d[8]; ct = d[9]; il = d[12] }
+    else if (t === 'PLTE') pal = d; else if (t === 'tRNS') trn = d; else if (t === 'IDAT') idat.push(d); else if (t === 'IEND') break;
+  }
+  if (bd !== 8 || il) throw new Error('รองรับเฉพาะ PNG 8 บิต ไม่สลับแถว');
+  const ch = { 0: 1, 2: 3, 3: 1, 4: 2, 6: 4 }[ct]; if (!ch) throw new Error('ชนิดสี PNG ไม่รองรับ: ' + ct);
+  const raw = zlib.inflateSync(Buffer.concat(idat)), st = w * ch, px = Buffer.alloc(st * h);
+  for (let y = 0; y < h; y++) {
+    const f = raw[y * (st + 1)], s = raw.subarray(y * (st + 1) + 1, (y + 1) * (st + 1)), c = px.subarray(y * st, (y + 1) * st), p = y ? px.subarray((y - 1) * st, y * st) : null;
+    for (let i = 0; i < st; i++) {
+      const a = i >= ch ? c[i - ch] : 0, b = p ? p[i] : 0, q = p && i >= ch ? p[i - ch] : 0;
+      let v = s[i];
+      if (f === 1) v += a; else if (f === 2) v += b; else if (f === 3) v += (a + b) >> 1;
+      else if (f === 4) { const e = a + b - q, pa = Math.abs(e - a), pb = Math.abs(e - b), pc = Math.abs(e - q); v += pa <= pb && pa <= pc ? a : pb <= pc ? b : q }
+      c[i] = v & 255;
+    }
+  }
+  const out = new Uint8Array(w * h * 4);
+  for (let i = 0; i < w * h; i++) {
+    const k = i * 4;
+    if (ct === 2) { out[k] = px[i * 3]; out[k + 1] = px[i * 3 + 1]; out[k + 2] = px[i * 3 + 2]; out[k + 3] = 255 }
+    else if (ct === 6) out.set(px.subarray(i * 4, i * 4 + 4), k);
+    else if (ct === 3) { const j = px[i]; out[k] = pal[j * 3]; out[k + 1] = pal[j * 3 + 1]; out[k + 2] = pal[j * 3 + 2]; out[k + 3] = trn && j < trn.length ? trn[j] : 255 }
+    else { const g = px[i * (ct === 4 ? 2 : 1)]; out[k] = out[k + 1] = out[k + 2] = g; out[k + 3] = ct === 4 ? px[i * 2 + 1] : 255 }
+  }
+  return { w, h, rgba: out };
+}
+module.exports = { palettePNG, readPNG };
