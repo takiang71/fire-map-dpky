@@ -4,6 +4,7 @@
 //     แล้วนับ error ที่ไม่ถูกจับ (Runtime.exceptionThrown) — error เครือข่าย (โหลดไทล์/API ไม่ได้) ไม่นับ
 //  3) ?debug=1: มี __LOG/dbg/fetchT + ปุ่ม #dg-cp · fetchT('/__hang', 0.8 วิ) ต้องได้ TimeoutError · ออฟไลน์แล้วกด ↻ ต้องมี toast ภายใน 22 วิ
 //     และ __LOG เพิ่ม · ปุ่มคัดลอกได้ JSON (ua/ver/log) · info.debug ใน check.json
+//  3b) F4 แดชบอร์ด ?dash ที่ 1920×1080 และ 390: เปิดเอง, KPI ตรง summary.json, ไทล์ 24 ชม. = การ์ดหลัก, ไม่ล้น, ปุ่ม #bDash/×/ดงใหญ่
 //  4) จำลองเบราว์เซอร์รุ่นเก่า (ลบ DecompressionStream ก่อนโหลดหน้า) → ต้องขึ้นกล่อง #oldb เต็มจอ
 //
 // ใช้ในเครื่อง:  node scripts/check_site.js            (ตรวจ index.html ในโฟลเดอร์โปรเจกต์)
@@ -275,6 +276,45 @@ async function browser(dir) {
       if (r2) (r2.startsWith('error') ? errs : warn).push(`[${stage}] ${r2}`);
     }
 
+    // ---------- F4 แดชบอร์ด ?dash (17 พ.ย. 69): จอ TV 1920×1080 + มือถือ 390 · ไม่มี error · KPI ตรง summary.json (และการ์ดหลัก) · ไม่ล้น ----------
+    // KPI ที่คาด = ผลรวม areas ใน summary.json (ไม่รวมคีย์ "ดงใหญ่" เมื่อ S.xdy) คิดใน Node แยกจากโค้ดหน้าเว็บ · ไม่มี summary.json ในโฟลเดอร์ (ตรวจราก repo) = เทียบกับไฟล์ที่หน้าโหลดมาจากเว็บ
+    {
+      let SUM = null; try { SUM = JSON.parse(fs.readFileSync(path.join(DIR, 'summary.json'), 'utf8')) } catch (e) { }
+      const exp = (J, x) => { const E = Object.entries(J.areas || {}).filter(([k]) => !(x && /ดงใหญ่/.test(k))), t = f => E.reduce((a, [, o]) => a + (o[f] || 0), 0), fy = t('fy'), prv = t('prv'); return { fy, prv, pfull: t('pfull'), pct: prv ? Math.round((fy - prv) / prv * 100) : null } };
+      for (const [nm, w, h] of [['1920', 1920, 1080], ['390', 390, 844]]) {
+        const mob = w < 768; stage = `แดชบอร์ด ?dash ${nm}`;
+        await send('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: mob });
+        await send('Emulation.setTouchEmulationEnabled', mob ? { enabled: true, maxTouchPoints: 5 } : { enabled: false });
+        await send('Page.navigate', { url: url + '?dash' }); await waitMap(); await sleep(2000);
+        const r = await ev(`(async()=>{for(let k=0;k<80&&!(typeof DS!=='undefined'&&DS.lt);k++)await new Promise(r=>setTimeout(r,250));
+          const e=[],d=document.getElementById('ds');if(!d||d.hidden)return{e:'?dash แล้วไม่เปิดแผ่น #ds'};if(!DS.lt)return{e:'แดชบอร์ดไม่ได้โหลดข้อมูลใน 20 วิ'};
+          const R=d.getBoundingClientRect();if(R.width<innerWidth-1||R.height<innerHeight-1)e.push('แผ่น #ds ไม่เต็มจอ');
+          const kd=document.getElementById('ds-kp').dataset.k;let k=null;try{k=JSON.parse(kd)}catch(_){}
+          const J=DS.J['summary.json'];if(J&&!k)e.push('ไม่มีค่า KPI (data-k)');
+          if(J&&k){const c=dsKpi(J,!!S.xdy);if(c.fy!==k.fy||c.prv!==k.prv||c.pfull!==k.pfull)e.push('KPI ไม่ตรง dsKpi(summary)');
+            const t=document.querySelector('#ds-kfy b').textContent.replace(/[^0-9]/g,'');if(t!==String(k.fy))e.push('ตัวเลขบนไทล์ '+t+' ≠ '+k.fy)}
+          const ov=document.documentElement.scrollWidth-innerWidth,b=document.getElementById('ds-b'),hx=b.scrollWidth-b.clientWidth,vy=b.scrollHeight-b.clientHeight;
+          if(ov>1||hx>1)e.push('ล้นแนวนอน '+Math.max(ov,hx)+' px');
+          const empty=[...document.querySelectorAll('#ds-g>section')].filter(s=>!s.textContent.trim()).map(s=>s.id);if(empty.length)e.push('การ์ดว่าง '+empty.join(','));
+          const T0=thDay(),F=fyOfDay(T0),T=T0-fy0(F),cf=typeof fyNow==='function'&&fyNow(F,T)?fyNow(F,T)[T]:null;
+          const n24=HS.filter(h=>ageH(h)<24).length,d24=+document.querySelector('#ds-k24 b').textContent.replace(/[^0-9]/g,'');if(n24!==d24)e.push('ไทล์ 24 ชม. '+d24+' ≠ การ์ดหลัก '+n24);
+          return{e:e.join(' ; '),k,x:!!S.xdy,web:Object.keys(DS.web),card:cf,vy,files:Object.keys(DS.J).length}})()`, 60e3).catch(e => ({ e: e.message }));
+        if (r.e) errs.push(`[${stage}] ${r.e}`);
+        if (r.k) {
+          const ref = SUM && !r.web.includes('summary.json') ? SUM : null;
+          if (ref) { const x = exp(ref, r.x); for (const f of ['fy', 'prv', 'pfull', 'pct']) if (x[f] !== r.k[f]) errs.push(`[${stage}] KPI ${f} ${r.k[f]} ≠ summary.json ${x[f]}`) }
+          else warn.push(`[${stage}] ไม่มี summary.json ในโฟลเดอร์ที่ตรวจ — เทียบกับไฟล์ที่หน้าโหลดจากเว็บเท่านั้น (${r.web.join(', ') || '-'})`);
+          if (ref && r.card != null && r.card !== r.k.fy) warn.push(`[${stage}] สะสมปีงบในการ์ดหลัก ${r.card} ≠ แดชบอร์ด ${r.k.fy} (live.json/API คนละรอบกับ summary.json?)`);
+        }
+        if (!mob && r.vy > 2) warn.push(`[${stage}] เนื้อหาเกินจอ 1080 (${r.vy} px) — จอ TV ต้องเลื่อน`);
+        (info.dash = info.dash || {})[nm] = { k: r.k || null, xdy: r.x, card: r.card, web: r.web, files: r.files, vy: r.vy };
+        if (!mob) { stage = 'แดชบอร์ด: ปิด/เปิดจากปุ่ม #bDash';
+          const c = await ev(`(async()=>{document.getElementById('ds-x').click();if(!document.getElementById('ds').hidden)return 'error: กด × แล้วแดชบอร์ดไม่ปิด';const b=document.getElementById('bDash');if(!b)return 'error: ไม่มีปุ่ม #bDash ในแผงซ้าย';b.click();await new Promise(r=>setTimeout(r,800));if(document.getElementById('ds').hidden)return 'error: กด #bDash แล้วไม่เปิด';document.getElementById('ds-xd').click();await new Promise(r=>setTimeout(r,300));const k=JSON.parse(document.getElementById('ds-kp').dataset.k||'{}');document.getElementById('ds-xd').click();return k.x===!S.xdy?'':'error: ปุ่มดงใหญ่ในแดชบอร์ดไม่เปลี่ยน S.xdy'})()`).catch(e => 'error: ' + e.message);
+          if (c) (c.startsWith('error') ? errs : warn).push(`[${stage}] ${c}`) }
+      }
+      await send('Emulation.setTouchEmulationEnabled', { enabled: false });
+    }
+
     // ---------- ?debug=1 (A3) · fetchT เกินเวลา + ออฟไลน์แล้วกด ↻ (A2) ----------
     stage = 'debug: โหลดหน้า ?debug=1';
     await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
@@ -384,6 +424,7 @@ async function browser(dir) {
   if (res.info && res.info.debug) console.log('?debug=1:', JSON.stringify(res.info.debug));
   if (res.info && (res.info.xss || res.info.csp)) console.log('E2 XSS/CSP:', JSON.stringify({ xss: res.info.xss || null, csp: res.info.csp || null }));
   if (res.info && res.info.wj) console.log('B2 Worker:', JSON.stringify(res.info.wj));
+  if (res.info && res.info.dash) console.log('F4 ?dash:', JSON.stringify(res.info.dash));
   if (res.warn.length) console.log('คำเตือน:\n  ' + res.warn.slice(0, 15).join('\n  '));
   if (res.errs.length) console.log('ข้อผิดพลาด:\n  ' + res.errs.slice(0, 15).join('\n  '));
   console.log(res.ok === true ? `✅ ผ่าน (${res.sec} วิ)` : res.ok === false ? `❌ ไม่ผ่าน ${res.errs.length} รายการ` : '⚠ ตรวจในเบราว์เซอร์ไม่ได้ (syntax ผ่าน)');

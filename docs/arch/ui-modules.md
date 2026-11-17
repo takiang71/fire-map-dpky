@@ -233,6 +233,22 @@
 - check_site DESK: ปุ่ม `x-xls` + เปิด `vfForm` ด้วยจุดจำลอง เลือกผล ปิด · เทสต์ `test/vf.test.js` (vfmsg, vfKey/vfFy/vfOf/vfFC/vfCan, gzCam) + `test/layers.test.js`
 - ยังไม่ทำ (เฟสถัดไป): ภาพถ่าย · บันทึกออฟไลน์แล้วส่งทีหลัง · สถิติ false alarm ในการ์ดหลัก · ส่ง Excel อัตโนมัติปลายปี
 
+## แดชบอร์ดผู้บริหาร `?dash` (F4, 17 พ.ย. 69) — prefix `ds`
+
+- ที่มา: docs/review-2569-11-15.md ข้อ F4 · โหมดในไฟล์เดียว (ไม่สร้างหน้าใหม่) แผ่น `#ds` เต็มจอ z-index 57 (เหนือ #hsc/#gz ใต้ toast) ทับแผนที่ — แผนที่ยังโหลดอยู่ข้างหลัง · CSS ต่อจาก `@media print{#kb…}` · HTML ต่อจาก `#kb` · สคริปต์สุดท้ายก่อน `</body>` สุดท้าย (หลังสคริปต์ F2 จึงใช้ `RKC/RKTC`, `VFRES` ได้)
+- เปิด: `?dash` (โค้ดท้ายสคริปต์ `if(DS.tv)dsOpen()`) · ปุ่ม `#bDash` "แดชบอร์ดสรุป (จอ TV)" แถบยาว**นอกกริด `.btns`** (ต่อท้ายกริด ไม่แตะกริดปุ่มเมนูหลักที่ผู้ใช้กำหนด) · คู่มือ `#dash` ลิงก์ `../?dash` · ปิด `#ds-x`/Esc · **ไม่เขียน URL เอง** (กติกา D3: replaceState มีที่เดียวใน vwSet — `'dash'` อยู่ใน `VWX` จึงถูกลบเมื่อคัดลอก/แชร์ลิงก์มุมมอง) ปิดแล้วรีโหลดเปิดซ้ำแบบเดียวกับ `?kb`
+- ข้อมูล (ไม่คำนวณซ้ำ): `dsLoad()` ดึง `DSF` = summary.json, burn_summary.json, risk.json, health.json, wx_today.json, numcheck.json, reports.json (`fetchT` FTO.aux, `?t=`, no-cache) · ไฟล์ตรง/serve.js ที่ราก (404) = ดึงจาก `EMB_SITE` แล้วจด `DS.web` (ท้ายแผ่นบอก "ดึงจากเว็บ") · ทุก 5 นาทีโหลดใหม่ ทุก 1 นาทีวาดใหม่ (`DS.ti`) · `buildHS` ถูกห่อให้วาดใหม่เมื่อจุดความร้อนรอบใหม่มา (ไทล์ 24 ชม. = `HS.filter(ageH<24)` เท่าการ์ดหลัก)
+- **`dsKpi(summary, xdy)`** ฟังก์ชันล้วนบรรทัดเดียวจบด้วย `/*dsKpi-end*/` → `{F, day, fy, prv, pfull, pct, ar, st, w, pw, wk, sn}` · ตัดคีย์ areas ที่มี "ดงใหญ่" เมื่อ xdy (กติกาเดียวกับ LINE / verify_numbers `sumNums`) · pct = `round((fy−prv)/prv×100)` เหมือน `#p-cmp` · **verify_numbers.js ดึงฟังก์ชันนี้จาก index.html ไปรันกับ summary.json** (คอลัมน์ dash) · `#ds-kp` มี `data-k` JSON ให้ check_site อ่าน
+- ส่วนประกอบ `#ds-g` กริด 12 คอลัมน์ 4 แถว (`auto 1fr 1.05fr auto`, height 100% = พอดี 1920×1080 ไม่ต้องเลื่อน · ≤1199 กว้าง หรือ ≤699 สูง = 2 คอลัมน์เลื่อนได้ · ≤760 = คอลัมน์เดียว):
+  · `#ds-kp` 5 ไทล์: สะสมปีงบ (ตัวชี้วัด) · เทียบปีก่อนช่วงเดียวกัน % · ปีก่อนทั้งปี · 24 ชม. · เผาไหม้รอบล่าสุด
+  · `#ds-tr` แนวโน้มรายสัปดาห์ SVG (`dsTrend` วาดตามขนาดกล่องจริง, วาดใหม่เมื่อ resize) จาก `w`/`pw` ใน summary.json · `#ds-ar` อันดับพื้นที่อนุรักษ์ · `#ds-st` อันดับสถานีฯ (`sn`/`psn`)
+  · `#ds-bn` burn_summary (ไม่รวมดงใหญ่เสมอ) · `#ds-wx` FWI/VR/PM2.5 วันนี้ จาก wx_today.json (สี `FWC`/`VRC`/`DSPM`) · `#ds-rk` risk.json วันนี้ (จำนวนตำบลต่อระดับ + 3 อันดับ, "ไม่ใช่ค่าทางการ") · `#ds-hl` หัวการ์ดแดงเมื่อ health.json ตรวจล่าสุดเกิน 2 ชม.
+  · `#ds-vf` reports.json ปีงบนี้ นับตามผล + % ไม่พบไฟ (ตัดดงใหญ่ตาม xdy ด้วย `dyAS`) — **ไม่แสดงชื่อผู้รายงาน/หมายเหตุ** · `#ds-hl` health.json (≤3 เรื่อง) + เวลาสแกนล่าสุด/summary/numcheck
+- ปุ่ม `#ds-xd` = คลิกปุ่ม `#pcard [data-xdy] button` (สถานะเดียว `S.xdy`) แล้ววาดใหม่
+- จอ TV (`DS.tv` = เปิดด้วย ?dash): Wake Lock (`dsWake`, ขอใหม่เมื่อกลับมา visible) + `location.reload()` ทุก 6 ชม. · เปิดจากปุ่ม = ไม่ทำทั้งสองอย่าง
+- ตรวจใน Browser pane 18 พ.ย. 69 (_site, 1920×1080): ทุกการ์ดพอดีจอ (เดิมล้น 360 px → แก้ height:100% + ไทล์อากาศแบบ 2 คอลัมน์) · KPI = การ์ดหลัก (0 / 0 / 83, 24 ชม. 1) · มือถือ 375 ไม่ล้นแนวนอน · ไม่มี error ใน console
+- check_site ขั้น "แดชบอร์ด ?dash 1920/390" → [testing.md](testing.md) · ไฟล์ข้อมูลเปิด/wx_today.json → [pipelines.md](pipelines.md) · เอกสาร API สาธารณะ → [../api.md](../api.md)
+
 ## รายงานประจำเดือน (F3, 16 พ.ย. 69) — หน้าเว็บ
 
 - ปุ่ม `#h-mrep` "รายงานประจำเดือน (อัตโนมัติ)" ในการ์ดสถิติ (`#hcard`) แถวเต็มใต้ปุ่ม 4 ปุ่ม (`grid-column:1/-1` — ไม่แตะกริดปุ่มเมนูหลักที่ผู้ใช้กำหนด) → `mrOpen()` modal รายการจาก `reports/index.json` (`fetchT` FTO.aux, `cache:no-cache`) ตาราง `.dt` เดือน/ตัวชี้วัด/ทุกดาวเทียม/สะสมปีงบ + ลิงก์ "เปิด"/"PDF" · เปิดแบบ file:// = `mrBase()` → EMB_SITE · ไม่มีไฟล์/ออฟไลน์ = ข้อความ (dbg 'mrep')

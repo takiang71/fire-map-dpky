@@ -530,6 +530,51 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 @media(max-width:900px){.kb-pp{max-height:230px;overflow:auto}.kb-pp img{height:96px}.kb-grid{grid-template-columns:minmax(0,1fr)}.kb-mapw{position:relative;top:0;order:0}#kb-map{height:330px;min-height:0}.kb-two{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:600px){.kb-hero{padding:20px 18px 18px;border-radius:22px}.kb-kpi{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.kb-kpi b{font-size:20px}.kb-big{grid-template-columns:repeat(2,minmax(0,1fr))}.kb-st{grid-template-columns:repeat(2,minmax(0,1fr))}.kb-card{padding:16px 14px 14px;border-radius:20px}.kb-top small{white-space:normal}}
 @media print{#kb{display:none!important}}
+/* F4 แดชบอร์ด ?dash (17 พ.ย. 69) — จอ TV 1920×1080 ไม่ต้องแตะ + มือถือ 390 · สไตล์เดียวกับหน้าข้อมูลพื้นฐาน (#kb) · prefix ds */
+#ds{position:fixed;inset:0;z-index:57;display:flex;flex-direction:column;background:#f3f5f2;color:var(--ink);--kg:#0d3b2c;--ka:#1f8a5b;font-size:clamp(14px,.96vw,30px);overflow:hidden}
+#ds[hidden]{display:none}body.dson{overflow:hidden}
+.ds-hd{display:flex;align-items:center;gap:.8em;padding:.55em max(16px,1.1em);padding-top:calc(.55em + env(safe-area-inset-top));background:#fff;border-bottom:1px solid var(--line);flex:none}
+.ds-hd>div:nth-child(2){flex:1;min-width:0}.ds-hd b#ds-t{display:block;font-size:1.32em;font-weight:800;color:var(--kg);line-height:1.2}
+.ds-hd small{display:block;font-size:.78em;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ds-lg{width:2.4em;height:2.4em;border-radius:.75em;background:linear-gradient(135deg,#ff8a4c,#c0301c);display:grid;place-items:center;color:#fff;flex:none}.ds-lg svg{width:1.4em;height:1.4em}
+.ds-ck{text-align:right;flex:none}.ds-ck b{display:block;font-size:1.6em;font-weight:800;color:var(--kg);font-variant-numeric:tabular-nums;line-height:1.1}.ds-ck small{font-size:.74em}
+#ds-xd{flex:none;border:1px solid var(--line);background:#fff;border-radius:99px;padding:.35em .9em;font:600 .78em 'Noto Sans Thai',system-ui,sans-serif;color:var(--ink);white-space:nowrap}
+#ds-xd[aria-pressed=true]{background:var(--kg);border-color:var(--kg);color:#fff}
+#ds-x{flex:none}
+.ds-b{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain}
+.ds-g{display:grid;gap:.75em;padding:.75em max(16px,1em) .5em;grid-template-columns:repeat(12,minmax(0,1fr));grid-template-rows:auto minmax(0,1fr) minmax(0,1.05fr) auto;height:100%;box-sizing:border-box}
+.ds-c{background:#fff;border-radius:1.1em;padding:.8em 1em;box-shadow:0 1px 2px rgba(0,0,0,.05),0 10px 30px rgba(13,59,44,.06);min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.ds-c h3{display:flex;align-items:baseline;gap:.5em;margin:0 0 .5em;font-size:1.02em;font-weight:800;color:var(--kg);flex:none}.ds-c h3 small{margin-left:auto;font-size:.72em;font-weight:400;color:var(--mut);text-align:right}
+.ds-kp{grid-column:1/-1;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.75em}
+.ds-k{background:#fff;border-radius:1.1em;padding:.7em 1em .75em;box-shadow:0 1px 2px rgba(0,0,0,.05),0 10px 30px rgba(13,59,44,.06);border-top:.3em solid var(--c,#1f8a5b);min-width:0}
+.ds-k span{display:block;font-size:.84em;color:var(--mut);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ds-k b{display:block;font-size:3.1em;line-height:1.1;font-weight:800;color:var(--c,#0d3b2c);font-variant-numeric:tabular-nums;white-space:nowrap}.ds-k b em{font-style:normal;font-size:.4em;font-weight:600;margin-left:.2em;color:var(--mut)}
+.ds-k small{display:block;font-size:.78em;color:#4b5563;line-height:1.4}
+.ds-up{color:#c0301c!important}.ds-dn{color:#1f7a4d!important}
+.ds-tr{grid-column:span 7}.ds-ar{grid-column:span 5}.ds-st,.ds-bn,.ds-wx,.ds-rk{grid-column:span 3}.ds-vf{grid-column:span 5}.ds-hl{grid-column:span 7}
+.ds-ch{flex:1;min-height:9em;position:relative}.ds-ch svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.ds-ch text{font:.72em 'Noto Sans Thai',system-ui,sans-serif;fill:#6b7280}
+.ds-lg2{display:flex;gap:1em;flex-wrap:wrap;font-size:.76em;color:#4b5563;flex:none}.ds-lg2 i{display:inline-block;width:.9em;height:.9em;border-radius:.2em;vertical-align:-.1em;margin-right:.3em}
+.ds-rw{display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr) 3.2em minmax(4.2em,auto);align-items:center;gap:.5em;padding:.18em 0;font-size:.92em;border-bottom:1px solid #f0f2f0}
+.ds-rw:last-child{border-bottom:0}.ds-rw>span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ds-rw i{display:block;height:.7em;border-radius:99px;background:var(--c,#d93a1f);min-width:2px}.ds-rw b{text-align:right;font-variant-numeric:tabular-nums;font-size:1.1em}
+.ds-rw small{font-size:.78em;color:var(--mut);text-align:right;white-space:nowrap}
+.ds-ls{flex:1;min-height:0;overflow:hidden}
+.ds-t3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5em;flex:none;margin-bottom:.5em}
+.ds-t3>div{border-radius:.8em;padding:.45em .6em;background:var(--bgc,#f5f6f8);color:var(--tc,#1d2433);min-width:0}
+.ds-t3 span{display:block;font-size:.72em;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-t3 b{display:block;font-size:1.55em;font-weight:800;line-height:1.15;font-variant-numeric:tabular-nums;white-space:nowrap}.ds-t3 small{display:block;font-size:.72em;line-height:1.35}
+.ds-wx .ds-t3{grid-template-columns:minmax(0,1fr);gap:.35em;margin-bottom:.2em}.ds-wx .ds-t3>div{padding:.3em .6em;display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:.6em;align-items:baseline}.ds-wx .ds-t3 span{grid-column:1/-1}.ds-wx .ds-n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-top:.2em}.ds-wx .ds-t3 b{font-size:1.3em}.ds-t3 small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-rk .ds-rw{padding:.08em 0;font-size:.86em}.ds-rk .ds-lv b{font-size:1.2em}.ds-rk .ds-rw>*,.ds-hl li{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ds-lv{display:flex;gap:.35em;margin-bottom:.5em;flex:none}.ds-lv>div{flex:1;border-radius:.6em;padding:.3em .2em;text-align:center;min-width:0}.ds-lv b{display:block;font-size:1.35em;line-height:1.1}.ds-lv span{font-size:.66em;white-space:nowrap}
+.ds-n{font-size:.74em;color:var(--mut);line-height:1.45;margin-top:auto;padding-top:.35em;flex:none}
+.ds-ok{font-weight:800;font-size:1.15em;color:#1f7a4d}.ds-bad{font-weight:800;font-size:1.15em;color:#c0301c}
+.ds-hl ul{margin:.2em 0 0;padding-left:1.1em;font-size:.84em;line-height:1.45}.ds-hl li{margin:.1em 0}
+.ds-fr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.3em 1em;font-size:.8em;margin-top:.4em}.ds-fr div{min-width:0}.ds-fr span{color:var(--mut)}
+.ds-ft{flex:none;padding:.35em max(16px,1em) calc(.4em + env(safe-area-inset-bottom));font-size:.68em;color:var(--mut);background:#fff;border-top:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ds-e{color:var(--mut);font-size:.85em}
+#bDash{display:flex;align-items:center;justify-content:center;gap:6px;min-height:34px;margin:-4px 0 12px;border-radius:12px;background:var(--bg);box-shadow:var(--sh);font-size:13px;color:var(--ink);text-decoration:none}#bDash svg{width:17px;height:17px}
+@media(max-width:1199px),(max-height:699px){#ds{font-size:15px}.ds-g{grid-template-rows:none;height:auto}.ds-tr,.ds-ar{grid-column:span 6}.ds-st,.ds-bn,.ds-wx,.ds-rk{grid-column:span 6}.ds-vf,.ds-hl{grid-column:span 6}.ds-ch{min-height:15em}.ds-ls{overflow:visible}.ds-kp{grid-template-columns:repeat(3,minmax(0,1fr))}.ds-c{overflow:visible}.ds-ft{white-space:normal}}
+@media(max-width:760px){#ds{font-size:14px}.ds-g{grid-template-columns:minmax(0,1fr);padding:.6em 12px}.ds-g>*{grid-column:1/-1!important}.ds-kp{grid-template-columns:repeat(2,minmax(0,1fr));gap:.5em}.ds-k b{font-size:2.3em}.ds-k:first-child{grid-column:1/-1}.ds-hd{gap:.5em;padding:.5em 12px}.ds-hd b#ds-t{font-size:1.05em}.ds-ck b{font-size:1.15em}.ds-ck small,.ds-hd small{display:none}#ds-xd{padding:.3em .6em;font-size:.72em}.ds-rw{grid-template-columns:minmax(0,7.5em) minmax(0,1fr) 2.6em minmax(3.8em,auto)}.ds-fr{grid-template-columns:repeat(2,minmax(0,1fr))}.ds-ch{min-height:13em}.ds-lg{display:none}.ds-ft{white-space:nowrap;font-size:.62em}}
+@media print{#ds{display:none!important}}
 /* พิมพ์แผนที่ (#pm) — หน้ากระดาษจำลองขนาดจริง 96 dpi ย่อ/ขยายด้วย transform (ซ้าย เลื่อนได้) + แผงตั้งค่าขวา (หัวแผงอยู่ในแผง ไม่มีแถบบน — ผู้ใช้ขอ 9 พ.ย. 69 ให้ที่แผนที่มากขึ้น) */
 #pm{position:fixed;inset:0;z-index:46;display:flex;flex-direction:column;background:#e6e9ef;color:var(--ink);outline:none}#pm[hidden]{display:none}body.pmon{overflow:hidden}
 .pmb{flex:1;display:flex;min-height:0}.pmv{flex:1;display:flex;flex-direction:column;min-width:0}.pmsc{flex:1;position:relative;overflow:auto;min-height:0}.pmsz{position:relative}
@@ -627,6 +672,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 <div id="map"></div>
 <canvas id="wc" aria-hidden="true"></canvas><div id="tip"></div>
 <div id="kb" hidden role="dialog" aria-modal="true" aria-labelledby="kb-t"><div class="kb-top"><span class="kb-lg"><svg class="i" viewBox="0 0 24 24"><path d="M5 19c9 0 14-6 14-14-8 0-14 5-14 14zM5 19l6-6"/></svg></span><div><b id="kb-t">ข้อมูลพื้นฐานของผืนป่า</b><small>กลุ่มป่าดงพญาเย็น-เขาใหญ่ · มรดกโลกทางธรรมชาติ · ความรู้รายพื้นที่อนุรักษ์</small></div><button class="cb ib" id="kb-x" aria-label="ปิดหน้าข้อมูลพื้นฐาน"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><nav class="kb-nav" id="kb-nav" role="tablist" aria-label="เลือกพื้นที่"></nav><div class="kb-body" id="kb-body"><div class="kb-in"><section class="kb-hero" id="kb-hero"></section><div class="kb-grid"><div class="kb-mapw"><div id="kb-map" role="region" aria-label="แผนที่ประกอบ"></div><div class="kb-mt" id="kb-mt"><button data-b="topo" aria-pressed="true">ภูมิประเทศ</button><button data-b="img" aria-pressed="false">ดาวเทียม</button><button data-b="ft" aria-pressed="false">ชนิดป่า</button></div><div class="kb-ml" id="kb-ml"></div></div><div class="kb-cards" id="kb-c"></div></div><div class="kb-src" id="kb-src"></div></div></div></div>
+<div id="ds" hidden role="dialog" aria-modal="true" aria-labelledby="ds-t"><div class="ds-hd"><span class="ds-lg"><svg class="i" viewBox="0 0 24 24"><path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/></svg></span><div><b id="ds-t">สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่</b><small id="ds-sub">แดชบอร์ดสรุป · ส่วนควบคุมและปฏิบัติการไฟป่า สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)</small></div><button id="ds-xd" type="button" aria-pressed="true" title="ขสป.ดงใหญ่สังกัด สบอ.7 (นครราชสีมา) — สถานะเดียวกับปุ่มในการ์ดจุดความร้อน">ไม่รวม ขสป.ดงใหญ่</button><div class="ds-ck"><b id="ds-clock">--:--</b><small id="ds-date"></small></div><button class="cb ib" id="ds-x" aria-label="ปิดแดชบอร์ด กลับแผนที่"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="ds-b" id="ds-b"><div class="ds-g" id="ds-g"><div class="ds-kp" id="ds-kp"></div><section class="ds-c ds-tr" id="ds-tr"></section><section class="ds-c ds-ar" id="ds-ar"></section><section class="ds-c ds-st" id="ds-st"></section><section class="ds-c ds-bn" id="ds-bn"></section><section class="ds-c ds-wx" id="ds-wx"></section><section class="ds-c ds-rk" id="ds-rk"></section><section class="ds-c ds-vf" id="ds-vf"></section><section class="ds-c ds-hl" id="ds-hl"></section></div></div><div class="ds-ft" id="ds-ft"></div></div>
 <div id="wy" hidden role="dialog" aria-modal="true" aria-labelledby="wy-t"><div class="wy-h"><span class="kb-lg" style="background:linear-gradient(135deg,#4aa3df,#1b3a6b)"><svg class="i" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 10-3-3M3 12h16a3 3 0 11-3 3M3 16h7"/></svg></span><b id="wy-t" title="Windy · แบบจำลอง ECMWF (ฝุ่น = CAMS) · กดปุ่มเล่นด้านล่างเพื่อดูพยากรณ์ล่วงหน้า · แตะแผนที่เพื่อดูค่าของจุดนั้น · ไม่มีแนวเขตกลุ่มป่า">พยากรณ์อากาศ</b><nav class="kb-nav wy-nav" id="wy-nav" role="tablist" aria-label="เลือกชั้นข้อมูลอากาศ"></nav><button class="wy-dt" id="wy-dt" aria-pressed="false" title="แสดง/ซ่อนตารางพยากรณ์รายชั่วโมงของจุดกลางแผนที่ (ซ่อนแล้วแผนที่ใหญ่ขึ้น)"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></svg><span>ตารางพยากรณ์</span></button><button class="cb ib" id="wy-x" aria-label="ปิดหน้าพยากรณ์อากาศ"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><iframe id="wy-f" title="แผนที่พยากรณ์อากาศ Windy" allow="fullscreen"></iframe></div>
 <div class="md" id="md" hidden role="dialog" aria-modal="true" aria-labelledby="md-t"><div class="mc"><div class="mh"><b id="md-t"></b><button class="cb ib" id="md-x" aria-label="ปิด"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="mb" id="md-b"></div></div></div>
 <div id="toast" role="status"></div>
@@ -652,6 +698,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <button class="btn b3" id="bPlay"><svg class="i" viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.4 2.6L3 8M3 3v5h5M12 7v5l3 2"/></svg>ย้อนดูการลามของไฟ</button>
   <a class="btn b3" id="bMan" href="manual/index.html" target="_blank" rel="noopener" title="คู่มือการใช้งาน: ส่วนประกอบหน้าจอ เมนู ชั้นข้อมูล ที่มาข้อมูล วิธีคิด และการอ้างอิง"><svg class="i" viewBox="0 0 24 24"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 21V5M9 7h6"/></svg>คู่มือการใช้งาน</a>
  </div>
+ <a id="bDash" href="?dash" title="แดชบอร์ดสรุปสถานการณ์สำหรับผู้บริหาร/จอ TV ห้องปฏิบัติการ: KPI ปีงบ แนวโน้มรายสัปดาห์ อันดับพื้นที่ เผาไหม้ FWI/VR/PM2.5 ดัชนีเสี่ยง ผลตรวจสอบ สถานะระบบ (รีเฟรชเองทุก 5 นาที)"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4M7 12l3-3 2 2 4-4"/></svg>แดชบอร์ดสรุป (จอ TV)</a>
  <div class="card" id="pcard" aria-label="สรุปจุดความร้อนที่ตรวจพบ">
   <div class="ph"><b>จุดความร้อนที่ตรวจพบ</b><span class="smp" id="p-smp" title="ยอดสะสมปีงบประมาณปัจจุบันเป็นข้อมูลตัวอย่าง เพราะ API ให้ข้อมูลย้อนหลังเพียง 48 ชม. และระบบยังไม่ได้เก็บสะสม">ข้อมูลตัวอย่าง</span></div>
   <div class="sm">Land Fire Alerts Thailand (WFSRU/ThaiREN) · ดาวเทียม VIIRS · เฉพาะในแนวเขตกลุ่มป่า</div>
@@ -3754,7 +3801,7 @@ const LNK={ky:'อุทยานแห่งชาติเขาใหญ่',
    เขียน URL = ลบพารามิเตอร์ลิงก์ตรงเหล่านี้ออก (กดรีโหลดแล้วไม่เปิดซ้ำ) คงพารามิเตอร์อื่น เช่น debug */
 const VWB=['hot','cons','resp','stn','rgr','fbs','prov','amp','tam','water','road','wch','xdy','orb','hist','xt','hcl','hgp','har','rep','burn','fuel','ftype','rk','fwi','vr','wx','wxw','pm','pmst','pmc','him','tmd','wyl','d3'],
  VWO={burn:[null,v=>/^(fy\d{4}|c\d{6}(_\d{6})?|\d{8}_\d{8})$/.test(v)],fwi:['fwv','#fwi-v button,#fwi-w button'],vr:['vrg','#vr-gm button'],him:['hmb','#hmseg button'],tmd:['tmv','#tmseg button'],wyl:['wyo',v=>['wind','rain','temp','rh'].includes(v)]},
- VWS={base:['natural','flat','sat','detail','dark'],img:['google','esri','s2','day']},VWX=['hs','bb','ar','burn','pts','wa','kb','wy','v','l'];
+ VWS={base:['natural','flat','sat','detail','dark'],img:['google','esri','s2','day']},VWX=['hs','bb','ar','burn','pts','wa','kb','wy','v','l','dash'];
 let VWT=0,VWU=false;
 const vwOpt=k=>{const o=VWO[k];return o?(o[0]?S[o[0]]:BNK):null},
  vwOk=(k,v)=>{const c=VWO[k][1];return typeof c==='function'?c(v):$$(c).some(b=>b.dataset.v===v)};
@@ -7655,6 +7702,113 @@ $('#rk-tb').onclick=e=>{const t=e.target.closest('tr[data-i]'),d=rkDay();if(!t||
  const p=f?f.properties:{n:rkName(S.rku,r[0]),lv:r[3],fwi:r[5],rec:r[6],rank:+t.dataset.i+1};tx('rk-dv',`<b>${esc(p.n)}</b> · <b style="color:${RKC[p.lv-1]}">${RISK.LVN[p.lv-1]}</b> · FWI ${p.fwi==null?'–':esc(p.fwi)}${p.rec?' · มีจุดใน 3 วันก่อน':''} · อันดับ ${p.rank}`)};
 try{if(map.getSource('cons'))rkLayers()}catch(e){}
 try{rkApply()}catch(e){dbg('rkApply',e)}
+</script>
+<script>
+/* ===== F4 แดชบอร์ดผู้บริหาร ?dash (17 พ.ย. 69 — docs/review-2569-11-15.md ข้อ F4) =====
+   โหมดในไฟล์เดียว: แผ่น #ds เต็มจอทับแผนที่ (แผนที่ยังโหลดอยู่ข้างหลัง) · เปิดด้วย ?dash, ปุ่ม #bDash ในแผงซ้าย หรือคู่มือ
+   อ่านไฟล์ที่ build_site สร้าง ไม่คำนวณซ้ำ: summary.json (KPI/สัปดาห์/พื้นที่/สถานีฯ) burn_summary.json risk.json health.json wx_today.json numcheck.json + reports.json (นับตามผลเท่านั้น ไม่แสดงชื่อผู้รายงาน)
+   ตัวเลขสะสม = dsKpi(summary, S.xdy) — verify_numbers.js ดึงฟังก์ชันนี้ไปเทียบกับหน้าเว็บ/LINE/Telegram ทุกรอบ site
+   URL: ไม่เขียนเอง (กติกา D3 — เขียนเฉพาะ vwSet ซึ่งลบ ?dash ผ่าน VWX) ปิดแล้วรีโหลดจะเปิดซ้ำแบบเดียวกับ ?kb · รีเฟรชข้อมูลทุก 5 นาที วาดใหม่ทุก 1 นาที · ?dash ในลิงก์ = จอ TV: ขอ Wake Lock และโหลดหน้าใหม่ทุก 6 ชม. (รับโค้ดรุ่นใหม่)
+   เปิดไฟล์ตรง (file://) หรือ serve.js ที่ราก repo (ไม่มีไฟล์ใน _site) = ดึงจากเว็บ EMB_SITE */
+const dsKpi=(J,x)=>{const O='นอกพื้นที่อนุรักษ์',E=Object.entries(J&&J.areas||{}).filter(([k])=>!(x&&/ดงใหญ่/.test(k))),s=f=>E.reduce((a,[,o])=>a+(f(o)||0),0),fy=s(o=>o.fy),prv=s(o=>o.prv),pfull=s(o=>o.pfull),ar={},st={},w=Array(53).fill(0),pw=Array(53).fill(0);let wk=false;
+ for(const[k,o]of E){const a=k.startsWith(O)?O:k,r=ar[a]||(ar[a]={fy:0,prv:0,pfull:0});r.fy+=o.fy||0;r.prv+=o.prv||0;r.pfull+=o.pfull||0;
+  for(const n in o.sn||{})(st[n]||(st[n]={fy:0,prv:0})).fy+=o.sn[n];for(const n in o.psn||{})(st[n]||(st[n]={fy:0,prv:0})).prv+=o.psn[n];
+  if(o.w){wk=true;o.w.forEach((v,i)=>{if(i<53)w[i]+=v});(o.pw||[]).forEach((v,i)=>{if(i<53)pw[i]+=v})}}
+ return{F:+(J&&J.fy)||0,day:+(J&&J.day)||0,ind:J&&J.ind,total:+(J&&J.total)||0,fy,prv,pfull,pct:prv?Math.round((fy-prv)/prv*100):null,ar,st,w,pw,wk,sn:E.some(([,o])=>o.sn)}};/*dsKpi-end*/
+const DS={J:{},web:{},at:0,ti:0,tr:0,wl:null,tv:/[?&]dash(=|&|$)/.test(location.search)};
+const DSF=['summary.json','burn_summary.json','risk.json','health.json','wx_today.json','numcheck.json','reports.json'];
+const DSPM=[['ดีมาก','#3bccff','#00384d'],['ดี','#92d050','#1f3a00'],['ปานกลาง','#ffe600','#3a3300'],['เริ่มมีผลกระทบ','#ffa200','#3a2000'],['มีผลกระทบ','#f04646','#fff']];
+const dsTH=ms=>new Date(ms).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit',timeZone:'Asia/Bangkok'});
+const dsAgo=ms=>{const m=Math.round((Date.now()-ms)/6e4);return m<1?'เมื่อสักครู่':m<60?m+' นาทีที่แล้ว':m<48*60?Math.round(m/60)+' ชม.ที่แล้ว':Math.round(m/1440)+' วันที่แล้ว'};
+const dsWhen=iso=>{const t=Date.parse(iso);return isFinite(t)?dsTH(t)+' '+thTime(t)+' น. ('+dsAgo(t)+')':'–'};
+const dsSt=n=>n==='ไม่มี'?'ไม่มีสถานีฯ ดูแล':String(n).replace('สถานีควบคุมไฟป่า','สถานีฯ ').replace(' (ด้านทิศใต้)',' (ใต้)');
+const dsD8=v=>{v=String(v||'');return v.length===8?dShort(Date.UTC(+v.slice(0,4),+v.slice(4,6)-1,+v.slice(6,8))/864e5):'–'};
+const dsPct=(a,b)=>{if(!b)return a?'<b class="ds-up">ใหม่</b>':'';const p=Math.round((a-b)/b*100);return`<b class="${p>0?'ds-up':p<0?'ds-dn':''}">${p>0?'▲ +':p<0?'▼ −':''}${nf(Math.abs(p))}%</b>`};
+async function dsGet(f){const q='?t='+Date.now(),o={cache:'no-cache'};
+ try{let r=null;if(location.protocol!=='file:')r=await fetchT(f+q,o,FTO.aux).catch(e=>{dbg('ds:'+f,e);return null});
+  if(!r||!r.ok){r=await fetchT(EMB_SITE+f+q,o,FTO.aux);DS.web[f]=1}else delete DS.web[f];
+  if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}catch(e){dbg('ds:'+f,e);return null}}
+async function dsLoad(){DS.at=Date.now();const R=await Promise.all(DSF.map(dsGet));DSF.forEach((f,i)=>{if(R[i])DS.J[f]=R[i]});DS.lt=Date.now();dsRender()}
+function dsTrend(K){const e=$('#ds-tc');if(!e)return;const W=Math.max(280,e.clientWidth),Hh=Math.max(150,e.clientHeight),pl=34,pr=8,pt=10,pb=24,cw=W-pl-pr,ch=Hh-pt-pb;
+ const F=K.F,d0=fy0(F),cur=Math.min(52,Math.floor((K.day||0)/7)),mx=Math.max(1,...K.w.slice(0,cur+1),...K.pw),st=mx<=5?1:mx<=10?2:mx<=25?5:mx<=50?10:Math.ceil(mx/5/10)*10,top=Math.ceil(mx/st)*st;
+ const x=i=>pl+i*cw/53,y=v=>pt+ch-v/top*ch,bw=cw/53*.72;let g='';
+ const wd=d=>(d-d0)/7;g+=`<rect x="${x(wd(Date.UTC(F-543,0,1)/864e5))}" y="${pt}" width="${x(wd(Date.UTC(F-543,4,1)/864e5))-x(wd(Date.UTC(F-543,0,1)/864e5))}" height="${ch}" fill="#fff4ec"/>`;
+ for(let v=0;v<=top;v+=st)g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="#e8ebe8"/><text x="${pl-5}" y="${y(v)+4}" text-anchor="end">${nf(v)}</text>`;
+ for(let m=0;m<12;m++){const xm=x(wd(Date.UTC(F-544+(m>=3?1:0),(9+m)%12,1)/864e5));g+=`<line x1="${xm}" x2="${xm}" y1="${pt+ch}" y2="${pt+ch+4}" stroke="#9aa3b5"/><text x="${xm+3}" y="${Hh-6}">${TMO[m]}</text>`}
+ for(let i=0;i<=cur;i++)if(K.w[i])g+=`<rect x="${x(i)+(cw/53-bw)/2}" y="${y(K.w[i])}" width="${bw}" height="${y(0)-y(K.w[i])}" rx="2" fill="${i===cur?'#ff7a45':'#d93a1f'}"><title>สัปดาห์ที่ ${i+1}: ${nf(K.w[i])} จุด</title></rect>`;
+ g+=`<polyline fill="none" stroke="#3e6fd8" stroke-width="2.2" stroke-linejoin="round" points="${K.pw.map((v,i)=>x(i+.5).toFixed(1)+','+y(v).toFixed(1)).join(' ')}"/>`;
+ g+=`<line x1="${x(cur+1)}" x2="${x(cur+1)}" y1="${pt}" y2="${pt+ch}" stroke="#0d3b2c" stroke-dasharray="4 3"/><line x1="${pl}" x2="${W-pr}" y1="${y(0)}" y2="${y(0)}" stroke="#9aa3b5"/>`;
+ e.innerHTML=`<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="จำนวนจุดความร้อนรายสัปดาห์ ปีงบ ${F} เทียบปีงบ ${F-1}">${g}</svg>`}
+function dsRender(){if($('#ds').hidden)return;const x=!!S.xdy,J=DS.J,sum=J['summary.json'],now=Date.now();
+ $('#ds-xd').setAttribute('aria-pressed',x);$('#ds-xd').textContent=x?'ไม่รวม ขสป.ดงใหญ่':'รวม ขสป.ดงใหญ่';
+ $('#ds-clock').textContent=thTime(now)+' น.';$('#ds-date').textContent=new Date(now).toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Bangkok'});
+ const kp=$('#ds-kp'),bs=J['burn_summary.json'];
+ const tile=(l,v,s,c,id)=>`<div class="ds-k"${c?` style="--c:${c}"`:''}${id?` id="${id}"`:''}><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
+ const n24=HS.filter(h=>ageH(h)<24).length,n6=HS.filter(h=>ageH(h)<6).length,last=HS.length?Math.max(...HS.map(h=>h.t)):null,dxl=x?'ไม่รวม ขสป.ดงใหญ่':'รวม ขสป.ดงใหญ่';
+ let K=null;
+ if(sum){K=dsKpi(sum,x);DS.K=K;kp.dataset.k=JSON.stringify({fy:K.fy,prv:K.prv,pfull:K.pfull,pct:K.pct,F:K.F,x});const F=K.F,T0=fy0(F)+(K.day||0),df=K.fy-K.prv;
+  kp.innerHTML=tile('จุดความร้อนสะสม ปีงบ '+F,nf(K.fy)+'<em>จุด</em>',`ตัวชี้วัดกรมอุทยานฯ (${esc(K.ind||'')}) · 1 ต.ค. – ${dShort(T0)} · ${dxl}`,'#d93a1f','ds-kfy')+
+   tile('เทียบปีงบ '+(F-1)+' ช่วงเดียวกัน',K.prv?`${df>0?'▲ +':df<0?'▼ −':''}${nf(Math.abs(K.pct))}%`:(df>0?'▲ +'+nf(df):df<0?'▼ −'+nf(-df):'เท่ากัน'),`ปีงบ ${F-1} ช่วงเดียวกัน <b style="display:inline;font-size:1em;color:inherit" id="ds-kprv">${nf(K.prv)}</b> จุด · ${df?(df>0?'มากกว่า ':'น้อยกว่า ')+nf(Math.abs(df))+' จุด':'เท่ากัน'}`,df>0?'#c0301c':df<0?'#1f7a4d':'#3e6fd8','ds-kcmp')+
+   tile('ปีงบ '+(F-1)+' ทั้งปี',nf(K.pfull)+'<em>จุด</em>',K.pfull?`ปีงบ ${F} ถึงวันนี้ = ${nf(Math.round(K.fy/K.pfull*100))}% ของทั้งปีงบ ${F-1}`:'ปีงบก่อนไม่มีจุด','#3e6fd8','ds-kfull')}
+ else{kp.dataset.k='';DS.K=null}if(!sum)kp.innerHTML=tile('จุดความร้อนสะสม','–','โหลด summary.json ไม่ได้','#9aa3b5','ds-kfy');
+ kp.innerHTML+=tile('24 ชม. ล่าสุด',nf(n24)+'<em>จุด</em>',`ใหม่ใน 6 ชม. ${nf(n6)} · ${last?'สแกนล่าสุด '+thTime(last)+' น.':'ยังไม่พบจุด'} · ทุกดาวเทียม`,n24?'#d93a1f':'#1f8a5b','ds-k24')+
+  (bs?tile('พื้นที่เผาไหม้รอบล่าสุด',nf(bs.rai,bs.rai%1?2:0)+'<em>ไร่</em>',`รอบ ${dsD8(bs.d0)} – ${dsD8(bs.d1)} · สะสมปีงบ ${esc(bs.fy)} ${nf(bs.fy_rai||0,(bs.fy_rai||0)%1?2:0)} ไร่`,'#8a3c1c','ds-kbn'):tile('พื้นที่เผาไหม้รอบล่าสุด','–','โหลด burn_summary.json ไม่ได้','#9aa3b5','ds-kbn'));
+ /* แนวโน้มรายสัปดาห์ */
+ const tr=$('#ds-tr');
+ if(K&&K.wk){const c=Math.min(52,Math.floor((K.day||0)/7));tr.innerHTML=`<h3>แนวโน้มรายสัปดาห์ (ตัวชี้วัด)<small>สัปดาห์นี้ ${nf(K.w[c])} · สัปดาห์ก่อน ${nf(c?K.w[c-1]:0)} · ปีงบ ${K.F-1} สัปดาห์เดียวกัน ${nf(K.pw[c])} จุด</small></h3><div class="ds-lg2"><span><i style="background:#d93a1f"></i>ปีงบ ${K.F} (แท่ง)</span><span><i style="background:#3e6fd8;height:.25em;vertical-align:.2em"></i>ปีงบ ${K.F-1} ทั้งปี (เส้น)</span><span><i style="background:#fff4ec;border:1px solid #f5d5c2"></i>ช่วงไฟป่า ม.ค.–เม.ย.</span><span>${dxl}</span></div><div class="ds-ch" id="ds-tc"></div>`;dsTrend(K)}
+ else tr.innerHTML='<h3>แนวโน้มรายสัปดาห์</h3><p class="ds-e">ยังไม่มีข้อมูลรายสัปดาห์ใน summary.json (รอรอบ build ถัดไป)</p>';
+ /* อันดับพื้นที่อนุรักษ์ */
+ const row=(n,v,p,m,c,id)=>`<div class="ds-rw"${id?` data-k="${esc(id)}"`:''}><span title="${esc(n)}">${esc(n)}</span><i style="width:${Math.max(0,v/m*100)}%;--c:${c}"></i><b>${nf(v)}</b><small>${p}</small></div>`;
+ if(K){const A=Object.entries(K.ar).sort((a,b)=>b[1].fy-a[1].fy||b[1].pfull-a[1].pfull),m=Math.max(1,...A.map(([,o])=>o.fy));
+  $('#ds-ar').innerHTML=`<h3>อันดับพื้นที่อนุรักษ์ ปีงบ ${K.F}<small>ปีนี้ · ปีก่อนช่วงเดียวกัน (%)</small></h3><div class="ds-ls">${A.map(([k,o])=>row(paShort(k),o.fy,`${nf(o.prv)} ${dsPct(o.fy,o.prv)}`,m,'#d93a1f',k)).join('')||'<p class="ds-e">ไม่มีข้อมูล</p>'}</div><div class="ds-n">รวม <b id="ds-arsum">${nf(K.fy)}</b> จุด · ${dxl} · ปีงบ ${K.F-1} ทั้งปี ${nf(K.pfull)} จุด</div>`;
+  const T=Object.entries(K.st).filter(([,o])=>o.fy||o.prv).sort((a,b)=>b[1].fy-a[1].fy||b[1].prv-a[1].prv),ms=Math.max(1,...T.map(([,o])=>o.fy));
+  $('#ds-st').innerHTML=`<h3>อันดับสถานีควบคุมไฟป่า<small>ปีนี้ · ปีก่อนช่วงเดียวกัน</small></h3><div class="ds-ls">${K.sn?T.slice(0,9).map(([k,o])=>row(dsSt(k),o.fy,`${nf(o.prv)} ${dsPct(o.fy,o.prv)}`,ms,'#c25a1c')).join('')||'<p class="ds-e">ยังไม่มีจุดความร้อนตัวชี้วัดในปีงบนี้และช่วงเดียวกันของปีก่อน</p>':'<p class="ds-e">ยังไม่มีข้อมูลรายสถานีฯ ใน summary.json (รอรอบ build ถัดไป)</p>'}</div><div class="ds-n">ตามแปลงรับผิดชอบปี 2570 · ${dxl}</div>`}
+ else{$('#ds-ar').innerHTML='<h3>อันดับพื้นที่อนุรักษ์</h3><p class="ds-e">โหลด summary.json ไม่ได้</p>';$('#ds-st').innerHTML='<h3>อันดับสถานีควบคุมไฟป่า</h3><p class="ds-e">โหลด summary.json ไม่ได้</p>'}
+ /* พื้นที่เผาไหม้ล่าสุด (burn_summary.json — ไม่รวมดงใหญ่เสมอ ชุดเดียวกับการ์ด LINE) */
+ if(bs){const A=Object.entries(bs.ar||{}).sort((a,b)=>b[1]-a[1]),m=Math.max(1,...A.map(a=>a[1])),P=bs.rai?Math.round(bs.hs/bs.rai*100):0;
+  $('#ds-bn').innerHTML=`<h3>พื้นที่เผาไหม้รอบล่าสุด<small>${dsD8(bs.d0)} – ${dsD8(bs.d1)}</small></h3><div class="ds-t3"><div><span>รอบนี้</span><b>${nf(bs.rai,bs.rai%1?2:0)}</b><small>ไร่</small></div><div style="--bgc:${P?'#fde8e4':'#f5f6f8'}"><span>มีจุดความร้อนใกล้</span><b>${nf(P)}%</b><small>≤${nf((bs.radius_m||1000)/1000)} กม.</small></div><div><span>สะสมปีงบ ${esc(bs.fy)}</span><b>${nf(bs.fy_rai||0,(bs.fy_rai||0)%1?2:0)}</b><small>ไร่ · ${nf(bs.fy_periods||0)} รอบ</small></div></div><div class="ds-ls">${A.map(([k,v])=>row(paShort(k),v,'ไร่',m,'#8a3c1c')).join('')||'<p class="ds-e">ไม่พบรอยเผาไหม้ในแนวเขตรอบนี้</p>'}</div><div class="ds-n">${bs.miss?'⚠ ต้นทางไม่มีภาพบางส่วน (เมฆ) ตัวเลขจริงอาจมากกว่านี้ · ':''}ภาพดาวเทียม 20 ม. ระบบตามรอยเผา (สสน.) ออกหลังสิ้นรอบ ~9 วัน · ไม่รวม ขสป.ดงใหญ่</div>`}
+ else $('#ds-bn').innerHTML='<h3>พื้นที่เผาไหม้รอบล่าสุด</h3><p class="ds-e">โหลด burn_summary.json ไม่ได้</p>';
+ /* FWI / VR / PM2.5 วันนี้ (wx_today.json = ค่าชุดเดียวกับสรุปประจำวัน LINE/Telegram) */
+ const W=J['wx_today.json']||{},td=new Date(now+7*36e5).toISOString().slice(0,10),pick=o=>o&&o.days&&(o.days.find(d=>d.d===td)||null);
+ const fw=pick(W.fwi),vr=pick(W.vr),pm=pick(W.pm),vk=v=>VRC[vrCat(v)];
+ $('#ds-wx').innerHTML=`<h3>สภาพอากาศกับไฟวันนี้<small>เฉลี่ยกลุ่มป่า</small></h3><div class="ds-t3">`+
+  (fw?`<div style="--bgc:${FWC[fw.c]};--tc:${fw.c>=2?'#fff':'#1d2433'}"><span>ดัชนีอันตรายไฟป่า FWI (TFDRS)</span><b>${nf(fw.mean,1)} · ${FWN[fw.c]}</b><small>สูงสุด ${nf(fw.max,1)}${fw.cx>fw.c?' ('+FWN[fw.cx]+')':''}${fw.ffmc?' · FFMC '+nf(fw.ffmc.mean,1):''}${W.fwi.lfa?' · ค่าของวันจาก LFA':''}</small></div>`:'<div><span>FWI (TFDRS)</span><b>–</b><small>ไม่มีค่าของวันนี้</small></div>')+
+  (vr?`<div style="--bgc:${vk(vr.max)[2]};--tc:${vrCat(vr.max)===1?'#3a2e00':'#fff'}"><span>อัตราการระบายอากาศ (GFS) สูงสุด</span><b>${nf(vr.max)} · ${vk(vr.max)[1]}</b><small>${vr.a?'ระบายได้ (≥2,000) '+thTime(vr.a)+'–'+thTime(vr.z)+' น.':'อากาศปิดทั้งวัน ไม่ควรเผา'} · เฉลี่ย ${nf(vr.mean)} ตร.ม./วินาที</small></div>`:'<div><span>อัตราการระบายอากาศ</span><b>–</b><small>ไม่มีค่าของวันนี้</small></div>')+
+  (pm?`<div style="--bgc:${DSPM[pm.c][1]};--tc:${DSPM[pm.c][2]}"><span>PM2.5 เฉลี่ย 24 ชม. (แบบจำลอง CAMS)</span><b>${nf(pm.mean,pm.mean<10?1:0)} · ${DSPM[pm.c][0]}</b><small>µg/m³${pm.top?' · สูงสุด '+esc(pm.top.n)+' '+nf(pm.top.v,pm.top.v<10?1:0):''}</small></div>`:'<div><span>PM2.5</span><b>–</b><small>ไม่มีค่าของวันนี้</small></div>')+
+  `</div><div class="ds-n">TFDRS กรมป่าไม้ · NOAA GFS (เกณฑ์กรมอุตุฯ) · CAMS แบบจำลอง${W.generated?' · '+thTime(Date.parse(W.generated))+' น.':''}</div>`;
+ /* F2 ดัชนีเสี่ยง (ไม่ใช่ค่าทางการ) */
+ const rk=J['risk.json'],rd=rk&&rk.days&&(rk.days.find(d=>d.d===td)||rk.days[0]);
+ if(rd){const T=rd.tm||[],LV=rk.LVN||[],cn=[1,2,3,4,5].map(k=>T.filter(r=>r[3]===k).length),nm=r=>{const[t,a]=String(r[0]).split('|');return'ต.'+t+(a?' อ.'+a:'')};
+  $('#ds-rk').innerHTML=`<h3>ดัชนีเสี่ยงไฟป่า${rd.d===td?'วันนี้':' '+esc(rd.d)}<small>${nf(T.length)} ตำบล</small></h3><div class="ds-lv">${cn.map((n,i)=>`<div style="background:${RKC[i]};color:${RKTC[i]}"><b>${nf(n)}</b><span>${esc(LV[i]||'')}</span></div>`).join('')}</div><div class="ds-ls">${T.slice(0,3).map(r=>`<div class="ds-rw" style="grid-template-columns:minmax(0,1fr) auto"><span>${esc(nm(r))}</span><small style="color:${RKC[r[3]-1]};font-weight:700">${esc(LV[r[3]-1]||'')}${r[5]!=null?' · FWI '+nf(+r[5],1):''}</small></div>`).join('')}</div><div class="ds-n"><b>ดัชนีของระบบนี้ ไม่ใช่ค่าทางการ</b> · ใช้จัดลำดับพื้นที่เฝ้าระวัง · ไม่รวม ขสป.ดงใหญ่</div>`}
+ else $('#ds-rk').innerHTML='<h3>ดัชนีเสี่ยงไฟป่า</h3><p class="ds-e">ยังไม่มีข้อมูล risk.json (ต้องมี FWI ของวันนี้)</p>';
+ /* F1 ผลตรวจสอบจากหน้างาน — นับตามผลเท่านั้น ไม่แสดงชื่อผู้รายงาน/หมายเหตุ */
+ const rp=J['reports.json'],fyN=sum?+sum.fy:fyOfDay(thDay());
+ if(rp&&Array.isArray(rp.reports)){const L=rp.reports.filter(r=>r.fy===fyN&&!(x&&dyAS(r.ar,r.st))),n=k=>L.filter(r=>r.res===k).length,chk=L.filter(r=>r.res!=='plan'),fa=chk.length?Math.round(100*n('none')/chk.length):null,RS=typeof VFRES!=='undefined'?VFRES:{fire:['พบไฟกำลังไหม้','#c0301c'],out:['ดับแล้ว','#1f6fe5'],none:['ไม่พบไฟ','#2e7d32'],plan:['เผาตามแผน (ชิงเผา)','#8a5a00']},rai=L.reduce((s,r)=>s+(+r.rai||0),0);
+  $('#ds-vf').innerHTML=`<h3>ผลตรวจสอบจากหน้างาน ปีงบ ${fyN}<small>${nf(L.length)} รายงาน${rp.src==='state'?' · สำเนารอบก่อน':''}</small></h3><div class="ds-lv">${['fire','out','none','plan'].map(k=>`<div style="background:${RS[k][1]};color:#fff"><b>${nf(n(k))}</b><span>${esc(RS[k][0])}</span></div>`).join('')}</div><div class="ds-n">${fa==null?'ยังไม่มีรายงานในปีงบนี้':`ตรวจแล้วไม่พบไฟ (false alarm) <b>${nf(fa)}%</b> ของจุดที่ตรวจ · พื้นที่เสียหายที่รายงาน ${nf(rai,rai%1?1:0)} ไร่`} · ${dxl}</div>`}
+ else $('#ds-vf').innerHTML='<h3>ผลตรวจสอบจากหน้างาน</h3><p class="ds-e">โหลด reports.json ไม่ได้</p>';
+ /* สถานะระบบ (health.json) + ความสดของข้อมูล */
+ const hl=J['health.json'],nc=J['numcheck.json'],C=hl&&hl.checks?Object.entries(hl.checks):[],lm=typeof HSRC!=='undefined'&&HSRC.last?HSRC.last:last;
+ const hOld=hl&&hl.updated&&now-Date.parse(hl.updated)>2*36e5;
+ $('#ds-hl').innerHTML=`<h3>สถานะระบบ<small${hOld?' class="ds-up"':''}>${hl&&hl.updated?(hOld?'⚠ ข้อมูลสถานะไม่อัปเดตเกิน 2 ชม. · ':'')+'ตรวจ '+dsWhen(hl.updated):'โหลด health.json ไม่ได้'}</small></h3>`+
+  (hl?(C.length?`<div class="ds-bad">⚠ มี ${nf(C.length)} เรื่องที่ต้องติดตาม${C.length>3?' (แสดง 3)':''}</div><ul>${C.slice(0,3).map(([,c])=>`<li>${esc(String(c.msg||'').split(' — ')[0].slice(0,150))} <span class="sm">(ตั้งแต่ ${dsTH(c.since)})</span></li>`).join('')}</ul>`:'<div class="ds-ok">✓ ระบบทำงานปกติ</div>'):'<p class="ds-e">ไม่ทราบสถานะ</p>')+
+  `<div class="ds-fr"><div><span>จุดความร้อนสแกนล่าสุด</span><br>${lm?dsTH(lm)+' '+thTime(lm)+' น.':'–'}</div><div><span>ยอดสะสม (summary.json)</span><br>${sum?esc(dsWhen(sum.generated)):'–'}</div><div><span>ตัวเลขเว็บ = LINE = Telegram</span><br>${nc?nc.ok?'✓ ตรงกัน':nc.ok===false?'<b class="ds-up">✗ ไม่ตรงกัน</b>':'ตรวจไม่ได้':'–'}</div></div>`;
+ const wb=Object.keys(DS.web);
+ $('#ds-ft').textContent=`ข้อมูล: จุดความร้อน Land Fire Alerts Thailand (ThaiREN) / NASA FIRMS · ตัวชี้วัดย้อนหลัง กรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช · เผาไหม้ ตามรอยเผา (สสน.) · FWI TFDRS กรมป่าไม้ · VR NOAA GFS · PM2.5 Copernicus CAMS · อัปเดตอัตโนมัติทุก 5 นาที (ดึงล่าสุด ${DS.lt?thTime(DS.lt)+' น.':'–'})${wb.length?' · ดึงจากเว็บ: '+wb.join(', '):''}`}
+async function dsWake(){try{if(DS.tv&&'wakeLock' in navigator&&!DS.wl&&document.visibilityState==='visible'){DS.wl=await navigator.wakeLock.request('screen');DS.wl.addEventListener('release',()=>{DS.wl=null})}}catch(e){dbg('ds:wake',e)}}
+function dsOpen(){const d=$('#ds');if(!d.hidden)return;d.hidden=false;document.body.classList.add('dson');
+ dsRender();dsLoad();clearInterval(DS.ti);clearInterval(DS.tr);DS.ti=setInterval(()=>{if(Date.now()-DS.at>=5*60e3-500)dsLoad();else dsRender()},60e3);
+ if(DS.tv){dsWake();DS.tr=setTimeout(()=>{if(!$('#ds').hidden)location.reload()},6*36e5)}$('#ds-x').focus()}
+function dsClose(){$('#ds').hidden=true;document.body.classList.remove('dson');clearInterval(DS.ti);clearTimeout(DS.tr);DS.tv=false;try{if(DS.wl)DS.wl.release()}catch(e){}}
+$('#ds-x').onclick=dsClose;
+/* จุดความร้อนรอบใหม่ (buildHS ทุกทาง: โหลดครั้งแรก/↻/ปุ่มดาวเทียม/ดงใหญ่) → วาดแดชบอร์ดใหม่ ไทล์ 24 ชม. = การ์ดหลัก */
+{const b0=buildHS;buildHS=function(){const r=b0.apply(this,arguments);if(!$('#ds').hidden)setTimeout(dsRender,0);return r}}
+$('#ds-xd').onclick=()=>{const b=$('#pcard [data-xdy] button');if(b)b.click();else{S.xdy=!S.xdy;try{refreshHS()}catch(e){dbg('ds:xdy',e)}}dsRender()};
+document.addEventListener('click',e=>{if(e.target.closest('[data-xdy] button')&&!$('#ds').hidden)setTimeout(dsRender,0)});
+{const b=$('#bDash');if(b)b.onclick=e=>{e.preventDefault();DS.tv=false;dsOpen()}}
+addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#ds').hidden&&!document.querySelector('.ula'))dsClose()});
+addEventListener('resize',()=>{if($('#ds').hidden)return;clearTimeout(DS.rz);DS.rz=setTimeout(()=>{if(DS.K)dsTrend(DS.K)},200)});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&!$('#ds').hidden){dsWake();if(Date.now()-DS.at>60e3)dsLoad()}});
+if(DS.tv)dsOpen();
 </script>
 </body>
 </html>

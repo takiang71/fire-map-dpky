@@ -6,6 +6,7 @@
 //   - Telegram: node scripts/telegram_notify.js --preview (ไม่ส่ง ไม่ต้องมี token, NOTIFY_DIR = โฟลเดอร์นี้) → บรรทัด "• พื้นที่ ปีนี้ | ปีก่อน" + "รวม"
 //   เทียบ (ค่าเริ่มต้นหน้าเว็บ = ไม่รวม ขสป.ดงใหญ่ ชุดเดียวกับ LINE/Telegram): สะสมปีงบรวม · ทุกพื้นที่ (รวมดงใหญ่) · รายพื้นที่อนุรักษ์ · รายจังหวัด · ปีงบก่อนทั้งปี/ช่วงเดียวกัน
 //   ผล: <โฟลเดอร์>/numcheck.json {at, ok, now, fy, n, diff:[…], checks:[…]} → health.js ตรวจ `num` แจ้งผู้ดูแล · ต่างกัน = ::warning (--ci) และ exit 1 (ไม่ใช่ --ci)
+//   - แดชบอร์ด ?dash (F4, 17 พ.ย. 69): ดึง dsKpi() จาก index.html มารันกับ summary.json (S.xdy จริง/เท็จ) → คอลัมน์ dash · ไม่มี dsKpi = ไม่มีคอลัมน์ (หน้าเว็บรุ่นก่อน F4)
 //   ตรวจไม่ได้ (ไม่มี summary.json/live.json, โค้ดหน้าเว็บเปลี่ยนชื่อ) = ok:null + ::warning — ไม่ถือว่าตัวเลขผิด
 'use strict';
 const fs = require('fs'), path = require('path'), { pathToFileURL } = require('url'), { execFileSync } = require('child_process');
@@ -106,16 +107,17 @@ async function verify(dir = DIR, o = {}) {
   const now = o.now || Date.parse(sum.generated);
   const pg = pageNums(page(html, blocks(html, dir), live, now)), sm = sumNums(sum);
   const ln = o.line === false ? null : await lineNums(live, sum, now), tg = o.tg === false ? null : tgNums(dir, now);
+  let dk = null; if (html.includes('const dsKpi=')) { const f = new Function(cut(html, 'const dsKpi=', '/*dsKpi-end*/', 'dsKpi') + ';return dsKpi')(); dk = { ex: f(sum, true), all: f(sum, false) } }
   const checks = [], diff = [], add = (name, v) => { const vals = Object.values(v).filter(x => x !== undefined), ok = vals.every(x => x === vals[0]); checks.push({ name, ...v, ok }); if (!ok) diff.push(`${name}: ` + Object.entries(v).filter(([, x]) => x !== undefined).map(([k, x]) => `${k} ${x}`).join(' / ')) };
   add('ปีงบ', { page: pg.F, summary: sum.fy });
-  add('สะสมปีงบ ทุกพื้นที่ (รวมดงใหญ่)', { page: pg.all, summary: sm.all, 'summary รายพื้นที่': sm.allAreas });
-  add('สะสมปีงบ ไม่รวมดงใหญ่', { page: pg.ex, 'page รายจุด': pg.pts, summary: sm.ex, line: ln && ln.ex, telegram: tg && tg.ex });
-  add('ปีงบก่อนทั้งปี ไม่รวมดงใหญ่', { page: pg.pfull, summary: sm.pfull, line: ln && ln.pf, telegram: tg && tg.pf });
-  add('ปีงบก่อนช่วงเดียวกัน ไม่รวมดงใหญ่', { page: pg.prv, summary: sm.prv });
+  add('สะสมปีงบ ทุกพื้นที่ (รวมดงใหญ่)', { page: pg.all, summary: sm.all, 'summary รายพื้นที่': sm.allAreas, dash: dk ? dk.all.fy : undefined });
+  add('สะสมปีงบ ไม่รวมดงใหญ่', { page: pg.ex, 'page รายจุด': pg.pts, summary: sm.ex, dash: dk ? dk.ex.fy : undefined, line: ln && ln.ex, telegram: tg && tg.ex });
+  add('ปีงบก่อนทั้งปี ไม่รวมดงใหญ่', { page: pg.pfull, summary: sm.pfull, dash: dk ? dk.ex.pfull : undefined, line: ln && ln.pf, telegram: tg && tg.pf });
+  add('ปีงบก่อนช่วงเดียวกัน ไม่รวมดงใหญ่', { page: pg.prv, summary: sm.prv, dash: dk ? dk.ex.prv : undefined });
   for (const k of [...new Set([...Object.keys(pg.area), ...Object.keys(sm.area), ...Object.keys(ln ? ln.area : {}), ...Object.keys(tg ? tg.area : {})])].sort())
-    add(`พื้นที่ ${k}`, { page: pg.area[k] || 0, summary: sm.area[k] || 0, line: ln ? ln.area[k] || 0 : undefined, telegram: tg ? tg.area[k] || 0 : undefined });
+    add(`พื้นที่ ${k}`, { page: pg.area[k] || 0, summary: sm.area[k] || 0, dash: dk ? (dk.ex.ar[k] || { fy: 0 }).fy : undefined, line: ln ? ln.area[k] || 0 : undefined, telegram: tg ? tg.area[k] || 0 : undefined });
   for (const k of [...new Set([...Object.keys(pg.pv), ...Object.keys(sm.pv)])].sort()) add(`จังหวัด ${k}`, { page: pg.pv[k] || 0, summary: sm.pv[k] || 0 });
-  return { at: new Date().toISOString(), now: new Date(now).toISOString(), ok: !diff.length, fy: pg.F, n: { all: pg.all, ex: pg.ex, pfull: pg.pfull }, line: !!ln, telegram: !!tg, diff, checks };
+  return { at: new Date().toISOString(), now: new Date(now).toISOString(), ok: !diff.length, fy: pg.F, n: { all: pg.all, ex: pg.ex, pfull: pg.pfull }, dash: !!dk, line: !!ln, telegram: !!tg, diff, checks };
 }
 module.exports = { verify, sumNums };
 
@@ -126,6 +128,6 @@ if (require.main === module) (async () => {
   try { fs.writeFileSync(path.join(DIR, 'numcheck.json'), JSON.stringify(R)) } catch (e) { }
   if (R.ok === null) { console.log(`${CI ? '::warning title=ตรวจความสอดคล้องตัวเลขไม่ได้::' : '⚠ ตรวจไม่ได้: '}${R.why}`); return }
   for (const c of R.checks) if (!c.ok || args.includes('--all')) console.log(`${c.ok ? '✓' : '✗'} ${c.name}: ` + Object.entries(c).filter(([k, v]) => !['name', 'ok'].includes(k) && v !== undefined).map(([k, v]) => `${k} ${v}`).join(' · '));
-  if (R.ok) console.log(`✅ ตัวเลขตรงกัน ${R.checks.length} รายการ — ปีงบ ${R.fy} สะสม ${R.n.ex} จุด (ไม่รวมดงใหญ่ · ทั้งหมด ${R.n.all}) ปีก่อนทั้งปี ${R.n.pfull} · หน้าเว็บ = summary.json${R.line ? ' = LINE' : ''}${R.telegram ? ' = Telegram' : ''}`);
+  if (R.ok) console.log(`✅ ตัวเลขตรงกัน ${R.checks.length} รายการ — ปีงบ ${R.fy} สะสม ${R.n.ex} จุด (ไม่รวมดงใหญ่ · ทั้งหมด ${R.n.all}) ปีก่อนทั้งปี ${R.n.pfull} · หน้าเว็บ = summary.json${R.dash ? ' = แดชบอร์ด' : ''}${R.line ? ' = LINE' : ''}${R.telegram ? ' = Telegram' : ''}`);
   else { console.log(`${CI ? '::warning title=ตัวเลขหน้าเว็บ/summary.json/LINE/Telegram ไม่ตรงกัน::' : '❌ ไม่ตรงกัน: '}${R.diff.slice(0, 5).join(' ; ')}`); if (!CI) process.exitCode = 1 }
 })();

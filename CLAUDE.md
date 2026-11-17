@@ -34,9 +34,9 @@
 | ไฟล์ | เนื้อหา | คำค้นตัวอย่าง |
 |---|---|---|
 | [data-blocks.md](docs/arch/data-blocks.md) | บล็อก `geo` `hdata` `adata` `fxdata` `wdata` `wadata`, ไฟล์ต้นฉบับ, สคริปต์นำเข้า, กติกา HD/AD/ตัวชี้วัด/ปุ่มดาวเทียม/ดงใหญ่ | `IND_SW` `fyNow` `xHD` `satFy` `dyAS` `import_fx` |
-| [pipelines.md](docs/arch/pipelines.md) | site.yml / sync.yml / wx.yml, watchdog, branch `state`, live.json + FIRMS สำรอง, ลดภาระ API, `pass_wait`, `sync_hotspots`, ตัดจุดซ้ำ, fwi_local, API ต้นทาง | `apiLive` `dedup.js` `near.js` `wx_check` `SNPP_END` |
+| [pipelines.md](docs/arch/pipelines.md) | site.yml / sync.yml / wx.yml, watchdog, branch `state`, live.json + FIRMS สำรอง, ลดภาระ API, `pass_wait`, `sync_hotspots`, ตัดจุดซ้ำ, fwi_local, API ต้นทาง | `apiLive` `dedup.js` `near.js` `wx_check` `SNPP_END` `opendata` |
 | [notify.md](docs/arch/notify.md) | LINE (carousel, Worker, โควตา, สรุปประจำวัน, การ์ดเผาไหม้), Telegram, `health.js`, ลิงก์ตรง `?hs` `?pts` `?burn` | `carousel` `burnCard` `hsLink` `LINE_MAX_DAY` `loadState` |
-| [ui-modules.md](docs/arch/ui-modules.md) | การ์ดหลัก, ตาราง/CSV/รายงาน, สถิติย้อนหลัง + เล่นย้อน, กองจุด, ดับไฟ, จปร., วัด, วาด/Layer Manager/หลังบ้าน, ภูมิประเทศ, ความสูง, พิมพ์แผนที่, ภาพดาวเทียม, โมเดลไฟ, คู่มือ | `renderCard` `hRender` `pbStart` `hcCalc` `wFocus` `msSet` `GIO` `PP` |
+| [ui-modules.md](docs/arch/ui-modules.md) | การ์ดหลัก, ตาราง/CSV/รายงาน, สถิติย้อนหลัง + เล่นย้อน, กองจุด, ดับไฟ, จปร., วัด, วาด/Layer Manager/หลังบ้าน, ภูมิประเทศ, ความสูง, พิมพ์แผนที่, ภาพดาวเทียม, โมเดลไฟ, คู่มือ | `renderCard` `hRender` `pbStart` `hcCalc` `wFocus` `msSet` `GIO` `PP` `dsKpi` |
 | [data-sources.md](docs/arch/data-sources.md) | พื้นที่เผาไหม้/เผาซ้ำซาก/SAVI, แนวเขตปกครอง, ชนิดป่า, ความลาดชัน, ท่องเที่ยว/Power BI, หน่วยพิทักษ์, หน้าข้อมูลพื้นฐาน | `sync_burn` `bnData` `ftAt` `slopeAt` `sync_tourism` `KBP` |
 | [layers-weather.md](docs/arch/layers-weather.md) | Windy, อากาศรายชั่วโมง/ลม, เรดาร์, Himawari, สถานีกรมอุตุฯ, VR (GFS), FWI (TFDRS), PM2.5 CAMS/Air4Thai, ดาวเทียมรอบถัดไป | `S.vr` `gvMaxFn` `fwNow` `cmLoad` `tmLoad` `ORB` |
 | [decisions.md](docs/arch/decisions.md) | ความชอบ/การตัดสินใจของผู้ใช้ (เลย์เอาต์แผง, ค่าเริ่มต้นชั้นข้อมูล, เครดิต) + งานค้างเดิม (ประวัติ) | `homePad` `panFit` `sheetFit` `ctlFit` |
@@ -45,7 +45,7 @@
 | [risk.md](docs/arch/risk.md) | F2 ดัชนีเสี่ยง (ไม่ใช่ค่าทางการ) ตรวจย้อนหลัง | `RISK` `fwiDay` |
 | [testing.md](docs/arch/testing.md) | ชุดทดสอบหน่วย `test/` (วิธีเพิ่มเทสต์), check_site (ในเครื่อง/CI), ตัวตรวจ XSS/CSP/ตัวเลข | `node --test` `check_site` `--ci` `UNIT` `lint_html` `verify_numbers` |
 
-เอกสารอื่น: `docs/line-bot.md` (ติดตั้ง LINE/cron-job.org/watchdog/health) · `docs/telegram-bot.md` · `docs/layers-backend.md` · `manual/index.html` (คู่มือผู้ใช้) · `docs/review-2569-11-15.md` (รายงานตรวจและงานค้าง)
+เอกสารอื่น: `docs/api.md` (ข้อมูลเปิด) · `docs/line-bot.md` (ติดตั้ง LINE/cron-job.org/watchdog/health) · `docs/telegram-bot.md` · `docs/layers-backend.md` · `manual/index.html` (คู่มือผู้ใช้) · `docs/review-2569-11-15.md` (รายงานตรวจและงานค้าง)
 
 ## โครงสร้างไฟล์ (ย่อ)
 

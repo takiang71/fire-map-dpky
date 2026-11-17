@@ -120,6 +120,15 @@
   "q": 70
  },
  {
+  "name": "dash",
+  "url": "http://localhost:8000/?dash&nosw=1",
+  "w": 1920,
+  "h": 1080,
+  "wait": 14000,
+  "q": 72,
+  "after": 2000
+ },
+ {
   "name": "windy",
   "url": "http://localhost:8000/",
   "w": 1440,

@@ -112,6 +112,17 @@
   · ยังแนะนำให้ติดต่อ WFSRU
   · **GitHub API แบบไม่ล็อกอินจำกัด 60 ครั้ง/ชม.** — อย่าวนถามสถานะ run ถี่ (เคยหมดโควตา)
 
+## ข้อมูลเปิด open/ + wx_today.json + summary.json รายสัปดาห์ (F8/F4, 17 พ.ย. 69)
+
+- เอกสารสาธารณะทุกไฟล์บน Pages (สคีมา/ความถี่/ตัวอย่าง/เครดิตต้นทาง) → **[docs/api.md](../api.md)** — แก้สคีมาไฟล์ใน _site ต้องแก้เอกสารนี้ด้วย
+- build_site ต่อจาก summary.json: `scripts/lib/opendata.js` `write(OUT,{A,H,live,site})` → `_site/open/hotspots_fy<ปีงบ>.csv` (ปีงบ 2561–ปัจจุบัน ~0.1–1 MB/ปี รวม ~3 MB) + `open/index.json`
+  · แถว = adata ทุกดาวเทียม (API/FIRMS) + live.json วันหลัง `adata.to` ที่ไม่ซ้ำ hKey + จุด hdata ที่จับคู่ไม่ได้ (แหล่ง "กรมอุทยานฯ (Excel)") · จับคู่ hdata ↔ SNPP 1:1 (วันเดียวกัน ±10 นาที <400 หน่วย 1e-5°, ใกล้สุดก่อน — กติกา sync_hotspots) ใหม่ทุกครั้งเพราะช่อง dnp ใน adata มีเฉพาะยุค API
+  · `kpi`: ปีงบที่มี hdata = จับคู่ได้และ fu "ไม่มี" · ไม่มี = `indSat` · `dong_yai` = dyAS · ตรวจแล้ว (17 พ.ย. 69): ปีงบ 2569 kpi 120 / ไม่รวมดงใหญ่ 83 = summary pfull · จุด Excel 133 = จับคู่ 127 (= adata dnp 127) + ไม่มีคู่ 6 · ปีงบ 2570 kpi 1 = summary.total
+  · CSV: BOM + CRLF + หัว "ไทย (english)" 20 คอลัมน์ (`COLS`) · ไม่มีข้อมูลส่วนบุคคล
+- `_site/wx_today.json` {generated, fwi, vr, pm} = `fwiSummary/vrSummary/camsSummary(now)` (ชุดเดียวกับสรุปประจำวัน LINE/Telegram) → แดชบอร์ด `#ds-wx`
+- summary.json เพิ่มต่อพื้นที่: `w`/`pw` รายสัปดาห์ 53 ช่อง (ช่อง i = วัน 7i..7i+6 จาก 1 ต.ค., วันที่ 364–365 รวมช่อง 52) ปีนี้/ปีก่อนทั้งปี · `sn`/`psn` ตามสถานีฯ ปีนี้/ปีก่อนช่วงเดียวกัน (hdata `st`) — Worker LINE ไม่ใช้ช่องใหม่ (ขนาดเพิ่ม ~3 KB)
+- reports.json (F1) ยังเป็นสาธารณะ (หน้าเว็บใช้แสดงสถานะ/สิทธิ์แก้ไข) มี `by` (ชื่อผู้ใช้/ชื่อที่แสดง) + note — **ไม่อยู่ในรายการข้อมูลเปิดของ api.md** (ระบุว่าห้ามเผยแพร่ซ้ำ) · แดชบอร์ดใช้แค่นับตามผล
+
 ## รายงานประจำเดือน (F3)
 
 - `scripts/monthly_report.js` (16 พ.ย. 69) ขั้น `monthly report` ใน **sync.yml** (continue-on-error, 6 นาที) ก่อน commit: `--acc` ทุกรอบ แล้วโหมดปกติ

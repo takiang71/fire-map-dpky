@@ -21,6 +21,7 @@ test('C2 กลางปีงบ 2569: หน้าเว็บ = summary.json 
   const now = Date.parse('2026-04-20T05:00:00Z'), d = site(now, empty);
   const R = await verify(d);
   assert.equal(R.ok, true, R.diff.join('\n')); assert.equal(R.fy, 2569); assert.ok(R.line && R.telegram);
+  assert.ok(R.dash, 'F4 แดชบอร์ด (dsKpi) อยู่ในการตรวจ'); assert.ok(R.checks.find(c => c.name === 'สะสมปีงบ ไม่รวมดงใหญ่').dash > 20);
   assert.ok(R.n.ex > 20 && R.n.all >= R.n.ex, JSON.stringify(R.n));
   assert.ok(R.checks.filter(c => c.name.startsWith('พื้นที่ ')).length >= 6);
   assert.ok(R.checks.some(c => c.name.startsWith('จังหวัด ')));
