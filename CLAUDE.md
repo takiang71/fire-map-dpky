@@ -5,11 +5,11 @@
 ผู้ใช้สื่อสารภาษาไทย ตอบเป็นภาษาไทย · ข้อความบนหน้าเว็บเป็นภาษาไทยทั้งหมด
 สเปกตั้งต้นอยู่ที่ `docs/spec-v3.md` (เฟส 1–4)
 โฮสต์: https://takiang71.github.io/fire-map-dpky/ · repo สาธารณะ https://github.com/takiang71/fire-map-dpky (main, LF) · GitHub Pages + Actions · ผู้ใช้ยืนยันว่าเปิดเผยข้อมูลทั้งหมดเป็นสาธารณะได้
-แจ้งเตือน: LINE OA "Hotspots สบอ.1" (กลุ่ม**ทดสอบ** 2 คน ณ 15 พ.ย. 69, โควตาฟรี 300/เดือน) + Telegram @Hotspot_dnp1_bot (กลุ่ม 13 คน) · Worker Cloudflare 3 ตัว: fire-line, fire-watchdog, fire-layers
+แจ้งเตือน: LINE OA "Hotspots สบอ.1" (กลุ่ม**ทดสอบ**, โควตาฟรี 300/เดือน) + Telegram @Hotspot_dnp1_bot (กลุ่ม 13 คน) · Worker Cloudflare 3 ตัว: fire-line, fire-watchdog, fire-layers
 ข้อมูลหลัก: จุดความร้อนสด (API ThaiREN 48 ชม.) · ย้อนหลังกรมอุทยานฯ Excel (SNPP ปีงบ 2561–2569) · API ไทย + NASA FIRMS ทุกดาวเทียมถึงปีงบ 2561 · การดับไฟ อส. 2564–2569 · พื้นที่เผาไหม้ GISTDA/HII · FWI กรมป่าไม้ · VR GFS · PM2.5 CAMS ฯลฯ
 ตัวชี้วัดกรมอุทยานฯ: Suomi NPP → **NOAA-20 ตั้งแต่ 2 พ.ย. 2569** (`IND_SW`) · แผนที่แสดงทุกดวง · ค่าเริ่มต้น **ไม่รวม ขสป.ดงใหญ่ (สบอ.7)**
 
-**รายละเอียดทั้งหมดอยู่ใน `docs/arch/*.md`** (ย้ายจาก CLAUDE.md เดิม 15 พ.ย. 69) — อ่านเฉพาะไฟล์ที่เกี่ยวกับงาน แล้วค้นชื่อฟังก์ชันใน `index.html` ด้วย grep
+**รายละเอียดทั้งหมดอยู่ใน `docs/arch/*.md`** — อ่านเฉพาะไฟล์ที่เกี่ยวกับงาน แล้วค้นชื่อฟังก์ชันใน `index.html` ด้วย grep
 
 ## กติกาที่ต้องทำตามทุกครั้ง
 
@@ -61,8 +61,9 @@
 - Actions: site ~40 วิ/รอบ (cron-job.org 5 นาที + watchdog), sync 4 รอบ/วัน, wx ตามต้นทาง
 - FWI: TFDRS บล็อกเครื่อง GitHub (403) → Task Scheduler "fire-map FWI" บนเครื่องผู้ใช้ (`fwi_local.js`) · เก่า ≥2 วัน → LFA (`fwi_lfa.js`)
 - ต้นทางช้า/หยุด: SAVI มีแค่ 202601 · พื้นที่เผาไหม้ B4 รอบล่าสุด 22–28 ต.ค. 69
-- **F1** ผลตรวจสอบจากหน้างาน (`VF` + Worker `/reports`, วาง Worker แล้ว `rep:true` 16 พ.ย. 69) → [ui-modules.md](docs/arch/ui-modules.md)
+- **F1** ผลตรวจสอบจากหน้างาน (`VF` + Worker `/reports`) → [ui-modules.md](docs/arch/ui-modules.md)
 - **F2** ดัชนีเสี่ยง M2 (ผู้ใช้อนุมัติ) ชั้น `rk-*` + risk.json → risk.md · **F3** `monthly_report.js` (sync วันที่ 1 → `reports/`) → pipelines.md
+- **F6** สมัคร DM Telegram (`/ตาม`): getUpdates + `tg_subs.json` (branch state) **ห้ามตั้ง webhook** → notify.md
 - **B2** งานหนัก (กองจุด/ภูมิประเทศ/เผาไหม้) อยู่ใน Web Worker inline `WJ`/`wjLib` (ห้ามแตะ DOM) → gotchas.md, testing.md
 - LINE ยังเป็นกลุ่มทดสอบ — แผนย้าย/โควตา/`LINE_MODE=daily`+`TG_INVITE` → `docs/line-rollout.md` (A7) · E3 บันทึกการใช้งาน/ออกทุกอุปกรณ์ → layers-backend.md
 - **ปีงบ 2571 (1 ต.ค. 70):** ถ้ายังไม่นำเข้า Excel ปีงบ 2570 เว็บเติมจาก API ให้เอง (`hdFill` + ป้าย ⚠) และ health `xlsx` เตือนตั้งแต่ 1 ธ.ค. — ควรนำเข้าตาม data-update.md

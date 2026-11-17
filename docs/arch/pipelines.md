@@ -52,6 +52,7 @@
   · **รอบใดรอบหนึ่งเข้า = จบทันที** ให้ build/line_notify/telegram_notify ทำงานต่อ (เดิมรอจนครบทุกรอบที่ค้าง — แก้ตอนทดสอบ)
   · ระหว่างรอ cron-job.org สั่งรอบถัดไปไว้ในคิว concurrency "pages" → เริ่มต่อทันที (ช่องว่างไม่เฝ้า ~1.5 นาทีระหว่างรอบ)
   · นอกช่วง/เข้าแล้ว = ไม่รอ ไม่ถาม API
+  · `.state/tg_subs.json` (F6 การสมัครแจ้งเตือน Telegram รายพื้นที่ + offset getUpdates — ข้อมูลส่วนบุคคล) load/save branch state เหมือน live_cache ไม่ขึ้น Pages · save ดึงฉบับเดิมจาก branch ถ้ารอบนี้ไม่มี → [notify.md](notify.md)
   · ความล่าช้าจริงต่อรอบบันทึกใน `.state/pass_lag.json` {log:[{k,t,seen,lag นาที,how first|poll|cache,ang}]} (branch state; cache = เห็นจากรอบปกติ เวลาเป็นค่าสูงสุด) ไว้ปรับ WIN0/WIN1
   · env PASS_NOW/PASS_POLL/PASS_WAIT/PASS_WIN0/PASS_WIN1/PASS_OFF
   · ปกติวันละ 4 รอบผ่าน (NOAA-20/21 กลางวัน+กลางคืน)

@@ -192,3 +192,21 @@
 - `fwi` ต่อท้ายสถานะเครื่องผู้ดูแล (local_status.json) และค่าจาก LFA (lfa.json)
 - health.js export `{CHECKS, problems, chkXlsx, chkSavi, chkB4, hdFys, now}` และทำงานจริงเฉพาะ `require.main === module` → เทสต์ `test/health.test.js` (HEALTH_NOW = 2 ธ.ค. 2570)
 - 15 พ.ย. 69 รอบแรกหลังขึ้นเว็บจะแจ้ง `savi` ทันที (SAVI ม.ค. 69 เก่า 287 วัน) แล้วเงียบ 30 วัน
+
+## F6 แจ้งเตือนรายพื้นที่ทางแชตส่วนตัว Telegram (18 พ.ย. 69 — ทางเลือก ก, ไม่ทำ Web Push)
+
+- `scripts/lib/tgsubs.js` (ตรรกะล้วน ทดสอบได้) + บล็อก F6 ใน `telegram_notify.js` (ต่อจากแจ้งเตือนกลุ่ม/จปร. ก่อนสรุปประจำวัน) · ต้องมีแค่ `TG_TOKEN` (ไม่ต้องมีกลุ่ม) · var `TG_SUBS=off` ปิด
+- **ไม่มี webhook** (สคริปต์รันบน Actions) → ทุกรอบ site เรียก `getUpdates` {offset, limit 100 ≤5 หน้า, timeout 0, allowed_updates message/channel_post/my_chat_member} — ส่ง offset = ยืนยัน update ก่อนหน้า · **ห้ามตั้ง webhook** (getUpdates ได้ 409 → health `tgs`)
+- สถานะ `tg_subs.json` ใน `STATE_DIR` (= `.state/`, `lib/state.js` export `DIR`/`RAW`) → site.yml load/save ไป branch `state` **ไม่ขึ้น Pages** · `{offset, subs:{chat_id:{areas:[รหัส], st:[ชื่อสถานีฯ เต็ม], since}}, seen:{chat_id:[ชนิด, เวลา]} (3 วัน — ให้ `--chats` เห็นกลุ่มหลังรอบ site ยืนยัน update แล้ว), gu:{ok, since, at, why}, updated}` — ไม่เก็บชื่อ/username/ชื่อกลุ่ม
+  · โหลด: ไฟล์ใน .state → ไม่มี = raw ของ branch state (404 = เริ่มใหม่) → อ่านไม่ได้เหตุอื่น/ไฟล์เสีย = **ข้ามทั้งบล็อก ไม่เขียนทับ ไม่เรียก getUpdates** · save state: ไม่มีใน .state → ดึงฉบับเดิมจาก branch ก่อน force push (กันการสมัครหาย)
+  · branch state อยู่ใน repo สาธารณะ → รหัสแชตอ่านได้ (ส่งข้อความไม่ได้ถ้าไม่มี token) — ผู้ใช้กำหนดให้เก็บที่นี่
+- คำสั่ง (`parseCmd`): /ตาม /ติดตาม /follow · /เลิก /ยกเลิก /unfollow · /เลิกทั้งหมด /stop · /รายการ /list · /ช่วย /help /start · /รหัส /id — มี / ไม่ต้องเว้นวรรค, ไม่มี / ต้องเว้นวรรค, ตัด @บอท · `/start tl-ky` (deep link) = สมัคร
+  · ชื่อ (`resolve`/`parseList`): รหัส ky tl ps tp dy ks kc · ชื่อหลังตัดคำนำหน้า อช./อุทยานแห่งชาติ/ขสป./ขห./… และ (เตรียมการ) · อังกฤษ · ขึ้นต้นไม่กำกวม ≥3 ตัว · Levenshtein ≤1 (≥4 ตัว) · "สถานี…" = สถานีฯ (GEO.resp ใน index.html ผ่าน `lib/area`) · ชื่อที่มีแต่สถานีฯ ไม่ต้องใส่คำนำหน้า (วังน้ำเขียว, ทับลานใต้) · หลายชื่อ: แยกจุลภาค/บรรทัด/"และ" แล้วจับคำยาวสุดก่อน · `ทั้งหมด` = 7 พื้นที่
+  · ตอบยืนยันทุกคำสั่ง (ข้อความธรรมดา ไม่มี parse_mode) · ข้อความที่ไม่ใช่คำสั่งในแชตส่วนตัว = "ไม่เข้าใจคำสั่ง" · ในกลุ่ม: คำสั่งที่มี / (ยกเว้น /start) ตอบ "ใช้ได้เฉพาะแชตส่วนตัว" ครั้งเดียวต่อกลุ่มต่อรอบ (reply_parameters) · /id ในกลุ่ม = ตอบรหัสกลุ่ม
+  · `my_chat_member` private kicked/left = ลบการสมัคร
+- DM: `freshAll` = จุดใหม่ทุกพื้นที่ (กติกาเดียวกับกลุ่ม ≤12 ชม. + `near.js`; `fresh` ของกลุ่ม = freshAll ไม่รวมดงใหญ่) → `targets` (_ar ตรงพื้นที่ หรือ _st ตรงสถานีฯ, จุดเดียวไม่ซ้ำ) → `alertMsg(pts,…, dm=รายชื่อ)` รูปแบบเดียวกับกลุ่ม + "🔔 ตามที่คุณติดตาม" + ท้าย "/รายการ · /เลิกทั้งหมด" · แยกกลุ่มด้วย AREAS + ดงใหญ่ · ตารางสะสม/24 ชม. ยังไม่รวมดงใหญ่ (หมายเหตุบอก) · seed = ไม่ DM · ยาวเกิน = strict ซ้ำ
+  · `limiter(25)` ทุกข้อความ (คำตอบ+DM) ห่าง ≥40 ms · 429 retry_after ≤30 วิ รอแล้วส่งซ้ำ · 403 = ลบการสมัคร (`blocked`) · อื่นๆ นับ `fail`
+- tg_notify.json (Pages): `subs:{n, a:{รหัส:จำนวน}, st, gu, at}` (ไม่มีรหัสแชต) · log `{subs:1, cmd, grp, kicked, rep, dm, blocked, fail, gu:0}` · health `tgs` (`chkTgs`) เมื่อ gu.ok 0 ต่อเนื่อง 1 ชม. (CHECKS[1])
+- `--chats`: getUpdates ไม่ส่ง offset (ไม่ยืนยัน) + กลุ่มจาก `seen` (getChat ชื่อสด ไม่เก็บ) · แชตส่วนตัวแสดงแค่จำนวน (log สาธารณะ) → ผู้ดูแลใช้ `/รหัส` แทน · `--preview --subs` พิมพ์ /ช่วย + ตัวอย่าง DM
+- ทดสอบ: `test/tgsubs.test.js` (Bot API จำลอง ไม่ส่งจริง) · **ยังไม่ได้ลองกับบอทจริง**
+

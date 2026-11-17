@@ -12,7 +12,10 @@
 //  - พื้นที่เฝ้าระวังเป็นพิเศษ (โรงเรียนนายร้อยพระจุลจอมเกล้า — ผู้ใช้ขอ 6 พ.ย. 69): จุดใหม่ใน _site/watch.json (กติกาเดียวกัน) → ข้อความแยก 1 ข้อความ/รอบ
 //    สรุปประจำวันมีหัวข้อพื้นที่เฝ้าระวังต่อท้าย · --watch = ส่งข้อความพื้นที่เฝ้าระวังทดสอบ 1 ครั้ง
 //  - ทดสอบ: --preview พิมพ์ข้อความทุกแบบออกจอ (ไม่ส่ง ไม่ต้องมี token) · --test-push / --daily / --burn ส่งเข้าห้องจริง 1 ครั้ง (ไม่แตะ tg_notify.json)
-//    --chats = แสดงรหัสห้องที่บอทอยู่ (จาก getUpdates — เชิญบอทเข้ากลุ่มแล้วพิมพ์อะไรก็ได้ในกลุ่มก่อน) · TG_API = เปลี่ยนปลายทาง (เซิร์ฟเวอร์จำลอง)
+//    --chats = แสดงรหัสห้องที่บอทอยู่ (จาก getUpdates + ห้องที่รอบ site เคยเห็นใน tg_subs.json) · TG_API = เปลี่ยนปลายทาง (เซิร์ฟเวอร์จำลอง)
+//  - F6 (18 พ.ย. 69) สมัครรับแจ้งเตือนรายพื้นที่ทางแชตส่วนตัว (/ตาม /เลิก /เลิกทั้งหมด /รายการ /ช่วย — scripts/lib/tgsubs.js)
+//    ทุกรอบอ่านคำสั่งใหม่ด้วย getUpdates (offset ใน branch state ไฟล์ tg_subs.json ที่ STATE_DIR — ไม่ขึ้น Pages) · ห้ามตั้ง webhook ให้บอทนี้
+//    จุดใหม่ (กติกาเดียวกับกลุ่ม) → DM ผู้สมัครเฉพาะพื้นที่ที่สมัคร (รวมดงใหญ่ได้) · บล็อกบอท (403) = ลบการสมัคร · ≤25 ข้อความ/วินาที · TG_SUBS=off = ปิด
 const fs = require('fs'), path = require('path'), { pathToFileURL } = require('url');
 
 // NOTIFY_DIR = โฟลเดอร์เว็บอื่นแทน _site (scripts/verify_numbers.js เรียก --preview กับโฟลเดอร์ทดสอบ)
@@ -23,7 +26,8 @@ const IDS = (process.env.TG_CHAT_ID || '').replace(/["'`]/g, ' ').split(/[\s,;]+
 const TOKEN = (process.env.TG_TOKEN || '').trim(), CHATS = [...new Set(IDS.filter(isId))], BADID = IDS.filter(x => !isId(x));
 const API = process.env.TG_API || 'https://api.telegram.org';
 const DAILY = /^\d{1,2}:\d{2}$/.test(process.env.TG_DAILY || '') ? process.env.TG_DAILY : /^(off|0|no)$/i.test(process.env.TG_DAILY || '') ? null : '05:30';
-const DAILY_WIN_H = 4, BURN = !/^(off|0|no)$/i.test(process.env.TG_BURN || '');
+const DAILY_WIN_H = 4, BURN = !/^(off|0|no)$/i.test(process.env.TG_BURN || ''), SUBS = !/^(off|0|no)$/i.test(process.env.TG_SUBS || '');
+const STL = require('./lib/state'), SUBF = path.join(STL.DIR, 'tg_subs.json');
 // Telegram รับข้อความไม่เกิน 4,096 ตัวอักษร "หลังแปลง HTML" (URL ในลิงก์ไม่นับ) · จำกัดจำนวนลิงก์/ตัวหนาต่อข้อความไว้ที่ 90 กันเพดาน entity ~100
 const MAX_AGE_H = 12, KEEP_H = 72, MAXLEN = 3900, MAXENT = 90;
 const SATN = { SNPP: 'Suomi NPP', NOAA20: 'NOAA-20', NOAA21: 'NOAA-21' };
@@ -43,9 +47,18 @@ const dPct = (c, p) => !p ? (c ? '▲ ใหม่' : '–') : c === p ? '= เ�
 async function tg(method, body = {}) {
   const r = await fetch(`${API}/bot${TOKEN}/${method}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(20e3) });
   const j = await r.json().catch(() => ({ ok: false, description: 'HTTP ' + r.status }));
-  if (!j.ok) { const e = new Error(`${method} ${j.error_code || r.status} ${j.description || ''}`.trim()); e.p = j.parameters || {}; throw e }
+  if (!j.ok) { const e = new Error(`${method} ${j.error_code || r.status} ${j.description || ''}`.trim()); e.p = j.parameters || {}; e.code = j.error_code || r.status; throw e }
   return j.result;
 }
+// F6 การสมัครรายพื้นที่ (branch state): ไฟล์ใน STATE_DIR → ไม่มี = raw ของ branch state (404 = ยังไม่มีใคร = เริ่มใหม่)
+//   อ่านไม่ได้เพราะเหตุอื่น (เน็ต/ไฟล์เสีย) = {err} → ข้ามรอบนี้ ไม่เขียนทับ (กันการสมัครหายทั้งหมด)
+async function loadSubs(now) {
+  try { return { db: JSON.parse(fs.readFileSync(SUBF, 'utf8')), src: 'branch state' } } catch (e) { if (e.code !== 'ENOENT') return { err: 'tg_subs.json เสีย: ' + e.message.slice(0, 100) } }
+  if (!STL.RAW) return { db: null };
+  try { const r = await fetch(STL.RAW + 'tg_subs.json?t=' + now, { signal: AbortSignal.timeout(20e3) }); if (r.status === 404) return { db: null }; if (!r.ok) return { err: 'raw HTTP ' + r.status }; return { db: await r.json(), src: 'raw' } }
+  catch (e) { return { err: 'raw ' + e.message.slice(0, 100) } }
+}
+const UPD = ['message', 'channel_post', 'my_chat_member'];
 // กลุ่มที่ถูกอัปเกรดเป็น supergroup: รหัสเดิม → รหัสใหม่ (จำไว้ใน tg_notify.json ช่อง migrate จนกว่าจะแก้ TG_CHAT_ID)
 const MIG = {};
 let sendErr = false;
@@ -106,7 +119,8 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
   const all = tot(() => true), fy = sum ? sum.fy : '';
   const pts = live.features.filter(f => f.geometry && f.properties && f.properties.full_date && !excluded(f.properties));
   const h24 = pts.filter(f => now - thMs(f.properties.full_date) < 24 * 36e5);
-  const groups = L => [...AREAS.map(a => [a.s, L.filter(f => f.properties._ar === a.k)]), ['นอกเขตอนุรักษ์', L.filter(f => !AREAS.some(a => a.k === f.properties._ar))]].filter(g => g[1].length);
+  // AA = รายการพื้นที่ที่แยกกลุ่ม (ข้อความส่วนตัว F6 รวมดงใหญ่ได้ จึงส่ง AREAS + ดงใหญ่)
+  const groups = (L, AA = AREAS) => [...AA.map(a => [a.s, L.filter(f => f.properties._ar === a.k)]), ['นอกเขตอนุรักษ์', L.filter(f => !AA.some(a => a.k === f.properties._ar))]].filter(g => g[1].length);
   const top1 = o => Object.entries(o || {}).sort((a, b) => b[1] - a[1])[0];
   const tops = (o, u = '') => [['จ.', top1(o.pv), k => k], ['อ.', top1(o.am), k => k.split('|')[0]], ['ต.', top1(o.tm), k => k.split('|')[0]]].filter(x => x[1]).map(([p, [k, v], f]) => `${p}${esc(f(k))} ${u ? rai(v) + u : v}`).join(' · ');
   // สถิติรายพื้นที่อนุรักษ์: สะสมปีงบนี้ | ทั้งปีงบก่อน ▲▼% (ผู้ใช้ขอ 3 พ.ย. 69 แบบกระชับ — บรรทัดละพื้นที่ ใช้ทั้งแจ้งเตือนและสรุปประจำวัน)
@@ -125,14 +139,17 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
   const list = (L, per, ar) => [...L.slice(0, per).map(f => ptLine(f, ar)), ...(L.length > per ? [`  …และอีก ${L.length - per} จุด`] : [])];
   const byNew = L => L.slice().sort((a, b) => thMs(b.properties.full_date) - thMs(a.properties.full_date));
 
-  const alertMsg = (fresh, test = false, strict = false) => {
-    const G = groups(fresh).sort((a, b) => b[1].length - a[1].length);
+  // dm = รายชื่อที่ผู้รับสมัครไว้ (ข้อความส่วนตัว F6 — รูปแบบเดียวกับข้อความกลุ่ม + บรรทัดบอกการติดตาม/วิธีเลิก)
+  const alertMsg = (fresh, test = false, strict = false, dm = null) => {
+    const G = groups(fresh, dm ? [...AREAS, require('./lib/tgsubs').DY] : AREAS).sort((a, b) => b[1].length - a[1].length);
     const text = fit(per => [
       `${test ? '🧪 <b>ทดสอบ</b> · ' : ''}🔥 <b>พบจุดความร้อนใหม่ ${fresh.length} จุด</b>`,
+      ...(dm ? [`🔔 ตามที่คุณติดตาม: ${esc(dm.join(', '))}`] : []),
       `กลุ่มป่าดงพญาเย็น-เขาใหญ่ · ${dateTh(now)} ${hm(now)} น.`,
       ...G.flatMap(([n, L]) => ['', `🌲 <b>${esc(n)}</b> ${L.length} จุด`, ...list(byNew(L), per)]),
       '', ...areaTable(new Set(fresh.map(f => AREAS.some(a => a.k === f.properties._ar) ? f.properties._ar : OUTA)), 'จุดใหม่'),
-      '', `🕐 จุดใน 24 ชม.: ${h24.length} จุด`, NOTE,
+      '', `🕐 จุดใน 24 ชม.: ${h24.length} จุด`, dm ? NOTE.replace('ไม่รวม ขสป.ดงใหญ่', 'ตารางและยอด 24 ชม. ไม่รวม ขสป.ดงใหญ่') : NOTE,
+      ...(dm ? ['<i>ข้อความส่วนตัวตามที่สมัคร · /รายการ ดูการติดตาม · /เลิกทั้งหมด หยุดรับ</i>'] : []),
     ].join('\n'), strict);
     return msgOf(text, [[mapBtn(fresh), ['🗺️ แผนที่ไฟป่า', SITE]]]);
   };
@@ -216,20 +233,31 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
     return msgOf(text, [[[P.length ? `📍 ดู ${P.length} จุด` : '🎯 ดูพื้นที่', `${SITE}?wa=${id}${P.length ? '&pts=' + P.map(f => r4(f.geometry.coordinates[1]) + ',' + r4(f.geometry.coordinates[0])).join(';') : ''}`], ['🗺️ แผนที่ไฟป่า', SITE]]]);
   };
 
+  // F6 รายชื่อที่สมัครได้: AREAS + ดงใหญ่ · สถานีฯ จากแนวเขตรับผิดชอบ (GEO.resp ใน index.html)
+  const TS = require('./lib/tgsubs');
+  const catOf = () => { let st = []; try { st = require('./lib/area').GEO.resp.features.map(f => String(f.properties.station || '').replace(/\s*\(พื้นที่รอง\)/, '').trim()) } catch (e) { console.log('อ่านรายชื่อสถานีฯ ไม่ได้:', e.message) } return TS.catalog(AREAS, st) };
+
   // --- โหมดทดสอบ ---
   const A0 = process.argv;
   if (A0.includes('--preview')) {
     const ex = pts.slice(-3).length ? pts.slice(-3) : live.features.slice(0, 3);
-    for (const [n, m] of [['แจ้งเตือน', ex.length ? alertMsg(ex) : null], ['สรุปประจำวัน', dailyMsg()], ['พื้นที่เผาไหม้', bsum ? burnMsg(bsum) : null], ['พื้นที่เฝ้าระวังพิเศษ', watchMsg(null)], ['พื้นที่เฝ้าระวังพิเศษ (แจ้งเตือน)', wpts.length ? watchMsg(wpts.slice(0, 3)) : null]]) if (m) console.log(`===== ${n} (${m.text.length} ตัวอักษร) =====\n${m.text}\n[ปุ่ม] ${m.reply_markup.inline_keyboard.flat().map(b => b.text + ' → ' + b.url).join('  |  ')}\n`);
+    if (A0.includes('--subs')) console.log(`===== F6 คำตอบ /ช่วย =====\n${TS.helpText(catOf())}\n`);
+    for (const [n, m] of [['แจ้งเตือน', ex.length ? alertMsg(ex) : null], ['ข้อความส่วนตัว (ผู้สมัคร F6 ตัวอย่าง)', ex.length ? alertMsg(ex, false, false, ['อช.ทับลาน', 'สถานีฯ วังน้ำเขียว']) : null], ['สรุปประจำวัน', dailyMsg()], ['พื้นที่เผาไหม้', bsum ? burnMsg(bsum) : null], ['พื้นที่เฝ้าระวังพิเศษ', watchMsg(null)], ['พื้นที่เฝ้าระวังพิเศษ (แจ้งเตือน)', wpts.length ? watchMsg(wpts.slice(0, 3)) : null]]) if (m) console.log(`===== ${n} (${m.text.length} ตัวอักษร) =====\n${m.text}\n[ปุ่ม] ${m.reply_markup.inline_keyboard.flat().map(b => b.text + ' → ' + b.url).join('  |  ')}\n`);
     return;
   }
   if (A0.includes('--chats')) {
     if (!TOKEN) { console.log('ต้องตั้ง TG_TOKEN'); process.exitCode = 1; return }
-    const me = await tg('getMe'), U = await tg('getUpdates', { allowed_updates: ['message', 'channel_post', 'my_chat_member'] }), C = {};
+    // getUpdates ไม่ส่ง offset = ไม่ยืนยัน/ไม่ลบ update ใด (รอบ site ยังอ่านคำสั่งได้ครบ) · แต่รอบ site ยืนยันทุก ~5 นาที จึงรวมห้องที่รอบ site เคยเห็น (tg_subs.json ช่อง seen 3 วัน)
+    // แชตส่วนตัว: ไม่พิมพ์ชื่อ (log ของ repo สาธารณะ และมีเจ้าหน้าที่หลายคนคุยกับบอทเพื่อสมัคร F6) — ผู้ดูแลพิมพ์ /รหัส ในแชตส่วนตัวกับบอทเพื่อดูรหัสของตัวเอง
+    const me = await tg('getMe'), U = await tg('getUpdates', { allowed_updates: UPD }), C = {};
     for (const u of U) { const c = (u.message || u.channel_post || u.my_chat_member || {}).chat; if (c) C[c.id] = c }
-    console.log(`บอท @${me.username} · พบ ${Object.keys(C).length} ห้อง (จากข้อความ 24 ชม. ล่าสุดที่บอทเห็น)`);
-    for (const c of Object.values(C)) console.log(`  TG_CHAT_ID = ${c.id}   (${c.type}) ${c.title || [c.first_name, c.last_name].filter(Boolean).join(' ') || ''}${c.username ? ' @' + c.username : ''}`);
-    if (!Object.keys(C).length) console.log('ไม่พบห้อง — เชิญบอทเข้ากลุ่ม (หรือตั้งเป็นผู้ดูแล channel) แล้วพิมพ์ /start@' + me.username + ' ในกลุ่ม จากนั้นรันใหม่');
+    const S = await loadSubs(now);
+    for (const [id, [type]] of Object.entries((S.db && S.db.seen) || {})) if (!C[id] && type !== 'private') { try { C[id] = await tg('getChat', { chat_id: id }) } catch (e) { C[id] = { id, type, title: '(อ่านชื่อไม่ได้: ' + e.message.slice(0, 60) + ')' } } }
+    const priv = Object.values(C).filter(c => c.type === 'private'), grp = Object.values(C).filter(c => c.type !== 'private');
+    console.log(`บอท @${me.username} · พบ ${grp.length} กลุ่ม/ช่อง (ข้อความ 24 ชม. ที่ยังไม่ถูกอ่าน + ที่รอบ site เห็นใน 3 วัน)`);
+    for (const c of grp) console.log(`  TG_CHAT_ID = ${c.id}   (${c.type}) ${c.title || c.username || ''}`);
+    if (priv.length) console.log(`  แชตส่วนตัว ${priv.length} ห้อง (ไม่แสดงชื่อ) — ผู้ดูแล: พิมพ์ /รหัส ในแชตส่วนตัวกับ @${me.username} บอทจะตอบรหัสสำหรับ TG_ADMIN_ID ภายใน ~5 นาที`);
+    if (!grp.length) console.log('ไม่พบกลุ่ม — เชิญบอทเข้ากลุ่ม (หรือตั้งเป็นผู้ดูแล channel) แล้วพิมพ์ /start@' + me.username + ' ในกลุ่ม จากนั้นรันใหม่ (หรือพิมพ์ /id@' + me.username + ' ในกลุ่ม บอทจะตอบรหัสกลุ่มภายใน ~5 นาที)');
     return;
   }
   const testMode = ['--test-push', '--daily', '--burn', '--watch'].find(a => A0.includes(a));
@@ -261,8 +289,10 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
   const off = `ยังไม่ตั้ง ${!TOKEN ? 'TG_TOKEN ' : ''}${!CHATS.length ? 'TG_CHAT_ID' : ''}`.trim();
 
   const all48 = live.features.filter(f => f.geometry && f.properties && f.properties.full_date);
-  const fresh = pts.filter(f => NR.isNew(st, f, idOf) && now - thMs(f.properties.full_date) < MAX_AGE_H * 36e5)
+  // freshAll = จุดใหม่ทุกพื้นที่ (รวมดงใหญ่ — ใช้กับข้อความส่วนตัว F6) · fresh = ส่งเข้ากลุ่ม (ไม่รวมดงใหญ่ เท่ากับ pts เดิม)
+  const freshAll = all48.filter(f => NR.isNew(st, f, idOf) && now - thMs(f.properties.full_date) < MAX_AGE_H * 36e5)
     .sort((a, b) => thMs(a.properties.full_date) - thMs(b.properties.full_date));
+  const fresh = freshAll.filter(f => !excluded(f.properties));
   all48.forEach(f => NR.remember(st, f, idOf, now));
   const wfresh = wpts.filter(f => NR.isNew(st, f, idOf) && now - thMs(f.properties.full_date) < MAX_AGE_H * 36e5).sort((a, b) => thMs(a.properties.full_date) - thMs(b.properties.full_date));
   wpts.forEach(f => NR.remember(st, f, idOf, now));
@@ -276,6 +306,51 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
     if (!on) log({ watch: 1, why: off, n: wfresh.length });
     else try { log({ watch: 1, ok: 1, n: wfresh.length, ...await sendB(s => watchMsg(wfresh, false, s)) }) } catch (e) { log({ watch: 1, why: 'ส่งไม่สำเร็จ: ' + e.message.slice(0, 300), n: wfresh.length }) }
   }
+
+  // F6 สมัครรับแจ้งเตือนรายพื้นที่ทางแชตส่วนตัว (scripts/lib/tgsubs.js) — ต้องมีแค่ TG_TOKEN (ไม่ต้องมีกลุ่ม) · TG_SUBS=off = ปิด
+  //  1) getUpdates ต่อจาก offset เดิม → ทำตามคำสั่ง ตอบยืนยันทุกคำสั่ง  2) จุดใหม่รอบนี้ (freshAll — near.js กันซ้ำแล้ว) → DM เฉพาะพื้นที่ที่สมัคร
+  //  3) 403 (บล็อกบอท/ลบบัญชี) = ลบการสมัคร  4) บันทึก tg_subs.json ใน STATE_DIR (site.yml push ไป branch state ไม่ขึ้น Pages)
+  //  getUpdates ล้ม → db.gu.ok = 0 (+since) → tg_notify.json ช่อง subs.gu → health.js แจ้ง `tgs` เมื่อต่อเนื่อง 1 ชม. · DM ยังส่งตามการสมัครเดิม
+  if (!SUBS || !TOKEN) st.subs = { off: 1, why: !SUBS ? 'TG_SUBS=off' : 'ยังไม่ตั้ง TG_TOKEN' };
+  else try {
+    const S = await loadSubs(now);
+    if (S.err) { log({ subs: 1, why: 'อ่านการสมัครไม่ได้ — ข้ามรอบนี้ (ไม่เขียนทับ): ' + S.err }); st.subs = { ...(st.subs || {}), err: S.err, at: new Date(now).toISOString() } }
+    else {
+      const db = S.db || { offset: 0, subs: {}, seen: {} }, cat = catOf(), lim = TS.limiter(25), R = { cmd: 0, grp: 0, kicked: 0, rep: 0, dm: 0, blocked: 0, fail: 0 }, errs = [];
+      const sleep = ms => new Promise(r => setTimeout(r, ms));
+      const dm = async (chat, m) => { await lim();
+        try { return await tg('sendMessage', { chat_id: chat, ...m }) }
+        catch (e) { if (e.p && e.p.retry_after && e.p.retry_after <= 30) { await sleep(e.p.retry_after * 1e3); return tg('sendMessage', { chat_id: chat, ...m }) } throw e } };
+      // 403 ในแชตส่วนตัว = ผู้ใช้บล็อกบอท/ลบบัญชี → ลบการสมัคร
+      const fail = (chat, e) => { if (e.code === 403) { if (db.subs[chat]) { delete db.subs[chat]; R.blocked++ } } else { R.fail++; errs.push(e.message.slice(0, 120)) } };
+      // 1) คำสั่งใหม่ (หน้าละ 100 สูงสุด 5 หน้า/รอบ) — ส่ง offset = ยืนยันว่าอ่าน update ก่อนหน้าแล้ว
+      const replies = [];
+      try {
+        for (let i = 0; i < 5; i++) {
+          const U = await tg('getUpdates', { ...(db.offset ? { offset: db.offset } : {}), limit: 100, timeout: 0, allowed_updates: UPD });
+          const P = TS.processUpdates(db, U, cat, now); replies.push(...P.replies); for (const k in P.stats) R[k] += P.stats[k];
+          if (U.length < 100) break;
+        }
+        db.gu = { ok: 1, at: new Date(now).toISOString() };
+      } catch (e) {
+        const why = e.message.slice(0, 200) + (e.code === 409 ? ' — มี webhook ตั้งอยู่หรือมีโปรแกรมอื่นเรียก getUpdates ค้าง (ต้อง deleteWebhook: ห้ามตั้ง webhook ให้บอทนี้)' : '');
+        db.gu = { ok: 0, since: db.gu && db.gu.ok === 0 && db.gu.since ? db.gu.since : new Date(now).toISOString(), at: new Date(now).toISOString(), why };
+        console.log('Telegram getUpdates ไม่สำเร็จ:', why);
+      }
+      for (const r of replies) try { await dm(r.chat_id, { text: r.text, link_preview_options: { is_disabled: true }, ...(r.reply_to_message_id ? { reply_parameters: { message_id: r.reply_to_message_id, allow_sending_without_reply: true } } : {}) }); R.rep++ } catch (e) { fail(r.chat_id, e) }
+      // 2) จุดใหม่ → ข้อความส่วนตัว (รอบแรก seed = ไม่ส่ง เหมือนกลุ่ม)
+      if (!seed && freshAll.length) for (const T of TS.targets(db, freshAll, cat)) {
+        try { await dm(T.chat, alertMsg(T.pts, false, false, T.names)); R.dm++ }
+        catch (e) { if (!/too long|entit/i.test(e.message)) { fail(T.chat, e); continue } try { await dm(T.chat, alertMsg(T.pts, false, true, T.names)); R.dm++ } catch (e2) { fail(T.chat, e2) } }
+      }
+      TS.pruneSeen(db, now); db.updated = new Date(now).toISOString();
+      fs.mkdirSync(path.dirname(SUBF), { recursive: true }); fs.writeFileSync(SUBF, JSON.stringify(db));
+      st.subs = { ...TS.pub(db, cat), gu: db.gu, at: db.updated };
+      const act = Object.fromEntries(Object.entries(R).filter(([, v]) => v));
+      if (Object.keys(act).length || db.gu.ok === 0) log({ subs: 1, ...act, ...(errs.length ? { why: errs.slice(0, 3).join(' | ') } : {}), ...(db.gu.ok === 0 ? { gu: 0 } : {}) });
+      else console.log(`Telegram ผู้สมัครรายพื้นที่: ${st.subs.n} คน ไม่มีคำสั่ง/จุดใหม่`);
+    }
+  } catch (e) { log({ subs: 1, why: 'ผิดพลาด: ' + e.message.slice(0, 200) }) }
 
   // สรุปประจำวัน (ส่งไม่สำเร็จ = ลองรอบถัดไปภายในช่วงเวลา)
   const tmin = (() => { const d = new Date(now + 7 * 36e5); return d.getUTCHours() * 60 + d.getUTCMinutes() })();

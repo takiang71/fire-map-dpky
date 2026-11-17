@@ -45,7 +45,8 @@ jobs:
             # reports.json = สำเนารายงานผลตรวจสอบจาก Worker fire-layers รอบก่อน (F1 — ใช้เมื่อ Worker ล่ม)
             # live_cache.json = จุดจาก API รอบก่อน (build_site.js ดึงแค่ 12 ชม. ล่าสุดแล้วรวมกับไฟล์นี้ ลดภาระ API ต้นทาง · ไม่มี = ดึงเต็ม 48 ชม.)
             # pass_lag.json = ความล่าช้าจริงของต้นทางต่อรอบดาวเทียม (scripts/pass_wait.js)
-            for f in notify.json tg_notify.json health.json live_cache.json pass_lag.json reports.json; do git show FETCH_HEAD:$f > .state/$f 2>/dev/null || rm -f .state/$f; done
+            # tg_subs.json = การสมัครแจ้งเตือน Telegram รายพื้นที่ + offset ของ getUpdates (F6 — ข้อมูลส่วนบุคคล: อยู่ใน .state/ ไม่ขึ้น Pages)
+            for f in notify.json tg_notify.json health.json live_cache.json pass_lag.json reports.json tg_subs.json; do git show FETCH_HEAD:$f > .state/$f 2>/dev/null || rm -f .state/$f; done
           else echo "ยังไม่มี branch state"; fi
           ls -l .state
       # ช่วงที่ข้อมูลรอบดาวเทียมกำลังเข้า (8–90 นาทีหลังผ่านกลุ่มป่า ตาม data/tle.json) และยังไม่เข้า → ถาม API ทุก 45 วิ ≤4 นาที
@@ -118,6 +119,8 @@ jobs:
           TG_DAILY: ${{ vars.TG_DAILY }}
           # ข้อความพื้นที่เผาไหม้เมื่อมีรอบใหม่ ("off" = ปิด)
           TG_BURN: ${{ vars.TG_BURN }}
+          # F6 สมัครรับแจ้งเตือนรายพื้นที่ทางแชตส่วนตัว (/ตาม ทับลาน) — "off" = ปิด (ไม่อ่านคำสั่ง ไม่ส่งข้อความส่วนตัว)
+          TG_SUBS: ${{ vars.TG_SUBS }}
       # แจ้งเตือนผู้ดูแลเมื่อระบบเสีย (scripts/health.js) — ส่งถึง LINE_ADMIN_ID / TG_ADMIN_ID คนเดียว ไม่ตั้ง = บันทึกสถานะใน health.json อย่างเดียว
       - run: node scripts/health.js || true
         env:
@@ -135,7 +138,9 @@ jobs:
           mkdir -p "$RUNNER_TEMP/st" && cd "$RUNNER_TEMP/st"
           n=0; for f in notify.json tg_notify.json health.json; do if [ -f "$GITHUB_WORKSPACE/_site/$f" ]; then cp "$GITHUB_WORKSPACE/_site/$f" .; n=$((n+1)); fi; done
           # แคช API ของ build_site.js อยู่ใน .state/ (ไม่ขึ้น Pages)
-          for f in live_cache.json pass_lag.json reports.json; do if [ -f "$GITHUB_WORKSPACE/.state/$f" ]; then cp "$GITHUB_WORKSPACE/.state/$f" .; n=$((n+1)); fi; done
+          for f in live_cache.json pass_lag.json reports.json tg_subs.json; do if [ -f "$GITHUB_WORKSPACE/.state/$f" ]; then cp "$GITHUB_WORKSPACE/.state/$f" .; n=$((n+1)); fi; done
+          # การสมัคร F6 ห้ามหาย: ไม่มีใน .state (โหลดตอนต้นไม่ได้ / telegram_notify ข้ามรอบ) → ดึงฉบับเดิมจาก branch state ก่อน force push
+          if [ ! -f tg_subs.json ]; then (cd "$GITHUB_WORKSPACE" && git fetch -q --depth=1 origin state && git show FETCH_HEAD:tg_subs.json) > tg_subs.json 2>/dev/null || rm -f tg_subs.json; fi
           [ "$n" -gt 0 ] || { echo "ไม่มีไฟล์สถานะ"; exit 0; }
           git init -q -b state
           git add -A

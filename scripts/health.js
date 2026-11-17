@@ -3,6 +3,7 @@
 //   ตรวจ: ดึง API จุดความร้อนไม่ได้/ตอบว่างทั้งประเทศ (เกิน 1 ชม.) · ระบบต้นทางไม่อัปเดต (เกิน 18 ชม.) · sync ไม่ทำงาน (adata เก่ากว่า 14 ชม.)
 //         ข้อมูลสะสมค้าง (วันล่าสุดที่ดึงครบเก่ากว่า 2 วัน) · LINE ใช้งานไม่ได้ (ช่อง line ใน notify.json)
 //         Telegram ใช้งานไม่ได้ / กลุ่มถูกอัปเกรดเป็น supergroup (ช่อง tg, migrate ใน tg_notify.json — scripts/telegram_notify.js)
+//         Telegram อ่านคำสั่งสมัครรายพื้นที่ไม่ได้ (ช่อง subs.gu — F6, `tgs`)
 //   แจ้งเมื่อเริ่มพบ · ทวนซ้ำทุก 12 ชม. ถ้ายังไม่หาย · แจ้ง "กลับมาปกติ" เมื่อหาย — รวมทุกเรื่องเป็นข้อความเดียวต่อรอบ (push ถึง 1 คน = 1 ข้อความจากโควตา)
 //   สถานะเก็บใน _site/health.json (เผยแพร่บน Pages ไม่ commit; รอบถัดไปอ่านจาก URL — แบบเดียวกับ notify.json) ดูสถานะปัจจุบันได้ที่ <เว็บ>/health.json
 // ใช้ใน workflow "sync":  node scripts/health.js --site  → ตรวจว่า workflow site ยังทำงาน (notify.json บนเว็บอัปเดตใน 90 นาที)
@@ -21,6 +22,8 @@ const H = 36e5, REMIND = 12 * H;
 // เรื่องที่ตรวจ: ชื่อ + ต้องเป็นต่อเนื่องนานเท่าไรจึงแจ้ง (กันขัดข้องชั่วคราว)
 const CHECKS = { api: ['ดึงจุดความร้อนจาก API ไม่ได้', H], src: ['ระบบต้นทางไม่อัปเดต', 0], sync: ['sync จุดความร้อนไม่ทำงาน', 0], gap: ['ข้อมูลสะสมค้าง', 0], line: ['LINE ใช้งานไม่ได้', H],
   tg: ['Telegram ใช้งานไม่ได้', H], tle: ['ข้อมูลวงโคจรดาวเทียมเก่า', 0], vr: ['ข้อมูลอัตราการระบายอากาศ (GFS) เก่า', 0], cams: ['ข้อมูล PM2.5 แบบจำลอง CAMS เก่า', 0], fwi: ['ข้อมูล FWI/FFMC (TFDRS) เก่า', 0], tgm: ['กลุ่ม Telegram ถูกอัปเกรดเป็น supergroup', 0],
+  // F6: telegram_notify.js อ่านคำสั่งสมัครรายพื้นที่ (getUpdates) ไม่ได้ต่อเนื่อง 1 ชม. (ช่อง subs.gu ใน tg_notify.json) — DM ตามการสมัครเดิมยังส่งได้
+  tgs: ['Telegram รับคำสั่งสมัครแจ้งเตือนรายพื้นที่ (getUpdates) ไม่ได้', H],
   pages: ['หน้าเว็บ (GitHub Pages) ไม่อัปเดต', 0], ci: ['หน้าเว็บฉบับใหม่ไม่ผ่านการตรวจ', 0],
   // C2: scripts/verify_numbers.js — ยอดสะสมของหน้าเว็บ/summary.json/การ์ด LINE/Telegram ต่างกัน (ต่อเนื่อง 1 ชม. กันรอบที่ข้อมูลกำลังเปลี่ยน)
   num: ['ตัวเลขหน้าเว็บ / summary.json / LINE / Telegram ไม่ตรงกัน', H],
@@ -35,6 +38,13 @@ const readJ = f => { try { return JSON.parse(fs.readFileSync(f, 'utf8')) } catch
 const THM = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 const thM = m => THM[+m.slice(4, 6) - 1] + ' ' + String(+m.slice(0, 4) + 543).slice(2), thD8 = v => (+v.slice(6, 8)) + ' ' + thM(v);
 const fyOf = t => { const d = new Date(t + 7 * H), y = d.getUTCFullYear(), m = d.getUTCMonth() + 1; return y + 543 + (m >= 10 ? 1 : 0) };
+// F6: getUpdates ของคำสั่งสมัครรายพื้นที่ล้ม (tg_notify.json ช่อง subs.gu = {ok:0, since, why}) — การนับ 1 ชม. ทำโดย CHECKS.tgs[1]
+function chkTgs(tn, t = now) {
+  const g = tn && tn.subs && tn.subs.gu;
+  if (!g || g.ok !== 0) return null;
+  const s = Date.parse(g.since);
+  return `${String(g.why || 'getUpdates ไม่สำเร็จ').slice(0, 250)}${s ? ` (ล้มตั้งแต่ ${thTime(s)}, ${hrs(t - s)} ชม.)` : ''} — คำสั่ง /ตาม /เลิก ยังไม่ถูกอ่าน ข้อความส่วนตัวตามการสมัครเดิมยังส่ง · ตรวจ token และว่าไม่มี webhook (getWebhookInfo)`;
+}
 // C1: ปีงบล่าสุดใน hdata (Excel กรมอุทยานฯ) < ปีงบปัจจุบัน−1 ตั้งแต่ 1 ธ.ค. → เตือนนำเข้า (หน้าเว็บเติมจาก API ให้ระหว่างนี้ — hdFill)
 function chkXlsx(fys, t = now) {
   if (!fys || !fys.length) return 'อ่านปีงบใน hdata (index.html) ไม่ได้';
@@ -128,6 +138,7 @@ function problems(pg) {
   if (nt && nt.line && nt.line.ok === 0 && TOKEN) P.line = nt.line.why || 'ตรวจโควตา/กลุ่มไม่ผ่าน';
   const tn = readJ(path.join(OUT, 'tg_notify.json'));
   if (tn && tn.tg && tn.tg.ok === 0) P.tg = tn.tg.why || 'ตรวจบอท/ห้องไม่ผ่าน';
+  { const m = chkTgs(tn); if (m) P.tgs = m }
   if (tn && tn.migrate && Object.keys(tn.migrate).length) P.tgm = 'แก้ GitHub Variable TG_CHAT_ID: ' + Object.entries(tn.migrate).map(([a, b]) => `${a} → ${b}`).join(', ') + ' (ระหว่างนี้ระบบส่งไปที่รหัสใหม่ให้เอง)';
   // Pages ค้างทั้งที่ deploy สำเร็จ (6 พ.ย. 69) — หน้าเว็บถอยไปดึง API ตรงได้ แต่ live.json/summary.json บนเว็บ (Worker LINE ใช้) จะเก่า
   const pu = pg && pg.meta && Date.parse(pg.meta.generated);
@@ -141,7 +152,7 @@ function problems(pg) {
   return P;
 }
 
-module.exports = { CHECKS, problems, chkXlsx, chkSavi, chkB4, hdFys, now };
+module.exports = { CHECKS, problems, chkTgs, chkXlsx, chkSavi, chkB4, hdFys, now };
 if (require.main === module) (async () => {
   if (process.argv.includes('--site')) {
     const nt = await loadState('notify.json', SITE, now), up = nt && Date.parse(nt.updated);

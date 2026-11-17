@@ -29,4 +29,4 @@ async function loadState(name, site, now = Date.now()) {
   return best ? best[1] : null;
 }
 
-module.exports = { loadState };
+module.exports = { loadState, DIR, RAW };
