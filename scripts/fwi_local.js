@@ -20,8 +20,11 @@ const stamp = () => new Date(Date.now() + 7 * 36e5).toISOString().slice(0, 19).r
 const log = (...a) => { const s = `[${stamp()}] ${a.join(' ')}`; console.log(s); fs.appendFileSync(LOG, s + '\n') };
 // Task Scheduler อาจไม่มี git ใน PATH → ใช้ที่ติดตั้งมาตรฐานถ้ามี
 const GIT = ['C:\\Program Files\\Git\\cmd\\git.exe', 'C:\\Program Files (x86)\\Git\\cmd\\git.exe'].find(p => fs.existsSync(p)) || 'git';
+// 18 พ.ย. 69: รอบ 14:40 ค้างแล้วถูก Task Scheduler ตัดที่ 20 นาที ทิ้ง .git/index.lock → ทุกรอบหลังจากนั้นล้ม "index.lock: File exists"
+//   จึงจำกัดเวลา git (4 นาที/คำสั่ง) + sync_fwi (10 นาที) ให้จบเองก่อนถูกตัด และลบไฟล์ล็อกที่เก่ากว่า 25 นาทีตอนเริ่ม (เกินเวลาสูงสุดของงาน = ค้างแน่นอน)
+const GIT_TO = 4 * 60e3, SYNC_TO = 10 * 60e3, STALE = 25 * 60e3;
 function git(args, o = {}) {
-  const r = cp.spawnSync(GIT, args, { cwd: o.cwd || R, encoding: o.buf ? 'buffer' : 'utf8', maxBuffer: 64 << 20, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } });
+  const r = cp.spawnSync(GIT, args, { cwd: o.cwd || R, encoding: o.buf ? 'buffer' : 'utf8', maxBuffer: 64 << 20, timeout: GIT_TO, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } });
   if (r.status !== 0 && !o.ok) throw new Error('git ' + args.join(' ') + ' ล้ม: ' + (r.error ? r.error.message + ' ' : '') + String(r.stderr || '').trim().slice(0, 300));
   return o.buf ? r.stdout : String(r.stdout || '').trim();
 }
@@ -33,11 +36,26 @@ async function pushMain() {
   }
   log('push main ไม่สำเร็จ'); return false;
 }
+// ลบไฟล์ล็อกของ git ที่ค้าง (index.lock, shallow.lock, HEAD.lock, refs/**.lock …) — คืนรายชื่อที่ลบ
+function clearStaleLocks(gd, now = Date.now()) {
+  const out = [];
+  const walk = d => {
+    let es = []; try { es = fs.readdirSync(d, { withFileTypes: true }) } catch (e) { return }
+    for (const e of es) {
+      const p = path.join(d, e.name);
+      if (e.isDirectory()) { if (e.name !== 'objects') walk(p) }
+      else if (e.name.endsWith('.lock')) { try { if (now - fs.statSync(p).mtimeMs > STALE) { fs.rmSync(p, { force: true }); out.push(path.relative(gd, p)) } } catch (er) { } }
+    }
+  };
+  walk(gd); return out;
+}
 function cfg(k) { try { return git(['config', k], { cwd: HERE }) } catch (e) { return '' } }
 (async () => {
   log('เริ่ม' + (FORCE ? ' (--force)' : ''));
   // 1) โคลนแยก
   if (!fs.existsSync(path.join(R, '.git'))) { log('โคลน', REPO); git(['clone', '-q', '--depth', '20', '--branch', 'main', REPO, R], { cwd: DIR }) }
+  const gone = clearStaleLocks(path.join(R, '.git'));
+  if (gone.length) log('ลบไฟล์ล็อก git ที่ค้าง:', gone.join(', '));
   const name = cfg('user.name') || 'takiang71', mail = cfg('user.email');
   git(['config', 'user.name', name]); if (mail) git(['config', 'user.email', mail]);
   git(['config', 'core.autocrlf', 'false']);
@@ -51,7 +69,8 @@ function cfg(k) { try { return git(['config', k], { cwd: HERE }) } catch (e) { r
   }
   const before = fs.readFileSync(path.join(R, 'data', 'fwi', 'index.json'), 'utf8');
   // 2) ดึงจาก TFDRS
-  const s = cp.spawnSync(process.execPath, [path.join(R, 'scripts', 'sync_fwi.js'), ...(FORCE ? ['--force'] : [])], { cwd: R, encoding: 'utf8' });
+  const s = cp.spawnSync(process.execPath, [path.join(R, 'scripts', 'sync_fwi.js'), ...(FORCE ? ['--force'] : [])], { cwd: R, encoding: 'utf8', timeout: SYNC_TO });
+  if (s.error) log('sync_fwi หยุด:', s.error.message);
   const out = (String(s.stdout || '') + String(s.stderr || '')).trim().split('\n').filter(Boolean);
   out.slice(-8).forEach(l => log('  ' + l));
   const after = fs.readFileSync(path.join(R, 'data', 'fwi', 'index.json'), 'utf8'), changed = s.status === 0 && after !== before;
