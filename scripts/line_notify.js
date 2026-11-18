@@ -79,14 +79,14 @@ async function quotaOk() {
   const wmsg = (fresh, daily = false, test = false) => watchCard(wjs, { fresh, site: SITE, now, daily, test });
   // ดาวเทียมรอบถัดไปที่แถบสแกนผ่านกลุ่มป่า (ทุกรอบรวมขอบแถบ) 24 ชม. ข้างหน้า — บรรทัดในสรุปประจำวัน (ผู้ใช้ขอ 13 พ.ย. 69)
   const orb = () => { try { return require('./lib/orbit').next(JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'tle.json'), 'utf8')), now, 24) } catch (e) { return null } };
-  // อัตราการระบายอากาศของกลุ่มป่า 5 วัน (NOAA GFS, data/gfs_vr.json) — เฉพาะสรุปประจำวัน (ผู้ใช้ขอ 14 พ.ย. 69)
-  const vrs = () => { try { return require('./lib/vrsum').vrSummary(now) } catch (e) { return null } };
-  // ดัชนีอันตรายไฟป่า FWI ของกลุ่มป่า วันนี้/พรุ่งนี้ (TFDRS กรมป่าไม้, data/fwi/index.json) — เฉพาะสรุปประจำวัน (ผู้ใช้ขอ 14 พ.ย. 69)
+  // อัตราการระบายอากาศของกลุ่มป่า (NOAA GFS, data/gfs_vr.json) — เฉพาะสรุปประจำวัน (ผู้ใช้ขอ 14 พ.ย. 69) · VR/FWI/PM2.5 ส่งเฉพาะค่าวันนี้ (n=1) + src ต้นทาง (ผู้ใช้ขอ 18 พ.ย. 69)
+  const vrs = () => { try { return require('./lib/vrsum').vrSummary(now, 1) } catch (e) { return null } };
+  // ดัชนีอันตรายไฟป่า FWI ของกลุ่มป่า วันนี้ (TFDRS กรมป่าไม้, data/fwi/index.json) — เฉพาะสรุปประจำวัน (ผู้ใช้ขอ 14 พ.ย. 69)
   // F2 พื้นที่เสี่ยงไฟป่า (ดัชนีของระบบ) — บรรทัดในการ์ดสรุปประจำวัน · ไม่มี _site/risk.json = ไม่มีบรรทัด
   const rks = () => { try { return require('./lib/risksum').riskLine(JSON.parse(fs.readFileSync(path.join(OUT, 'risk.json'), 'utf8')), now) } catch (e) { return null } };
-  const fws = () => { try { return require('./lib/fwisum').fwiSummary(now) } catch (e) { return null } };
-  // PM2.5 แบบจำลอง CAMS ของกลุ่มป่า วันนี้–2 วันข้างหน้า (Copernicus/ECMWF, data/cams_grid.json จาก sync_cams) — เฉพาะสรุปประจำวัน (ผู้ใช้ขอ 14 พ.ย. 69)
-  const pms = () => { try { return require('./lib/camssum').camsSummary(now) } catch (e) { return null } };
+  const fws = () => { try { return require('./lib/fwisum').fwiSummary(now, 1) } catch (e) { return null } };
+  // PM2.5 แบบจำลอง CAMS ของกลุ่มป่า วันนี้ (Copernicus/ECMWF, data/cams_grid.json จาก sync_cams) — เฉพาะสรุปประจำวัน (ผู้ใช้ขอ 14 พ.ย. 69)
+  const pms = () => { try { return require('./lib/camssum').camsSummary(now, 1) } catch (e) { return null } };
   const msg = (fresh, q, daily = false) => carousel({ live, sum, fresh, site: SITE, now, daily, orb: daily ? orb() : null, vr: daily ? vrs() : null, fwi: daily ? fws() : null, risk: daily ? rks() : null, pm: daily ? pms() : null, mode: MODE, tg: TGI, quotaLeft: q && isFinite(q.left) ? Math.max(0, Math.floor((q.left - q.members) / q.members)) : null });
   if (process.argv.includes('--validate')) {
     const ex = live.features.slice(0, 3);

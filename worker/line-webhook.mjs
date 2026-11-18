@@ -88,50 +88,51 @@ export function carousel(o) {
 // mode/tg (A7, 17 พ.ย. 69) = LINE_MODE และ TG_INVITE ของ line_notify.js: mode 'daily' + tg (ลิงก์เชิญ https://t.me/…) → บรรทัดสั้นบนสุดของใบ 1 "แจ้งเตือนจุดใหม่ทันทีดูที่ Telegram" แตะเปิดลิงก์เชิญ
 //   ไม่ส่ง (Worker / LINE_MODE=all / ไม่ตั้ง TG_INVITE) = ไม่มีบรรทัด · ท้ายการ์ด mode 'daily' เขียน "ส่งได้อีก ~N ครั้ง" แทน "แจ้งเตือนได้อีก"
 // orb = รอบที่ดาวเทียมผ่านกลุ่มป่า 24 ชม. ข้างหน้า (scripts/lib/orbit.js next() — line_notify ส่งมาเฉพาะสรุปประจำวัน; Worker ไม่ส่ง)
-// vr = อัตราการระบายอากาศของกลุ่มป่า 5 วัน (scripts/lib/vrsum.js จาก NOAA GFS — line_notify ส่งมาเฉพาะสรุปประจำวัน; Worker ไม่ส่ง · ผู้ใช้ขอ 14 พ.ย. 69)
+// vr = อัตราการระบายอากาศของกลุ่มป่า วันนี้ (scripts/lib/vrsum.js จาก NOAA GFS — line_notify ส่งมาเฉพาะสรุปประจำวัน; Worker ไม่ส่ง · ผู้ใช้ขอ 14 พ.ย. 69)
 // เกณฑ์/สีตามกรมอุตุฯ แบบเดียวกับหน้าเว็บ (VRC ใน index.html) · สีใน Flex ต้อง #RRGGBB เต็ม
 const VRK = [[16000, 'ดีที่สุด', '#1C1C96', '#FFFFFF'], [8000, 'ดีมาก', '#3B6EE8', '#FFFFFF'], [4000, 'ดี', '#2F9E44', '#FFFFFF'], [2000, 'อ่อน', '#F5C800', '#3A2E00'], [0, 'ไม่ดี', '#FF3300', '#FFFFFF']];
 const vrK = v => VRK.find(c => v >= c[0]);
 const MONS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-function vrBlock(vr, now) {
-  const D = vr.days, nf = v => v.toLocaleString('en-US'), dl = d => { const x = new Date(d.st); return x.getUTCDate() + ' ' + MONS[x.getUTCMonth()] };
-  const today = new Date(now + 7 * 36e5).toISOString().slice(0, 10), f = D[0], k = vrK(f.mean), lab = f.d === today ? 'วันนี้' : dl(f);
-  return [sub('อัตราระบายอากาศ กลุ่มป่า · สูงสุดของวัน (ตร.ม./วินาที)'),
-    B('horizontal', D.map(d => { const c = vrK(d.max); return B('vertical', [T(dl(d), { size: 'xxs', align: 'center', color: c[3] }), T(nf(d.max), { size: 'xs', weight: 'bold', align: 'center', color: c[3] })],
-      { flex: 1, backgroundColor: c[2], cornerRadius: 'md', paddingAll: '3px' }) }), { spacing: 'xs', margin: 'xs' }),
-    T(lab + ': ' + (f.a ? 'ระบายได้ (≥2,000) ' + hm(f.a) + '–' + hm(f.z) + ' น.' : 'อากาศปิดทั้งวัน ไม่ควรเผา') + ' · เฉลี่ยทั้งวัน ' + nf(f.mean) + ' (' + k[1] + ') · NOAA GFS เกณฑ์กรมอุตุฯ', { size: 'xxs', color: '#1D3557', wrap: true, margin: 'xs' })];
+// 18 พ.ย. 69 ผู้ใช้ขอ: กล่อง FWI / อัตราระบายอากาศ / PM2.5 แสดงเฉพาะค่าของวันนี้ (เลิกพยากรณ์หลายวัน) + บรรทัดต้นทาง/วันเวลาของค่า (src จาก scripts/lib/*sum.js)
+//   + แตะ "ดูบนแผนที่" เปิดหน้าเว็บที่เปิดชั้นนั้นไว้ (?l=fwi|vr|pm — ลิงก์มุมมอง vwParse ใน index.html) · ลำดับ FWI → ระบายอากาศ → PM2.5
+const dmy = ms => { const x = new Date(ms + 7 * 36e5); return x.getUTCDate() + ' ' + MONS[x.getUTCMonth()] };
+const dayL = (d, now) => d === new Date(now + 7 * 36e5).toISOString().slice(0, 10) ? 'วันนี้' : dmy(Date.parse(d) - 7 * 36e5);
+// กล่องสีตามระดับ: k = [ชื่อระดับ, สีพื้น, สีตัวอักษร]
+const cbox = (top, val, k) => B('vertical', [T(top, { size: 'xxs', align: 'center', color: k[2] }), T(val, { size: 'xs', weight: 'bold', align: 'center', color: k[2] })], { flex: 1, backgroundColor: k[1], cornerRadius: 'md', paddingAll: '3px' });
+const srcRow = (s, site, l) => T('x', { size: 'xxs', wrap: true, margin: 'xs', action: { type: 'uri', label: 'ดูบนแผนที่', uri: site + '?l=' + l },
+  contents: [{ type: 'span', text: 'ต้นทาง: ' + (s && s.n ? s.n + (s.t ? ' ' + s.k + ' ' + dmy(s.t) + ' ' + hm(s.t) + ' น.' : '') : '-') + '  ', color: MUT }, { type: 'span', text: 'ดูบนแผนที่ ›', color: '#1C7ED6', weight: 'bold' }] });
+function vrBlock(vr, now, site) {
+  const nf = v => v.toLocaleString('en-US'), f = vr.days[0], km = vrK(f.mean), kx = vrK(f.max), today = new Date(now + 7 * 36e5).toISOString().slice(0, 10);
+  return [sub('อัตราระบายอากาศ กลุ่มป่า ' + (f.d === today ? 'วันนี้' : dmy(f.st)) + ' (ตร.ม./วินาที)'),
+    B('horizontal', [cbox('เฉลี่ยทั้งวัน', nf(f.mean) + ' ' + km[1], km.slice(1)), cbox('อัตราระบายสูงสุด', nf(f.max) + ' ' + kx[1], kx.slice(1))], { spacing: 'xs', margin: 'xs' }),
+    T((f.a ? 'ระบายได้ (≥2,000) ' + hm(f.a) + '–' + hm(f.z) + ' น.' : 'อากาศปิดทั้งวัน ไม่ควรเผา') + ' · เกณฑ์กรมอุตุฯ', { size: 'xxs', color: '#1D3557', wrap: true, margin: 'xs' }),
+    srcRow(vr.src, site, 'vr')];
 }
-// fwi = ดัชนีอันตรายไฟป่า FWI ของกลุ่มป่า วันนี้/พรุ่งนี้ (scripts/lib/fwisum.js จาก TFDRS กรมป่าไม้ — line_notify ส่งมาเฉพาะสรุปประจำวัน; Worker ไม่ส่ง · ผู้ใช้ขอ 14 พ.ย. 69)
+// fwi = ดัชนีอันตรายไฟป่า FWI ของกลุ่มป่า วันนี้ (scripts/lib/fwisum.js จาก TFDRS กรมป่าไม้ — line_notify ส่งมาเฉพาะสรุปประจำวัน; Worker ไม่ส่ง · ผู้ใช้ขอ 14 พ.ย. 69)
 // สี 5 ระดับเดียวกับหน้าเว็บ (FWC ใน index.html)
 const FWK = [['ต่ำ', '#2EC670', '#0B3D20'], ['ปานกลาง', '#F1C95B', '#3A2E00'], ['สูง', '#F07800', '#FFFFFF'], ['สูงมาก', '#FF2424', '#FFFFFF'], ['รุนแรงมาก', '#710E0E', '#FFFFFF']];
-function fwiBlock(fw, now) {
-  const D = fw.days, today = new Date(now + 7 * 36e5).toISOString().slice(0, 10), x = D[0];
-  const dl = d => { const y = new Date(Date.parse(d.d)); return (d.d === today ? 'วันนี้ ' : '') + y.getUTCDate() + ' ' + MONS[y.getUTCMonth()] };
-  // FFMC (ดัชนีการติดไฟ) แสดงคู่ในไทล์เดียวกัน — กล่องย่อยสีตามระดับ FFMC เอง (ระดับเท่ากับ FWI = กลืนกับไทล์) (ผู้ใช้ขอ 15 พ.ย. 69)
-  const ff = d => { const f = d.ffmc; if (!f) return []; const k = FWK[f.c];
-    return [B('vertical', [T('FFMC ' + f.mean.toFixed(1) + ' ' + k[0], { size: 'xxs', weight: 'bold', align: 'center', color: k[2] })], { backgroundColor: k[1], cornerRadius: 'sm', margin: 'xs', paddingTop: '1px', paddingBottom: '1px' })] };
-  const mx = x.max != null ? 'FWI สูงสุด ' + x.max.toFixed(1) + (x.cx > x.c ? ' (' + FWK[x.cx][0] + ')' : '') + (x.ffmc ? ' · FFMC สูงสุด ' + x.ffmc.max.toFixed(1) + (x.ffmc.cx > x.ffmc.c ? ' (' + FWK[x.ffmc.cx][0] + ')' : '') : '') + ' · ' : '';
-  return [sub(fw.lfa ? 'FWI · FFMC · ค่าของวัน ไม่มีพยากรณ์ (TFDRS ผ่าน LFA)' : 'FWI อันตรายไฟป่า · FFMC การติดไฟ · เฉลี่ยกลุ่มป่า (กรมป่าไม้)'),
-    B('horizontal', D.map(d => { const c = FWK[d.c]; return B('vertical', [T(dl(d), { size: 'xxs', align: 'center', color: c[2] }),
-      T('FWI ' + d.mean.toFixed(1) + ' ' + c[0], { size: 'xs', weight: 'bold', align: 'center', color: c[2] }), ...ff(d)],
-      { flex: 1, backgroundColor: c[1], cornerRadius: 'md', paddingAll: '3px' }) }), { spacing: 'xs', margin: 'xs' }),
-    T('วันนี้: ' + mx + (x.hi > 0 ? 'ระดับสูงขึ้นไป ' + x.hi + '% ของพื้นที่ · ' : '') + (x.top ? 'มากสุด ' + x.top.n + ' ' + x.top.v.toFixed(1) + ' · ' : '') +
-      (w => w ? 'เที่ยงวัน ' + w : fw.lfa ? 'เครื่องผู้ดูแลไม่ได้ดึง TFDRS — เฉลี่ยจากจุดตัวอย่างบนแผนที่ LFA' : '')([x.t != null ? Math.round(x.t) + '°C' : '', x.rh != null ? 'ชื้น ' + Math.round(x.rh) + '%' : '', x.ws != null ? 'ลม ' + Math.round(x.ws) + ' กม./ชม.' : '', x.pr != null ? 'ฝน ' + x.pr + ' มม.' : ''].filter(Boolean).join(' ')),
-      { size: 'xxs', color: '#1D3557', wrap: true, margin: 'xs' })];
+function fwiBlock(fw, now, site) {
+  const x = fw.days[0], f = x.ffmc;
+  // FFMC (ดัชนีการติดไฟ) กล่องคู่กับ FWI สีตามระดับ FFMC เอง (ผู้ใช้ขอ 15 พ.ย. 69)
+  const mx = x.max != null ? 'สูงสุด FWI ' + x.max.toFixed(1) + (x.cx > x.c ? ' (' + FWK[x.cx][0] + ')' : '') + (f ? ' · FFMC ' + f.max.toFixed(1) + (f.cx > f.c ? ' (' + FWK[f.cx][0] + ')' : '') : '') + ' · ' : '';
+  return [sub('ดัชนีอันตรายไฟป่า FWI กลุ่มป่า ' + dayL(x.d, now) + ' (เฉลี่ย)'),
+    B('horizontal', [cbox('FWI อันตรายไฟป่า', x.mean.toFixed(1) + ' ' + FWK[x.c][0], FWK[x.c]), ...(f ? [cbox('FFMC การติดไฟ', f.mean.toFixed(1) + ' ' + FWK[f.c][0], FWK[f.c])] : [])], { spacing: 'xs', margin: 'xs' }),
+    T(mx + (x.hi > 0 ? 'ระดับสูงขึ้นไป ' + x.hi + '% ของพื้นที่ · ' : '') + (x.top ? 'มากสุด ' + x.top.n + ' ' + x.top.v.toFixed(1) + ' · ' : '') +
+      (w => w ? 'เที่ยงวัน ' + w : fw.lfa ? 'เฉลี่ยจากจุดตัวอย่างบนแผนที่ LFA' : '')([x.t != null ? Math.round(x.t) + '°C' : '', x.rh != null ? 'ชื้น ' + Math.round(x.rh) + '%' : '', x.ws != null ? 'ลม ' + Math.round(x.ws) + ' กม./ชม.' : '', x.pr != null ? 'ฝน ' + x.pr + ' มม.' : ''].filter(Boolean).join(' ')),
+      { size: 'xxs', color: '#1D3557', wrap: true, margin: 'xs' }),
+    srcRow(fw.src, site, 'fwi')];
 }
-// pm = PM2.5 แบบจำลอง CAMS ของกลุ่มป่า วันนี้–2 วันข้างหน้า (scripts/lib/camssum.js จาก data/cams_grid.json — line_notify ส่งมาเฉพาะสรุปประจำวัน; Worker ไม่ส่ง · ผู้ใช้ขอ 14 พ.ย. 69)
+// pm = PM2.5 แบบจำลอง CAMS ของกลุ่มป่า วันนี้ (scripts/lib/camssum.js จาก data/cams_grid.json — line_notify ส่งมาเฉพาะสรุปประจำวัน; Worker ไม่ส่ง · ผู้ใช้ขอ 14 พ.ย. 69)
 // สีพื้นตามระดับ AQI ของกรมควบคุมมลพิษ (ค่าเฉลี่ย 24 ชม.: ≤15 ดีมาก / ≤25 ดี / ≤37.5 ปานกลาง / ≤75 เริ่มมีผลกระทบ / >75 มีผลกระทบ)
 const PMK = [['ดีมาก', '#3BCCFF', '#00384D'], ['ดี', '#92D050', '#1F3A00'], ['ปานกลาง', '#FFE600', '#3A3300'], ['เริ่มมีผลฯ', '#FFA200', '#3A2000'], ['มีผลกระทบ', '#F04646', '#FFFFFF']];
 const pmF = v => v == null ? '–' : v < 10 ? v.toFixed(1) : String(Math.round(v));
-function pmBlock(pm, now) {
-  const D = pm.days, today = new Date(now + 7 * 36e5).toISOString().slice(0, 10), x = D[0];
-  const dl = d => { const y = new Date(Date.parse(d.d)); return (d.d === today ? 'วันนี้ ' : '') + y.getUTCDate() + ' ' + MONS[y.getUTCMonth()] };
-  return [sub('PM2.5 กลุ่มป่า · เฉลี่ย 24 ชม. µg/m³ (แบบจำลอง CAMS)'),
-    B('horizontal', D.map(d => { const c = PMK[d.c]; return B('vertical', [T(dl(d), { size: 'xxs', align: 'center', color: c[2] }),
-      T(pmF(d.mean) + ' ' + c[0], { size: 'xs', weight: 'bold', align: 'center', color: c[2] }), T('สูงสุด ' + pmF(d.pk), { size: 'xxs', align: 'center', color: c[2] })],
-      { flex: 1, backgroundColor: c[1], cornerRadius: 'md', paddingAll: '3px' }) }), { spacing: 'xs', margin: 'xs' }),
-    T('วันนี้: ' + x.parks.filter(p => p[1] != null).map(p => p[0] + ' ' + pmF(p[1])).join(' · ') + ' · สูงสุด ' + pmF(x.pk) + ' (' + hm(x.pkT) + ' น. ' + x.pkN + ') · ค่าแบบจำลอง ไม่ใช่ค่าตรวจวัด',
-      { size: 'xxs', color: '#1D3557', wrap: true, margin: 'xs' })];
+function pmBlock(pm, now, site) {
+  const x = pm.days[0], kp = PMK[x.pc != null ? x.pc : x.c];
+  return [sub('PM2.5 กลุ่มป่า ' + dayL(x.d, now) + ' · µg/m³ (แบบจำลอง CAMS)'),
+    B('horizontal', [cbox('เฉลี่ย 24 ชม.', pmF(x.mean) + ' ' + PMK[x.c][0], PMK[x.c]), cbox('สูงสุด ' + hm(x.pkT) + ' น.', pmF(x.pk) + ' ' + kp[0], kp)], { spacing: 'xs', margin: 'xs' }),
+    T(x.parks.filter(p => p[1] != null).map(p => p[0] + ' ' + pmF(p[1])).join(' · ') + ' · สูงสุดที่ ' + x.pkN + ' · ค่าแบบจำลอง ไม่ใช่ค่าตรวจวัด',
+      { size: 'xxs', color: '#1D3557', wrap: true, margin: 'xs' }),
+    srcRow(pm.src, site, 'pm')];
 }
 function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaLeft = null, per = 4, lite = 0, test = false, daily = false, orb = null, vr = null, fwi = null, pm = null, risk = null, mode = 'all', tg = null }) {
   const alert = !!fresh, tgOn = mode === 'daily' && typeof tg === 'string' && TGRE.test(tg);
@@ -166,10 +167,10 @@ function build({ live, sum, fresh = null, site = SITE0, now = Date.now(), quotaL
       B('horizontal', [tile(h24.length, 'จุดใน 24 ชม.'), tile(all.pfull, `ทั้งปีงบ ${fy - 1}`, BLUE), tile(ind.replace('Suomi ', ''), 'ดาวเทียมตัวชี้วัด', '#444444')], { spacing: 'sm', margin: 'sm' }),
       B('horizontal', [topTile('pv'), topTile('am'), topTile('tm')], { spacing: 'sm', margin: 'sm' }),
       ...(orb ? [T(`🛰 ดาวเทียมรอบถัดไป: ${orb.length ? orb.slice(0, 4).map(p => orbLab(p, now)).join(' · ') + ' น.' : 'ไม่มีรอบที่ผ่านกลางแถบสแกนใน 24 ชม.'}`, { size: 'xxs', color: '#1D3557', wrap: true, margin: 'sm' })] : []),
-      ...(vr && vr.days && vr.days.length ? vrBlock(vr, now) : []),
-      ...(fwi && fwi.days && fwi.days.length ? fwiBlock(fwi, now) : []),
-      ...(risk && risk.text ? [T((risk.n5 ? '🟥 ' : risk.n4 ? '🟧 ' : '🟩 ') + risk.text, { size: 'xxs', color: risk.n5 ? '#B3261E' : risk.n4 ? '#A35200' : '#1D3557', wrap: true, margin: 'sm' })] : []),
-      ...(pm && pm.days && pm.days.length ? pmBlock(pm, now) : []),
+      ...(fwi && fwi.days && fwi.days.length ? fwiBlock(fwi, now, site) : []),
+      ...(vr && vr.days && vr.days.length ? vrBlock(vr, now, site) : []),
+      ...(pm && pm.days && pm.days.length ? pmBlock(pm, now, site) : []),
+      ...(risk && risk.text ? [T((risk.n5 ? '🟥 ' : risk.n4 ? '🟧 ' : '🟩 ') + risk.text, { size: 'xxs', color: risk.n5 ? '#B3261E' : risk.n4 ? '#A35200' : '#1D3557', wrap: true, margin: 'sm', action: { type: 'uri', label: 'ดูบนแผนที่', uri: site + '?l=rk' } })] : []),
       sub('รายพื้นที่ (สะสมปีงบ)', [[RED, String(fy)], [BLUE, `${fy - 1} ทั้งปี`]]),
       ...rows.map(([n, v, c]) => { const [t, tc] = dPct(v.fy, v.pfull);
         return B('horizontal', [

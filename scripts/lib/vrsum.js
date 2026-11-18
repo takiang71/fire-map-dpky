@@ -41,7 +41,8 @@ function vrSummary(now = Date.now(), n = 5, file = FILE) {
         mean: Math.round(area(mean) * q / 10) * 10, max: Math.round(mx * q / 10) * 10,
         a: ok.length ? t[ok[0]] : null, z: ok.length ? t[ok[ok.length - 1]] : null, hrs: Math.round(ok.reduce((s, k) => s + sz(k), 0) / 36e5),
         pk: Math.round(S[pk] / 10) * 10, pkT: t[pk] } });
-  return days.length ? { cyc: j.cyc, days } : null;
+  // src = รอบแบบจำลอง GFS (เวลาเริ่มรอบ) แสดงในสรุปประจำวัน (ผู้ใช้ขอ 18 พ.ย. 69)
+  return days.length ? { cyc: j.cyc, days, src: { n: 'NOAA GFS', k: 'รอบ', t: c0 } } : null;
 }
 module.exports = { vrSummary, vrLevel };
 if (require.main === module) console.log(JSON.stringify(vrSummary(process.env.VR_NOW ? Date.parse(process.env.VR_NOW) : Date.now()), null, 1));

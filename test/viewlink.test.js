@@ -54,3 +54,17 @@ test('deepLink: ?hs ?bb ?ar ?burn ?pts ?wa มาก่อน v · URL เขี
   assert.match(grab(/function vwSched\(\)\{[^\n]*/), /if\(!vwOn\(\)\)return;.*if\(vwOn\(\)\)vwSet\(\)/);
   const VWX = grab(/VWX=(\[[^\]]*\])/); for (const p of ['hs', 'bb', 'ar', 'burn', 'pts', 'wa', 'kb', 'wy']) assert.ok(VWX.includes(`'${p}'`), 'เขียน URL ใหม่ต้องลบ ?' + p);
 });
+
+// 18 พ.ย. 69: ลิงก์ "ดูบนแผนที่" ในสรุปประจำวัน LINE/Telegram = ?l=fwi|vr|pm|rk ไม่มี v → เปิดชั้น มุมกล้องตั้งต้น (nc)
+test('?l= อย่างเดียว (ไม่มี v / v ผิด) = เปิดชั้นโดยไม่ย้ายกล้อง · ไม่มี l = null', () => {
+  for (const l of ['fwi', 'vr', 'pm', 'rk']) {
+    const w = W(), o = w.vwParse(new URLSearchParams('l=' + l));
+    assert.deepEqual(o, { nc: 1, L: [l] }); w.vwApply(o); assert.equal(w.S[l], true, l);
+  }
+  assert.deepEqual(W().vwParse(new URLSearchParams('v=&l=rk')), { nc: 1, L: ['rk'] }, 'ลิงก์เดิม ?v=&l=rk ก็ใช้ได้');
+  const s = W({ base: 'sat', img: 'esri', fwi: true }), o = s.vwParse(new URLSearchParams('l=vr')); s.vwApply(o);
+  assert.deepEqual([s.S.base, s.S.img, s.S.vr, s.S.fwi], ['sat', 'esri', true, false], 'คงแผนที่ฐานของผู้เปิด · ชั้นอื่นกลับค่าเริ่มต้น');
+  assert.ok(!s.calls.includes('setStyle'));
+  assert.equal(W().vwParse(new URLSearchParams('l=%3Cb%3E')), null, 'l ผิดรูปแบบทั้งหมด = ไม่ใช้ลิงก์');
+  assert.match(grab(/async function vwGo\(o,LD\)\{[^\n]*\n[^\n]*/), /if\(o\.nc\)\{/);
+});

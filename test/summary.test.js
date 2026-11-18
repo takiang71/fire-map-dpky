@@ -104,3 +104,15 @@ test('camsSummary: ตารางไม่อัปเดตเกิน 2 ว�
 test('pmLevel: เกณฑ์กรมควบคุมมลพิษ 2566 (≤15 / ≤25 / ≤37.5 / ≤75 / >75)', () => {
   assert.deepEqual([0, 15, 15.1, 25, 25.1, 37.5, 37.6, 75, 75.1].map(pmLevel), [0, 0, 1, 1, 2, 2, 3, 3, 4]);
 });
+
+// 18 พ.ย. 69: สรุปประจำวันบอกต้นทาง + วันเวลาของค่า (src) และแสดงเฉพาะวันนี้ (n = 1)
+test('src ต้นทาง/วันเวลาของค่า: GFS รอบ · CAMS รอบ · TFDRS Last-Modified (ไม่มี = null) · LFA updated_at · n=1 = วันนี้วันเดียว', () => {
+  const V = vrSummary(NOW, 1, fixture('gfs_vr.json'));
+  assert.equal(V.days.length, 1); assert.deepEqual(V.src, { n: 'NOAA GFS', k: 'รอบ', t: Date.parse('2026-11-15T00:00Z') });
+  const C = camsSummary(NOW, 1, fixture('cams_grid.json'));
+  assert.equal(C.days.length, 1); assert.deepEqual(C.src, { n: 'แบบจำลอง CAMS', k: 'รอบ', t: Date.parse('2026-11-14T12:00Z') });
+  const F = fwiSummary(NOW, 1, fixture('fwi.json'));
+  assert.equal(F.days.length, 1); assert.equal(F.src.n, 'TFDRS กรมป่าไม้'); assert.equal(F.src.t, null, 'fixture ไม่มี lm/upd');
+  const L = fwiSummary(Date.parse('2026-11-18T22:30:00Z'), 1, fixture('fwi.json'), fixture('fwi_lfa.json'));
+  assert.deepEqual(L.src, { n: 'TFDRS ผ่าน LFA', k: 'ปรับปรุง', t: Date.parse('2026-11-19T07:30:00.000Z') });
+});

@@ -3887,18 +3887,23 @@ const vwQS=()=>{const l=vwEnc();return'v='+vwLL()+(l?'&l='+l:'')};
 function vwURL(){const og=document.querySelector('meta[property="og:url"]'),b=/^https?:$/.test(location.protocol)?location.origin+location.pathname:og?og.content:'https://takiang71.github.io/fire-map-dpky/';return b+'?'+vwQS()}
 function vwSet(){const q=new URLSearchParams(location.search);VWX.forEach(k=>q.delete(k));const r=q.toString();
  try{history.replaceState(history.state,'',location.pathname+'?'+vwQS()+(r?'&'+r:'')+location.hash)}catch(e){dbg('vwSet',e)}}
-function vwParse(q){const v=(q.get('v')||'').split(',').map(Number);
- if(v.length<3||!v.slice(0,3).every(isFinite)||Math.abs(v[0])>85||Math.abs(v[1])>180||v[2]<0||v[2]>22)return null;
- return{la:v[0],lo:v[1],z:v[2],b:isFinite(v[3])?v[3]:0,p:isFinite(v[4])?Math.min(85,Math.max(0,v[4])):0,L:(q.get('l')||'').split(',').filter(t=>/^-?[a-z0-9]+(:[\w.-]+)?$/i.test(t))}}
+/* ?l= อย่างเดียว (ไม่มี v หรือ v ผิด) = เปิดชั้นตามลิงก์ มุมกล้องตั้งต้นของหน้า (nc) — ลิงก์ "ดูบนแผนที่" ในสรุปประจำวัน LINE/Telegram ?l=fwi|vr|pm|rk (18 พ.ย. 69) */
+function vwParse(q){const v=(q.get('v')||'').split(',').map(Number),L=(q.get('l')||'').split(',').filter(t=>/^-?[a-z0-9]+(:[\w.-]+)?$/i.test(t));
+ if(v.length<3||!v.slice(0,3).every(isFinite)||Math.abs(v[0])>85||Math.abs(v[1])>180||v[2]<0||v[2]>22)return L.length?{nc:1,L}:null;
+ return{la:v[0],lo:v[1],z:v[2],b:isFinite(v[3])?v[3]:0,p:isFinite(v[4])?Math.min(85,Math.max(0,v[4])):0,L}}
 /* ตั้งชั้นตามลิงก์: คืนค่าตั้งต้นทุกชั้นในรายการก่อน แล้วเปิด/ปิด/ตั้งตัวเลือกตาม l · ค่าที่ไม่รู้จัก = ข้าม */
 function vwApply(o){const b0=S.base,i0=S.img,x0=S.xdy;
- VWB.forEach(k=>{S[k]=VWD[k];const x=VWO[k];if(x&&x[0])S[x[0]]=VWD[x[0]]});for(const k in VWS)S[k]=VWD[k];
+ VWB.forEach(k=>{S[k]=VWD[k];const x=VWO[k];if(x&&x[0])S[x[0]]=VWD[x[0]]});if(!o.nc)for(const k in VWS)S[k]=VWD[k]; /* nc (ลิงก์จากแจ้งเตือน) คงแผนที่ฐานที่ผู้เปิดเลือกไว้ */
  o.L.forEach(t=>{const off=t[0]==='-',[k,v]=t.replace(/^-/,'').split(':');
   if(VWS[k]){if(VWS[k].includes(v))S[k]=v;return}if(!VWB.includes(k))return;S[k]=!off;
   if(!off&&v!=null&&VWO[k]&&vwOk(k,v)){if(VWO[k][0])S[VWO[k][0]]=v;else BNK=v}});
  if(S.wyl&&S.d3)S.d3=false;
  if(S.base!==b0||S.img!==i0)map.setStyle(sty(),{diff:false});apply();sync();return S.xdy!==x0}
-async function vwGo(o,LD){const xd=vwApply(o);MOVED=true;VWU=false;const cam={center:[o.lo,o.la],zoom:o.z,bearing:o.b,pitch:o.p};map.jumpTo(cam);
+async function vwGo(o,LD){const xd=vwApply(o);
+ if(o.nc){try{await LD}catch(e){dbg('deepLink',e)}if(xd)try{refreshHS()}catch(e){dbg('vwGo',e)}
+  const N={fwi:'ดัชนีอันตรายไฟป่า FWI',vr:'อัตราการระบายอากาศ',pm:'ฝุ่น PM2.5',rk:'พื้นที่เสี่ยงไฟป่า'},n=o.L.map(t=>N[t.split(':')[0]]).filter(Boolean);
+  return toast('เปิดชั้นข้อมูลจากลิงก์'+(n.length?': '+n.join(' · '):''),null,3500)}
+ MOVED=true;VWU=false;const cam={center:[o.lo,o.la],zoom:o.z,bearing:o.b,pitch:o.p};map.jumpTo(cam);
  map.on('movestart',vwUser);try{await LD}catch(e){dbg('deepLink',e)}if(!map.isStyleLoaded())await new Promise(r=>map.once('idle',r));map.off('movestart',vwUser);
  const c=map.getCenter();if(!VWU&&(Math.abs(c.lat-o.la)>1e-4||Math.abs(c.lng-o.lo)>1e-4||Math.abs(map.getZoom()-o.z)>.01))map.jumpTo(cam);
  if(xd)try{refreshHS()}catch(e){dbg('vwGo',e)}

@@ -15,7 +15,7 @@ const lv = (v, b) => { let i = 0; while (i < b.length && v >= b[i]) i++; return 
 function sumDay(d, a, B, BF) {
   const A = a.all, F = A.FWI, sh = F[3] || [], cls = v => lv(v, B), top = Object.keys(AREA).filter(k => a[k] && a[k].FWI).sort((x, y) => a[y].FWI[0] - a[x].FWI[0])[0];
   const m = k => A[k] ? r1(A[k][0]) : null;
-  return { d: d.d, f: d.f, mean: r1(F[0]), min: r1(F[1]), max: r1(F[2]), c: cls(F[0]), cx: cls(F[2]),
+  return { d: d.d, f: d.f, lm: d.lm || null, mean: r1(F[0]), min: r1(F[1]), max: r1(F[2]), c: cls(F[0]), cx: cls(F[2]),
     hi: Math.round(sh.slice(2).reduce((s, v) => s + v, 0) * 1000) / 10, // % พื้นที่ระดับสูงขึ้นไป
     top: top ? { k: top, n: AREA[top], v: r1(a[top].FWI[0]), c: cls(a[top].FWI[0]) } : null,
     ffmc: A.FFMC ? { mean: r1(A.FFMC[0]), max: r1(A.FFMC[2]), c: lv(A.FFMC[0], BF), cx: lv(A.FFMC[2], BF) } : null,
@@ -27,11 +27,12 @@ function fwiSummary(now = Date.now(), n = 2, file = FILE, lfaFile = path.join(pa
   const today = new Date(now + 7 * 36e5).toISOString().slice(0, 10);
   if (j && j.run && Date.parse(today) - Date.parse(j.run) <= 3 * 864e5) {
     const days = (j.days || []).filter(d => d.d >= today && d.a && d.a.all && d.a.all.FWI).slice(0, n).map(d => sumDay(d, d.a, B, BF));
-    if (days.length && days[0].d === today) return { run: j.run, b: B, days };
+    // src = ต้นทางของค่าวันนี้ (แสดงในสรุปประจำวัน — ผู้ใช้ขอ 18 พ.ย. 69): เวลาไฟล์ต้นทาง TFDRS (Last-Modified) · ไม่มี = เวลาที่ sync ดึง
+    if (days.length && days[0].d === today) return { run: j.run, b: B, days, src: { n: 'TFDRS กรมป่าไม้', k: 'ปรับปรุง', t: Date.parse(days[0].lm) || Date.parse(j.upd) || null } };
   }
   let L; try { L = JSON.parse(fs.readFileSync(lfaFile, 'utf8')) } catch (e) { return null }
   if (!L || L.d !== today || !L.a || !L.a.all || !L.a.all.FWI) return null;
-  return { run: L.d, lfa: 1, upd: L.upd, b: B, days: [sumDay({ d: L.d, f: 0 }, L.a, B, BF)] };
+  return { run: L.d, lfa: 1, upd: L.upd, b: B, days: [sumDay({ d: L.d, f: 0 }, L.a, B, BF)], src: { n: 'TFDRS ผ่าน LFA', k: 'ปรับปรุง', t: Date.parse(L.upd) || null } };
 }
 module.exports = { fwiSummary, FWN: NAME };
 if (require.main === module) console.log(JSON.stringify(fwiSummary(process.env.FWI_NOW ? Date.parse(process.env.FWI_NOW) : Date.now()), null, 1));

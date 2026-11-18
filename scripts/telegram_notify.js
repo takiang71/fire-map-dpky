@@ -131,7 +131,6 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
     ...[...AREAS.map(a => [a.s, a.k, tot(k => k === a.k)]), ['นอกเขตอนุรักษ์', OUTA, tot(k => k.startsWith(OUTA))]].filter(([, , v], i) => i < AREAS.length || v.fy || v.pfull)
       .map(([n, k, v]) => `${hot.has(k) ? '🔥' : '•'} ${esc(n)} ${v.fy} | ${v.pfull}  ${dPct(v.fy, v.pfull)}`),
     `รวม <b>${all.fy}</b> | ${all.pfull}  ${dPct(all.fy, all.pfull)}`];
-  const NOTE = `<i>ไม่รวม ขสป.ดงใหญ่${sum && sum.ind ? ` · สะสมนับเฉพาะ ${esc(sum.ind)} (ตัวชี้วัด)` : ''}</i>`;
   // ข้อความยาวเกิน/ลิงก์มากเกิน → ลดจำนวนจุดที่แสดงต่อพื้นที่ลง · strict = นับความยาวรวมแท็กและ URL (ใช้ซ้ำเมื่อ Telegram ตอบว่ายาวเกิน)
   const vis = t => t.replace(/<[^>]+>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&');
   const ents = t => (t.match(/<(a|b|i|blockquote)[\s>]/g) || []).length;
@@ -140,42 +139,52 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
   const byNew = L => L.slice().sort((a, b) => thMs(b.properties.full_date) - thMs(a.properties.full_date));
 
   // dm = รายชื่อที่ผู้รับสมัครไว้ (ข้อความส่วนตัว F6 — รูปแบบเดียวกับข้อความกลุ่ม + บรรทัดบอกการติดตาม/วิธีเลิก)
+  // 18 พ.ย. 69 ผู้ใช้ขอให้กระชับ: เลิกตารางสะสมปีงบ (📊 ปีงบ 70 | ทั้งปีงบ 69) ในแจ้งเตือน → บรรทัด "รวมรอบนี้ N จุด: แยกรายพื้นที่" ใต้หัวข้อ แล้วตามด้วยรายละเอียดจุดเหมือนเดิม
+  //   (ตารางสะสมยังอยู่ในสรุปประจำวัน — verify_numbers.js อ่านจากสรุปประจำวัน)
   const alertMsg = (fresh, test = false, strict = false, dm = null) => {
     const G = groups(fresh, dm ? [...AREAS, require('./lib/tgsubs').DY] : AREAS).sort((a, b) => b[1].length - a[1].length);
     const text = fit(per => [
       `${test ? '🧪 <b>ทดสอบ</b> · ' : ''}🔥 <b>พบจุดความร้อนใหม่ ${fresh.length} จุด</b>`,
       ...(dm ? [`🔔 ตามที่คุณติดตาม: ${esc(dm.join(', '))}`] : []),
       `กลุ่มป่าดงพญาเย็น-เขาใหญ่ · ${dateTh(now)} ${hm(now)} น.`,
+      `📊 รวมรอบนี้ <b>${fresh.length}</b> จุด: ${G.map(([n, L]) => `${esc(n)} ${L.length}`).join(' · ')}`,
       ...G.flatMap(([n, L]) => ['', `🌲 <b>${esc(n)}</b> ${L.length} จุด`, ...list(byNew(L), per)]),
-      '', ...areaTable(new Set(fresh.map(f => AREAS.some(a => a.k === f.properties._ar) ? f.properties._ar : OUTA)), 'จุดใหม่'),
-      '', `🕐 จุดใน 24 ชม.: ${h24.length} จุด`, dm ? NOTE.replace('ไม่รวม ขสป.ดงใหญ่', 'ตารางและยอด 24 ชม. ไม่รวม ขสป.ดงใหญ่') : NOTE,
+      '', `🕐 จุดใน 24 ชม.: ${h24.length} จุด · <i>${dm ? 'ยอด 24 ชม. ' : ''}ไม่รวม ขสป.ดงใหญ่</i>`,
       ...(dm ? ['<i>ข้อความส่วนตัวตามที่สมัคร · /รายการ ดูการติดตาม · /เลิกทั้งหมด หยุดรับ</i>'] : []),
     ].join('\n'), strict);
     return msgOf(text, [[mapBtn(fresh), ['🗺️ แผนที่ไฟป่า', SITE]]]);
   };
   // ดาวเทียมรอบถัดไปที่แถบสแกนผ่านกลุ่มป่า (ทุกรอบรวมขอบแถบ) 24 ชม. ข้างหน้า — บรรทัดในสรุปประจำวัน (ผู้ใช้ขอ 13 พ.ย. 69)
   const orb = () => { try { return require('./lib/orbit').next(JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'tle.json'), 'utf8')), now, 24) } catch (e) { return null } };
-  // อัตราการระบายอากาศของกลุ่มป่า 5 วัน (NOAA GFS) — บรรทัดในสรุปประจำวัน เหมือนการ์ด LINE (ผู้ใช้ขอ 14 พ.ย. 69)
-  const vrLines = () => { let V; try { V = require('./lib/vrsum') } catch (e) { return [] } const R = V.vrSummary(now); if (!R) return [];
-    const nf = v => v.toLocaleString('en-US'), dl = d => { const x = new Date(d.st); return x.getUTCDate() + ' ' + ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'][x.getUTCMonth()] };
-    const f = R.days[0], lab = f.d === new Date(now + 7 * 36e5).toISOString().slice(0, 10) ? 'วันนี้' : dl(f);
-    return [`🌫 อัตราระบายอากาศ กลุ่มป่า (สูงสุดของวัน ตร.ม./วินาที): ${R.days.map(d => `${dl(d)} <b>${nf(d.max)}</b> ${V.vrLevel(d.max)}`).join(' · ')}`,
-      `   ${lab}: ${f.a ? `ระบายได้ (≥2,000) ${hm(f.a)}–${hm(f.z)} น.` : 'อากาศปิดทั้งวัน ไม่ควรเผา'} · เฉลี่ยทั้งวัน ${nf(f.mean)} (${V.vrLevel(f.mean)}) · NOAA GFS เกณฑ์กรมอุตุฯ`] };
-  // ดัชนีอันตรายไฟป่า FWI ของกลุ่มป่า วันนี้/พรุ่งนี้ (TFDRS กรมป่าไม้) — บรรทัดในสรุปประจำวัน เหมือนการ์ด LINE (ผู้ใช้ขอ 14 พ.ย. 69)
+  // FWI / อัตราระบายอากาศ / PM2.5 ในสรุปประจำวัน (ผู้ใช้ขอ 18 พ.ย. 69 — เดิม 14 พ.ย. 69 แสดงพยากรณ์หลายวัน):
+  //   เฉพาะค่าของวันนี้ ไม่มีพยากรณ์ล่วงหน้า · บรรทัดท้ายบอกต้นทาง+วันเวลาของค่า (src จาก lib) + ลิงก์เปิดหน้าเว็บที่เปิดชั้นนั้นไว้ (?l=… ลิงก์มุมมอง vwParse ใน index.html)
+  //   ลำดับ FWI → อัตราระบายอากาศ → PM2.5 (ตามที่ผู้ใช้กำหนด)
+  const MON = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+  const dmy = ms => { const x = new Date(ms + 7 * 36e5); return x.getUTCDate() + ' ' + MON[x.getUTCMonth()] };
+  const dayLab = d => d === thDate(now) ? 'วันนี้' : dmy(Date.parse(d) - 7 * 36e5);
+  const srcLine = (s, l) => `   <i>ต้นทาง: ${s && s.n ? esc(s.n) + (s.t ? ` ${s.k} ${dmy(s.t)} ${hm(s.t)} น.` : '') : '-'}</i> · <a href="${SITE}?l=${l}">ดูบนแผนที่</a>`;
+  // อัตราการระบายอากาศของกลุ่มป่า (NOAA GFS) วันนี้ = วัน UTC 07:00–07:00 น. แบบกรมอุตุฯ
+  const vrLines = () => { let V; try { V = require('./lib/vrsum') } catch (e) { return [] } const R = V.vrSummary(now, 1); if (!R) return [];
+    const nf = v => v.toLocaleString('en-US'), f = R.days[0];
+    return ['', `🌫 <b>อัตราระบายอากาศ กลุ่มป่า ${f.d === thDate(now) ? 'วันนี้' : dmy(f.st)}</b> (ตร.ม./วินาที)`,
+      `   เฉลี่ยทั้งวัน <b>${nf(f.mean)}</b> ${V.vrLevel(f.mean)} · สูงสุด <b>${nf(f.max)}</b> ${V.vrLevel(f.max)}`,
+      `   ${f.a ? `ระบายได้ (≥2,000) ${hm(f.a)}–${hm(f.z)} น.` : 'อากาศปิดทั้งวัน ไม่ควรเผา'}`, srcLine(R.src, 'vr')] };
   // F2 พื้นที่เสี่ยงไฟป่าล่วงหน้า (ดัชนีของระบบนี้ ไม่ใช่ค่าทางการ) — 1 บรรทัดจาก _site/risk.json (scripts/lib/risksum.js) · ไม่มีไฟล์ = ไม่มีบรรทัด
-  const rkLines = () => { try { const L = require('./lib/risksum').riskLine(JSON.parse(fs.readFileSync(path.join(OUT, 'risk.json'), 'utf8')), now); return L ? [`${L.n5 ? '🟥' : L.n4 ? '🟧' : '🟩'} ${esc(L.text)} · <a href="${SITE}?v=&amp;l=rk">ดูบนแผนที่</a>`] : [] } catch (e) { return [] } };
-  const fwLines = () => { let F; try { F = require('./lib/fwisum') } catch (e) { return [] } const R = F.fwiSummary(now); if (!R) return [];
-    const today = new Date(now + 7 * 36e5).toISOString().slice(0, 10), x = R.days[0], ic = ['🟢', '🟡', '🟠', '🔴', '🟤'];
-    const dl = d => { const y = new Date(Date.parse(d.d)); return (d.d === today ? 'วันนี้ ' : '') + y.getUTCDate() + ' ' + ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'][y.getUTCMonth()] };
-    const ff = d => d.ffmc ? `, FFMC ${ic[d.ffmc.c]} <b>${d.ffmc.mean.toFixed(1)}</b> ${F.FWN[d.ffmc.c]}` : '';
-    return [`🔥 ดัชนีอันตรายไฟป่า FWI · ดัชนีการติดไฟ FFMC กลุ่มป่า (${R.lfa ? 'ค่าของวัน ไม่มีพยากรณ์ · TFDRS ผ่าน LFA' : 'เฉลี่ย · กรมป่าไม้'}): ${R.days.map(d => `${dl(d)} FWI ${ic[d.c]} <b>${d.mean.toFixed(1)}</b> ${F.FWN[d.c]}${ff(d)}`).join(' · ')}`,
-      `   วันนี้: FWI สูงสุด ${x.max.toFixed(1)}${x.cx > x.c ? ` (${F.FWN[x.cx]})` : ''}${x.ffmc ? ` · FFMC สูงสุด ${x.ffmc.max.toFixed(1)}${x.ffmc.cx > x.ffmc.c ? ` (${F.FWN[x.ffmc.cx]})` : ''}` : ''} · ${x.hi > 0 ? `ระดับสูงขึ้นไป ${x.hi}% ของพื้นที่ · ` : ''}${x.top ? `มากสุด ${x.top.n} ${x.top.v.toFixed(1)} · ` : ''}${(w => w ? 'เที่ยงวัน ' + w : R.lfa ? 'เครื่องผู้ดูแลไม่ได้ดึง TFDRS — ค่าเฉลี่ยจากจุดตัวอย่างทุก 0.1° บนแผนที่ LFA' : '')([x.t != null ? Math.round(x.t) + '°C' : '', x.rh != null ? 'ชื้น ' + Math.round(x.rh) + '%' : '', x.ws != null ? 'ลม ' + Math.round(x.ws) + ' กม./ชม.' : '', x.pr != null ? 'ฝน ' + x.pr + ' มม.' : ''].filter(Boolean).join(' '))}`] };
-  // PM2.5 แบบจำลอง CAMS ของกลุ่มป่า วันนี้–2 วันข้างหน้า (Copernicus/ECMWF) — บรรทัดในสรุปประจำวัน เหมือนการ์ด LINE (ผู้ใช้ขอ 14 พ.ย. 69)
-  const pmLines = () => { let C; try { C = require('./lib/camssum') } catch (e) { return [] } const R = C.camsSummary(now); if (!R) return [];
-    const today = new Date(now + 7 * 36e5).toISOString().slice(0, 10), x = R.days[0], ic = ['🔵', '🟢', '🟡', '🟠', '🔴'], f = v => v == null ? '–' : v < 10 ? v.toFixed(1) : String(Math.round(v));
-    const dl = d => { const y = new Date(Date.parse(d.d)); return (d.d === today ? 'วันนี้ ' : '') + y.getUTCDate() + ' ' + ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'][y.getUTCMonth()] };
-    return [`😷 PM2.5 กลุ่มป่า (เฉลี่ย 24 ชม. µg/m³ · แบบจำลอง CAMS): ${R.days.map(d => `${dl(d)} ${ic[d.c]} <b>${f(d.mean)}</b> ${C.PMN[d.c]} (สูงสุด ${f(d.pk)})`).join(' · ')}`,
-      `   วันนี้: ${x.parks.filter(p => p[1] != null).map(p => `${esc(p[0])} ${f(p[1])}`).join(' · ')} · สูงสุด ${f(x.pk)} (${hm(x.pkT)} น. ${esc(x.pkN)}) · ค่าแบบจำลอง ไม่ใช่ค่าตรวจวัด`] };
+  const rkLines = () => { try { const L = require('./lib/risksum').riskLine(JSON.parse(fs.readFileSync(path.join(OUT, 'risk.json'), 'utf8')), now); return L ? ['', `${L.n5 ? '🟥' : L.n4 ? '🟧' : '🟩'} ${esc(L.text)} · <a href="${SITE}?l=rk">ดูบนแผนที่</a>`] : [] } catch (e) { return [] } };
+  // ดัชนีอันตรายไฟป่า FWI + ดัชนีการติดไฟ FFMC ของกลุ่มป่า วันนี้ (TFDRS กรมป่าไม้ / LFA)
+  const fwLines = () => { let F; try { F = require('./lib/fwisum') } catch (e) { return [] } const R = F.fwiSummary(now, 1); if (!R) return [];
+    const x = R.days[0], ic = ['🟢', '🟡', '🟠', '🔴', '🟤'];
+    const wx = [x.t != null ? Math.round(x.t) + '°C' : '', x.rh != null ? 'ชื้น ' + Math.round(x.rh) + '%' : '', x.ws != null ? 'ลม ' + Math.round(x.ws) + ' กม./ชม.' : '', x.pr != null ? 'ฝน ' + x.pr + ' มม.' : ''].filter(Boolean).join(' ');
+    return ['', `🔥 <b>ดัชนีอันตรายไฟป่า FWI กลุ่มป่า ${dayLab(x.d)}</b>`,
+      `   FWI ${ic[x.c]} <b>${x.mean.toFixed(1)}</b> ${F.FWN[x.c]}${x.ffmc ? ` · FFMC ${ic[x.ffmc.c]} <b>${x.ffmc.mean.toFixed(1)}</b> ${F.FWN[x.ffmc.c]}` : ''} (เฉลี่ย)`,
+      `   สูงสุด FWI ${x.max.toFixed(1)}${x.cx > x.c ? ` (${F.FWN[x.cx]})` : ''}${x.ffmc ? ` · FFMC ${x.ffmc.max.toFixed(1)}${x.ffmc.cx > x.ffmc.c ? ` (${F.FWN[x.ffmc.cx]})` : ''}` : ''}${x.hi > 0 ? ` · ระดับสูงขึ้นไป ${x.hi}% ของพื้นที่` : ''}${x.top ? ` · มากสุด ${esc(x.top.n)} ${x.top.v.toFixed(1)}` : ''}${wx ? ` · เที่ยงวัน ${wx}` : ''}`,
+      srcLine(R.src, 'fwi')] };
+  // PM2.5 แบบจำลอง CAMS ของกลุ่มป่า วันนี้ (Copernicus/ECMWF) เฉลี่ย 24 ชม. วันไทย
+  const pmLines = () => { let C; try { C = require('./lib/camssum') } catch (e) { return [] } const R = C.camsSummary(now, 1); if (!R) return [];
+    const x = R.days[0], ic = ['🔵', '🟢', '🟡', '🟠', '🔴'], f = v => v == null ? '–' : v < 10 ? v.toFixed(1) : String(Math.round(v));
+    return ['', `😷 <b>PM2.5 กลุ่มป่า ${dayLab(x.d)}</b> (เฉลี่ย 24 ชม. µg/m³)`,
+      `   ${ic[x.c]} <b>${f(x.mean)}</b> ${C.PMN[x.c]} · สูงสุด ${f(x.pk)} (${hm(x.pkT)} น. ${esc(x.pkN)})`,
+      `   ${x.parks.filter(p => p[1] != null).map(p => `${esc(p[0])} ${f(p[1])}`).join(' · ')} · ค่าแบบจำลอง ไม่ใช่ค่าตรวจวัด`, srcLine(R.src, 'pm')] };
   const dailyMsg = (strict = false) => {
     const text = fit(per => [
       `📋 <b>สรุปประจำวัน ${dateTh(now)}</b>`,
@@ -183,10 +192,10 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
       `🕐 จุดใน 24 ชม.: <b>${h24.length}</b> จุด`,
       ...(sum && sum.ind ? [`🛰 ดาวเทียมตัวชี้วัด: ${esc(sum.ind)}`] : []),
       ...(() => { const O = orb(); return O ? [`🛰 ดาวเทียมรอบถัดไป: ${O.length ? O.slice(0, 4).map(p => esc(require('./lib/orbit').label(p, now))).join(' · ') + ' น.' : 'ไม่มีรอบที่ผ่านกลางแถบสแกนใน 24 ชม.'}`] : [] })(),
-      ...vrLines(),
       ...fwLines(),
-      ...rkLines(),
+      ...vrLines(),
       ...pmLines(),
+      ...rkLines(),
       ...(sum ? ['', ...areaTable(new Set(h24.map(f => AREAS.some(a => a.k === f.properties._ar) ? f.properties._ar : OUTA)), '24 ชม.')] : []),
       ...(all.fy ? [`📍 พบมากสุด: ${tops(all)}`] : []),
       ...(h24.length ? ['', '<b>จุดใน 24 ชม.</b>', `<blockquote expandable>${list(byNew(h24), per * 2, true).join('\n')}</blockquote>`] : []),

@@ -40,7 +40,7 @@ function camsSummary(now = Date.now(), n = 3, file = FILE) {
     const top = parks.filter(p => p[1] != null).sort((x, y) => y[1] - x[1])[0];
     days.push({ d: new Date(a + 7 * 36e5).toISOString().slice(0, 10), mean: r1(all), c: lv(all), parks, top: top ? { n: top[0], v: top[1], c: lv(top[1]) } : null, pk: r1(pk), pkT, pkN, pc: lv(pk) });
   }
-  return days.length && days[0].d === new Date(now + 7 * 36e5).toISOString().slice(0, 10) ? { upd: j.upd, run: j.run, days } : null;
+  return days.length && days[0].d === new Date(now + 7 * 36e5).toISOString().slice(0, 10) ? { upd: j.upd, run: j.run, days, src: { n: 'แบบจำลอง CAMS', k: 'รอบ', t: Date.parse(String(j.run || '').replace(/T(\d\d)Z$/, 'T$1:00Z')) || Date.parse(j.upd) || null } } : null;
 }
 module.exports = { camsSummary, PMN: NAME, pmLevel: lv };
 if (require.main === module) { const R = camsSummary(process.env.CAMS_NOW ? Date.parse(process.env.CAMS_NOW) : Date.now()); console.log(R && R.days.map(d => [d.d, d.mean, d.parks.map(p => p.join(' ')).join(', '), 'pk', d.pk, new Date(d.pkT + 7 * 36e5).toISOString().slice(11, 16), d.pkN].join(' | ')).join('\n')) }
