@@ -166,8 +166,10 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
   // อัตราการระบายอากาศของกลุ่มป่า (NOAA GFS) วันนี้ = วัน UTC 07:00–07:00 น. แบบกรมอุตุฯ
   const vrLines = () => { let V; try { V = require('./lib/vrsum') } catch (e) { return [] } const R = V.vrSummary(now, 1); if (!R) return [];
     const nf = v => v.toLocaleString('en-US'), f = R.days[0];
+    // วงสีตามเกณฑ์กรมอุตุฯ แบบสีบนเว็บ/การ์ด LINE (ไม่ดี แดง · อ่อน เหลือง · ดี เขียว · ดีมาก ฟ้า · ดีที่สุด น้ำเงินเข้ม→ม่วง) — ผู้ใช้ขอ 18 พ.ย. 69
+    const ic = v => ({ 'ไม่ดี': '🔴', 'อ่อน': '🟡', 'ดี': '🟢', 'ดีมาก': '🔵', 'ดีที่สุด': '🟣' })[V.vrLevel(v)] || '';
     return ['', `🌫 <b>อัตราระบายอากาศ กลุ่มป่า ${f.d === thDate(now) ? 'วันนี้' : dmy(f.st)}</b> (ตร.ม./วินาที)`,
-      `   เฉลี่ยทั้งวัน <b>${nf(f.mean)}</b> ${V.vrLevel(f.mean)} · สูงสุด <b>${nf(f.max)}</b> ${V.vrLevel(f.max)}`,
+      `   เฉลี่ยทั้งวัน ${ic(f.mean)} <b>${nf(f.mean)}</b> ${V.vrLevel(f.mean)} · สูงสุด ${ic(f.max)} <b>${nf(f.max)}</b> ${V.vrLevel(f.max)}`,
       `   ${f.a ? `ระบายได้ (≥2,000) ${hm(f.a)}–${hm(f.z)} น.` : 'อากาศปิดทั้งวัน ไม่ควรเผา'}`, srcLine(R.src, 'vr')] };
   // F2 พื้นที่เสี่ยงไฟป่าล่วงหน้า (ดัชนีของระบบนี้ ไม่ใช่ค่าทางการ) — 1 บรรทัดจาก _site/risk.json (scripts/lib/risksum.js) · ไม่มีไฟล์ = ไม่มีบรรทัด
   const rkLines = () => { try { const L = require('./lib/risksum').riskLine(JSON.parse(fs.readFileSync(path.join(OUT, 'risk.json'), 'utf8')), now); return L ? ['', `${L.n5 ? '🟥' : L.n4 ? '🟧' : '🟩'} ${esc(L.text)} · <a href="${SITE}?l=rk">ดูบนแผนที่</a>`] : [] } catch (e) { return [] } };
