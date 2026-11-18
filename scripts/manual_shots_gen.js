@@ -21,6 +21,19 @@ job('card', `await demo();document.querySelector('#left').scrollTop=0;`, { w: 14
   boxes: { sats: '#pcard [data-sats]', xdy: '#pcard [data-xdy]', kp: '#p-kp', cmp: '#p-cmp', cfy: '#pcard .cfy', ch: '#p-ch', md: '#p-md', tb: '#p-tb', q: '#pcard .srch', pbt: '#pcard .pbt', pcard: '#pcard' } });
 job('mobile', `await demo();`, { w: 390, h: 844, dpr: 2, q: 70, after: 2500 });
 
+// ---------- F7 บันทึกเส้นทาง (18 พ.ย. 69) — แทน watchPosition ในหน้าแล้วป้อนจุดเดินโค้ง ~650 ม. (เวลา 30 วิ/จุด) · ล้างรอบค้างใน fm-tk ก่อน (โปรไฟล์ Chrome ใช้ร่วมทุกงาน)
+//      ภาพแสดงสถานะปกติ "กันจอดับอยู่" (headless ขอ Wake Lock ไม่ได้) และเวลาที่บันทึก 0:42:17 (ค่าสาธิต) ----------
+const TKW = `closeModal();for(const m of await TKDB.all())await TKDB.del(m.k);localStorage.setItem('fm-tki','1');
+const G={cb:null,t:Date.now()-50*60e3};navigator.geolocation.watchPosition=ok=>{G.cb=ok;return 7};navigator.geolocation.clearWatch=()=>{};
+const feed=(lo,la,dt)=>{G.t+=dt;G.cb({coords:{longitude:lo,latitude:la,accuracy:6,altitude:null},timestamp:G.t})};
+document.querySelector('#bLoc').click();await W(300);feed(101.3712,14.4302,0);await W(1500);tkStart();await W(300);
+let lo=101.3712,la=14.4302;for(let i=1;i<=80;i++){lo+=Math.cos(i/14)*6.5e-5;la+=Math.sin(i/10)*5e-5+2.6e-5;feed(lo,la,30e3)}
+for(let i=0;i<60&&TK.le==null;i++)await W(250);await W(6000);TK.ac=(42*60+17)*1e3;TK.rs=Date.now();TK.wk='on';tkBar();
+const B=TK.P.reduce((s,p)=>[Math.min(s[0],p[0]),Math.min(s[1],p[1]),Math.max(s[2],p[0]),Math.max(s[3],p[1])],[180,90,-180,-90]);`;
+job('track_bar', TKW + `map.jumpTo({center:[(B[0]+B[2])/2,(B[1]+B[3])/2],zoom:15,padding:{top:125,bottom:844-265,left:20,right:70}});`, { w: 390, h: 844, dpr: 2, q: 72, after: 7000, clip: { x: 0, y: 0, width: 390, height: 430 } });
+job('track_sum', TKW + `TK.cf=1;tkStopAsk();for(let i=0;i<120&&(TK.on||document.getElementById('md-t').textContent!=='บันทึกเส้นทางแล้ว');i++)await W(250);`, { q: 80, after: 1500, clipSel: '#md .mc' });
+job('track_resume', TKW + `clearInterval(TK.ti);TK.on=false;TK.k=null;await W(800);await tkCheck();`, { q: 80, after: 1500, clipSel: '#md .mc' });
+
 // ---------- แผนที่ฐาน (ตัดเฉพาะกลางแผนที่) ----------
 for (const b of ['natural', 'flat', 'sat', 'detail', 'dark'])
   job('base_' + b, `lcSet(true);document.querySelector('[data-b=${b}]').click();await W(4000);${go('101.415,14.665', 12.4)}`, { after: 7000, q: 66, clip: { x: 340, y: 190, width: 600, height: 380 } });

@@ -1,6 +1,6 @@
 # แผนที่สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่ (Dong Phayayen–Khao Yai Forest Complex)
 
-เว็บแอปไฟล์เดียว (`index.html` 2.4 MB ~7,600 บรรทัด, ข้อมูลฝัง ~1 MB · `_site/index.html` 1.3 MB: build_site แยกข้อมูลฝังเป็น `data/emb/*.json` → [data-blocks.md](docs/arch/data-blocks.md)) ภาษาไทย ใช้ MapLibre GL JS 4.7.1 จาก cdnjs
+เว็บแอปไฟล์เดียว (`index.html` 2.4 MB ~8,000 บรรทัด, ข้อมูลฝัง ~1 MB · `_site/index.html` 1.5 MB: build_site แยกข้อมูลฝังเป็น `data/emb/*.json` → [data-blocks.md](docs/arch/data-blocks.md)) ภาษาไทย ใช้ MapLibre GL JS 4.7.1 จาก cdnjs
 เปิดด้วยดับเบิลคลิก หรือ `node scripts/serve.js` แล้วเข้า http://localhost:8000 (เครื่องผู้ใช้ไม่มี Python จริง มีแต่ alias ของ Store · มี Node 24 → สคริปต์ใหม่เขียนด้วย Node)
 ผู้ใช้สื่อสารภาษาไทย ตอบเป็นภาษาไทย · ข้อความบนหน้าเว็บเป็นภาษาไทยทั้งหมด
 สเปกตั้งต้นอยู่ที่ `docs/spec-v3.md` (เฟส 1–4)
@@ -61,14 +61,14 @@
 - Actions: site ~40 วิ/รอบ (cron-job.org 5 นาที + watchdog), sync 4 รอบ/วัน, wx ตามต้นทาง
 - FWI: TFDRS บล็อกเครื่อง GitHub (403) → Task Scheduler "fire-map FWI" บนเครื่องผู้ใช้ (`fwi_local.js`) · เก่า ≥2 วัน → LFA (`fwi_lfa.js`)
 - ต้นทางช้า/หยุด: SAVI มีแค่ 202601 · พื้นที่เผาไหม้ B4 รอบล่าสุด 22–28 ต.ค. 69
-- **F1** ผลตรวจสอบจากหน้างาน (`VF` + Worker `/reports`) → [ui-modules.md](docs/arch/ui-modules.md)
+- **F1** ผลตรวจหน้างาน (`VF` + Worker `/reports`) · **F7** บันทึกเส้นทาง `TK` (`fm-tk`, แนบรายงาน `trk`) → [ui-modules.md](docs/arch/ui-modules.md)
 - **F2** ดัชนีเสี่ยง M2 (ผู้ใช้อนุมัติ) ชั้น `rk-*` + risk.json → risk.md · **F3** `monthly_report.js` (sync วันที่ 1 → `reports/`) → pipelines.md
-- **F6** สมัคร DM Telegram (`/ตาม`): getUpdates + `tg_subs.json` (branch state) **ห้ามตั้ง webhook** → notify.md
-- **B2** งานหนัก (กองจุด/ภูมิประเทศ/เผาไหม้) อยู่ใน Web Worker inline `WJ`/`wjLib` (ห้ามแตะ DOM) → gotchas.md, testing.md
+- **F6** รับ DM Telegram (`/ตาม`): getUpdates + `tg_subs.json` (branch state) **ห้ามตั้ง webhook** → notify.md
+- **B2** งานหนัก (กองจุด/ภูมิประเทศ/เผาไหม้) ใน Web Worker inline `WJ`/`wjLib` (ห้ามแตะ DOM) → gotchas.md testing.md
 - LINE ยังเป็นกลุ่มทดสอบ — แผนย้าย/โควตา/`LINE_MODE=daily`+`TG_INVITE` → `docs/line-rollout.md` (A7) · E3 บันทึกการใช้งาน/ออกทุกอุปกรณ์ → layers-backend.md
 - **ปีงบ 2571 (1 ต.ค. 70):** ถ้ายังไม่นำเข้า Excel ปีงบ 2570 เว็บเติมจาก API ให้เอง (`hdFill` + ป้าย ⚠) และ health `xlsx` เตือนตั้งแต่ 1 ธ.ค. — ควรนำเข้าตาม data-update.md
 
 ## งานค้าง
 
-ดู **`docs/review-2569-11-15.md`** (ประเด็น A–E + ฟังก์ชันใหม่ F + roadmap) · ประวัติงานค้างเดิมอยู่ใน [decisions.md](docs/arch/decisions.md) · **แผนทำแอป Android** (Capacitor + ฝังข้อมูล + OTA, ยังไม่เริ่ม): `docs/android-app-plan.md`
+ดู **`docs/review-2569-11-15.md`** (ประเด็น A–E + ฟังก์ชันใหม่ F + roadmap) · ประวัติงานค้างเดิมอยู่ใน [decisions.md](docs/arch/decisions.md) · **แผนแอป Android** (ยังไม่เริ่ม): `docs/android-app-plan.md`
 ยังเปิดอยู่: จุดกรมอุทยานฯ ปีงบ 2569 ที่ API ไม่มี 16 จุด (FIRMS มี 15) · หลายฟีเจอร์ยังไม่ได้ลองบนอุปกรณ์/โปรแกรมจริง — ดู D7 ของรายงาน

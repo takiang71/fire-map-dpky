@@ -1554,7 +1554,7 @@ function setup(){ // เรียกทุกครั้งที่สลั�
  map.addSource('resp',{type:'geojson',data:respSmooth()});
  map.addLayer({id:'resp-f',type:'fill',source:'resp',paint:{'fill-color':['get','sc'],'fill-opacity':.07}});
  map.addLayer({id:'resp-l',type:'line',source:'resp',layout:{'line-join':'round'},paint:{'line-color':['get','sc'],'line-width':2.4,'line-dasharray':[3,1.6]}});
- setupBN();setupRP();setupFU();setupFT();setupAD();setupPV();setup3();setup4();try{setupXT()}catch(e){console.warn('setupXT',e)}try{if(typeof vfSetup==='function')vfSetup()}catch(e){console.warn('vfSetup',e)}try{if(typeof rkLayers==='function')rkLayers()}catch(e){console.warn('rkLayers',e)}try{setupWT()}catch(e){console.warn('setupWT',e)}setupHC();setupHR();try{pcLayers()}catch(e){console.warn('pcLayers',e)}
+ setupBN();setupRP();setupFU();setupFT();setupAD();setupPV();setup3();setup4();try{setupXT()}catch(e){console.warn('setupXT',e)}try{if(typeof vfSetup==='function')vfSetup()}catch(e){console.warn('vfSetup',e)}try{if(typeof tkLayers==='function')tkLayers()}catch(e){console.warn('tkLayers',e)}try{if(typeof rkLayers==='function')rkLayers()}catch(e){console.warn('rkLayers',e)}try{setupWT()}catch(e){console.warn('setupWT',e)}setupHC();setupHR();try{pcLayers()}catch(e){console.warn('pcLayers',e)}
  if(typeof ulLayers==='function')ulLayers(); // ชั้นข้อมูลของผู้ใช้ (สคริปต์ท้ายไฟล์)
  if(typeof trLayers==='function')trLayers(); // วิเคราะห์ภูมิประเทศ (สคริปต์ท้ายไฟล์)
  if(typeof msLayers==='function')msLayers(); // เครื่องมือวัด (สคริปต์ท้ายไฟล์) — บนสุด
@@ -1900,22 +1900,27 @@ $('#zi').onclick=()=>wlZoom(1);$('#zo').onclick=()=>wlZoom(-1);$('#bN').onclick=
 $('#bHome').onclick=()=>{MOVED=false;fitHome(true)};
 // ตำแหน่งของฉัน (ผู้ใช้แจ้ง 8 พ.ย. 69: กดแล้วไม่มีสัญลักษณ์) — จุดฟ้า + วงความแม่นยำ ติดตามต่อเนื่องจนกดปิด
 // กดครั้งแรก = เริ่มติดตาม+บินไป · กดเมื่อเปิดอยู่: แผนที่ไม่ได้อยู่ที่ตำแหน่ง = บินกลับ, อยู่แล้ว = ปิด · แตะจุด = ป๊อปอัปตำแหน่ง (ข้อมูลเดียวกับแตะแผนที่)
-const LOC={w:null,m:null,p:null,fly:false};
+const LOC={w:null,m:null,p:null,fly:false,q:null};
 function locAccPx(){if(!LOC.m||!LOC.p)return;const[lo,la,acc]=LOC.p,mpp=40075016.686*Math.cos(la*Math.PI/180)/(512*Math.pow(2,map.getZoom())),d=Math.min(3000,Math.max(0,2*acc/mpp)),c=LOC.m.getElement().querySelector('.mla');c.style.width=c.style.height=d+'px';c.style.display=d<20?'none':''}
-function locStop(msg){if(LOC.w!=null)navigator.geolocation.clearWatch(LOC.w);LOC.w=null;if(LOC.m)LOC.m.remove();LOC.m=null;LOC.p=null;$('#bLoc').classList.remove('on');$('#bLoc').setAttribute('aria-pressed','false');if(msg)toast(msg)}
+function locStop(msg){if(LOC.w!=null)navigator.geolocation.clearWatch(LOC.w);LOC.w=null;if(LOC.m)LOC.m.remove();LOC.m=null;LOC.p=null;LOC.q=null;$('#bLoc').classList.remove('on');$('#bLoc').setAttribute('aria-pressed','false');if(msg)toast(msg);if(typeof tkLocOff==='function')try{tkLocOff()}catch(e){dbg('tkLocOff',e)}}
 function locGo(){if(!LOC.p)return;const[lo,la,acc]=LOC.p;map.flyTo({center:[lo,la],zoom:Math.max(map.getZoom(),acc>2000?11:acc>300?13:15),duration:dur(1500),padding:homePad()})}
-function locFix(p){const c=p.coords;LOC.p=[c.longitude,c.latitude,c.accuracy||0];
+function locFix(p){const c=p.coords;LOC.p=[c.longitude,c.latitude,c.accuracy||0];LOC.q=p;
  if(!LOC.m){const el=document.createElement('div');el.className='myloc';el.innerHTML='<i class="mla"></i><i class="mlp"></i><i class="mld"></i>';el.title='ตำแหน่งของฉัน';
   el.addEventListener('click',ev=>{ev.stopPropagation();if(!LOC.p)return;const ll=maplibregl.LngLat.convert(LOC.p);map.fire('click',{lngLat:ll,point:map.project(ll),originalEvent:ev});
    const pc=[...document.querySelectorAll('.maplibregl-popup-content')].pop();if(pc)pc.insertAdjacentHTML('afterbegin',`<b style="color:#1a73e8">ตำแหน่งของฉัน</b> <span class="sm">ความแม่นยำ ±${nf(Math.round(LOC.p[2]))} ม.</span><br>`)});
   LOC.m=new maplibregl.Marker({element:el,anchor:'center'}).setLngLat(LOC.p).addTo(map)}
- else LOC.m.setLngLat(LOC.p);locAccPx();if(LOC.fly){LOC.fly=false;locGo()}}
+ else LOC.m.setLngLat(LOC.p);locAccPx();if(LOC.fly){LOC.fly=false;locGo()}if(typeof tkFix==='function')try{tkFix(p)}catch(e){dbg('tkFix',e)}}
 map.on('zoom',locAccPx);
+/* F7 (18 พ.ย. 69) บันทึกเส้นทาง (TK) ใช้ watch ตัวนี้ตัวเดียว: locFix → tkFix · ระหว่างบันทึก กดปุ่มนี้ไม่ปิดตำแหน่ง และหาตำแหน่งไม่ได้ชั่วคราว (หมดเวลา) ไม่หยุด watch · ไม่อนุญาต = locStop → tkLocOff หยุดชั่วคราว */
+function locOn(){if(!navigator.geolocation){toast('อุปกรณ์ไม่รองรับการระบุตำแหน่ง');return false}if(LOC.w!=null)return true;
+ $('#bLoc').classList.add('on');$('#bLoc').setAttribute('aria-pressed','true');LOC.fly=true;toast('กำลังหาตำแหน่งของคุณ…');
+ LOC.w=navigator.geolocation.watchPosition(locFix,er=>{if((LOC.p||(typeof TK!=='undefined'&&TK.on))&&er.code!==1)return;locStop(er.code===1?'ไม่ได้รับอนุญาตให้เข้าถึงตำแหน่ง กรุณาอนุญาตในการตั้งค่าเบราว์เซอร์':'ไม่สามารถระบุตำแหน่งได้ ลองใหม่อีกครั้ง')},{enableHighAccuracy:true,maximumAge:10000,timeout:20000});
+ if(typeof tkBar==='function')try{tkBar()}catch(e){dbg('tkBar',e)}return true}
 $('#bLoc').onclick=()=>{if(!navigator.geolocation)return toast('อุปกรณ์ไม่รองรับการระบุตำแหน่ง');
  if(LOC.w!=null){if(!LOC.p)return;const a=map.project(LOC.p),pd=homePad(),W=map.getContainer().clientWidth,H=map.getContainer().clientHeight;
-  const here=Math.hypot(a.x-(pd.left+(W-pd.left-pd.right)/2),a.y-(pd.top+(H-pd.top-pd.bottom)/2))<40&&map.getZoom()>=10.5;return here?locStop('ปิดการแสดงตำแหน่งของฉันแล้ว'):locGo()}
- $('#bLoc').classList.add('on');$('#bLoc').setAttribute('aria-pressed','true');LOC.fly=true;toast('กำลังหาตำแหน่งของคุณ…');
- LOC.w=navigator.geolocation.watchPosition(locFix,er=>{if(LOC.p&&er.code!==1)return;locStop(er.code===1?'ไม่ได้รับอนุญาตให้เข้าถึงตำแหน่ง กรุณาอนุญาตในการตั้งค่าเบราว์เซอร์':'ไม่สามารถระบุตำแหน่งได้ ลองใหม่อีกครั้ง')},{enableHighAccuracy:true,maximumAge:10000,timeout:20000})};
+  const here=Math.hypot(a.x-(pd.left+(W-pd.left-pd.right)/2),a.y-(pd.top+(H-pd.top-pd.bottom)/2))<40&&map.getZoom()>=10.5;
+  if(here&&typeof TK!=='undefined'&&TK.on)return toast('กำลังบันทึกเส้นทาง — หยุดบันทึก (ปุ่ม ■) ก่อนจึงปิดตำแหน่งของฉันได้');return here?locStop('ปิดการแสดงตำแหน่งของฉันแล้ว'):locGo()}
+ locOn()};
 function set3d(b){if(b&&S.wyl)return toast('ปิดชั้นสภาพอากาศ Windy ก่อนใช้มุมมอง 3 มิติ (ภาพ Windy เอียงตามไม่ได้)');S.d3=b;apply();map.easeTo({pitch:b?60:0,duration:dur(900)})}
 $('#b3d').onclick=()=>set3d(!S.d3);
 $('#stats').addEventListener('click',e=>{const t=e.target.closest('.zl');if(t)zoomTo(t.dataset.z)});
@@ -5360,7 +5365,9 @@ function readGPX(t){const d=new DOMParser().parseFromString(t,'application/xml')
  const pt=e=>[+e.getAttribute('lon'),+e.getAttribute('lat')],pr=e=>{const p={};['name','desc','cmt','type','sym','ele','time'].forEach(k=>{const v=txt(kid(e,k));if(v)p[k==='desc'?'description':k]=v});return p},F=[];
  all(d,'wpt').forEach(w=>F.push({type:'Feature',properties:pr(w),geometry:{type:'Point',coordinates:pt(w)}}));
  all(d,'rte').forEach(r=>{const c=kids(r,'rtept').map(pt);if(c.length>1)F.push({type:'Feature',properties:pr(r),geometry:{type:'LineString',coordinates:c}})});
- all(d,'trk').forEach(r=>{const S=kids(r,'trkseg').map(s=>kids(s,'trkpt').map(pt)).filter(c=>c.length>1);if(S.length)F.push({type:'Feature',properties:pr(r),geometry:S.length>1?{type:'MultiLineString',coordinates:S}:{type:'LineString',coordinates:S[0]}})});
+ all(d,'trk').forEach(r=>{const K=kids(r,'trkseg').map(s=>kids(s,'trkpt')).filter(c=>c.length>1),S=K.map(c=>c.map(pt));if(!S.length)return;const p=pr(r),fl=K.flat(),TT=fl.map(e=>Date.parse(txt(kid(e,'time')))),EE=fl.map(e=>parseFloat(txt(kid(e,'ele'))));
+  if(TT.every(isFinite))p._t=TT;if(EE.every(isFinite))p._e=EE; /* F7: เวลา/ความสูงรายจุดเก็บไว้ ส่งออก GPX กลับได้ครบ */
+  F.push({type:'Feature',properties:p,geometry:S.length>1?{type:'MultiLineString',coordinates:S}:{type:'LineString',coordinates:S[0]}})});
  if(!F.length)throw Error('ไม่พบจุดหรือเส้นทางในไฟล์ GPX');return{type:'FeatureCollection',features:feats(F)}}
 /* ---------- อ่าน: WKT / CSV ---------- */
 function wkt(s){s=String(s||'').trim().replace(/^SRID=\d+;/i,'');const m=s.match(/^(MULTIPOINT|MULTILINESTRING|MULTIPOLYGON|POINT|LINESTRING|POLYGON)\s*(?:ZM|Z|M)?\s*(\(.*\))$/i);if(!m)return null;
@@ -5463,7 +5470,10 @@ function toGeoJSON(L){const F=[];L.forEach(l=>l.fc.features.forEach(f=>{const p=
  return JSON.stringify({type:'FeatureCollection',features:F})}
 function toGPX(L){const W=[],T=[],tag=p=>`${p.name!=null?`<name>${xe(p.name)}</name>`:''}${p.description!=null?`<desc>${xe(p.description)}</desc>`:''}`;
  L.forEach(l=>l.fc.features.forEach(f=>{const p=pub(f.properties||{}),g=f.geometry,pt=c=>`lat="${f7(c[1])}" lon="${f7(c[0])}"`;
-  const seg=r=>`<trkseg>${r.map(c=>`<trkpt ${pt(c)}/>`).join('')}</trkseg>`;
+  /* F7: เส้นที่มี _t (เวลา ms) / _e (ความสูง ม.) ยาวเท่าจำนวนจุด → <ele>/<time> ทุกจุด (เส้นทาง GPS) · ไม่มี = รูปแบบเดิม */
+  const q=f.properties||{},nv=g.type==='LineString'?g.coordinates.length:g.type==='MultiLineString'?g.coordinates.reduce((s,r)=>s+r.length,0):-1,TT=Array.isArray(q._t)&&q._t.length===nv?q._t:null,EE=Array.isArray(q._e)&&q._e.length===nv?q._e:null;let vi=0;
+  const xt=()=>{const i=vi++;let s='';if(EE&&EE[i]!=null&&isFinite(EE[i]))s+=`<ele>${+(+EE[i]).toFixed(1)}</ele>`;if(TT&&TT[i]!=null&&isFinite(TT[i]))s+=`<time>${new Date(+TT[i]).toISOString().replace(/\.\d{3}Z$/,'Z')}</time>`;return s};
+  const seg=r=>`<trkseg>${r.map(c=>{const x=TT||EE?xt():'';return x?`<trkpt ${pt(c)}>${x}</trkpt>`:`<trkpt ${pt(c)}/>`}).join('')}</trkseg>`;
   if(g.type==='Point')W.push(`<wpt ${pt(g.coordinates)}>${tag(p)}</wpt>`);else if(g.type==='MultiPoint')g.coordinates.forEach(c=>W.push(`<wpt ${pt(c)}>${tag(p)}</wpt>`));
   else if(g.type==='LineString')T.push(`<trk>${tag(p)}${seg(g.coordinates)}</trk>`);else if(g.type==='MultiLineString')T.push(`<trk>${tag(p)}${g.coordinates.map(seg).join('')}</trk>`);
   else if(g.type==='Polygon')T.push(`<trk>${tag(p)}${seg(closeR(g.coordinates[0]))}</trk>`);else if(g.type==='MultiPolygon')T.push(`<trk>${tag(p)}${g.coordinates.map(q=>seg(closeR(q[0]))).join('')}</trk>`)}));
@@ -5680,14 +5690,14 @@ function ulPop(k,fid,ll){const x=ulFind(k,fid);if(!x||!x.f)return;const{e,f}=x,p
  const ms=ulMeas(g,p._z).map(([a,b])=>`<tr><td>${a}</td><td><b>${b}</b></td></tr>`).join('');
  const at=pt?g.coordinates:[ll.lng,ll.lat];
  const h=`<div class="ulpp"><div class="ulpt"><i class="uldot" style="background:${esc(p._c||e.color)}"></i>${esc(e.name)}${e.srv?' · เซิร์ฟเวอร์':''}</div><b class="ulnm">${nm!=null&&nm!==''?esc(nm):'<span class="sm">ไม่มีชื่อ</span>'}</b>${ds?`<div class="ulds">${esc(ulDesc(ds))}</div>`:''}
-  <div class="ulpw"><table>${ms}${rows}</table></div><div id="el-pop"></div><div class="ulpb"><a data-u="s">แชร์</a><a data-u="z">ซูม</a>${loc?'<a data-u="e">แก้ไข</a><a data-u="x" style="color:#b42318">ลบ</a>':''}<a data-u="c">คัดลอกพิกัด</a>${/Polygon/.test(g.type)?'<a data-u="t">วิเคราะห์ภูมิประเทศ</a>':''}${pt?`<a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${g.coordinates[1]},${g.coordinates[0]}">นำทาง</a>`:''}</div></div>`;
+  <div class="ulpw"><table>${ms}${rows}</table></div><div id="el-pop"></div><div class="ulpb"><a data-u="s">แชร์</a><a data-u="z">ซูม</a>${loc?'<a data-u="e">แก้ไข</a><a data-u="x" style="color:#b42318">ลบ</a>':''}<a data-u="c">คัดลอกพิกัด</a>${Array.isArray(p._t)&&typeof tkGpx==='function'?'<a data-u="g">ส่งออก GPX</a>':''}${/Polygon/.test(g.type)?'<a data-u="t">วิเคราะห์ภูมิประเทศ</a>':''}${pt?`<a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${g.coordinates[1]},${g.coordinates[0]}">นำทาง</a>`:''}</div></div>`;
  if(ULP)ULP.remove();ULP=new maplibregl.Popup({maxWidth:'300px',offset:pt&&!UL.mm[k]?{bottom:[0,-30],'bottom-left':[0,-30],'bottom-right':[0,-30],top:[0,4],left:[12,-14],right:[-12,-14]}:8}).setLngLat(at).setHTML(h).addTo(map);
  const pop=ULP;ulSel(f);if(typeof elFill==='function')elFill('el-pop',g);pop.on('close',()=>{if(ULP===pop){ULP=null;ulSel(null)}});
  pop.getElement().addEventListener('click',ev=>{const a=ev.target.closest('[data-u]');if(!a)return;const u=a.dataset.u;
   if(u==='z')ulZoom(f);else if(u==='e'){pop.remove();ulOpen(true);udEdit(k,fid)}else if(u==='x'){pop.remove();ulDelF(k,fid)}
   else if(u==='s'){pop.remove();ulShare(k,fid)}
   else if(u==='t'){pop.remove();const R=g.type==='Polygon'?g.coordinates[0]:g.coordinates.map(p=>p[0]).sort((a,b)=>msArea(b)-msArea(a))[0];if(innerWidth<=767&&UL.open)ulOpen(false);trUse(R,1)} // รูปหลายส่วน = ส่วนที่ใหญ่สุด (ไม่นับรู)
-  else if(u==='c'){const t=ulCoordTxt(g,p._z);(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('คัดลอกพิกัดแล้ว'),()=>toast(t))}})}
+  else if(u==='g')tkGpx(f,p.name||e.name);else if(u==='c'){const t=ulCoordTxt(g,p._z);(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('คัดลอกพิกัดแล้ว'),()=>toast(t))}})}
 function ulZoom(x){const b=GIO.bbox(x.features?x.features:[x]);if(!b)return;if(b[0]===b[2]&&b[1]===b[3])map.easeTo({center:[b[0],b[1]],zoom:Math.max(map.getZoom(),14),duration:dur(700)});else map.fitBounds([[b[0],b[1]],[b[2],b[3]]],{padding:homePad(),maxZoom:16,duration:dur(700)})}
 function ulDelF(k,fid){const l=UL.L.find(x=>'l'+x.id===k);if(!l)return;const f=l.fc.features.find(x=>x.properties._id===fid),nm=f&&f.properties.name;
  if(!confirm(`ลบ${nm?' "'+nm+'"':'วัตถุนี้'} ออกจากชั้น "${l.name}"?`))return;l.fc.features=l.fc.features.filter(x=>x.properties._id!==fid);ulSave(l);ulRender(k);ulList();toast('ลบแล้ว')}
@@ -6023,7 +6033,7 @@ function ulAGs(){const cnt=id=>UA.U.filter(u=>u.g.includes(id)).length,lc=id=>UL
   try{await ulApi('/groups/'+g.id,{method:'DELETE'});UL.G=UL.G.filter(x=>x!==g);UA.U.forEach(u=>u.g=u.g.filter(x=>x!==g.id));await ulSrvList();ulAGs()}catch(er){uaE(er.message)}}}
 /* ---------- เริ่มต้น ---------- */
 UL.SV=ulLS('fm-ulv')||{};UL.tg=ulLS('fm-ultg');
-ULDB.all().then(A=>{UL.L=(A||[]).sort((a,b)=>a.t-b.t).map(o=>Object.assign({lab:false,vis:true},o));if(UL.tg&&!UL.L.some(l=>l.id===UL.tg))UL.tg=UL.L[0]?UL.L[0].id:null;UL.L.forEach(l=>ulRender('l'+l.id));ulList()}).catch(()=>{UL.db=false});
+UL.rd=ULDB.all().then(A=>{UL.L=(A||[]).sort((a,b)=>a.t-b.t).map(o=>Object.assign({lab:false,vis:true},o));if(UL.tg&&!UL.L.some(l=>l.id===UL.tg))UL.tg=UL.L[0]?UL.L[0].id:null;UL.L.forEach(l=>ulRender('l'+l.id));ulList()}).catch(()=>{UL.db=false});
 if(map.getSource('dem'))ulLayers();
 setTimeout(()=>{if(!UL.st)ulSrvInit()},1500); // ชั้นจากเซิร์ฟเวอร์ที่ตั้งเปิดเป็นค่าเริ่มต้น
 </script>
@@ -7432,7 +7442,7 @@ async function vfLoad(force){if(VF.busy||(!force&&Date.now()-VF.at<60e3))return;
   if((!j||!Array.isArray(j.reports))&&UL_API){const fy=vfFy(Date.now()),L=[];for(const y of[fy-1,fy]){const x=await ulApi('/reports?fy='+y);L.push(...(x.reports||[]))}j={generated:new Date().toISOString(),src:'worker',reports:L}}
   if(!j)return;VF.L=j.reports.slice().sort((a,b)=>a.c-b.c);VF.gen=Date.parse(j.generated)||Date.now();VF.src=j.src||'';VF.at=Date.now();vfApply()}
  catch(e){dbg('vfLoad',e)}finally{VF.busy=false}}
-function vfApply(){vfIndex();try{vfMap()}catch(e){dbg('vfMap',e)}try{vfXT()}catch(e){dbg('vfXT',e)}try{if(window.CUR)vfBox(CUR)}catch(e){dbg('vfBox',e)}}
+function vfApply(){vfIndex();try{vfMap()}catch(e){dbg('vfMap',e)}try{vfXT()}catch(e){dbg('vfXT',e)}try{if(typeof CUR!=='undefined'&&CUR)vfBox(CUR)}catch(e){dbg('vfBox',e)}}
 /* ---- ป้ายสถานะมุมไอคอนจุด (ภาพจาก canvas: วงสี + ✓ / ! / ▲) ---- */
 function vfIcon(c,g){const s=36,cv=document.createElement('canvas');cv.width=cv.height=s;const x=cv.getContext('2d');x.beginPath();x.arc(18,18,15,0,Math.PI*2);x.fillStyle=c;x.fill();x.lineWidth=3;x.strokeStyle='#fff';x.stroke();x.lineWidth=4;x.lineCap='round';x.lineJoin='round';
  if(g==='check'){x.beginPath();x.moveTo(10,19);x.lineTo(16,25);x.lineTo(27,12);x.stroke()}else if(g==='bang'){x.beginPath();x.moveTo(18,9);x.lineTo(18,21);x.stroke();x.beginPath();x.arc(18,27,2.2,0,Math.PI*2);x.fillStyle='#fff';x.fill()}else{x.beginPath();x.moveTo(18,10);x.lineTo(27,25);x.lineTo(9,25);x.closePath();x.stroke()}
@@ -7450,13 +7460,14 @@ function vfLine(r,pop){const[n,c]=VFRES[r.res]||[r.res,'#888'],b=[];
  if(r.hs)b.push('จุด '+vfTime(r.hs.t)+(r.hs.sat?' '+esc(r.hs.sat):''));if(r.res!=='none')b.push('<b>'+nf(r.rai,r.rai%1?2:0)+' ไร่</b>');if(r.cs!=null&&XD.cs[r.cs])b.push(esc(XD.cs[r.cs]));
  if(r.ta||r.te)b.push('เข้าถึง '+(r.ta||'–')+(r.te?' – เสร็จ '+r.te:'')+' น.');if(r.un)b.push('หน่วย: '+esc(r.un));if(r.pl||r.moo)b.push(esc([r.pl,r.moo?'หมู่ '+r.moo:''].filter(Boolean).join(' ')));
  if(r.pos)b.push(`พิกัดที่พบจริง ${r.pos[1].toFixed(5)}, ${r.pos[0].toFixed(5)}${r.pos[2]?' (±'+nf(Math.round(r.pos[2]))+' ม.)':''}`);
- const ed=vfCan(r)&&!pop?` <button class="lk" data-vf="e" data-id="${r.id}">แก้ไข</button><button class="lk" data-vf="d" data-id="${r.id}">ลบ</button>`:'';
- return`<div class="vfl"><span class="vfb" style="background:${c}">${n}</span> ${b.join(' · ')}${r.note?'<br><span class="sm">'+esc(r.note)+'</span>':''}<br><span class="sm">บันทึกโดย ${esc(r.by&&r.by.d||'–')} · ${vfTime(r.c)}${r.m>r.c?' (แก้ไข '+vfTime(r.m)+')':''}</span>${ed}</div>`}
+ if(r.trk)b.push('เส้นทางเดิน '+nf(+r.trk.km||0,2)+' กม.'+(r.trk.up!=null?' (ขึ้นสะสม '+nf(+r.trk.up)+' ม.)':''));
+ const tb=r.trk&&!pop?` <button class="lk" data-vf="t" data-id="${esc(r.id)}">${typeof TK!=='undefined'&&TK.vw===r.id?'ซ่อนเส้นทาง':'ดูเส้นทาง'}</button>`:'',ed=vfCan(r)&&!pop?` <button class="lk" data-vf="e" data-id="${r.id}">แก้ไข</button><button class="lk" data-vf="d" data-id="${r.id}">ลบ</button>`:'';
+ return`<div class="vfl"><span class="vfb" style="background:${c}">${n}</span> ${b.join(' · ')}${r.note?'<br><span class="sm">'+esc(r.note)+'</span>':''}<br><span class="sm">บันทึกโดย ${esc(r.by&&r.by.d||'–')} · ${vfTime(r.c)}${r.m>r.c?' (แก้ไข '+vfTime(r.m)+')':''}</span>${tb}${ed}</div>`}
 function vfBox(h){const e=document.getElementById('vf-box');if(!e||!h)return;const R=vfOf(h),cur=R[0];
  e.innerHTML=`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b style="font-size:13px">ผลตรวจสอบจากหน้างาน</b>${cur?`<span class="vfb" style="background:${VFRES[cur.res][1]}">${VFRES[cur.res][0]}</span>`:'<span class="sm">ยังไม่มีรายงาน</span>'}</div>`+R.map(r=>vfLine(r)).join('')
  +`<div class="pbt" style="margin-top:8px"><button id="vf-add">${UL.me?'+ บันทึกผลตรวจสอบ':'เข้าสู่ระบบเพื่อบันทึกผลตรวจสอบ'}</button></div>`+(h.demo?'<div class="sm">จุดตัวอย่าง — บันทึกได้เพื่อทดลองระบบ</div>':'');
  $('#vf-add').onclick=()=>UL.me?vfForm(h,null):ulLogin();
- e.querySelectorAll('button[data-vf]').forEach(bt=>bt.onclick=()=>{const r=VF.L.find(x=>x.id===bt.dataset.id);if(!r)return;if(bt.dataset.vf==='e')vfForm(h,r);else vfDel(r)})}
+ e.querySelectorAll('button[data-vf]').forEach(bt=>bt.onclick=()=>{const r=VF.L.find(x=>x.id===bt.dataset.id);if(!r)return;if(bt.dataset.vf==='e')vfForm(h,r);else if(bt.dataset.vf==='t'){if(typeof tkView==='function')tkView(r)}else vfDel(r)})}
 /* ---- ฟอร์มบันทึก/แก้ไข (modal) ---- */
 function vfForm(h,r){const g=geoAt(h.lon,h.lat),st=g.resp[0]?g.resp[0].properties.station.replace(/\s*\(พื้นที่รอง\)/,'').trim():'ไม่มี',ar=g.cons?g.cons.properties.name:'นอกพื้นที่อนุรักษ์',ad=(window.ADM&&admAt(h.lon,h.lat))||null,tm=ad?`${ad.t}|${ad.a}|${ad.p}`:`${h.tam||''}|${h.amp||''}|${h.prov||''}`;
  const o=r||{res:'',rai:'',cs:null,rp:Math.max(0,XD.rp.indexOf('ดาวเทียม (Hotspot)')),ta:'',te:'',un:'',pl:'',moo:'',note:'',pos:null};let pos=o.pos?o.pos.slice():null,usePos=!!o.pos;
@@ -7470,21 +7481,23 @@ function vfForm(h,r){const g=geoAt(h.lon,h.lat),st=g.resp[0]?g.resp[0].propertie
  <div class="g2x">${inp('vf-pl','สถานที่',o.pl,'ชื่อบ้าน/ป่า/ลำห้วย')}${inp('vf-moo','หมู่ที่',o.moo,'')}</div>
  <label class="blk" for="vf-note">หมายเหตุ</label><textarea id="vf-note" rows="2">${esc(o.note||'')}</textarea>
  <label class="blk">พิกัดที่พบจริง (จากตำแหน่งของฉัน)</label><div class="sm" id="vf-pos"></div>
+ ${typeof tkVfHtml==='function'?tkVfHtml(r):''}
  <div class="err" id="vf-e"></div><div class="acts"><button class="btn pri" type="submit">${r?'บันทึกการแก้ไข':'บันทึก'}</button><button class="btn" type="button" id="vf-x">ยกเลิก</button>${r?'<button class="btn dng" type="button" id="vf-del">ลบรายงาน</button>':''}</div>
  <p class="sm" style="margin:8px 0 0">${UL.me?'บันทึกในชื่อ '+esc(UL.me.d||UL.me.u):'ยังไม่ได้เข้าสู่ระบบ — กดบันทึกแล้วระบบจะพาไปเข้าสู่ระบบก่อน'} · แก้ไข/ลบได้ภายใน 24 ชม. (ผู้ดูแลแก้ได้ทุกรายการ) · รายงานเปิดเผยสาธารณะในหน้าเว็บนี้และแจ้งเข้ากลุ่ม LINE/Telegram</p></form>`);
- const posUI=()=>{const L=window.LOC&&LOC.p;tx('vf-pos',(pos?`<b>${pos[1].toFixed(5)}, ${pos[0].toFixed(5)}</b>${pos[2]?' ±'+nf(Math.round(pos[2]))+' ม.':''} <button class="lk" type="button" id="vf-pc">ไม่ใช้</button>`:'ไม่ระบุ (ใช้พิกัดจุดความร้อน)')+` <button class="lk" type="button" id="vf-pg">${L?'ใช้ตำแหน่งของฉันตอนนี้':'ขอตำแหน่งปัจจุบัน'}</button>`);
+ const posUI=()=>{const L=typeof LOC!=='undefined'&&LOC.p;tx('vf-pos',(pos?`<b>${pos[1].toFixed(5)}, ${pos[0].toFixed(5)}</b>${pos[2]?' ±'+nf(Math.round(pos[2]))+' ม.':''} <button class="lk" type="button" id="vf-pc">ไม่ใช้</button>`:'ไม่ระบุ (ใช้พิกัดจุดความร้อน)')+` <button class="lk" type="button" id="vf-pg">${L?'ใช้ตำแหน่งของฉันตอนนี้':'ขอตำแหน่งปัจจุบัน'}</button>`);
   $('#vf-pg').onclick=()=>{if(L){pos=L.slice();posUI();return}if(!navigator.geolocation)return toast('เบราว์เซอร์นี้ไม่รองรับตำแหน่ง');$('#vf-pg').textContent='กำลังหาตำแหน่ง…';navigator.geolocation.getCurrentPosition(p=>{pos=[p.coords.longitude,p.coords.latitude,p.coords.accuracy||0];posUI()},()=>{toast('หาตำแหน่งไม่ได้ (ต้องอนุญาตในเบราว์เซอร์)');posUI()},{enableHighAccuracy:true,timeout:15000,maximumAge:30000})};
   const pc=$('#vf-pc');if(pc)pc.onclick=()=>{pos=null;posUI()}};
- if(!pos&&!r&&window.LOC&&LOC.p)pos=LOC.p.slice();posUI();
+ if(!pos&&!r&&typeof LOC!=='undefined'&&LOC.p)pos=LOC.p.slice();posUI();
  $$('#vf-res button').forEach(b=>b.onclick=()=>{$$('#vf-res button').forEach(x=>x.classList.toggle('on',x===b))});
  $('#vf-x').onclick=closeModal;const del=$('#vf-del');if(del)del.onclick=()=>vfDel(r);
  $('#vf-f').onsubmit=async e=>{e.preventDefault();if(!UL.me){ulLogin();return}const res=($('#vf-res .on')||{}).dataset;if(!res||!res.v){$('#vf-e').textContent='กรุณาเลือกผลการตรวจสอบ';return}
   const v=id=>$('#'+id).value.trim(),ix=id=>v(id)===''?null:+v(id);
-  const body={res:res.v,hk:vfKey(h),hs:{la:+h.lat.toFixed(5),lo:+h.lon.toFixed(5),t:h.t,sat:satKey(h.sat)},rai:+v('vf-rai')||0,cs:ix('vf-cs'),rp:ix('vf-rp'),ta:v('vf-ta')||null,te:v('vf-te')||null,un:v('vf-un'),pl:v('vf-pl'),moo:v('vf-moo'),note:v('vf-note'),pos,ar,st,tm};
+  const body={res:res.v,hk:vfKey(h),hs:{la:+h.lat.toFixed(5),lo:+h.lon.toFixed(5),t:h.t,sat:satKey(h.sat)},rai:+v('vf-rai')||0,cs:ix('vf-cs'),rp:ix('vf-rp'),ta:v('vf-ta')||null,te:v('vf-te')||null,un:v('vf-un'),pl:v('vf-pl'),moo:v('vf-moo'),note:v('vf-note'),pos,ar,st,tm};const tv=typeof tkVfVal==='function'?tkVfVal():undefined;if(tv!==undefined)body.trk=tv;
   if(body.res!=='none'&&!(body.rai>0)&&!confirm('ยังไม่ได้กรอกพื้นที่เสียหาย (ไร่) — บันทึกเป็น 0 ไร่ใช่ไหม'))return;
   const bt=e.target.querySelector('button[type=submit]');bt.disabled=true;$('#vf-e').textContent='';
+  if(tv&&typeof tkCap==='function'&&(await tkCap())===false){$('#vf-e').textContent='เซิร์ฟเวอร์ยังไม่รองรับการแนบเส้นทาง — ผู้ดูแลต้องวาง Worker รุ่นใหม่ (เลือก "ไม่แนบ" เพื่อบันทึกรายงานไปก่อน)';bt.disabled=false;return}
   try{const j=r?await ulApi(`/reports/${r.id}?fy=${r.fy}`,{method:'PUT',json:body}):await ulApi('/reports',{method:'POST',json:body});
-   if(r){const i=VF.L.indexOf(r);if(i>=0)VF.L[i]=j.report}else VF.L.push(j.report);VF.L.sort((a,b)=>a.c-b.c);closeModal();vfApply();toast(r?'แก้ไขผลตรวจสอบแล้ว':'บันทึกผลตรวจสอบแล้ว · จะแจ้งเข้ากลุ่มในรอบถัดไป (~5 นาที)')}
+   if(r){const i=VF.L.indexOf(r);if(i>=0)VF.L[i]=j.report}else VF.L.push(j.report);VF.L.sort((a,b)=>a.c-b.c);closeModal();vfApply();toast((r?'แก้ไขผลตรวจสอบแล้ว':'บันทึกผลตรวจสอบแล้ว · จะแจ้งเข้ากลุ่มในรอบถัดไป (~5 นาที)')+(tv?j.report&&j.report.trk?' · แนบเส้นทางแล้ว':' — เซิร์ฟเวอร์ไม่ได้เก็บเส้นทาง':''))}
   catch(er){$('#vf-e').textContent=er.message;bt.disabled=false}}}
 async function vfDel(r){if(!confirm('ลบรายงานนี้ออกจากระบบ? (ลบแล้วกู้คืนไม่ได้)'))return;try{await ulApi(`/reports/${r.id}?fy=${r.fy}`,{method:'DELETE'});VF.L=VF.L.filter(x=>x!==r);closeModal();vfApply();toast('ลบรายงานแล้ว')}catch(e){toast('ลบไม่สำเร็จ: '+e.message)}}
 /* ---- รวมในแท็บการดับไฟ (XT): รายงานที่ไม่ใช่ "ไม่พบไฟ" เป็นแถวท้ายชุดข้อมูล (ลบ/เติมใหม่ทุกครั้งที่โหลด แถวเดิมของ Excel ดัชนี i คงเดิม) ---- */
@@ -7858,6 +7871,220 @@ addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#ds').hidden&&!document.
 addEventListener('resize',()=>{if($('#ds').hidden)return;clearTimeout(DS.rz);DS.rz=setTimeout(()=>{if(DS.K)dsTrend(DS.K)},200)});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&!$('#ds').hidden){dsWake();if(Date.now()-DS.at>60e3)dsLoad()}});
 if(DS.tv)dsOpen();
+</script>
+<style>
+/* F7 (18 พ.ย. 69) บันทึกเส้นทางเดิน #tk — ตำแหน่งจัดโดย tkPos(): เดสก์ท็อป = มุมซ้ายบนของแผนที่ที่มองเห็น · มือถือ = ใต้ป้ายดาวเทียม ซ้ายของคอลัมน์ปุ่ม เหนือแผ่นล่าง (z 4 ใต้แผ่นล่าง z 5) */
+#tk{position:fixed;z-index:6;top:12px;left:12px;max-width:min(420px,calc(100vw - 24px));box-sizing:border-box;padding:6px 8px 6px 10px;border-radius:14px;font-size:13px;color:var(--ink);background:var(--glass);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 1px 4px rgba(20,30,60,.18)}
+@media(max-width:767px){#tk{z-index:4}}
+#tk .tkr{display:flex;align-items:center;gap:8px}
+#tk .tkv{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap;font-size:14px}
+#tk .tkd{width:10px;height:10px;border-radius:50%;background:#d93a1f;flex:none}
+#tk.rec .tkd{animation:tkbl 1.2s infinite}#tk.ps .tkd{background:#e8a200;animation:none}
+@keyframes tkbl{50%{opacity:.25}}
+@media(prefers-reduced-motion:reduce){#tk.rec .tkd{animation:none}}
+#tk .tkb{min-width:34px;height:32px;border-radius:10px;border:1px solid var(--line);background:var(--bg);font:inherit;font-weight:700;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0 8px;color:var(--ink);flex:none}
+#tk .tkb svg{width:14px;height:14px;fill:currentColor}
+#tk .tkb.stp{color:#fff;background:#b42318;border-color:#b42318}#tk .tkb.cf{background:#7a0f0a;border-color:#7a0f0a}
+#tk .tkst{border:0;background:none;font:inherit;font-weight:700;color:#b42318;display:flex;align-items:center;gap:7px;cursor:pointer;padding:2px 2px;min-height:30px}
+#tk .tks{font-size:11.5px;color:var(--mut);margin-top:2px;font-variant-numeric:tabular-nums}
+#tk .tkw{font-size:11.5px;color:#8a5a00;margin-top:3px;line-height:1.35}
+#tk .tkw a{color:inherit;text-decoration:underline;cursor:pointer}
+#tk.cmp .tks,#tk.cmp .tkw{display:none}#tk:not(.cmp) #tk-wi{display:none}#tk #tk-wi{color:#8a5a00;border-color:#e8c27a;background:#fff6e0}
+.tkk{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.tkk span{flex:1 1 80px;background:var(--sel);border-radius:10px;padding:6px 9px;font-size:12px;color:var(--mut)}.tkk b{display:block;font-size:17px;color:var(--ink);font-variant-numeric:tabular-nums}
+.tkhp li{margin:4px 0}
+</style>
+<script>
+/* ===== F7 (18 พ.ย. 69) บันทึกเส้นทางเดินดับไฟ (GPS track) — docs/arch/ui-modules.md หัวข้อ "บันทึกเส้นทาง (F7)" =====
+   · ใช้ watchPosition ตัวเดิมของ LOC (locFix → tkFix) ไม่เปิดตัวที่สอง · ปุ่มเริ่มอยู่ในแถบ #tk ที่ขึ้นเมื่อเปิดตำแหน่งของฉัน
+   · กรองจุด tkOk: ความแม่นยำ >50 ม. ทิ้ง · ความเร็วจากจุดที่เก็บล่าสุด >15 กม./ชม. ทิ้ง · ห่าง <5 ม. ไม่เก็บ (ยืนนิ่ง) · จุดแรกหลังกด "ต่อ" ไม่ตรวจความเร็ว
+   · ทุกจุดลง IndexedDB fm-tk (store T = ข้อมูลรอบ, P = จุด คีย์ [k,i]) แยกจาก fm-ul · เปิดหน้าใหม่แล้วมีรอบที่ยังไม่จบ = tkCheck ถาม บันทึกต่อ / จบและเก็บ / ทิ้ง
+   · ขึ้น/ลงสะสม: ความสูง DEM (elVals ซูม 13 แบบ elLine) สุ่มทุก ≤5 ม. ระหว่างจุด · ออฟไลน์ = คิดใหม่ทั้งเส้นตอนหยุด (tkEleAll)
+   · Wake Lock (ขอใหม่เมื่อกลับมาที่แท็บ) · ไม่รองรับ/จอดับ = บอกตรงๆ ในแถบ + tkHelp
+   · หยุด = ulNewL ชั้นของฉัน (src gps) วัตถุ LineString + _t (เวลา ms) / _e (ความสูง ม.) ต่อจุด → GIO.toGPX เขียน <ele>/<time>
+   · ความเป็นส่วนตัว: อยู่ในเครื่องเท่านั้นจนกว่าผู้ใช้ส่งออก GPX หรือแนบกับรายงาน F1 เอง (tkPack ย่อ Douglas-Peucker ≤500 จุด → ช่อง trk ของรายงาน) */
+/*TK-PURE-BEGIN*/
+const TKA=50,TKV=15,TKN=5;
+/* ระยะ (ม.) haversine ระหว่าง [lon,lat,...] */
+function tkM(a,b){const r=Math.PI/180,s=Math.sin((b[1]-a[1])*r/2)**2+Math.cos(a[1]*r)*Math.cos(b[1]*r)*Math.sin((b[0]-a[0])*r/2)**2;return 2*6371008.8*Math.asin(Math.min(1,Math.sqrt(s)))}
+/* ตรวจจุดใหม่ q=[lon,lat,t(ms),ความแม่นยำ ม.] เทียบจุดที่เก็บล่าสุด p (null = จุดแรก) · free = ไม่ตรวจความเร็ว · คืน '' = เก็บ · 'acc' 'old' 'near' 'spd' = ไม่เก็บ */
+function tkOk(p,q,free){if(!(q[3]<=TKA))return'acc';if(!p)return'';if(!(q[2]>p[2]))return'old';const d=tkM(p,q);if(d<TKN)return'near';if(!free&&d/1000/((q[2]-p[2])/36e5)>TKV)return'spd';return''}
+/* ระยะรวม (ม.) */
+function tkLen(P){let d=0;for(let i=1;i<P.length;i++)d+=tkM(P[i-1],P[i]);return d}
+/* ขึ้น/ลงสะสม (ม.) จากลำดับความสูง แบบ elLine (ผลรวมผลต่างค่าที่ติดกัน) · ข้ามค่าว่าง/NaN */
+function tkUD(E){let up=0,dn=0,l=null;for(const e of E){if(e==null||isNaN(e))continue;if(l!=null){const x=e-l;if(x>0)up+=x;else dn-=x}l=e}return{up,dn}}
+/* จุดสุ่มความสูงจาก a ไป b ทุก ≤s ม. (ไม่รวม a รวม b) */
+function tkSm(a,b,s=5){const n=Math.max(1,Math.ceil(tkM(a,b)/s)),o=[];for(let k=1;k<=n;k++){const f=k/n;o.push([a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f])}return o}
+/* Douglas-Peucker ให้เหลือไม่เกิน max จุด: ค่าคลาดเคลื่อนเล็กสุดที่ได้ ≤max (แบ่งครึ่ง) · ระยะถึง "ส่วนของเส้น" เป็นเมตรรอบละติจูดกลาง · คงจุดแรก/สุดท้าย */
+function tkDP(P,max=500){const n=P.length;max=Math.max(2,max);if(n<=max)return P.slice();const la=P.reduce((s,p)=>s+p[1],0)/n,kx=111320*Math.cos(la*Math.PI/180),ky=110574,X=P.map(p=>p[0]*kx),Y=P.map(p=>p[1]*ky);
+ const run=eps=>{const K=new Uint8Array(n);K[0]=K[n-1]=1;let c=2;const st=[[0,n-1]];while(st.length){const[i,j]=st.pop();if(j-i<2)continue;const dx=X[j]-X[i],dy=Y[j]-Y[i],L2=dx*dx+dy*dy;let dm=-1,im=-1;
+  for(let k=i+1;k<j;k++){const t=L2?Math.max(0,Math.min(1,((X[k]-X[i])*dx+(Y[k]-Y[i])*dy)/L2)):0,d=Math.hypot(X[i]+t*dx-X[k],Y[i]+t*dy-Y[k]);if(d>dm){dm=d;im=k}}
+  if(dm>eps){K[im]=1;c++;st.push([i,im],[im,j])}}return{K,c}};
+ let lo=0,hi=1;while(run(hi).c>max)hi*=2;for(let k=0;k<40&&hi-lo>.01;k++){const m=(lo+hi)/2;if(run(m).c>max)lo=m;else hi=m}const{K}=run(hi);return P.filter((p,i)=>K[i])}
+/*TK-PURE-END*/
+const TKC='#7b2cbf',TK={on:false,ps:false,k:null,t0:0,ac:0,rs:0,P:[],d:0,up:0,dn:0,le:null,sk:{acc:0,spd:0,near:0,old:0},cs:0,fr:false,wl:null,wk:'',hid:0,gap:[],ti:null,q:Promise.resolve(),eo:0,cf:0,la:null,dbE:0,sv:0,vw:null,vc:new Map(),vp:null,vl:[],pre:null,cap:false};
+const TKDB=(()=>{let d=null;const open=()=>d||(d=new Promise((ok,no)=>{try{const r=indexedDB.open('fm-tk',1);r.onupgradeneeded=()=>{const b=r.result;if(!b.objectStoreNames.contains('T'))b.createObjectStore('T',{keyPath:'k'});if(!b.objectStoreNames.contains('P'))b.createObjectStore('P',{keyPath:['k','i']})};r.onsuccess=()=>ok(r.result);r.onerror=()=>{d=null;no(r.error)}}catch(e){d=null;no(e)}}));
+ const tx=(S,m,f)=>open().then(db=>new Promise((ok,no)=>{const t=db.transaction(S,m),q=f(...S.map(s=>t.objectStore(s)));t.oncomplete=()=>ok(q&&q.result);t.onerror=t.onabort=()=>no(t.error)})),R=k=>IDBKeyRange.bound([k,0],[k,Infinity]);
+ return{meta:o=>tx(['T'],'readwrite',s=>{s.put(o)}),add:(o,p)=>tx(['T','P'],'readwrite',(s,q)=>{s.put(o);q.put(p)}),pt:p=>tx(['P'],'readwrite',q=>{q.put(p)}),
+  all:()=>tx(['T'],'readonly',s=>s.getAll()),pts:k=>tx(['P'],'readonly',q=>q.getAll(R(k))),del:k=>tx(['T','P'],'readwrite',(s,q)=>{s.delete(k);q.delete(R(k))})}})();
+const tkP2=n=>String(n).padStart(2,'0');
+const tkHMS=ms=>{const s=Math.max(0,Math.floor(ms/1e3));return Math.floor(s/3600)+':'+tkP2(Math.floor(s/60)%60)+':'+tkP2(s%60)};
+const tkKm=m=>nf(m/1000,m<1e5?2:1);
+const tkHM=ms=>{const d=new Date(ms+7*36e5);return tkP2(d.getUTCHours())+':'+tkP2(d.getUTCMinutes())};
+const tkTs=ms=>{const d=new Date(ms+7*36e5);return`${tkP2(d.getUTCDate())}/${tkP2(d.getUTCMonth()+1)}/${d.getUTCFullYear()+543} ${tkP2(d.getUTCHours())}:${tkP2(d.getUTCMinutes())}:${tkP2(d.getUTCSeconds())}`};
+const tkWhen=ms=>new Date(ms).toLocaleString('th-TH',{day:'numeric',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'})+' น.';
+const tkName=ms=>'เส้นทาง '+new Date(ms).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit',timeZone:'Asia/Bangkok'})+' '+tkHM(ms);
+const tkAct=()=>TK.ac+(TK.on&&!TK.ps&&TK.rs?Date.now()-TK.rs:0);
+const tkMeta=()=>({k:TK.k,t0:TK.t0,ac:tkAct(),ps:TK.ps,n:TK.P.length,up:TK.up,dn:TK.dn,gap:TK.gap,v:1});
+function tkDbErr(e){dbg('tk:db',e);if(!TK.dbE){TK.dbE=1;toast('บันทึกจุดลงเครื่องไม่ได้ (เบราว์เซอร์ปิดที่เก็บข้อมูล) — ถ้าปิดหน้านี้ เส้นทางที่ยังไม่หยุดจะหาย')}}
+/* ---- รับตำแหน่งจาก locFix (watchPosition เดิม) ---- */
+function tkFix(p){if(!TK.on||TK.ps||TK.sv||!p||!p.coords)return;const c=p.coords,q=[+(+c.longitude).toFixed(7),+(+c.latitude).toFixed(7),p.timestamp||Date.now(),c.accuracy==null?1e9:+c.accuracy,null,c.altitude==null||isNaN(c.altitude)?null:+(+c.altitude).toFixed(1)];
+ const L=TK.P.length?TK.P[TK.P.length-1]:null,why=tkOk(L,q,TK.fr);
+ if(why){TK.sk[why]++;if(why==='acc')TK.la=q[3];if(why==='spd')TK.cs++;if(why==='acc'||why==='spd')tkBar();return}
+ TK.fr=false;TK.cs=0;TK.la=null;if(L)TK.d+=msDist(L,q);TK.P.push(q);const i=TK.P.length-1;
+ TKDB.add(tkMeta(),{k:TK.k,i,p:q}).catch(tkDbErr);tkLine();tkBar();tkEle(i)}
+/* ความสูง DEM ของจุด i + ขึ้น/ลงสะสมช่วง (i-1 → i) ทีละจุดตามลำดับ (คิว TK.q) */
+function tkEle(i){const P=TK.P,k=TK.k;TK.q=TK.q.then(async()=>{const q=P[i];if(!q||TK.k!==k)return;const a=i?P[i-1]:null,S=a&&a[4]!=null&&TK.le!=null?tkSm(a,q):[[q[0],q[1]]];let E=null;
+  try{E=await elVals(S.map(([x,y])=>[trX(x,13),trY(y,13)]),13)}catch(e){E=null}
+  if(!E||E.some(v=>isNaN(v))){TK.eo++;TK.le=null;tkBar();return}
+  const u=tkUD([TK.le,...E]);TK.up+=u.up;TK.dn+=u.dn;TK.le=E[E.length-1];q[4]=+TK.le.toFixed(1);
+  if(TK.k===k&&!TK.sv)TKDB.add(tkMeta(),{k,i,p:q}).catch(tkDbErr);tkBar()}).catch(e=>dbg('tk:ele',e))}
+/* ความสูงทั้งเส้นใหม่ (ตอนหยุดถ้ามีช่วงที่โหลด DEM ไม่ได้) */
+async function tkEleAll(P){const L=tkLen(P),s=Math.max(5,L/2e4),S=[[P[0][0],P[0][1]]],ix=[0];for(let i=1;i<P.length;i++){S.push(...tkSm(P[i-1],P[i],s));ix.push(S.length-1)}
+ const E=await elVals(S.map(([x,y])=>[trX(x,13),trY(y,13)]),13);if(E.some(v=>isNaN(v)))throw Error('ข้อมูลความสูงไม่ครบ');ix.forEach((j,i)=>{P[i][4]=+E[j].toFixed(1)});const u=tkUD(E);TK.up=u.up;TK.dn=u.dn;TK.eo=0}
+const tkWait=(p,ms)=>Promise.race([p,new Promise(r=>setTimeout(r,ms))]);
+/* ระยะที่แสดง/บันทึก = Vincenty (msDist ตัวเดียวกับเครื่องมือวัด/ป๊อปอัปชั้นของฉัน) · ตัวกรองจุดใช้ tkM (haversine) */
+const tkLenV=P=>{let d=0;for(let i=1;i<P.length;i++)d+=msDist(P[i-1],P[i]);return d};
+/* ---- เริ่ม/หยุดชั่วคราว/ต่อ/หยุด ---- */
+function tkStart(){if(TK.on)return;if(!navigator.geolocation)return toast('อุปกรณ์ไม่รองรับการระบุตำแหน่ง');if(!ulLS('fm-tki'))return tkHelp(1);tkGo()}
+function tkGo(){if(TK.on||!locOn())return;Object.assign(TK,{on:true,ps:false,sv:0,k:'t'+Date.now().toString(36),t0:Date.now(),ac:0,rs:Date.now(),P:[],d:0,up:0,dn:0,le:null,sk:{acc:0,spd:0,near:0,old:0},cs:0,fr:false,gap:[],eo:0,q:Promise.resolve(),la:null,dbE:0,cf:0,hid:0});
+ TKDB.meta(tkMeta()).catch(tkDbErr);if(LOC.q&&Date.now()-(LOC.q.timestamp||0)<15e3)tkFix(LOC.q);
+ tkTimer();tkWake();tkLine();tkBar();toast('เริ่มบันทึกเส้นทาง — เปิดหน้านี้และหน้าจอไว้ตลอดการเดิน')}
+function tkPause(){if(!TK.on||TK.ps)return;TK.ac+=Date.now()-TK.rs;TK.ps=true;TK.cf=0;tkWakeOff();TKDB.meta(tkMeta()).catch(tkDbErr);tkBar()}
+function tkResume(){if(!TK.on||!TK.ps||TK.sv)return;if(!locOn())return;TK.ps=false;TK.rs=Date.now();TK.fr=TK.P.length>0;TK.cs=0;tkTimer();tkWake();TKDB.meta(tkMeta()).catch(tkDbErr);tkBar()}
+function tkStopAsk(){if(!TK.cf){TK.cf=1;tkBar();clearTimeout(TK.cft);TK.cft=setTimeout(()=>{TK.cf=0;tkBar()},3500);return}clearTimeout(TK.cft);TK.cf=0;tkStop()}
+function tkLocOff(){if(TK.on&&!TK.ps&&!TK.sv)tkPause();tkBar()}
+function tkTimer(){clearInterval(TK.ti);TK.ti=setInterval(()=>{if(!TK.on){clearInterval(TK.ti);return}const t=document.getElementById('tk-t');if(t)t.textContent=tkHMS(tkAct());tkPos()},1000)}
+async function tkStop(){if(!TK.on||TK.sv)return null;TK.sv=1;if(!TK.ps)TK.ac+=Date.now()-TK.rs;TK.ps=true;TK.cf=0;clearInterval(TK.ti);tkWakeOff();tkBar();
+ await tkWait(TK.q,2e4);const P=TK.P.slice(),k=TK.k,fin=()=>{TK.on=false;TK.sv=0;TK.P=[];TK.k=null;tkLine();tkBar()};
+ if(P.length<2){fin();TKDB.del(k).catch(e=>dbg('tk:db',e));toast('ยังได้จุดไม่ถึง 2 จุด — ไม่ได้สร้างเส้นทาง');return null}
+ if(TK.eo||P.some(q=>q[4]==null))try{await tkWait(tkEleAll(P),3e4)}catch(e){dbg('tk:ele',e)}
+ const hasE=P.every(q=>q[4]!=null),d=tkLenV(P),name=tkName(P[0][2]);
+ const f={type:'Feature',properties:{_id:ulId(),name,'เวลาเริ่ม':tkTs(P[0][2]),'เวลาสิ้นสุด':tkTs(P[P.length-1][2]),'ระยะ_กม':+(d/1000).toFixed(3),'ขึ้นสะสม_ม':hasE?Math.round(TK.up):null,'ลงสะสม_ม':hasE?Math.round(TK.dn):null,'จำนวนจุด':P.length,
+  _t:P.map(q=>q[2]),_e:P.map(q=>q[4]!=null?q[4]:q[5]!=null?q[5]:null),_ac:TK.ac},geometry:{type:'LineString',coordinates:P.map(q=>[q[0],q[1]])}};
+ try{if(UL.rd)await UL.rd}catch(e){}
+ const l=ulNewL(name,{type:'FeatureCollection',features:[f]},{src:'gps',color:TKC});try{ulRender('l'+l.id);ulList()}catch(e){dbg('tk:ul',e)}
+ const ac=TK.ac;fin();
+ try{const A=await ULDB.all();if(A.some(x=>x.id===l.id))await TKDB.del(k)}catch(e){dbg('tk:db',e)}
+ tkSum(l,f,ac);return{l,f}}
+/* ---- Wake Lock (กันจอดับ) — ขอใหม่เมื่อกลับมาที่แท็บ ---- */
+async function tkWake(){if(!TK.on||TK.ps)return;if(!('wakeLock' in navigator)){TK.wk='no';tkBar();return}if(TK.wl||document.visibilityState!=='visible')return;
+ try{const w=await navigator.wakeLock.request('screen');if(!TK.on||TK.ps){w.release().catch(()=>{});return}TK.wl=w;TK.wk='on';w.addEventListener('release',()=>{if(TK.wl===w)TK.wl=null;if(TK.on&&!TK.ps&&TK.wk==='on')TK.wk=document.visibilityState==='visible'?'lost':'off';tkBar()})}
+ catch(e){TK.wk='err';dbg('tk:wake',e)}tkBar()}
+function tkWakeOff(){const w=TK.wl;TK.wl=null;if(TK.wk==='on')TK.wk='';try{if(w)w.release().catch(()=>{})}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(!TK.on)return;if(document.visibilityState==='hidden'){if(!TK.ps)TK.hid=Date.now();return}
+ if(TK.hid){const g=Date.now()-TK.hid;TK.hid=0;if(g>2e4&&!TK.ps){TK.gap.push([Date.now()-g,Date.now()]);TKDB.meta(tkMeta()).catch(tkDbErr);toast('เส้นทางขาดช่วง '+tkHM(Date.now()-g)+'–'+tkHM(Date.now())+' น. เพราะจอดับหรือสลับแอป (เบราว์เซอร์หยุด GPS)',tkHelp,8000)}}
+ if(!TK.ps)tkWake();tkBar()});
+/* ---- เส้นบนแผนที่ (ขณะบันทึก tks/tk-l, เส้นทางของรายงาน tkv/tk-v) ---- */
+const tkFC=()=>({type:'FeatureCollection',features:TK.on&&TK.P.length>1?[{type:'Feature',properties:{},geometry:{type:'LineString',coordinates:TK.P.map(q=>[q[0],q[1]])}}]:[]});
+const tkVFC=()=>({type:'FeatureCollection',features:TK.vp&&TK.vp.length>1?[{type:'Feature',properties:{},geometry:{type:'LineString',coordinates:TK.vp}}]:[]});
+function tkLayers(){if(!map.getSource('tks'))map.addSource('tks',{type:'geojson',data:tkFC()});if(!map.getSource('tkv'))map.addSource('tkv',{type:'geojson',data:tkVFC()});
+ const lo={'line-join':'round','line-cap':'round'};
+ if(!map.getLayer('tk-v'))map.addLayer({id:'tk-v',type:'line',source:'tkv',layout:lo,paint:{'line-color':TKC,'line-width':3.5,'line-dasharray':[2,1.4]}});
+ if(!map.getLayer('tk-c'))map.addLayer({id:'tk-c',type:'line',source:'tks',layout:lo,paint:{'line-color':'#fff','line-width':7,'line-opacity':.9}});
+ if(!map.getLayer('tk-l'))map.addLayer({id:'tk-l',type:'line',source:'tks',layout:lo,paint:{'line-color':TKC,'line-width':3.6}})}
+function tkLine(){try{const s=map.getSource('tks');if(s)s.setData(tkFC());else tkLayers()}catch(e){}}
+/* ---- แถบ #tk ---- */
+{const e=document.createElement('div');e.id='tk';e.hidden=true;e.setAttribute('role','region');e.setAttribute('aria-label','บันทึกเส้นทาง');document.body.appendChild(e)}
+const TKI={p:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>',r:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z"/></svg>',s:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>'};
+function tkWarn(){const L=[];if(TK.ps)return TK.sv?'กำลังบันทึกเส้นทางลงชั้นข้อมูลของฉัน…':LOC.w==null?'ตำแหน่งของฉันปิดอยู่ — กด ▶ เพื่อเปิดและบันทึกต่อ':'';
+ if(!TK.P.length)L.push(TK.la?`รอสัญญาณ GPS ที่แม่นยำ ≤${TKA} ม. (ตอนนี้ ±${nf(Math.round(Math.min(TK.la,99999)))} ม.)`:'กำลังรอสัญญาณ GPS…');
+ if(TK.cs>=5)L.push(`ข้ามจุดที่เร็วเกิน ${TKV} กม./ชม. ${nf(TK.cs)} จุดติดกัน — ถ้าเดินทางด้วยรถ กดหยุดชั่วคราว แล้วกดต่อเมื่อเริ่มเดิน`);
+ if(TK.wk==='no'||TK.wk==='err')L.push('เบราว์เซอร์นี้กันจอดับไม่ได้ — ตั้งจอให้เปิดค้างไว้ (จอดับ = GPS หยุด) <a data-tkh>อ่านเพิ่ม</a>');
+ else if(TK.wk==='lost')L.push('การกันจอดับหลุด — แตะแผนที่หนึ่งครั้งหรือเปิดหน้านี้ใหม่ <a data-tkh>อ่านเพิ่ม</a>');
+ if(TK.gap.length){const g=TK.gap[TK.gap.length-1];L.push(`ขาดช่วง ${tkHM(g[0])}–${tkHM(g[1])} น. (จอดับ/สลับแอป) <a data-tkh>วิธีแก้</a>`)}
+ return L.join('<br>')}
+/* โครงแถบสร้างใหม่เฉพาะเมื่อสถานะเปลี่ยน (เปิด/หยุดชั่วคราว/ยืนยันหยุด/กำลังเก็บ) — ระหว่างบันทึกอัปเดตแค่ข้อความ ปุ่มจึงไม่ถูกแทนที่ระหว่างแตะ */
+function tkBar(){const e=document.getElementById('tk');if(!e)return;const show=TK.on||LOC.w!=null;e.hidden=!show;if(!show){e.dataset.s='';return}e.classList.toggle('rec',TK.on&&!TK.ps);e.classList.toggle('ps',TK.on&&TK.ps);
+ const s=TK.on?['r',TK.ps,TK.cf,TK.sv].join('|'):'i';
+ if(e.dataset.s!==s){e.dataset.s=s;
+  if(!TK.on){e.innerHTML='<button type="button" class="tkst" id="tk-b" title="บันทึกเส้นทางเดินจาก GPS ลงชั้นข้อมูลของฉัน (อยู่ในเครื่องนี้เท่านั้น)"><span class="tkd" aria-hidden="true"></span>บันทึกเส้นทาง</button>';document.getElementById('tk-b').onclick=tkStart}
+  else{e.innerHTML=`<div class="tkr"><span class="tkd" aria-hidden="true"></span><span class="tkv" id="tk-t" title="เวลาที่บันทึก (ไม่นับช่วงหยุดชั่วคราว)"></span><span class="tkv" id="tk-km"></span><span style="flex:1"></span><button type="button" class="tkb" id="tk-wi" aria-label="คำเตือนการบันทึก" title="คำเตือน" hidden>!</button>
+  <button type="button" class="tkb" id="tk-p" ${TK.sv?'disabled ':''}aria-label="${TK.ps?'บันทึกต่อ':'หยุดชั่วคราว'}" title="${TK.ps?'บันทึกต่อ':'หยุดชั่วคราว'}">${TK.ps?TKI.r:TKI.p}</button><button type="button" class="tkb stp${TK.cf?' cf':''}" id="tk-s" ${TK.sv?'disabled ':''}aria-label="${TK.cf?'แตะอีกครั้งเพื่อหยุดและเก็บเส้นทาง':'หยุดและเก็บเส้นทาง'}" title="หยุดและเก็บเส้นทาง">${TKI.s}${TK.cf?'แตะอีกครั้ง':''}</button></div>
+  <div class="tks" id="tk-ud"></div><div class="tkw" id="tk-w" role="status" hidden></div>`;
+   document.getElementById('tk-p').onclick=()=>TK.ps?tkResume():tkPause();document.getElementById('tk-s').onclick=tkStopAsk;
+   document.getElementById('tk-wi').onclick=()=>{const W=document.getElementById('tk-w');toast((W?W.textContent:'').replace(/\s*(อ่านเพิ่ม|วิธีแก้)\s*/g,' ').trim()||'ไม่มีคำเตือน',tkHelp,8000)}}}
+ if(TK.on){const ud=TK.P.length&&TK.le==null&&!TK.up&&!TK.dn?(TK.eo?'ขึ้น/ลง: รอเน็ตเพื่อโหลดความสูง':'ขึ้น/ลง: กำลังโหลดความสูง…'):`ขึ้น +${nf(Math.round(TK.up))} / ลง −${nf(Math.round(TK.dn))} ม.${TK.eo?' (บางช่วงรอเน็ต)':''}`;
+  document.getElementById('tk-t').textContent=tkHMS(tkAct());document.getElementById('tk-km').textContent=tkKm(TK.d)+' กม.';
+  document.getElementById('tk-ud').textContent=`${TK.ps&&!TK.sv?'หยุดชั่วคราว · ':''}${ud} · ${nf(TK.P.length)} จุด${TK.wk==='on'&&!TK.ps?' · กันจอดับอยู่':''}`;
+  const w=tkWarn(),W=document.getElementById('tk-w');document.getElementById('tk-wi').hidden=!w;if(W.dataset.h!==w){W.dataset.h=w;W.innerHTML=/*xss-ok*/w;W.hidden=!w;W.querySelectorAll('[data-tkh]').forEach(a=>a.onclick=()=>tkHelp())}}
+ tkPos()}
+/* มือถือ: ใต้ป้ายดาวเทียม (#orb) ซ้ายของคอลัมน์ปุ่ม และเหนือแผ่นล่าง · เดสก์ท็อป: มุมซ้ายบนของแผนที่ที่ไม่ถูกแผงบัง */
+function tkPos(){const e=document.getElementById('tk');if(!e||e.hidden)return;let A;try{A=visArea()}catch(x){return}const mob=innerWidth<768;let top,left,mw;
+ if(mob){const c=$('#ctl'),cr=c&&getComputedStyle(c).display!=='none'?c.getBoundingClientRect():null,o=$('#orb'),or=o&&!o.hidden&&o.getClientRects().length?o.getBoundingClientRect():null;left=12;mw=(cr&&cr.width?cr.left-8:innerWidth-12)-left;top=A.y0+10;
+  if(or&&or.height&&or.left<left+mw&&or.right>left)top=Math.max(top,or.bottom+8);
+  /* ลำดับ: ไม่ทับคอลัมน์ปุ่ม/แผ่นล่าง → ที่ว่างใต้กล่องดาวเทียมไม่พอ (ขยายกล่องอยู่) = โหมดย่อแถวเดียว (.cmp) → ยังไม่พอ = ทับส่วนล่างของกล่องดาวเทียม (ปุ่มหยุดต้องกดได้เสมอ) */
+  e.style.maxWidth=Math.max(160,Math.round(mw))+'px';e.classList.remove('cmp');let h=e.offsetHeight;if(top+h>A.y1-8){e.classList.add('cmp');h=e.offsetHeight}if(top+h>A.y1-8)top=Math.max(A.y0+4,A.y1-8-h)}
+ else{top=A.y0+12;left=A.x0+12;mw=Math.min(420,A.x1-A.x0-24);e.classList.remove('cmp')}
+ e.style.top=Math.round(top)+'px';e.style.left=Math.round(left)+'px';e.style.maxWidth=Math.max(160,Math.round(mw))+'px'}
+addEventListener('resize',tkPos);try{new ResizeObserver(()=>tkPos()).observe($('#orb'))}catch(e){}
+/* ---- คำอธิบาย/ข้อจำกัด (start=1 = ก่อนเริ่มครั้งแรก มีปุ่มเริ่ม) ---- */
+function tkHelp(start){openModal(start?'ก่อนเริ่มบันทึกเส้นทาง':'ข้อจำกัดของการบันทึกเส้นทางบนเว็บ',`<div class="ula tkhp"><ul style="padding-left:18px;margin:0">
+ <li><b>เบราว์เซอร์มือถือหยุดส่งตำแหน่ง GPS ให้หน้าเว็บเมื่อจอดับ ล็อกเครื่อง หรือสลับไปแอปอื่น</b> — ช่วงนั้นจะไม่มีจุด และเมื่อกลับมาเส้นจะต่อเป็นเส้นตรง</li>
+ <li>ระหว่างบันทึก แอปขอ "กันจอดับ" (Screen Wake Lock) ให้เองถ้าเบราว์เซอร์รองรับ (ขอใหม่ทุกครั้งที่กลับมาที่หน้านี้)${'wakeLock' in navigator?'':' — <b>เบราว์เซอร์นี้ไม่รองรับ</b>'} · ถ้าไม่รองรับ ให้ตั้งค่าเครื่อง → หน้าจอ → ระยะหมดเวลาหน้าจอ ให้นานขึ้นระหว่างเดิน</li>
+ <li>แนะนำ <b>ติดตั้งเป็นแอป</b> (เมนูเบราว์เซอร์ → ติดตั้งแอป / เพิ่มไปยังหน้าจอหลัก) เปิดเต็มจอ ไม่สลับแท็บพลาด — แต่ถ้าจอดับ GPS ก็ยังหยุดเหมือนกัน</li>
+ <li>GPS และจอที่เปิดค้างใช้แบตเตอรี่มาก — ลดความสว่างจอ และพกแบตเตอรี่สำรอง</li>
+ <li>ทุกจุดบันทึกลงเครื่องทันที ถ้าหน้าเว็บถูกปิด/โหลดใหม่ เปิดใหม่จะถามว่า <b>บันทึกต่อ / จบและเก็บ / ทิ้ง</b></li>
+ <li>ตัดจุดที่คลาดเคลื่อนเกิน ${TKA} ม. จุดที่กระโดดเร็วเกิน ${TKV} กม./ชม. และไม่เก็บจุดที่ห่างจากจุดก่อนไม่ถึง ${TKN} ม. (ยืนนิ่ง)</li>
+ <li><b>ความเป็นส่วนตัว:</b> เส้นทางอยู่ในเครื่องนี้เท่านั้น ไม่ถูกส่งไปที่ใด จนกว่าคุณจะส่งออก GPX หรือแนบกับรายงานผลตรวจสอบเอง</li></ul>
+ ${start?'<div class="acts" style="margin-top:12px"><button class="btn pri" type="button" id="tk-go">เริ่มบันทึก</button><button class="btn" type="button" id="tk-nx">ยกเลิก</button></div>':''}</div>`);
+ if(start){$('#tk-go').onclick=()=>{ulLS('fm-tki',1);closeModal();tkGo()};$('#tk-nx').onclick=closeModal}}
+/* ---- สรุปหลังหยุด + ส่งออก GPX ---- */
+function tkSum(l,f,ac){const p=f.properties,ud=p['ขึ้นสะสม_ม']!=null?`ขึ้นสะสม +${nf(p['ขึ้นสะสม_ม'])} ม. · ลงสะสม −${nf(p['ลงสะสม_ม'])} ม.`:'ขึ้น/ลงสะสม: ไม่มีข้อมูลความสูง (โหลดแบบจำลองความสูงไม่ได้ — ออฟไลน์?)',cur=typeof CUR!=='undefined'&&CUR;
+ openModal('บันทึกเส้นทางแล้ว',`<div class="ula"><b>${esc(p.name)}</b><div class="tkk"><span>ระยะ<b>${tkKm(p['ระยะ_กม']*1000)} กม.</b></span><span>เวลาที่บันทึก<b>${tkHMS(ac||0)}</b></span><span>จุด<b>${nf(p['จำนวนจุด'])}</b></span></div>
+ <div class="sm">${ud}<br>${esc(p['เวลาเริ่ม'])} – ${esc(p['เวลาสิ้นสุด'].split(' ')[1])} น. · ความสูงจากแบบจำลองความสูง (~30 ม.) เป็นค่าประมาณ</div>
+ <p class="sm">เก็บเป็นชั้น "${esc(l.name)}" ในชั้นข้อมูลของฉัน — <b>อยู่ในเครื่องนี้เท่านั้น</b> ไม่ถูกส่งไปที่ใดจนกว่าคุณจะส่งออกหรือแนบกับรายงานเอง</p>
+ <div class="acts"><button class="btn pri" type="button" id="tk-gpx">ส่งออก GPX</button><button class="btn" type="button" id="tk-ul">เปิดชั้นข้อมูลของฉัน</button>${cur?'<button class="btn" type="button" id="tk-vf">แนบกับรายงานของจุดที่เปิดอยู่</button>':''}</div>
+ <p class="sm">แนบกับรายงานผลตรวจสอบ: แตะจุดความร้อน → "บันทึกผลตรวจสอบ" → เลือกเส้นทางนี้ในช่อง "แนบเส้นทางเดิน"</p></div>`);
+ $('#tk-gpx').onclick=()=>tkGpx(f,p.name);$('#tk-ul').onclick=()=>{closeModal();ulOpen(true);try{panFit()}catch(e){}};
+ const v=$('#tk-vf');if(v)v.onclick=()=>{TK.pre=l.id;closeModal();if(UL.me)vfForm(cur,null);else ulLogin()}}
+function tkGpx(f,name){const t=GIO.toGPX([{name,fc:{type:'FeatureCollection',features:[f]}}]);tkGpx.last=t;ulDl(new Blob([t],{type:'application/gpx+xml'}),String(name||'เส้นทาง').replace(/[\\/:*?"<>|]+/g,'_')+'.gpx');toast('ดาวน์โหลด GPX แล้ว (เวลาและความสูงทุกจุด)')}
+/* ---- เปิดหน้าใหม่: มีรอบที่ยังไม่จบ → ถาม ---- */
+async function tkCheck(){if(TK.on||TK.ck)return;TK.ck=1;let A=[];try{A=(await TKDB.all())||[]}catch(e){dbg('tk:db',e);TK.ck=0;return}
+ A=A.filter(m=>m&&m.k).sort((a,b)=>(b.t0||0)-(a.t0||0));for(const m of A){let X=[];try{X=(await TKDB.pts(m.k))||[]}catch(e){dbg('tk:db',e)}
+  const P=X.sort((a,b)=>a.i-b.i).map(x=>x.p).filter(p=>Array.isArray(p));if(!P.length){TKDB.del(m.k).catch(e=>dbg('tk:db',e));continue}
+  TK.ck=0;const last=P[P.length-1][2];
+  openModal('พบเส้นทางที่ยังบันทึกไม่จบ',`<div class="ula"><p style="margin:0 0 6px">เริ่ม <b>${tkWhen(P[0][2])}</b> · ${tkKm(tkLenV(P))} กม. · ${nf(P.length)} จุด · จุดล่าสุด ${tkWhen(last)}</p>
+  <p class="sm" style="margin:0">หน้าเว็บถูกปิดหรือโหลดใหม่ระหว่างบันทึก (เช่น เบราว์เซอร์ปิดแท็บเมื่อจอดับนาน) — จุดที่บันทึกไว้ยังอยู่ในเครื่องนี้</p>
+  <div class="acts" style="margin-top:10px"><button class="btn pri" type="button" id="tk-r1">บันทึกต่อ</button><button class="btn" type="button" id="tk-r2">จบและเก็บ</button><button class="btn dng" type="button" id="tk-r3">ทิ้ง</button></div>
+  <p class="sm" style="margin:8px 0 0">บันทึกต่อ = เปิดตำแหน่งของฉันแล้วต่อจากจุดล่าสุด (ช่วงที่หน้าเว็บปิดอยู่จะต่อเป็นเส้นตรง) · จบและเก็บ = สร้างเส้นในชั้นข้อมูลของฉันเลย</p></div>`);
+  $('#tk-r1').onclick=()=>{closeModal();tkRestore(m,P,true)};$('#tk-r2').onclick=()=>{closeModal();tkRestore(m,P,false);tkStop()};
+  $('#tk-r3').onclick=()=>{const b=$('#tk-r3');if(!b.dataset.cf){b.dataset.cf=1;b.textContent='แตะอีกครั้งเพื่อยืนยันทิ้ง (กู้คืนไม่ได้)';return}closeModal();TKDB.del(m.k).then(()=>{toast('ทิ้งเส้นทางที่ค้างแล้ว');setTimeout(tkCheck,300)}).catch(e=>dbg('tk:db',e))};return}
+ TK.ck=0}
+function tkRestore(m,P,go){Object.assign(TK,{on:true,ps:true,sv:0,k:m.k,t0:m.t0||P[0][2],ac:m.ac||0,rs:0,P,d:tkLenV(P),up:m.up||0,dn:m.dn||0,sk:{acc:0,spd:0,near:0,old:0},cs:0,fr:false,gap:m.gap||[],q:Promise.resolve(),la:null,dbE:0,cf:0,hid:0});
+ TK.eo=P.some(q=>q[4]==null)?1:0;TK.le=P[P.length-1][4];tkLine();if(go)tkResume();else tkBar()}
+/* ---- แนบกับรายงาน F1 (vfForm) ---- */
+function tkList(){const o=[];for(const l of UL.L)if(l.src==='gps')for(const f of l.fc.features)if(f.geometry&&/LineString/.test(f.geometry.type))o.push({l,f});return o.sort((a,b)=>(b.l.t||0)-(a.l.t||0))}
+function tkPack(f){const g=f.geometry,c=g.type==='LineString'?g.coordinates:g.coordinates.flat(),p=f.properties||{},T=Array.isArray(p._t)&&p._t.length===c.length?p._t:null,D=tkDP(c,500);
+ return{c:D.flatMap(q=>[+(+q[0]).toFixed(5),+(+q[1]).toFixed(5)]),t0:T?T[0]:null,t1:T?T[T.length-1]:null,km:p['ระยะ_กม']!=null?+p['ระยะ_กม']:+(tkLenV(c)/1000).toFixed(3),up:p['ขึ้นสะสม_ม']!=null?p['ขึ้นสะสม_ม']:null,dn:p['ลงสะสม_ม']!=null?p['ลงสะสม_ม']:null,n:c.length}}
+const tkFm=f=>{const p=f.properties||{},g=f.geometry;return p['ระยะ_กม']!=null?p['ระยะ_กม']*1000:tkLenV(g.type==='LineString'?g.coordinates:g.coordinates.flat())};
+function tkVfHtml(r){const L=tkList(),has=r&&r.trk;TK.vl=L;
+ if(!L.length&&!has)return'<label class="blk">แนบเส้นทางเดิน</label><div class="sm">ยังไม่มีเส้นทางที่บันทึกในเครื่องนี้ (บันทึกได้จากปุ่มตำแหน่งของฉัน → บันทึกเส้นทาง)</div>';
+ const pre=TK.pre;TK.pre=null;
+ return`<label class="blk" for="vf-trk">แนบเส้นทางเดิน (ไม่บังคับ)</label><select id="vf-trk">${has?`<option value="=">คงเส้นทางที่แนบไว้ (${tkKm((+r.trk.km||0)*1000)} กม.)</option><option value="-">ลบเส้นทางที่แนบ</option>`:'<option value="">ไม่แนบ</option>'}${L.map((x,i)=>`<option value="${i}"${x.l.id===pre?' selected':''}>${esc(x.f.properties.name||x.l.name)} · ${tkKm(tkFm(x.f))} กม.</option>`).join('')}</select>
+ <div class="sm">ย่อเหลือไม่เกิน 500 จุด · <b>เส้นทางที่แนบจะเผยแพร่พร้อมรายงาน</b> (ทุกคนที่เปิดรายงานเห็น) — ไม่แนบ = อยู่ในเครื่องนี้เท่านั้น</div>`}
+function tkVfVal(){const s=document.getElementById('vf-trk');if(!s)return undefined;const v=s.value;if(v===''||v==='=')return undefined;if(v==='-')return null;const x=TK.vl[+v];return x?tkPack(x.f):undefined}
+async function tkCap(){if(TK.cap)return true;try{const j=await ulApi('/');TK.cap=!!(j&&j.trk);return TK.cap}catch(e){return null}}
+/* ---- ดูเส้นทางที่แนบกับรายงาน (Worker GET /reports/<id>/trk — สาธารณะ) ---- */
+async function tkView(r){if(TK.vw===r.id){TK.vw=null;TK.vp=null;try{map.getSource('tkv').setData(tkVFC())}catch(e){}tkVfBtn();return}
+ try{let c=TK.vc.get(r.id);if(!c){const j=await ulApi('/reports/'+r.id+'/trk');c=j&&j.trk&&j.trk.c;if(!Array.isArray(c)||c.length<4)throw Error('ไม่พบเส้นทาง');TK.vc.set(r.id,c)}
+  const P=[];for(let i=0;i+1<c.length;i+=2)P.push([c[i],c[i+1]]);TK.vw=r.id;TK.vp=P;tkLayers();map.getSource('tkv').setData(tkVFC());
+  const b=P.reduce((s,p)=>[Math.min(s[0],p[0]),Math.min(s[1],p[1]),Math.max(s[2],p[0]),Math.max(s[3],p[1])],[180,90,-180,-90]),pd=homePad();
+  map.fitBounds([[b[0],b[1]],[b[2],b[3]]],{padding:{top:pd.top+40,bottom:pd.bottom+40,left:pd.left+40,right:pd.right+40},maxZoom:16,duration:dur(800)});tkVfBtn()}
+ catch(e){dbg('tk:view',e);toast('โหลดเส้นทางไม่ได้: '+e.message)}}
+function tkVfBtn(){document.querySelectorAll('button[data-vf="t"]').forEach(b=>{b.textContent=b.dataset.id===TK.vw?'ซ่อนเส้นทาง':'ดูเส้นทาง'})}
+try{tkLayers()}catch(e){}
+setTimeout(()=>{tkCheck().catch(e=>dbg('tk:check',e))},1500);
+tkBar();
 </script>
 </body>
 </html>

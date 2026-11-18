@@ -1,6 +1,7 @@
 // Worker ระบบหลังบ้าน (worker/layers.mjs) กับ KV จำลองในหน่วยความจำ — ไม่ต่อเน็ต
 //  · เดิมทดสอบด้วย mockworker.mjs ใน scratchpad (หายไปแล้ว) → ย้ายมาเป็นเทสต์ถาวร 16 พ.ย. 69
 //  · ครอบคลุม: GET / · login ผู้ดูแลหลัก/ผู้ใช้ · ชั้นข้อมูล (สร้าง/อ่านตามสิทธิ์) · F1 รายงานผลตรวจสอบ (สิทธิ์ 24 ชม., ตรวจค่า, ดัชนีต่อปีงบ, repair)
+//  · F7 (18 พ.ย. 69): แนบเส้นทางกับรายงาน (trk → คีย์ t:<id> แยกจากดัชนี, GET /reports/<id>/trk สาธารณะ, ≤500 จุด, ลบ/แก้/ลบรายงานแล้วคีย์ตาม, body 8 KB + 16 KB)
 //  · E3 (17 พ.ย. 69): อัปโหลดเกิน 8 MB = 413 (นับไบต์ ไม่ใช่ตัวอักษร) · ออกจากระบบทุกอุปกรณ์ (ผู้ใช้/ผู้ดูแลหลัก) · บันทึกการใช้งาน (ครบการกระทำ, ไม่มีรหัสผ่าน/token, 200 รายการ, ผู้ใช้ทั่วไปอ่านไม่ได้)
 const test = require('node:test'), assert = require('node:assert/strict');
 const path = require('path'), { pathToFileURL } = require('url');
@@ -26,7 +27,7 @@ test.before(async () => {
 const fyNow = () => { const d = new Date(Date.now() + 7 * 36e5); return d.getUTCFullYear() + 543 + (d.getUTCMonth() >= 9 ? 1 : 0) };
 
 let ADM, U1, U2;
-test('GET / บอกสถานะ kv/admin/rep/log', async () => { const r = await api('/'); assert.equal(r.s, 200); assert.deepEqual(r.j, { ok: true, app: 'fire-map layers', kv: true, admin: true, rep: true, log: true, max_mb: 8 }) });
+test('GET / บอกสถานะ kv/admin/rep/log', async () => { const r = await api('/'); assert.equal(r.s, 200); assert.deepEqual(r.j, { ok: true, app: 'fire-map layers', kv: true, admin: true, rep: true, log: true, trk: true, max_mb: 8 }) });
 test('login ผู้ดูแลหลักถูก/ผิด', async () => {
   const bad = await api('/login', { m: 'POST', body: { u: 'admin', p: 'wrong' } }); assert.equal(bad.s, 401);
   const ok = await api('/login', { m: 'POST', body: { u: 'admin', p: 'admin-secret-pass' } }); assert.equal(ok.s, 200); assert.ok(ok.j.token); assert.equal(ok.j.user.a, true); ADM = ok.j.token;
@@ -85,6 +86,32 @@ test('reports: เกิน 24 ชม. เจ้าของแก้/ลบไ�
   const r = await api('/reports/' + R1.id + '?fy=2570', { m: 'PUT', tok: U1, body: { rai: 9 } }); assert.equal(r.s, 403); assert.match(r.j.error, /24 ชม/);
   assert.equal((await api('/reports/' + R1.id + '?fy=2570', { m: 'DELETE', tok: U1 })).s, 403);
   const a = await api('/reports/' + R1.id + '?fy=2570', { m: 'PUT', tok: ADM, body: { rai: 9 } }); assert.equal(a.s, 200); assert.equal(a.j.report.rai, 9); assert.deepEqual(a.j.report.ed, { u: 'admin', d: 'ผู้ดูแลหลัก' });
+});
+// ---- F7 เส้นทางที่แนบกับรายงาน ----
+const TRK = n => { const c = []; for (let i = 0; i < n; i++) c.push(+(101.98 + i * 1e-4).toFixed(5), +(14.26 + Math.sin(i / 7) * 1e-3).toFixed(5)); return { c, t0: Date.UTC(2026, 10, 15, 6, 0), t1: Date.UTC(2026, 10, 15, 7, 12), km: 5.234, up: 120, dn: 98, n: n * 4 } };
+test('reports trk: แนบ 500 จุด → พิกัดอยู่คีย์ t:<id> ดัชนีเก็บแค่สรุป · อ่านได้โดยไม่ล็อกอิน', async () => {
+  const r = await api('/reports', { m: 'POST', tok: U1, body: { res: 'out', hs: HS, rai: 2, note: 'ก'.repeat(900), trk: TRK(500) } });
+  assert.equal(r.s, 200, r.t); const x = r.j.report;
+  assert.deepEqual(x.trk, { m: 500, n: 2000, km: 5.234, up: 120, dn: 98, t0: Date.UTC(2026, 10, 15, 6, 0), t1: Date.UTC(2026, 10, 15, 7, 12) });
+  assert.ok(kv.m.has('t:' + x.id)); assert.ok(!kv.m.get('rep:2570').includes('"c":['), 'ดัชนีไม่มีพิกัดเส้นทาง');
+  assert.deepEqual(JSON.parse(kv.m.get('r:' + x.id)).trk, x.trk, 'สำเนา r:<id> มีสรุป (repair สร้างคืนได้)');
+  const g = await api('/reports/' + x.id + '/trk'); assert.equal(g.s, 200); assert.equal(g.j.trk.c.length, 1000); assert.equal(g.j.trk.c[0], 101.98); assert.equal(g.j.trk.km, 5.234);
+  assert.equal((await api('/reports/ffffffffffffffff/trk')).s, 404); assert.equal((await api('/reports/..%2Fmeta/trk')).s, 404);
+  // แก้: แทนที่ด้วยเส้นใหม่ / ลบด้วย null / ไม่ส่ง trk = คงเดิม
+  const p1 = await api('/reports/' + x.id + '?fy=2570', { m: 'PUT', tok: U1, body: { rai: 3 } }); assert.equal(p1.j.report.trk.m, 500, 'ไม่ส่ง trk = คงเดิม');
+  const p2 = await api('/reports/' + x.id + '?fy=2570', { m: 'PUT', tok: U1, body: { trk: TRK(20) } }); assert.equal(p2.j.report.trk.m, 20); assert.equal((await api('/reports/' + x.id + '/trk')).j.trk.c.length, 40);
+  const p3 = await api('/reports/' + x.id + '?fy=2570', { m: 'PUT', tok: U1, body: { trk: null } }); assert.equal(p3.j.report.trk, null); assert.ok(!kv.m.has('t:' + x.id));
+  await api('/reports/' + x.id + '?fy=2570', { m: 'PUT', tok: U1, body: { trk: TRK(3) } }); assert.ok(kv.m.has('t:' + x.id));
+  assert.equal((await api('/reports/' + x.id + '?fy=2570', { m: 'DELETE', tok: U1 })).s, 200); assert.ok(!kv.m.has('t:' + x.id), 'ลบรายงาน = ลบเส้นทาง');
+});
+test('reports trk: เกิน 500 จุด/พิกัดผิด/รูปผิด = ไม่เก็บ · body เกิน 8 KB นอกเส้นทาง = 413 · รวมเกิน 24 KB = 413', async () => {
+  for (const bad of [TRK(501), { c: [101, 14, 999, 14] }, { c: [101, 14, 101.1] }, { c: 'x' }, 5]) {
+    const r = await api('/reports', { m: 'POST', tok: U1, body: { res: 'none', trk: bad } }); assert.equal(r.s, 200, r.t); assert.equal(r.j.report.trk, null); assert.ok(!kv.m.has('t:' + r.j.report.id));
+    await api('/reports/' + r.j.report.id + '?fy=' + r.j.report.fy, { m: 'DELETE', tok: U1 });
+  }
+  assert.equal((await api('/reports', { m: 'POST', tok: U1, body: { res: 'none', note: 'x'.repeat(9000), trk: TRK(10) } })).s, 413, 'ส่วนที่ไม่ใช่เส้นทางยังจำกัด 8 KB');
+  assert.equal((await api('/reports', { m: 'POST', tok: U1, body: { res: 'none', trk: { c: Array(4000).fill(101.12345) } } })).s, 413);
+  assert.equal((await api('/reports', { m: 'POST', tok: U1, body: 'null' })).s, 400);
 });
 test('reports: บัญชีที่ถูกปิดใช้งานบันทึกไม่ได้', async () => {
   await api('/users/somying', { m: 'PUT', tok: ADM, body: { x: true } });

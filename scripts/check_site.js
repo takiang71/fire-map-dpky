@@ -297,6 +297,82 @@ async function browser(dir) {
       if (r2) (r2.startsWith('error') ? errs : warn).push(`[${stage}] ${r2}`);
     }
 
+    // ---------- F7 บันทึกเส้นทาง (18 พ.ย. 69): ตำแหน่งจำลอง (CDP Emulation.setGeolocationOverride) เดิน 6 จุด มีจุดกระโดด 1 จุด → หยุด ----------
+    //  ต้องได้: ชั้นของฉัน 1 เส้น 5 จุด (ช่อง เวลาเริ่ม/สิ้นสุด/ระยะ/ขึ้น-ลง/จำนวนจุด) · GPX 5 <trkpt> มี <time> ทุกจุด (+<ele> ทุกจุด — โหลด DEM จาก AWS ไม่ได้ = เตือน)
+    //  · เลือกแนบในฟอร์มรายงาน F1 ได้ (ย่อ ≤500 จุด) · รีโหลดกลางทาง = กล่องถาม บันทึกต่อ/จบและเก็บ/ทิ้ง → บันทึกต่อได้จุดเดิมครบ · ทิ้ง = ลบจาก IndexedDB fm-tk
+    //  · มือถือ 390: แถบ #tk ไม่ทับคอลัมน์ปุ่ม #ctl / ป้ายดาวเทียม #orb / แผ่นล่าง #left → info.track ใน check.json
+    {
+      const W = `const w=ms=>new Promise(r=>setTimeout(r,ms));`, S9 = 9 / 111195.08, LA = 14.4302, LO = 101.3712, tr = info.track = {};
+      const geo = (k, lo = LO) => send('Emulation.setGeolocationOverride', { latitude: LA + k * S9, longitude: lo, accuracy: 8 });
+      const step = async (nm, js, to = 60e3) => { stage = 'บันทึกเส้นทาง (F7): ' + nm; const r = await ev(`(async()=>{${W}${js}})()`, to).catch(e => 'error: ' + e.message); if (typeof r === 'string' && r) (r.startsWith('error') ? errs : warn).push(`[${stage}] ${r}`); return r };
+      stage = 'บันทึกเส้นทาง (F7): อนุญาตตำแหน่ง';
+      try { await send('Browser.grantPermissions', { origin: new URL(url).origin, permissions: ['geolocation'] }) } catch (e) { warn.push(`[${stage}] Browser.grantPermissions: ${e.message}`) }
+      await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+      await send('Emulation.setTouchEmulationEnabled', { enabled: false });
+      await geo(0); stage = 'บันทึกเส้นทาง (F7): โหลดหน้า'; await send('Page.navigate', { url });
+      if (!await waitMap()) warn.push(`[${stage}] แผนที่โหลดสไตล์ไม่เสร็จใน 45 วิ`); await sleep(2500);
+      const okLoc = `document.getElementById('bLoc').click();for(let i=0;i<60&&!LOC.p;i++)await w(250);if(!LOC.p)return 'error: ตำแหน่งจำลองไม่มาถึง watchPosition';const t=document.getElementById('tk');if(!t||t.hidden||!document.getElementById('tk-b'))return 'error: เปิดตำแหน่งแล้วไม่มีปุ่มบันทึกเส้นทาง #tk-b';`;
+      if (!await step('เปิดตำแหน่งของฉัน', okLoc + `return ''`)) {
+        // Chrome ใส่เวลาของตำแหน่งจำลอง = ตอนตั้งค่า (หน้าโหลดช้า = เก่ากว่า 15 วิ จุดแรกไม่ถูกใช้) → ขยับ ~0.5 ม. ก่อนกดเริ่มทุกรอบ
+        await geo(0.05); await sleep(600);
+        await step('เริ่มบันทึก (กล่องก่อนเริ่มครั้งแรก)', `document.getElementById('tk-b').click();await w(300);const g=document.getElementById('tk-go');if(!g)return 'error: ไม่มีกล่องก่อนเริ่มครั้งแรก #tk-go';
+          if(!/จอดับ/.test(document.getElementById('md-b').textContent)||!/ติดตั้งเป็นแอป/.test(document.getElementById('md-b').textContent))return 'error: กล่องไม่บอกข้อจำกัดจอดับ/ติดตั้งเป็นแอป';g.click();await w(400);
+          return TK.on&&TK.P.length===1?'':'error: เริ่มแล้ว on='+TK.on+' จุด='+TK.P.length`);
+        // เดิน 5 ก้าว ห่าง 9 ม. ทุก 3 วิ (~11 กม./ชม.) · ก้าวที่ 3 กระโดดไป ~1 กม. (ต้องถูกทิ้ง) แล้วเดินต่อจากจุดเดิม
+        for (const [k, lo] of [[1], [2], [2, LO + 0.01], [3], [4]]) { await sleep(3000); stage = 'บันทึกเส้นทาง (F7): เดิน'; await geo(k, lo) }
+        await sleep(1500);
+        const n = await ev(`({n:TK.P.length,spd:TK.sk.spd,sw:!!(navigator.serviceWorker&&navigator.serviceWorker.controller)})`).catch(() => ({}));
+        Object.assign(tr, { n: n.n, spd: n.spd, sw: n.sw }); // sw = หน้าอยู่ใต้ service worker (_site) — IndexedDB/ตำแหน่งต้องทำงานเหมือนเดิม if (n.n !== 5 || !(n.spd >= 1)) errs.push(`[บันทึกเส้นทาง (F7): กรองจุด] ต้องได้ 5 จุด และทิ้งจุดกระโดด ≥1 — ได้ ${n.n} จุด ทิ้งเพราะความเร็ว ${n.spd}`);
+        await step('หยุด (แตะ ■ สองครั้ง)', `document.getElementById('tk-s').click();await w(200);if(!/แตะอีกครั้ง/.test(document.getElementById('tk-s').textContent))return 'error: แตะ ■ ครั้งแรกไม่ขึ้นยืนยัน';document.getElementById('tk-s').click();
+          for(let i=0;i<240&&(TK.on||document.getElementById('md-t').textContent!=='บันทึกเส้นทางแล้ว');i++)await w(250);return TK.on?'error: หยุดแล้วยังบันทึกอยู่ (รอ 60 วิ)':''`, 90e3);
+        const g = await ev(`(()=>{const L=UL.L.filter(l=>l.src==='gps'),f=L[0]&&L[0].fc.features[0];if(!f)return {e:'ไม่มีชั้น gps'};tkGpx(f,f.properties.name);const t=tkGpx.last,b=GIO.readGPX(t).features[0].properties,p=f.properties;closeModal();
+          return {layers:L.length,feats:L[0].fc.features.length,type:f.geometry.type,n:f.geometry.coordinates.length,trkpt:(t.match(/<trkpt /g)||[]).length,time:(t.match(/<time>/g)||[]).length,ele:(t.match(/<ele>/g)||[]).length,rt:(b._t||[]).length,
+           f:['เวลาเริ่ม','เวลาสิ้นสุด','ระยะ_กม','ขึ้นสะสม_ม','ลงสะสม_ม','จำนวนจุด'].filter(k=>p[k]==null),km:p['ระยะ_กม'],up:p['ขึ้นสะสม_ม'],dn:p['ลงสะสม_ม'],np:p['จำนวนจุด']}})()`).catch(e => ({ e: e.message }));
+        stage = 'บันทึกเส้นทาง (F7): ชั้นของฉัน + GPX'; tr.gpx = g;
+        if (g.e) errs.push(`[${stage}] ${g.e}`);
+        else {
+          if (g.layers !== 1 || g.feats !== 1 || g.type !== 'LineString' || g.n !== 5 || g.np !== 5) errs.push(`[${stage}] ต้องได้ 1 เส้น 5 จุด — ได้ ${g.layers} ชั้น ${g.feats} วัตถุ ${g.type} ${g.n} จุด`);
+          if (g.trkpt !== 5 || g.time !== 5) errs.push(`[${stage}] GPX ต้องมี 5 <trkpt> และ <time> ทุกจุด — ได้ ${g.trkpt}/${g.time}`);
+          if (g.rt !== 5) errs.push(`[${stage}] อ่าน GPX กลับได้เวลา ${g.rt} จุด`);
+          if (g.ele !== 5 || g.f.length) warn.push(`[${stage}] <ele> ${g.ele}/5 · ช่องว่าง ${g.f.join(',') || '-'} (โหลดแบบจำลองความสูงจาก AWS ไม่ได้?)`);
+        }
+        await step('แนบกับรายงาน F1 (เลือกเส้นทางในฟอร์ม)', `vfForm({lat:14.26532,lon:101.98765,t:Date.now()-36e5,sat:'NOAA-20',tam:'บุพราหมณ์',amp:'นาดี',prov:'ปราจีนบุรี'},null);const s=document.getElementById('vf-trk');if(!s)return 'error: ฟอร์มรายงานไม่มีช่องแนบเส้นทาง #vf-trk';
+          if(s.options.length<2)return 'error: ไม่มีเส้นทางให้เลือก';s.value='0';const v=tkVfVal();closeModal();if(!v||v.c.length!==10||v.n!==5||!v.t0||!(v.t1>=v.t0))return 'error: ข้อมูลแนบผิด '+JSON.stringify(v);
+          const D=tkDP(Array.from({length:3000},(_,i)=>[101+i*1e-5,14+Math.sin(i/30)*1e-4]),500);return D.length<=500?'':'error: ย่อแล้วเกิน 500 จุด'`);
+        // รีโหลดกลางทาง → กล่องถาม → บันทึกต่อ
+        await geo(4.05); await sleep(600);
+        await step('เริ่มรอบที่ 2', `tkStart();await w(400);return TK.on?'':'error: เริ่มรอบที่ 2 ไม่ได้'`);
+        for (const k of [5, 6]) { await sleep(3000); stage = 'บันทึกเส้นทาง (F7): เดินรอบที่ 2'; await geo(k) }
+        await sleep(1500);
+        const n0 = await ev(`(async()=>({n:TK.P.length,db:(await TKDB.pts(TK.k)).length}))()`, 30e3).catch(e => ({ e: e.message }));
+        tr.reload = { n: n0.n, db: n0.db }; if (!(n0.n >= 2) || n0.db !== n0.n) errs.push(`[บันทึกเส้นทาง (F7): IndexedDB] ทุกจุดต้องอยู่ใน fm-tk — จุด ${n0.n} ใน DB ${n0.db}`);
+        stage = 'บันทึกเส้นทาง (F7): รีโหลดกลางทาง'; await send('Page.reload', { ignoreCache: false }); if (!await waitMap()) warn.push(`[${stage}] แผนที่โหลดสไตล์ไม่เสร็จใน 45 วิ`);
+        await step('รีโหลดกลางทาง → กล่องถาม → บันทึกต่อ', `for(let i=0;i<40&&!document.getElementById('tk-r1');i++)await w(250);if(!document.getElementById('tk-r1')||!document.getElementById('tk-r2')||!document.getElementById('tk-r3'))return 'error: รีโหลดแล้วไม่มีกล่องถาม บันทึกต่อ/จบและเก็บ/ทิ้ง';
+          if(!/ยังบันทึกไม่จบ/.test(document.getElementById('md-t').textContent))return 'error: หัวกล่องผิด';document.getElementById('tk-r1').click();for(let i=0;i<40&&!LOC.p;i++)await w(250);await w(500);
+          return TK.on&&!TK.ps&&TK.P.length===${n0.n | 0}&&LOC.w!=null?'':'error: บันทึกต่อแล้ว on='+TK.on+' ps='+TK.ps+' จุด='+TK.P.length+' (ควร ${n0.n | 0})'`);
+        await step('บันทึกต่อแล้วหยุด = ชั้นที่ 2', `TK.cf=1;tkStopAsk();for(let i=0;i<240&&TK.on;i++)await w(250);closeModal();const L=UL.L.filter(l=>l.src==='gps');return L.length===2?'':'error: ชั้น gps '+L.length+' (ควร 2)'`, 90e3);
+        // ทิ้ง = ลบจาก fm-tk (แตะสองครั้ง)
+        await geo(6.05); await sleep(600);
+        await step('เริ่มรอบที่ 3', `tkStart();await w(600);return TK.on&&TK.P.length>=1?'':'error: รอบที่ 3 ไม่มีจุดแรก (จุด '+TK.P.length+')'`);
+        stage = 'บันทึกเส้นทาง (F7): รีโหลดรอบที่ 3'; await send('Page.reload', { ignoreCache: false }); await waitMap();
+        await step('รีโหลด → ทิ้ง (แตะสองครั้ง)', `for(let i=0;i<40&&!document.getElementById('tk-r3');i++)await w(250);const b=document.getElementById('tk-r3');if(!b)return 'error: ไม่มีปุ่มทิ้ง';b.click();await w(150);if(document.getElementById('md').hidden)return 'error: แตะทิ้งครั้งแรกปิดกล่องทันที (ต้องยืนยัน)';
+          b.click();await w(800);const A=await TKDB.all();return A.length?'error: ทิ้งแล้วยังเหลือใน fm-tk '+A.length:''`);
+      }
+      // มือถือ: แถบไม่ทับคอลัมน์ปุ่ม/ป้ายดาวเทียม/แผ่นล่าง (ก่อนและระหว่างบันทึก)
+      await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+      await send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
+      stage = 'บันทึกเส้นทาง (F7): มือถือ โหลดหน้า'; await send('Page.navigate', { url }); await waitMap(); await sleep(2500);
+      const lay = `const R=s=>{const e=document.querySelector(s);if(!e||!e.getClientRects().length||getComputedStyle(e).display==='none')return null;const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}},X=(a,b)=>a&&b&&a.l<b.r-1&&b.l<a.r-1&&a.t<b.b-1&&b.t<a.b-1,
+        k=R('#tk'),c=R('#ctl'),o=R('#orb'),s=R('#left');(window.__ckTk=window.__ckTk||[]).push({k,c,o,s});if(!k)return 'error: ไม่มีแถบ #tk';if(X(k,c))return 'error: แถบทับคอลัมน์ปุ่ม';if(s&&k.b>s.t+1)return 'error: แถบทับแผ่นล่าง';if(X(k,o))return o.b+8+(k.b-k.t)>((s&&s.t)||innerHeight)-8?'เตือน: ไม่มีที่ว่างใต้กล่องดาวเทียม (ขยายอยู่) แถบโหมดย่อทับส่วนล่างของกล่อง':'error: แถบทับป้ายดาวเทียมทั้งที่มีที่ว่าง';return ''`;
+      const m0 = await step('มือถือ: เปิดตำแหน่ง', okLoc + lay);
+      if (!m0 || !String(m0).startsWith('error')) {
+        await step('มือถือ: ระหว่างบันทึก', `tkStart();await w(600);if(!TK.on)return 'error: เริ่มบันทึกไม่ได้';${lay}`);
+        await step('มือถือ: หยุด (1 จุด = ไม่สร้างเส้น)', `TK.cf=1;tkStopAsk();for(let i=0;i<80&&TK.on;i++)await w(250);return TK.on?'error: ยังบันทึกอยู่':''`);
+      }
+      tr.mob = await ev('window.__ckTk||null').catch(() => null);
+      await send('Emulation.clearGeolocationOverride').catch(() => { });
+    }
+
     // ---------- F4 แดชบอร์ด ?dash (17 พ.ย. 69): จอ TV 1920×1080 + มือถือ 390 · ไม่มี error · KPI ตรง summary.json (และการ์ดหลัก) · ไม่ล้น ----------
     // KPI ที่คาด = ผลรวม areas ใน summary.json (ไม่รวมคีย์ "ดงใหญ่" เมื่อ S.xdy) คิดใน Node แยกจากโค้ดหน้าเว็บ · ไม่มี summary.json ในโฟลเดอร์ (ตรวจราก repo) = เทียบกับไฟล์ที่หน้าโหลดมาจากเว็บ
     {
@@ -373,7 +449,7 @@ async function browser(dir) {
     stage = 'เบราว์เซอร์รุ่นเก่า (จำลอง)';
     const e0 = errs.length, sc = await send('Page.addScriptToEvaluateOnNewDocument', { source: 'delete window.DecompressionStream' });
     await send('Page.navigate', { url }); await sleep(3000);
-    const ob = await ev(`(()=>{const d=document.getElementById('oldb');if(!d)return 'error: ไม่ขึ้นกล่อง #oldb';const r=d.getBoundingClientRect();
+    const ob = await ev(`(async()=>{for(let i=0;i<48&&!document.getElementById('oldb');i++)await new Promise(r=>setTimeout(r,250));const d=document.getElementById('oldb');if(!d)return 'error: ไม่ขึ้นกล่อง #oldb';const r=d.getBoundingClientRect();
       if(getComputedStyle(d).display==='none'||r.width<innerWidth*.9||r.height<innerHeight*.9)return 'error: กล่องไม่เต็มจอ';return /เบราว์เซอร์รุ่นเก่า/.test(d.innerText)&&window.__OLD===1?'':'error: ข้อความ/ธง __OLD ไม่ตรง'})()`).catch(e => 'error: ' + e.message);
     await send('Page.removeScriptToEvaluateOnNewDocument', { identifier: sc.identifier });
     // error ของแอปที่ยังทำงานต่อหลังกล่อง (เบราว์เซอร์จริงไม่ได้เก่า) ไม่นับ
@@ -446,6 +522,7 @@ async function browser(dir) {
   if (res.info && (res.info.xss || res.info.csp)) console.log('E2 XSS/CSP:', JSON.stringify({ xss: res.info.xss || null, csp: res.info.csp || null }));
   if (res.info && res.info.wj) console.log('B2 Worker:', JSON.stringify(res.info.wj));
   if (res.info && res.info.dash) console.log('F4 ?dash:', JSON.stringify(res.info.dash));
+  if (res.info && res.info.track) { const t = res.info.track; console.log('F7 บันทึกเส้นทาง:', JSON.stringify({ n: t.n, spd: t.spd, sw: t.sw, gpx: t.gpx && { n: t.gpx.n, trkpt: t.gpx.trkpt, time: t.gpx.time, ele: t.gpx.ele, km: t.gpx.km, up: t.gpx.up, dn: t.gpx.dn }, reload: t.reload, mob: t.mob })) }
   if (res.warn.length) console.log('คำเตือน:\n  ' + res.warn.slice(0, 15).join('\n  '));
   if (res.errs.length) console.log('ข้อผิดพลาด:\n  ' + res.errs.slice(0, 15).join('\n  '));
   console.log(res.ok === true ? `✅ ผ่าน (${res.sec} วิ)` : res.ok === false ? `❌ ไม่ผ่าน ${res.errs.length} รายการ` : '⚠ ตรวจในเบราว์เซอร์ไม่ได้ (syntax ผ่าน)');

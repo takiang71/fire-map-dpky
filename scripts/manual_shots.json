@@ -56,6 +56,47 @@
   "dpr": 2
  },
  {
+  "name": "track_bar",
+  "url": "http://localhost:8000/",
+  "w": 390,
+  "h": 844,
+  "wait": 11000,
+  "q": 72,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\ncloseModal();for(const m of await TKDB.all())await TKDB.del(m.k);localStorage.setItem('fm-tki','1');\nconst G={cb:null,t:Date.now()-50*60e3};navigator.geolocation.watchPosition=ok=>{G.cb=ok;return 7};navigator.geolocation.clearWatch=()=>{};\nconst feed=(lo,la,dt)=>{G.t+=dt;G.cb({coords:{longitude:lo,latitude:la,accuracy:6,altitude:null},timestamp:G.t})};\ndocument.querySelector('#bLoc').click();await W(300);feed(101.3712,14.4302,0);await W(1500);tkStart();await W(300);\nlet lo=101.3712,la=14.4302;for(let i=1;i<=80;i++){lo+=Math.cos(i/14)*6.5e-5;la+=Math.sin(i/10)*5e-5+2.6e-5;feed(lo,la,30e3)}\nfor(let i=0;i<60&&TK.le==null;i++)await W(250);await W(6000);TK.ac=(42*60+17)*1e3;TK.rs=Date.now();TK.wk='on';tkBar();\nconst B=TK.P.reduce((s,p)=>[Math.min(s[0],p[0]),Math.min(s[1],p[1]),Math.max(s[2],p[0]),Math.max(s[3],p[1])],[180,90,-180,-90]);map.jumpTo({center:[(B[0]+B[2])/2,(B[1]+B[3])/2],zoom:15,padding:{top:125,bottom:844-265,left:20,right:70}});",
+  "after": 7000,
+  "clip": {
+   "x": 0,
+   "y": 0,
+   "width": 390,
+   "height": 430
+  },
+  "dpr": 2
+ },
+ {
+  "name": "track_sum",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 80,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\ncloseModal();for(const m of await TKDB.all())await TKDB.del(m.k);localStorage.setItem('fm-tki','1');\nconst G={cb:null,t:Date.now()-50*60e3};navigator.geolocation.watchPosition=ok=>{G.cb=ok;return 7};navigator.geolocation.clearWatch=()=>{};\nconst feed=(lo,la,dt)=>{G.t+=dt;G.cb({coords:{longitude:lo,latitude:la,accuracy:6,altitude:null},timestamp:G.t})};\ndocument.querySelector('#bLoc').click();await W(300);feed(101.3712,14.4302,0);await W(1500);tkStart();await W(300);\nlet lo=101.3712,la=14.4302;for(let i=1;i<=80;i++){lo+=Math.cos(i/14)*6.5e-5;la+=Math.sin(i/10)*5e-5+2.6e-5;feed(lo,la,30e3)}\nfor(let i=0;i<60&&TK.le==null;i++)await W(250);await W(6000);TK.ac=(42*60+17)*1e3;TK.rs=Date.now();TK.wk='on';tkBar();\nconst B=TK.P.reduce((s,p)=>[Math.min(s[0],p[0]),Math.min(s[1],p[1]),Math.max(s[2],p[0]),Math.max(s[3],p[1])],[180,90,-180,-90]);TK.cf=1;tkStopAsk();for(let i=0;i<120&&(TK.on||document.getElementById('md-t').textContent!=='บันทึกเส้นทางแล้ว');i++)await W(250);",
+  "after": 1500,
+  "clipSel": "#md .mc",
+  "pad": 0
+ },
+ {
+  "name": "track_resume",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 80,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\ncloseModal();for(const m of await TKDB.all())await TKDB.del(m.k);localStorage.setItem('fm-tki','1');\nconst G={cb:null,t:Date.now()-50*60e3};navigator.geolocation.watchPosition=ok=>{G.cb=ok;return 7};navigator.geolocation.clearWatch=()=>{};\nconst feed=(lo,la,dt)=>{G.t+=dt;G.cb({coords:{longitude:lo,latitude:la,accuracy:6,altitude:null},timestamp:G.t})};\ndocument.querySelector('#bLoc').click();await W(300);feed(101.3712,14.4302,0);await W(1500);tkStart();await W(300);\nlet lo=101.3712,la=14.4302;for(let i=1;i<=80;i++){lo+=Math.cos(i/14)*6.5e-5;la+=Math.sin(i/10)*5e-5+2.6e-5;feed(lo,la,30e3)}\nfor(let i=0;i<60&&TK.le==null;i++)await W(250);await W(6000);TK.ac=(42*60+17)*1e3;TK.rs=Date.now();TK.wk='on';tkBar();\nconst B=TK.P.reduce((s,p)=>[Math.min(s[0],p[0]),Math.min(s[1],p[1]),Math.max(s[2],p[0]),Math.max(s[3],p[1])],[180,90,-180,-90]);clearInterval(TK.ti);TK.on=false;TK.k=null;await W(800);await tkCheck();",
+  "after": 1500,
+  "clipSel": "#md .mc",
+  "pad": 0
+ },
+ {
   "name": "base_natural",
   "url": "http://localhost:8000/",
   "w": 1280,

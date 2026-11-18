@@ -25,6 +25,7 @@
 | `ULMAX` `ulBig` `ulLogAll` `ulALog` `ualDraw` `ualWhat` `UALA` `UALR` `UALK` `UA.lk` `UA.LG` id `ua-lk` `ua-lt` `data-a="lall"` · worker `TGRE` · check_site `E3UI` | E3 หลังบ้าน (บันทึกการใช้งาน/ออกทุกอุปกรณ์/8 MB) · A7 ลิงก์เชิญ Telegram — 17 พ.ย. 69 | — |
 | `gz*` `GZ*` id `gz` `gz-*` `bSr` ชั้น `gz-hl` · `vw*` `VW*` (`VWD` `VWB` `VWO` `VWS` `VWX` `VWT` `VWU`) id `vw-*` localStorage `fm-vw` · `window.gzKB` | ค้นหา (D4) / ลิงก์มุมมอง (D3), 16 พ.ย. 69 | — |
 | `WJ` `wjLib` `wj*` เครื่องหมาย `/*WJ-LIB-BEGIN*/…END*/` · `HCJ` `hcFin` `hcSel` · `TR.job` `trJob` `trAbort` · `TL` `TLG` `tl*` (`tlPut` `tlTile` `tlPack` `tlTry`) `bnHotP` `bnHsPts` `BNHQ` `bnTile0` `bnTileW` `rpTile0` `rpTileW` `WJ.drop` `WJ.gen` | Web Worker งานหนัก (B2, 17 พ.ย. 69) — ฟังก์ชันใน wjLib ชื่อซ้ำกับของแอป (`hcLink` `hcHull` `trSA` `trHorn` `trElev` `trContours` `bnLL` `bnM` `trX`…) | สคริปต์ที่ค้น/แก้ index.html ด้วย indexOf/split ต้องเริ่มค้น**หลัง** `/*WJ-LIB-END*/` (เคยตัดโค้ดช่วงกว้างเพราะเจอ `function trSA(` ในบล็อก lib ก่อน) |
+| `TK` `TKDB` `TKC` `TKI` `TKA` `TKV` `TKN` `tk*` (`tkOk` `tkDP` `tkFix` `tkBar` `tkPos` `tkGpx` `tkPack` `tkView` `tkLenV` …) · id `tk` `tk-*` · source `tks` `tkv` ชั้น `tk-c` `tk-l` `tk-v` · IndexedDB `fm-tk` · localStorage `fm-tki` · `locOn` `LOC.q` `UL.rd` · เครื่องหมาย `/*TK-PURE-BEGIN*/…END*/` | F7 บันทึกเส้นทาง (18 พ.ย. 69) | ระวัง prefix `tr` = ภูมิประเทศ (อย่าใช้ `trk*` ในหน้าเว็บ; ช่องรายงาน `trk` อยู่ใน body/Worker เท่านั้น) |
 
 ทุกโมดูลใหม่ตั้ง prefix เฉพาะ 2–3 ตัวอักษร และค้นด้วย grep ก่อนตั้งชื่อ
 
@@ -40,6 +41,7 @@
 - แก้ index.html ด้วย `String.replace` ใน Node: `$$`/`$&` ถูกตีความ → ใช้ `split(a).join(b)`
 - มีสตริง `</body>` ในโมดูลพิมพ์แผนที่ → แทรกโค้ดก่อน `</body>` ต้องใช้ `lastIndexOf`
 - `let` ชื่อซ้ำข้ามบล็อก `<script>` = ทั้งบล็อกไม่ทำงาน
+- **`const`/`let` ระดับบนสุดไม่อยู่บน `window`** — `window.LOC`/`window.CUR` เป็น undefined เสมอ (เคยทำให้ฟอร์ม F1 ไม่ใส่พิกัดจากตำแหน่งของฉัน และกล่องผลตรวจสอบไม่วาดใหม่หลังบันทึก — แก้ 18 พ.ย. 69) → อ้างข้ามบล็อกด้วย `typeof X!=='undefined'&&X`
 - `setup()` อาจทำงานก่อนสคริปต์ท้ายไฟล์ และ `isStyleLoaded()` เป็น false ระหว่างไทล์โหลด → อย่าใช้ตัดสิน ใช้ `map.getSource('dem')` และเรียกสร้างชั้นซ้ำท้ายสคริปต์ (`msLayers`, `obTick`)
 - `apply()` ถูกเรียกก่อนสไตล์โหลด → `(map.getStyle()||{})` + `try` รอบ setTerrain · สลับแผนที่ฐานต้องคง `setStyle(...,{diff:false})`
 - `fitBounds` ภายในเหตุการณ์ dblclick ต้อง `setTimeout` · เมื่อผู้ใช้ตั้งลดการเคลื่อนไหว `dur()=0` moveend ยิงทันที → ผูก `once('moveend')` ก่อนเรียก fitBounds/easeTo
