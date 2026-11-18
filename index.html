@@ -3902,6 +3902,10 @@ function vwApply(o){const b0=S.base,i0=S.img,x0=S.xdy;
 async function vwGo(o,LD){const xd=vwApply(o);
  if(o.nc){try{await LD}catch(e){dbg('deepLink',e)}if(xd)try{refreshHS()}catch(e){dbg('vwGo',e)}
   const N={fwi:'ดัชนีอันตรายไฟป่า FWI',vr:'อัตราการระบายอากาศ',pm:'ฝุ่น PM2.5',rk:'พื้นที่เสี่ยงไฟป่า'},n=o.L.map(t=>N[t.split(':')[0]]).filter(Boolean);
+  /* ผู้ใช้ขอ 18 พ.ย. 69 (ภาพมือถือ 3 ภาพ): เปิดแผงชั้นข้อมูลทั้งมือถือ/เดสก์ท็อป แล้วเลื่อนให้หัวข้อชั้นนั้นอยู่บนสุด (ตาราง/วันนี้/ค่าเฉลี่ย = ค่าตั้งต้นของแผง) · กลุ่มป่าเหนือแผ่นล่าง */
+  const BX={fwi:'#fwibox',vr:'#vrbox',pm:'#pmbox',rk:'#rkbox'},k=o.L.map(t=>t.split(':')[0]).find(t=>BX[t]&&S[t]);
+  if(k){try{closeDetail()}catch(e){dbg('vwGo',e)}$('#right').classList.add('open');sync();
+   setTimeout(()=>{const b=$(BX[k]),r=b&&b.previousElementSibling;if(r)r.scrollIntoView({block:'start'});if(!MOVED)fitHome(false)},400)}
   return toast('เปิดชั้นข้อมูลจากลิงก์'+(n.length?': '+n.join(' · '):''),null,3500)}
  MOVED=true;VWU=false;const cam={center:[o.lo,o.la],zoom:o.z,bearing:o.b,pitch:o.p};map.jumpTo(cam);
  map.on('movestart',vwUser);try{await LD}catch(e){dbg('deepLink',e)}if(!map.isStyleLoaded())await new Promise(r=>map.once('idle',r));map.off('movestart',vwUser);
