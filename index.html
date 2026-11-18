@@ -1962,7 +1962,7 @@ map.on('click',e=>{
  if(br&&BNRC[br.properties.i]){MOVED=true;map.fitBounds(BNRC[br.properties.i],{padding:homePad(),maxZoom:15,duration:dur(900)});return}
  const hc=(S.hcl||S.hgp||S.har)&&map.queryRenderedFeatures(e.point,{layers:['hcs-m','hcg-i','hcc-c','hca-f'].filter(id=>map.getLayer(id))})[0];
  if(HCS&&!(hc&&/^hc[sc]-[mc]$/.test(hc.layer.id))){hcSpider(null);if(!hc)return} // แตะที่ว่างขณะกระจายจุด = ยุบกลับ
- if(hc){hcPop(hc,e.lngLat);return}
+ if(hc){if(hc.layer.id==='hcc-c'&&hcTap(hc.properties.i))return hcDbl(hc.properties.i);hcPop(hc,e.lngLat);return}
  const xcl=S.xt&&map.getLayer('xtc-cl')&&map.queryRenderedFeatures(e.point,{layers:['xtc-cl']})[0]; // การดับไฟป่า (สถิติย้อนหลัง แท็บที่ 2)
  if(xcl){map.getSource('xtc').getClusterExpansionZoom(xcl.properties.cluster_id).then(z=>map.easeTo({offset:visOff(),center:xcl.geometry.coordinates,zoom:z+.5,duration:dur(800)}));return}
  const xf=S.xt&&map.queryRenderedFeatures(e.point,{layers:['xt-c','xtc-p'].filter(id=>map.getLayer(id))})[0];if(xf){xtPopup(XT[xf.properties.i]);return}
@@ -2705,9 +2705,15 @@ function hcBurst(i){const c=HCC&&HCC.C[i];if(!c)return;if(c.n<2)return toast('�
  if(far>=30||map.getZoom()>=14.4)return hcSpider(i);
  const B=new maplibregl.LngLatBounds([c.c[0],c.c[1]],[c.c[0],c.c[1]]);c.L.forEach(p=>B.extend([p.lo,p.la]));
  if(HCS)hcSpider(null);$$('.maplibregl-popup').forEach(p=>p.remove());MOVED=true;
- setTimeout(()=>{map.once('moveend',()=>hcSpider(i));map.fitBounds(B,{padding:homePad(),maxZoom:14.5,duration:dur(700)})},30)} // ผูก moveend ก่อน — ผู้ใช้ที่ตั้งลดการเคลื่อนไหว dur()=0 แผนที่ย้ายทันทีและยิง moveend ก่อนผูก (จุดไม่แตก) // เลื่อนออกจากเหตุการณ์ dblclick — ถ้าเรียกตรงๆ ตัวจัดการเมาส์ของแผนที่หยุดแอนิเมชันทันที
+ /* เลื่อนออกจากเหตุการณ์ dblclick 30 ms (เรียกตรงๆ ตัวจัดการเมาส์ของแผนที่หยุดแอนิเมชันทันที) · ผูก moveend ก่อน fitBounds แต่ไม่นับ moveend ที่เกิดระหว่างเรียก
+    (มือถือ D7 M4 18 พ.ย. 69: แตะสองครั้ง = แผนที่ซูมเองด้วย TapZoom → fitBounds หยุดแอนิเมชันนั้นแล้วยิง moveend ทันที → เดิมกระจายจุดก่อนซูมเสร็จ แล้วถูกซูมทับ) · dur()=0 ย้ายทันที = กระจายเลย */
+ setTimeout(()=>{let go=false;const h=()=>{if(!go)return;map.off('moveend',h);hcSpider(i)};map.on('moveend',h);map.fitBounds(B,{padding:homePad(),maxZoom:14.5,duration:dur(700)});go=true;if(!map.isMoving()){map.off('moveend',h);hcSpider(i)}},30)}
+/* แตะสองครั้งบนจอสัมผัส: บางเครื่องไม่ส่ง dblclick (ตัวซูมด้วยการแตะของแผนที่รับไปก่อน) → จับเองจาก click 2 ครั้งที่กองเดียวกันภายใน 450 ms · HCT กันเรียกซ้ำเมื่อ dblclick มาด้วย */
+let HCT={t:0,i:-1,b:0};
+function hcTap(i){const n=Date.now(),d=n-HCT.t<450&&HCT.i===i;HCT.t=d?0:n;HCT.i=i;return d}
+function hcDbl(i){const n=Date.now();if(n-HCT.b<700)return;HCT.b=n;if(HCS&&HCS.i===i)return hcSpider(null);hcBurst(i)} // ผูก moveend ก่อน — ผู้ใช้ที่ตั้งลดการเคลื่อนไหว dur()=0 แผนที่ย้ายทันทีและยิง moveend ก่อนผูก (จุดไม่แตก) // เลื่อนออกจากเหตุการณ์ dblclick — ถ้าเรียกตรงๆ ตัวจัดการเมาส์ของแผนที่หยุดแอนิเมชันทันที
 map.on('dblclick',e=>{if(typeof msBusy==='function'&&msBusy()||!S.hcl||!map.getLayer('hcc-c'))return;const f=map.queryRenderedFeatures(e.point,{layers:['hcc-c']})[0];if(!f)return;
- e.preventDefault();const i=f.properties.i;if(HCS&&HCS.i===i)return hcSpider(null);hcBurst(i)});
+ e.preventDefault();hcDbl(f.properties.i)});
 document.addEventListener('click',e=>{const b=e.target.closest('.hcsp');if(b)hcBurst(+b.dataset.i)});
 const hcIn=()=>{clearTimeout(hcIn.t);hcIn.t=setTimeout(()=>{S.hcd=hcV($('#hc-d').value,.1,10,1);S.hcg=Math.round(hcV($('#hc-g').value,0,30,2));S.hcr=Math.round(hcV($('#hc-r').value,50,2000,200));LC()},350)};
 ['#hc-d','#hc-g','#hc-r'].forEach(id=>{const el=$(id);el.addEventListener('input',hcIn);el.addEventListener('change',()=>{hcIn();const[lo,hi,df]=id==='#hc-d'?[.1,10,1]:id==='#hc-g'?[0,30,2]:[50,2000,200];el.value=id==='#hc-d'?hcV(el.value,lo,hi,df):Math.round(hcV(el.value,lo,hi,df))})});
@@ -2738,7 +2744,7 @@ function hcPop(f,ll){const H=HCC;if(!H)return;const p=f.properties;let h;
  if(f.layer.id==='hcc-c'){const c=H.C[p.i];if(!c)return;const g=H.G[c.g];
   h=`<b>กองจุดความร้อนรายวัน</b><br>${dShort(c.d)} · ${nf(c.n)} จุด · ${c.t0===c.t1?hhmmTh(c.t0):hhmmTh(c.t0)+'–'+hhmmTh(c.t1)} น.<br>${c.sats.map(s=>esc(SATN[s]||s)).join(', ')}<br>${esc(hcLoc(c.at))}`
    +(g&&(g.n>c.n)?`<br><span class="sm">อยู่ในกองรวม #${g.i} (${g.days} วัน ${nf(g.n)} จุด · เริ่ม ${dShort(g.ign.d)} ${hhmmTh(g.ign.t)} น.)</span>`:'')
-   +(c.n>1?`<br><button class="lk hcsp" data-i="${p.i}" style="padding:4px 0 0">กระจายจุดทั้ง ${c.n} จุด</button> <span class="sm">(หรือดับเบิลคลิกที่กอง)</span>`:'')}
+   +(c.n>1?`<br><button class="lk hcsp" data-i="${p.i}" style="padding:4px 0 0">กระจายจุดทั้ง ${c.n} จุด</button> <span class="sm">(หรือดับเบิลคลิก/แตะสองครั้งที่กอง)</span>`:'')}
  else if(f.layer.id==='hcs-m'){const c=H.C[p.i],q=c&&c.L[p.j];if(!q)return;ll=f.geometry.coordinates;
   h=`<b>จุดความร้อนที่ ${p.j+1}/${c.n} ของกองรายวัน</b><br>${dShort(q.d)} เวลา ${hhmmTh(q.t)} น. · ${esc(SATN[q.sat]||q.sat)}<br>${esc(hcLoc(q))}<br><span class="sm">พิกัด ${q.la.toFixed(5)}, ${q.lo.toFixed(5)} · <a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${q.la.toFixed(5)},${q.lo.toFixed(5)}">Google Maps</a></span>`}
  else{const g=H.G[p.i];if(!g)return;h=hcGroupHtml(g);if(p.k==='i')ll=g.ign.c}
@@ -3281,19 +3287,19 @@ function hlgSet(m){HLGM=m;try{localStorage.setItem('fm-hlg',m)}catch(x){}hlgPos(
   if(Math.abs(dx)<8&&Math.abs(dy)<8)return; // แตะ = จัดการใน click (เดิมย่อตอน pointerup กล่องหดก่อน click → click ตกลงแผนที่ เด้งป๊อปอัปตำแหน่ง ผู้ใช้แจ้ง 8 พ.ย. 69)
   if(dx>40&&HLGM!=='hd'){hlgSet('hd');toast('ซ่อนกล่องอายุจุดความร้อนแล้ว · แตะแท็บที่ขอบขวาเพื่อแสดง')}else if(dx<-30&&HLGM==='hd')hlgSet('cp')};
  e.addEventListener('pointerup',up);e.addEventListener('pointercancel',up);e.addEventListener('click',v=>{if(!e.classList.contains('mb'))return;v.stopPropagation();v.preventDefault();hlgSet(HLGM==='hd'?'cp':HLGM==='cp'?'full':'cp')})}
-function hlgPos(){const e=$('#hlg');if(!e||e.hidden)return;const W=innerWidth,H=innerHeight,mob=W<768;let r=12,b;
- e.classList.toggle('mb',mob);['cp','hd'].forEach(k=>e.classList.toggle(k,mob&&HLGM===k));if(mob){e.setAttribute('role','button');e.setAttribute('aria-expanded',String(HLGM==='full'));e.title=HLGM==='hd'?'แตะเพื่อแสดงอายุจุดความร้อน':'แตะเพื่อ'+(HLGM==='cp'?'ขยาย':'ย่อ')+' · ปัดขวาเพื่อซ่อน'}else{e.setAttribute('role','group');e.removeAttribute('aria-expanded');e.removeAttribute('title')}
+function hlgPos(){const e=$('#hlg');if(!e||e.hidden)return;const W=innerWidth,H=innerHeight,mob=W<768,sm=mob||H<520;let r=12,b; /* sm = แบบย่อ/ปัดซ่อนได้ · จอเตี้ย (มือถือแนวนอน ผู้ใช้แจ้ง D7 18 พ.ย. 69 กล่องเต็มบังกลางจอ) ใช้ด้วย */
+ e.classList.toggle('mb',sm);['cp','hd'].forEach(k=>e.classList.toggle(k,sm&&HLGM===k));if(sm){e.setAttribute('role','button');e.setAttribute('aria-expanded',String(HLGM==='full'));e.title=HLGM==='hd'?'แตะเพื่อแสดงอายุจุดความร้อน':'แตะเพื่อ'+(HLGM==='cp'?'ขยาย':'ย่อ')+' · ปัดขวาเพื่อซ่อน'}else{e.setAttribute('role','group');e.removeAttribute('aria-expanded');e.removeAttribute('title')}
  {const t=$('#c-t');if(t)t.textContent=['r','o','y','b'].reduce((a,k)=>a+(+($('#c-'+k).textContent)||0),0)}
- const PO=$('#right').classList.contains('open')||!$('#ulm').hidden||$('#dp').classList.contains('open');e.classList.toggle('px',PO);if(PO)return; // แผงขวาเปิด = ซ่อนกล่อง เพิ่มพื้นที่แผนที่ (ผู้ใช้ขอ 5 พ.ย. 69)
+ const bc=document.body.classList,PO=$('#right').classList.contains('open')||!$('#ulm').hidden||$('#dp').classList.contains('open')||bc.contains('msron')||bc.contains('udon');e.classList.toggle('px',PO); /* วัด/วิเคราะห์ภูมิประเทศ/วาด = ซ่อนด้วย (D7 M1/M3: บังรูปที่กำลังวัด) */if(PO)return; // แผงขวาเปิด = ซ่อนกล่อง เพิ่มพื้นที่แผนที่ (ผู้ใช้ขอ 5 พ.ย. 69)
  if(mob){b=Math.round(H-$(document.body.classList.contains('pbon')?'#pbf':'#left').getBoundingClientRect().top)+8;const c=$('#ctl').getBoundingClientRect(),hd=HLGM==='hd';if(hd)r=0;if(c.height&&c.bottom>H-b-(hd?40:HLGM==='cp'?44:130))r=Math.round(W-c.left)+8;e.style.borderRadius=hd&&r>0?'99px':''} // มือถือ: ซ้ายของคอลัมน์ปุ่มขวาบน
- else{e.style.borderRadius='';const c=$('#ctl').getBoundingClientRect();b=Math.round(H-c.top)+10;const o=$('#orb');if(o&&!o.hidden&&o.offsetWidth){const q=o.getBoundingClientRect();if(q.bottom>H-b-e.offsetHeight-4&&q.left<W-12)r=Math.round(W-q.left)+10}} /* กล่องดาวเทียมรอบถัดไปยาวลงมาถึงแถวปุ่ม = ไปอยู่ซ้ายของกล่องนั้น */
+ else{e.style.borderRadius='';const c=$('#ctl').getBoundingClientRect();b=Math.round(H-c.top)+10;const o=$('#orb');if(o&&!o.hidden&&o.offsetWidth){const q=o.getBoundingClientRect();if(q.bottom>H-b-e.offsetHeight-4&&q.left<W-12)r=Math.round(W-q.left)+10}if(sm&&HLGM==='hd'){r=0;e.style.borderRadius='99px 0 0 99px'}} /* กล่องดาวเทียมรอบถัดไปยาวลงมาถึงแถวปุ่ม = ไปอยู่ซ้ายของกล่องนั้น */
  if(mob){const o=$('#orb');if(o&&!o.hidden&&o.offsetHeight&&!o.classList.contains('cp')&&o.getBoundingClientRect().bottom>H-b-e.offsetHeight-4){e.classList.add('px');return}} /* มือถือ: กล่องดาวเทียมแบบขยายกินถึงแผ่นล่าง = ซ่อนกล่องอายุจุดชั่วคราว (ย่อกล่อง = กลับมา) */
  if(mob&&b>H*.75)b=Math.round(H*.4); // แผ่นล่างถูกลากขึ้นเต็ม: ไม่ตามขึ้นไปบนสุด (แผ่นบังอยู่แล้ว)
  e.style.right=r+'px';e.style.bottom=b+'px';const w=e.offsetWidth,hh=e.offsetHeight,x0=W-r-w,x1=W-r;
  ['#pbf','#wyb'].forEach(q=>{const f=$(q);if(!f||f.hidden)return;const q1=f.getBoundingClientRect();if(q1.right>x0&&q1.left<x1&&q1.top<H-b&&q1.bottom>H-b-hh)b=Math.round(H-q1.top)+8});
  e.style.bottom=b+'px'}
 {let q=0;const run=()=>{if(!q)q=requestAnimationFrame(()=>{q=0;hlgPos()})};addEventListener('resize',run);
- const mo=new MutationObserver(run);mo.observe($('#right'),{attributes:true,attributeFilter:['class']});mo.observe($('#dp'),{attributes:true,attributeFilter:['class']});mo.observe($('#ulm'),{attributes:true,attributeFilter:['hidden']});
+ const mo=new MutationObserver(run);mo.observe($('#right'),{attributes:true,attributeFilter:['class']});mo.observe($('#dp'),{attributes:true,attributeFilter:['class']});mo.observe($('#ulm'),{attributes:true,attributeFilter:['hidden']});mo.observe(document.body,{attributes:true,attributeFilter:['class']});
  ['#pbf','#wyb'].forEach(x=>mo.observe($(x),{attributes:true,attributeFilter:['hidden','style','class']}));if(window.ResizeObserver)new ResizeObserver(run).observe($('#left'));setTimeout(run,0)}
 function pbPos(){const f=$('#pbf');if(f.hidden)return;const W=innerWidth,mob=W<768,c=$('#ctl').getBoundingClientRect(),hc=$('#hcard');
  if(!mob){const L=$('#left'),l=document.body.classList.contains('lc')||!L?16:L.offsetLeft+L.offsetWidth-24+12,w=Math.min(640,W-l-16); /* ผู้ใช้ขอ 13 พ.ย. 69: ซ้ายเท่าแผงซ้าย ขนาดคงที่ ไม่ยืด/หดตามที่ว่าง */
@@ -3966,12 +3972,12 @@ fitTitle();addEventListener('resize',fitTitle);
 const MORE=document.createElement('button');MORE.id='more';MORE.type='button';MORE.hidden=true;MORE.innerHTML='<svg class="i" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>เลื่อนลงเพื่อดูเนื้อหาเพิ่มเติม';document.body.append(MORE);
 const moreEl=()=>HOPEN&&!$('#hcard').hidden?$('#hcard'):$('#left');
 function moreFit(){const el=moreEl(),r=el.getBoundingClientRect(),c=HOPEN?$('#hcard'):$('#pcard'),cr=(c&&!c.hidden&&innerWidth>767?c:el).getBoundingClientRect();
- const on=!document.body.classList.contains('lc')&&r.height>0&&el.scrollHeight-el.clientHeight-el.scrollTop>8;MORE.hidden=!on;if(!on)return;
+ const on=!document.body.classList.contains('lc')&&r.height>0&&el.scrollHeight-el.clientHeight-el.scrollTop>8&&!(innerWidth<768&&$('#right').classList.contains('open'));MORE.hidden=!on; /* มือถือ: แผงชั้นข้อมูลเปิดทับแผ่นล่าง = ไม่แสดง (เดิมซ้อนกับกล่องของแผงชั้นข้อมูล) */if(!on)return;
  MORE.style.left=Math.round((cr.left+cr.right)/2)+'px';MORE.style.bottom=Math.round(innerHeight-r.bottom+14)+'px'}
 let moreQ=0;const moreRun=()=>{if(!moreQ)moreQ=requestAnimationFrame(()=>{moreQ=0;moreFit()})};
 MORE.onclick=()=>{const el=moreEl();el.scrollBy({top:el.clientHeight*.8,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'})};
 ['#left','#hcard'].forEach(q=>$(q).addEventListener('scroll',moreRun,{passive:true}));addEventListener('resize',moreRun);
-if(window.ResizeObserver){const o=new ResizeObserver(moreRun);['#left','#hcard','#pcard','#stats'].forEach(q=>o.observe($(q)))}moreRun();
+if(window.ResizeObserver){const o=new ResizeObserver(moreRun);['#left','#hcard','#pcard','#stats'].forEach(q=>o.observe($(q)))}new MutationObserver(moreRun).observe($('#right'),{attributes:true,attributeFilter:['class']});moreRun();
 // กล่องเดียวกันที่แผงชั้นข้อมูล (ผู้ใช้ขอ 3 พ.ย. 69): ตัวเลื่อน .rb · ใช้ตำแหน่งตามเลย์เอาต์ (offset*) เพราะแผงเลื่อนเข้า-ออกด้วย transform · วางกลางแผง เหนือขอบล่างของ .rb (ปุ่มนำเข้าข้อมูลอยู่ใต้) 10 px
 const MORE2=MORE.cloneNode(true);MORE2.id='more2';document.body.append(MORE2);
 function more2Fit(){const R=$('#right'),b=R.querySelector('.rb'),on=R.classList.contains('open')&&b.scrollHeight-b.clientHeight-b.scrollTop>8;MORE2.hidden=!on;if(!on)return;
@@ -4908,7 +4914,7 @@ function pmTpl(){const{W,H,u,m}=pmPg(),lb=4.6*u,tw=W-2*m,E={},fsT=5*u,fsS=3.3*u,
 function pmL(){const k=PP.sz+'|'+PP.or;if(!PP.E||PP.ek!==k){PP.E=pmTpl();PP.ek=k}return Object.assign(pmPg(),{E:PP.E})}
 const pmMr=M=>({x:M.x,y:M.y,w:Math.round(M.w*PXMM)/PXMM,h:Math.round(M.h*PXMM)/PXMM}); // กรอบแผนที่ = จำนวนเต็ม css px (ภาพส่งออกตรงกับหน้าจอทุกพิกเซล)
 const pmAttr=()=>{const b=PP.base||'cur';return b==='cur'?(($('#attr-b')||{}).textContent||''):b==='natural'?'© Esri':b==='sat'?IMG[imgOf()].cr:b==='none'?'':'© OpenFreeMap'};
-function pmInfo(){const o=[],g=PMG;if(PMAP){{const v=pmScale();o.push({t:'มาตราส่วน 1 : '+msNf(v>2e4?Math.round(v/100)*100:Math.round(v/10)*10,0),b:1,k:1.15})};o.push({t:`ระบบพิกัดกริด UTM โซน ${g?g.z:47}N · พื้นหลักฐาน WGS 84`+(PP.grid!=='n'&&g?` · กริดห่าง ${msNf(g.iv,0)} ม.`:'')})}
+function pmInfo(){const o=[],g=PMG;if(PMAP){{const v=pmScale();o.push({t:'มาตราส่วน 1 : '+msNf(pmScR(v),0),b:1,k:1.15})};o.push({t:`ระบบพิกัดกริด UTM โซน ${g?g.z:47}N · พื้นหลักฐาน WGS 84`+(PP.grid!=='n'&&g?` · กริดห่าง ${msNf(g.iv,0)} ม.`:'')})}
  if(PP.notes.trim())o.push({t:PP.notes,g:1});if(PP.org.trim())o.push({t:PP.org,b:1,g:1});if(PP.date)o.push({t:'จัดทำเมื่อ '+pmNow()});
  o.push({t:'แผนที่ฐาน: '+[pmAttr(),'© OpenStreetMap contributors'].filter(Boolean).join(' · '),sm:1});return o}
 function pmInfoH(I,w,f,lh){let h=0;I.forEach(i=>{const s=f*(i.k||1)*(i.sm?.85:1);PMMC.font=pmFont(s*10,i.b);h+=pmWrap(PMMC,i.t,w*10).length*s*lh+(i.g?.8:.3)});return h+2}
@@ -5066,7 +5072,9 @@ function pmEd(){const e=$('#pm-ed');if(!e)return;const k=PMSEL,it=pmEl(k);if(!it
 function pmSel(k){if(PMSEL===k)return;PMSEL=k;pmEls();pmRedraw()}
 function pmDel(k){if(k==null||k==='map')return;if(/^i\d/.test(k))PP.items.splice(+k.slice(1),1);else{const e=pmL().E[k];if(e)e.hid=1}PMSEL=null;pmKeep();pmEls();pmRedraw()}
 function pmLegList(){const e=$('#pm-lg');if(!e)return;e.innerHTML=PMLEG.length?PMLEG.map(i=>`<div class="pmlr"><input type="checkbox" data-lo="${esc(i.id)}"${PP.legOff[i.id]?'':' checked'} aria-label="แสดง"><i class="pmsw" style="${i.k==='img'?`background:url('${i.src}') center/contain no-repeat`:i.k==='line'?`border-top:${Math.max(2,(i.w||2))}px ${i.d?'dashed':'solid'} ${i.c};height:0;margin-top:6px`:i.k==='dot'||i.k==='ring'?`border-radius:50%;width:10px;margin:0 6px;${i.k==='dot'?'background:'+i.c:'border:2px solid '+i.c}`:'background:'+i.c}"></i><input data-ll="${esc(i.id)}" value="${esc(PP.legLab[i.id]||i.l)}">${i.x?`<button data-lx="${esc(i.id)}" aria-label="ลบ">✕</button>`:''}</div>`).join(''):'<div class="trn">ยังไม่มีชั้นข้อมูลที่แสดงอยู่ในกรอบ (เพิ่มรายการเองได้)</div>'}
-function pmScIn(){const i=$('#pm-sc');if(i&&PMAP&&document.activeElement!==i)i.value=msNf(Math.round(pmScale()/10)*10,0)}
+/* ปัดมาตราส่วนแบบเดียวกันทั้งบนแผนที่และช่องในแผงขวา (D7 G1 18 พ.ย. 69: แผนที่ 1:24,500 แผง 24,490) */
+const pmScR=v=>v>2e4?Math.round(v/100)*100:Math.round(v/10)*10;
+function pmScIn(){const i=$('#pm-sc');if(i&&PMAP&&document.activeElement!==i)i.value=msNf(pmScR(pmScale()),0)}
 /* วาดหน้าจัดพิมพ์ใหม่ (เลื่อนแผนที่/แก้ค่า/ลากองค์ประกอบ) */
 let PMR=0;function pmRedraw(){cancelAnimationFrame(PMR);PMR=requestAnimationFrame(pmRedraw0)}
 function pmRedraw0(){if(!PMAP)return;const L=pmL(),E=L.E,W=L.W*PXMM,H=L.H*PXMM,sc=$('#pm-sc0'),vw=sc.clientWidth,vh=sc.clientHeight,fit=Math.max(.05,Math.min((vw-28)/W,(vh-28)/H));
@@ -5948,8 +5956,8 @@ function ulLogin(){openModal('เข้าสู่ระบบ',`<form class="u
  <label class="blk" for="lg-p">รหัสผ่าน</label><input type="password" id="lg-p" autocomplete="current-password" required><div class="err" id="lg-e"></div><div class="acts"><button class="btn pri" type="submit">เข้าสู่ระบบ</button></div>
  <p class="sm" style="margin:10px 0 0">บัญชีสร้างโดยผู้ดูแลระบบ · ใช้ดูชั้นข้อมูลที่แชร์เฉพาะกลุ่ม · จำการเข้าสู่ระบบไว้ 30 วันในเบราว์เซอร์นี้</p></form>`);
  setTimeout(()=>$('#lg-u').focus(),30);
- $('#lg-f').onsubmit=async e=>{e.preventDefault();$('#lg-e').textContent='';try{const j=await ulApi('/login',{method:'POST',json:{u:$('#lg-u').value,p:$('#lg-p').value}});UL.tok=j.token;UL.me=j.user;ulLS('fm-ultk',j.token);ulLS('fm-ulme',j.user);closeModal();toast('เข้าสู่ระบบแล้ว: '+(j.user.d||j.user.u));await ulSrvList()}catch(er){$('#lg-e').textContent=er.message}}}
-function ulLogout(q){UL.tok=null;UL.me=null;ulLS('fm-ultk',null);ulLS('fm-ulme',null);if(q)toast('หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่');else{toast('ออกจากระบบแล้ว');ulSrvList().catch(()=>{})}ulList()}
+ $('#lg-f').onsubmit=async e=>{e.preventDefault();$('#lg-e').textContent='';try{const j=await ulApi('/login',{method:'POST',json:{u:$('#lg-u').value,p:$('#lg-p').value}});UL.tok=j.token;UL.me=j.user;ulLS('fm-ultk',j.token);ulLS('fm-ulme',j.user);closeModal();toast('เข้าสู่ระบบแล้ว: '+(j.user.d||j.user.u));if(typeof vfApply==='function')try{vfApply()}catch(x){dbg('vfApply',x)}await ulSrvList()}catch(er){$('#lg-e').textContent=er.message}}}
+function ulLogout(q){UL.tok=null;UL.me=null;ulLS('fm-ultk',null);ulLS('fm-ulme',null);if(typeof vfApply==='function')try{vfApply()}catch(x){dbg('vfApply',x)}if(q)toast('หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่');else{toast('ออกจากระบบแล้ว');ulSrvList().catch(()=>{})}ulList()}
 /* E3: ออกจากระบบทุกอุปกรณ์ — Worker เปลี่ยนรุ่น token ของบัญชีนี้ (token ทุกใบใช้ไม่ได้ รวมเครื่องนี้) */
 async function ulLogAll(){if(!confirm('ออกจากระบบบัญชีนี้ทุกอุปกรณ์ (รวมเครื่องนี้)?\nใช้เมื่อลืมออกจากระบบบนเครื่องอื่น หรือสงสัยว่ารหัสผ่านรั่ว — ทุกเครื่องต้องเข้าสู่ระบบใหม่'))return;
  try{await ulApi('/logout-all',{method:'POST'});UL.tok=null;UL.me=null;ulLS('fm-ultk',null);ulLS('fm-ulme',null);toast('ออกจากระบบทุกอุปกรณ์แล้ว');ulList();ulSrvList().catch(e=>dbg('ulLogAll',e))}
@@ -7247,7 +7255,13 @@ function pwaBar(){let b=document.getElementById('pwa-bar');
  if(!b){b=document.createElement('div');b.id='pwa-bar';b.setAttribute('role','status');document.body.appendChild(b)}
  const t=typeof getHotspots!=='undefined'&&getHotspots.at,saved=pwaMeta(),esri=S.base==='natural'||S.base==='sat';
  b.innerHTML='<span>📴 <b>ออฟไลน์</b> · '+(t?'จุดความร้อนเมื่อ '+hm(t):'ยังไม่มีข้อมูลจุดความร้อนในเครื่อง')+'</span>'+(saved&&esri?'<button id="pwa-use">ใช้แผนที่ที่เก็บไว้</button>':'');
- b.hidden=false;const u=document.getElementById('pwa-use');if(u)u.onclick=()=>{const k=document.querySelector('#seg [data-b="'+(saved.style==='liberty'?'detail':'flat')+'"]');if(k)k.click();pwaBar()}}
+ b.hidden=false;const u=document.getElementById('pwa-use');if(u)u.onclick=()=>{const k=document.querySelector('#seg [data-b="'+(saved.style==='liberty'?'detail':'flat')+'"]');if(k)k.click();pwaBar()};pwaPos();
+ if(!pwaBar.ro&&window.ResizeObserver){pwaBar.ro=new ResizeObserver(()=>pwaPos());['orb','gz'].forEach(id=>{const o=document.getElementById(id);if(o)pwaBar.ro.observe(o)});addEventListener('resize',pwaPos)}}
+/* D7 M12 (18 พ.ย. 69): แถบออฟไลน์อยู่กลางบนจอ ทับกล่องดาวเทียมรอบถัดไป (#orb) / ช่องค้นหา (#gz) บนมือถือ → เลื่อนลงไปใต้กล่องที่ทับ */
+function pwaPos(){const b=document.getElementById('pwa-bar');if(!b||b.hidden)return;b.style.top='';
+ for(let k=0;k<3;k++){const r=b.getBoundingClientRect();let y=0;
+  ['#orb','#gz:not([hidden]) .gzh'].forEach(q=>{const o=document.querySelector(q);if(!o||!o.offsetHeight)return;const z=o.getBoundingClientRect();if(z.bottom>r.top&&z.top<r.bottom&&z.right>r.left&&z.left<r.right)y=Math.max(y,z.bottom)});
+  if(!y)break;b.style.top=Math.round(y+6)+'px'}}
 const pwaMeta=()=>{try{return JSON.parse(localStorage.getItem('fm-ofl')||'null')}catch(e){return null}};
 /* เลขไทล์ของกรอบ */
 const lx=(lo,z)=>Math.floor((lo+180)/360*2**z),ly=(la,z)=>{const r=la*Math.PI/180;return Math.floor((1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*2**z)};
@@ -7324,7 +7338,7 @@ if(document.readyState==='complete')pwaReg();else addEventListener('load',pwaReg
 @media(max-width:767px){
  #gz{left:12px;right:66px;width:auto;background:none;box-shadow:none;border-radius:0}
  #gz .gzh{background:var(--bg);border-radius:12px;box-shadow:var(--sh)}
- #gz-s{position:fixed;left:0;right:0;bottom:0;max-height:min(var(--sh0,34vh),calc(100% - 70px - env(safe-area-inset-top)));display:flex;flex-direction:column;background:var(--bg);border-radius:16px 16px 0 0;box-shadow:0 -2px 12px rgba(20,30,60,.18);border-top:0;padding-bottom:env(safe-area-inset-bottom)}
+ #gz-s{position:fixed;left:0;right:0;bottom:var(--kb,0px);max-height:min(var(--sh0,34vh),calc(100% - 70px - var(--kb,0px) - env(safe-area-inset-top)));display:flex;flex-direction:column;background:var(--bg);border-radius:16px 16px 0 0;box-shadow:0 -2px 12px rgba(20,30,60,.18);border-top:0;padding-bottom:env(safe-area-inset-bottom)}
  #gz-s::before{content:'';flex:none;width:40px;height:4px;border-radius:2px;background:var(--line);margin:7px auto 2px}
  #gz-r{max-height:none;flex:1;min-height:0}
 }
@@ -7407,6 +7421,8 @@ function gzClose(){$('#gz').hidden=true;const b=$('#bSr');b.classList.remove('on
  document.body.append(d)}
 $('#bSr').onclick=()=>$('#gz').hidden?gzOpen():gzClose();
 $('#gz-x').onclick=gzClose;
+/* D7 M10 (18 พ.ย. 69): Chrome Android คีย์บอร์ดย่อแค่ visual viewport — แผ่นผลที่ยึดขอบล่างจออยู่ใต้คีย์บอร์ด → --kb = ความสูงที่คีย์บอร์ดบัง ยกแผ่นขึ้นเหนือคีย์บอร์ด */
+if(window.visualViewport){const vv=visualViewport,f=()=>{const k=Math.max(0,Math.round(innerHeight-vv.height-vv.offsetTop));document.documentElement.style.setProperty('--kb',(k>60?k:0)+'px')};vv.addEventListener('resize',f);vv.addEventListener('scroll',f);f()}
 $('#gz-q').addEventListener('input',()=>{clearTimeout(GZ.t);GZ.t=setTimeout(gzRun,120)});
 $('#gz-q').addEventListener('focus',()=>{if($('#gz-s').hidden)gzRun()});
 $('#gz-q').addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();gzSel(GZ.sel+(e.key==='ArrowDown'?1:-1))}
@@ -7419,6 +7435,8 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&!e.altKey&&(e.key==='k
 .vfb{display:inline-block;color:#fff;border-radius:99px;padding:1px 9px;font-size:11.5px;font-weight:700;white-space:nowrap}
 .vfl{margin-top:5px;padding-top:5px;border-top:1px dashed #e9d2b8;font-size:12.5px;line-height:1.5}.vfl .lk{padding:0 6px 0 0;font-size:12px}
 .g2x{display:grid;grid-template-columns:1fr 1fr;gap:8px}#vf-res button{flex:1 1 46%;border-left:5px solid var(--c)}#vf-res{flex-wrap:wrap}
+.vfls{margin-top:8px;font-size:12.5px}.vfls summary{cursor:pointer;font-weight:600;padding:4px 0}
+.vfr{display:flex;flex-wrap:wrap;align-items:flex-start;gap:4px 6px;padding:6px 0;border-top:1px dashed #e9d2b8;line-height:1.45}.vfr>span:nth-child(2){flex:1;min-width:140px}.vfa{display:flex;gap:2px;flex-wrap:wrap}.vfa .lk{padding:2px 6px;font-size:12px}
 .vfc{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px;margin-top:6px}.vfc div{background:#fff;border-radius:10px;padding:6px 8px;font-size:12px}.vfc b{display:block;font-size:17px}
 </style>
 <script>
@@ -7442,7 +7460,7 @@ async function vfLoad(force){if(VF.busy||(!force&&Date.now()-VF.at<60e3))return;
   if((!j||!Array.isArray(j.reports))&&UL_API){const fy=vfFy(Date.now()),L=[];for(const y of[fy-1,fy]){const x=await ulApi('/reports?fy='+y);L.push(...(x.reports||[]))}j={generated:new Date().toISOString(),src:'worker',reports:L}}
   if(!j)return;VF.L=j.reports.slice().sort((a,b)=>a.c-b.c);VF.gen=Date.parse(j.generated)||Date.now();VF.src=j.src||'';VF.at=Date.now();vfApply()}
  catch(e){dbg('vfLoad',e)}finally{VF.busy=false}}
-function vfApply(){vfIndex();try{vfMap()}catch(e){dbg('vfMap',e)}try{vfXT()}catch(e){dbg('vfXT',e)}try{if(typeof CUR!=='undefined'&&CUR)vfBox(CUR)}catch(e){dbg('vfBox',e)}}
+function vfApply(){vfIndex();try{vfMap()}catch(e){dbg('vfMap',e)}try{vfCard()}catch(e){dbg('vfCard',e)}try{vfXT()}catch(e){dbg('vfXT',e)}try{if(typeof CUR!=='undefined'&&CUR)vfBox(CUR)}catch(e){dbg('vfBox',e)}}
 /* ---- ป้ายสถานะมุมไอคอนจุด (ภาพจาก canvas: วงสี + ✓ / ! / ▲) ---- */
 function vfIcon(c,g){const s=36,cv=document.createElement('canvas');cv.width=cv.height=s;const x=cv.getContext('2d');x.beginPath();x.arc(18,18,15,0,Math.PI*2);x.fillStyle=c;x.fill();x.lineWidth=3;x.strokeStyle='#fff';x.stroke();x.lineWidth=4;x.lineCap='round';x.lineJoin='round';
  if(g==='check'){x.beginPath();x.moveTo(10,19);x.lineTo(16,25);x.lineTo(27,12);x.stroke()}else if(g==='bang'){x.beginPath();x.moveTo(18,9);x.lineTo(18,21);x.stroke();x.beginPath();x.arc(18,27,2.2,0,Math.PI*2);x.fillStyle='#fff';x.fill()}else{x.beginPath();x.moveTo(18,10);x.lineTo(27,25);x.lineTo(9,25);x.closePath();x.stroke()}
@@ -7454,7 +7472,13 @@ function vfSetup(){for(const k in VFRES)if(!map.hasImage('vf-'+k))map.addImage('
  if(!map.getLayer('vf-ic'))map.addLayer({id:'vf-ic',type:'symbol',source:'vfs',layout:{visibility:S.hot?'visible':'none','icon-image':['concat','vf-',['get','r']],'icon-size':['interpolate',['linear'],['zoom'],6,.5,12,.8],'icon-offset':[18,-18],'icon-allow-overlap':true,'icon-ignore-placement':true}})}
 function vfMap(){const s=map.getSource('vfs');if(s)s.setData(vfFC());try{if(map.getLayer('vf-ic')&&map.getLayer('hot-icon'))map.moveLayer('vf-ic')}catch(e){}}
 map.on('click',e=>{const f=map.getLayer('vf-ic')&&map.getLayoutProperty('vf-ic','visibility')==='visible'&&map.queryRenderedFeatures(e.point,{layers:['vf-ic']})[0];if(!f)return;const r=VF.L.find(x=>x.id===f.properties.id);if(r)vfPopup(r)});
-function vfPopup(r){const ll=vfLL(r);new maplibregl.Popup({maxWidth:'300px',offset:[0,-10]}).setLngLat(ll).setHTML(`<div class="hpop"><div class="hpt"><i style="background:${VFRES[r.res][1]}"></i>ผลตรวจสอบจากหน้างาน</div>${vfLine(r,true)}</div>`).addTo(map)}
+function vfPopup(r){const ll=vfLL(r),ed=vfCan(r)?`<div class="pbt" style="margin-top:6px"><button data-vp="e">แก้ไข</button><button data-vp="d">ลบ</button></div>`:'';
+ const p=new maplibregl.Popup({maxWidth:'300px',offset:[0,-10]}).setLngLat(ll).setHTML(`<div class="hpop"><div class="hpt"><i style="background:${VFRES[r.res][1]}"></i>ผลตรวจสอบจากหน้างาน</div>${vfLine(r,true)}${/*xss-ok*/ed}</div>`).addTo(map);
+ p.getElement().querySelectorAll('button[data-vp]').forEach(b=>b.onclick=()=>{p.remove();vfAct(r,b.dataset.vp)})}
+/* จุดความร้อนของรายงาน (ใช้แก้ไขเมื่อไม่มีแผงรายละเอียดจุดเปิดอยู่) */
+const vfH=r=>r.hs?{lat:r.hs.la,lon:r.hs.lo,t:r.hs.t,sat:r.hs.sat}:{lat:r.pos[1],lon:r.pos[0],t:r.c,sat:''};
+function vfAct(r,a){if(a==='e')vfForm(vfH(r),r);else if(a==='d')vfDel(r);else{const ll=vfLL(r);if(!ll)return;
+ MOVED=true;map.easeTo({center:ll,zoom:Math.max(map.getZoom(),13.5),offset:visOff(),duration:dur(700)});map.once('moveend',()=>vfPopup(r))}}
 /* ---- บรรทัดสรุป 1 รายงาน (ใช้ในกล่องแผงรายละเอียด/ป๊อปอัป) ---- */
 function vfLine(r,pop){const[n,c]=VFRES[r.res]||[r.res,'#888'],b=[];
  if(r.hs)b.push('จุด '+vfTime(r.hs.t)+(r.hs.sat?' '+esc(r.hs.sat):''));if(r.res!=='none')b.push('<b>'+nf(r.rai,r.rai%1?2:0)+' ไร่</b>');if(r.cs!=null&&XD.cs[r.cs])b.push(esc(XD.cs[r.cs]));
@@ -7492,7 +7516,7 @@ function vfForm(h,r){const g=geoAt(h.lon,h.lat),st=g.resp[0]?g.resp[0].propertie
  $('#vf-x').onclick=closeModal;const del=$('#vf-del');if(del)del.onclick=()=>vfDel(r);
  $('#vf-f').onsubmit=async e=>{e.preventDefault();if(!UL.me){ulLogin();return}const res=($('#vf-res .on')||{}).dataset;if(!res||!res.v){$('#vf-e').textContent='กรุณาเลือกผลการตรวจสอบ';return}
   const v=id=>$('#'+id).value.trim(),ix=id=>v(id)===''?null:+v(id);
-  const body={res:res.v,hk:vfKey(h),hs:{la:+h.lat.toFixed(5),lo:+h.lon.toFixed(5),t:h.t,sat:satKey(h.sat)},rai:+v('vf-rai')||0,cs:ix('vf-cs'),rp:ix('vf-rp'),ta:v('vf-ta')||null,te:v('vf-te')||null,un:v('vf-un'),pl:v('vf-pl'),moo:v('vf-moo'),note:v('vf-note'),pos,ar,st,tm};const tv=typeof tkVfVal==='function'?tkVfVal():undefined;if(tv!==undefined)body.trk=tv;
+  const body={res:res.v,hk:r&&r.hk||vfKey(h),hs:{la:+h.lat.toFixed(5),lo:+h.lon.toFixed(5),t:h.t,sat:satKey(h.sat)},rai:+v('vf-rai')||0,cs:ix('vf-cs'),rp:ix('vf-rp'),ta:v('vf-ta')||null,te:v('vf-te')||null,un:v('vf-un'),pl:v('vf-pl'),moo:v('vf-moo'),note:v('vf-note'),pos,ar,st,tm};const tv=typeof tkVfVal==='function'?tkVfVal():undefined;if(tv!==undefined)body.trk=tv;
   if(body.res!=='none'&&!(body.rai>0)&&!confirm('ยังไม่ได้กรอกพื้นที่เสียหาย (ไร่) — บันทึกเป็น 0 ไร่ใช่ไหม'))return;
   const bt=e.target.querySelector('button[type=submit]');bt.disabled=true;$('#vf-e').textContent='';
   if(tv&&typeof tkCap==='function'&&(await tkCap())===false){$('#vf-e').textContent='เซิร์ฟเวอร์ยังไม่รองรับการแนบเส้นทาง — ผู้ดูแลต้องวาง Worker รุ่นใหม่ (เลือก "ไม่แนบ" เพื่อบันทึกรายงานไปก่อน)';bt.disabled=false;return}
@@ -7516,7 +7540,15 @@ function vfCard(){const e=document.getElementById('x-vf');if(!e)return;if(!VF.L.
  e.innerHTML=`<b style="font-size:13px">ผลตรวจสอบจากหน้างาน ปีงบ ${fy}</b> <span class="sm">(${nf(L.length)} รายงาน · ข้อมูล ${vfTime(VF.gen)}${VF.src==='state'?' · สำเนารอบก่อน':''})</span>
  <div class="vfc">${Object.entries(VFRES).map(([k,[nm,c]])=>`<div style="border-left:4px solid ${c}"><b>${nf(n(k))}</b>${nm}</div>`).join('')}<div><b>${fa==null?'–':fa+'%'}</b>ตรวจแล้วไม่พบไฟ (ไม่นับชิงเผา)</div></div>
  ${A.size?`<div class="sm" style="margin-top:6px">ไม่พบไฟรายพื้นที่: ${[...A].sort((a,b)=>b[1].n-a[1].n).map(([k,o])=>`${esc(k)} ${o.f}/${o.n}`).join(' · ')}</div>`:''}
- <div class="sm">แถวที่ไม่ใช่ "ไม่พบไฟ" รวมในกราฟ/ตารางแท็บนี้แล้ว (ผู้ดำเนินการลงท้าย "(ระบบรายงาน)") · บันทึกได้จากแผงรายละเอียดจุดเมื่อเข้าสู่ระบบ</div>`}
+ <div class="sm">แถวที่ไม่ใช่ "ไม่พบไฟ" รวมในกราฟ/ตารางแท็บนี้แล้ว (ผู้ดำเนินการลงท้าย "(ระบบรายงาน)") · บันทึกได้จากแผงรายละเอียดจุดเมื่อเข้าสู่ระบบ</div>`+vfList(L);
+ e.onclick=v=>{const b=v.target.closest('button[data-vfc]');if(!b)return;if(b.dataset.vfc==='login')return ulLogin();const r=VF.L.find(x=>x.id===b.dataset.id);if(r)vfAct(r,b.dataset.vfc)}}
+/* รายการรายงานปีงบนี้ ใหม่ → เก่า (D7 M17 18 พ.ย. 69 ผู้ใช้ถามว่าบันทึกผิดจะลบ/แก้อย่างไร) · ของตัวเองภายใน 24 ชม. หรือผู้ดูแล = มีปุ่มแก้ไข/ลบ */
+function vfList(L){if(!L.length)return'';const M=L.slice().sort((a,b)=>b.c-a.c),mine=UL.me?M.filter(vfCan).length:0,N=40;
+ return`<details class="vfls"${mine?' open':''}><summary>รายการรายงาน (${nf(L.length)})${mine?' · แก้ไข/ลบได้ '+nf(mine)+' รายการ':''}</summary>`
+  +M.slice(0,N).map(r=>{const[nm,c]=VFRES[r.res]||[r.res,'#888'];return`<div class="vfr"><span class="vfb" style="background:${esc(c)}">${esc(nm)}</span> <span>${r.hs?'จุด '+vfTime(r.hs.t):vfTime(r.c)} · ${esc(paShort(r.ar||'นอกพื้นที่อนุรักษ์'))}<br><span class="sm">โดย ${esc(r.by&&r.by.d||'–')} · ${vfTime(r.c)}</span></span>
+   <span class="vfa"><button class="lk" data-vfc="v" data-id="${esc(r.id)}">ดูบนแผนที่</button>${vfCan(r)?`<button class="lk" data-vfc="e" data-id="${esc(r.id)}">แก้ไข</button><button class="lk" data-vfc="d" data-id="${esc(r.id)}">ลบ</button>`:''}</span></div>`}).join('')
+  +(M.length>N?`<div class="sm">แสดง ${N} รายการล่าสุด</div>`:'')
+  +`<div class="sm" style="margin-top:4px">ผู้บันทึกแก้ไข/ลบรายงานของตนได้ภายใน 24 ชม. หลังบันทึก · เกินกำหนดหรือเป็นของผู้อื่น ให้ผู้ดูแลระบบหลังบ้านแก้ไข/ลบ${UL.me?'':' · <button class="lk" data-vfc="login" style="padding:0">เข้าสู่ระบบ</button> เพื่อแก้ไข/ลบรายงานของคุณ'}</div></details>`}
 /* ---- ส่งออก Excel คอลัมน์เดียวกับรายงานสถิติดับไฟรวม อส. (scripts/import_fx.js อ่านกลับได้) — เขียน .xlsx เองด้วย zip() ของ Layer Manager ---- */
 async function vfXlsx(){const R=xRows().slice().sort((a,b)=>a.d-b.d||a.t-b.t);if(!R.length)return toast('ไม่มีข้อมูลตามตัวกรอง');
  const MOF=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'],H=['ลำดับที่','ปีงบประมาณ','วัน','เดือน','ปี','เวลารับแจ้งเหตุ','รับแจ้งเหตุจาก','พื้นที่ป่า','สถานที่','หมู่ที่','ตำบล','อำเภอ','จังหวัด','E','N','เข้าดับไฟ','เสร็จสิ้น','พื้นที่เสียหาย(ไร่)','สาเหตุการเกิด','ดำเนินการโดย','ผู้รายงาน'];
