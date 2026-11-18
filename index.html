@@ -114,7 +114,7 @@ b.hdf{color:#b45309}
 #pwa-bar{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 8px);z-index:45;max-width:calc(100vw - 24px);display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:99px;background:#1f2937;color:#fff;font-size:12.5px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
 #pwa-bar[hidden]{display:none}#pwa-bar b{color:#fde68a}#pwa-bar button{font:inherit;font-size:12px;color:#1f2937;background:#fde68a;border:0;border-radius:99px;padding:2px 10px;cursor:pointer}
 .pwa-box{margin:8px 0 2px;padding:8px 10px;border-radius:10px;background:var(--bg);border:1px solid var(--line);font-size:12.5px}.pwa-box[hidden]{display:none}
-.pwa-box .lk{margin:0 0 4px}.pwa-box #pwa-clr,.pwa-box #pwa-all{margin-right:12px;font-size:12px}
+.pwa-box .lk{margin:0 0 4px}#pwa-ver{margin-top:4px}#pwa-ver a{margin-left:6px;cursor:pointer;text-decoration:underline}.pwa-box #pwa-clr,.pwa-box #pwa-all{margin-right:12px;font-size:12px}
 .dsrc{margin-top:8px;padding:7px 10px;border-radius:10px;background:#f5f7fb;border:1px solid var(--line);font-size:11.5px;line-height:1.55;color:#4b5563}.dsrc:empty{display:none}.dsrc b.t{color:var(--ink);font-weight:600}.dsrc ul{margin:2px 0 0;padding-left:16px}.dsrc li{margin:1px 0}.dsrc .w{color:#b45309}
 .btns{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:12px 0}.btns>.btn{grid-column:span 3}.btns>.btn.b3{grid-column:span 2;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:3px;padding:6px 4px;font-size:12px;line-height:1.2} /* แถว 3 มี 3 ปุ่ม (ผู้ใช้ขอ 6 พ.ย. 69) ไอคอนบน ข้อความล่าง */ /* 2 คอลัมน์เท่ากัน กว้างเต็มแผงเสมอกับกล่องบน-ล่าง (ผู้ใช้ขอ 5 พ.ย. 69) */
 .btns>.btn{justify-content:flex-start;min-width:0;min-height:42px;padding:6px 12px;line-height:1.25;text-align:left}.btns>.btn span{min-width:0}
@@ -821,7 +821,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div class="sg" id="imgsrc" hidden aria-label="แหล่งภาพดาวเทียม"><button data-i="google">Google</button><button data-i="esri">Esri</button><button data-i="s2">Sentinel-2</button><button data-i="day">NOAA-20</button></div>
   <div id="imgtime" hidden><div class="itr"><button id="it-p" aria-label="ภาพก่อนหน้า">‹</button><input type="range" id="it-r" list="it-l" aria-label="เลื่อนดูภาพย้อนหลัง"><datalist id="it-l"></datalist><button id="it-n" aria-label="ภาพถัดไป">›</button></div>
    <div class="itv"><b id="it-v"></b><input type="date" id="it-d" aria-label="เลือกวันที่ภาพ"><a id="it-0" role="button" tabindex="0">ล่าสุด</a></div><div class="dsrc" id="it-src"></div></div>
-  <div class="pwa-box" id="pwa-box" hidden><button class="lk" id="pwa-save">⬇ เก็บพื้นที่นี้ไว้ดูออฟไลน์</button><div class="sm" id="pwa-st">แผนที่ฐาน OpenFreeMap ("เรียบ"/"ถนน/ชุมชน") ซูม 9–13 ในกรอบที่เห็น ไม่เกิน 300 แผ่น · แนวเขตและจุดความร้อนล่าสุดใช้ออฟไลน์ได้อยู่แล้ว</div><div><a id="pwa-clr" role="button" tabindex="0" hidden>ล้างแผนที่ออฟไลน์</a><a id="pwa-all" role="button" tabindex="0">ล้างแคชทั้งหมดแล้วโหลดใหม่</a></div></div>
+  <div class="pwa-box" id="pwa-box" hidden><button class="lk" id="pwa-save">⬇ เก็บพื้นที่นี้ไว้ดูออฟไลน์</button><div class="sm" id="pwa-st">แผนที่ฐาน OpenFreeMap ("เรียบ"/"ถนน/ชุมชน") ซูม 9–13 ในกรอบที่เห็น ไม่เกิน 300 แผ่น · แนวเขตและจุดความร้อนล่าสุดใช้ออฟไลน์ได้อยู่แล้ว</div><div><a id="pwa-clr" role="button" tabindex="0" hidden>ล้างแผนที่ออฟไลน์</a><a id="pwa-all" role="button" tabindex="0">ล้างแคชทั้งหมดแล้วโหลดใหม่</a></div><div class="sm" id="pwa-ver"></div></div>
   <div class="row" hidden data-tip="ภูมิประเทศนูนต่ำ เอียงและหมุนแผนที่ได้"><svg class="i" viewBox="0 0 24 24"><path d="M3 20l6-10 4 6 3-4 5 8z"/></svg><b>มุมมอง 3 มิติ</b><button class="sw" data-k="d3" role="switch" aria-label="มุมมอง 3 มิติ"></button></div>
 
   <h3>ไฟป่า</h3>
@@ -7260,12 +7260,25 @@ frGet(true);
      (ผู้ใช้เลือก 16 พ.ย. 69: ทำปุ่มต่อ และอีเมลแจ้ง info@openfreemap.org เอง) · ห้ามเก็บไทล์ Esri/Google */
 (()=>{
 const OK=/^https?:$/.test(location.protocol)&&'serviceWorker' in navigator,ZS=[9,13],MAXT=300,PAR=4,C_OFM='ofm-v1';
-let pwaUpd=0;
+/* D7 รอบ 3 (18 พ.ย. 69): ผู้ใช้ทดสอบบนมือถือแล้วยังได้หน้ารุ่นเก่า (index.html cache-first + ป้าย "แตะเพื่อโหลดใหม่" แค่ 12 วิ · กลับมาที่แท็บเดิมเบราว์เซอร์ไม่ตรวจ sw.js)
+   → รุ่นใหม่มาถึงก่อนผู้ใช้แตะ/กดอะไร (pwaTch=0) = โหลดใหม่เอง · แตะแล้ว = ป้ายค้างไว้จนแตะ + บรรทัด #pwa-ver ในแผงชั้นข้อมูล · กลับมาที่แท็บ (visible) = ตรวจรุ่นใหม่ (ห่าง ≥1 นาที)
+   · กด "ตรวจหาอัปเดต" (pwaGo) = ได้รุ่นใหม่แล้วโหลดใหม่เลย */
+let pwaUpd=0,pwaTch=0,pwaGo=0,pwaChk=Date.now(),pwaV='';
+['pointerdown','keydown','wheel'].forEach(k=>addEventListener(k,()=>{pwaTch=1},{capture:true,passive:true,once:true}));
+function pwaVer(){const e=document.getElementById('pwa-ver');if(!e)return;const c=navigator.serviceWorker&&navigator.serviceWorker.controller;
+ e.innerHTML='รุ่นหน้าเว็บ <b>'+esc(pwaUpd>1?'มีรุ่นใหม่':pwaV?pwaV.slice(0,8):c?'…':'ยังไม่ติดตั้ง')+'</b> <a id="pwa-chk" role="button" tabindex="0">'+(pwaUpd>1?'แตะเพื่อโหลดรุ่นใหม่':'ตรวจหาอัปเดต')+'</a>';
+ document.getElementById('pwa-chk').onclick=pwaCheck;if(c&&!pwaV)c.postMessage('version')}
+async function pwaCheck(){if(pwaUpd>1)return location.reload();const r=window.__SWREG;if(!r)return toast('ยังไม่ได้ติดตั้งระบบออฟไลน์ของหน้าเว็บ');
+ pwaGo=1;toast('กำลังตรวจหารุ่นใหม่…');try{await r.update()}catch(e){dbg('sw update',e);pwaGo=0;return toast('ตรวจไม่ได้ (ออฟไลน์?)')}
+ if(r.installing||r.waiting)toast('กำลังโหลดรุ่นใหม่… หน้าเว็บจะโหลดใหม่เอง',null,15000);else{pwaGo=0;toast('เป็นรุ่นล่าสุดแล้ว'+(pwaV?' ('+pwaV.slice(0,8)+')':''))}}
 function pwaReg(){if(!OK)return;
  if(/[?&]nosw=1/.test(location.search)){navigator.serviceWorker.getRegistrations().then(R=>R.forEach(r=>r.unregister()));return}
- navigator.serviceWorker.register('sw.js').then(r=>{window.__SWREG=r;
+ navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.sw){pwaV=String(e.data.sw);pwaVer()}});
+ navigator.serviceWorker.register('sw.js').then(r=>{window.__SWREG=r;pwaVer();
   r.addEventListener('updatefound',()=>{const w=r.installing;if(w&&navigator.serviceWorker.controller)pwaUpd=1})}).catch(e=>dbg('sw register',e));
- navigator.serviceWorker.addEventListener('controllerchange',()=>{if(pwaUpd)toast('อัปเดตแผนที่รุ่นใหม่แล้ว — แตะเพื่อโหลดใหม่',()=>location.reload(),12000)})}
+ navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!pwaUpd){pwaVer();return}if(!pwaTch||pwaGo){location.reload();return}
+  pwaUpd=2;pwaVer();toast('มีหน้าเว็บรุ่นใหม่ — แตะที่นี่เพื่อโหลดใหม่',()=>location.reload(),36e5)});
+ document.addEventListener('visibilitychange',()=>{const r=window.__SWREG;if(document.visibilityState!=='visible'||!r||Date.now()-pwaChk<6e4)return;pwaChk=Date.now();r.update().catch(e=>dbg('sw update',e))})}
 const hm=t=>new Date(t).toLocaleString('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+' น.';
 function pwaBar(){let b=document.getElementById('pwa-bar');
  const off=navigator.onLine===false||(typeof HSERR!=='undefined'&&HSERR&&!/^HTTP [45]/.test(HSERR.message||''));
