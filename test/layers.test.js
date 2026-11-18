@@ -27,7 +27,7 @@ test.before(async () => {
 const fyNow = () => { const d = new Date(Date.now() + 7 * 36e5); return d.getUTCFullYear() + 543 + (d.getUTCMonth() >= 9 ? 1 : 0) };
 
 let ADM, U1, U2;
-test('GET / บอกสถานะ kv/admin/rep/log', async () => { const r = await api('/'); assert.equal(r.s, 200); assert.deepEqual(r.j, { ok: true, app: 'fire-map layers', kv: true, admin: true, rep: true, log: true, trk: true, max_mb: 8 }) });
+test('GET / บอกสถานะ kv/admin/rep/log', async () => { const r = await api('/'); assert.equal(r.s, 200); assert.deepEqual(r.j, { ok: true, app: 'fire-map layers', kv: true, admin: true, rep: true, log: true, trk: true, fd: true, max_mb: 8 }) });
 test('login ผู้ดูแลหลักถูก/ผิด', async () => {
   const bad = await api('/login', { m: 'POST', body: { u: 'admin', p: 'wrong' } }); assert.equal(bad.s, 401);
   const ok = await api('/login', { m: 'POST', body: { u: 'admin', p: 'admin-secret-pass' } }); assert.equal(ok.s, 200); assert.ok(ok.j.token); assert.equal(ok.j.user.a, true); ADM = ok.j.token;
@@ -86,6 +86,24 @@ test('reports: เกิน 24 ชม. เจ้าของแก้/ลบไ�
   const r = await api('/reports/' + R1.id + '?fy=2570', { m: 'PUT', tok: U1, body: { rai: 9 } }); assert.equal(r.s, 403); assert.match(r.j.error, /24 ชม/);
   assert.equal((await api('/reports/' + R1.id + '?fy=2570', { m: 'DELETE', tok: U1 })).s, 403);
   const a = await api('/reports/' + R1.id + '?fy=2570', { m: 'PUT', tok: ADM, body: { rai: 9 } }); assert.equal(a.s, 200); assert.equal(a.j.report.rai, 9); assert.deepEqual(a.j.report.ed, { u: 'admin', d: 'ผู้ดูแลหลัก' });
+});
+// ---- FD บันทึกการดับไฟป่า (เมนูไฟป่าที่ตรวจพบ 18 พ.ย. 69): ไม่ผูกจุด · ปีงบจาก tn · แก้ข้ามปีงบ = ย้ายดัชนี ----
+test('reports fd: tn/ag/crew/kd · ปีงบตามเวลารับแจ้ง · แก้วันที่ข้ามปีงบย้ายดัชนี', async () => {
+  const tn = Date.UTC(2026, 8, 29, 7, 30); // 29 ก.ย. 69 = ปีงบ 2569
+  const r = await api('/reports', { m: 'POST', tok: U1, body: { kd: 'fd', res: 'out', tn, ag: 'สถานีควบคุมไฟป่าทับลาน', crew: '12', rai: 4, rp: 3, ta: '14:50', te: '17:10', pos: [101.98, 14.26, 8] } });
+  assert.equal(r.s, 200, r.t); const x = r.j.report;
+  assert.equal(x.fy, 2569); assert.equal(x.tn, tn); assert.equal(x.ag, 'สถานีควบคุมไฟป่าทับลาน'); assert.equal(x.crew, 12); assert.equal(x.kd, 'fd'); assert.equal(x.hs, null);
+  assert.equal(JSON.parse(kv.m.get('rep:2569')).filter(y => y.id === x.id).length, 1);
+  const bad = await api('/reports', { m: 'POST', tok: U1, body: { kd: 'zz', res: 'out', tn: -5, crew: 1e6, ag: 'ก'.repeat(300) } });
+  assert.equal(bad.s, 200); assert.equal(bad.j.report.kd, null); assert.equal(bad.j.report.tn, null); assert.equal(bad.j.report.crew, null); assert.equal(bad.j.report.ag.length, 120);
+  assert.equal(bad.j.report.fy, fyNow(), 'tn ผิดรูป = ปีงบตามเวลาบันทึก');
+  await api('/reports/' + bad.j.report.id + '?fy=' + bad.j.report.fy, { m: 'DELETE', tok: U1 });
+  const e = await api('/reports/' + x.id + '?fy=2569', { m: 'PUT', tok: U1, body: { tn: Date.UTC(2026, 9, 2, 3, 0), crew: null } });
+  assert.equal(e.s, 200, e.t); assert.equal(e.j.report.fy, 2570); assert.equal(e.j.report.crew, null);
+  assert.equal(JSON.parse(kv.m.get('rep:2569')).some(y => y.id === x.id), false, 'ออกจากดัชนีปีงบเดิม');
+  assert.equal(JSON.parse(kv.m.get('rep:2570')).filter(y => y.id === x.id).length, 1, 'อยู่ดัชนีปีงบใหม่');
+  assert.equal(JSON.parse(kv.m.get('r:' + x.id)).fy, 2570);
+  assert.equal((await api('/reports/' + x.id + '?fy=2570', { m: 'DELETE', tok: U1 })).s, 200);
 });
 // ---- F7 เส้นทางที่แนบกับรายงาน ----
 const TRK = n => { const c = []; for (let i = 0; i < n; i++) c.push(+(101.98 + i * 1e-4).toFixed(5), +(14.26 + Math.sin(i / 7) * 1e-3).toFixed(5)); return { c, t0: Date.UTC(2026, 10, 15, 6, 0), t1: Date.UTC(2026, 10, 15, 7, 12), km: 5.234, up: 120, dn: 98, n: n * 4 } };

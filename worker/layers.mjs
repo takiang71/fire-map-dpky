@@ -10,6 +10,8 @@
 //     ระเบียน {id,fy,hk,hs:{la,lo,t,sat},res,rai,cs,rp,ta,te,un,pl,moo,note,pos,ar,st,tm,trk,by:{u,d},c,m} — เฟสแรกไม่เก็บภาพ (ผู้ใช้ตัดสิน 16 พ.ย. 69)
 //     F7 (18 พ.ย. 69) เส้นทางเดินที่แนบ: ส่ง trk {c:[lon,lat,…] ≤500 จุด, t0,t1,km,up,dn,n} → พิกัดเก็บแยกคีย์ "t:<id>" (ไม่อยู่ในดัชนี rep:<fy> — ดัชนีใหญ่ = JSON.parse เกิน CPU 10 ms)
 //       ระเบียนเก็บแค่สรุป trk {m,n,km,up,dn,t0,t1} · GET /reports/<id>/trk อ่านได้ทุกคน (เหมือนรายงาน) · trk:null = ลบ · ผิดรูป = ไม่ใช้ · body ≤ 8 KB + เส้นทาง 16 KB
+//     FD (18 พ.ย. 69) บันทึกการดับไฟป่าจากเมนู "ไฟป่าที่ตรวจพบ" (ไม่ต้องผูกจุดความร้อน): kd='fd' · tn = เวลารับแจ้งเหตุ (ms) · ag = หน่วยงานที่ปฏิบัติ · crew = จำนวนผู้ปฏิบัติ (คน)
+//       ปีงบ = hs.t → tn → เวลาบันทึก · แก้ไขแล้วปีงบเปลี่ยน = ย้ายดัชนี rep:<ปีงบ> ให้
 //     อ่าน = ทุกคน (สาธารณะ) · บันทึก = ผู้ใช้ที่ล็อกอิน · แก้/ลบ = เจ้าของภายใน 24 ชม. หรือผู้ดูแล
 // E3 (17 พ.ย. 69): อัปโหลดชั้นไม่เกิน 8 MB (ตอบ 413) · POST /logout-all = ออกจากระบบทุกอุปกรณ์ (เปลี่ยน v ของบัญชีตัวเอง; ผู้ดูแลหลักใช้ meta.rv)
 //     "log" = บันทึกการใช้งาน 200 รายการล่าสุด [{t,u,d,a,k,id,n,fy,x}] (ใคร/การกระทำ/ชั้นหรือรายงาน/เวลา — ไม่เก็บรหัสผ่าน/token/เนื้อหาข้อมูล) · GET /log เฉพาะผู้ดูแล
@@ -139,15 +141,19 @@ function applyRep(r, b) {
   if (b.rp !== undefined) r.rp = idx(b.rp, 99);
   if (b.ta !== undefined) r.ta = HHMM.test(b.ta || '') ? b.ta : null;
   if (b.te !== undefined) r.te = HHMM.test(b.te || '') ? b.te : null;
-  for (const [k, n] of [['un', 200], ['pl', 200], ['moo', 20], ['note', 1000], ['ar', 120], ['st', 120], ['tm', 160]]) if (b[k] !== undefined) r[k] = txt(b[k], n);
+  if (b.tn !== undefined) r.tn = num(b.tn, 0, 4e12, 0);
+  if (b.crew !== undefined) r.crew = b.crew == null || b.crew === '' ? null : num(b.crew, 0, 9999, 0);
+  if (b.kd !== undefined) r.kd = b.kd === 'fd' ? 'fd' : null;
+  for (const [k, n] of [['ag', 120], ['un', 200], ['pl', 200], ['moo', 20], ['note', 1000], ['ar', 120], ['st', 120], ['tm', 160]]) if (b[k] !== undefined) r[k] = txt(b[k], n);
   if (b.pos !== undefined) { const p = Array.isArray(b.pos) ? b.pos : [], lo = num(p[0], -180, 180, 6), la = num(p[1], -90, 90, 6); r.pos = lo != null && la != null ? [lo, la, num(p[2], 0, 1e6, 0) ?? 0] : null }
 }
+const repFy = (r, now) => fyOfMs(r.hs ? r.hs.t : r.tn || r.c || now); // ปีงบของระเบียน: เวลาจุดความร้อน → เวลารับแจ้งเหตุ → เวลาบันทึก
 const repOwn = (r, U, now) => !!U && (U.a || (r.by && r.by.u === U.u && now - r.c < REP_EDIT_MS));
 export default {
   async fetch(req, env) {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
     const url = new URL(req.url), P = url.pathname.replace(/\/+$/, '').split('/').filter(Boolean), m = req.method;
-    if (!P.length) return J({ ok: true, app: 'fire-map layers', kv: !!env.LAYERS, admin: !!env.ADMIN_PASS, rep: true, log: true, trk: true, max_mb: MAXD / 1048576 });
+    if (!P.length) return J({ ok: true, app: 'fire-map layers', kv: !!env.LAYERS, admin: !!env.ADMIN_PASS, rep: true, log: true, trk: true, fd: true, max_mb: MAXD / 1048576 });
     if (!env.LAYERS) return E('ยังไม่ได้ผูก KV ชื่อ LAYERS กับ Worker นี้', 500);
     if (!env.ADMIN_PASS) return E('ยังไม่ได้ตั้ง Secret ADMIN_PASS', 500);
     try {
@@ -258,7 +264,7 @@ export default {
           const b = await repBody(req);
           if (!RES.includes(b.res)) return E('กรุณาเลือกผลการตรวจสอบ');
           const r = { id: rid(), hk: null, hs: null, res: b.res, rai: 0, cs: null, rp: null, ta: null, te: null, un: '', pl: '', moo: '', note: '', pos: null, ar: '', st: '', tm: '', by: { u: U.u, d: U.d }, c: now, m: now };
-          applyRep(r, b); r.fy = fyOfMs(r.hs ? r.hs.t : now); r.trk = null; await repTrk(env, r, b);
+          applyRep(r, b); r.fy = repFy(r, now); r.trk = null; await repTrk(env, r, b);
           const L = await getRep(env, r.fy); L.push(r);
           await env.LAYERS.put('r:' + r.id, JSON.stringify(r)); await putRep(env, r.fy, L);
           await audit(env, U, 'rep-add', { k: 'report', id: r.id, fy: r.fy, n: r.tm || r.ar, x: r.res }); return J({ report: r });
@@ -274,7 +280,9 @@ export default {
         if (m === 'PUT') {
           const b = await repBody(req);
           applyRep(r, b); await repTrk(env, r, b); r.m = now; r.ed = { u: U.u, d: U.d };
-          await env.LAYERS.put('r:' + r.id, JSON.stringify(r)); await putRep(env, fy, L); await audit(env, U, 'rep-edit', { k: 'report', id: r.id, fy, n: r.tm || r.ar, x: r.res }); return J({ report: r });
+          const nf = repFy(r, now); // แก้วันที่ข้ามปีงบ = ย้ายไปดัชนีปีงบใหม่
+          if (nf !== fy) { r.fy = nf; await putRep(env, fy, L.filter(x => x !== r)); const N = await getRep(env, nf); N.push(r); await env.LAYERS.put('r:' + r.id, JSON.stringify(r)); await putRep(env, nf, N) }
+          else { await env.LAYERS.put('r:' + r.id, JSON.stringify(r)); await putRep(env, fy, L) } await audit(env, U, 'rep-edit', { k: 'report', id: r.id, fy, n: r.tm || r.ar, x: r.res }); return J({ report: r });
         }
         if (m === 'DELETE') { await putRep(env, fy, L.filter(x => x !== r)); await env.LAYERS.delete('r:' + r.id); if (r.trk) await env.LAYERS.delete('t:' + r.id); await audit(env, U, 'rep-del', { k: 'report', id: r.id, fy, n: r.tm || r.ar, x: r.res }); return J({ ok: true }) }
       }

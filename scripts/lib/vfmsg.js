@@ -20,8 +20,8 @@ function vfText(L, { site = 'https://takiang71.github.io/fire-map-dpky/', now = 
   const out = [`${test ? '🧪 ' + b('ทดสอบ') + ' · ' : ''}📋 ${b(`ผลตรวจสอบจากหน้างาน ${L.length} รายการ`)}`, `กลุ่มป่าดงพญาเย็น-เขาใหญ่ · ${dateTh(now)} ${hm(now)} น.`];
   for (const r of L.slice(0, per)) {
     const [ic, nm] = RES[r.res] || ['•', r.res], p = ll(r), tm = String(r.tm || '').split('|');
-    const head = [`${ic} ${b(nm)}`, r.hs ? `จุด ${dTh(r.hs.t)} ${hm(r.hs.t)} น.${r.hs.sat ? ' ' + (SATN[r.hs.sat] || r.hs.sat) : ''}` : null, arS(r.ar), tm[0] ? `ต.${E(tm[0])} อ.${E(tm[1] || '-')}` : null].filter(Boolean).join(' · ');
-    const det = [r.res !== 'none' ? `${rai(r.rai)} ไร่` : null, r.cs != null && cs[r.cs] ? E(cs[r.cs]) : null, r.ta ? `เข้าถึง ${r.ta}${r.te ? '–' + r.te : ''} น.` : null, r.un ? `หน่วย: ${E(r.un)}` : null, `โดย ${E(r.by && r.by.d || '-')}`].filter(Boolean).join(' · ');
+    const head = [`${ic} ${b(nm)}`, r.hs ? `จุด ${dTh(r.hs.t)} ${hm(r.hs.t)} น.${r.hs.sat ? ' ' + (SATN[r.hs.sat] || r.hs.sat) : ''}` : r.tn ? `แจ้งเหตุ ${dTh(r.tn)} ${hm(r.tn)} น.` : null, arS(r.ar), tm[0] ? `ต.${E(tm[0])} อ.${E(tm[1] || '-')}` : null].filter(Boolean).join(' · ');
+    const det = [r.res !== 'none' ? `${rai(r.rai)} ไร่` : null, r.cs != null && cs[r.cs] ? E(cs[r.cs]) : null, r.ta ? `เข้าถึง ${r.ta}${r.te ? '–' + r.te : ''} น.` : null, r.ag ? `หน่วยงาน: ${E(String(r.ag).replace(/^สถานีควบคุมไฟป่า/, 'สถานีฯ '))}` : null, r.crew ? `${r.crew} คน` : null, r.un ? `หน่วย: ${E(r.un)}` : null, `โดย ${E(r.by && r.by.d || '-')}`].filter(Boolean).join(' · ');
     out.push('', head, `  ${det}`);
     if (r.note) out.push(`  ${i('“' + E(String(r.note).slice(0, 200)) + '”')}`);
     if (p) out.push(`  📍 ${link(`https://maps.google.com/?q=${p[0].toFixed(5)},${p[1].toFixed(5)}`, 'Google Maps')}  ·  🗺️ ${link(`${site}?hs=${p[0].toFixed(5)},${p[1].toFixed(5)}`, 'แผนที่ไฟป่า')}`);

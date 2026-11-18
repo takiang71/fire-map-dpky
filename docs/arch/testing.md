@@ -135,6 +135,11 @@ Chrome headless 1440×900 · เสิร์ฟ `_site` จากเซิร์
   | `csp.test.js` | E1 ทุก `<script>`/`<link>` ภายนอก (index+คู่มือ) มี sha384+crossorigin, ตัวโหลด xlsx/proj4 ตั้ง integrity, MapLibre 4.7.1 · E2 นโยบายครอบทุกโดเมนใน index.html (grep) + EXTRA, Report-Only เท่านั้น, ไม่มี meta CSP บังคับ · sw.js ใน vm ใส่ header ให้ navigate (ฉบับเผยแพร่) / ไม่ใส่ (dev) / ไม่ทับ header เดิม |
   | `numbers.test.js` | C2 เวลาจำลอง 20 เม.ย. 2569 (adata ทุกพื้นที่) และวันหลัง adata.to + live.json สังเคราะห์ 5 จุด (มีดงใหญ่) → หน้าเว็บ = summary = LINE = Telegram · แก้ summary +1 จุด → ok:false ชี้พื้นที่ (~3 วิ เพราะเรียก telegram_notify --preview) |
 
+## check_site ขั้นไฟป่าที่ตรวจพบ (FD, 18 พ.ย. 69)
+
+- DESK: `bFd` → `FDFY` (เลือกปีงบก่อน ต้องมี "ครั้ง" ใน #fd-kp และแถว `#fd-pl .hb`) → ไร่ → แท็บพื้นที่อนุรักษ์ → `FDFORM` (เปิดฟอร์ม เลือกแหล่งแจ้งแรก กดบันทึก ต้องได้ข้อความ "ตำแหน่งไฟ" — ไม่ส่งจริง) → ปิดฟอร์ม → ปิดการ์ด · MOB: เปิดการ์ด + FDFORM + ปิด
+- หน่วย: `test/fd.test.js`
+
 ## check_site ขั้นบันทึกเส้นทาง (F7, 18 พ.ย. 69)
 
 - อยู่ต่อจากขั้นลิงก์มุมมอง D3 (หน้าใหม่ 1440): `Browser.grantPermissions` geolocation (เรียกผ่าน session ของหน้าได้) + `Emulation.setGeolocationOverride` (watchPosition เดิมได้ค่าใหม่ทุกครั้งที่เปลี่ยน) → เปิดตำแหน่งของฉัน (ต้องมี `#tk-b`) → กดบันทึก (กล่องครั้งแรกต้องพูดถึงจอดับ/ติดตั้งเป็นแอป → `#tk-go`) → เดิน 5 ก้าว ห่าง 9 ม. ทุก 3 วิ (ก้าวที่ 3 กระโดด ~1 กม.) → **ต้องได้ 5 จุด ทิ้งเพราะความเร็ว ≥1** → แตะ ■ สองครั้ง → ชั้น gps 1 ชั้น 1 เส้น LineString 5 จุด + 6 ช่อง · `tkGpx` → **5 `<trkpt>` มี `<time>` ทุกจุด** (`<ele>` <5 = เตือน: โหลด DEM จาก AWS ไม่ได้) · `GIO.readGPX` อ่านกลับได้ `_t` 5 จุด

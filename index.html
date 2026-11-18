@@ -224,7 +224,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 
 #attr{position:fixed;left:50%;transform:translateX(-50%);bottom:env(safe-area-inset-bottom,0px);max-width:calc(100% - 20px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:2px 10px;font-size:10px;line-height:1.4;color:var(--mut);background:var(--glass);border-radius:8px 8px min(8px,env(safe-area-inset-bottom,0px)) min(8px,env(safe-area-inset-bottom,0px));z-index:4} /* iPad มีแถบโฮม: เดิมเติม padding ล่างตาม safe-area แถบจึงหนา (ผู้ใช้แจ้ง 8 พ.ย. 69) → ยกแถบขึ้นเหนือแถบโฮมแทน */
 /* เดสก์ท็อป: ทั้งแผงเลื่อนรวมกัน จบห่างขอบล่าง 12 px · ขณะแสดงการ์ดจุดความร้อน (การ์ดสุดท้าย กว้างเต็มเนื้อแผง x 16 ถึงขอบขวา−24 มุม 20) mask ขอบล่างของแผงเป็นมุมมนของการ์ด → ท้ายการ์ดมนเสมอไม่ว่าเลื่อนถึงไหน · แถบอ้างอิงข้อมูลอยู่กลางพื้นที่ขวาของแผงซ้าย ไม่ทับการ์ด */
-@media(min-width:768px){#left:not(.hm){max-height:100%;padding-top:12px;padding-bottom:12px}#left:not(.hm):has(>#pcard:not([hidden])){-webkit-mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);-webkit-mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;-webkit-mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;-webkit-mask-repeat:no-repeat;mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;mask-repeat:no-repeat}#attr{left:calc(50% + var(--lw) / 2);max-width:calc(100% - var(--lw) - 20px)}#left>#pcard{width:auto}#left>#bDev{width:100%}}
+@media(min-width:768px){#left:not(.hm){max-height:100%;padding-top:12px;padding-bottom:12px}#left:not(.hm):has(>#pcard:not([hidden])),#left:not(.hm):has(>#fcard:not([hidden])){-webkit-mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);-webkit-mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;-webkit-mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;-webkit-mask-repeat:no-repeat;mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000),radial-gradient(circle 20px at 100% 0,#000 19.5px,transparent 20px),radial-gradient(circle 20px at 0 0,#000 19.5px,transparent 20px);mask-size:100% calc(100% - 32px),calc(100% - 78px) 20px,20px 20px,20px 20px;mask-position:0 0,left 35px bottom 12px,left 16px bottom 12px,right 24px bottom 12px;mask-repeat:no-repeat}#attr{left:calc(50% + var(--lw) / 2);max-width:calc(100% - var(--lw) - 20px)}#left>#pcard,#left>#fcard{width:auto}#left>#bDev{width:100%}}
 .maplibregl-ctrl-bottom-right{bottom:calc(86px + env(safe-area-inset-bottom))!important;right:max(6px,env(safe-area-inset-right))!important}
 /* เครื่องมือวัดระยะทาง/พื้นที่ (#bMs) */
 #map.msr .maplibregl-canvas-container.maplibregl-interactive{cursor:crosshair}#map.msr .fsm,#map.msr .wpm,#map.msr .stm{pointer-events:none}
@@ -418,7 +418,7 @@ hr.l{border:0;border-top:1px solid var(--line);margin:10px 0}
 .hh>div{flex:1}.kp small{font-size:11px;font-weight:600;color:var(--mut)}
 .yd{display:inline-flex;align-items:center;gap:3px;margin:2px 8px 0 0;font-size:11px}.yd i{width:10px;height:10px;border-radius:50%;display:inline-block}
 #left.hm{height:100%;max-height:none;overflow:hidden;padding-top:12px;padding-bottom:12px;display:flex;flex-direction:column}
-#left.hm>.lhd,#left.hm>.pill,#left.hm>.desc,#left.hm>.btns,#left.hm>#bDev,#left.hm>#pcard{display:none}
+#left.hm>.lhd,#left.hm>.pill,#left.hm>.desc,#left.hm>.btns,#left.hm>#bDev,#left.hm>#pcard,#left.hm>#fcard{display:none}
 #left.hm #hcard{flex:1;min-height:0;overflow:auto;width:min(390px,100%)}
 @media(max-width:767px){#left.hm{height:auto;max-height:var(--sh0,34vh)}#left.hm.up{max-height:80vh}}
 .kg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
@@ -690,7 +690,7 @@ body.wyon #attr{display:none}
  <div class="btns">
   <button class="btn" id="bHide" aria-pressed="true" title="แสดง/ซ่อนการ์ดจุดความร้อนที่ตรวจพบ"><svg class="i" viewBox="0 0 24 24"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 01-10 0c0-2.5 1.5-4 2.5-5.5.3 1.6 1 2.6 2 3 0-3 .5-5.5.5-7.5z"/></svg><span>จุดความร้อนที่ตรวจพบ</span></button>
   <button class="btn" id="bKnow" title="ข้อมูลพื้นฐาน: ความสำคัญ ประวัติ ทรัพยากร สัตว์ป่า แหล่งท่องเที่ยว รายพื้นที่อนุรักษ์"><svg class="i" viewBox="0 0 24 24"><path d="M5 19c9 0 14-6 14-14-8 0-14 5-14 14zM5 19l6-6"/></svg>ข้อมูลพื้นฐาน</button>
-  <button class="btn" id="bWy" title="แผนที่พยากรณ์อากาศ Windy: ลม ฝน ฟ้าคะนอง อุณหภูมิ ความชื้น เมฆ ฝุ่น"><svg class="i" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 10-3-3M3 12h16a3 3 0 11-3 3M3 16h7"/></svg>พยากรณ์อากาศ</button>
+  <button class="btn" id="bFd" aria-pressed="false" title="ไฟป่าที่ตรวจพบ: ผลการปฏิบัติงานดับไฟป่า (เข้าดับเอง/ได้รับแจ้งจากจุดความร้อน) วิเคราะห์รายปีงบ รายหน่วยงาน และบันทึกการดับไฟจากภาคสนาม"><svg class="i" viewBox="0 0 24 24"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 01-10 0c0-2.5 1.5-4 2.5-5.5.3 1.6 1 2.6 2 3 0-3 .5-5.5.5-7.5z"/><path d="M9.5 14.5l2 2 3.5-4"/></svg><span>ไฟป่าที่ตรวจพบ</span></button>
   <button class="btn" id="bStat"><svg class="i" viewBox="0 0 24 24"><path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/></svg>วิเคราะห์สถิติย้อนหลัง</button>
   <button class="btn b3" id="bWch" title="พื้นที่เฝ้าระวังพิเศษ (โรงเรียนนายร้อยพระจุลจอมเกล้า): ติดตามจุดความร้อนรายวันและวิเคราะห์ย้อนหลัง"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l8 3.5v5.5c0 4.5-3.5 7.5-8 9-4.5-1.5-8-4.5-8-9V6.5z" style="fill:#ffd000;stroke:#6b5200"/><circle cx="12" cy="11.5" r="2.6" style="fill:#fff;stroke:#6b5200"/></svg><span>พื้นที่เฝ้าระวังพิเศษ</span></button>
   <button class="btn b3" id="bPlay"><svg class="i" viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.4 2.6L3 8M3 3v5h5M12 7v5l3 2"/></svg>ย้อนดูการลามของไฟ</button>
@@ -721,6 +721,29 @@ body.wyon #attr{display:none}
   <div class="dsrc" id="p-src"></div>
   <div class="pf" id="p-af" hidden></div>
   <div class="pbt pb4"><button id="p-tbl"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></svg>ตารางรายละเอียด</button><button id="p-csv"><svg class="i" viewBox="0 0 24 24"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 20h14"/></svg>ดาวน์โหลดข้อมูล</button><button id="p-img" title="ภาพแผนที่ตามตัวกรองที่เลือก (PNG) พร้อมหัวเรื่องและเงื่อนไขการกรอง"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.6"/><path d="M21 16l-5-5-8 8"/></svg>ดาวน์โหลดภาพ</button><button id="p-pdf"><svg class="i" viewBox="0 0 24 24"><path d="M7 8V3h10v5M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg>พิมพ์รายงาน</button></div>
+ </div>
+<div class="card" id="fcard" hidden aria-label="สรุปไฟป่าที่ตรวจพบ">
+  <div class="ph"><b>ไฟป่าที่ตรวจพบ</b><button class="cb ib" id="fd-x" aria-label="ปิดการ์ดไฟป่าที่ตรวจพบ" title="กลับไปการ์ดจุดความร้อน"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="sm">ผลการปฏิบัติงานดับไฟป่า ทั้งเข้าดับเองและได้รับแจ้ง (จุดความร้อน/เครือข่าย/ประชาชน) · ข้อมูล อส. + บันทึกจากภาคสนาม</div>
+  <button class="fdadd" id="fd-add" type="button"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>บันทึกการดับไฟป่า</button>
+  <div class="fdob" id="fd-ob" hidden></div>
+  <div class="fdsel"><select id="fd-fys" aria-label="ปีงบประมาณ"></select><select id="fd-ags" aria-label="หน่วยงานที่ดำเนินการ"></select></div>
+  <div class="sats xdy" data-xdy></div>
+  <div class="pk" id="fd-kp"></div>
+  <div class="pq"><b id="fd-cq">เทียบปีงบประมาณ</b><span class="sm" id="fd-asof"></span></div>
+  <div class="ptb2" role="tablist" id="fd-w" aria-label="หน่วยที่ใช้เทียบ"><button role="tab" data-w="n" aria-selected="true">จำนวนครั้ง</button><button role="tab" data-w="a" aria-selected="false">พื้นที่เสียหาย (ไร่)</button></div>
+  <div id="fd-cmp"></div>
+  <div class="plg" id="fd-lg"></div>
+  <div class="pch" id="fd-ch"></div>
+  <div class="pq"><b>แหล่งแจ้งเหตุ</b><span class="sm">เข้าดับเอง หรือได้รับแจ้ง</span></div>
+  <div class="fdgb" id="fd-gb"></div><div class="fdgl" id="fd-gl"></div>
+  <div id="fd-rp" style="margin-top:6px"></div>
+  <div class="ptb" role="tablist" id="fd-tb" style="margin-top:12px;overflow-x:auto"><button role="tab" data-t="st" aria-selected="true">หน่วยงาน</button><button role="tab" data-t="ar" aria-selected="false">พื้นที่อนุรักษ์</button><button role="tab" data-t="pv" aria-selected="false">จังหวัด</button><button role="tab" data-t="am" aria-selected="false">อำเภอ</button><button role="tab" data-t="tm" aria-selected="false">ตำบล</button></div>
+  <div id="fd-pl"></div>
+  <div class="pq"><b>วิเคราะห์</b></div><ul class="fdins" id="fd-ins"></ul>
+  <div class="pq"><b>รายการล่าสุด</b><span class="sm">10 รายการ</span></div><div id="fd-ls"></div>
+  <div class="pbt pb4"><button id="fd-more" type="button"><svg class="i" viewBox="0 0 24 24"><path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/></svg>วิเคราะห์เชิงลึก</button><button id="fd-xls" type="button"><svg class="i" viewBox="0 0 24 24"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 20h14"/></svg>Excel แบบ อส.</button></div>
+  <div class="dsrc" id="fd-src"></div>
  </div>
 <div class="card hc" id="hcard" hidden aria-label="สถิติจุดความร้อนย้อนหลัง">
   <div class="hh"><b class="ht" id="h-ttl">สถิติจุดความร้อนย้อนหลัง</b><label class="hsp" title="แสดง/ซ่อนจุดของการ์ดนี้บนแผนที่"><button class="sw" id="h-sp" role="switch" aria-label="แสดงจุดบนแผนที่"></button>แสดงจุด</label><button class="hp" id="h-fit" aria-label="ซูมไปที่ข้อมูลที่กรอง" title="ซูมไปที่ข้อมูลที่กรอง"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4M11 8v6M8 11h6"/></svg>ซูม</button><button class="hp" id="h-rs" hidden aria-label="รีเซ็ตตัวกรอง">รีเซ็ต</button><button class="cb ib" id="h-x" aria-label="ปิดการ์ดสถิติ"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="seg htab" id="h-tab" role="group" aria-label="ชุดข้อมูลสถิติย้อนหลัง"><button data-v="hs"><svg class="i" viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.5 2-2 2 1-3 0-6-1-8z" style="fill:#e8541c;stroke:none"/></svg>กรมอุทยานฯ</button><button data-v="ha" title="จุดความร้อนทุกดาวเทียม: API ไทย (ตั้งแต่ 3 ส.ค. 67) + NASA FIRMS (ปีงบ 2561 – ก.ค. 67) · ค่าเริ่มต้น NOAA-20"><svg class="i" viewBox="0 0 24 24"><path d="M5 11l4-4 3 3-4 4zM12 10l3-3 4 4-3 3zM9 14l3 3M4 20a6 6 0 016-6"/></svg>ทุกดาวเทียม</button><button data-v="xt"><svg class="i" viewBox="0 0 24 24"><path d="M12 3s6 7 6 11a6 6 0 01-12 0c0-4 6-11 6-11z" style="fill:#5b8def;stroke:none"/></svg>การดับไฟป่า</button></div><div class="sm hsub"><span class="ha-only" id="h-hasub"></span><span class="hs-only hd-only">ข้อมูลจากดาวเทียม ตัวชี้วัดกรมอุทยานฯ Suomi NPP (ตั้งแต่ 2 พ.ย. 69 ใช้ NOAA-20) ระบบ VIIRS · <span id="h-rng"></span></span><span class="xt-only">ข้อมูลการดับไฟป่าจากรายงานสถิติดับไฟรวม อส. · <span id="x-rng"></span></span><span class="wa-only">จุดความร้อนทุกดาวเทียม VIIRS · อยู่นอกแนวเขตกลุ่มป่า · <span id="w-rng"></span></span></div></div>
@@ -1543,7 +1566,7 @@ function setup(){ // เรียกทุกครั้งที่สลั�
  map.addSource('resp',{type:'geojson',data:respSmooth()});
  map.addLayer({id:'resp-f',type:'fill',source:'resp',paint:{'fill-color':['get','sc'],'fill-opacity':.07}});
  map.addLayer({id:'resp-l',type:'line',source:'resp',layout:{'line-join':'round'},paint:{'line-color':['get','sc'],'line-width':2.4,'line-dasharray':[3,1.6]}});
- setupBN();setupRP();setupFU();setupFT();setupAD();setupPV();setup3();setup4();try{setupXT()}catch(e){console.warn('setupXT',e)}try{if(typeof vfSetup==='function')vfSetup()}catch(e){console.warn('vfSetup',e)}try{if(typeof tkLayers==='function')tkLayers()}catch(e){console.warn('tkLayers',e)}try{if(typeof rkLayers==='function')rkLayers()}catch(e){console.warn('rkLayers',e)}try{setupWT()}catch(e){console.warn('setupWT',e)}setupHC();setupHR();try{pcLayers()}catch(e){console.warn('pcLayers',e)}
+ setupBN();setupRP();setupFU();setupFT();setupAD();setupPV();setup3();setup4();try{setupXT()}catch(e){console.warn('setupXT',e)}try{if(typeof vfSetup==='function')vfSetup()}catch(e){console.warn('vfSetup',e)}try{if(typeof fdSetup==='function'){fdSetup();if(FD.on)fdRender()}}catch(e){console.warn('fdSetup',e)}try{if(typeof tkLayers==='function')tkLayers()}catch(e){console.warn('tkLayers',e)}try{if(typeof rkLayers==='function')rkLayers()}catch(e){console.warn('rkLayers',e)}try{setupWT()}catch(e){console.warn('setupWT',e)}setupHC();setupHR();try{pcLayers()}catch(e){console.warn('pcLayers',e)}
  if(typeof ulLayers==='function')ulLayers(); // ชั้นข้อมูลของผู้ใช้ (สคริปต์ท้ายไฟล์)
  if(typeof trLayers==='function')trLayers(); // วิเคราะห์ภูมิประเทศ (สคริปต์ท้ายไฟล์)
  if(typeof msLayers==='function')msLayers(); // เครื่องมือวัด (สคริปต์ท้ายไฟล์) — บนสุด
@@ -1934,6 +1957,7 @@ addEventListener('keydown',e=>{
 map.on('click',e=>{
  if(typeof msBusy==='function'&&msBusy())return; // เครื่องมือวัดจัดการคลิกเอง
  if(typeof obHit==='function'&&obHit(e))return; // ไอคอนดาวเทียม NOAA-20/21
+ if(typeof fdHit==='function'&&fdHit(e))return; /* เลือกตำแหน่งในฟอร์มบันทึกการดับไฟ / วงกลมการ์ดไฟป่าที่ตรวจพบ (FD) */
  if(typeof vfHit==='function'&&vfHit(e))return; /* ป้ายผลตรวจสอบจากหน้างาน (F1) */
  const cl=map.getLayer('hot-cl')&&map.queryRenderedFeatures(e.point,{layers:['hot-cl']})[0];
  if(cl){map.getSource('hot').getClusterExpansionZoom(cl.properties.cluster_id).then(z=>map.easeTo({offset:visOff(),center:cl.geometry.coordinates,zoom:z+.5,duration:dur(800)}));return}
@@ -2960,7 +2984,7 @@ $('#rd-r').oninput=e=>{rdStop();RVI=+e.target.value;radLayer()};$('#rd-0').oncli
 $('#rd-pl').onclick=()=>{if(RVP)return rdStop();if(!RV)return;const b=$('#rd-pl');b.textContent='⏸';b.setAttribute('aria-label','หยุดภาพเคลื่อนไหว');if(RVI===RV.f.length-1)RVI=-1;
  let w=0;RVP=setInterval(()=>{if(RVI===RV.f.length-1&&w++<2)return;w=0;RVI=(RVI+1)%RV.f.length;radLayer()},600)}; // ค้างภาพล่าสุดนานขึ้นก่อนวนรอบใหม่
 $('#wy-nav').onclick=e=>{const b=e.target.closest('button');if(b){WYK=b.dataset.o;wyLoad()}};
-$('#bWy').onclick=()=>{S.wyl=!S.wyl;apply();if(S.wyl)toast('เปิดชั้นสภาพอากาศ Windy — เลือกชั้น/ความเข้มได้ที่แผงชั้นข้อมูล หมวดสภาพอากาศ')};$('#wy-x').onclick=wyClose;
+$('#wy-x').onclick=wyClose; /* ปุ่ม #bWy (เปิดชั้น Windy) ในแผงซ้ายถูกแทนด้วยเมนูไฟป่าที่ตรวจพบ #bFd (18 พ.ย. 69) — ชั้น Windy เปิดที่แผงชั้นข้อมูล */
 map.on('moveend',()=>{if(!S.wyl||WLint&&!WLz)return;WLz=0;clearTimeout(WLT);WLT=setTimeout(()=>{if(!wlSame())wlLoad()},30)});
 // ปุ่ม +− ซูมทีละขั้นเต็มขณะเปิดชั้น Windy (ภาพคมตรงขนาด) · ล้อเมาส์ใช้ซูมลื่นของแผนที่ตามปกติ (เคยบังคับทีละขั้นแล้วผู้ใช้บอกหยาบ/กระโดด 2 ขั้น) ภาพ Windy ย่อขยายตามด้วย scale
 let WLz=0;// ปุ่ม +− ขณะควบคุมด้วย Windy ให้โหลด Windy ใหม่ตาม (moveend ปกติข้ามเพราะแผนที่เลื่อนตาม Windy)
@@ -3324,7 +3348,7 @@ addEventListener('resize',pbPos);new MutationObserver(()=>pbPos()).observe(docum
 /* --- เปิด/ปิดการ์ด --- */
 let HTAB='hs';const HSP={hs:true,xt:true}; // สวิตช์ "แสดงจุด" บนหัวการ์ด (ค่าเริ่มต้นเปิด) — wa ใช้ S.wsp
 const hspOn=()=>HTAB==='wa'?!!S.wsp:HTAB==='xt'?!!S.xt:!!S.hist,hspSync=()=>{const b=document.getElementById('h-sp');if(b)b.setAttribute('aria-checked',HOPEN&&hspOn())}; // แท็บการ์ดสถิติย้อนหลัง: hs = จุดความร้อน · xt = การดับไฟป่า (ผู้ใช้ขอ 5 พ.ย. 69)
-function hOpen(play,tab){if(play)tab='hs';HOPEN=true;$('#left').classList.add('hm');$('#pcard').hidden=true;$('#hcard').hidden=false;hTab(tab||HTAB);
+function hOpen(play,tab){if(play)tab='hs';try{if(typeof fdHide==='function')fdHide()}catch(e){}HOPEN=true;$('#left').classList.add('hm');$('#pcard').hidden=true;$('#hcard').hidden=false;hTab(tab||HTAB);
  if(play)pbStart('st');try{pcVis()}catch(e){}} // เล่นย้อนตามตัวกรองการ์ดสถิติ
 function hTab(t){if(t==='ha'&&!HA){toast('กำลังเตรียมข้อมูลทุกดาวเทียม…');haBuild().then(()=>{if(HOPEN)hTab('ha')}).catch(e=>{dbg('haBuild',e);toast(slowMsg(e,'เตรียมข้อมูลไม่สำเร็จ: '+e.message))});return}
  HTAB=t;hSet(t==='ha');const x=t==='xt',w=t==='wa';$('#hcard').classList.toggle('xtm',x);$('#hcard').classList.toggle('wam',w);$('#hcard').classList.toggle('ham',t==='ha');tx('h-ttl',x?'สถิติการดับไฟป่าย้อนหลัง':w?'พื้นที่เฝ้าระวังพิเศษ':t==='ha'?'สถิติจุดความร้อนย้อนหลัง (ทุกดาวเทียม)':'สถิติจุดความร้อนย้อนหลัง (กรมอุทยานฯ)');$$('#h-tab button').forEach(b=>b.classList.toggle('on',b.dataset.v===t));$('#hcard').scrollTop=0;
@@ -3966,7 +3990,7 @@ fitTitle();addEventListener('resize',fitTitle);
 /* กล่องลอย "เลื่อนลงเพื่อดูเนื้อหาเพิ่มเติม" (ผู้ใช้ขอ 2 พ.ย. 69): ตัวเลื่อน = #hcard ขณะเปิดการ์ดสถิติ (เลื่อนภายใน) ไม่งั้น #left · วางกลางการ์ด เหนือขอบล่างของตัวเลื่อน 14 px · แตะ = เลื่อนลง 80% */
 const MORE=document.createElement('button');MORE.id='more';MORE.type='button';MORE.hidden=true;MORE.innerHTML='<svg class="i" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>เลื่อนลงเพื่อดูเนื้อหาเพิ่มเติม';document.body.append(MORE);
 const moreEl=()=>HOPEN&&!$('#hcard').hidden?$('#hcard'):$('#left');
-function moreFit(){const el=moreEl(),r=el.getBoundingClientRect(),c=HOPEN?$('#hcard'):$('#pcard'),cr=(c&&!c.hidden&&innerWidth>767?c:el).getBoundingClientRect();
+function moreFit(){const el=moreEl(),r=el.getBoundingClientRect(),c=HOPEN?$('#hcard'):typeof FD!=='undefined'&&FD.on?$('#fcard'):$('#pcard'),cr=(c&&!c.hidden&&innerWidth>767?c:el).getBoundingClientRect();
  const on=!document.body.classList.contains('lc')&&r.height>0&&el.scrollHeight-el.clientHeight-el.scrollTop>8&&!(innerWidth<768&&$('#right').classList.contains('open'));MORE.hidden=!on; /* มือถือ: แผงชั้นข้อมูลเปิดทับแผ่นล่าง = ไม่แสดง (เดิมซ้อนกับกล่องของแผงชั้นข้อมูล) */if(!on)return;
  MORE.style.left=Math.round((cr.left+cr.right)/2)+'px';MORE.style.bottom=Math.round(innerHeight-r.bottom+14)+'px'}
 let moreQ=0;const moreRun=()=>{if(!moreQ)moreQ=requestAnimationFrame(()=>{moreQ=0;moreFit()})};
@@ -7485,24 +7509,24 @@ function vfPopup(r){const ll=vfLL(r),ed=vfCan(r)?`<div class="pbt" style="margin
  const p=new maplibregl.Popup({maxWidth:'300px',offset:[0,-10]}).setLngLat(ll).setHTML(`<div class="hpop"><div class="hpt"><i style="background:${VFRES[r.res][1]}"></i>ผลตรวจสอบจากหน้างาน</div>${vfLine(r,true)}${/*xss-ok*/ed}</div>`).addTo(map);
  p.getElement().querySelectorAll('button[data-vp]').forEach(b=>b.onclick=()=>{p.remove();vfAct(r,b.dataset.vp)})}
 /* จุดความร้อนของรายงาน (ใช้แก้ไขเมื่อไม่มีแผงรายละเอียดจุดเปิดอยู่) */
-const vfH=r=>r.hs?{lat:r.hs.la,lon:r.hs.lo,t:r.hs.t,sat:r.hs.sat}:{lat:r.pos[1],lon:r.pos[0],t:r.c,sat:''};
-function vfAct(r,a){if(a==='e')vfForm(vfH(r),r);else if(a==='d')vfDel(r);else{const ll=vfLL(r);if(!ll)return;
+const vfH=r=>r.hs?{lat:r.hs.la,lon:r.hs.lo,t:r.hs.t,sat:r.hs.sat}:{lat:r.pos[1],lon:r.pos[0],t:r.tn||r.c,sat:''};
+function vfAct(r,a){if(a==='e'&&r.kd==='fd'&&typeof fdForm==='function')fdForm(r);else if(a==='e')vfForm(vfH(r),r);else if(a==='d')vfDel(r);else{const ll=vfLL(r);if(!ll)return;
  MOVED=true;map.easeTo({center:ll,zoom:Math.max(map.getZoom(),13.5),offset:visOff(),duration:dur(700)});map.once('moveend',()=>vfPopup(r))}}
 /* ---- บรรทัดสรุป 1 รายงาน (ใช้ในกล่องแผงรายละเอียด/ป๊อปอัป) ---- */
 function vfLine(r,pop){const[n,c]=VFRES[r.res]||[r.res,'#888'],b=[];
- if(r.hs)b.push('จุด '+vfTime(r.hs.t)+(r.hs.sat?' '+esc(r.hs.sat):''));if(r.res!=='none')b.push('<b>'+nf(r.rai,r.rai%1?2:0)+' ไร่</b>');if(r.cs!=null&&XD.cs[r.cs])b.push(esc(XD.cs[r.cs]));
- if(r.ta||r.te)b.push('เข้าถึง '+(r.ta||'–')+(r.te?' – เสร็จ '+r.te:'')+' น.');if(r.un)b.push('หน่วย: '+esc(r.un));if(r.pl||r.moo)b.push(esc([r.pl,r.moo?'หมู่ '+r.moo:''].filter(Boolean).join(' ')));
+ if(r.hs)b.push('จุด '+vfTime(r.hs.t)+(r.hs.sat?' '+esc(r.hs.sat):''));else if(r.tn)b.push('แจ้งเหตุ '+vfTime(r.tn));if(r.res!=='none')b.push('<b>'+nf(r.rai,r.rai%1?2:0)+' ไร่</b>');if(r.cs!=null&&XD.cs[r.cs])b.push(esc(XD.cs[r.cs]));
+ if(r.ta||r.te)b.push('เข้าถึง '+(r.ta||'–')+(r.te?' – เสร็จ '+r.te:'')+' น.');if(r.ag)b.push('หน่วยงาน: '+esc(r.ag.replace(/^สถานีควบคุมไฟป่า/,'สถานีฯ '))+(r.crew?' '+nf(r.crew)+' คน':''));if(r.un)b.push('หน่วย: '+esc(r.un));if(r.pl||r.moo)b.push(esc([r.pl,r.moo?'หมู่ '+r.moo:''].filter(Boolean).join(' ')));
  if(r.pos)b.push(`พิกัดที่พบจริง ${r.pos[1].toFixed(5)}, ${r.pos[0].toFixed(5)}${r.pos[2]?' (±'+nf(Math.round(r.pos[2]))+' ม.)':''}`);
  if(r.trk)b.push('เส้นทางเดิน '+nf(+r.trk.km||0,2)+' กม.'+(r.trk.up!=null?' (ขึ้นสะสม '+nf(+r.trk.up)+' ม.)':''));
  const tb=r.trk&&!pop?` <button class="lk" data-vf="t" data-id="${esc(r.id)}">${typeof TK!=='undefined'&&TK.vw===r.id?'ซ่อนเส้นทาง':'ดูเส้นทาง'}</button>`:'',ed=vfCan(r)&&!pop?` <button class="lk" data-vf="e" data-id="${r.id}">แก้ไข</button><button class="lk" data-vf="d" data-id="${r.id}">ลบ</button>`:'';
  return`<div class="vfl"><span class="vfb" style="background:${c}">${n}</span> ${b.join(' · ')}${r.note?'<br><span class="sm">'+esc(r.note)+'</span>':''}<br><span class="sm">บันทึกโดย ${esc(r.by&&r.by.d||'–')} · ${vfTime(r.c)}${r.m>r.c?' (แก้ไข '+vfTime(r.m)+')':''}</span>${tb}${ed}</div>`}
 function vfBox(h){const e=document.getElementById('vf-box');if(!e||!h)return;const R=vfOf(h),cur=R[0];
  e.innerHTML=`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b style="font-size:13px">ผลตรวจสอบจากหน้างาน</b>${cur?`<span class="vfb" style="background:${VFRES[cur.res][1]}">${VFRES[cur.res][0]}</span>`:'<span class="sm">ยังไม่มีรายงาน</span>'}</div>`+R.map(r=>vfLine(r)).join('')
- +`<div class="pbt" style="margin-top:8px"><button id="vf-add">${UL.me?'+ บันทึกผลตรวจสอบ':'เข้าสู่ระบบเพื่อบันทึกผลตรวจสอบ'}</button></div>`+(h.demo?'<div class="sm">จุดตัวอย่าง — บันทึกได้เพื่อทดลองระบบ</div>':'');
- $('#vf-add').onclick=()=>UL.me?vfForm(h,null):ulLogin();
+ +`<div class="pbt" style="margin-top:8px"><button id="vf-add">${UL.me?'+ บันทึกผลตรวจสอบ':'เข้าสู่ระบบเพื่อบันทึกผลตรวจสอบ'}</button>${typeof fdForm==='function'&&!h.demo?'<button id="vf-fd" title="บันทึกการดับไฟป่าแบบเต็ม (เวลารับแจ้ง/เข้าดับ/เสร็จ หน่วยงาน จำนวนคน) ผูกกับจุดนี้">+ บันทึกการดับไฟป่า</button>':''}</div>`+(h.demo?'<div class="sm">จุดตัวอย่าง — บันทึกได้เพื่อทดลองระบบ</div>':'');
+ $('#vf-add').onclick=()=>UL.me?vfForm(h,null):ulLogin();const fb=document.getElementById('vf-fd');if(fb)fb.onclick=()=>fdForm(null,h);
  e.querySelectorAll('button[data-vf]').forEach(bt=>bt.onclick=()=>{const r=VF.L.find(x=>x.id===bt.dataset.id);if(!r)return;if(bt.dataset.vf==='e')vfForm(h,r);else if(bt.dataset.vf==='t'){if(typeof tkView==='function')tkView(r)}else vfDel(r)})}
 /* ---- ฟอร์มบันทึก/แก้ไข (modal) ---- */
-function vfForm(h,r){const g=geoAt(h.lon,h.lat),st=g.resp[0]?g.resp[0].properties.station.replace(/\s*\(พื้นที่รอง\)/,'').trim():'ไม่มี',ar=g.cons?g.cons.properties.name:'นอกพื้นที่อนุรักษ์',ad=(window.ADM&&admAt(h.lon,h.lat))||null,tm=ad?`${ad.t}|${ad.a}|${ad.p}`:`${h.tam||''}|${h.amp||''}|${h.prov||''}`;
+function vfForm(h,r){if(r&&r.kd==='fd'&&typeof fdForm==='function')return fdForm(r);const g=geoAt(h.lon,h.lat),st=g.resp[0]?g.resp[0].properties.station.replace(/\s*\(พื้นที่รอง\)/,'').trim():'ไม่มี',ar=g.cons?g.cons.properties.name:'นอกพื้นที่อนุรักษ์',ad=(ADM&&admAt(h.lon,h.lat))||null,tm=ad?`${ad.t}|${ad.a}|${ad.p}`:`${h.tam||''}|${h.amp||''}|${h.prov||''}`;
  const o=r||{res:'',rai:'',cs:null,rp:Math.max(0,XD.rp.indexOf('ดาวเทียม (Hotspot)')),ta:'',te:'',un:'',pl:'',moo:'',note:'',pos:null};let pos=o.pos?o.pos.slice():null,usePos=!!o.pos;
  const sel=(id,arr,v,blank)=>`<select id="${id}"><option value="">${blank}</option>${arr.map((x,i)=>`<option value="${i}"${i===v?' selected':''}>${esc(x)}</option>`).join('')}</select>`,inp=(id,lab,v,ph,type='text')=>`<div><label class="blk" for="${id}">${lab}</label><input type="${type}" id="${id}" value="${esc(String(v==null?'':v))}"${ph?` placeholder="${esc(ph)}"`:''}${type==='number'?' min="0" step="0.01" inputmode="decimal"':''}></div>`;
  openModal(r?'แก้ไขผลตรวจสอบ':'บันทึกผลตรวจสอบจุดความร้อน',`<form class="ula" id="vf-f">
@@ -7536,11 +7560,11 @@ async function vfDel(r){if(!confirm('ลบรายงานนี้ออก�
 /* ---- รวมในแท็บการดับไฟ (XT): รายงานที่ไม่ใช่ "ไม่พบไฟ" เป็นแถวท้ายชุดข้อมูล (ลบ/เติมใหม่ทุกครั้งที่โหลด แถวเดิมของ Excel ดัชนี i คงเดิม) ---- */
 function vfXT(){if(typeof XT==='undefined'||typeof XD==='undefined')return;while(XT.length&&XT[XT.length-1].vf)XT.pop();
  const xd=(k,v)=>{let i=XD[k].indexOf(v);if(i<0){i=XD[k].length;XD[k].push(v)}return i},hm=s=>s?+s.replace(':',''):-1;
- for(const r of VF.L){if(r.res==='none')continue;const ll=vfLL(r);if(!ll)continue;const t0=r.hs?r.hs.t:r.c,x=new Date(t0+7*36e5),d=Math.floor(x/864e5),t=x.getUTCHours()*100+x.getUTCMinutes(),[y,m]=ymd(d),[tb='',am='',pv='']=String(r.tm||'').split('|');
+ for(const r of VF.L){if(r.res==='none')continue;const ll=vfLL(r);if(!ll)continue;const t0=r.hs?r.hs.t:r.tn||r.c,x=new Date(t0+7*36e5),d=Math.floor(x/864e5),t=x.getUTCHours()*100+x.getUTCMinutes(),[y,m]=ymd(d),[tb='',am='',pv='']=String(r.tm||'').split('|');
   const ts=hm(r.ta),te=hm(r.te),t0m=hm2m(t),tsm=hm2m(ts),tem=hm2m(te);let ra=t0m>=0&&tsm>=0?tsm-t0m:null;if(ra!=null&&(ra<0||ra>720))ra=null;let du=tsm>=0&&tem>=0?tem-tsm:null;if(du!=null&&du<0)du+=1440;if(du!=null&&du>720)du=null;
-  const u=utm(ll[1],ll[0]),rai=+r.rai||0,ar=r.ar||'นอกพื้นที่อนุรักษ์',st=r.st||'ไม่ระบุ',PV=pv||'ไม่ระบุ';
+  const u=utm(ll[1],ll[0]),rai=+r.rai||0,ar=r.ar||'นอกพื้นที่อนุรักษ์',st=r.ag||r.st||'ไม่ระบุ',PV=pv||'ไม่ระบุ'; /* FD: หน่วยงานที่ปฏิบัติ (ag) แทนสถานีฯ ตามแนวเขต */
   XT.push({i:XT.length,d,t,la:ll[1],lo:ll[0],xy:0,pv:xd('pv',PV),am:xd('am',(am||'ไม่ระบุ')+'|'+PV),tm:xd('tm',(tb||'ไม่ระบุ')+'|'+(am||'ไม่ระบุ')+'|'+PV),ar:xd('ar',ar),st:xd('st',st),sb:xd('sb',sbOf(pv,geoAt(ll[0],ll[1]))),rai,
-   cs:r.cs!=null&&XD.cs[r.cs]?r.cs:xd('cs','ไม่ระบุ'),rp:r.rp!=null&&XD.rp[r.rp]?r.rp:xd('rp','ไม่ระบุ'),fr:xd('fr',ar),ts,te,E:Math.round(u.E),N:Math.round(u.N),moo:r.moo||'',pl:r.pl||'',cd:r.note||'',seq:'',op:(r.by&&r.by.d||'')+' (ระบบรายงาน)',
+   cs:r.cs!=null&&XD.cs[r.cs]?r.cs:xd('cs','ไม่ระบุ'),rp:r.rp!=null&&XD.rp[r.rp]?r.rp:xd('rp','ไม่ระบุ'),fr:xd('fr',ar),ts,te,E:Math.round(u.E),N:Math.round(u.N),moo:r.moo||'',pl:r.pl||'',cd:r.note||'',seq:'',op:(r.by&&r.by.d||'')+(r.crew?' '+r.crew+' คน':'')+(r.un?' · '+r.un:'')+' (ระบบรายงาน)',
    fy:r.fy||(y+543+(m>=10?1:0)),mo:(m+2)%12,hg:t0m<0?0:Math.min(3,Math.floor(t0m/360)),sz:rai<=5?0:rai<=20?1:rai<=50?2:rai<=100?3:4,ra,du,rk:ra==null?4:ra<=30?0:ra<=60?1:ra<=120?2:3,dk:du==null?4:du<=60?0:du<=180?1:du<=360?2:3,hs:r.hk?0:2,hd:r.hk?0:null,vf:r})}
  if(document.getElementById('x-kp')&&typeof xtRender==='function'){try{if(window.HOPEN&&window.HTAB==='xt')xtRender();else if(typeof xtMap==='function'&&map.getSource('xts'))xtMap()}catch(e){dbg('vfXT render',e)}}}
 /* ---- การ์ดในแท็บการดับไฟ: รายงานปีงบนี้ + สัดส่วน "ไม่พบไฟ" (false alarm ของดาวเทียม) รายพื้นที่ ---- */
@@ -7554,7 +7578,7 @@ function vfCard(){const e=document.getElementById('x-vf');if(!e)return;if(!VF.L.
 /* รายการรายงานปีงบนี้ ใหม่ → เก่า (D7 M17 18 พ.ย. 69 ผู้ใช้ถามว่าบันทึกผิดจะลบ/แก้อย่างไร) · ของตัวเองภายใน 24 ชม. หรือผู้ดูแล = มีปุ่มแก้ไข/ลบ */
 function vfList(L){if(!L.length)return'';const M=L.slice().sort((a,b)=>b.c-a.c),mine=UL.me?M.filter(vfCan).length:0,N=40;
  return`<details class="vfls"${mine?' open':''}><summary>รายการรายงาน (${nf(L.length)})${mine?' · แก้ไข/ลบได้ '+nf(mine)+' รายการ':''}</summary>`
-  +M.slice(0,N).map(r=>{const[nm,c]=VFRES[r.res]||[r.res,'#888'];return`<div class="vfr"><span class="vfb" style="background:${esc(c)}">${esc(nm)}</span> <span>${r.hs?'จุด '+vfTime(r.hs.t):vfTime(r.c)} · ${esc(paShort(r.ar||'นอกพื้นที่อนุรักษ์'))}<br><span class="sm">โดย ${esc(r.by&&r.by.d||'–')} · ${vfTime(r.c)}</span></span>
+  +M.slice(0,N).map(r=>{const[nm,c]=VFRES[r.res]||[r.res,'#888'];return`<div class="vfr"><span class="vfb" style="background:${esc(c)}">${esc(nm)}</span> <span>${r.hs?'จุด '+vfTime(r.hs.t):r.tn?'แจ้งเหตุ '+vfTime(r.tn):vfTime(r.c)} · ${esc(paShort(r.ar||'นอกพื้นที่อนุรักษ์'))}<br><span class="sm">โดย ${esc(r.by&&r.by.d||'–')} · ${vfTime(r.c)}</span></span>
    <span class="vfa"><button class="lk" data-vfc="v" data-id="${esc(r.id)}">ดูบนแผนที่</button>${vfCan(r)?`<button class="lk" data-vfc="e" data-id="${esc(r.id)}">แก้ไข</button><button class="lk" data-vfc="d" data-id="${esc(r.id)}">ลบ</button>`:''}</span></div>`}).join('')
   +(M.length>N?`<div class="sm">แสดง ${N} รายการล่าสุด</div>`:'')
   +`<div class="sm" style="margin-top:4px">ผู้บันทึกแก้ไข/ลบรายงานของตนได้ภายใน 24 ชม. หลังบันทึก · เกินกำหนดหรือเป็นของผู้อื่น ให้ผู้ดูแลระบบหลังบ้านแก้ไข/ลบ${UL.me?'':' · <button class="lk" data-vfc="login" style="padding:0">เข้าสู่ระบบ</button> เพื่อแก้ไข/ลบรายงานของคุณ'}</div></details>`}
@@ -8126,6 +8150,227 @@ function tkVfBtn(){document.querySelectorAll('button[data-vf="t"]').forEach(b=>{
 try{tkLayers()}catch(e){}
 setTimeout(()=>{tkCheck().catch(e=>dbg('tk:check',e))},1500);
 tkBar();
+</script>
+<style>
+/* FD เมนูหลัก "ไฟป่าที่ตรวจพบ" (#fcard) + ฟอร์มบันทึกการดับไฟป่า — docs/arch/ui-modules.md หัวข้อ "ไฟป่าที่ตรวจพบ" */
+.fdadd{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:44px;margin:8px 0 4px;border:0;border-radius:12px;background:#c0301c;color:#fff;font:700 14px 'Noto Sans Thai',sans-serif;cursor:pointer}.fdadd:hover{background:#a52714}.fdadd .i{stroke:#fff}
+.fdob{margin:4px 0;padding:6px 10px;border-radius:10px;background:#fff3cd;border:1px solid #f1d27a;font-size:12px;line-height:1.5}.fdob[hidden]{display:none}.fdob .lk{padding:0 0 0 6px}
+.fdsel{display:grid;grid-template-columns:1fr 1.4fr;gap:6px;margin:6px 0 2px}.fdsel select{width:100%;min-height:34px;border:1px solid var(--line);border-radius:10px;background:var(--bg);font:13px 'Noto Sans Thai',sans-serif;padding:0 6px;min-width:0}
+.fdgb{display:flex;height:12px;border-radius:6px;overflow:hidden;background:#eceef4;margin:4px 0 6px}.fdgb i{display:block;height:100%}
+.fdgl{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:11.5px;color:var(--mut)}.fdgl i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+#fcard .hb{grid-template-columns:42% 1fr 70px}#fcard button.hb{cursor:pointer;border-radius:6px}#fcard button.hb:hover{background:#f3f5fa}
+.fdins{margin:2px 0 0;padding-left:18px;font-size:12px;line-height:1.55}.fdins li{margin:2px 0}
+.fdr{display:flex;gap:6px;align-items:flex-start;padding:6px 0;border-top:1px dashed var(--line);font-size:12.5px;line-height:1.45}.fdr>span{flex:1;min-width:0}.fdr .lk{padding:2px 4px;font-size:12px}.fdr i.d{flex:none;width:10px;height:10px;border-radius:50%;margin-top:5px;border:1.5px solid #5c1600}
+#fd-pk{position:fixed;top:calc(12px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:60;background:#1d2433;color:#fff;border-radius:12px;padding:8px 12px;font-size:13px;box-shadow:var(--sh);display:flex;gap:10px;align-items:center;max-width:calc(100% - 24px)}#fd-pk[hidden]{display:none}#fd-pk button{border:0;border-radius:8px;padding:4px 10px;background:#fff;color:#1d2433;font:600 12.5px 'Noto Sans Thai',sans-serif}
+.fdf .fdh{display:flex;align-items:center;gap:8px;margin:12px 0 6px;font-weight:700;font-size:13.5px;color:var(--navy)}.fdf .fdh b{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;font-size:12px;flex:none}.fdf .fdh:first-child{margin-top:0}
+.fdch{display:flex;flex-wrap:wrap;gap:6px}.fdch button{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 12px;min-height:36px;font:13px 'Noto Sans Thai',sans-serif;cursor:pointer}.fdch button.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700}
+.fdch.sm2 button{min-height:30px;padding:3px 10px;font-size:12.5px}
+.fdbt{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.fdbt .btn{flex:1 1 140px;justify-content:center}
+.fdpos{padding:8px 10px;border-radius:10px;background:#f5f7fb;border:1px solid var(--line);font-size:12.5px;line-height:1.5}.fdpos.no{background:#fff7ed;border-color:#f3c99b}
+.fdhs{display:flex;flex-direction:column;gap:4px;margin-top:6px;max-height:190px;overflow:auto}.fdhs button{text-align:left;border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:6px 10px;font:12.5px 'Noto Sans Thai',sans-serif;cursor:pointer}.fdhs button.on{border-color:#e8741c;background:#fff4ea;font-weight:700}
+#fd-res button{border-left:5px solid var(--c)}
+.fdf input[type=date],.fdf input[type=time],.fdf input[type=number]{width:100%;box-sizing:border-box;min-height:38px;border:1px solid var(--line);border-radius:10px;padding:0 8px;font:14px 'Noto Sans Thai',sans-serif;background:var(--bg)}
+.fdf details{margin-top:10px}.fdf details summary{cursor:pointer;font-weight:600;font-size:13px;color:var(--navy)}
+@media(max-width:767px){.fdsel{grid-template-columns:1fr}}
+</style>
+<div id="fd-pk" hidden role="status"><span>แตะแผนที่ที่ตำแหน่งไฟ</span><button type="button" id="fd-pkx">ยกเลิก</button></div>
+<script>
+/* ---------- FD (18 พ.ย. 69) เมนูหลัก "ไฟป่าที่ตรวจพบ" แทนปุ่มพยากรณ์อากาศ (Windy ยังเปิดได้จากแผงชั้นข้อมูล) — docs/arch/ui-modules.md หัวข้อ "ไฟป่าที่ตรวจพบ"
+   การ์ด #fcard (แทนที่ #pcard ในแผงซ้าย): ผลการปฏิบัติงานดับไฟป่ารายปีงบ จาก XT (Excel อส. + รายงานจากหน้างาน VF) · กรองหน่วยงาน (สถานีฯ ที่ดำเนินการ) · เทียบปีงบก่อนช่วงเดียวกัน · กราฟสะสม · แหล่งแจ้งเหตุ 3 กลุ่ม · รายพื้นที่ · วิเคราะห์ · รายการล่าสุด
+   ฟอร์ม fdForm: บันทึกการดับไฟเมื่อเสร็จภารกิจ (ไม่ต้องมีจุดความร้อน) → Worker /reports kd='fd' + tn (เวลารับแจ้ง) ag (หน่วยงาน) crew (คน) · ร่างเก็บในเครื่อง (fm-fdd) · ส่งไม่ได้ = คิวในเครื่อง (fm-fdq) ส่งเองเมื่อออนไลน์ */
+const FD={on:false,fy:0,ag:'',w:'n',tb:'st',pick:false,dr:null,ed:null,cap:null,q:[],busy:false,hs:[]};
+const fdLS=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)}catch(e){}return null};
+FD.ag=fdLS('fm-fdag')||'';try{FD.q=JSON.parse(fdLS('fm-fdq')||'[]')||[]}catch(e){FD.q=[]}
+const fdNow=()=>fyOfDay(thDay()),fdSt=s=>String(s||'').replace(/^สถานีควบคุมไฟป่า\s*/,'สถานีฯ ');
+/* แหล่งแจ้งเหตุ 3 กลุ่ม (ผู้ใช้ขอ: เข้าดับเอง หรือได้รับแจ้งจากจุดความร้อน) */
+const FDG=[['sat','ดาวเทียม (จุดความร้อน)','#e8741c'],['own','เจ้าหน้าที่พบเอง (ลาดตระเวน/จุดตรวจ)','#1f6fe5'],['net','ได้รับแจ้ง (เครือข่าย/ประชาชน/หน่วยงาน)','#2e7d32'],['na','ไม่ระบุ','#9aa3b5']];
+const fdGrp=v=>{const s=XD.rp[v]||'';return/ดาวเทียม|hotspot/i.test(s)?'sat':!s||/ไม่ระบุ/.test(s)?'na':/ลาดตระเวน|จุดตรวจ|จุดสกัด|จุดเฝ้าระวัง|สถานีควบคุมไฟป่า|หน่วยงาน อส/.test(s)?'own':'net'};
+/* ชื่อสั้นของช่องทางรับแจ้ง (ปุ่มในฟอร์ม) */
+const fdRpS=s=>s.replace('เครือข่ายไฟป่าและหมอกควัน (อส.อส)','เครือข่าย อส.อส').replace('ผู้นำชุมชน (กำนัน ผู้ใหญ่บ้าน)','ผู้นำชุมชน').replace('ชุดลาดตระเวนและเฝ้าระวังไฟป่า','ลาดตระเวนไฟป่า (พบเอง)').replace('ชุดลาดตระเวนหน่วยพิทักษ์ป่า (อส.)','ลาดตระเวนหน่วยพิทักษ์ป่า').replace('ชุดจุดตรวจ/จุดสกัด/จุดเฝ้าระวังไฟป่า','จุดตรวจ/จุดเฝ้าระวัง').replace('ศูนย์สั่งการฯ ไฟป่าและหมอกควัน (War room)','ศูนย์สั่งการ (War room)').replace('องค์กรปกครองท้องถิ่น','อปท.').replace('ดาวเทียม (Hotspot)','ดาวเทียม (จุดความร้อน)');
+function fdAgs(){const m=new Map();XT.forEach(r=>{const n=XD.st[r.st];if(n&&!/ไม่ระบุ|^ไม่มี/.test(n))m.set(n,(m.get(n)||0)+1)});return[...m].sort((a,b)=>b[1]-a[1]).map(x=>x[0])}
+const fdIn=r=>xXT(r)&&(!FD.ag||XD.st[r.st]===FD.ag),fdRows=F=>XT.filter(r=>r.fy===F&&fdIn(r)),fdW=r=>FD.w==='a'?r.rai:1,fdU=()=>FD.w==='a'?'ไร่':'ครั้ง',fdN=v=>nf(v,FD.w==='a'&&v%1?1:0);
+function fdCum(F){const s=fy0(F),N=fy0(F+1)-s,a=new Float64Array(N);for(const r of fdRows(F)){const i=r.d-s;if(i>=0&&i<N)a[i]+=fdW(r)}for(let i=1;i<N;i++)a[i]+=a[i-1];return a}
+const fdAt=(a,i)=>a.length?a[Math.min(i,a.length-1)]:0;
+const fdHM=t=>t==null||t<0?'':String(Math.floor(t/100)).padStart(2,'0')+':'+String(t%100).padStart(2,'0');
+/* ---- การ์ด ---- */
+function fdRender(){if(!FD.on)return;const cur=fdNow(),fys=[...new Set([...xfyList(),cur])].sort((a,b)=>b-a);if(!FD.fy)FD.fy=cur;
+ const F=FD.fy,s=fy0(F),N=fy0(F+1)-s,isC=F===cur,T=isC?Math.max(0,Math.min(N-1,thDay()-s)):N-1,L=fdRows(F),n=L.length,A=L.reduce((a,r)=>a+r.rai,0);
+ try{xdyBtns()}catch(e){dbg('fd:xdy',e)}
+ tx('fd-fys',fys.map(y=>`<option value="${y}"${y===F?' selected':''}>ปีงบ ${y}${y===cur?' (ปัจจุบัน)':''}</option>`).join(''));
+ const ags=fdAgs();if(FD.ag&&!ags.includes(FD.ag))ags.unshift(FD.ag);
+ tx('fd-ags','<option value="">ทุกหน่วยงาน</option>'+ags.map(a=>`<option value="${esc(a)}"${a===FD.ag?' selected':''}>${esc(fdSt(a))}</option>`).join(''));
+ $$('#fd-w button').forEach(b=>b.setAttribute('aria-selected',b.dataset.w===FD.w));
+ const P=F-1,hasP=XT.some(r=>r.fy===P),cA=fdCum(F),cP=hasP?fdCum(P):null,done=xfyList().filter(y=>y<cur&&y!==F),AV=done.map(fdCum),av=i=>AV.length?AV.reduce((a,x)=>a+fdAt(x,i),0)/AV.length:0;
+ const now=cA[T],pv=cP?fdAt(cP,T):0,[pc,pt]=dPct(now,pv),R=L.filter(r=>r.ra!=null),D=L.filter(r=>r.du!=null),G=new Map(FDG.map(g=>[g[0],0]));L.forEach(r=>G.set(fdGrp(r.rp),G.get(fdGrp(r.rp))+1));
+ const last=L.reduce((a,r)=>!a||r.d>a.d||(r.d===a.d&&r.t>a.t)?r:a,null),n30=L.filter(r=>thDay()-r.d<30).length,mo=xby(L,r=>r.mo)[0];
+ const pn=hasP?XT.filter(r=>r.fy===P&&fdIn(r)&&r.d-fy0(P)<=T).length:0,tile=(l,v,sm)=>`<div><span>${l}</span><b>${v}</b><small>${sm}</small></div>`,col=c=>c==='up'?'#c0301c':c==='dn'?'#1f7a4d':'inherit';
+ tx('fd-kp',tile('ไฟป่า ปีงบ '+F,nf(n),hasP?`<b style="color:${col(dPct(n,pn)[0])}">${dPct(n,pn)[1]}</b> ${isC?'จากช่วงเดียวกัน':'จาก'} ปีงบ ${P}`:'ครั้ง')
+  +tile('พื้นที่เสียหาย',nf(A,A%1?1:0),'ไร่'+(n?' · เฉลี่ย '+nf(A/n,1)+' ไร่/ครั้ง':''))
+  +(isC?tile('30 วันล่าสุด',nf(n30),last?'ล่าสุด '+hDate(last.d):'ยังไม่มีบันทึก'):tile('เดือนสูงสุด',mo?MON[mo[0]]:'–',mo?nf(mo[1])+' ครั้ง':''))
+  +tile('รับแจ้ง → เข้าดับ',xdur(xmed(R.map(r=>r.ra))),'มัธยฐาน '+nf(R.length)+' ครั้ง')
+  +tile('ใช้เวลาดับไฟ',xdur(xmed(D.map(r=>r.du))),'มัธยฐาน '+nf(D.length)+' ครั้ง')
+  +tile('แจ้งจากดาวเทียม',n?Math.round(100*G.get('sat')/n)+'%':'–',nf(G.get('sat'))+' ครั้ง · พบเอง '+nf(G.get('own'))));
+ /* เทียบปีงบ */
+ tx('fd-cq','เทียบปีงบประมาณ'+(hasP?' '+P:''));tx('fd-asof',isC?'ช่วงเดียวกัน 1 ต.ค. – '+dShort(thDay()):'ทั้งปีงบ');
+ const yr=done.length?done[0]+'–'+String(done.at(-1)).slice(2):'',C=[['ปีงบ '+F+(isC?' ถึงวันนี้':''),now,'var(--fire)']].concat(hasP?[['ปีงบ '+P+(isC?' ช่วงเดียวกัน':''),pv,'#3E6FD8']]:[]).concat(AV.length?[['เฉลี่ยปีงบ '+yr,av(T),'#9aa3b5']]:[]),cm=Math.max(1e-9,...C.map(c=>c[1]));
+ tx('fd-cmp',C.map(([l,v,c])=>`<div class="cr"><span>${l}</span><i style="width:${v/cm*100}%;background:${c}"></i><em>${fdN(v)}</em></div>`).join('')
+  +(hasP?`<div class="cv"><b style="color:${col(pc)}">${pt}</b> ${fdU()} เทียบปีงบ ${P}${isC?' ช่วงเดียวกัน':''} (${fdN(now)} / ${fdN(pv)})</div>`:'')
+  +(hasP&&isC?((t,[c,p])=>`<div class="cfy"><div><span>ปีงบ ${P} ทั้งปี</span><b>${fdN(t)}</b><small>${fdU()} · 1 ต.ค. – 30 ก.ย.</small></div><div><span>ปีงบ ${F} ถึง ${dShort(thDay())}</span><b>${fdN(now)}</b><small>${fdU()} · เทียบทั้งปี ${P}</small></div><em class="${c}">${p}</em></div>`)(cP[cP.length-1],dPct(now,cP[cP.length-1])):''));
+ tx('fd-lg',`<span><i style="border-color:#D93A1F"></i>ปีงบ ${F}</span>${hasP?`<span><i style="border-color:#3E6FD8"></i>ปีงบ ${P}</span>`:''}${AV.length?`<span><i style="border-color:#9aa3b5;border-top-style:dashed"></i>เฉลี่ย ${yr}</span>`:''}<span><i class="sb"></i>ช่วงไฟป่า ม.ค.–เม.ย.</span>`);
+ fdChart(F,T,cA,cP,AV.length?Array.from({length:N},(_,i)=>av(i)):null);
+ /* แหล่งแจ้งเหตุ */
+ tx('fd-gb',n?FDG.filter(g=>G.get(g[0])).map(g=>`<i style="width:${100*G.get(g[0])/n}%;background:${g[2]}" title="${esc(g[1])} ${G.get(g[0])} ครั้ง"></i>`).join(''):'');
+ tx('fd-gl',FDG.filter(g=>G.get(g[0])||g[0]!=='na').map(g=>`<span><i style="background:${g[2]}"></i>${esc(g[1])} <b>${nf(G.get(g[0]))}</b>${n?' ('+Math.round(100*G.get(g[0])/n)+'%)':''}</span>`).join(''));
+ const rp=xby(L,r=>r.rp,fdW),rm=Math.max(1e-9,...rp.map(x=>x[1])),rT=rp.reduce((a,x)=>a+x[1],0);
+ tx('fd-rp',rp.map(([v,c])=>`<div class="hb"><span title="${esc(XD.rp[v]||'')}">${esc(fdRpS(XD.rp[v]||'ไม่ระบุ'))}</span><b><i style="width:${c/rm*100}%;background:${FDG.find(g=>g[0]===fdGrp(v))[2]}"></i></b><em>${fdN(c)} (${rT?Math.round(100*c/rT):0}%)</em></div>`).join('')||'<div class="sm">ยังไม่มีข้อมูล</div>');
+ fdArea(L);
+ /* วิเคราะห์ */
+ const ins=[];if(n){if(hasP)ins.push(`ปีงบ ${F}${isC?' (1 ต.ค. – '+dShort(thDay())+')':''} ดับไฟ ${nf(n)} ครั้ง ${nf(A,A%1?1:0)} ไร่ · ปีงบ ${P}${isC?' ช่วงเดียวกัน':''} ${nf(pn)} ครั้ง`);
+  ins.push(`ได้รับแจ้งจากดาวเทียม ${nf(G.get('sat'))} ครั้ง (${Math.round(100*G.get('sat')/n)}%) · เจ้าหน้าที่พบเอง ${nf(G.get('own'))} ครั้ง (${Math.round(100*G.get('own')/n)}%) · เครือข่าย/ประชาชน/หน่วยงานแจ้ง ${nf(G.get('net'))} ครั้ง (${Math.round(100*G.get('net')/n)}%)`);
+  try{ins.push(...xInsights(L).slice(1))}catch(e){dbg('fd:ins',e)}}
+ else ins.push(`ยังไม่มีบันทึกการดับไฟป่าในปีงบ ${F}${FD.ag?' ของ'+fdSt(FD.ag):''}${isC?' — กดปุ่ม "บันทึกการดับไฟป่า" เมื่อเสร็จภารกิจ':''}`);
+ tx('fd-ins',ins.map(t=>`<li>${esc(t)}</li>`).join(''));
+ fdList(L);fdQueue();
+ tx('fd-src',`ข้อมูล: การดับไฟป่า อส. (Excel ${esc(XSRC||'')}) ปีงบ ${xfyList().filter(y=>XT.some(r=>r.fy===y&&!r.vf)).join(', ')} + บันทึกจากหน้างานผ่านแผนที่นี้ ${nf(XT.filter(r=>r.vf).length)} ครั้ง${VF.gen?' (ข้อมูล '+vfTime(VF.gen)+')':''} · หน่วยงาน = สถานีฯ/หน่วยที่ดำเนินการ · ${S.xdy?'ไม่รวม ขสป.ดงใหญ่ (สบอ.7)':'รวม ขสป.ดงใหญ่'}`);
+ fdMap(L)}
+function fdChart(F,T,now,pv,avg){const W=311,Ht=120,l=28,r=40,t=8,b=18,iw=W-l-r,ih=Ht-t-b,s=fy0(F),N=now.length,
+ top=Math.max(FD.w==='a'?5:3,now[T],pv?pv[pv.length-1]:0,avg?avg[N-1]:0),st=Math.pow(10,Math.floor(Math.log10(top/2))),ym=Math.ceil(top/2/st)*st*2,
+ x=i=>l+i/(N-1)*iw,y=v=>t+(1-v/ym)*ih,path=(a,n)=>Array.from({length:n+1},(_,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(fdAt(a,i)).toFixed(1)).join(''),mo=MON.map((_,m)=>Date.UTC(F-544,9+m,1)/864e5-s);
+ const E=[];if(pv)E.push([pv[pv.length-1],(F-1)+' '+fdN(pv[pv.length-1])]);if(avg)E.push([avg[N-1],'เฉลี่ย '+fdN(Math.round(avg[N-1]*10)/10)]);const EL=E.map(([v,tt])=>({y:y(v)+3,t:tt})).sort((p,q)=>p.y-q.y);for(let i=1;i<EL.length;i++)EL[i].y=Math.max(EL[i].y,EL[i-1].y+10);
+ tx('fd-ch',`<svg viewBox="0 0 ${W} ${Ht}" role="img" aria-label="กราฟการดับไฟป่าสะสม ปีงบ ${F}"><rect x="${x(mo[3])}" y="${t}" width="${x(mo[7])-x(mo[3])}" height="${ih}" fill="#f6efe2"/>
+ ${[0,ym/2,ym].map(v=>`<line x1="${l}" x2="${l+iw}" y1="${y(v)}" y2="${y(v)}" stroke="#e3e6ee"/><text x="${l-4}" y="${y(v)+3}" text-anchor="end" font-size="9" fill="#6b7280">${nf(v)}</text>`).join('')}
+ ${mo.map((i,m)=>`<text x="${x(i+(m<11?(mo[m+1]-i)/2:(N-i)/2))}" y="${Ht-5}" text-anchor="middle" font-size="8.5" fill="#6b7280">${MON[m]}</text>`).join('')}
+ ${avg?`<path d="${path(avg,N-1)}" fill="none" stroke="#9aa3b5" stroke-width="2" stroke-dasharray="4 3"/>`:''}${pv?`<path d="${path(pv,N-1)}" fill="none" stroke="#3E6FD8" stroke-width="2"/>`:''}
+ <path d="${path(now,T)}" fill="none" stroke="#D93A1F" stroke-width="2.2"/><circle cx="${x(T)}" cy="${y(now[T])}" r="4" fill="#D93A1F" stroke="#fff" stroke-width="2"/>
+ ${EL.map(e=>`<text x="${x(N-1)+4}" y="${e.y}" font-size="9" fill="#1d2433">${e.t}</text>`).join('')}</svg>`)}
+/* รายพื้นที่ (แท็บ) — แตะเพื่อซูมไปยังจุดดับไฟของพื้นที่นั้น */
+const FDT={st:['หน่วยงาน',r=>r.st,v=>fdSt(xSt(v))],ar:['พื้นที่อนุรักษ์',r=>r.ar,v=>shortAr(XD.ar[v])],pv:['จังหวัด',r=>r.pv,v=>XD.pv[v]],am:['อำเภอ',r=>r.am,v=>xAm(v)],tm:['ตำบล',r=>r.tm,v=>xTm(v)]};
+function fdArea(L){const[,f,lab]=FDT[FD.tb],m=new Map();L.forEach(r=>{const k=f(r);(m.get(k)||m.set(k,[]).get(k)).push(r)});
+ const R=[...m].map(([k,a])=>[k,a,a.reduce((s,r)=>s+fdW(r),0),a.reduce((s,r)=>s+r.rai,0)]).sort((a,b)=>b[2]-a[2]),mx=Math.max(1e-9,...R.map(x=>x[2]));
+ $$('#fd-tb button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===FD.tb));FD.ar=R;
+ tx('fd-pl',R.map(([k,a,w,ra],i)=>`<button class="hb" data-fz="${i}" title="${esc(lab(k))}: ${nf(a.length)} ครั้ง ${nf(ra,ra%1?1:0)} ไร่ · แตะเพื่อซูม"><span>${esc(lab(k))}</span><b><i style="width:${w/mx*100}%"></i></b><em>${FD.w==='a'?fdN(w)+' ไร่':nf(a.length)+' · '+nf(ra,ra%1?1:0)+' ไร่'}</em></button>`).join('')||'<div class="sm">ยังไม่มีข้อมูล</div>')}
+function fdFit(L){const P=L.filter(r=>r.xy<2);if(!P.length)return toast('ไม่มีพิกัดที่ใช้ได้');const b=new maplibregl.LngLatBounds([P[0].lo,P[0].la],[P[0].lo,P[0].la]);P.forEach(r=>b.extend([r.lo,r.la]));MOVED=true;map.fitBounds(b,{padding:homePad(),maxZoom:13,duration:dur(900)})}
+function fdList(L){const M=L.slice().sort((a,b)=>b.d-a.d||b.t-a.t||((b.vf&&b.vf.c)||0)-((a.vf&&a.vf.c)||0)).slice(0,10);
+ tx('fd-ls',M.map(r=>{const[tb,am]=XD.tm[r.tm].split('|'),e=r.vf&&vfCan(r.vf);return`<div class="fdr"><i class="d" style="background:${FDG.find(g=>g[0]===fdGrp(r.rp))[2]}"></i><span><b>${hDate(r.d)}${r.t>=0?' '+fdHM(r.t)+' น.':''}</b> · ${r.res==='plan'?'เผาตามแผน · ':''}${nf(r.rai,r.rai%1?2:0)} ไร่ · ต.${esc(tb)} อ.${esc(am)}<br><span class="sm">${esc(fdRpS(XD.rp[r.rp]||'ไม่ระบุ'))} · ${esc(fdSt(xSt(r.st)))}${r.vf?' · บันทึกโดย '+esc(r.vf.by&&r.vf.by.d||'–'):''}</span></span><span style="flex:none;display:flex;flex-direction:column">${r.xy<2?`<button class="lk" data-fv="${r.i}">ดูบนแผนที่</button>`:''}${e?`<button class="lk" data-fe="${esc(r.vf.id)}">แก้ไข/ลบ</button>`:''}</span></div>`}).join('')||'<div class="sm">ยังไม่มีรายการ</div>')}
+function fdQueue(){const e=document.getElementById('fd-ob');if(!e)return;e.hidden=!FD.q.length;if(FD.q.length)e.innerHTML=`<b>รอส่ง ${nf(FD.q.length)} รายการ</b> (บันทึกไว้ในเครื่องนี้ขณะไม่มีสัญญาณ) <button class="lk" id="fd-qs">ส่งตอนนี้</button>`}
+/* ---- แผนที่: วงกลมแดงส้มขอบน้ำตาลเข้ม ขนาดตามไร่ (แสดงเฉพาะเมื่อการ์ดเปิด) ---- */
+function fdFC(L){const t=thDay();return{type:'FeatureCollection',features:(L||[]).filter(r=>r.xy<2).map(r=>({type:'Feature',properties:{i:r.i,rai:r.rai,nw:t-r.d<7?1:0},geometry:{type:'Point',coordinates:[r.lo,r.la]}}))}}
+function fdSetup(){if(!map.getSource('fds'))map.addSource('fds',{type:'geojson',data:fdFC(FD.on?fdRows(FD.fy||fdNow()):[])});
+ const R=['interpolate',['linear'],['sqrt',['get','rai']],0,4,3,6,7,9,14,13,25,17];
+ if(!map.getLayer('fd-c'))map.addLayer({id:'fd-c',type:'circle',source:'fds',layout:{visibility:FD.on?'visible':'none'},paint:{'circle-radius':['interpolate',['linear'],['zoom'],7,['*',.8,R],12,['*',1.3,R]],'circle-color':['case',['==',['get','nw'],1],'#d93a1f','#f08c3a'],'circle-opacity':.88,'circle-stroke-color':'#5c1600','circle-stroke-width':1.6}})}
+function fdMap(L){try{fdSetup();map.getSource('fds').setData(fdFC(L));map.setLayoutProperty('fd-c','visibility',FD.on?'visible':'none');if(map.getLayer('vf-ic'))map.moveLayer('vf-ic')}catch(e){dbg('fdMap',e)}}
+/* คลิกแผนที่ (เรียกจากตัวจัดการหลัก): โหมดเลือกตำแหน่งของฟอร์ม → วงกลมดับไฟ */
+function fdHit(e){if(FD.pick){FD.pick=false;$('#fd-pk').hidden=true;if(FD.dr){FD.dr.pos=[+e.lngLat.lng.toFixed(6),+e.lngLat.lat.toFixed(6),0];FD.dr.pm='map';fdSave()}fdForm(FD.ed,null,true);return true}
+ if(!FD.on||!map.getLayer('fd-c'))return false;const f=map.queryRenderedFeatures(e.point,{layers:['fd-c']})[0];if(!f)return false;const r=XT[f.properties.i];if(!r)return false;xtPopup(r);return true}
+/* ---- เปิด/ปิดการ์ด (สลับกับการ์ดจุดความร้อน #pcard) ---- */
+function fdOpen(){if(HOPEN)try{hClose()}catch(e){dbg('fd:hClose',e)}FD.on=true;$('#pcard').hidden=true;$('#fcard').hidden=false;$('#bFd').setAttribute('aria-pressed',true);$('#bHide').setAttribute('aria-pressed',false);fdRender();
+ if(!fdOpen.fit){fdOpen.fit=1;const L=fdRows(FD.fy).filter(r=>r.xy<2);if(L.length)fdFit(L)}if(FD.q.length)fdFlush();try{pbPos()}catch(e){}try{moreRun()}catch(e){}}
+function fdHide(){if(!FD.on)return;FD.on=false;$('#fcard').hidden=true;$('#bFd').setAttribute('aria-pressed',false);fdMap([])}
+function fdClose(){fdHide();$('#pcard').hidden=false;$('#bHide').setAttribute('aria-pressed',true);try{pbPos()}catch(e){}try{moreRun()}catch(e){}}
+/* ---- ฟอร์มบันทึกการดับไฟป่า ---- */
+const fdD0=()=>{const x=new Date(Date.now()+7*36e5),d=x.toISOString().slice(0,10),h=x.toISOString().slice(11,16);return{rp:null,hk:null,hs:null,pos:null,pm:'',dt:d,tn:'',ta:'',te:h,res:'out',rai:'',cs:null,ag:fdLS('fm-fdmy')||fdMyAg(),agx:'',crew:'',un:'',pl:'',moo:'',note:''}};
+function fdMyAg(){try{const g=UL.me&&UL.me.g||[],G=(UL.G||[]).filter(x=>g.includes(x.id)).map(x=>x.n),A=fdAgs();for(const n of G){const k=A.find(a=>a===n||fdSt(a).replace('สถานีฯ ','')===n.replace(/^สถานีควบคุมไฟป่า\s*|^สถานีฯ\s*/,''));if(k)return k}}catch(e){}return FD.ag||''}
+function fdSave(){if(!FD.ed&&FD.dr)fdLS('fm-fdd',JSON.stringify(FD.dr))}
+const fdMs=(d,t)=>{const m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(d||'');if(!m)return null;const[h,mi]=(t||'12:00').split(':').map(Number);return Date.UTC(+m[1],+m[2]-1,+m[3],h||0,mi||0)-7*36e5};
+const fdBk=ms=>{const x=new Date(ms+7*36e5).toISOString();return[x.slice(0,10),x.slice(11,16)]};
+/* จุดความร้อนที่น่าจะเป็นเหตุนี้: 48 ชม. (HS) + สะสม 7 วัน (AD) เรียงตามระยะจากตำแหน่งที่เลือก/กลางแผนที่ */
+function fdCand(){const c=FD.dr&&FD.dr.pos?{lo:FD.dr.pos[0],la:FD.dr.pos[1]}:(()=>{const m=map.getCenter();return{lo:m.lng,la:m.lat}})(),M=new Map(),t0=thDay()-7,km=(la,lo)=>Math.hypot((lo-c.lo)*111.32*Math.cos(c.la*Math.PI/180),(la-c.la)*110.57);
+ try{(typeof HS!=='undefined'?HS:[]).forEach(h=>{if(h.demo)return;const k=vfKey(h);M.set(k,{lat:h.lat,lon:h.lon,t:h.t,sat:h.sat,tam:h.tam,amp:h.amp})})}catch(e){dbg('fd:HS',e)}
+ try{(typeof AD!=='undefined'?AD:[]).forEach(r=>{if(r.d<t0)return;const t=r.d*864e5+Math.floor(r.t/100)*36e5+(r.t%100)*6e4-7*36e5,h={lat:r.la,lon:r.lo,t,sat:SATN[r.sat]||r.sat,tam:String(r.tm||'').split('|')[0],amp:r.am};const k=vfKey(h);if(!M.has(k))M.set(k,h)})}catch(e){dbg('fd:AD',e)}
+ return[...M.values()].map(h=>Object.assign(h,{km:km(h.lat,h.lon)})).filter(h=>h.km<=30).sort((a,b)=>a.km-b.km||b.t-a.t).slice(0,12)}
+function fdForm(r,h,keep){if(!keep){FD.ed=r||null;if(r)FD.dr=fdFromRep(r);else{let d=null;try{d=JSON.parse(fdLS('fm-fdd')||'null')}catch(e){}FD.dr=Object.assign(fdD0(),d||{});if(h)fdUseHs(h,true)}}
+ const o=FD.dr,cur=fdNow(),rpI=XD.rp.map((v,i)=>[i,XT.filter(x=>x.rp===i).length]).filter(x=>!/ไม่ระบุ/.test(XD.rp[x[0]])).sort((a,b)=>b[1]-a[1]).map(x=>x[0]),ags=fdAgs(),agO=o.ag&&!ags.includes(o.ag)?[o.ag].concat(ags):ags;
+ const sel=(id,arr,v,blank)=>`<select id="${id}"><option value="">${blank}</option>${arr.map((x,i)=>`<option value="${i}"${i===v?' selected':''}>${esc(x)}</option>`).join('')}</select>`,inp=(id,lab,v,ph,type='text',ex='')=>`<div><label class="blk" for="${id}">${lab}</label><input type="${type}" id="${id}" value="${esc(String(v==null?'':v))}"${ph?` placeholder="${esc(ph)}"`:''}${ex}></div>`;
+ openModal(r?'แก้ไขบันทึกการดับไฟป่า':'บันทึกการดับไฟป่า',`<form class="ula fdf" id="fd-f" novalidate>
+ <div class="fdh"><b>1</b>ได้รับแจ้งเหตุจาก *</div><div class="fdch" id="fd-rpc">${rpI.map(i=>`<button type="button" data-v="${i}"${o.rp===i?' class="on"':''}>${esc(fdRpS(XD.rp[i]))}</button>`).join('')}</div>
+ <div id="fd-hsw" hidden><div class="sm" style="margin-top:6px">เลือกจุดความร้อนที่ได้รับแจ้ง (เรียงตามระยะ · 7 วันล่าสุด) — ไม่เลือกก็บันทึกได้</div><div class="fdhs" id="fd-hsl"></div></div>
+ <div class="fdh"><b>2</b>ตำแหน่งไฟ *</div><div id="fd-pos"></div>
+ <div class="fdbt"><button type="button" class="btn" id="fd-gps">ใช้ตำแหน่งปัจจุบัน (GPS)</button><button type="button" class="btn" id="fd-map">แตะเลือกบนแผนที่</button></div>
+ <div class="fdh"><b>3</b>วันและเวลา</div>
+ <div class="g2x">${inp('fd-dt','วันที่รับแจ้งเหตุ *',o.dt,'','date',` max="${fdBk(Date.now())[0]}"`)}${inp('fd-tn','เวลารับแจ้งเหตุ',o.tn,'','time')}</div>
+ <div class="g2x">${inp('fd-ta','เวลาเข้าดับไฟ',o.ta,'','time')}${inp('fd-te','เวลาดับไฟเสร็จ',o.te,'','time')}</div>
+ <div class="fdh"><b>4</b>ผลการปฏิบัติงาน *</div>
+ <div class="seg" id="fd-res">${['out','none','plan'].map(k=>`<button type="button" data-v="${k}" style="--c:${VFRES[k][1]}"${o.res===k?' class="on"':''}>${k==='out'?'ดับไฟเรียบร้อย':k==='none'?'ไปถึงแล้วไม่พบไฟ':'เผาตามแผน (ชิงเผา)'}</button>`).join('')}</div>
+ <div id="fd-ow"><label class="blk" for="fd-rai">พื้นที่เสียหาย (ไร่)</label><div class="fdch sm2" id="fd-rq">${[.5,1,2,3,5,10,20,50].map(v=>`<button type="button" data-v="${v}">${v<1?'ไม่ถึง 1':v}</button>`).join('')}</div>
+ <div class="g2x" style="margin-top:6px">${inp('fd-rai','',o.rai,'ไร่ (พิมพ์เองได้ เช่น 2.5)','number',' min="0" step="0.01" inputmode="decimal" aria-label="พื้นที่เสียหาย (ไร่)"')}<div>${sel('fd-cs',XD.cs,o.cs,'สาเหตุ: ไม่ระบุ')}</div></div></div>
+ <div class="fdh"><b>5</b>ผู้ปฏิบัติงาน</div>
+ <div class="g2x"><div><label class="blk" for="fd-ag">หน่วยงาน *</label><select id="fd-ag"><option value="">เลือกหน่วยงาน</option>${agO.map(a=>`<option value="${esc(a)}"${a===o.ag?' selected':''}>${esc(fdSt(a))}</option>`).join('')}<option value="*"${o.ag==='*'?' selected':''}>อื่นๆ (พิมพ์เอง)</option></select></div>${inp('fd-crew','จำนวนผู้ปฏิบัติ (คน)',o.crew,'','number',' min="0" step="1" inputmode="numeric"')}</div>
+ <div id="fd-agw"${o.ag==='*'?'':' hidden'}>${inp('fd-agx','ชื่อหน่วยงาน',o.agx,'เช่น หน่วยพิทักษ์อุทยานฯ ทล.5')}</div>
+ ${inp('fd-un','หน่วยที่ร่วมปฏิบัติ',o.un,'เช่น อส.อส บ้านคลองตาหมื่น, อบต.บุพราหมณ์')}
+ <details${o.pl||o.moo||o.note?' open':''}><summary>รายละเอียดเพิ่มเติม (ไม่บังคับ)</summary>
+ <div class="g2x">${inp('fd-pl','สถานที่',o.pl,'ชื่อบ้าน/ป่า/ลำห้วย')}${inp('fd-moo','หมู่ที่',o.moo,'')}</div>
+ <label class="blk" for="fd-note">หมายเหตุ</label><textarea id="fd-note" rows="2" placeholder="เช่น ไฟผิวดิน ใบไม้แห้ง ทำแนวกันไฟ 300 ม.">${esc(o.note||'')}</textarea>
+ ${typeof tkVfHtml==='function'?tkVfHtml(r):''}</details>
+ <div class="err" id="fd-e"></div><div class="acts"><button class="btn pri" type="submit">${r?'บันทึกการแก้ไข':'บันทึก'}</button><button class="btn" type="button" id="fd-cx">${r?'ยกเลิก':'ปิด (เก็บร่างไว้)'}</button>${r?'<button class="btn dng" type="button" id="fd-del">ลบ</button>':'<button class="btn" type="button" id="fd-clr">ล้างฟอร์ม</button>'}</div>
+ <p class="sm" style="margin:8px 0 0">${UL.me?'บันทึกในชื่อ '+esc(UL.me.d||UL.me.u):'ยังไม่ได้เข้าสู่ระบบ — กดบันทึกแล้วระบบจะพาไปเข้าสู่ระบบก่อน (ร่างไม่หาย)'} · แก้ไข/ลบได้ภายใน 24 ชม. · ไม่มีสัญญาณ = เก็บในเครื่องแล้วส่งเองเมื่อออนไลน์ · รายงานเปิดเผยสาธารณะและแจ้งเข้ากลุ่ม LINE/Telegram</p></form>`);
+ const f=$('#fd-f'),v=id=>{const e=$('#'+id);return e?e.value.trim():''};
+ const rd=()=>{o.dt=v('fd-dt');o.tn=v('fd-tn');o.ta=v('fd-ta');o.te=v('fd-te');o.rai=v('fd-rai');o.cs=v('fd-cs')===''?null:+v('fd-cs');o.ag=v('fd-ag');o.agx=v('fd-agx');o.crew=v('fd-crew');o.un=v('fd-un');o.pl=v('fd-pl');o.moo=v('fd-moo');o.note=v('fd-note');fdSave()};
+ f.addEventListener('input',rd);f.addEventListener('change',rd);
+ const posUI=()=>{const p=o.pos||(o.hs?[o.hs.lo,o.hs.la,0]:null),e=$('#fd-pos');if(!p){e.className='fdpos no';e.innerHTML='ยังไม่ระบุ — กด "ใช้ตำแหน่งปัจจุบัน" ที่จุดไฟ หรือ "แตะเลือกบนแผนที่"'+(o.rp!=null&&fdGrp(o.rp)==='sat'?' หรือเลือกจุดความร้อนด้านบน':'');return}
+  const g=geoAt(p[0],p[1]),ad=(ADM&&admAt(p[0],p[1]))||null,st=g.resp[0]?g.resp[0].properties.station.replace(/\s*\(พื้นที่รอง\)/,'').trim():'';e.className='fdpos';
+  e.innerHTML=`<b>${p[1].toFixed(5)}, ${p[0].toFixed(5)}</b>${p[2]?' ±'+nf(Math.round(p[2]))+' ม.':''} <span class="sm">(${o.pm==='gps'?'GPS':o.pm==='map'?'เลือกบนแผนที่':o.pos?'ตำแหน่งที่บันทึก':'ตำแหน่งจุดความร้อน'})</span><br>${ad?`ต.${esc(ad.t)} อ.${esc(ad.a)} จ.${esc(ad.p)} · `:''}${esc(g.cons?paShort(g.cons.properties.name):'นอกพื้นที่อนุรักษ์')}${st?' · '+esc(fdSt(st)):''}`};
+ const hsUI=()=>{const on=o.rp!=null&&fdGrp(o.rp)==='sat';$('#fd-hsw').hidden=!on;if(!on)return;FD.hs=fdCand();
+  tx('fd-hsl',(o.hs&&!FD.hs.some(h=>vfKey(h)===o.hk)?[Object.assign({lat:o.hs.la,lon:o.hs.lo,t:o.hs.t,sat:SATN[o.hs.sat]||o.hs.sat,km:0},{sel:1})]:[]).concat(FD.hs).map((h,i)=>`<button type="button" data-h="${h.sel?-1:i}" class="${h.sel||vfKey(h)===o.hk?'on':''}">จุด ${vfTime(h.t)} ${esc(h.sat||'')}${h.tam?' · ต.'+esc(h.tam):''}${h.sel?'':' · ห่าง '+nf(h.km,1)+' กม.'}</button>`).join('')||'<div class="sm">ไม่พบจุดความร้อนใน 7 วันในรัศมี 30 กม. (จากตำแหน่งที่เลือก/กลางแผนที่)</div>')};
+ const resUI=()=>{$('#fd-ow').hidden=o.res==='none'};
+ posUI();hsUI();resUI();if(!ADM&&typeof admLoad==='function')admLoad().then(()=>{if(document.getElementById('fd-pos'))posUI()}).catch(e=>dbg('fd:adm',e));
+ $('#fd-rpc').onclick=e=>{const b=e.target.closest('button[data-v]');if(!b)return;o.rp=+b.dataset.v;$$('#fd-rpc button').forEach(x=>x.classList.toggle('on',x===b));if(fdGrp(o.rp)!=='sat'){o.hk=null;o.hs=null}fdSave();hsUI();posUI()};
+ $('#fd-hsl').onclick=e=>{const b=e.target.closest('button[data-h]');if(!b||+b.dataset.h<0)return;const h=FD.hs[+b.dataset.h];if(!h)return;if(o.hk===vfKey(h)){o.hk=null;o.hs=null}else fdUseHs(h);rd();f.querySelector('#fd-dt').value=o.dt;f.querySelector('#fd-tn').value=o.tn;fdSave();hsUI();posUI()};
+ $('#fd-gps').onclick=()=>{const L=typeof LOC!=='undefined'&&LOC.p;if(L&&LOC.q&&Date.now()-LOC.q.timestamp<6e4){o.pos=L.slice();o.pm='gps';fdSave();posUI();hsUI();return}
+  if(!navigator.geolocation)return toast('เบราว์เซอร์นี้ไม่รองรับตำแหน่ง');const b=$('#fd-gps');b.disabled=true;b.textContent='กำลังหาตำแหน่ง…';
+  navigator.geolocation.getCurrentPosition(p=>{o.pos=[+p.coords.longitude.toFixed(6),+p.coords.latitude.toFixed(6),Math.round(p.coords.accuracy||0)];o.pm='gps';fdSave();b.disabled=false;b.textContent='ใช้ตำแหน่งปัจจุบัน (GPS)';posUI();hsUI()},()=>{toast('หาตำแหน่งไม่ได้ (ต้องอนุญาตตำแหน่งในเบราว์เซอร์)');b.disabled=false;b.textContent='ใช้ตำแหน่งปัจจุบัน (GPS)'},{enableHighAccuracy:true,timeout:20000,maximumAge:30000})};
+ $('#fd-map').onclick=()=>{rd();FD.pick=true;closeModal();$('#fd-pk').hidden=false;if(innerWidth<768)toast('แตะแผนที่ที่ตำแหน่งไฟ')};
+ $('#fd-res').onclick=e=>{const b=e.target.closest('button[data-v]');if(!b)return;o.res=b.dataset.v;$$('#fd-res button').forEach(x=>x.classList.toggle('on',x===b));resUI();fdSave()};
+ $('#fd-rq').onclick=e=>{const b=e.target.closest('button[data-v]');if(!b)return;$('#fd-rai').value=b.dataset.v;rd()};
+ $('#fd-ag').onchange=()=>{rd();$('#fd-agw').hidden=o.ag!=='*'};
+ $('#fd-cx').onclick=()=>{rd();closeModal()};const cl=$('#fd-clr');if(cl)cl.onclick=()=>{if(!confirm('ล้างข้อมูลที่กรอกไว้ทั้งหมด?'))return;fdLS('fm-fdd',null);fdForm(null)};
+ const dl=$('#fd-del');if(dl)dl.onclick=()=>vfDel(r);
+ f.onsubmit=async e=>{e.preventDefault();rd();const er=t=>{$('#fd-e').textContent=t;return false};
+  if(o.rp==null)return er('กรุณาเลือกว่าได้รับแจ้งเหตุจากใคร (ข้อ 1)');const p=o.pos||(o.hs?[o.hs.lo,o.hs.la,0]:null);if(!p)return er('กรุณาระบุตำแหน่งไฟ (ข้อ 2)');
+  const tn=fdMs(o.dt,o.tn||o.ta||o.te||'12:00');if(tn==null)return er('กรุณาระบุวันที่รับแจ้งเหตุ (ข้อ 3)');if(tn>Date.now()+36e5)return er('วันเวลารับแจ้งเหตุอยู่ในอนาคต');
+  const ag=o.ag==='*'?o.agx:o.ag;if(!ag)return er('กรุณาเลือกหน่วยงาน (ข้อ 5)');
+  if(o.res!=='none'&&!(+o.rai>0)&&!confirm('ยังไม่ได้กรอกพื้นที่เสียหาย (ไร่) — บันทึกเป็น 0 ไร่ใช่ไหม'))return;
+  try{if(!ADM&&typeof admLoad==='function')await admLoad()}catch(x){dbg('fd:adm',x)}
+  const g=geoAt(p[0],p[1]),ad=(ADM&&admAt(p[0],p[1]))||null;
+  const body={kd:'fd',res:o.res,rp:o.rp,hk:o.hk||null,hs:o.hs||null,pos:o.pos||null,tn,ta:o.ta||null,te:o.te||null,rai:o.res==='none'?0:+o.rai||0,cs:o.cs,ag,crew:o.crew===''?null:+o.crew,un:o.un,pl:o.pl,moo:o.moo,note:o.note,
+   ar:g.cons?g.cons.properties.name:'นอกพื้นที่อนุรักษ์',st:g.resp[0]?g.resp[0].properties.station.replace(/\s*\(พื้นที่รอง\)/,'').trim():'ไม่มี',tm:ad?`${ad.t}|${ad.a}|${ad.p}`:''};
+  const tv=typeof tkVfVal==='function'?tkVfVal():undefined;if(tv!==undefined)body.trk=tv;
+  if(!UL.me){fdSave();toast('เข้าสู่ระบบก่อน แล้วกด "บันทึกการดับไฟป่า" อีกครั้ง — ร่างที่กรอกไว้ยังอยู่');ulLogin();return}
+  const bt=f.querySelector('button[type=submit]');bt.disabled=true;er('');
+  const cap=await fdCap();if(cap===false){bt.disabled=false;return er('เซิร์ฟเวอร์ยังไม่รองรับบันทึกการดับไฟป่า — ผู้ดูแลต้องวาง Worker fire-layers รุ่นใหม่ (worker/layers.mjs) ก่อน')}
+  if(o.ag!=='*')fdLS('fm-fdmy',o.ag);
+  try{const j=r?await ulApi(`/reports/${r.id}?fy=${r.fy}`,{method:'PUT',json:body}):await ulApi('/reports',{method:'POST',json:body});fdGot(j.report,r);if(!r){fdLS('fm-fdd',null);FD.dr=null}closeModal();toast(r?'แก้ไขบันทึกแล้ว':'บันทึกการดับไฟป่าแล้ว · แจ้งเข้ากลุ่มในรอบถัดไป (~5 นาที)')}
+  catch(x){if(!r&&/เชื่อมต่อเซิร์ฟเวอร์ไม่ได้/.test(x.message)){FD.q.push({b:body,at:Date.now()});fdLS('fm-fdq',JSON.stringify(FD.q));fdLS('fm-fdd',null);FD.dr=null;closeModal();fdQueue();toast('ไม่มีสัญญาณ — เก็บไว้ในเครื่องแล้ว จะส่งเองเมื่อออนไลน์ (ดูในการ์ดไฟป่าที่ตรวจพบ)');return}
+   bt.disabled=false;er(x.message)}}}
+function fdUseHs(h,init){const o=FD.dr;o.hk=vfKey(h);o.hs={la:+h.lat.toFixed(5),lo:+h.lon.toFixed(5),t:h.t,sat:satKey(h.sat)};const[d,t]=fdBk(h.t);o.dt=d;o.tn=t;if(init||o.rp==null){const i=XD.rp.indexOf('ดาวเทียม (Hotspot)');if(i>=0)o.rp=i}}
+function fdFromRep(r){const[d,t]=fdBk(r.tn||(r.hs?r.hs.t:r.c)),A=fdAgs(),ag=r.ag||'';return{rp:r.rp,hk:r.hk,hs:r.hs,pos:r.pos,pm:'',dt:d,tn:(r.tn||r.hs)?t:'',ta:r.ta||'',te:r.te||'',res:r.res==='fire'?'out':r.res,rai:r.rai||'',cs:r.cs,ag:!ag||A.includes(ag)?ag:'*',agx:A.includes(ag)?'':ag,crew:r.crew==null?'':r.crew,un:r.un||'',pl:r.pl||'',moo:r.moo||'',note:r.note||''}}
+function fdGot(rep,old){if(old){const i=VF.L.indexOf(old);if(i>=0)VF.L[i]=rep;else VF.L.push(rep)}else VF.L.push(rep);VF.L.sort((a,b)=>a.c-b.c);vfApply();fdRender()}
+async function fdCap(){if(FD.cap)return true;try{const j=await ulApi('/');FD.cap=!!(j&&j.fd);return FD.cap}catch(e){return null}}
+/* ส่งรายการค้างในเครื่อง (ไม่มีสัญญาณตอนกดบันทึก) */
+async function fdFlush(){if(FD.busy||!FD.q.length||!UL.me||(navigator.onLine===false))return;FD.busy=true;let ok=0;
+ try{if((await fdCap())!==true)return;while(FD.q.length){const it=FD.q[0];try{const j=await ulApi('/reports',{method:'POST',json:it.b});VF.L.push(j.report);ok++}catch(e){if(/เชื่อมต่อเซิร์ฟเวอร์ไม่ได้/.test(e.message))break;toast('ส่งรายการค้างไม่สำเร็จ: '+e.message);break}FD.q.shift();fdLS('fm-fdq',JSON.stringify(FD.q))}}
+ finally{FD.busy=false;if(ok){VF.L.sort((a,b)=>a.c-b.c);vfApply();toast('ส่งบันทึกที่ค้างในเครื่องแล้ว '+ok+' รายการ')}fdQueue();if(FD.on)fdRender()}}
+addEventListener('online',()=>fdFlush());setInterval(()=>{if(FD.q.length)fdFlush()},6e4);
+/* ---- ผูกปุ่ม ---- */
+$('#bFd').onclick=()=>FD.on?fdClose():fdOpen();$('#fd-x').onclick=fdClose;
+{const o=$('#bHide').onclick;$('#bHide').onclick=e=>{if(FD.on){fdClose();return}o&&o(e)}}
+$('#fd-add').onclick=()=>fdForm(null);
+$('#fd-fys').onchange=e=>{FD.fy=+e.target.value;fdRender();const L=fdRows(FD.fy).filter(r=>r.xy<2);if(L.length)fdFit(L)};
+$('#fd-ags').onchange=e=>{FD.ag=e.target.value;fdLS('fm-fdag',FD.ag||null);fdRender()};
+$('#fd-w').onclick=e=>{const b=e.target.closest('button[data-w]');if(!b)return;FD.w=b.dataset.w;fdRender()};
+$('#fd-tb').onclick=e=>{const b=e.target.closest('button[data-t]');if(!b)return;FD.tb=b.dataset.t;fdArea(fdRows(FD.fy))};
+$('#fd-pl').onclick=e=>{const b=e.target.closest('button[data-fz]');if(b&&FD.ar&&FD.ar[+b.dataset.fz])fdFit(FD.ar[+b.dataset.fz][1])};
+$('#fcard').addEventListener('click',e=>{const v=e.target.closest('[data-fv]'),ed=e.target.closest('[data-fe]');
+ if(v){const r=XT[+v.dataset.fv];if(!r)return;MOVED=true;map.easeTo({center:[r.lo,r.la],zoom:Math.max(map.getZoom(),13),offset:visOff(),duration:dur(700)});map.once('moveend',()=>xtPopup(r));return}
+ if(ed){const r=VF.L.find(x=>x.id===ed.dataset.fe);if(r)fdForm(r);return}
+ if(e.target.id==='fd-qs')fdFlush();
+ const x=e.target.closest('[data-xdy] button');if(x)setTimeout(fdRender,0)});
+$('#fd-more').onclick=()=>{fdHide();hOpen(false,'xt')};$('#fd-xls').onclick=()=>{try{vfXlsx()}catch(e){toast('ส่งออกไม่สำเร็จ: '+e.message)}};
+$('#fd-pkx').onclick=()=>{FD.pick=false;$('#fd-pk').hidden=true;fdForm(FD.ed,null,true)};
+addEventListener('keydown',e=>{if(e.key==='Escape'&&FD.pick){FD.pick=false;$('#fd-pk').hidden=true}});
+if(window.ResizeObserver)try{new ResizeObserver(()=>moreRun()).observe($('#fcard'))}catch(e){}
+try{fdSetup()}catch(e){dbg('fdSetup',e)}
+/* ลิงก์ตรง ?fd = เปิดการ์ดนี้ · ?fd=new = เปิดฟอร์มบันทึกทันที (ใช้ทำทางลัดบนมือถือ/QR ให้เจ้าหน้าที่) */
+try{const q=new URLSearchParams(location.search);if(q.has('fd')){setTimeout(()=>{fdOpen();if(q.get('fd')==='new')fdForm(null)},800)}}catch(e){dbg('fd:q',e)}
 </script>
 </body>
 </html>

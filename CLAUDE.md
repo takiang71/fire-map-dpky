@@ -1,7 +1,7 @@
 # แผนที่สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่ (Dong Phayayen–Khao Yai Forest Complex)
 
 เว็บแอปไฟล์เดียว (`index.html` 2.4 MB ~8,000 บรรทัด, ข้อมูลฝัง ~1 MB · `_site/index.html` 1.5 MB: build_site แยกข้อมูลฝังเป็น `data/emb/*.json` → [data-blocks.md](docs/arch/data-blocks.md)) ภาษาไทย ใช้ MapLibre GL JS 4.7.1 จาก cdnjs
-เปิดด้วยดับเบิลคลิก หรือ `node scripts/serve.js` แล้วเข้า http://localhost:8000 (เครื่องผู้ใช้ไม่มี Python จริง มีแต่ alias ของ Store · มี Node 24 → สคริปต์ใหม่เขียนด้วย Node)
+เปิดด้วยดับเบิลคลิก หรือ `node scripts/serve.js` แล้วเข้า http://localhost:8000 (ไม่มี Python จริง · มี Node 24 → สคริปต์ใหม่ใช้ Node)
 ผู้ใช้สื่อสารภาษาไทย ตอบเป็นภาษาไทย · ข้อความบนหน้าเว็บเป็นภาษาไทยทั้งหมด
 สเปกตั้งต้นอยู่ที่ `docs/spec-v3.md` (เฟส 1–4)
 โฮสต์: https://takiang71.github.io/fire-map-dpky/ · repo สาธารณะ https://github.com/takiang71/fire-map-dpky (main, LF) · GitHub Pages + Actions · ผู้ใช้ยืนยันว่าเปิดเผยข้อมูลทั้งหมดเป็นสาธารณะได้
@@ -61,7 +61,7 @@
 - Actions: site ~40 วิ/รอบ (cron-job.org 5 นาที + watchdog), sync 4 รอบ/วัน, wx ตามต้นทาง
 - FWI: TFDRS บล็อกเครื่อง GitHub (403) → Task Scheduler "fire-map FWI" บนเครื่องผู้ใช้ (`fwi_local.js`) · เก่า ≥2 วัน → LFA (`fwi_lfa.js`)
 - ต้นทางช้า/หยุด: SAVI มีแค่ 202601 · พื้นที่เผาไหม้ B4 รอบล่าสุด 22–28 ต.ค. 69
-- **F1** ผลตรวจหน้างาน (`VF` + Worker `/reports`) · **F7** บันทึกเส้นทาง `TK` (`fm-tk`, แนบรายงาน `trk`) → [ui-modules.md](docs/arch/ui-modules.md)
+- **F1** ผลตรวจหน้างาน (`VF` + Worker `/reports`) · **F7** บันทึกเส้นทาง `TK` · **FD** เมนูไฟป่าที่ตรวจพบ + ฟอร์มบันทึกการดับไฟ (`kd:'fd'`) → [ui-modules.md](docs/arch/ui-modules.md)
 - **F2** ดัชนีเสี่ยง M2 (ผู้ใช้อนุมัติ) ชั้น `rk-*` + risk.json → risk.md · **F3** `monthly_report.js` (sync วันที่ 1 → `reports/`) → pipelines.md
 - **F6** รับ DM Telegram (`/ตาม`): getUpdates + `tg_subs.json` (branch state) **ห้ามตั้ง webhook** → notify.md
 - **B2** งานหนัก (กองจุด/ภูมิประเทศ/เผาไหม้) ใน Web Worker inline `WJ`/`wjLib` (ห้ามแตะ DOM) → gotchas.md testing.md
