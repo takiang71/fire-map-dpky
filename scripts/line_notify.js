@@ -56,8 +56,9 @@ async function line(p, body) {
 }
 
 // โควตาที่เหลือพอส่งเข้ากลุ่ม 1 ครั้งไหม (ส่ง 1 ครั้ง = จำนวนสมาชิก)
+// GROUP เป็นรหัสผู้ใช้ (U…) = ส่งถึงคนเดียว เช่น line-test to=admin ส่งตัวอย่างให้ผู้ดูแล (18 พ.ย. 69) → สมาชิก 1 ไม่ถาม API กลุ่ม
 async function quotaOk() {
-  const [q, u, m] = await Promise.all([line('/v2/bot/message/quota'), line('/v2/bot/message/quota/consumption'), line(`/v2/bot/group/${GROUP}/members/count`)]);
+  const [q, u, m] = await Promise.all([line('/v2/bot/message/quota'), line('/v2/bot/message/quota/consumption'), /^U[0-9a-f]{32}$/.test(GROUP) ? { count: 1 } : line(`/v2/bot/group/${GROUP}/members/count`)]);
   if (q.type === 'none') return { ok: true, left: Infinity, members: m.count };
   const left = q.value - u.totalUsage - RESERVE;
   return { ok: left >= m.count, left, members: m.count, limit: q.value, used: u.totalUsage };

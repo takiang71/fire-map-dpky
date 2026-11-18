@@ -15,6 +15,13 @@ on:
           - burn        # พื้นที่เผาไหม้รอบล่าสุด
           - watch       # พื้นที่เฝ้าระวังพิเศษ (โรงเรียนนายร้อยพระจุลจอมเกล้า)
           - preview     # แสดงข้อความทุกแบบใน log (ไม่ส่ง)
+      to:
+        description: 'ส่งถึง (admin = แชตส่วนตัวของผู้ดูแล TG_ADMIN_ID · ไม่กวนกลุ่ม)'
+        type: choice
+        default: group
+        options:
+          - group
+          - admin
 
 permissions:
   contents: read
@@ -29,7 +36,12 @@ jobs:
         with:
           node-version: 22
       - run: node scripts/build_site.js || true
+      # to=admin แต่ยังไม่ตั้ง TG_ADMIN_ID → หยุด (ไม่ตกกลับไปส่งเข้ากลุ่ม)
+      - if: inputs.to == 'admin'
+        run: test -n "$A" || { echo 'ยังไม่ได้ตั้ง TG_ADMIN_ID'; exit 1; }
+        env:
+          A: ${{ vars.TG_ADMIN_ID || secrets.TG_ADMIN_ID }}
       - run: node scripts/telegram_notify.js --${{ inputs.kind }}
         env:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
-          TG_CHAT_ID: ${{ vars.TG_CHAT_ID || secrets.TG_CHAT_ID }}
+          TG_CHAT_ID: ${{ inputs.to == 'admin' && (vars.TG_ADMIN_ID || secrets.TG_ADMIN_ID) || vars.TG_CHAT_ID || secrets.TG_CHAT_ID }}

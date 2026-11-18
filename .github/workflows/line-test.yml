@@ -14,6 +14,13 @@ on:
           - burn        # พื้นที่เผาไหม้รอบล่าสุด
           - watch       # พื้นที่เฝ้าระวังพิเศษ (โรงเรียนนายร้อยพระจุลจอมเกล้า)
           - validate    # ตรวจรูปแบบอย่างเดียว ไม่ส่ง ไม่เสียโควตา
+      to:
+        description: 'ส่งถึง (admin = แชตส่วนตัวของผู้ดูแล LINE_ADMIN_ID — ใช้โควตา 1 ข้อความ · ไม่กวนกลุ่ม)'
+        type: choice
+        default: group
+        options:
+          - group
+          - admin
 
 permissions:
   contents: read
@@ -28,9 +35,11 @@ jobs:
         with:
           node-version: 22
       - run: node scripts/build_site.js || true
+      - if: inputs.to == 'admin' && vars.LINE_ADMIN_ID == ''
+        run: echo 'ยังไม่ได้ตั้ง Variable LINE_ADMIN_ID' && exit 1
       - run: node scripts/line_notify.js --${{ inputs.kind }}
         env:
           LINE_TOKEN: ${{ secrets.LINE_TOKEN }}
-          LINE_GROUP_ID: ${{ vars.LINE_GROUP_ID }}
+          LINE_GROUP_ID: ${{ inputs.to == 'admin' && vars.LINE_ADMIN_ID || vars.LINE_GROUP_ID }}
           LINE_MODE: ${{ vars.LINE_MODE }}
           TG_INVITE: ${{ vars.TG_INVITE }}
