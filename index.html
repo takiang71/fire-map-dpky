@@ -2036,6 +2036,7 @@ function windAt(t){ // t = ชั่วโมงนับจากตอนน�
  if(WS&&!manualWind&&WS.u.length>2){const i=Math.min(WS.u.length-2,Math.floor(t)),f=Math.min(1,t-i),c=(k,fn)=>-WS.u[k]*fn(WS.d[k]*Math.PI/180);
   return[(c(i,Math.sin)*(1-f)+c(i+1,Math.sin)*f)/3.6,(c(i,Math.cos)*(1-f)+c(i+1,Math.cos)*f)/3.6]}
  const a=P.from*Math.PI/180;return[-P.u*Math.sin(a)/3.6,-P.u*Math.cos(a)/3.6]}
+const fqHr=t=>{if(!P.hrly||!WS||!WS.rh||!WS.T||WS.rh.length<3)return null;const i=Math.min(WS.rh.length-2,Math.floor(t)),f=Math.min(1,t-i),L=a=>a[i]==null||a[i+1]==null?null:a[i]*(1-f)+a[i+1]*f,rh=L(WS.rh),T=L(WS.T);return rh==null||T==null?null:{rh,T}}; /* F5 (7): โหมด Lagrangian ใช้ EMC รายชั่วโมง */
 function lag(h,r,H){
  const N=2000,T=P.hr*3600,dt=300,K=50,sg=Math.sqrt(2*K*dt),WF=1.25,HM=1000,CELL=1000,rnd=mulberry(h.id*7919+13),
   g=()=>Math.sqrt(-2*Math.log(rnd()+1e-12))*Math.cos(2*Math.PI*rnd()),th=r.toDir*Math.PI/180,m=r.pm*1e12/N,cells=new Map(),ends=[],
@@ -2051,7 +2052,7 @@ function lag(h,r,H){
  feats.push({type:'Feature',properties:{k:'trace'},geometry:{type:'LineString',coordinates:tr}});
  let hx=0,hy=0,hLen=0;const hp=[ll(0,0)]; // หัวไฟ: อัตราลามคำนวณใหม่ทุกก้าวจากลมขณะนั้น (Rothermel) แล้วเดินไปตามทิศลมขณะนั้น
  for(let t=0;t<T;t+=dt){const w=windAt(t/3600),sp=Math.hypot(w[0],w[1]);if(sp<.03)continue;
-  const d=Math.max(.05,R0*r.f.k*raw(sp*3.6,r.E,P.sl))*dt/60;hx+=w[0]/sp*d;hy+=w[1]/sp*d;hLen+=d;hp.push(ll(hx,hy))}
+  const hq=fqHr(t/3600),d=Math.max(.05,R0*r.f.k*raw(sp*3.6,hq?emc(hq.T,hq.rh):r.E,P.sl))*dt/60;hx+=w[0]/sp*d;hy+=w[1]/sp*d;hLen+=d;hp.push(ll(hx,hy))}
  feats.push({type:'Feature',properties:{k:'head'},geometry:{type:'LineString',coordinates:hp}});
  return{feats,max,reach:reach/1000,far,p7:p7||tr[tr.length-1],hEnd:hp[hp.length-1],hLen,...plumeImg(h,ends,m,HM)}}
 
@@ -2103,7 +2104,7 @@ function upd(){
  tx('dw',`<span>หน้าไฟ (${nf((LG?LG.hLen:r.head)/1000,1)} กม.):</span><b>${LG?fm(LG.hEnd):pt(r.head,r.toDir)}</b><span>ใต้ลม 7 กม.:</span><b>${LG?fm(LG.p7):pt(7000)}</b><span>ปลาย${LG?'กลุ่ม':'กรวย'}ควัน (~${nf(rch)} กม.):</span><b>${LG?fm(LG.far):pt(r.reach*1000)}</b>`);
  tx('eq',`<p><b>1. ${P.fm!=null&&FQ.ff?`ความชื้นเชื้อเพลิงละเอียดจาก FFMC (Van Wagner 1987):</b> <code>m = 147.2 · (101 − FFMC) ÷ (59.5 + FFMC)</code> จาก FFMC ${nf(FQ.ff.v,1)} ของ TFDRS กรมป่าไม้ (${fwDate(FQ.ff.d,{day:'numeric',month:'short'})}${FQ.ff.f?' พยากรณ์':' ค่าเที่ยงวัน'}) ได้ <code>m = ${nf(r.E,1)}%</code> (ใช้แทน EMC · สลับเป็นค่าจากอากาศได้)`:`ความชื้นสมดุลเชื้อเพลิง (Simard 1968 EMC):</b> จากอุณหภูมิ (${nf(P.T,1)} °C) และความชื้นสัมพัทธ์ (${Math.round(P.rh)}%) ได้ <code>EMC = ${nf(r.E,1)}%</code>`} และตัวคูณลดทอนความชื้น <code>η_M = ${nf(r.eta,2)}</code></p>
  <p><b>2. อัตราการลุกลามไฟผิวดิน (Rothermel 1972):</b> <code>R = R₀ · η_M · (1 + |φ_W + φ_S|)</code> รวมผลของลม (ปรับด้วยค่าบังลมของป่า WAF = ${WAF}) กับความชัน ${P.sl}° แบบเวกเตอร์${P.asp==null?' (ไม่ทราบทิศลาด: ถือว่าลาดขึ้นไปทางเดียวกับลม)':` (ลาดขึ้นไป${dn((P.asp+180)%360)} · หัวไฟลามไป${dn(r.toDir)})`} ได้หัวไฟ ${nf(r.Rh,1)} ข้างไฟ ${nf(r.Rf,1)} ท้ายไฟ ${nf(r.Rb,1)} ม./นาที</p>
- <p><b>3. เรขาคณิตวงรีไฟป่า (Anderson 1983):</b> <code>L/B = 0.936·e^(0.2566·U) + 0.461·e^(-0.1548·U) - 0.397 = ${nf(r.LB,2)}</code> (U = ${nf(r.Um,2)} ม./วินาที = ${P.asp==null?'ลมที่ 10 ม. x WAF':'ลมประสิทธิผลที่รวมผลความชันแล้ว'})${HY?' · โหมด Lagrangian: ขอบไฟโตแบบ Huygens (คลื่นวงรีจากทุกจุดบนขอบไฟ) ตามลมรายชั่วโมง พื้นที่และเส้นรอบวงมาจากรูปขอบไฟนี้':''}</p>
+ <p><b>3. เรขาคณิตวงรีไฟป่า (Anderson 1983):</b> <code>L/B = 0.936·e^(0.2566·U) + 0.461·e^(-0.1548·U) - 0.397 = ${nf(r.LB,2)}</code> (U = ${nf(r.Um,2)} ม./วินาที = ${P.asp==null?'ลมที่ 10 ม. x WAF':'ลมประสิทธิผลที่รวมผลความชันแล้ว'})${HY?' · โหมด Lagrangian: ขอบไฟโตแบบ Huygens (คลื่นวงรีจากทุกจุดบนขอบไฟ) ตามลม'+(P.hrly&&WS&&WS.rh?' ความชื้นสัมพัทธ์และอุณหภูมิ (EMC)':'')+'รายชั่วโมง พื้นที่และเส้นรอบวงมาจากรูปขอบไฟนี้':''}</p>
  <p><b>4. ความรุนแรงหน้าไฟและเปลวไฟ (Byram 1959):</b> <code>I_B = H · w · r = ${nf(r.I)} kW/m</code> (H = ${nf(HC)} kJ/kg) และ <code>L_f = 0.0775 · I_B^0.46 = ${nf(r.Lf,1)} ม.</code></p>
  <p style="margin:0"><b>5. การปลดปล่อยมลพิษและกรวยควัน (Seiler & Crutzen 1980 / Gaussian Plume):</b> จากมวลชีวมวลที่เผาไหม้จริง (x Cf ${r.f.cf}) x สัมประสิทธิ์ของ${r.f.n} (<code>EF_PM2.5 = ${r.f.pm} g/kg</code>, <code>EF_CO₂ = ${r.f.co} g/kg</code>) ${LG?'· ควันใช้ Lagrangian: <code>X(t+Δt) = X(t) + V·Δt</code>, <code>V = u_mean + u′</code> (random walk, K = 50 m²/s) ลม 10 ม. x 1.25 ('+(WS&&!manualWind?'พยากรณ์รายชั่วโมง':'ลมคงที่ตามสไลเดอร์')+') ชั้นผสม 1,000 ม. อนุภาค 2,000 ตัว':'· ค่าคงที่ R₀ ระยะควัน และตัวคูณฝุ่นใต้ลม สอบเทียบกับค่าทดสอบ 7.3'}</p>`);
  fqRender(r);
@@ -2126,8 +2127,8 @@ function openDetail(h){
  syncSl();upd();fillAq(h);fqLoad(h);try{if(typeof vfBox==='function')vfBox(h)}catch(e){dbg('vfBox',e)}
  ftLoad().then(()=>{if(CUR===h&&fuelAuto){fuelAuto1(h.el);syncSl();upd()}}).catch(e=>dbg('openDetail',e));
  if(h.ns!=='api')admLoad().then(()=>{const a=CUR===h&&admAt(h.lon,h.lat);if(!a)return;tx('d-name','ตำบล'+esc(a.t)+' อำเภอ'+esc(a.a)+' จังหวัด'+esc(a.p));tx('d-nmn',(h.demo?'จุดตัวอย่างเพื่อดูการแสดงผล · ':'')+'ชื่อพื้นที่จากแนวเขตตำบล (กรมการปกครอง ผ่าน OCHA HDX)')}).catch(e=>dbg('admLoad',e));
- fetchT(`https://api.open-meteo.com/v1/forecast?latitude=${h.lat}&longitude=${h.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation&hourly=wind_speed_10m,wind_direction_10m&forecast_hours=26&wind_speed_unit=kmh`,{},FTO.aux).then(r=>r.json()).then(j=>{
-  if(CUR!==h||!j.current)return;const c=j.current;if(j.hourly&&j.hourly.wind_speed_10m)WS={u:j.hourly.wind_speed_10m,d:j.hourly.wind_direction_10m};FQ.om={T:c.temperature_2m,rh:c.relative_humidity_2m,u:c.wind_speed_10m,from:c.wind_direction_10m};fqApply();
+ fetchT(`https://api.open-meteo.com/v1/forecast?latitude=${h.lat}&longitude=${h.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation&hourly=wind_speed_10m,wind_direction_10m,relative_humidity_2m,temperature_2m&forecast_hours=26&wind_speed_unit=kmh`,{},FTO.aux).then(r=>r.json()).then(j=>{
+  if(CUR!==h||!j.current)return;const c=j.current;if(j.hourly&&j.hourly.wind_speed_10m)WS={u:j.hourly.wind_speed_10m,d:j.hourly.wind_direction_10m,rh:j.hourly.relative_humidity_2m,T:j.hourly.temperature_2m};FQ.om={T:c.temperature_2m,rh:c.relative_humidity_2m,u:c.wind_speed_10m,from:c.wind_direction_10m};fqApply();
   h.el=j.elevation;if(fuelAuto)fuelAuto1(j.elevation);tx('d-el',Math.round(j.elevation)+' ม. รทก.');tx('d-wx','Open-Meteo ขณะนี้ · '+nf(c.temperature_2m,1)+' °C');syncSl();upd();fillWx(h,c)
  }).catch(()=>tx('d-wx','ใช้ค่าตัวอย่าง (ดึงสภาพอากาศไม่ได้)'))}
 function closeDetail(){if(!$('#dp').classList.contains('open'))return;$('#dp').classList.remove('open');CUR=null;FXD={type:'FeatureCollection',features:[]};
@@ -2146,12 +2147,14 @@ $('#d-test').onclick=()=>{Object.assign(P,{hr:6,fuel:0,u:11,from:90,rh:61,T:32.3
    เลื่อนความชื้นสัมพัทธ์เอง/ค่าทดสอบ = ใช้ EMC ของจุดนั้น · ไม่มี FFMC/สถานี = ค่าเดิมทุกตัว (ค่าทดสอบ 7.3 → หัวไฟ 4.7 ม./นาที) ---- */
 const FQK=['T','rh','u','from'],FQKM=30,FQAGE=60*6e4;
 let FQ={mp:'f',man:{},fw:''};
-function fqReset(h){FQ={mp:FQ.mp||'f',h,man:{},om:null,st:null,stv:null,ff:null,mo:null,sld:0,test:0,fw:FQ.fw||'',src:{}}}
-const fqMM=()=>FQ.mo||FQ.mp;
+function fqReset(h){FQ={mp:FQ.mp||'f',h,man:{},om:null,st:null,stv:null,ff:null,mo:null,sld:0,test:0,fw:FQ.fw||'',src:{},nt:fqNt(h&&h.t)}}
+const fqMM=()=>FQ.mo||(FQ.nt?'e':FQ.mp);
+/* กลางคืน = เวลาที่ตรวจพบจุดนอก 10:00–18:00 น. เวลาไทย (FFMC เป็นค่าเที่ยงวัน) */
+const fqNt=t=>{if(!isFinite(t))return 0;const d=new Date(t+7*36e5),m=d.getUTCHours()*60+d.getUTCMinutes();return m<600||m>1080?1:0};
 /* เลือกค่าตามลำดับ (ฟังก์ชันบริสุทธิ์ — test/fq.test.js): Q = FQ, cur = P ปัจจุบัน → {v ค่า, s ที่มา u ปรับเอง | s สถานี | m แบบจำลอง | d ค่าตัวอย่าง, fm ความชื้นจาก FFMC หรือ null} */
 function fqPick(Q,cur){const v={},s={};for(const k of FQK){if(Q.man&&Q.man[k]){v[k]=cur[k];s[k]='u'}else if(Q.stv&&Q.stv[k]!=null){v[k]=Q.stv[k];s[k]='s'}else if(Q.om&&Q.om[k]!=null){v[k]=Q.om[k];s[k]='m'}else{v[k]=cur[k];s[k]='d'}}
- const mm=Q.mo||Q.mp;return{v,s,fm:mm==='f'&&Q.ff&&isFinite(Q.ff.m)?Q.ff.m:null}}
-function fqApply(){const o=fqPick(FQ,P);Object.assign(P,o.v);FQ.src=o.s;if(o.fm!=null)P.fm=o.fm;else delete P.fm}
+ const ok=!!(Q.ff&&isFinite(Q.ff.m)),mm=Q.mo||(Q.nt?'e':Q.mp);return{v,s,fm:mm==='f'&&ok?Q.ff.m:null,nt:!Q.mo&&Q.nt&&Q.mp==='f'&&ok?1:0}}
+function fqApply(){const o=fqPick(FQ,P);Object.assign(P,o.v);FQ.src=o.s;FQ.ntu=o.nt;if(o.fm!=null)P.fm=o.fm;else delete P.fm;P.hrly=o.fm==null&&!FQ.test&&!(FQ.man&&(FQ.man.T||FQ.man.rh))?1:0}
 /* สถานีกรมอุตุฯ ใกล้สุดภายใน FQKM กม. ที่ค่าล่าสุดไม่เกิน 1 ชม. (ใช้ TMN ชุดเดียวกับ tmDetail) · ความชื้น <8% = เซนเซอร์ผิด ไม่ใช้ · ลมสงบ (<1) ไม่ใช้ทิศ */
 function fqStn(L,lo,la,now){let b=null;for(const s of L||[]){const t=tmT(s);if(!(now-t<=FQAGE&&t-now<=FQAGE))continue;const d=tmKm(lo,la,s.station_lon,s.station_lat);if(d.km>FQKM||(b&&b.km<=d.km))continue;
   const u=tmNum(s.windspeed),dr=tmNum(s.winddirection),v={T:tmNum(s.temperature),rh:tmRhBad(s)?null:tmNum(s.humidity),u,from:u!=null&&u>=1&&dr!=null?dr:null};
@@ -2161,17 +2164,18 @@ function fqLoad(h){
  if(typeof fwLoad==='function')fwLoad().then(()=>{const d=FWX.days.find(x=>x.d===fwTday());return d?fwAllAt(d,h.lon,h.lat).then(o=>({o,d})):null})
   .then(r=>{if(CUR!==h)return;FQ.ffOk=1;if(r&&r.o.FFMC!=null&&isFinite(r.o.FFMC))FQ.ff={v:r.o.FFMC,m:ffM(r.o.FFMC),d:r.d.d,f:r.d.f};fqApply();syncSl();upd()}).catch(e=>{dbg('fqLoad fw',e);if(CUR===h){FQ.ffOk=2;upd()}})}
 function fqWhy(t){FQ.fw=t;fqFuel()}
-function fqFuel(){const m=P.fm!=null&&FQ.ff?'FFMC '+nf(FQ.ff.v,1)+' (TFDRS กรมป่าไม้)':'EMC จากอากาศ';tx('fuel-why',FQ.fw+' · ความชื้นเชื้อเพลิง: '+m)}
+function fqFuel(){const m=P.fm!=null&&FQ.ff?'FFMC '+nf(FQ.ff.v,1)+' (TFDRS กรมป่าไม้)':FQ.ntu?'EMC จากอากาศ (กลางคืน — FFMC เป็นค่าเที่ยงวัน จึงใช้ความชื้นจากอากาศขณะนั้น)':'EMC จากอากาศ';tx('fuel-why',FQ.fw+' · ความชื้นเชื้อเพลิง: '+m)}
 const fqHM=t=>new Date(t).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'});
 /* แผงรายละเอียด: ที่มาของทุกค่า (#fq-src) + ป้ายความชื้นเชื้อเพลิง/ปุ่มสลับ (#fq-eh/#fq-mm) + ศักยภาพ/พื้นที่ 1 ชม. (#fq-pot/#fq-a1) — เรียกท้าย upd() */
 function fqRender(r){const S0=FQ.src||{},st=FQ.st,
   lab=k=>S0[k]==='u'?(FQ.test?'ค่าทดสอบ':'ปรับเอง'):S0[k]==='s'?'สถานีกรมอุตุฯ':S0[k]==='m'?'แบบจำลอง Open-Meteo (ขณะนี้)':'ค่าตัวอย่าง'+(FQ.om?'':' (กำลังดึง…)'),
   ff=FQ.ff,useF=P.fm!=null&&ff,fd=ff?fwDate(ff.d,{day:'numeric',month:'short'})+(ff.f?' พยากรณ์':' ค่าเที่ยงวัน'):'',
-  mw=useF?`${nf(r.E,1)}% · FFMC ${nf(ff.v,1)} (TFDRS กรมป่าไม้ ${fd})`:`${nf(r.E,1)}% · EMC จากอุณหภูมิ/ความชื้นสัมพัทธ์`+(ff?' (เลือกใช้ค่าจากอากาศ)':FQ.ffOk?' (ไม่มี FFMC ของวันนี้ที่จุดนี้)':' (กำลังดึง FFMC…)'),
+  mw=useF?`${nf(r.E,1)}% · FFMC ${nf(ff.v,1)} (TFDRS กรมป่าไม้ ${fd})`:`${nf(r.E,1)}% · EMC จากอุณหภูมิ/ความชื้นสัมพัทธ์`+(FQ.ntu?' (กลางคืน — FFMC เป็นค่าเที่ยงวัน จึงใช้ความชื้นจากอากาศขณะนั้น)':ff?' (เลือกใช้ค่าจากอากาศ)':FQ.ffOk?' (ไม่มี FFMC ของวันนี้ที่จุดนี้)':' (กำลังดึง FFMC…)'),
   wl=S0.u===S0.from?lab('u'):'ความเร็ว: '+lab('u')+' · ทิศ: '+lab('from');
  tx('fq-src',`<span>อุณหภูมิ</span><b>${nf(P.T,1)} °C <i>· ${lab('T')}</i></b><span>ความชื้นสัมพัทธ์</span><b>${Math.round(P.rh)}% <i>· ${lab('rh')}</i></b>`
-  +`<span>ลม</span><b>${Math.round(P.u)} กม./ชม. จาก${dn(P.from).replace(/ \(.*$/,'')} <i>· ${wl}${P.sm==='l'&&!manualWind&&WS?' · โหมด Lagrangian ใช้ลมพยากรณ์รายชั่วโมง Open-Meteo ชั่วโมงถัดไป':''}</i></b>`
+  +`<span>ลม</span><b>${Math.round(P.u)} กม./ชม. จาก${dn(P.from).replace(/ \(.*$/,'')} <i>· ${wl}</i></b>`
   +`<span>ความชื้นเชื้อเพลิง</span><b>${mw}</b><span>ความลาดชัน</span><b>${P.sl}° <i>· ${slManual?(FQ.test?'ค่าทดสอบ':'ปรับเอง'):FQ.sld?'แบบจำลองความสูง (DEM) รอบจุด':'ค่าเริ่มต้น'}</i></b>`
+  +(P.sm==='l'?`<span style="grid-column:1/-1;font-size:11.5px">โหมด Lagrangian: ${[WS&&!manualWind?'ลม':'',WS&&WS.rh&&P.hrly?'ความชื้นสัมพัทธ์/อุณหภูมิ (EMC)':''].filter(Boolean).join(' และ ')||'—'} ${WS&&(!manualWind||WS.rh&&P.hrly)?'ใช้ค่าพยากรณ์รายชั่วโมง Open-Meteo ชั่วโมงถัดไป':''}${!(WS&&WS.rh&&P.hrly)?' · ความชื้น/อุณหภูมิคงที่ตามตาราง'+(P.fm!=null?' (ใช้ FFMC)':FQ.test||FQ.man.T||FQ.man.rh?' (ปรับเอง)':''):''}</span>`:'')
   +(st&&FQK.some(k=>S0[k]==='s')?`<span style="grid-column:1/-1;font-size:11.5px">สถานีกรมอุตุฯ: <b style="font-weight:600;color:#1d2433">${esc(st.n)}</b> ห่าง ${nf(st.km,st.km<10?1:0)} กม. ทางทิศ${DIRN[Math.round(st.br/45)%8]} · ค่าเวลา ${fqHM(st.t)} น.</span>`:'')
   +`<span style="grid-column:1/-1;font-size:11.5px">ลำดับที่มา: ปรับเอง &gt; สถานีกรมอุตุฯ ใกล้สุด ≤${FQKM} กม. ข้อมูลไม่เกิน 1 ชม.${FQ.stOk&&!st?' (ไม่มีสถานีที่เข้าเกณฑ์)':''} &gt; แบบจำลอง Open-Meteo</span>`);
  tx('fq-eh',useF?'ความชื้นเชื้อเพลิงละเอียด (FFMC กรมป่าไม้)':'ความชื้นสมดุลเชื้อเพลิงตาย (EMC)');
@@ -2180,7 +2184,7 @@ function fqRender(r){const S0=FQ.src||{},st=FQ.st,
  const a1=P.hr>1?calc({...P,hr:1}).rai:null;
  tx('fq-a1',a1!=null?'ที่ 1 ชม. ≈ '+nf(a1)+' ไร่':'');
  tx('fq-pot',`พื้นที่ ${P.hr} ชม. คือศักยภาพเมื่อไฟลามอิสระโดยไม่มีการดับ ไม่ใช่การพยากรณ์รอยไหม้จริง${a1!=null?` · ที่ 1 ชม. ≈ <b>${nf(a1)} ไร่</b>`:''}`)}
-$$('#fq-mm button').forEach(b=>b.onclick=()=>{if(b.disabled)return;FQ.mp=b.dataset.m;FQ.mo=null;fqApply();syncSl();upd()});
+$$('#fq-mm button').forEach(b=>b.onclick=()=>{if(b.disabled)return;FQ.mp=b.dataset.m;FQ.mo=b.dataset.m;fqApply();syncSl();upd()}); /* กดเอง = ใช้กับจุดนี้แม้กลางคืน + จำเป็นค่าเริ่มต้น */
 $('#d-zm').onclick=()=>{if(!CUR||!LASTR)return;const pts=FXD.features.flatMap(f=>f.geometry.coordinates[0]),b=new maplibregl.LngLatBounds(pts[0],pts[0]);pts.forEach(q=>b.extend(q));
  map.fitBounds(b,{padding:{top:70,bottom:90,left:60,right:innerWidth>767?420:60},duration:dur(1200)})};
 
@@ -3011,7 +3015,7 @@ function hull(pts){pts.sort((a,b)=>a[0]-b[0]||a[1]-b[1]);const cr=(o,a,b)=>(a[0]
  for(const p of pts){while(lo.length>=2&&cr(lo[lo.length-2],lo[lo.length-1],p)<=0)lo.pop();lo.push(p)}
  for(let i=pts.length-1;i>=0;i--){const p=pts[i];while(up.length>=2&&cr(up[up.length-2],up[up.length-1],p)<=0)up.pop();up.push(p)}up.pop();lo.pop();return lo.concat(up)}
 function huy(r){const T=P.hr*3600,n=Math.max(1,Math.round(T/(P.hr>12?1800:900))),step=T/n,m=step/60;let v=Array.from({length:8},(_,i)=>[2*Math.cos(i*Math.PI/4),2*Math.sin(i*Math.PI/4)]);const snap=[v];
- for(let s=0;s<n;s++){const w=windAt((s+.5)*step/3600),sp=Math.hypot(w[0],w[1]),to=sp<.03?0:Math.atan2(w[0],w[1])*180/Math.PI,c=calc({...P,u:sp*3.6,from:(to+540)%360}),
+ for(let s=0;s<n;s++){const w=windAt((s+.5)*step/3600),sp=Math.hypot(w[0],w[1]),to=sp<.03?0:Math.atan2(w[0],w[1])*180/Math.PI,c=calc({...P,...fqHr((s+.5)*step/3600),u:sp*3.6,from:(to+540)%360}),
   a=(c.Rh+c.Rb)/2*m,b=c.Rf*m,off=(c.Rh-c.Rb)/2*m,th=c.toDir*Math.PI/180,pts=[];
   for(const p of v)for(let i=0;i<24;i++){const q=i/24*2*Math.PI,x=off+a*Math.cos(q),y=b*Math.sin(q);pts.push([p[0]+x*Math.sin(th)+y*Math.cos(th),p[1]+x*Math.cos(th)-y*Math.sin(th)])}
   v=hull(pts);snap.push(v)}

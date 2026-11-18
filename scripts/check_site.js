@@ -167,16 +167,21 @@ const E3UI = `(async()=>{if(typeof ulALog!=='function'||typeof ulLogAll!=='funct
   return ''}finally{window.confirm=c0;await sl(200);ulApi=o;UL.tok=tk;UL.me=me;try{closeModal()}catch(_){}if(!op&&UL.open)ulOpen(false);else ulList()}})()`;
 // F5 (18 พ.ย. 69): แผงรายละเอียดจุด → โมเดลไฟ: ที่มาของทุกค่า (#fq-src) · ข้อความศักยภาพ + พื้นที่ 1 ชม. (#fq-pot) · ค่าทดสอบ 7.3 = หัวไฟ 4.7 และ FFMC ที่มาทีหลังไม่ทับ
 // · ปุ่มสลับ FFMC/EMC (#fq-mm, FFMC จำลอง 88.5 เพราะไฟล์กรอบ FWI ของวันนี้อาจไม่มีในเครื่อง) · มือถือ: ตารางที่มาไม่ล้นแนวนอน
+// · (6) กลางคืน (FQ.nt) ใช้ EMC + เหตุผลใน #fuel-why แต่กด FFMC เองได้ · (7) Lagrangian + ค่าทดสอบ ≈1,999 ไร่ ไม่ใช้รายชั่วโมง, ไม่ใช้ FFMC/ไม่ปรับเอง = P.hrly
 const FQCK = `(async()=>{if(typeof fqPick!=='function')return 'error: ไม่มีโมดูล fq (F5)';
  openDetail({id:9001,lat:14.4302,lon:101.3712,t:Date.now()-36e5,sat:'NOAA-20',frp:5,conf:'n',prov:'ไม่ระบุ',amp:'ไม่ระบุ',tam:'ไม่ระบุ',demo:true,ns:'sample'});
  ${WAIT(`FQ.stOk&&FQ.ffOk&&FQ.om`, 60)}
  const s=document.getElementById('fq-src').textContent,p=document.getElementById('fq-pot').textContent;
  if(!/ลำดับที่มา/.test(s)||!/ความชื้นเชื้อเพลิง/.test(s)||!/ความลาดชัน/.test(s))return 'error: ไม่แสดงที่มาของค่า: '+s.slice(0,80);
  if(!/ศักยภาพเมื่อไฟลามอิสระโดยไม่มีการดับ ไม่ใช่การพยากรณ์รอยไหม้จริง/.test(p)||!/ที่ 1 ชม/.test(p))return 'error: ไม่มีข้อความศักยภาพ/พื้นที่ 1 ชม.: '+p;
+ if(FQ.om&&!(WS&&WS.rh&&WS.T))return 'error: Open-Meteo รายชั่วโมงไม่มีความชื้น/อุณหภูมิ (WS.rh/WS.T)';window.__ckFqL=FQ.om?{hrly:P.hrly,rh0:WS.rh[0],rh6:WS.rh[6]}:null;
  document.getElementById('d-test').click();if(Math.abs(LASTR.Rh-4.7)>1e-9)return 'error: ค่าทดสอบ 7.3 ได้หัวไฟ '+LASTR.Rh;
  FQ.ff={v:88.5,m:ffM(88.5),d:fwTday(),f:1};FQ.ffOk=1;fqApply();upd();if(Math.abs(LASTR.Rh-4.7)>1e-9)return 'error: FFMC ที่มาทีหลังทับค่าทดสอบ';
  document.querySelector('#fq-mm [data-m="f"]').click();if(Math.abs(LASTR.E-ffM(88.5))>1e-9||!/FFMC 88.5/.test(document.getElementById('fuel-why').textContent))return 'error: ปุ่ม FFMC ไม่ใช้ความชื้นจาก FFMC';
  document.querySelector('#fq-mm [data-m="e"]').click();if(P.fm!=null)return 'error: ปุ่มจากอากาศ (EMC) ไม่สลับกลับ';FQ.mp='f';
+ document.querySelector('#sm [data-m="l"]').click();const lr=LASTR.rai;document.querySelector('#sm [data-m="g"]').click();if(P.hrly||Math.abs(lr/1999-1)>.05)return 'error: Lagrangian ค่าทดสอบควร ≈1,999 ไร่ ไม่ใช้รายชั่วโมง ได้ '+Math.round(lr)+' hrly '+P.hrly;
+ FQ.test=0;FQ.man={};FQ.mo=null;FQ.mp='f';FQ.nt=1;fqApply();upd();if(P.fm!=null||!/กลางคืน — FFMC เป็นค่าเที่ยงวัน จึงใช้ความชื้นจากอากาศขณะนั้น/.test(document.getElementById('fuel-why').textContent))return 'error: กลางคืนไม่ใช้ EMC/ไม่บอกเหตุผล: '+document.getElementById('fuel-why').textContent;
+ if(!P.hrly)return 'error: ไม่ใช้ FFMC และไม่ได้ปรับเอง แต่ P.hrly ไม่ถูกตั้ง';document.querySelector('#fq-mm [data-m="f"]').click();if(Math.abs((P.fm||0)-ffM(88.5))>1e-9)return 'error: กลางคืนกดเลือก FFMC เองไม่ได้';if(P.hrly)return 'error: ใช้ FFMC แล้วยังใช้ EMC รายชั่วโมง';FQ.mp='f';
  const b=document.getElementById('fq-src'),ov=b.scrollWidth-b.clientWidth;window.__ckFq={st:FQ.st&&FQ.st.n,ff:FQ.ffOk,ov};if(ov>2)return 'error: ตารางที่มาล้นแนวนอน '+ov+' px';
  return ''})()`;
 const DESK = [

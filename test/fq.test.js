@@ -24,9 +24,33 @@ test('calc: ไม่มี FFMC = ค่าเดิม (7.3 → 4.7) · มี
 });
 
 // โค้ด fq จาก index.html
-const H = grab(/(const FQK=[^\n]*)/) + '\n' + grab(/(function fqPick\(Q,cur\)\{[\s\S]*?\n const mm=[^\n]*)/) + '\n' + grab(/(function fqStn\([\s\S]*?return b\})/) + '\n' +
+const H = grab(/(const fqNt=[^\n]*)/) + '\n' + grab(/(const FQK=[^\n]*)/) + '\n' + grab(/(function fqPick\(Q,cur\)\{[\s\S]*?\n const ok=[^\n]*)/) + '\n' + grab(/(function fqStn\([\s\S]*?return b\})/) + '\n' +
   grab(/(const tmShort=[^\n]*)/) + '\n' + grab(/(const tmT=[^\n]*)/) + '\n' + grab(/(const tmNum=[^\n]*)/) + '\n' + grab(/(const tmRhBad=[^\n]*)/) + '\n' + grab(/(const tmKm=[^\n]*)/);
-const Q = load(H, ['fqPick', 'fqStn', 'FQKM', 'FQAGE'], { TM_OLD: 3 * 36e5 });
+const Q = load(H, ['fqPick', 'fqStn', 'fqNt', 'FQKM', 'FQAGE'], { TM_OLD: 3 * 36e5 });
+
+test('(6) fqNt: กลางวัน = เวลาที่ตรวจพบ 10:00–18:00 น. (เวลาไทย)', () => {
+  const th = hm => Date.parse('2026-03-10T' + hm + ':00+07:00');
+  for (const [hm, n] of [['01:30', 1], ['09:59', 1], ['10:00', 0], ['13:30', 0], ['18:00', 0], ['18:01', 1], ['00:00', 1]]) assert.equal(Q.fqNt(th(hm)), n, hm);
+  assert.equal(Q.fqNt(undefined), 0, 'ไม่รู้เวลา = ไม่ถือเป็นกลางคืน');
+});
+
+test('(6) fqPick กลางคืน: ใช้ EMC แทน FFMC (nt) · ผู้ใช้กดเลือก FFMC เองได้', () => {
+  const ff = { v: 88.5, m: M.ffM(88.5) };
+  let o = Q.fqPick({ man: {}, mp: 'f', ff, nt: 1 }, {}); assert.equal(o.fm, null); assert.equal(o.nt, 1);
+  o = Q.fqPick({ man: {}, mp: 'f', ff, nt: 0 }, {}); assert.equal(o.fm, ff.m); assert.equal(o.nt, 0);
+  o = Q.fqPick({ man: {}, mp: 'f', ff, nt: 1, mo: 'f' }, {}); assert.equal(o.fm, ff.m, 'กดเลือก FFMC เอง'); assert.equal(o.nt, 0);
+  o = Q.fqPick({ man: {}, mp: 'e', ff, nt: 1 }, {}); assert.equal(o.nt, 0, 'เลือกจากอากาศอยู่แล้ว');
+});
+
+test('(7) fqHr + huy: EMC รายชั่วโมงเฉพาะเมื่อ P.hrly · ค่าทดสอบเท่าเดิม', () => {
+  const r = M.calc(TEST), N = 26, WS = { u: Array(N).fill(11), d: Array(N).fill(90), rh: Array.from({ length: N }, (_, i) => 61 + 2 * i), T: Array.from({ length: N }, (_, i) => 32.3 - .5 * i) };
+  M.setP({ ...TEST, sm: 'l' }, null); const base = M.hyAdj(r, M.huy(r)).rai;
+  M.setP({ ...TEST, sm: 'l', hrly: 0 }, WS); assert.equal(M.fqHr(1), null); near(M.hyAdj(r, M.huy(r)).rai, base, 1e-6, 'hrly 0 = เดิม');
+  M.setP({ ...TEST, sm: 'l', hrly: 1 }, WS); const h = M.fqHr(2.5); near(h.rh, 66, 1e-9, 'RH'); near(h.T, 31.05, 1e-9, 'T');
+  assert.ok(M.hyAdj(r, M.huy(r)).rai < base * 0.97, 'RH เพิ่มรายชั่วโมง → พื้นที่เล็กลง');
+  M.setP({ ...TEST, sm: 'l', hrly: 1 }, { u: WS.u, d: WS.d }); assert.equal(M.fqHr(1), null, 'ไม่มี RH รายชั่วโมง');
+  near(M.calc(TEST).Rh, 4.7, 1e-9, 'ค่าทดสอบ'); near(M.calc(TEST).rai, 1999.0146, 1e-3, '1,999 ไร่');
+});
 
 test('fqPick: ผู้ใช้ปรับเอง > สถานี > แบบจำลอง > ค่าตัวอย่าง (แยกทีละค่า)', () => {
   const cur = { T: 32.3, rh: 61, u: 11, from: 90 }, om = { T: 30, rh: 50, u: 8, from: 45 }, stv = { T: 28.4, rh: 66, u: 12, from: null };

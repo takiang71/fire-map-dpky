@@ -27,7 +27,7 @@
   "name": "detail_full",
   "w": 1440,
   "h": 3700,
-  "js": "1",
+  "js": "document.getElementById('d-test').click();await new Promise(r=>setTimeout(r,1500));document.getElementById('d-test').click();1",
   "after": 3000,
   "clip": {
    "x": 1060,

@@ -8,7 +8,7 @@
 //     hr 6 · เชื้อเพลิง fuelAt(geoAt, ความสูง, ftAt) · ความลาด/ทิศลาด slopeAt (DEM Terrarium ซูม 12 — sl = min(40, ปัด), asp เมื่อ ≥1°)
 //     · อากาศ Open-Meteo Historical Forecast (ชุดโมเดลเดียวกับ /v1/forecast ที่หน้าเว็บใช้) ณ เวลาที่พบจุด (สอดแทรกรายชั่วโมง)
 //     ต่างจากหน้าเว็บ: ความสูงสำหรับ fuelAt ใช้ DEM (หน้าเว็บใช้ elevation ของ Open-Meteo) · อากาศของช่อง 0.05° (หน้าเว็บใช้พิกัดจุด)
-//     + โหมด Lagrangian: huy() + hyAdj() ด้วยลมรายชั่วโมงหลังเวลาพบจุด (WS เหมือนหน้าเว็บ)
+//     + โหมด Lagrangian: huy() + hyAdj() ด้วยลมรายชั่วโมงหลังเวลาพบจุด (WS เหมือนหน้าเว็บ) ก่อน/หลัง F5 (7) ความชื้น/อุณหภูมิรายชั่วโมง (P.hrly)
 //  4) อัตราส่วน = ไร่โมเดล / ไร่จริง · รายจุด และรายไฟ (กลุ่มรอยของจุดทับกัน = ไฟเดียวกัน → จุดแรกสุดเทียบไร่รวมของไฟ)
 // ดึง Open-Meteo: รวมพิกัดคำขอละ ≤50 ช่อง ช่วง 14 วัน (= 1 call ต่อพิกัดตามเกณฑ์ ≤2 สัปดาห์) เว้น 7 วิ (<600 call/นาที) · แคชทุกอย่างใน --cache (ไม่ commit)
 const fs = require('fs'), os = require('os'), path = require('path');
@@ -127,7 +127,7 @@ async function fetchWx(need) {   // need: Map(วันที่ → Set('la,lo'
 function wxAt(w, hm) {
   const x = Math.floor(hm / 100) + hm % 100 / 60, i = Math.floor(x), f = x - i, L = (a) => a[i] == null || a[i + 1] == null ? null : a[i] * (1 - f) + a[i + 1] * f;
   const r = Math.PI / 180, sx = Math.sin(w.wd[i] * r) * (1 - f) + Math.sin(w.wd[i + 1] * r) * f, cy = Math.cos(w.wd[i] * r) * (1 - f) + Math.cos(w.wd[i + 1] * r) * f;
-  return { T: L(w.t), rh: L(w.rh), u: L(w.ws), from: (Math.atan2(sx, cy) / r + 360) % 360, WS: { u: w.ws.slice(i), d: w.wd.slice(i) } };
+  return { T: L(w.t), rh: L(w.rh), u: L(w.ws), from: (Math.atan2(sx, cy) / r + 360) % 360, WS: { u: w.ws.slice(i), d: w.wd.slice(i), rh: w.rh.slice(i), T: w.t.slice(i) } };
 }
 
 // ---------- สถิติ ----------
@@ -165,8 +165,9 @@ const stat = rs => { const l = rs.map(Math.log); return { n: rs.length, p10: r3(
     const s = await M.slopeAt(p.lo, p.la), g = M.geoAt(p.lo, p.la), ft = M.ftAt(p.lo, p.la), fu = M.fuelAt(g, s.el, ft);
     const prm = { sm: 'g', hr: HR, fuel: fu.i, u: x.u, from: x.from, rh: x.rh, T: x.T, sl: Math.min(40, Math.round(s.s)), asp: s.s >= 1 ? s.asp : null };
     const r = M.calc(prm);
-    M.setP({ ...prm, sm: 'l' }, x.WS); const Hy = M.huy(r), ry = M.hyAdj(r, Hy);
-    Object.assign(p, { T: x.T, rh: x.rh, u: x.u, from: x.from, sl: s.s, asp: s.asp, el: s.el, ft: ft ? ft.n : '', fuel: fu.i, fuelN: M.FUEL[fu.i].n, why: fu.why, E: r.E, Rh: r.Rh, m: r.rai, mh: ry.rai, ratio: r.rai / p.rai, ratioH: ry.rai / p.rai });
+    M.setP({ ...prm, sm: 'l', hrly: 0 }, x.WS); const Hy = M.huy(r), ry = M.hyAdj(r, Hy);   /* Lagrangian เดิม: ลมรายชั่วโมง ความชื้น/อุณหภูมิคงที่ */
+    M.setP({ ...prm, sm: 'l', hrly: 1 }, x.WS); const ry2 = M.hyAdj(r, M.huy(r));   /* F5 (7): + ความชื้น/อุณหภูมิรายชั่วโมง (EMC รายชั่วโมง) */
+    Object.assign(p, { T: x.T, rh: x.rh, u: x.u, from: x.from, sl: s.s, asp: s.asp, el: s.el, ft: ft ? ft.n : '', fuel: fu.i, fuelN: M.FUEL[fu.i].n, why: fu.why, E: r.E, Rh: r.Rh, m: r.rai, mh: ry.rai, mh2: ry2.rai, ratio: r.rai / p.rai, ratioH: ry.rai / p.rai, ratioH2: ry2.rai / p.rai });
   }
   const OK = P.filter(p => !p.skip);
 
@@ -195,7 +196,8 @@ const stat = rs => { const l = rs.map(Math.log); return { n: rs.length, p10: r3(
   const S = {
     generated: new Date().toISOString(), params: { fy: FYS, km: KM, days: DAYS, gap: GAP, hr: HR, b4: [iso(b4a), iso(b4b)], wx: 'Open-Meteo Historical Forecast (best_match) ช่อง 0.05°', openMeteoCalls: calls },
     counts: { ...cnt, used: OK.length, fires: fires.length },
-    hotspot: { g: stat(OK.map(p => p.ratio)), l: stat(OK.map(p => p.ratioH)) },
+    hotspot: { g: stat(OK.map(p => p.ratio)), l: stat(OK.map(p => p.ratioH)), lh: stat(OK.map(p => p.ratioH2)) },
+    lagr: Object.fromEntries([['ทั้งหมด', () => true], ['กลางวัน', isDay], ['กลางคืน', p => !isDay(p)]].map(([k, fn]) => { const X = OK.filter(fn); return [k, { n: X.length, raiBefore: stat(X.map(p => p.mh)).med, raiAfter: stat(X.map(p => p.mh2)).med, nearBefore: stat(X.map(p => p.ratioH)).med, nearAfter: stat(X.map(p => p.ratioH2)).med, r1Before: stat(X.map(p => p.mh / p.r1)), r1After: stat(X.map(p => p.mh2 / p.r1)), zeroAfter: X.filter(p => p.mh2 < 1).length }] })),
     fire: { g: stat(fires.map(f => f.ratio)), l: stat(fires.map(f => f.ratioH)), single: stat(fires.filter(f => f.n === 1).map(f => f.ratio)), singleDay: stat(fires.filter(f => f.n === 1 && f.day).map(f => f.ratio)), multi: stat(fires.filter(f => f.n > 1).map(f => f.ratio)), all: stat(fires.map(f => f.ratioAll)), raiAll: stat(fires.map(f => f.all)) },
     alt: { big: stat(OK.map(p => p.m / p.big)), all: stat(OK.map(p => p.m / p.all)), r1: stat(OK.map(p => p.m / p.r1)), one: OK.filter(p => p.comp.n === 1).length, raiBig: stat(OK.map(p => p.big)), raiAll: stat(OK.map(p => p.all)), raiR1: stat(OK.map(p => p.r1)), nc: stat(OK.map(p => p.nc)) },
     raiModel: { hotspot: stat(OK.map(p => p.m)), fire: stat(fires.map(f => f.m)) }, raiReal: { hotspot: stat(OK.map(p => p.rai)), fire: stat(fires.map(f => f.rai)) },
@@ -208,13 +210,14 @@ const stat = rs => { const l = rs.map(Math.log); return { n: rs.length, p10: r3(
     ffmc, worst, under,
   };
   fs.writeFileSync(OUT, JSON.stringify(S, null, 1));
-  const csv = ['date,hhmm,lat,lon,sat,area,ft,fuel,T,rh,wind_kmh,wind_from,slope,emc,ros_head,model_rai,model_huy_rai,real_rai,real_big_1km,real_px_1km,dist_m,ratio,ratio_huy,fire_n'];
-  for (const p of OK) csv.push([iso(p.d), p.hm, p.la, p.lo, p.sat, `"${p.ar}"`, p.ft, p.fuelN, p.T, p.rh, p.u, Math.round(p.from), p.sl.toFixed(1), p.E.toFixed(1), p.Rh.toFixed(2), p.m.toFixed(1), p.mh.toFixed(1), p.rai, p.big, p.r1, Math.round(p.dist), p.ratio.toFixed(3), p.ratioH.toFixed(3), p.nf].join(','));
+  const csv = ['date,hhmm,lat,lon,sat,area,ft,fuel,T,rh,wind_kmh,wind_from,slope,emc,ros_head,model_rai,model_huy_rai,model_huy_hourly_rai,real_rai,real_big_1km,real_px_1km,dist_m,ratio,ratio_huy,fire_n'];
+  for (const p of OK) csv.push([iso(p.d), p.hm, p.la, p.lo, p.sat, `"${p.ar}"`, p.ft, p.fuelN, p.T, p.rh, p.u, Math.round(p.from), p.sl.toFixed(1), p.E.toFixed(1), p.Rh.toFixed(2), p.m.toFixed(1), p.mh.toFixed(1), p.mh2.toFixed(1), p.rai, p.big, p.r1, Math.round(p.dist), p.ratio.toFixed(3), p.ratioH.toFixed(3), p.nf].join(','));
   fs.writeFileSync(OUT.replace(/\.json$/, '.csv'), '﻿' + csv.join('\n'));
   const L = (t, x) => console.log(`${t.padEnd(34)} n ${String(x.n).padStart(4)} · มัธยฐาน ${x.med} · P10 ${x.p10} · P90 ${x.p90} · โมเดลมากกว่า ${Math.round(x.over * 100)}% · อยู่ใน ×0.5–2 ${Math.round(x.in2 * 100)}%`);
   console.log(`จุด ${cnt.all} · คู่ ${OK.length} (ไฟ ${fires.length}) · ไม่พบรอย ≤${KM} กม. ${cnt.noScar} · นอกช่วง B4 ${cnt.noB4time} · Open-Meteo ${calls} call · gap ${GAP}`);
   console.log('อัตราส่วน = ไร่โมเดล 6 ชม. / ไร่รอยเผา');
-  L('รายจุด: กลุ่มรอยที่ใกล้สุด', S.hotspot.g); L('รายจุด: Lagrangian (hyAdj)', S.hotspot.l); L('รายจุด: กลุ่มรอยใหญ่สุด ≤1 กม.', S.alt.big); L('รายจุด: พิกเซลเผาในรัศมี 1 กม.', S.alt.r1);
+  L('รายจุด: กลุ่มรอยที่ใกล้สุด', S.hotspot.g); L('รายจุด: Lagrangian (hyAdj)', S.hotspot.l); L('รายจุด: Lagrangian + EMC รายชั่วโมง', S.hotspot.lh);
+  for (const k in S.lagr) { const x = S.lagr[k]; console.log(`Lagrangian ${k} (n ${x.n}): ไร่มัธยฐาน ${Math.round(x.raiBefore)} → ${Math.round(x.raiAfter)} · ÷รัศมี 1 กม. ${x.r1Before.med} → ${x.r1After.med} (P90 ${x.r1Before.p90} → ${x.r1After.p90}) · ÷กลุ่มใกล้สุด ${x.nearBefore} → ${x.nearAfter} · <1 ไร่หลังปรับ ${x.zeroAfter}`) } L('รายจุด: กลุ่มรอยใหญ่สุด ≤1 กม.', S.alt.big); L('รายจุด: พิกเซลเผาในรัศมี 1 กม.', S.alt.r1);
   L('รายไฟ: กลุ่มรอยของไฟ', S.fire.g); L('รายไฟ: ทุกกลุ่มรอย ≤1 กม.', S.fire.all);
   for (const k in S.byFuelR1) L('เชื้อเพลิง (รัศมี 1 กม.): ' + k, S.byFuelR1[k]);
   console.log('ไร่โมเดล มัธยฐาน', S.raiModel.hotspot.med, '· ไร่จริง (ใกล้สุด/รัศมี 1 กม./ไฟ ≤1 กม.)', S.raiReal.hotspot.med, S.alt.raiR1.med, S.fire.raiAll.med);
