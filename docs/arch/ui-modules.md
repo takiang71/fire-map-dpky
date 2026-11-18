@@ -468,7 +468,7 @@
 
 ## เครื่องมือวาด + Layer Manager + หลังบ้านชั้นข้อมูล
 
-- **เครื่องมือวาด + Layer Manager + หลังบ้านชั้นข้อมูล** (ผู้ใช้ขอ 4 พ.ย. 69, คู่มือ `docs/layers-backend.md`): ปุ่ม `#bUl` ใน `#ctl` (ต่อจากไม้บรรทัด) + ~~ลิงก์ `#ul-o` ท้ายแผงชั้นข้อมูล~~ (หมวด "ชั้นข้อมูลของผู้ใช้" + ปุ่ม `#imp` เอาออก 18 พ.ย. 69 ผู้ใช้ขอ — `openImport` นำเข้า CSV จุดย้อนหลังยังอยู่ในโค้ดแต่ไม่มีปุ่มเรียก) → แผง `#ulm` (ช่องเดียวกับ `#right` เปิดทีละแผง: MutationObserver ปิดกันเอง; **เลื่อนเข้า-ออกแบบ #right** — ปิด = `hidden` แต่ CSS `#ulm[hidden]{display:flex!important}` + transform นอกจอ + visibility hidden (ต้อง !important เพราะมี `[hidden]{display:none!important}` ทั้งหน้า)
+- **เครื่องมือวาด + Layer Manager + หลังบ้านชั้นข้อมูล** (ผู้ใช้ขอ 4 พ.ย. 69, คู่มือ `docs/layers-backend.md`): ปุ่ม `#bUl` ใน `#ctl` (ต่อจากไม้บรรทัด) + ~~ลิงก์ `#ul-o` ท้ายแผงชั้นข้อมูล~~ (หมวด "ชั้นข้อมูลของผู้ใช้" + ปุ่ม `#imp` เอาออก 18 พ.ย. 69 ผู้ใช้ขอ — `openImport` นำเข้าไฟล์จุดย้อนหลัง (xlsx/csv/geojson → HD) ย้ายเป็นปุ่ม `#h-imp` ท้ายการ์ดสถิติ แท็บจุดความร้อน) → แผง `#ulm` (ช่องเดียวกับ `#right` เปิดทีละแผง: MutationObserver ปิดกันเอง; **เลื่อนเข้า-ออกแบบ #right** — ปิด = `hidden` แต่ CSS `#ulm[hidden]{display:flex!important}` + transform นอกจอ + visibility hidden (ต้อง !important เพราะมี `[hidden]{display:none!important}` ทั้งหน้า)
   · เดสก์ท็อปสูงจรดแถวปุ่มควบคุม `bottom:84px` ยกเว้นขณะวาด (ย่อตามเนื้อหา)
   · ctlFit นับเมื่อไม่ hidden + MutationObserver
   · homePad/panFit นับ #ulm เหมือน #right (#bUl/#ul-x เรียก panFit); จัดวางใหม่ 4 พ.ย. 69 (ผู้ใช้บอกด้านล่างว่างเกิน): `.ulbody` เป็น flex คอลัมน์ ส่วนในเครื่อง/เซิร์ฟเวอร์เป็นการ์ด `.ulcd` พื้นเทาอ่อน
