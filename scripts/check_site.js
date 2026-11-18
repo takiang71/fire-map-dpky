@@ -297,6 +297,27 @@ async function browser(dir) {
       if (r2) (r2.startsWith('error') ? errs : warn).push(`[${stage}] ${r2}`);
     }
 
+    // ---------- D7 M4 แตะสองครั้งที่กองรายวัน (มือถือ) — แตะจริงผ่าน Input.dispatchTouchEvent (18 พ.ย. 69: การแตะครั้งที่สองเบราว์เซอร์ไม่ส่ง click/dblclick เลย เดิมจึงไม่แตกบนมือถือจริง) ----------
+    {
+      stage = 'แตะสองครั้งที่กอง (D7 M4)';
+      await send('Emulation.setDeviceMetricsOverride', { width: 412, height: 915, deviceScaleFactor: 1, mobile: true });
+      await send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
+      await send('Page.navigate', { url });
+      if (!await waitMap()) warn.push(`[${stage}] แผนที่โหลดสไตล์ไม่เสร็จใน 45 วิ`);
+      await sleep(3000);
+      const t = await ev(`(async()=>{try{closeDetail();closeModal()}catch(e){}document.querySelector('#right').classList.remove('open');if(typeof gzClose==='function')gzClose();const ob=document.getElementById('orb');if(ob)ob.style.display='none';S.hcp='fyp';S.hcl=true;apply();for(let i=0;i<60&&!(typeof HCC!=='undefined'&&HCC&&HCC.C.length);i++)await new Promise(r=>setTimeout(r,500));if(typeof HCC==='undefined'||!HCC||!HCC.C.length)return null;
+        const c=HCC.C.filter(c=>c.n>=4).sort((a,b)=>b.n-a.n)[0];if(!c)return null;const i=HCC.C.indexOf(c);map.easeTo({center:c.c,zoom:10,offset:visOff(),duration:0});await new Promise(r=>setTimeout(r,2000));
+        const p=map.project(c.c),r=map.getCanvas().getBoundingClientRect(),el=document.elementFromPoint(p.x+r.left,p.y+r.top);return{i,n:c.n,x:p.x+r.left,y:p.y+r.top,cv:!!(el&&el.classList.contains('maplibregl-canvas')),el:el&&(el.id||el.className||el.tagName)}})()`, 60e3).catch(e => ({ e: e.message }));
+      if (!t || t.e || !t.cv) warn.push(`[${stage}] ข้าม: ${!t ? 'ไม่มีกองรายวัน ≥4 จุด' : t.e || 'จุดของกองไม่อยู่บนแผนที่ (บังโดย ' + t.el + ' ที่ ' + Math.round(t.x) + ',' + Math.round(t.y) + ')'}`);
+      else {
+        const tap = async () => { await send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: t.x, y: t.y }] }); await sleep(40); await send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }) };
+        await tap(); await sleep(150); await tap(); await sleep(3500);
+        const r = await ev(`HCS&&HCS.i===${t.i}?'':'error: แตะสองครั้งที่กอง '+${t.n}+' จุดแล้วจุดไม่กระจาย'`).catch(e => 'error: ' + e.message);
+        if (r) errs.push(`[${stage}] ${r}`); else info.m4 = { n: t.n, ok: true };
+        await send('Emulation.setTouchEmulationEnabled', { enabled: false });
+      }
+    }
+
     // ---------- F7 บันทึกเส้นทาง (18 พ.ย. 69): ตำแหน่งจำลอง (CDP Emulation.setGeolocationOverride) เดิน 6 จุด มีจุดกระโดด 1 จุด → หยุด ----------
     //  ต้องได้: ชั้นของฉัน 1 เส้น 5 จุด (ช่อง เวลาเริ่ม/สิ้นสุด/ระยะ/ขึ้น-ลง/จำนวนจุด) · GPX 5 <trkpt> มี <time> ทุกจุด (+<ele> ทุกจุด — โหลด DEM จาก AWS ไม่ได้ = เตือน)
     //  · เลือกแนบในฟอร์มรายงาน F1 ได้ (ย่อ ≤500 จุด) · รีโหลดกลางทาง = กล่องถาม บันทึกต่อ/จบและเก็บ/ทิ้ง → บันทึกต่อได้จุดเดิมครบ · ทิ้ง = ลบจาก IndexedDB fm-tk
@@ -522,6 +543,7 @@ async function browser(dir) {
   if (res.info && (res.info.xss || res.info.csp)) console.log('E2 XSS/CSP:', JSON.stringify({ xss: res.info.xss || null, csp: res.info.csp || null }));
   if (res.info && res.info.wj) console.log('B2 Worker:', JSON.stringify(res.info.wj));
   if (res.info && res.info.dash) console.log('F4 ?dash:', JSON.stringify(res.info.dash));
+  if (res.info && res.info.m4) console.log('D7 M4 แตะสองครั้งที่กอง:', JSON.stringify(res.info.m4));
   if (res.info && res.info.track) { const t = res.info.track; console.log('F7 บันทึกเส้นทาง:', JSON.stringify({ n: t.n, spd: t.spd, sw: t.sw, gpx: t.gpx && { n: t.gpx.n, trkpt: t.gpx.trkpt, time: t.gpx.time, ele: t.gpx.ele, km: t.gpx.km, up: t.gpx.up, dn: t.gpx.dn }, reload: t.reload, mob: t.mob })) }
   if (res.warn.length) console.log('คำเตือน:\n  ' + res.warn.slice(0, 15).join('\n  '));
   if (res.errs.length) console.log('ข้อผิดพลาด:\n  ' + res.errs.slice(0, 15).join('\n  '));

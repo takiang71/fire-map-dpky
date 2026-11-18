@@ -1943,6 +1943,7 @@ addEventListener('keydown',e=>{
 map.on('click',e=>{
  if(typeof msBusy==='function'&&msBusy())return; // เครื่องมือวัดจัดการคลิกเอง
  if(typeof obHit==='function'&&obHit(e))return; // ไอคอนดาวเทียม NOAA-20/21
+ if(typeof vfHit==='function'&&vfHit(e))return; /* ป้ายผลตรวจสอบจากหน้างาน (F1) */
  const cl=map.getLayer('hot-cl')&&map.queryRenderedFeatures(e.point,{layers:['hot-cl']})[0];
  if(cl){map.getSource('hot').getClusterExpansionZoom(cl.properties.cluster_id).then(z=>map.easeTo({offset:visOff(),center:cl.geometry.coordinates,zoom:z+.5,duration:dur(800)}));return}
  if($('#dp').classList.contains('open')&&!(map.queryRenderedFeatures(e.point,{layers:['hot-icon','hot-3d','wlv-icon','wlv-3d'].filter(id=>map.getLayer(id))})[0])){closeDetail();return}
@@ -2711,7 +2712,16 @@ function hcBurst(i){const c=HCC&&HCC.C[i];if(!c)return;if(c.n<2)return toast('�
 /* แตะสองครั้งบนจอสัมผัส: บางเครื่องไม่ส่ง dblclick (ตัวซูมด้วยการแตะของแผนที่รับไปก่อน) → จับเองจาก click 2 ครั้งที่กองเดียวกันภายใน 450 ms · HCT กันเรียกซ้ำเมื่อ dblclick มาด้วย */
 let HCT={t:0,i:-1,b:0};
 function hcTap(i){const n=Date.now(),d=n-HCT.t<450&&HCT.i===i;HCT.t=d?0:n;HCT.i=i;return d}
-function hcDbl(i){const n=Date.now();if(n-HCT.b<700)return;HCT.b=n;if(HCS&&HCS.i===i)return hcSpider(null);hcBurst(i)} // ผูก moveend ก่อน — ผู้ใช้ที่ตั้งลดการเคลื่อนไหว dur()=0 แผนที่ย้ายทันทีและยิง moveend ก่อนผูก (จุดไม่แตก) // เลื่อนออกจากเหตุการณ์ dblclick — ถ้าเรียกตรงๆ ตัวจัดการเมาส์ของแผนที่หยุดแอนิเมชันทันที
+function hcDbl(i){const n=Date.now();if(n-HCT.b<700)return;HCT.b=n;if(HCS&&HCS.i===i)return hcSpider(null);hcBurst(i)}
+/* D7 M4 รอบ 2 (18 พ.ย. 69): ทดสอบด้วยการแตะจริงผ่าน CDP — การแตะครั้งที่สองของ double-tap เบราว์เซอร์ไม่ส่ง click/dblclick เลย (มีแค่ touchstart/touchend)
+   → จับจาก touchend ของแผนที่: แตะสั้น (<300 ms, ขยับ <12 px) 2 ครั้งห่าง <450 ms ห่างกัน <30 px และจุดที่แตะครั้งที่สองโดนกองรายวัน */
+{let t0=null,last=null;const pt=v=>{const r=map.getCanvasContainer().getBoundingClientRect();return{x:v.clientX-r.left,y:v.clientY-r.top}};
+ map.on('touchstart',e=>{const o=e.originalEvent;t0=o.touches.length===1?Object.assign(pt(o.touches[0]),{t:Date.now()}):null;if(o.touches.length>1)last=null});
+ map.on('touchend',e=>{const o=e.originalEvent,c=o.changedTouches&&o.changedTouches[0];if(!t0||!c||o.touches.length){t0=null;return}
+  const p=pt(c),n=Date.now(),tap=n-t0.t<300&&Math.hypot(p.x-t0.x,p.y-t0.y)<12;t0=null;if(!tap){last=null;return}
+  const dbl=last&&n-last.t<450&&Math.hypot(p.x-last.x,p.y-last.y)<30;last=dbl?null:{x:p.x,y:p.y,t:n};if(!dbl)return;
+  if(typeof msBusy==='function'&&msBusy()||!S.hcl||!map.getLayer('hcc-c'))return;
+  const f=map.queryRenderedFeatures([p.x,p.y],{layers:['hcc-c']})[0];if(f)hcDbl(f.properties.i)})} // ผูก moveend ก่อน — ผู้ใช้ที่ตั้งลดการเคลื่อนไหว dur()=0 แผนที่ย้ายทันทีและยิง moveend ก่อนผูก (จุดไม่แตก) // เลื่อนออกจากเหตุการณ์ dblclick — ถ้าเรียกตรงๆ ตัวจัดการเมาส์ของแผนที่หยุดแอนิเมชันทันที
 map.on('dblclick',e=>{if(typeof msBusy==='function'&&msBusy()||!S.hcl||!map.getLayer('hcc-c'))return;const f=map.queryRenderedFeatures(e.point,{layers:['hcc-c']})[0];if(!f)return;
  e.preventDefault();hcDbl(f.properties.i)});
 document.addEventListener('click',e=>{const b=e.target.closest('.hcsp');if(b)hcBurst(+b.dataset.i)});
@@ -2748,7 +2758,10 @@ function hcPop(f,ll){const H=HCC;if(!H)return;const p=f.properties;let h;
  else if(f.layer.id==='hcs-m'){const c=H.C[p.i],q=c&&c.L[p.j];if(!q)return;ll=f.geometry.coordinates;
   h=`<b>จุดความร้อนที่ ${p.j+1}/${c.n} ของกองรายวัน</b><br>${dShort(q.d)} เวลา ${hhmmTh(q.t)} น. · ${esc(SATN[q.sat]||q.sat)}<br>${esc(hcLoc(q))}<br><span class="sm">พิกัด ${q.la.toFixed(5)}, ${q.lo.toFixed(5)} · <a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${q.la.toFixed(5)},${q.lo.toFixed(5)}">Google Maps</a></span>`}
  else{const g=H.G[p.i];if(!g)return;h=hcGroupHtml(g);if(p.k==='i')ll=g.ign.c}
- new maplibregl.Popup({maxWidth:'280px'}).setLngLat(ll).setHTML(h).addTo(map)}
+ const cc=f.layer.id==='hcc-c'&&H.C[p.i];if(cc)ll=cc.c; /* D7 M4 รอบ 2 (18 พ.ย. 69): กองรายวัน = ยึดกลางกอง เว้นระยะรัศมีวง+8 px ไม่ให้หางป๊อปอัปทับกอง (แตะครั้งที่สองโดนป๊อปอัป ไม่ถึงแผนที่) */
+ new maplibregl.Popup({maxWidth:'280px',offset:cc?hcRad(cc.n,map.getZoom())+8:0}).setLngLat(ll).setHTML(h).addTo(map)}
+/* รัศมีวงกองรายวัน (px) ตามนิพจน์ circle-radius ของชั้น hcc-c (ซูม 7 → 12 เชิงเส้น) */
+function hcRad(n,z){const k=n<2?0:n<5?1:n<10?2:n<20?3:4,a=[4,6,8,10,12][k],b=[9,12,15,18,22][k],t=Math.max(0,Math.min(1,(z-7)/5));return a+(b-a)*t}
 $('#hc-s').onchange=e=>{S.hcp=e.target.value;LC()};
 $('#hc-a').addEventListener('click',e=>{const b=e.target.closest('.hci');if(!b||!HCC)return;const g=HCC.G[+b.dataset.i];if(!g)return;
  const B=new maplibregl.LngLatBounds(g.ring[0],g.ring[0]);g.ring.forEach(c=>B.extend(c));MOVED=true;map.fitBounds(B,{padding:homePad(),maxZoom:13,duration:dur(1100)});
@@ -7471,7 +7484,8 @@ function vfSetup(){for(const k in VFRES)if(!map.hasImage('vf-'+k))map.addImage('
  if(!map.getSource('vfs'))map.addSource('vfs',{type:'geojson',data:vfFC()});
  if(!map.getLayer('vf-ic'))map.addLayer({id:'vf-ic',type:'symbol',source:'vfs',layout:{visibility:S.hot?'visible':'none','icon-image':['concat','vf-',['get','r']],'icon-size':['interpolate',['linear'],['zoom'],6,.5,12,.8],'icon-offset':[18,-18],'icon-allow-overlap':true,'icon-ignore-placement':true}})}
 function vfMap(){const s=map.getSource('vfs');if(s)s.setData(vfFC());try{if(map.getLayer('vf-ic')&&map.getLayer('hot-icon'))map.moveLayer('vf-ic')}catch(e){}}
-map.on('click',e=>{const f=map.getLayer('vf-ic')&&map.getLayoutProperty('vf-ic','visibility')==='visible'&&map.queryRenderedFeatures(e.point,{layers:['vf-ic']})[0];if(!f)return;const r=VF.L.find(x=>x.id===f.properties.id);if(r)vfPopup(r)});
+/* เรียกจากตัวจัดการคลิกหลักของแผนที่ ก่อนจุดความร้อน (D7 M17 รอบ 2 18 พ.ย. 69: เดิมเป็นตัวจัดการแยก ตัวหลักไม่รู้จักชั้นนี้ → ป๊อปอัปข้อมูลพื้นที่ขึ้นซ้อน) */
+function vfHit(e){const f=map.getLayer('vf-ic')&&map.getLayoutProperty('vf-ic','visibility')==='visible'&&map.queryRenderedFeatures(e.point,{layers:['vf-ic']})[0];if(!f)return false;const r=VF.L.find(x=>x.id===f.properties.id);if(!r)return false;vfPopup(r);return true}
 function vfPopup(r){const ll=vfLL(r),ed=vfCan(r)?`<div class="pbt" style="margin-top:6px"><button data-vp="e">แก้ไข</button><button data-vp="d">ลบ</button></div>`:'';
  const p=new maplibregl.Popup({maxWidth:'300px',offset:[0,-10]}).setLngLat(ll).setHTML(`<div class="hpop"><div class="hpt"><i style="background:${VFRES[r.res][1]}"></i>ผลตรวจสอบจากหน้างาน</div>${vfLine(r,true)}${/*xss-ok*/ed}</div>`).addTo(map);
  p.getElement().querySelectorAll('button[data-vp]').forEach(b=>b.onclick=()=>{p.remove();vfAct(r,b.dataset.vp)})}
