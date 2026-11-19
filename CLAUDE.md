@@ -14,7 +14,7 @@
 ## กติกาที่ต้องทำตามทุกครั้ง
 
 1. **`git pull` ก่อนแก้ทุกครั้ง** (GitHub Actions commit เข้า main วันละหลายครั้ง) · เสร็จแล้ว commit + push (identity takiang71)
-2. **รัน `node --test test/` (ชุดทดสอบหน่วย <1 วิ) ทุกครั้งที่แก้ `scripts/` หรือ `index.html` · รัน `node scripts/check_site.js` ก่อน commit ทุกครั้งที่แก้ `index.html`** (~3 นาที; syntax ทุก `<script>` + Chrome headless 1440/390 กดปุ่มหลักนับ error) ต้องได้ `✅ ผ่าน` · เพิ่มปุ่ม/แผงใหม่ ต้องเพิ่มขั้นใน `DESK`/`MOB` ของสคริปต์ → [testing.md](docs/arch/testing.md)
+2. **รัน `node --test test/` (ชุดทดสอบหน่วย <1 วิ) ทุกครั้งที่แก้ `scripts/` หรือ `index.html` · รัน `node scripts/check_site.js` ก่อน commit ทุกครั้งที่แก้ `index.html`** (~3 นาที; syntax + Chrome headless 1440/390 กดปุ่มหลัก) ต้องได้ `✅ ผ่าน` · เพิ่มปุ่ม/แผงใหม่ ต้องเพิ่มขั้นใน `DESK`/`MOB` ของสคริปต์ → [testing.md](docs/arch/testing.md)
 3. **ห้ามแก้บล็อกข้อมูลด้วยมือ**: `hdata` (Excel กรมอุทยานฯ — **ห้ามแก้ก่อนผู้ใช้อนุญาต**), `adata`, `wdata`, `wadata`, `fxdata` สร้างจากสคริปต์เท่านั้น (`excel_to_hdata.js`, `sync_hotspots.js`, `import_watch.js`, `import_fx.js`) · อ่านบล็อกด้วย `getElementById(id).textContent` ได้ตามเดิม (ใน `_site` ตัวโหลด `embGet` สร้างบล็อกให้ก่อนรันสคริปต์แอป) — สคริปต์ใหม่ต้องเป็น `<script>` ไม่มี attribute → [data-blocks.md](docs/arch/data-blocks.md)
 4. แก้ `index.html` ด้วย Node ใช้ `split(a).join(b)` **ห้ามใช้ `String.replace`** (`$$`/`$&` เพี้ยน) · แทรกก่อน `</body>` ต้องใช้ `lastIndexOf` (มี `</body>` ในสตริงของโมดูลพิมพ์แผนที่)
 4a. เรียกเครือข่ายใน index.html ใช้ `fetchT(url,opt,FTO.main|tile|big|aux)` ห้าม `fetch(` ตรง · catch ในเส้นทางโหลดข้อมูลใช้ `dbg('ชื่อ',e)` ไม่ปล่อยว่าง · สคริปต์แรกใน `<head>` (ตรวจเบราว์เซอร์เก่า) ต้อง ES5 → [gotchas.md](docs/arch/gotchas.md)
@@ -37,7 +37,7 @@
 | [pipelines.md](docs/arch/pipelines.md) | site.yml / sync.yml / wx.yml, watchdog, branch `state`, live.json + FIRMS สำรอง, ลดภาระ API, `pass_wait`, `sync_hotspots`, ตัดจุดซ้ำ, fwi_local, API ต้นทาง | `apiLive` `dedup.js` `near.js` `wx_check` `SNPP_END` `opendata` |
 | [notify.md](docs/arch/notify.md) | LINE (carousel, Worker, โควตา, สรุปประจำวัน, การ์ดเผาไหม้), Telegram, `health.js`, ลิงก์ตรง `?hs` `?pts` `?burn` | `carousel` `burnCard` `hsLink` `LINE_MAX_DAY` `loadState` |
 | [ui-modules.md](docs/arch/ui-modules.md) | การ์ดหลัก, ตาราง/CSV/รายงาน, สถิติย้อนหลัง + เล่นย้อน, กองจุด, ดับไฟ, จปร., วัด, วาด/Layer Manager/หลังบ้าน, ภูมิประเทศ, ความสูง, พิมพ์แผนที่, ภาพดาวเทียม, โมเดลไฟ, คู่มือ | `renderCard` `hRender` `pbStart` `hcCalc` `wFocus` `msSet` `GIO` `PP` `dsKpi` |
-| [data-sources.md](docs/arch/data-sources.md) | พื้นที่เผาไหม้/เผาซ้ำซาก/SAVI, แนวเขตปกครอง, ชนิดป่า, ความลาดชัน, ท่องเที่ยว/Power BI, หน่วยพิทักษ์, หน้าข้อมูลพื้นฐาน | `sync_burn` `bnData` `ftAt` `slopeAt` `sync_tourism` `KBP` |
+| [data-sources.md](docs/arch/data-sources.md) | พื้นที่เผาไหม้/เผาซ้ำซาก/SAVI, แนวเขตปกครอง, ชนิดป่า, ความลาดชัน, ความสูง GEM-15, ท่องเที่ยว/Power BI, หน่วยพิทักษ์, หน้าข้อมูลพื้นฐาน | `sync_burn` `bnData` `ftAt` `slopeAt` `demURL` `sync_tourism` `KBP` |
 | [layers-weather.md](docs/arch/layers-weather.md) | Windy, อากาศรายชั่วโมง/ลม, เรดาร์, Himawari, สถานีกรมอุตุฯ, VR (GFS), FWI (TFDRS), PM2.5 CAMS/Air4Thai, ดาวเทียมรอบถัดไป | `S.vr` `gvMaxFn` `fwNow` `cmLoad` `tmLoad` `ORB` |
 | [decisions.md](docs/arch/decisions.md) | ความชอบ/การตัดสินใจของผู้ใช้ (เลย์เอาต์แผง, ค่าเริ่มต้นชั้นข้อมูล, เครดิต) + งานค้างเดิม (ประวัติ) | `homePad` `panFit` `sheetFit` `ctlFit` |
 | [gotchas.md](docs/arch/gotchas.md) | ชื่อชนกัน + บั๊กที่เคยเจอ | |

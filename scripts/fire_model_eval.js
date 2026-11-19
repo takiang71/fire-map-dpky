@@ -31,16 +31,17 @@ const iso = d => new Date(d * 864e5).toISOString().slice(0, 10);
 const fyOf = d => { const t = new Date(d * 864e5); return t.getUTCFullYear() + 543 + (t.getUTCMonth() >= 9 ? 1 : 0) };
 const thd = (d, hm) => { const t = new Date(d * 864e5); return `${t.getUTCDate()}/${t.getUTCMonth() + 1}/${t.getUTCFullYear() + 543} ${String(hm).padStart(4, '0').replace(/(..)(..)/, '$1:$2')}` };
 
-// ---------- DEM Terrarium (ไทล์ชุดเดียวกับ demTile ของหน้าเว็บ) ----------
+// ---------- DEM: GEM-15 ในกลุ่มป่า (data/dem15) / Terrarium AWS นอกพื้นที่ (ไทล์ชุดเดียวกับ demTile ของหน้าเว็บ) ----------
 const DEMC = {};
 function demTile(z, x, y) {
   const k = `${z}_${x}_${y}`;
   return DEMC[k] || (DEMC[k] = (async () => {
     const f = path.join(CACHE, 'dem', k + '.png');
-    let buf; try { buf = fs.readFileSync(f) } catch (e) {
+    /* ชุด GEM-15 ในกลุ่มป่า (data/dem15) ก่อน — เหมือน demURL ของหน้าเว็บ */
+    let buf; try { buf = fs.readFileSync(path.join(ROOT, 'data', 'dem15', String(z), String(x), y + '.png')) } catch (e) { try { buf = fs.readFileSync(f) } catch (e) {
       const r = await fetch(`https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${x}/${y}.png`, { signal: AbortSignal.timeout(30000) });
       if (!r.ok) throw new Error('DEM HTTP ' + r.status); buf = Buffer.from(await r.arrayBuffer()); fs.writeFileSync(f, buf);
-    }
+    } }
     const d = readPNG(buf).rgba, e = new Float32Array(65536);
     for (let i = 0; i < 65536; i++) e[i] = d[i * 4] * 256 + d[i * 4 + 1] + d[i * 4 + 2] / 256 - 32768;
     return e;

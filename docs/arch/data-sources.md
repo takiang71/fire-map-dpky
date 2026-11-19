@@ -108,9 +108,23 @@
   · ป๊อปอัปบอก "ไม่พบจุดความร้อนใกล้"
   · ตัวอย่าง: ปีงบ 2569 ราย 7 วัน 33% มีจุด, ฤดู ธ.ค.68–เม.ย.69 49%
 
+## ความสูงภูมิประเทศ GEM-15 (Google) — 19 พ.ย. 69
+
+- ผู้ใช้ขอ 19 พ.ย. 69 (Google เปิด GEM-15 v1): **DTM 15 ม.** (พื้นดินไม่รวมยอดไม้, ภาพสามมิติดาวเทียม ≤2024, CC-BY 4.0 ต้องเครดิต "This dataset is produced by Google", จีออยด์ EGM96 = เดียวกับ Terrarium)
+  · ต้นทาง COG สาธารณะ `storage.googleapis.com/climate-and-sustainability/gem-15/p10_p100/w<lon>s<lat>/dtm/zall/mosaic.tif` (BigTIFF ไทล์ 512 float32 Deflate, UTM 47N/48N ตามแผ่น, CORS *) — ไม่ต้องใช้ Earth Engine · แผ่น dsm มี 5 แบนด์ (dsm, p5, p50, p95, std) ยังไม่ใช้
+  · ตรวจก่อนทำ (19 พ.ย. 69, 3 พื้นที่ × ~1,000 จุด เทียบ Terrarium ซูม 13): กลางเขาใหญ่ GEM ต่ำกว่า 10.2 ม. (RMS 12.1), เขาเขียว 11.8 (14.0), ที่ราบปราจีนฯ 0.7 (2.7) · DSM−DTM ในป่า ~13–14 ม. → SRTM ติดเรือนยอด; **ยังไม่มีค่าภาคพื้นยืนยัน**
+- `scripts/build_dem15.js` (รันมือ ไม่อยู่ใน workflow): ไทล์ซูม 13 ที่ห่างแนวเขต `geo.cons` ≤`--buf` 4 กม. (537 แผ่น) → bilinear จาก UTM → ผสมกับ AWS ที่ขอบชุด `--blend` 96 px (smoothstep ตามระยะถึงไทล์เพื่อนบ้านที่ไม่อยู่ในชุด) · NaN (ผิวน้ำ+บัฟเฟอร์ 9 ม.) = ค่า AWS · ซูม 12–10 = เฉลี่ย 2×2 (ลูกที่ไม่อยู่ในชุด = AWS ซูมแม่) · ปัด `--q` 0.25 ม. (ไฟล์ 108→49 KB/แผ่น)
+  · ผล `data/dem15/{z}/{x}/{y}.png` + `index.json` {zmin,zmax,rows:{ty ซูม13:[x0,x1,…]}} · แคชแผ่นดิบ `--cache` (`<tmp>/gem15` ไม่ commit) · lib: `lib/cog.js` (openCOG ผ่าน HTTP Range), `lib/png.js` rgbPNG/terrariumRGB
+  · build_site คัดลอก `data/dem15` ขึ้น Pages · PNG ไม่ผ่าน sw (index.json = data/**.json → SWR)
+- หน้าเว็บ (สคริปต์เดียวกับ `setup()` ก่อนประกาศ): `d15Load` (fetchT index.json; ไม่ได้ = null → AWS ทั้งหมด เช่นเปิดแบบดับเบิลคลิก) · `d15Has(z,x,y)` (ซูมต่ำ = มีลูกซูม 13 ในชุด) · `demURL` · โปรโตคอล `dem15://` ของ source `dem` (**maxzoom 13** เดิม 14 — AWS ซูม 14 ในไทยขยายจาก 30 ม. อยู่แล้ว) · `demTile` ใช้ demURL และโหลดไทล์ในชุดไม่ได้ → ลอง AWS
+  · ชื่อที่ใช้แล้ว: `D15` `d15*` `DEMAWS` `awsUrl` `demURL` โปรโตคอล `dem15`
+  · `fire_model_eval.js` อ่าน `data/dem15` ก่อน AWS (ตรงกับหน้าเว็บ) · เทสต์ `test/dem15.test.js`
+  · เครดิต: `#attr` "ความสูง GEM-15 produced by Google", ป้ายแผนที่ฐานธรรมชาติ, ข้อความส่งออกภูมิประเทศ, คู่มือ (ตารางแหล่งข้อมูล)
+  · งานต่อได้: ความสูงเรือนยอด DSM−DTM เป็นชั้นข้อมูล/ช่วยเลือกเชื้อเพลิงในโมเดลไฟ (ยังไม่ทำ)
+
 ## ความลาดชัน / แนวเขตปกครอง / ชนิดป่า — หน้าเว็บ
 
-- ความลาดชันจริง (30 ต.ค. 69): `slopeAt(lon,lat)` อ่านไทล์ Terrarium ซูม 12 (`demTile`, แคช `DEMC`, crossOrigin) วิธี Horn ระยะ ~150 ม. → `{s,asp,el}`
+- ความลาดชันจริง (30 ต.ค. 69): `slopeAt(lon,lat)` อ่านไทล์ซูม 12 (GEM-15 ในกลุ่มป่า/Terrarium นอกพื้นที่ — ดูหัวข้อ GEM-15) (`demTile`, แคช `DEMC`, crossOrigin) วิธี Horn ระยะ ~150 ม. → `{s,asp,el}`
   · `openDetail` ตั้ง `P.sl` (≤40) และแสดง `#d-sl` "X°
   · ลาดลงไปทิศ…"
   · ผู้ใช้เลื่อนแถบความชันเอง/กดค่าทดสอบ = `slManual` ไม่ทับ

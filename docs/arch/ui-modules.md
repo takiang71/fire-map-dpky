@@ -297,7 +297,7 @@
   · **ใช้กลไกวาดรูปของเครื่องมือวัด** (`MS.tr` = โหมดนี้, `msSet(on,tr)`; แผง #msr คลาส tr = แผงของเครื่องมือนี้, msPanel→`trPanel`, msFinish บังคับปิดรูปแล้ว `trRun`, ลากจุด = คำนวณใหม่, คลิก/ชี้หลังจบ = `trProbe` HUD ความสูง/ลาดชัน/ทิศ, msText→`trText`)
   · สคริปต์แยกต่อท้ายสคริปต์เครื่องมือวัด
   · ขอบเขต: วาดเอง / `trView` พื้นที่ที่มองเห็น / ปุ่มในแผงผลวัดพื้นที่ (data-ms=t) / ป๊อปอัปรูปหลายเหลี่ยมในชั้นข้อมูลของฉัน (data-u=t, MultiPolygon = ส่วนใหญ่สุด) → `trUse(P,fit)` (>120 จุดยอด = DP; fit เว้นแผง #msr)
-  · DEM = `demTile` Terrarium ซูม ≤13 (ลดซูมเมื่อเกิน `TRMAXT` 64 แผ่น)
+  · DEM = `demTile` (GEM-15 ในกลุ่มป่า / Terrarium AWS นอกพื้นที่ → data-sources.md) ซูม ≤13 (ลดซูมเมื่อเกิน `TRMAXT` 64 แผ่น)
   · `trGrid` ตารางตามพิกเซลเมอร์เคเตอร์ (+ขอบ 1 ช่อง, ช่องใหญ่ = เฉลี่ย ns×ns, หน้ากาก scanline, เพดาน 1.5M ช่อง → ปรับความละเอียดขึ้นแล้วแจ้ง) แคช 3 ชุด `TR.C`
   · `trSA`/`trHorn` (ทิศ = ลาดลง, <2° = ราบ)
   · `trContours` เกาส์ [1 4 6 4 1] + marching squares (คีย์ ขอบ×ระดับ, saddle ใช้ค่ากลาง) ต่อเส้น, เพดาน 400k จุดยอด
@@ -394,7 +394,7 @@
 - แนบรายงาน F1: `tkVfHtml(r)` ใส่ใน vfForm ใต้ "พิกัดที่พบจริง" (`#vf-trk`: ไม่แนบ/รายการเส้นทาง src gps ใหม่สุดก่อน · รายงานที่แนบแล้ว = คงไว้/ลบ) + ข้อความ "เส้นทางที่แนบจะเผยแพร่พร้อมรายงาน" · `tkVfVal()` → undefined/null/`tkPack(f)` = {c แบน ≤500 จุด 5 ตำแหน่ง (tkDP), t0, t1, km, up, dn, n} · `tkCap()` ตรวจ `GET /` → `trk` ก่อนส่ง (Worker เก่า = ข้อความในฟอร์ม ไม่ส่ง) · `TK.pre` = เลือกไว้ให้เมื่อเปิดจาก tkSum
 - ดูเส้นทางของรายงาน: vfLine แสดง "เส้นทางเดิน x กม. (ขึ้นสะสม …)" + ปุ่ม `data-vf="t"` (เฉพาะกล่องในแผงรายละเอียด) → `tkView(r)` = `ulApi('/reports/<id>/trk')` (แคช `TK.vc`) → `tk-v` + fitBounds · กดซ้ำ = ซ่อน (`tkVfBtn`)
 - **ความเป็นส่วนตัว**: ไม่มี fetchT/fetch/sendBeacon ในโมดูล · ulApi ในโมดูลมีแค่ GET `/` และ `/reports/<id>/trk` (test/track.test.js ตรวจ) · เส้นทางออกจากเครื่องได้ 2 ทางที่ผู้ใช้กดเอง: ส่งออก GPX (ดาวน์โหลด) / แนบกับรายงาน (POST ของ vfForm)
-- service worker: ไม่แตะ IndexedDB · DEM จาก AWS ไม่ผ่านแคชของ sw
+- service worker: ไม่แตะ IndexedDB · DEM (AWS และ data/dem15/*.png) ไม่ผ่านแคชของ sw
 - check_site ขั้น "บันทึกเส้นทาง (F7)" (ต่อจาก D3) → [testing.md](testing.md) · เทสต์ `test/track.test.js` + `test/layers.test.js` (Worker)
 - คู่มือ `#track` (ใต้ปุ่มควบคุมแผนที่) + `#track-screen` (ข้อจำกัดจอดับ) + ภาพ `track_bar.jpg` (มือถือ) `track_sum.jpg` `track_resume.jpg` (งาน `track_*` ใน manual_shots_gen.js — แทน watchPosition ในหน้า, ภาพแสดงสถานะ "กันจอดับอยู่" และเวลา 0:42:17 เป็นค่าสาธิต) · FAQ 2 ข้อ · ออฟไลน์ (`#m-offline`) · F1 (`#vf`)
 - ยังไม่ได้ลองบนมือถือจริง (GPS จริง, จอดับ, Wake Lock บน Android/iOS, แบตเตอรี่) · Worker ใหม่ยังไม่ได้วางบน Cloudflare (ทดสอบกับ KV จำลองเท่านั้น)

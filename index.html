@@ -676,7 +676,7 @@ body.wyon #attr{display:none}
 <div id="toast" role="status"></div>
 <div id="rpt" aria-hidden="true"></div>
 <div id="imgdate" hidden aria-live="polite"></div>
-<div id="attr"><span id="attr-b">© Esri</span> · © OpenStreetMap · จุดความร้อน WFSRU/ThaiREN · พื้นที่เผาไหม้ ตามรอยเผา (สสน.) · Open-Meteo · RainViewer · Air4Thai · CAMS · กรมป่าไม้ · OCHA HDX · แนวเขต KMZ ผู้ใช้</div>
+<div id="attr"><span id="attr-b">© Esri</span> · © OpenStreetMap · จุดความร้อน WFSRU/ThaiREN · พื้นที่เผาไหม้ ตามรอยเผา (สสน.) · Open-Meteo · RainViewer · Air4Thai · CAMS · กรมป่าไม้ · OCHA HDX · ความสูง GEM-15 produced by Google · แนวเขต KMZ ผู้ใช้</div>
 
 <aside id="left">
  <button id="grab" aria-label="ขยายหรือย่อแผง"></button>
@@ -837,7 +837,7 @@ body.wyon #attr{display:none}
   <div id="vw-box"><div class="vwr"><button class="btn" id="vw-cp" type="button" title="คัดลอกลิงก์ที่เปิดแล้วได้ตำแหน่ง ซูม และชั้นข้อมูลเดียวกับที่เห็นตอนนี้"><svg class="i" viewBox="0 0 24 24"><path d="M10 14a4.5 4.5 0 006.4 0l3-3a4.5 4.5 0 00-6.4-6.4l-1 1M14 10a4.5 4.5 0 00-6.4 0l-3 3a4.5 4.5 0 006.4 6.4l1-1"/></svg>คัดลอกลิงก์มุมมองนี้</button><button class="btn" id="vw-sh" type="button" title="แชร์ลิงก์มุมมองนี้ผ่านแอปในเครื่อง (LINE, Telegram …)"><svg class="i" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg>แชร์</button></div>
    <div class="row" data-tip="เปิดไว้ = ช่องที่อยู่ของเบราว์เซอร์อัปเดตตามตำแหน่ง ซูม และชั้นข้อมูลที่เปิด (บุ๊กมาร์กหรือรีโหลดแล้วได้มุมมองเดิม) · ปิดไว้ = ไม่เปลี่ยน URL เอง"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16v12H4zM4 10h16"/></svg><b>จำมุมมองใน URL</b><button class="sw" id="vw-on" role="switch" aria-checked="false" aria-label="จำมุมมองใน URL"></button></div></div>
   <h3>แผนที่ฐาน</h3>
-  <div class="seg" id="seg"><button data-b="natural" data-src="Esri World Topo · เงาภูเขา AWS Terrain">ธรรมชาติ</button><button data-b="flat" data-src="OpenFreeMap Positron · © OpenStreetMap">เรียบ</button><button data-b="sat" data-src="">ดาวเทียม</button><button data-b="detail" data-src="OpenFreeMap Liberty · © OpenStreetMap — ถนน หมู่บ้าน วัด โรงเรียน อาคาร">ถนน/ชุมชน</button><button data-b="dark" data-src="OpenFreeMap Dark · © OpenStreetMap — โทนมืด จุดไฟเด่น เหมาะจอห้องปฏิบัติการ/กลางคืน">โทนมืด</button></div>
+  <div class="seg" id="seg"><button data-b="natural" data-src="Esri World Topo · เงาภูเขา GEM-15 (Google) + AWS Terrain">ธรรมชาติ</button><button data-b="flat" data-src="OpenFreeMap Positron · © OpenStreetMap">เรียบ</button><button data-b="sat" data-src="">ดาวเทียม</button><button data-b="detail" data-src="OpenFreeMap Liberty · © OpenStreetMap — ถนน หมู่บ้าน วัด โรงเรียน อาคาร">ถนน/ชุมชน</button><button data-b="dark" data-src="OpenFreeMap Dark · © OpenStreetMap — โทนมืด จุดไฟเด่น เหมาะจอห้องปฏิบัติการ/กลางคืน">โทนมืด</button></div>
   <div class="sg" id="imgsrc" hidden aria-label="แหล่งภาพดาวเทียม"><button data-i="google">Google</button><button data-i="esri">Esri</button><button data-i="s2">Sentinel-2</button><button data-i="day">NOAA-20</button></div>
   <div id="imgtime" hidden><div class="itr"><button id="it-p" aria-label="ภาพก่อนหน้า">‹</button><input type="range" id="it-r" list="it-l" aria-label="เลื่อนดูภาพย้อนหลัง"><datalist id="it-l"></datalist><button id="it-n" aria-label="ภาพถัดไป">›</button></div>
    <div class="itv"><b id="it-v"></b><input type="date" id="it-d" aria-label="เลือกวันที่ภาพ"><a id="it-0" role="button" tabindex="0">ล่าสุด</a></div><div class="dsrc" id="it-src"></div></div>
@@ -996,7 +996,7 @@ body.wyon #attr{display:none}
  <div class="rb">
   <div class="dt" id="d-name"></div><div class="sm" id="d-nmn" style="margin:-6px 0 8px"></div><div class="sm" id="d-pa" style="margin:-2px 0 10px;line-height:1.5"></div><div class="cream" id="vf-box" style="margin:0 0 10px"></div>
   <div class="big"><div><svg class="i" style="color:var(--fire);width:26px;height:26px" viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg><span id="d-age"></span><small>ที่แล้ว</small></div><div><small>ความแรงไฟ</small><b id="d-frp"></b><small>MW</small></div></div>
-  <hr class="l"><div class="kv"><div><span id="d-tl">เวลาที่ตรวจพบ</span><b id="d-t"></b></div><div><span>ความเชื่อมั่น</span><b id="d-cf"></b></div><div><span>พิกัด</span><b id="d-ll"></b></div><div><span>UTM</span><b id="d-utm"></b></div><div><span>ความสูง</span><b id="d-el">–</b></div><div><span>ความลาดชัน</span><b id="d-sl" title="จากแบบจำลองความสูง (Terrarium) เฉลี่ยรอบจุด ~150 ม. · ใช้ในการคาดการณ์การลามของไฟ (ปรับเองได้ที่ ปรับค่า)">–</b></div><div><span>สภาพอากาศ</span><b id="d-wx" style="font-weight:400;font-size:12px">ค่าตัวอย่าง</b></div></div>
+  <hr class="l"><div class="kv"><div><span id="d-tl">เวลาที่ตรวจพบ</span><b id="d-t"></b></div><div><span>ความเชื่อมั่น</span><b id="d-cf"></b></div><div><span>พิกัด</span><b id="d-ll"></b></div><div><span>UTM</span><b id="d-utm"></b></div><div><span>ความสูง</span><b id="d-el">–</b></div><div><span>ความลาดชัน</span><b id="d-sl" title="จากแบบจำลองความสูง (GEM-15 ของ Google ในกลุ่มป่า · Terrarium นอกพื้นที่) เฉลี่ยรอบจุด ~150 ม. · ใช้ในการคาดการณ์การลามของไฟ (ปรับเองได้ที่ ปรับค่า)">–</b></div><div><span>สภาพอากาศ</span><b id="d-wx" style="font-weight:400;font-size:12px">ค่าตัวอย่าง</b></div></div>
   <div class="cream" id="hx" style="margin:0 0 10px"><b style="font-size:13px">ประวัติในบริเวณนี้ <span class="sm">(ข้อมูลย้อนหลังปีงบ <span id="hx-r"></span>)</span></b>
    <div class="tb" id="hx-t" style="margin-top:6px"></div><div class="sm" style="margin:8px 0 2px">จำนวนจุดในรัศมี 2 กม. แยกตามปีงบประมาณ</div><div class="vc" id="hx-b" style="height:84px"></div>
    <div class="sm" id="hx-n" style="margin-top:6px"></div><button class="lk" id="hx-m" style="padding-left:0">แสดงจุดย้อนหลังบนแผนที่ →</button></div>
@@ -1554,11 +1554,24 @@ function itUI(){const box=$('#imgtime'),k=imgOf(),r=$('#it-r'),on=S.base==='sat'
 function itSet(v,now){const k=imgOf();if(k==='day'){const mx=dNum(gibsDay());v=Math.max(GIBS0,Math.min(mx,Math.round(v)));IDAY=v>=mx?null:v}else if(k==='esri'){const A=wbArr();WBI=A[Math.max(0,Math.min(A.length-1,Math.round(v)))]}else if(k==='s2')S2Y=S2YS[Math.max(0,Math.min(S2YS.length-1,Math.round(v)))];else return;
  itUI();clearTimeout(itT);itT=setTimeout(imgApply,now?0:250)}
 function imgApply(){const t=map.getSource('t'),u=IMG[imgOf()].u();if(t&&t.setTiles)t.setTiles(Array.isArray(u)?u:[u]);else map.setStyle(sty(),{diff:false});const p=map.getSource('imgpt');if(p)p.setData(imgFC());sync()}
+/* ความสูงภูมิประเทศ (ผู้ใช้ขอ 19 พ.ย. 69): ในกลุ่มป่า = GEM-15 ของ Google (DTM พื้นดินไม่รวมยอดไม้ 15 ม., CC-BY 4.0 "This dataset is produced by Google")
+   แปลงล่วงหน้าเป็นไทล์ Terrarium ซูม 10–13 ใน data/dem15/ ด้วย scripts/build_dem15.js (ขอบชุดผสมกับ AWS ไม่มีรอยต่อ) · นอกชุด/โหลดไม่ได้ = Terrarium (AWS) เดิม
+   d15Has(z,x,y) อ่านดัชนี rows {ty ซูม 13: [x0,x1,...]} · ใช้ร่วมกันทั้งชั้น 'dem' (โปรโตคอล dem15://) และ demTile (ความลาดชัน/ภูมิประเทศ/โปรไฟล์/บันทึกเส้นทาง) */
+const DEMAWS='https://s3.amazonaws.com/elevation-tiles-prod/terrarium/',D15={ix:null,p:null};
+function d15Load(){return D15.p||(D15.p=fetchT('data/dem15/index.json',{},FTO.aux).then(r=>r.ok?r.json():null).then(j=>(D15.ix=j&&j.rows?j:null)).catch(e=>{dbg('dem15',e);return null}))}
+function d15Has(z,x,y){const j=D15.ix;if(!j||z<j.zmin||z>j.zmax)return false;const s=2**(j.zmax-z),a=x*s,b=a+s-1;
+ for(let t=y*s;t<y*s+s;t++){const R=j.rows[t];if(R)for(let i=0;i<R.length;i+=2)if(R[i]<=b&&R[i+1]>=a)return true}return false}
+const d15Url=(z,x,y)=>'data/dem15/'+z+'/'+x+'/'+y+'.png',awsUrl=(z,x,y)=>DEMAWS+z+'/'+x+'/'+y+'.png';
+async function demURL(z,x,y){await d15Load();return d15Has(z,x,y)?d15Url(z,x,y):awsUrl(z,x,y)}
+maplibregl.addProtocol('dem15',async(p,ac)=>{const m=p.url.match(/^dem15:\/\/(\d+)\/(\d+)\/(\d+)/),z=+m[1],x=+m[2],y=+m[3],u=await demURL(z,x,y),A=awsUrl(z,x,y);
+ let r=null;try{r=await fetchT(u,{signal:ac.signal},FTO.tile)}catch(e){if(u===A||ac.signal.aborted)throw e}
+ if((!r||!r.ok)&&u!==A)r=await fetchT(A,{signal:ac.signal},FTO.tile); /* ไทล์ในชุดโหลดไม่ได้ (เปิดแบบไฟล์ ฯลฯ) → AWS */
+ if(!r.ok)throw new Error('DEM HTTP '+r.status);return{data:await r.arrayBuffer()}});
 let BASEL=[],BOP={}; // ชั้นของแผนที่ฐาน (ไว้ลดความทึบเมื่อเปิดชั้น Windy) + ค่าเดิมของแต่ละชั้น
 function setup(){ // เรียกทุกครั้งที่สลับ style เพื่อคงเลเยอร์ข้อมูลไว้
  if(map.getSource('dem'))return;
  BASEL=map.getStyle().layers.map(l=>l.id).concat('hs');BOP={};
- map.addSource('dem',{type:'raster-dem',tiles:['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],encoding:'terrarium',tileSize:256,maxzoom:14});
+ map.addSource('dem',{type:'raster-dem',tiles:['dem15://{z}/{x}/{y}'],encoding:'terrarium',tileSize:256,maxzoom:13}); /* ซูม 13 = ชั้นละเอียดสุดของ GEM-15 ในชุด (AWS ซูม 14 ในไทยขยายจาก SRTM 30 ม. อยู่แล้ว) — ซูมเกินนี้ MapLibre ขยายเอง */
  if(S.base==='natural')map.addLayer({id:'hs',type:'hillshade',source:'dem',paint:{'hillshade-exaggeration':.45,'hillshade-shadow-color':'#3d4a3a'}});
  map.addSource('cons',{type:'geojson',data:CF});
  map.addLayer({id:'cons-f',type:'fill',source:'cons',paint:{'fill-color':['match',['get','kind'],'NPRK',KC.NPRK,'WLDS',KC.WLDS,KC.P_WLDS],'fill-opacity':.14}});
@@ -2079,13 +2092,13 @@ function lag(h,r,H){
 
 const tx=(id,v)=>{$('#'+id).innerHTML=v};
 let CUR=null,P={sm:'g',hr:6,fuel:0,u:11,from:90,rh:61,T:32.3,sl:4},fuelAuto=true,LASTR=null,slManual=false;
-// ความลาดชันจริง ณ จุดความร้อน จากแบบจำลองความสูง Terrarium (AWS · ชุดเดียวกับมุมมอง 3 มิติ) ซูม 12 (~37 ม./พิกเซลที่ละติจูด 14°)
+// ความลาดชันจริง ณ จุดความร้อน จากแบบจำลองความสูง (GEM-15 ในกลุ่มป่า/Terrarium AWS นอกพื้นที่ — demURL · ชุดเดียวกับมุมมอง 3 มิติ) ซูม 12 (~37 ม./พิกเซลที่ละติจูด 14°)
 // วิธี Horn บนจุดรอบข้างห่าง ~150 ม. (ราวครึ่งพิกเซล VIIRS 375 ม.) → ความชันเฉลี่ยของพื้นที่ที่ไหม้ ไม่ใช่หน้าผาจุดเดียว · ทิศลาด = ทิศที่ลาดลง
 const DEMC={};
-function demTile(z,x,y){const k=z+'/'+x+'/'+y;return DEMC[k]||(DEMC[k]=new Promise((res,rej)=>{const im=new Image();im.crossOrigin='anonymous';
+function demTile(z,x,y){const k=z+'/'+x+'/'+y;return DEMC[k]||(DEMC[k]=demURL(z,x,y).then(u=>new Promise((res,rej)=>{const im=new Image();im.crossOrigin='anonymous';
  im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(im,0,0);const d=g.getImageData(0,0,256,256).data,e=new Float32Array(65536);
   for(let i=0;i<65536;i++)e[i]=d[i*4]*256+d[i*4+1]+d[i*4+2]/256-32768;res(e)};
- im.onerror=()=>{delete DEMC[k];rej(new Error('โหลดข้อมูลความสูงไม่ได้'))};im.src='https://s3.amazonaws.com/elevation-tiles-prod/terrarium/'+k+'.png'}))}
+ im.onerror=()=>{const A=awsUrl(z,x,y);if(im.src!==A&&u!==A){im.src=A;return}delete DEMC[k];rej(new Error('โหลดข้อมูลความสูงไม่ได้'))};im.src=u})))}
 async function slopeAt(lon,lat,R=150){const z=12,W=256*2**z,X=(lon+180)/360*W,Y=(1-Math.log(Math.tan(Math.PI/4+lat*Math.PI/360))/Math.PI)/2*W,m=40075017*Math.cos(lat*Math.PI/180)/W,k=Math.max(1,Math.round(R/m));
  const el=async(px,py)=>{const tx=Math.floor(px/256),ty=Math.floor(py/256),t=await demTile(z,tx,ty);return t[Math.floor(py-ty*256)*256+Math.floor(px-tx*256)]};
  const [a,b,c,d,e,f,g,h,i]=await Promise.all([-1,0,1].flatMap(j=>[-1,0,1].map(q=>el(X+q*k,Y+j*k))));
@@ -4656,7 +4669,7 @@ if(map.getSource('dem'))msLayers(); // สไตล์โหลดเสร็�
 <script>
 /* ===== เครื่องมือวิเคราะห์ภูมิประเทศ (ปุ่ม #bTr, ผู้ใช้ขอ 9 พ.ย. 69) — เส้นชั้นความสูง / ความลาดชัน / ทิศด้านลาด
    ขอบเขต = รูปหลายเหลี่ยมที่วาดด้วยกลไกของเครื่องมือวัด (MS.tr — แผงผล #msr เป็นแผงของเครื่องมือนี้) หรือพื้นที่ที่มองเห็น / รูปจากเครื่องมือวัด / รูปในชั้นข้อมูลของฉัน
-   ข้อมูลความสูง = Terrarium (AWS · ชุดเดียวกับมุมมอง 3 มิติและ slopeAt) ซูม ≤13 (~18.5 ม./พิกเซลที่ละติจูด 14°) ต้นทางในไทยละเอียดราว 30 ม. — เลือกละเอียดกว่านั้น = ประมาณค่าแบบ bilinear
+   ข้อมูลความสูง = demTile (GEM-15 15 ม. ในกลุ่มป่า · Terrarium AWS ~30 ม. นอกพื้นที่ — ชุดเดียวกับมุมมอง 3 มิติและ slopeAt) ซูม ≤13 (~18.5 ม./พิกเซลที่ละติจูด 14°) — เลือกละเอียดกว่านั้น = ประมาณค่าแบบ bilinear
    ตารางคำนวณวางตามพิกัดเมอร์เคเตอร์ของซูม DEM (ภาพ raster ตรงกับแผนที่) · ระยะจริงต่อช่อง = ขนาดช่อง × ม./พิกเซล ณ ละติจูดของแถว
    ความลาดชัน/ทิศด้านลาด = วิธี Horn 3×3 บนตารางที่ความละเอียดที่เลือก (ช่องใหญ่กว่าพิกเซล DEM = เฉลี่ยพิกเซลในช่อง) · ทิศด้านลาด = ทิศที่ลาดลง (ลาดชัน <2° = ราบ)
    เส้นชั้นความสูง = marching squares บนตาราง DEM ที่ทำให้เรียบ (เกาส์ [1 4 6 4 1]/16) — เส้นไม่ตัดกัน · เส้นหนัก = ทุก 5 ช่วง */
@@ -4786,7 +4799,7 @@ function trText(){const R=TR.R;if(!R)return'';const el=R.el,nm=TRT.find(x=>x[0]=
  if(R.t==='c')o.push(`เส้นชั้นความสูงทุก ${R.iv} ม. (เส้นหนักทุก ${R.iv*5} ม.) ${R.nl} ระดับ ยาวรวม ${msDS(R.len)}`);
  else if(R.t==='s'){o.push(`ลาดชันเฉลี่ย ${trSlTxt(R.sm)} · สูงสุด ${trSlTxt(R.smx)} (ความละเอียด ${msNf(R.G.r,0)} ม.)`);TRSL.forEach((x,i)=>o.push(`  ${trSlLab(i)} ${x[3]}: ${msNf(R.sw?R.cnt[i]/R.sw*100:0,1)}% (${trRaiS(R.cnt[i])})`))}
  else{o.push(`ทิศด้านลาด (ความละเอียด ${msNf(R.G.r,0)} ม.)`);TRAS.forEach((x,i)=>o.push(`  ${x[2]}: ${msNf(R.sw?R.cnt[i]/R.sw*100:0,1)}%`))}
- o.push('ข้อมูลความสูง: Terrarium/Mapzen (AWS) ต้นทางในไทยละเอียดราว 30 ม.');o.push('ขอบเขต:\n'+(typeof ulPtList==='function'?ulPtList(R.P):R.P.map(p=>p[1].toFixed(6)+', '+p[0].toFixed(6)).join('\n')));return o.join('\n')}
+ o.push('ข้อมูลความสูง: GEM-15 (DTM 15 ม., produced by Google) ในกลุ่มป่า · นอกพื้นที่ Terrarium/Mapzen (AWS) ~30 ม.');o.push('ขอบเขต:\n'+(typeof ulPtList==='function'?ulPtList(R.P):R.P.map(p=>p[1].toFixed(6)+', '+p[0].toFixed(6)).join('\n')));return o.join('\n')}
 /* ค่า ณ จุด (ชี้/แตะ) จากตารางของผลล่าสุด */
 function trAt(lon,lat){const R=TR.R;if(!R)return null;const G=R.G,{z,c,W,H,Ox,Oy,E}=G,i=Math.floor((trX(lon,z)-Ox)/c),j=Math.floor((trY(lat,z)-Oy)/c);
  if(i<1||j<1||i>=W-1||j>=H-1)return null;const k=j*W+i,h=trHorn(E,k,W,c*trMpp(z,lat));return{e:E[k],s:h[0],a:h[1],in:!!G.M[k]}}
@@ -4833,7 +4846,7 @@ if(map.getSource('dem'))trLayers();
 /* ===== ระดับความสูง/โปรไฟล์ความสูง (ผู้ใช้ขอ 9 พ.ย. 69 ตามแนวทาง Google Earth "การวัดขั้นสูง") =====
    ใช้ในแผงผลเครื่องมือวัด (#ms-el) · ฟอร์มหลังวาด (#ud-el) · ป๊อปอัปวัตถุในชั้นข้อมูลของฉัน (#el-pop)
    หมุด = ความสูงพื้นดิน + ลาดชัน/ทิศด้านลาด (Horn 3×3 พิกเซล) · เส้นทาง = กราฟโปรไฟล์ (ชี้/แตะดูค่า + จุดบนแผนที่, ขยายเต็มจอ) + ต่ำสุด/มัธยฐาน/สูงสุด ของความสูงและความลาดชันตามแนวเส้น + ขึ้น/ลงสะสม
-   พื้นที่ = ต่ำสุด/มัธยฐาน/สูงสุด ของความสูงและความลาดชันทุกช่องในรูป (trGrid ของเครื่องมือวิเคราะห์ภูมิประเทศ) · ข้อมูล Terrarium ซูม ≤13 (ต้นทาง ~30 ม.) = ค่าประมาณ */
+   พื้นที่ = ต่ำสุด/มัธยฐาน/สูงสุด ของความสูงและความลาดชันทุกช่องในรูป (trGrid ของเครื่องมือวิเคราะห์ภูมิประเทศ) · ข้อมูล demTile ซูม ≤13 (GEM-15 15 ม. ในกลุ่มป่า · AWS ~30 ม. นอกพื้นที่) = ค่าประมาณ */
 const ELC=new Map(),ELP={},ELT={};let ELN=0,ELM=null;
 async function elVals(XY,z){const T=new Map(),need=new Set();
  XY.forEach(([X,Y])=>{const x=Math.floor(X-.5),y=Math.floor(Y-.5);for(const a of[x,x+1])for(const b of[y,y+1])need.add((a>>8)*1e6+(b>>8))});
