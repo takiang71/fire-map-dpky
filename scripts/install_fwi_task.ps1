@@ -4,7 +4,8 @@
 #   ไม่แตะไฟล์งาน และ commit เฉพาะ data/fwi/index.json + branch fwi-grid จึงไม่ชนกับ sync บน Actions
 # รอบ: 14:40 15:40 17:00 20:00 น. (ต้นทางออก ~14:20 น., ไม่มีรอบใหม่ = จบในไม่กี่วินาที) + 07:00 น. เก็บตก
 #   เครื่องปิดตอนถึงเวลา = รันทันทีที่เปิดเครื่อง (StartWhenAvailable) · ต้องล็อกอินอยู่ (ใช้ credential ของ Git Credential Manager)
-#   รันแบบย่อหน้าต่าง (หน้าต่างดำเด้งแล้วหายเอง ~10 วิ เมื่อไม่มีรอบใหม่)
+#   รันแบบไม่มีหน้าต่าง: conhost.exe --headless node.exe … (19 พ.ย. 69 — เดิมหน้าต่างดำค้าง 1–2 นาทีเมื่อต้นทางช้า
+#   ถูกปิดกลางทาง ผลงาน 0xC000013A = -1073741510 ทุกรอบ จน FWI ไม่อัปเดต; ดูผลได้ใน .fwi-local\fwi_local.log)
 # ใช้: powershell -ExecutionPolicy Bypass -File scripts\install_fwi_task.ps1        ลบ: ... -Remove
 # ไฟล์นี้ต้องบันทึกแบบ UTF-8 มี BOM (Windows PowerShell 5.1 อ่านไฟล์ไม่มี BOM เป็น ANSI → ภาษาไทยเพี้ยน)
 param([switch]$Remove)
@@ -13,7 +14,8 @@ if ($Remove) { Unregister-ScheduledTask -TaskName $name -Confirm:$false; "ลบ
 $node = (Get-Command node).Source
 $root = Split-Path $PSScriptRoot -Parent
 $script = Join-Path $PSScriptRoot 'fwi_local.js'
-$act = New-ScheduledTaskAction -Execute $node -Argument "`"$script`"" -WorkingDirectory $root
+$conhost = Join-Path $env:WINDIR 'System32\conhost.exe'
+$act = New-ScheduledTaskAction -Execute $conhost -Argument "--headless `"$node`" `"$script`"" -WorkingDirectory $root
 $tr = @('07:00', '14:40', '15:40', '17:00', '20:00') | ForEach-Object { New-ScheduledTaskTrigger -Daily -At $_ }
 $set = New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit (New-TimeSpan -Minutes 20) -MultipleInstances IgnoreNew
 $pr = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType Interactive -RunLevel Limited
