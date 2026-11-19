@@ -1125,7 +1125,7 @@ const slowMsg=(e,m)=>e&&e.name==='TimeoutError'?'ต้นทางตอบช�
 function dgCopy(){let ad='';try{ad=JSON.parse(document.getElementById('adata').textContent).upd}catch(e){}
  const t=JSON.stringify({at:new Date().toISOString(),url:location.href,ua:navigator.userAgent,ver:{page:document.lastModified,data:ad},scr:[innerWidth,innerHeight,devicePixelRatio],online:navigator.onLine,n:__LOG.length,log:__LOG},null,1);dgCopy.last=t;
  const say=m=>typeof toast==='function'?toast(m,null,4000):alert(m),
-  man=()=>{let x=document.getElementById('dg-tx');if(!x){x=document.createElement('textarea');x.id='dg-tx';x.readOnly=true;x.onblur=()=>x.remove();document.body.appendChild(x)}x.value=t;x.focus();x.select();dgCopy.how='manual';say('คัดลอกอัตโนมัติไม่ได้ — กดค้างที่กล่องข้อความแล้วเลือก "คัดลอก"')};
+  man=()=>{let x=document.getElementById('dg-tx');if(!x){x=document.createElement('textarea');x.id='dg-tx';x.readOnly=true;x.onblur=()=>setTimeout(()=>{if(x.isConnected)x.remove()}); /* เลื่อนออกนอก blur: remove() ซ้อนกันระหว่างถอด = NotFoundError (CI 19 พ.ย. 69) */document.body.appendChild(x)}x.value=t;x.focus();x.select();dgCopy.how='manual';say('คัดลอกอัตโนมัติไม่ได้ — กดค้างที่กล่องข้อความแล้วเลือก "คัดลอก"')};
  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(()=>{dgCopy.how='clipboard';say('คัดลอกบันทึกแล้ว '+__LOG.length+' รายการ — วางส่งให้ผู้ดูแลระบบได้เลย')},man);else man()}
 if(DBG){document.documentElement.classList.add('dbg');const a=document.getElementById('attr');if(a){const b=document.createElement('button');b.id='dg-cp';b.type='button';b.textContent='คัดลอกบันทึกข้อผิดพลาด';b.onclick=dgCopy;a.prepend(b,' · ')}}
 addEventListener('error',e=>{dbg('error',e.error||e.message);fail(e.message)});

@@ -471,7 +471,7 @@ async function browser(dir) {
     stage = 'debug: คัดลอกบันทึกข้อผิดพลาด';
     await sleep(1500);
     chk(await ev(`(async()=>{document.getElementById('dg-cp').click();await new Promise(r=>setTimeout(r,800));let j;try{j=JSON.parse(dgCopy.last||'')}catch(e){return 'error: กดปุ่มแล้วไม่ได้ JSON'}
-      const x=document.getElementById('dg-tx');if(x)x.remove();return j.ua&&j.ver&&Array.isArray(j.log)&&j.log.length?'':'error: JSON ไม่มี ua/ver/log'})()`).catch(e => 'error: ' + e.message), { copy: await ev('dgCopy.how||""').catch(() => '') });
+      const x=document.getElementById('dg-tx');if(x){x.onblur=null;x.remove()}return j.ua&&j.ver&&Array.isArray(j.log)&&j.log.length?'':'error: JSON ไม่มี ua/ver/log'})()`).catch(e => 'error: ' + e.message), { copy: await ev('dgCopy.how||""').catch(() => '') });
 
     // ---------- กล่องเบราว์เซอร์รุ่นเก่า (D8): ลบ DecompressionStream ก่อนสคริปต์ของหน้า ----------
     stage = 'เบราว์เซอร์รุ่นเก่า (จำลอง)';
