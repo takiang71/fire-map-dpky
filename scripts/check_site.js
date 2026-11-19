@@ -267,7 +267,9 @@ async function browser(dir) {
       await ev(HELP);
       for (const [label, js] of steps) {
         stage = `${nm}: ${label.trim()}`;
+        const t1 = Date.now();
         const r = await ev(`(()=>{const{C,Q,K}=window.__ck;return ${js}})()`, STEP_TO).catch(e => 'error: ' + e.message);
+        if (process.env.CK_TIME) console.log(`  ⏱ ${((Date.now() - t1) / 1000).toFixed(1)} วิ  ${stage}`); /* CK_TIME=1 = เวลาต่อขั้น (หาขั้นที่ทำให้ CI เกิน 6 นาที) */
         if (r && r !== 'ข้าม') (r.startsWith('error') ? errs : warn).push(`[${stage}] ${r}`);
         await sleep(r ? 150 : 1300);
       }

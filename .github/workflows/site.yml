@@ -84,7 +84,8 @@ jobs:
       # ไม่ผ่าน = ใช้ index.html ฉบับบนเว็บแทน (ข้อมูลอื่นยังขึ้นปกติ) + health.js แจ้งผู้ดูแล · index.html ตรงกับรอบที่ตรวจแล้ว = ใช้ผลเดิม ไม่เปิด Chrome
       - name: check site
         continue-on-error: true
-        timeout-minutes: 6
+        # 9 นาที (เดิม 6): ทั้งชุดใช้ ~6 นาทีบนเครื่อง Actions — หมดเวลา = ไม่มี check.json ทุกรอบต่อไปตรวจใหม่ยาวเกินรอบ 5 นาที (19 พ.ย. 69) · ผ่านแล้วรอบต่อไปใช้ผลเดิม
+        timeout-minutes: 9
         run: node scripts/check_site.js _site --ci
         env:
           # ผลชุดทดสอบหน่วย: failure = ถือว่าไม่ผ่าน (ใช้ index.html ฉบับบนเว็บ)

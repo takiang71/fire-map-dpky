@@ -11,7 +11,7 @@
   · ทดสอบแล้วจับได้: syntax ผิด, `//` กลืนโค้ดแล้วตัวแปรหาย (error ตอนกดปุ่ม), `let` ชื่อซ้ำข้ามบล็อก
   · ถ้าเพิ่มปุ่ม/แผงใหม่ ให้เพิ่มขั้นใน DESK/MOB
   · **ขั้นท้าย (15 พ.ย. 69, A2/A3/D8)**: เปิด `?debug=1` (1440) → มี `__LOG`/`dbg`/`fetchT` + ปุ่ม `#attr #dg-cp` · `fetchT('__hang',{},800)` (เซิร์ฟเวอร์ในสคริปต์ไม่ตอบ 5 วิ) ต้องได้ TimeoutError <4 วิ และลง __LOG · `Network.emulateNetworkConditions` ออฟไลน์แล้วกด ↻ ต้องมี toast "ดึงข้อมูล…/ต้นทาง…" ภายใน 22 วิ (ไม่ใช่ "ดึงข้อมูลใหม่แล้ว") และ __LOG เพิ่ม · กดปุ่มคัดลอกได้ JSON (ua/ver/log) → `info.debug` ใน check.json · แล้ว `Page.addScriptToEvaluateOnNewDocument('delete window.DecompressionStream')` โหลดใหม่ → ต้องขึ้น `#oldb` เต็มจอ (error ของแอปในขั้นนี้ย้ายไปคำเตือน เพราะเบราว์เซอร์จริงไม่เก่า)
-  - ใน `site.yml` ขั้น `check site` (continue-on-error, 6 นาที) ต่อจาก build: `--ci` เขียน `_site/check.json` {sha, ok, errs, warn, fallback}
+  - ใน `site.yml` ขั้น `check site` (continue-on-error, **9 นาที** — 19 พ.ย. 69 เดิม 6 นาทีหมดเวลาติดกันหลายรอบ: ไม่มี check.json → ทุกรอบตรวจใหม่ ~6 นาทีชนรอบ cron 5 นาที · `CK_TIME=1` พิมพ์เวลาต่อขั้น DESK/MOB — ขั้นที่ช้าสุดคือไทล์เผาซ้ำซาก ~18 วิ, รวมขั้นทั้งหมด ~1.5 นาที ที่เหลือคือโหลดหน้า/F7/debug/PWA) ต่อจาก build: `--ci` เขียน `_site/check.json` {sha, ok, errs, warn, fallback}
     · **ไม่ผ่าน = แทน _site/index.html ด้วยฉบับบนเว็บ** (ข้อมูลอื่นขึ้นปกติ) + `::error` + health.js เช็ก `ci` แจ้งผู้ดูแล
     · sha ตรงกับ check.json บนเว็บ = ใช้ผลเดิม ไม่เปิด Chrome (รอบ cron ส่วนใหญ่)
     · `CHECK_FORCE=1` ตรวจใหม่
