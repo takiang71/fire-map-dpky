@@ -34,7 +34,7 @@ function mock() {
   };
   const vb = () => { const r = {}; const b = { requireTextMatchesPattern: p => (r.re = p, b), requireNumber: () => (r.num = true, b), requireWholeNumber: () => (r.whole = true, b), setHelpText: t => (r.msg = t, b), build: () => r }; return b; };
   const ctx = {
-    FormApp: { create: t => (log.form.title = t, form), EmailCollectionType: { RESPONDER_INPUT: 'RESPONDER_INPUT' }, PageNavigationType: NAV, DestinationType: { SPREADSHEET: 'SPREADSHEET' }, createTextValidation: vb },
+    FormApp: { create: t => (log.form.title = t, form), EmailCollectionType: { RESPONDER_INPUT: 'RESPONDER_INPUT', VERIFIED: 'VERIFIED' }, PageNavigationType: NAV, DestinationType: { SPREADSHEET: 'SPREADSHEET' }, createTextValidation: vb },
     SpreadsheetApp: { create: t => (log.form.sheetTitle = t, { getId: () => 'SHEET', getUrl: () => 'https://sheet' }) },
     Logger: { log: () => {} }, UrlFetchApp: null
   };
@@ -47,7 +47,7 @@ for (const [fx, name] of [['dnp_form_sbo1.json', 'สบอ.1'], ['dnp_form_sbo7
     const d = FX(fx), { ctx, log } = mock();
     const r = ctx.dnpBuild(d, '[ทดสอบ] ');
     assert.ok(log.form.title.startsWith('[ทดสอบ] แบบรับแจ้งเหตุไฟป่า'), log.form.title);
-    assert.equal(log.form.email, 'RESPONDER_INPUT', 'เก็บอีเมลแบบพิมพ์เอง');
+    assert.equal(log.form.email, 'VERIFIED', 'ต้นฉบับเก็บอีเมลแบบยืนยันตัวตน (ต้องล็อกอิน Google)');
     assert.deepEqual(log.form.dest, ['SPREADSHEET', 'SHEET']);
     assert.equal(r.skip.length, 0, 'ไม่มีข้อที่ข้าม');
     const src = d[1][1];
@@ -70,6 +70,7 @@ for (const [fx, name] of [['dnp_form_sbo1.json', 'สบอ.1'], ['dnp_form_sbo7
     const by = t => log.items[src.findIndex(q => q[1] === t)];
     assert.equal(by('วันที่และเวลารับแจ้งเหตุ').kind, 'datetime');
     assert.equal(by('กลุ่มไฟเดิม').kind, 'date');
+    assert.equal(by('วันที่และเวลารับแจ้งเหตุ').year, null, 'ไม่เรียก setIncludesYear กับวันที่+เวลา (สำเนารุ่นแรกเวลาหาย)');
     assert.equal(by('ชนิดป่า').kind, 'cb');
     assert.equal(by('ตรวจพบไฟจาก').other, true, '"ตรวจพบไฟจาก" มีช่องอื่นๆ พิมพ์เอง');
     assert.deepEqual({ ...by('พิกัด X').valid }, { re: '([0-9]{6})', msg: 'กรุณาตรวจสอบความถูกต้อง' });

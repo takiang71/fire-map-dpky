@@ -7,7 +7,7 @@
  *          จบแล้วดูลิงก์ในบันทึกการดำเนินการ (Execution log) แล้วส่งลิงก์ "ฟอร์ม (ส่งคำตอบ)" ให้ผู้ดูแลเว็บ
  *
  * ทำอะไร: อ่านโครงสร้างฟอร์มต้นฉบับจากหน้า viewform สาธารณะ (ไม่ส่งข้อมูลใดๆ เข้าฟอร์มต้นฉบับ)
- *          แล้วสร้างฟอร์มใหม่ คำถาม/ตัวเลือก/ช่องบังคับ/ตัวตรวจรูปแบบ/การข้ามส่วน เหมือนเดิม + เก็บอีเมลแบบพิมพ์เอง
+ *          แล้วสร้างฟอร์มใหม่ คำถาม/ตัวเลือก/ช่องบังคับ/ตัวตรวจรูปแบบ/การข้ามส่วน เหมือนเดิม + เก็บอีเมลแบบเดียวกับต้นฉบับ (ยืนยันตัวตน)
  *          + สเปรดชีตรับคำตอบ · ชื่อฟอร์มขึ้นต้น [ทดสอบ] · รหัสช่อง (entry.N) จะต่างจากต้นฉบับ (เว็บจับคู่ช่องจากชื่อคำถาม)
  */
 
@@ -45,7 +45,9 @@ function dnpBuild(d, prefix) {
   var info = d[1], items = info[1] || [], title = (prefix || '') + String(info[8] || d[3] || 'แบบรับแจ้งเหตุไฟป่า').replace(/\s+/g, ' ').trim();
   var form = FormApp.create(title);
   form.setDescription('สำเนาสำหรับทดสอบการส่งจากเว็บแผนที่ไฟป่า — ไม่ใช่แบบรับแจ้งเหตุจริงของกรมอุทยานฯ' + (info[0] ? '\n\n' + info[0] : ''));
-  try { form.setEmailCollectionType(FormApp.EmailCollectionType.RESPONDER_INPUT); } catch (e) { form.setCollectEmail(true); }
+  /* อีเมล: info[10][6] = 2 ยืนยันตัวตน (ต้องล็อกอิน Google — ฟอร์มจริงของกรมฯ) · 3 พิมพ์เอง · ตรวจ 19 พ.ย. 69 จากสำเนารุ่นแรกที่ตั้ง RESPONDER_INPUT แล้วได้ 3 */
+  var em = info[10] && info[10][6], ET = FormApp.EmailCollectionType;
+  try { if (em === 2) form.setEmailCollectionType(ET.VERIFIED); else if (em === 3) form.setEmailCollectionType(ET.RESPONDER_INPUT); } catch (e) { if (em) form.setCollectEmail(true); }
   if (info[2] && info[2][0]) form.setConfirmationMessage(String(info[2][0]));
   form.setAcceptingResponses(true);
   try { if (form.setPublished) form.setPublished(true); } catch (e) { /* บัญชีที่ยังไม่มีสถานะเผยแพร่ */ }
@@ -59,7 +61,7 @@ function dnpBuild(d, prefix) {
     else if (type === 2) { it = form.addMultipleChoiceItem(); }
     else if (type === 3) { it = form.addListItem(); }
     else if (type === 4) { it = form.addCheckboxItem(); }
-    else if (type === 9) { it = (a[7] && a[7][0]) ? form.addDateTimeItem() : form.addDateItem(); if (it.setIncludesYear) it.setIncludesYear(!a[7] || a[7][1] !== 0); }
+    else if (type === 9) { it = (a[7] && a[7][0]) ? form.addDateTimeItem() : form.addDateItem(); if (a[7] && a[7][1] === 0 && it.setIncludesYear) it.setIncludesYear(false); }
     else if (type === 10) { it = form.addTimeItem(); }
     else if (type === 8) { it = form.addPageBreakItem(); pages[id] = it; }
     else if (type === 6) { it = form.addSectionHeaderItem(); }
