@@ -44,3 +44,19 @@ test('STRN เปลี่ยนชื่อสถานีฯ (19 พ.ย. 69):
   const SA = load('const STRN=' + JSON.stringify(a) + ';' + grab(/(const SA=XD\.st\.map\(.*?XD\.st\[i\]=t;return i\}\);)/), ['SA'], { XD }).SA;
   assert.deepEqual(SA, [0, 2, 2, 3]); assert.equal(XD.st[3], 'สถานีควบคุมไฟป่าทับลาน (ด้านทิศใต้)');
 });
+test('fdTimeChk: ลำดับเวลา รับแจ้ง → เข้าดับ → เสร็จ (19 พ.ย. 69)', () => {
+  const F = load(grab(/(const fdMs=\(d,t\)=>[^\n]*)/) + '\n' + grab(/(const fdTimeChk=\(o,now\)=>[^\n]*)/), ['fdTimeChk']);
+  const NOW = Date.UTC(2026, 10, 19, 3, 48), o = (tn, ta, te, dt = '2026-11-19') => ({ dt, tn, ta, te }); // 10:48 น.
+  const ok = F.fdTimeChk(o('09:00', '09:30', '10:40'), NOW); assert.deepEqual(ok.e, []); assert.deepEqual(ok.w, []);
+  assert.equal((ok.te - ok.ta) / 6e4, 70);
+  // รายงานทดสอบจริง: เข้าดับ 11:46 หลังเวลาส่ง 10:48 → อนาคต
+  assert.deepEqual(F.fdTimeChk(o('10:44', '11:46', '01:39'), NOW).e, [['เวลาเข้าดับไฟอยู่ในอนาคต', 'fd-ta']]);
+  // เมื่อวาน: เสร็จหลังเที่ยงคืน = เตือนยืนยัน ไม่ใช่ผิด
+  const nx = F.fdTimeChk(o('22:10', '22:40', '01:20', '2026-11-18'), NOW); assert.deepEqual(nx.e, []); assert.equal(nx.w.length, 1); assert.match(nx.w[0], /หลังเที่ยงคืน/); assert.equal((nx.te - nx.ta) / 6e4, 160);
+  // เข้าดับก่อนรับแจ้ง (พิมพ์ผิด) = ข้ามวัน > 12 ชม. = ผิด
+  assert.equal(F.fdTimeChk(o('10:00', '09:50', '10:30'), NOW).e[0][1], 'fd-ta');
+  // เข้าดับหลังเที่ยงคืนจริง (รับแจ้ง 23:50 เข้าดับ 00:20) = เตือน 1 ข้อ
+  const mn = F.fdTimeChk(o('23:50', '00:20', '01:00', '2026-11-18'), NOW); assert.deepEqual(mn.e, []); assert.equal(mn.w.length, 1);
+  assert.deepEqual(F.fdTimeChk(o('10:00', '10:20', '11:30'), NOW).e, [['เวลาดับไฟเสร็จอยู่ในอนาคต', 'fd-te']]);
+  assert.deepEqual(F.fdTimeChk(o('', '10:20', '11:30'), NOW), { e: [], w: [] }, 'ช่องว่าง = ให้ fdMiss รายงาน');
+});

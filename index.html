@@ -7519,7 +7519,7 @@ function vfAct(r,a){if(a==='e'&&r.kd==='fd'&&typeof fdForm==='function')fdForm(r
 /* ---- บรรทัดสรุป 1 รายงาน (ใช้ในกล่องแผงรายละเอียด/ป๊อปอัป) ---- */
 function vfLine(r,pop){const[n,c]=VFRES[r.res]||[r.res,'#888'],b=[];
  if(r.hs)b.push('จุด '+vfTime(r.hs.t)+(r.hs.sat?' '+esc(r.hs.sat):''));else if(r.tn)b.push('แจ้งเหตุ '+vfTime(r.tn));if(r.res!=='none')b.push('<b>'+nf(r.rai,r.rai%1?2:0)+' ไร่</b>');if(r.cs!=null&&XD.cs[r.cs])b.push(esc(XD.cs[r.cs]));else if(r.csx)b.push(esc(r.csx));
- if(r.ta||r.te)b.push('เข้าถึง '+(r.ta||'–')+(r.te?' – เสร็จ '+r.te:'')+' น.');if(r.ag)b.push('หน่วยงาน: '+esc(r.ag.replace(/^สถานีควบคุมไฟป่า/,'สถานีฯ '))+(r.crew?' '+nf(r.crew)+' คน':''));if(r.un)b.push('หน่วย: '+esc(r.un));if(r.pl||r.moo)b.push(esc([r.pl,r.moo?'หมู่ '+r.moo:''].filter(Boolean).join(' ')));
+ if(r.ta||r.te)b.push('เข้าถึง '+(r.ta||'–')+(r.te?' – เสร็จ '+r.te:'')+' น.');if(r.ag)b.push('หน่วยงาน: '+esc(r.ag.replace(/^สถานีควบคุมไฟป่า/,'สถานีฯ '))+(r.crew?' '+nf(r.crew)+' คน':''));if(r.un&&r.un!=='-')b.push('หน่วย: '+esc(r.un));if(r.pl||r.moo)b.push(esc([r.pl,r.moo?'หมู่ '+r.moo:''].filter(Boolean).join(' ')));
  if(r.pos)b.push(`พิกัดที่พบจริง ${r.pos[1].toFixed(5)}, ${r.pos[0].toFixed(5)}${r.pos[2]?' (±'+nf(Math.round(r.pos[2]))+' ม.)':''}`);
  if(r.trk)b.push('เส้นทางเดิน '+nf(+r.trk.km||0,2)+' กม.'+(r.trk.up!=null?' (ขึ้นสะสม '+nf(+r.trk.up)+' ม.)':''));
  const tb=r.trk&&!pop?` <button class="lk" data-vf="t" data-id="${esc(r.id)}">${typeof TK!=='undefined'&&TK.vw===r.id?'ซ่อนเส้นทาง':'ดูเส้นทาง'}</button>`:'',ed=vfCan(r)&&!pop?` <button class="lk" data-vf="e" data-id="${r.id}">แก้ไข</button><button class="lk" data-vf="d" data-id="${r.id}">ลบ</button>`:'';
@@ -7565,10 +7565,10 @@ async function vfDel(r){if(!confirm('ลบรายงานนี้ออก�
 function vfXT(){if(typeof XT==='undefined'||typeof XD==='undefined')return;while(XT.length&&XT[XT.length-1].vf)XT.pop();
  const xd=(k,v)=>{let i=XD[k].indexOf(v);if(i<0){i=XD[k].length;XD[k].push(v)}return i},hm=s=>s?+s.replace(':',''):-1;
  for(const r of VF.L){if(r.res==='none')continue;const ll=vfLL(r);if(!ll)continue;const t0=r.hs?r.hs.t:r.tn||r.c,x=new Date(t0+7*36e5),d=Math.floor(x/864e5),t=x.getUTCHours()*100+x.getUTCMinutes(),[y,m]=ymd(d),[tb='',am='',pv='']=String(r.tm||'').split('|');
-  const ts=hm(r.ta),te=hm(r.te),t0m=hm2m(t),tsm=hm2m(ts),tem=hm2m(te);let ra=t0m>=0&&tsm>=0?tsm-t0m:null;if(ra!=null&&(ra<0||ra>720))ra=null;let du=tsm>=0&&tem>=0?tem-tsm:null;if(du!=null&&du<0)du+=1440;if(du!=null&&du>720)du=null;
+  const ts=hm(r.ta),te=hm(r.te),t0m=hm2m(t),tsm=hm2m(ts),tem=hm2m(te);let ra=t0m>=0&&tsm>=0?tsm-t0m:null;if(ra!=null&&ra<0&&r.kd==='fd')ra+=1440; /* บันทึกจากฟอร์ม FD ตรวจลำดับแล้ว: ติดลบ = เข้าดับหลังเที่ยงคืน */if(ra!=null&&(ra<0||ra>720))ra=null;let du=tsm>=0&&tem>=0?tem-tsm:null;if(du!=null&&du<0)du+=1440;if(du!=null&&du>720)du=null;
   const u=utm(ll[1],ll[0]),rai=+r.rai||0,ar=r.ar||'นอกพื้นที่อนุรักษ์',st=r.ag||r.st||'ไม่ระบุ',PV=pv||'ไม่ระบุ'; /* FD: หน่วยงานที่ปฏิบัติ (ag) แทนสถานีฯ ตามแนวเขต */
   XT.push({i:XT.length,d,t,la:ll[1],lo:ll[0],xy:0,pv:xd('pv',PV),am:xd('am',(am||'ไม่ระบุ')+'|'+PV),tm:xd('tm',(tb||'ไม่ระบุ')+'|'+(am||'ไม่ระบุ')+'|'+PV),ar:xd('ar',ar),st:xd('st',st),sb:xd('sb',sbOf(pv,geoAt(ll[0],ll[1]))),rai,
-   cs:r.cs!=null&&XD.cs[r.cs]?r.cs:xd('cs',r.csx||'ไม่ระบุ'),rp:r.rp!=null&&XD.rp[r.rp]?r.rp:xd('rp','ไม่ระบุ'),fr:xd('fr',ar),ts,te,E:Math.round(u.E),N:Math.round(u.N),moo:r.moo||'',pl:r.pl||'',cd:r.note||'',seq:'',op:(r.rn||r.by&&r.by.d||'')+(r.crew?' '+r.crew+' คน':'')+(r.un?' · '+r.un:'')+' (ระบบรายงาน)',
+   cs:r.cs!=null&&XD.cs[r.cs]?r.cs:xd('cs',r.csx||'ไม่ระบุ'),rp:r.rp!=null&&XD.rp[r.rp]?r.rp:xd('rp','ไม่ระบุ'),fr:xd('fr',ar),ts,te,E:Math.round(u.E),N:Math.round(u.N),moo:r.moo||'',pl:r.pl||'',cd:r.note||'',seq:'',op:(r.rn||r.by&&r.by.d||'')+(r.crew?' '+r.crew+' คน':'')+(r.un&&r.un!=='-'?' · '+r.un:'')+' (ระบบรายงาน)',
    fy:r.fy||(y+543+(m>=10?1:0)),mo:(m+2)%12,hg:t0m<0?0:Math.min(3,Math.floor(t0m/360)),sz:rai<=5?0:rai<=20?1:rai<=50?2:rai<=100?3:4,ra,du,rk:ra==null?4:ra<=30?0:ra<=60?1:ra<=120?2:3,dk:du==null?4:du<=60?0:du<=180?1:du<=360?2:3,hs:r.hk?0:2,hd:r.hk?0:null,vf:r})}
  if(document.getElementById('x-kp')&&typeof xtRender==='function'){try{if(window.HOPEN&&window.HTAB==='xt')xtRender();else if(typeof xtMap==='function'&&map.getSource('xts'))xtMap()}catch(e){dbg('vfXT render',e)}}}
 /* ---- การ์ดในแท็บการดับไฟ: รายงานปีงบนี้ + สัดส่วน "ไม่พบไฟ" (false alarm ของดาวเทียม) รายพื้นที่ ---- */
@@ -8294,6 +8294,9 @@ function fdClose(){fdHide();$('#pcard').hidden=false;$('#bHide').setAttribute('a
 function fdSave(){if(!FD.ed&&FD.dr)fdLS('fm-fdd',JSON.stringify(FD.dr))}
 const fdMs=(d,t)=>{const m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(d||'');if(!m)return null;const[h,mi]=(t||'12:00').split(':').map(Number);return Date.UTC(+m[1],+m[2]-1,+m[3],h||0,mi||0)-7*36e5};
 const fdBk=ms=>{const x=new Date(ms+7*36e5).toISOString();return[x.slice(0,10),x.slice(11,16)]};
+/* ตรวจลำดับเวลา (ผู้ใช้ขอ 19 พ.ย. 69 หลังรายงานทดสอบกรอกเข้าดับ 11:46 > เวลาส่ง และเสร็จ 01:39 < เข้าดับ): รับแจ้ง → เข้าดับ → เสร็จ · เวลาน้อยกว่าเวลาก่อนหน้า = ข้ามเที่ยงคืน (ถามยืนยัน) · เข้าดับห่างรับแจ้งเกิน 12 ชม. = ผิด · ทุกเวลาต้องไม่อยู่ในอนาคต (เผื่อ 5 นาที)
+   คืน {e:[[ข้อความ,id]], w:[ข้อความยืนยัน], ta, te} (ms) */
+const fdTimeChk=(o,now)=>{const E=[],W=[],tn=fdMs(o.dt,o.tn),D=864e5,f=now+3e5;if(tn==null||!o.tn||!o.ta||!o.te)return{e:E,w:W};let ta=fdMs(o.dt,o.ta),te=fdMs(o.dt,o.te);if(ta<tn){ta+=D;te+=D;W.push('เวลาเข้าดับไฟ '+o.ta+' น. น้อยกว่าเวลารับแจ้ง '+o.tn+' น. = เข้าดับไฟหลังเที่ยงคืน (วันถัดไป)')}if(te<ta){te+=D;W.push('เวลาดับไฟเสร็จ '+o.te+' น. น้อยกว่าเวลาเข้าดับไฟ '+o.ta+' น. = ดับไฟเสร็จหลังเที่ยงคืน (วันถัดไป)')}if(tn>f)E.push(['เวลารับแจ้งเหตุอยู่ในอนาคต','fd-tn']);else if(ta-tn>12*36e5)E.push(['เวลาเข้าดับไฟห่างจากเวลารับแจ้งเกิน 12 ชม. — ตรวจเวลา (หรือวันที่) อีกครั้ง','fd-ta']);else if(ta>f)E.push(['เวลาเข้าดับไฟอยู่ในอนาคต','fd-ta']);else if(te>f)E.push(['เวลาดับไฟเสร็จอยู่ในอนาคต','fd-te']);return{e:E,w:E.length?[]:W,ta,te}};
 /* จุดความร้อนที่น่าจะเป็นเหตุนี้: 48 ชม. (HS) + สะสม 7 วัน (AD) เรียงตามระยะจากตำแหน่งที่เลือก/กลางแผนที่ */
 function fdCand(){const c=FD.dr&&FD.dr.pos?{lo:FD.dr.pos[0],la:FD.dr.pos[1]}:(()=>{const m=map.getCenter();return{lo:m.lng,la:m.lat}})(),M=new Map(),t0=thDay()-7,km=(la,lo)=>Math.hypot((lo-c.lo)*111.32*Math.cos(c.la*Math.PI/180),(la-c.la)*110.57);
  try{(typeof HS!=='undefined'?HS:[]).forEach(h=>{if(h.demo)return;const k=vfKey(h);M.set(k,{lat:h.lat,lon:h.lon,t:h.t,sat:h.sat,tam:h.tam,amp:h.amp})})}catch(e){dbg('fd:HS',e)}
@@ -8358,7 +8361,9 @@ function fdForm(r,h,keep){if(!keep){FD.ed=r||null;if(r){FD.dr=fdFromRep(r);fdRt(
  f.onsubmit=async e=>{e.preventDefault();rd();const er=t=>{$('#fd-e').textContent=t;return false};
   f.querySelectorAll('.bad').forEach(x=>x.classList.remove('bad'));const M=fdMiss(o);
   if(M.length){M.forEach(([,id])=>{const x=$('#'+id);if(x)x.classList.add('bad')});const x=$('#'+M[0][1]);if(x)x.scrollIntoView({block:'center',behavior:'smooth'});return er('กรอกไม่ครบ: '+M.map(m=>m[0]).join(' · ')+(r?'':' — กด "บันทึกร่าง" เพื่อเก็บไว้ก่อนได้'))}
-  const p=o.pos||[o.hs.lo,o.hs.la,0],tn=fdMs(o.dt,o.tn);if(tn>Date.now()+36e5)return er('วันเวลารับแจ้งเหตุอยู่ในอนาคต');
+  const p=o.pos||[o.hs.lo,o.hs.la,0],tn=fdMs(o.dt,o.tn),TC=fdTimeChk(o,Date.now());
+  if(TC.e.length){TC.e.forEach(([,id])=>{const x=$('#'+id);if(x)x.classList.add('bad')});const x=$('#'+TC.e[0][1]);if(x)x.scrollIntoView({block:'center',behavior:'smooth'});return er(TC.e.map(m=>m[0]).join(' · '))}
+  er('');if(TC.w.length&&!confirm(TC.w.join('\n')+'\n\nถูกต้องใช่ไหม'))return;
   const ag=o.ag==='*'?o.agx:o.ag;
   try{if(!ADM&&typeof admLoad==='function')await admLoad()}catch(x){dbg('fd:adm',x)}
   const g=geoAt(p[0],p[1]),ad=(ADM&&admAt(p[0],p[1]))||null,none=o.res==='none';
