@@ -1565,7 +1565,7 @@ function imgApply(){const t=map.getSource('t'),u=IMG[imgOf()].u();if(t&&t.setTil
    แปลงล่วงหน้าเป็นไทล์ Terrarium ซูม 10–13 ใน data/dem15/ ด้วย scripts/build_dem15.js (ขอบชุดผสมกับ AWS ไม่มีรอยต่อ) · นอกชุด/โหลดไม่ได้ = Terrarium (AWS) เดิม
    d15Has(z,x,y) อ่านดัชนี rows {ty ซูม 13: [x0,x1,...]} · ใช้ร่วมกันทั้งชั้น 'dem' (โปรโตคอล dem15://) และ demTile (ความลาดชัน/ภูมิประเทศ/โปรไฟล์/บันทึกเส้นทาง) */
 const DEMAWS='https://s3.amazonaws.com/elevation-tiles-prod/terrarium/',D15={ix:null,p:null};
-function d15Load(){return D15.p||(D15.p=fetchT('data/dem15/index.json',{},FTO.aux).then(r=>r.ok?r.json():null).then(j=>(D15.ix=j&&j.rows?j:null)).catch(e=>{dbg('dem15',e);return null}))}
+function d15Load(){return D15.p||(D15.p=fetchT('data/dem15/index.json',{cache:'no-cache'},FTO.aux).then(r=>r.ok?r.json():null).then(j=>(D15.ix=j&&j.rows?j:null)).catch(e=>{dbg('dem15',e);return null}))}
 function ixHas(j,z,x,y){if(!j||z<j.zmin||z>j.zmax)return false;const s=2**(j.zmax-z),a=x*s,b=a+s-1; /* ดัชนีไทล์ rows {ty ซูม zmax: [x0,x1,...]} ของ data/dem15, data/chm15 — ซูมต่ำ = มีลูกในชุด */
  for(let t=y*s;t<y*s+s;t++){const R=j.rows[t];if(R)for(let i=0;i<R.length;i+=2)if(R[i]<=b&&R[i+1]>=a)return true}return false}
 const d15Has=(z,x,y)=>ixHas(D15.ix,z,x,y);
@@ -2479,7 +2479,7 @@ const bnDefault=I=>{if(BNK&&(/^fy/.test(BNK)||bnPer(I,BNK).length))return BNK;co
  bnFYk=(I,k)=>/^fy/.test(k)?+k.slice(2):bnFY(bnPer(I,k)[0]||I.periods[I.periods.length-1]),
  bnTtl=(D,F)=>{const p0=D.ps[0];return/^fy/.test(D.k)?'ปีงบ '+F+' สะสม (ราย 7 วัน)':D.C?(p0.p.length===6?'เดือน '+bnLab(p0):bnLab(p0))+' (แยกป่า/เกษตร)':'รอบ '+bnLab(p0)};
 async function bnIndex(){if(BNI&&!BNI.err)return BNI;
- try{const r=await fetchT(BN_BASE+'index.json?h='+Math.floor(Date.now()/36e5),{},FTO.main);if(!r.ok)throw new Error('HTTP '+r.status);BNI=await r.json();BNI.cls=BNI.cls||[];BNI.cn=BNI.cn||[];
+ try{const r=await fetchT(BN_BASE+'index.json?h='+Math.floor(Date.now()/36e5),{cache:'no-cache'},FTO.main);if(!r.ok)throw new Error('HTTP '+r.status);BNI=await r.json();BNI.cls=BNI.cls||[];BNI.cn=BNI.cn||[];
   BNI.periods.forEach(p=>p.dir='b4');BNI.cls.forEach(p=>p.dir='c')}catch(e){dbg('bnIndex',e);BNI={periods:[],cls:[],cn:[],ar:[],st:[],err:e.message}}return BNI}
 const bnFile=p=>BNF[p.dir+p.p]||(BNF[p.dir+p.p]=fetchT(BN_BASE+p.dir+'/'+p.p+'.json?v='+bnHash(p.sig),{},FTO.big).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).catch(e=>{delete BNF[p.dir+p.p];throw e})); // เก็บเป็นข้อความ → Worker แปลง JSON เอง (B2)
 // bnLL (UTM → ลองจิจูด/ละติจูด สูตรเดียวกับ scripts/lib/tiff.js) และ bnM (เมอร์เคเตอร์ 0..1) อยู่ใน wjLib — ชุดเดียวกับที่ Worker ใช้ (B2)
@@ -2927,10 +2927,10 @@ function LP0(){const on=S.prov&&!!PRV;
 const FU_BASE=BN_BASE.replace(/burn\/$/,'fuel/'),FUG=[['สูงมาก','#e10000'],['สูง','#e17d00'],['ปานกลาง','#ffe100'],['ต่ำ','#00e100'],['ต่ำมาก','#005000']];
 let FUI=null,FUM=null,FUBL=null;
 async function fuIndex(){if(FUI&&!FUI.err)return FUI;
- try{const r=await fetchT(FU_BASE+'index.json?h='+Math.floor(Date.now()/36e5),{},FTO.main);if(!r.ok)throw new Error('HTTP '+r.status);FUI=await r.json();
+ try{const r=await fetchT(FU_BASE+'index.json?h='+Math.floor(Date.now()/36e5),{cache:'no-cache'},FTO.main);if(!r.ok)throw new Error('HTTP '+r.status);FUI=await r.json();
   FUI.months.forEach(x=>x.set=new Set(Object.entries(x.tiles).flatMap(([z,l])=>l.map(t=>z+'_'+t))))}catch(e){FUI={months:[],err:e.message}}return FUI}
 maplibregl.addProtocol('fuel',async p=>{const m=p.url.match(/^fuel:\/\/(\d+)\/(\d+)\/(\d+)\?m=(\w+)/),I=await fuIndex(),M=I.months.find(x=>x.m===m[4]);
- if(M&&M.set.has(m[1]+'_'+m[2]+'_'+m[3])){const r=await fetchT(FU_BASE+m[4]+'/'+m[1]+'/'+m[2]+'/'+m[3]+'.png',{},FTO.tile);if(r.ok)return{data:await r.arrayBuffer()}}
+ if(M&&M.set.has(m[1]+'_'+m[2]+'_'+m[3])){const r=await fetchT(FU_BASE+m[4]+'/'+m[1]+'/'+m[2]+'/'+m[3]+'.png?v='+bnHash((I.upd||'')+(M.sig||'')),{},FTO.tile);if(r.ok)return{data:await r.arrayBuffer()}}
  if(!FUBL)FUBL=await (await bnBlob(bnCanvas())).arrayBuffer();return{data:FUBL.slice(0)}});
 function setupFU(){map.addSource('fuel',{type:'raster',tiles:['fuel://{z}/{x}/{y}?m='+(FUM||'none')],tileSize:256,minzoom:8,maxzoom:12,bounds:BNB});
  map.addLayer({id:'fuel',type:'raster',source:'fuel',layout:{visibility:'none'},paint:{'raster-opacity':.72,'raster-resampling':'nearest','raster-fade-duration':0}},map.getLayer('burn')?'burn':'cons-l')}
@@ -2957,7 +2957,7 @@ $('#fu-s').onchange=e=>{FUM=e.target.value;LF()};
    ค่าในกริด: ชนิด (index ของ cn) | ระดับการเติม<<4 (ชุดเดิมจากภาพรายงาน 2568 — ชุด 2561 เป็น 0 เสมอ) | 128 = อยู่ในแนวเขต · โหลดครั้งแรกที่ใช้ (ชั้นแผนที่ ป๊อปอัป โมเดลไฟ) */
 const FT_URL=BN_BASE.replace(/burn\/$/,'ftype/ftype.json');
 let FT=null,FTP=null;
-const ftLoad=()=>FTP||(FTP=fetchT(FT_URL,{},FTO.big).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{
+const ftLoad=()=>FTP||(FTP=fetchT(FT_URL,{cache:'no-cache'},FTO.big) /* no-cache: sw.js เครือข่ายก่อน — เดิมได้ไฟล์เก่าจากแคชครั้งแรกหลังข้อมูลเปลี่ยน */.then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>{
  const g=new Uint8Array(j.w*j.h);j.r.forEach((row,y)=>{let x=y*j.w;for(let i=0;i<row.length;i+=2){g.fill(row[i+1],x,x+row[i]);x+=row[i]}});j.g=g;
  const c=[[j.x0,j.y0],[j.x0+j.w*j.px,j.y0],[j.x0,j.y0-j.h*j.px],[j.x0+j.w*j.px,j.y0-j.h*j.px]].map(([E,N])=>bnLL(E,N,j.z));
  j.bb=[Math.min(...c.map(p=>p[0])),Math.min(...c.map(p=>p[1])),Math.max(...c.map(p=>p[0])),Math.max(...c.map(p=>p[1]))];FT=j;return j}).catch(e=>{FTP=null;throw e}));
@@ -3005,10 +3005,10 @@ async function LFT(){ // เรียกจาก apply() และปุ่ม�
    ชั้น 'chm' วาดผ่าน chm:// (ระบายสีตาม CHC) · chAt(lon,lat) = ค่าที่จุดจากไทล์ซูม 13 (แคช CHX.T ≤40 แผ่น) · chWin = หน้าต่าง ~375 ม. → fuelAt เมื่อไม่ใช่ป่า (แบบ ก) */
 const CHC=['#f1e4b3','#d9ef8b','#a6d96a','#66bd63','#1a9850','#006837','#00331f'],CHR=CHC.map(h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16))),
  CHL=['ต่ำกว่า 2 ม.','2–5 ม.','5–10 ม.','10–15 ม.','15–20 ม.','20–30 ม.','30 ม. ขึ้นไป'],CHB=BN_BASE.replace(/burn\/$/,'chm15/'),CHX={ix:null,p:null,T:new Map()};
-const chLoad=()=>CHX.p||(CHX.p=fetchT(CHB+'index.json',{},FTO.aux).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>(CHX.ix=j&&j.rows?j:null)).catch(e=>{dbg('chLoad',e);CHX.p=null;return null}));
+const chLoad=()=>CHX.p||(CHX.p=fetchT(CHB+'index.json',{cache:'no-cache'},FTO.aux).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>(CHX.ix=j&&j.rows?j:null)).catch(e=>{dbg('chLoad',e);CHX.p=null;return null}));
 const chCls=v=>{const c=(CHX.ix&&CHX.ix.cl)||[2,5,10,15,20,30];let k=0;while(k<c.length&&v>=c[k])k++;return k};
 /* ไทล์ → Uint8Array 65536 (ค่าดิบ) · ถอดด้วย createImageBitmap แบบไม่แปลงสี (ค่าเทาตรงตามไฟล์) */
-async function chPx(z,x,y,ac){const r=await fetchT(CHB+z+'/'+x+'/'+y+'.png',ac?{signal:ac.signal}:{},FTO.tile);if(!r.ok)throw new Error('HTTP '+r.status);
+async function chPx(z,x,y,ac){const r=await fetchT(CHB+z+'/'+x+'/'+y+'.png?v='+encodeURIComponent((CHX.ix&&(CHX.ix.ver||CHX.ix.built))||''),ac?{signal:ac.signal}:{},FTO.tile);if(!r.ok)throw new Error('HTTP '+r.status);
  const bm=await createImageBitmap(await r.blob(),{colorSpaceConversion:'none',premultiplyAlpha:'none'}),c=bnCanvas(),g=c.getContext('2d',{willReadFrequently:true});g.drawImage(bm,0,0);
  const d=g.getImageData(0,0,256,256).data,o=new Uint8Array(65536);for(let i=0;i<65536;i++)o[i]=d[i*4];return o}
 maplibregl.addProtocol('chm',async(p,ac)=>{const m=p.url.match(/^chm:\/\/(\d+)\/(\d+)\/(\d+)/),z=+m[1],x=+m[2],y=+m[3],c=bnCanvas(),g=c.getContext('2d');

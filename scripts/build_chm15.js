@@ -6,7 +6,7 @@
 // รันมือ (ไม่อยู่ใน workflow): node scripts/build_chm15.js [--out data/chm15] [--cache <แคช dtm ของ build_dem15>] [--dsm-cache <โฟลเดอร์>] [--zmin 8] [--limit N] [--dry]
 //   แผ่น DSM (5 แบนด์ ~5 MB/แผ่น รวม ~1 GB) ไม่เก็บลงดิสก์ถ้าไม่ใส่ --dsm-cache (อ่านแล้วถอดในหน่วยความจำ ≤--max แผ่น)
 // ผล: <out>/{z}/{x}/{y}.png PNG เทา 8 บิต ค่า = ความสูง ม. (ปัดเต็ม, 0–60) · 255 = ไม่มีข้อมูล/นอกแนวเขต + <out>/index.json
-//   index: rows (ไทล์ซูม 13 ที่มีข้อมูล, รูปแบบเดียวกับ data/dem15), cl (ขอบชั้นความสูง ม.), st {ชื่อพื้นที่: ไร่ต่อชั้น}, nd {ชื่อ: ไร่ที่ไม่มีข้อมูล}
+//   index: ver (รุ่น ISO → ?v= ของไทล์), rows (ไทล์ซูม 13 ที่มีข้อมูล, รูปแบบเดียวกับ data/dem15), cl (ขอบชั้นความสูง ม.), st {ชื่อพื้นที่: ไร่ต่อชั้น}, nd {ชื่อ: ไร่ที่ไม่มีข้อมูล}
 //   หน้าเว็บ: โปรโตคอล chm:// ระบายสีตาม CHC · chAt() อ่านค่าที่จุด → docs/arch/data-sources.md
 const fs = require('fs'), path = require('path'), os = require('os');
 const { grayPNG } = require('./lib/png');
@@ -51,7 +51,7 @@ const cls = h => { let k = 0; while (k < CL.length && h >= CL[k]) k++; return k 
     lvl.set(x + ',' + y, px); write(ZMAX, x, y, px);
   });
   const W = [...lvl.keys()].map(k => k.split(',').map(Number));
-  const ix = { v: 1, src: 'GEM-15 v1 DSM−DTM (Google, CC-BY 4.0)', built: new Date().toISOString().slice(0, 10), zmin: ZMIN, zmax: ZMAX, hmax: HMAX, cl: CL, rows: {}, st: {}, nd: {} };
+  const ix = { v: 1, src: 'GEM-15 v1 DSM−DTM (Google, CC-BY 4.0)', built: new Date().toISOString().slice(0, 10), ver: new Date().toISOString(), /* ver = รุ่นไทล์ (หน้าเว็บต่อท้าย ?v= กันแคชไทล์เก่า) */ zmin: ZMIN, zmax: ZMAX, hmax: HMAX, cl: CL, rows: {}, st: {}, nd: {} };
   for (const [x, y] of W) (ix.rows[y] = ix.rows[y] || []).push(x);
   for (const y in ix.rows) { const X = ix.rows[y].sort((a, b) => a - b), R = []; for (const x of X) { if (R.length && R[R.length - 1] === x - 1) R[R.length - 1] = x; else R.push(x, x) } ix.rows[y] = R }
   F.forEach((f, i) => { if (st[i].some(v => v)) { ix.st[f.name] = st[i].map(v => Math.round(v)); ix.nd[f.name] = Math.round(nd[i]) } });
