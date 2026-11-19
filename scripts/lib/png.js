@@ -48,17 +48,17 @@ function readPNG(buf) {
   }
   return { w, h, rgba: out };
 }
-// เขียน PNG RGB 8 บิต (rgb = Uint8Array w*h*3) เลือกฟิลเตอร์รายแถวแบบผลรวมค่าสัมบูรณ์น้อยสุด — ใช้ทำไทล์ความสูง Terrarium (build_dem15.js)
-function rgbPNG(w, h, rgb) {
-  const ih = Buffer.alloc(13); ih.writeUInt32BE(w, 0); ih.writeUInt32BE(h, 4); ih[8] = 8; ih[9] = 2;
-  const st = w * 3, raw = Buffer.alloc((st + 1) * h), tmp = Buffer.alloc(st);
+// เขียน PNG 8 บิต ch ช่อง (1 = เทา, 3 = RGB · px = Uint8Array w*h*ch) เลือกฟิลเตอร์รายแถวแบบผลรวมค่าสัมบูรณ์น้อยสุด — ไทล์ Terrarium (build_dem15.js) / ความสูงเรือนยอด (build_chm15.js)
+function rawPNG(w, h, rgb, ch) {
+  const ih = Buffer.alloc(13); ih.writeUInt32BE(w, 0); ih.writeUInt32BE(h, 4); ih[8] = 8; ih[9] = ch === 1 ? 0 : 2;
+  const st = w * ch, raw = Buffer.alloc((st + 1) * h), tmp = Buffer.alloc(st);
   for (let y = 0; y < h; y++) {
     const c = rgb.subarray(y * st, y * st + st), p = y ? rgb.subarray((y - 1) * st, y * st) : null;
     let best = -1, bs = Infinity;
     for (let f = 0; f < 5; f++) {
       let s = 0;
       for (let i = 0; i < st; i++) {
-        const a = i >= 3 ? c[i - 3] : 0, b = p ? p[i] : 0, q = p && i >= 3 ? p[i - 3] : 0;
+        const a = i >= ch ? c[i - ch] : 0, b = p ? p[i] : 0, q = p && i >= ch ? p[i - ch] : 0;
         let pr = 0;
         if (f === 1) pr = a; else if (f === 2) pr = b; else if (f === 3) pr = (a + b) >> 1;
         else if (f === 4) { const e = a + b - q, pa = Math.abs(e - a), pb = Math.abs(e - b), pc = Math.abs(e - q); pr = pa <= pb && pa <= pc ? a : pb <= pc ? b : q }
@@ -69,6 +69,7 @@ function rgbPNG(w, h, rgb) {
   }
   return Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk('IHDR', ih), chunk('IDAT', zlib.deflateSync(raw, { level: 9 })), chunk('IEND', Buffer.alloc(0))]);
 }
+const rgbPNG = (w, h, rgb) => rawPNG(w, h, rgb, 3), grayPNG = (w, h, px) => rawPNG(w, h, px, 1);
 // ความสูง (ม.) → Terrarium RGB · q = ปัดเป็นช่วงละ q ม. (ไฟล์เล็กลง) · NaN = 0 ม.
 function terrariumRGB(e, q) {
   const n = e.length, o = new Uint8Array(n * 3);
@@ -80,4 +81,4 @@ function terrariumRGB(e, q) {
   }
   return o;
 }
-module.exports = { palettePNG, readPNG, rgbPNG, terrariumRGB };
+module.exports = { palettePNG, readPNG, rgbPNG, grayPNG, terrariumRGB };

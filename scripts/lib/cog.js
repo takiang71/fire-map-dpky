@@ -50,8 +50,9 @@ async function openCOG(url, opt = {}) {
   let epsg = null; for (let i = 4; i + 3 < gk.length; i += 4) if (gk[i] === 3072 && gk[i + 1] === 0) epsg = gk[i + 3];
   if (!epsg || !(epsg >= 32601 && epsg <= 32660)) throw new Error('รองรับเฉพาะ UTM ซีกโลกเหนือ (EPSG:326xx) ได้ ' + epsg);
   const off = await one(T[324]), cnt = await one(T[325]), ntx = Math.ceil(w / tw), le = H.le;
-  const C = {};
-  const tile = (tx, ty) => C[tx + ',' + ty] || (C[tx + ',' + ty] = (async () => {
+  const C = {}, MAX = opt.max || Infinity, ord = [];
+  /* เก็บแผ่นที่ถอดแล้วไม่เกิน opt.max แผ่น (ทิ้งแผ่นที่ใส่ก่อนสุด) — แผ่น DSM 5 แบนด์ ~5 MB ต่อแผ่น */
+  const tile = (tx, ty) => C[tx + ',' + ty] || (ord.push(tx + ',' + ty) > MAX && delete C[ord.shift()], C[tx + ',' + ty] = (async () => {
     const i = ty * ntx + tx; if (tx < 0 || ty < 0 || tx >= ntx || i >= off.length) return null;
     if (!cnt[i]) return null;
     let raw, f = opt.cache && path.join(opt.cache, opt.key || 'cog', `${tx}_${ty}.bin`);
@@ -62,7 +63,7 @@ async function openCOG(url, opt = {}) {
     return o;
   })());
   // ทิ้งแผ่นที่ถอดแล้ว (คุมหน่วยความจำ) — แผ่นดิบยังอยู่ในแคชดิสก์
-  const drop = () => { for (const k in C) delete C[k] };
+  const drop = () => { for (const k in C) delete C[k]; ord.length = 0 };
   return { w, h, tw, th, spp, zone: epsg - 32600, e0: tie[3], n0: tie[4], px: sc[0], py: sc[1], ntx, nty: Math.ceil(h / th), tile, drop };
 }
 

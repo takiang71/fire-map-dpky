@@ -9,66 +9,16 @@
 //   ขอบชุดไทล์ ค่อยๆ ผสมกับ Terrarium (AWS) ในระยะ --blend พิกเซลซูม 13 (ไม่เกิดขั้นบันไดตรงรอยต่อ) · พิกเซลที่ GEM-15 ไม่มีค่า (ผิวน้ำ) ใช้ค่า AWS
 //   หน้าเว็บ: demURL()/โปรโตคอล dem15:// เลือกไทล์ในชุดนี้ก่อน นอกชุดใช้ AWS → docs/arch/data-sources.md
 const fs = require('fs'), path = require('path'), os = require('os');
-const { openCOG } = require('./lib/cog');
-const { llToUTM } = require('./lib/tiff');
 const { readPNG, rgbPNG, terrariumRGB } = require('./lib/png');
+const { consFeatures, tileSet: tileSetOf, gemSrc, loadFor, at, pool } = require('./lib/gem15');
 
 const ROOT = path.join(__dirname, '..');
 const arg = (k, d) => { const i = process.argv.indexOf('--' + k); return i < 0 ? d : process.argv[i + 1] };
 const OUT = path.resolve(ROOT, arg('out', 'data/dem15')), CACHE = arg('cache', process.env.GEM15_CACHE || path.join(os.tmpdir(), 'gem15')),
   BUF = +arg('buf', 4), BLEND = +arg('blend', 96), Q = +arg('q', 0.25), ZMIN = +arg('zmin', 10), LIMIT = +arg('limit', 0), DRY = process.argv.includes('--dry'), ZMAX = 13;
-const GCS = 'https://storage.googleapis.com/climate-and-sustainability/gem-15/';
 const AWS = 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/';
-
-// ---------- พิกัดไทล์ ----------
-const lon2x = (lon, z) => (lon + 180) / 360 * 2 ** z;
-const lat2y = (lat, z) => { const s = Math.sin(lat * Math.PI / 180); return (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * 2 ** z };
-const x2lon = (x, z) => x / 2 ** z * 360 - 180;
-const y2lat = (y, z) => Math.atan(Math.sinh(Math.PI * (1 - 2 * y / 2 ** z))) * 180 / Math.PI;
-
-// ---------- ชุดไทล์ซูม 13: ห่างแนวเขตไม่เกิน BUF กม. ----------
-function tileSet() {
-  const G = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'geo.json'), 'utf8')), rings = [];
-  for (const f of G.cons.features) { const g = f.geometry, P = g.type === 'Polygon' ? [g.coordinates] : g.type === 'MultiPolygon' ? g.coordinates : []; for (const p of P) for (const r of p) rings.push(r) }
-  let b = [180, 90, -180, -90]; for (const r of rings) for (const [x, y] of r) { b = [Math.min(b[0], x), Math.min(b[1], y), Math.max(b[2], x), Math.max(b[3], y)] }
-  const kx = 111320 * Math.cos(14 * Math.PI / 180), ky = 110574, d = BUF * 1000;
-  // ระยะจากจุดถึงขอบรูป (ม.) และอยู่ในรูปหรือไม่ (นับคู่/คี่ทุกวง)
-  function dist(lon, lat) {
-    let m = Infinity, inside = false;
-    for (const r of rings) for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
-      const ax = (r[j][0] - lon) * kx, ay = (r[j][1] - lat) * ky, bx = (r[i][0] - lon) * kx, by = (r[i][1] - lat) * ky;
-      if ((ay > 0) !== (by > 0) && 0 < ax + (bx - ax) * (0 - ay) / (by - ay)) inside = !inside;
-      const dx = bx - ax, dy = by - ay, t = Math.max(0, Math.min(1, -(ax * dx + ay * dy) / (dx * dx + dy * dy || 1)));
-      m = Math.min(m, Math.hypot(ax + t * dx, ay + t * dy));
-    }
-    return inside ? 0 : m;
-  }
-  const S = new Set(), x0 = Math.floor(lon2x(b[0] - 0.1, ZMAX)), x1 = Math.floor(lon2x(b[2] + 0.1, ZMAX)), y0 = Math.floor(lat2y(b[3] + 0.1, ZMAX)), y1 = Math.floor(lat2y(b[1] - 0.1, ZMAX));
-  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
-    const lo = x2lon(x + .5, ZMAX), la = y2lat(y + .5, ZMAX), hw = (x2lon(x + 1, ZMAX) - x2lon(x, ZMAX)) / 2 * kx, hh = (y2lat(y, ZMAX) - y2lat(y + 1, ZMAX)) / 2 * ky;
-    if (dist(lo, la) <= Math.hypot(hw, hh) + d) S.add(x + ',' + y);
-  }
-  return S;
-}
-
-// ---------- แหล่ง GEM-15 (แผ่น 1°×1° ตั้งชื่อ w<ลองจิจูด>s<ละติจูด> ตามมุมล่างซ้าย) ----------
-const SRC = {};
-function src(lon, lat) {
-  const a = Math.floor(lon), b = Math.floor(lat), k = `w${a}s${b}`;
-  return SRC[k] || (SRC[k] = openCOG(`${GCS}p${Math.floor(b / 10) * 10}_p${Math.floor(a / 10) * 10}/${k}/dtm/zall/mosaic.tif`, { cache: CACHE, key: 'dtm_' + k }).catch(e => { console.warn('ไม่มีแผ่น', k, e.message); return null }));
-}
-// ความสูงแบบ bilinear ที่ (lon,lat) จากแผ่นที่โหลดไว้แล้ว (L = Map 'tx,ty' → Float32Array) · ค่า NaN ข้ามแล้วถ่วงน้ำหนักที่เหลือ
-function sample(c, L, lon, lat) {
-  const [E, N] = llToUTM(lon, lat, c.zone), fx = (E - c.e0) / c.px - .5, fy = (c.n0 - N) / c.py - .5, ix = Math.floor(fx), iy = Math.floor(fy), ax = fx - ix, ay = fy - iy;
-  let s = 0, w = 0;
-  for (let j = 0; j < 2; j++) for (let i = 0; i < 2; i++) {
-    const X = ix + i, Y = iy + j, t = L.get(Math.floor(X / c.tw) + ',' + Math.floor(Y / c.th)); if (!t) continue;
-    const v = t[((Y % c.th) * c.tw + (X % c.tw)) * c.spp]; if (!Number.isFinite(v)) continue;
-    const k = (i ? ax : 1 - ax) * (j ? ay : 1 - ay); s += v * k; w += k;
-  }
-  return w > 1e-6 ? s / w : NaN;
-}
-const need = (c, lon, lat, out) => { const [E, N] = llToUTM(lon, lat, c.zone), X = Math.floor((E - c.e0) / c.px), Y = Math.floor((c.n0 - N) / c.py); for (const dx of [-20, 0, 20]) for (const dy of [-20, 0, 20]) { const tx = Math.floor((X + dx) / c.tw), ty = Math.floor((Y + dy) / c.th); if (tx >= 0 && ty >= 0 && tx < c.ntx && ty < c.nty) out.add(tx + ',' + ty) } };
+const tileSet = () => tileSetOf(consFeatures(ROOT), BUF, ZMAX);
+const src = gemSrc('dtm', { cache: CACHE });
 
 // ---------- Terrarium (AWS) สำหรับเติม/ผสมขอบ ----------
 async function aws(z, x, y) {
@@ -88,19 +38,10 @@ async function aws(z, x, y) {
 // ---------- ไทล์ซูม 13 ----------
 const smooth = t => t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t);
 async function tile13(x, y, S, st) {
-  const z = ZMAX, e = new Float32Array(65536), lon = i => x2lon(x + (i + .5) / 256, z), lat = j => y2lat(y + (j + .5) / 256, z);
-  // แผ่นต้นทางที่ต้องใช้ (ทุกพิกเซลอาจอยู่คนละแผ่น 1° → จัดกลุ่มตามแผ่น)
-  const per = new Map();
-  for (let j = 0; j < 256; j += 15) for (let i = 0; i < 256; i += 15) for (const [jj, ii] of [[j, i], [Math.min(j + 15, 255), Math.min(i + 15, 255)], [j, Math.min(i + 15, 255)], [Math.min(j + 15, 255), i]]) {
-    const lo = lon(ii), la = lat(jj), c = await src(lo, la); if (!c) continue;
-    const k = Math.floor(lo) + ',' + Math.floor(la); if (!per.has(k)) per.set(k, { c, n: new Set(), L: new Map() }); need(c, lo, la, per.get(k).n);
-  }
-  for (const p of per.values()) await Promise.all([...p.n].map(async k => { const [tx, ty] = k.split(',').map(Number); const t = await p.c.tile(tx, ty); if (t) p.L.set(k, t) }));
+  const z = ZMAX, e = new Float32Array(65536);
+  const per = await loadFor(src, z, x, y);
   let nan = 0;
-  for (let j = 0; j < 256; j++) for (let i = 0; i < 256; i++) {
-    const lo = lon(i), la = lat(j), p = per.get(Math.floor(lo) + ',' + Math.floor(la));
-    const v = p ? sample(p.c, p.L, lo, la) : NaN; e[j * 256 + i] = v; if (!Number.isFinite(v)) nan++;
-  }
+  for (let j = 0; j < 256; j++) for (let i = 0; i < 256; i++) { const v = at(per, z, x, y, i, j); e[j * 256 + i] = v; if (!Number.isFinite(v)) nan++ }
   // น้ำหนัก GEM-15: ระยะ (พิกเซล) ถึงไทล์เพื่อนบ้านที่ไม่อยู่ในชุด
   const out = []; for (const dx of [-1, 0, 1]) for (const dy of [-1, 0, 1]) if ((dx || dy) && !S.has((x + dx) + ',' + (y + dy))) out.push([dx, dy]);
   const wgt = (i, j) => { let m = Infinity; for (const [dx, dy] of out) { const ex = dx < 0 ? i + .5 : dx > 0 ? 255.5 - i : 0, ey = dy < 0 ? j + .5 : dy > 0 ? 255.5 - j : 0; m = Math.min(m, dx && dy ? Math.hypot(ex, ey) : dx ? ex : ey) } return smooth(m / BLEND) };
@@ -127,8 +68,6 @@ async function parentTile(z, x, y, kids) {
   return e;
 }
 
-async function pool(items, n, fn) { let i = 0; await Promise.all(Array.from({ length: n }, async () => { while (i < items.length) { const k = i++; await fn(items[k], k) } })) }
-
 (async () => {
   const t0 = Date.now(), S = tileSet();
   let L = [...S].map(k => k.split(',').map(Number)).sort((a, b) => a[1] - b[1] || a[0] - b[0]);
@@ -144,7 +83,7 @@ async function pool(items, n, fn) { let i = 0; await Promise.all(Array.from({ le
   await pool(L, 6, async ([x, y]) => {
     const e = await tile13(x, y, S, st); lvl.set(x + ',' + y, e); write(ZMAX, x, y, e);
     if (++done % 50 === 0) console.log(`  ซูม 13: ${done}/${L.length} · ${((Date.now() - t0) / 1000).toFixed(0)} วิ`);
-    if (row !== y) { row = y; if (done % 200 === 0) for (const p of Object.values(SRC)) { const c = await p; c && c.drop() } }
+    if (row !== y) { row = y; if (done % 200 === 0) for (const p of src.all()) { const c = await p; c && c.drop() } }
   });
   const ix = { v: 1, src: 'GEM-15 v1 DTM (Google, CC-BY 4.0)', built: new Date().toISOString().slice(0, 10), q: Q, buf: BUF, blend: BLEND, zmin: ZMIN, zmax: ZMAX, rows: {} };
   for (const [x, y] of L) (ix.rows[y] = ix.rows[y] || []).push(x);

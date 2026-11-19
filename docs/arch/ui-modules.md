@@ -394,7 +394,7 @@
 - แนบรายงาน F1: `tkVfHtml(r)` ใส่ใน vfForm ใต้ "พิกัดที่พบจริง" (`#vf-trk`: ไม่แนบ/รายการเส้นทาง src gps ใหม่สุดก่อน · รายงานที่แนบแล้ว = คงไว้/ลบ) + ข้อความ "เส้นทางที่แนบจะเผยแพร่พร้อมรายงาน" · `tkVfVal()` → undefined/null/`tkPack(f)` = {c แบน ≤500 จุด 5 ตำแหน่ง (tkDP), t0, t1, km, up, dn, n} · `tkCap()` ตรวจ `GET /` → `trk` ก่อนส่ง (Worker เก่า = ข้อความในฟอร์ม ไม่ส่ง) · `TK.pre` = เลือกไว้ให้เมื่อเปิดจาก tkSum
 - ดูเส้นทางของรายงาน: vfLine แสดง "เส้นทางเดิน x กม. (ขึ้นสะสม …)" + ปุ่ม `data-vf="t"` (เฉพาะกล่องในแผงรายละเอียด) → `tkView(r)` = `ulApi('/reports/<id>/trk')` (แคช `TK.vc`) → `tk-v` + fitBounds · กดซ้ำ = ซ่อน (`tkVfBtn`)
 - **ความเป็นส่วนตัว**: ไม่มี fetchT/fetch/sendBeacon ในโมดูล · ulApi ในโมดูลมีแค่ GET `/` และ `/reports/<id>/trk` (test/track.test.js ตรวจ) · เส้นทางออกจากเครื่องได้ 2 ทางที่ผู้ใช้กดเอง: ส่งออก GPX (ดาวน์โหลด) / แนบกับรายงาน (POST ของ vfForm)
-- service worker: ไม่แตะ IndexedDB · DEM (AWS และ data/dem15/*.png) ไม่ผ่านแคชของ sw
+- service worker: ไม่แตะ IndexedDB · DEM (AWS และ data/dem15/*.png) และ data/chm15/*.png ไม่ผ่านแคชของ sw
 - check_site ขั้น "บันทึกเส้นทาง (F7)" (ต่อจาก D3) → [testing.md](testing.md) · เทสต์ `test/track.test.js` + `test/layers.test.js` (Worker)
 - คู่มือ `#track` (ใต้ปุ่มควบคุมแผนที่) + `#track-screen` (ข้อจำกัดจอดับ) + ภาพ `track_bar.jpg` (มือถือ) `track_sum.jpg` `track_resume.jpg` (งาน `track_*` ใน manual_shots_gen.js — แทน watchPosition ในหน้า, ภาพแสดงสถานะ "กันจอดับอยู่" และเวลา 0:42:17 เป็นค่าสาธิต) · FAQ 2 ข้อ · ออฟไลน์ (`#m-offline`) · F1 (`#vf`)
 - ยังไม่ได้ลองบนมือถือจริง (GPS จริง, จอดับ, Wake Lock บน Android/iOS, แบตเตอรี่) · Worker ใหม่ยังไม่ได้วางบน Cloudflare (ทดสอบกับ KV จำลองเท่านั้น)

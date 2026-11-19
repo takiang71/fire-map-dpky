@@ -50,8 +50,8 @@ test('terrariumRGB + rgbPNG → readPNG ได้ความสูงเดิ�
   assert.equal(d[7 * 4] * 256 + d[7 * 4 + 1] - 32768, 0); /* NaN → 0 ม. */
 });
 
-test('d15Has: ซูม 13 ตามช่วงแถว · ซูมต่ำ = มีลูกอยู่ในชุด · นอกช่วงซูม/ไม่มีดัชนี = false', () => {
-  const src = grab(/function d15Has[\s\S]*?return true\}return false\}/), D15 = { ix: null };
+test('ixHas/d15Has: ซูม 13 ตามช่วงแถว · ซูมต่ำ = มีลูกอยู่ในชุด · นอกช่วงซูม/ไม่มีดัชนี = false (ใช้ร่วม dem15/chm15)', () => {
+  const src = grab(/function ixHas[\s\S]*?return true\}return false\}\nconst d15Has=[^;]*;/), D15 = { ix: null };
   const { d15Has } = load(src, ['d15Has'], { D15 });
   assert.equal(d15Has(13, 100, 50), false);
   D15.ix = { zmin: 10, zmax: 13, rows: { 50: [100, 102, 110, 110], 51: [96, 96] } };
@@ -62,8 +62,25 @@ test('d15Has: ซูม 13 ตามช่วงแถว · ซูมต่ำ 
   assert.equal(d15Has(9, 6, 3), false); assert.equal(d15Has(14, 202, 100), false);
 });
 
-test('data/dem15: ทุกแผ่นในดัชนีมีไฟล์ PNG ครบซูม zmin–13 และไม่มีไฟล์เกิน', { skip: !fs.existsSync(path.join(__dirname, '..', 'data', 'dem15', 'index.json')) }, () => {
-  const D = path.join(__dirname, '..', 'data', 'dem15'), ix = JSON.parse(fs.readFileSync(path.join(D, 'index.json'), 'utf8'));
+test('maskFn (lib/gem15): สี่เหลี่ยมในไทล์เดียว = จำนวนพิกเซลตามขอบ · รูเจาะ (วงใน) ไม่นับ · รูปที่สองซ้อน = รูปแรกได้ก่อน · ไทล์อื่นว่าง', () => {
+  const { maskFn, x2lon, y2lat } = require('../scripts/lib/gem15');
+  const z = 13, x = 6403, y = 3764, ll = (px, py) => [x2lon(x + px / 256, z), y2lat(y + py / 256, z)];
+  const sq = (a, b, c, d) => [ll(a, b), ll(c, b), ll(c, d), ll(a, d), ll(a, b)];
+  const F = [{ name: 'A', rings: [sq(10, 20, 110, 70), sq(30, 30, 50, 40)] }, { name: 'B', rings: [sq(100, 60, 200, 100)] }];
+  const m = maskFn(F, z)(x, y); let a = 0, b = 0; for (const v of m) { if (v === 0) a++; else if (v === 1) b++ }
+  assert.equal(a, 100 * 50 - 20 * 10);
+  assert.equal(b, 100 * 40 - 10 * 10);
+  assert.equal(maskFn(F, z)(x + 1, y).every(v => v === -1), true);
+});
+
+test('grayPNG → readPNG ได้ค่าเดิมทุกพิกเซล (ไทล์ความสูงเรือนยอด)', () => {
+  const { grayPNG } = require('../scripts/lib/png');
+  const px = new Uint8Array(65536).map((_, i) => i % 7 === 0 ? 255 : (i * 13) % 61), d = readPNG(grayPNG(256, 256, px)).rgba;
+  for (let i = 0; i < 65536; i++) if (d[i * 4] !== px[i]) assert.fail('พิกเซล ' + i);
+});
+
+for (const DIR of ['dem15', 'chm15']) test(`data/${DIR}: ทุกแผ่นในดัชนีมีไฟล์ PNG ครบซูม zmin–13 และไม่มีไฟล์เกิน`, { skip: !fs.existsSync(path.join(__dirname, '..', 'data', DIR, 'index.json')) }, () => {
+  const D = path.join(__dirname, '..', 'data', DIR), ix = JSON.parse(fs.readFileSync(path.join(D, 'index.json'), 'utf8'));
   let L = []; for (const y in ix.rows) { const R = ix.rows[y]; for (let i = 0; i < R.length; i += 2) for (let x = R[i]; x <= R[i + 1]; x++) L.push([x, +y]) }
   assert.ok(L.length > 300, 'ไทล์ซูม 13 น้อยผิดปกติ ' + L.length);
   for (let z = ix.zmax; z >= ix.zmin; z--) {
