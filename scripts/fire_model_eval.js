@@ -1,11 +1,11 @@
 // F5 ตรวจย้อนหลังโมเดลไฟ (วงรี 6 ชม. ในแผงรายละเอียดจุด) กับพื้นที่เผาไหม้ B4 จริง — รันมือ ไม่อยู่ใน Actions
-// ใช้: node scripts/fire_model_eval.js [--fy 2568,2569] [--km 1] [--days 7] [--gap 1] [--hr 6] [--cache <โฟลเดอร์>] [--out <ไฟล์.json>] [--dry = นับคู่/คำขออากาศ ไม่ดึง]
+// ใช้: node scripts/fire_model_eval.js [--fy 2568,2569] [--km 1] [--days 7] [--gap 1] [--hr 6] [--cache <โฟลเดอร์>] [--out <ไฟล์.json>] [--dry = นับคู่/คำขออากาศ ไม่ดึง] [--no-chm = ไม่ใช้เรือนยอด (กติกาก่อน 19 พ.ย. 69)]
 //  1) จุด = adata ทุกดาวเทียม (VIIRS SNPP/NOAA-20/NOAA-21 + NASA FIRMS ที่เติม) ของปีงบที่เลือก ทุกพื้นที่ในแนวเขต (รวมดงใหญ่)
 //  2) รอยเผา = data/burn/b4 ทุกรอบที่ช่วง [d0,d1] ทับ [วันพบจุด, วันพบจุด + --days] รวมพิกเซล 20 ม. (ไม่นับซ้ำ)
 //     กลุ่มรอย = พิกเซลติดกัน 8 ทิศ ยอมช่องว่าง --gap พิกเซล · คู่ = กลุ่มรอยที่ใกล้จุดที่สุดภายใน --km (วัดถึงขอบพิกเซล)
 //     ไร่จริง = จำนวนพิกเซลของกลุ่ม × 0.25 ไร่ · จุดนอกกริด B4 ที่ต้นทางผลิต = ไม่นับ
 //  3) โมเดล = calc() ของหน้าเว็บ (ดึงโค้ดจาก index.html ด้วย lib/fmodel.js ไม่เขียนสูตรซ้ำ) ด้วย P แบบเดียวกับ openDetail:
-//     hr 6 · เชื้อเพลิง fuelAt(geoAt, ความสูง, ftAt) · ความลาด/ทิศลาด slopeAt (DEM Terrarium ซูม 12 — sl = min(40, ปัด), asp เมื่อ ≥1°)
+//     hr 6 · เชื้อเพลิง fuelAt(geoAt, ความสูง, ftAt, หน้าต่างเรือนยอด data/chm15 ±10 พิกเซลซูม 13 เมื่อไม่ใช่ป่า — chWinSum ของหน้าเว็บ) · ความลาด/ทิศลาด slopeAt (DEM Terrarium ซูม 12 — sl = min(40, ปัด), asp เมื่อ ≥1°)
 //     · อากาศ Open-Meteo Historical Forecast (ชุดโมเดลเดียวกับ /v1/forecast ที่หน้าเว็บใช้) ณ เวลาที่พบจุด (สอดแทรกรายชั่วโมง)
 //     ต่างจากหน้าเว็บ: ความสูงสำหรับ fuelAt ใช้ DEM (หน้าเว็บใช้ elevation ของ Open-Meteo) · อากาศของช่อง 0.05° (หน้าเว็บใช้พิกัดจุด)
 //     + โหมด Lagrangian: huy() + hyAdj() ด้วยลมรายชั่วโมงหลังเวลาพบจุด (WS เหมือนหน้าเว็บ) ก่อน/หลัง F5 (7) ความชื้น/อุณหภูมิรายชั่วโมง (P.hrly)
@@ -22,7 +22,8 @@ const ROOT = path.join(__dirname, '..');
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d };
 const FYS = arg('--fy', '2568,2569').split(',').map(Number), KM = +arg('--km', 1), DAYS = +arg('--days', 7), GAP = +arg('--gap', 1), HR = +arg('--hr', 6);
 const CACHE = arg('--cache', process.env.FME_CACHE || path.join(os.tmpdir(), 'fire-model-eval'));
-const OUT = arg('--out', path.join(CACHE, `summary_g${GAP}_k${KM}_d${DAYS}.json`));
+const NOCHM = process.argv.includes('--no-chm');
+const OUT = arg('--out', path.join(CACHE, `summary_g${GAP}_k${KM}_d${DAYS}${NOCHM ? '_nochm' : ''}.json`));
 const WAIT = 7000, CHUNK = 50, RAI = 0.25, PX = 20;
 fs.mkdirSync(path.join(CACHE, 'dem'), { recursive: true });
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -49,6 +50,13 @@ function demTile(z, x, y) {
 }
 
 const M = loadModel({ GEO, demTile });
+// หน้าต่างเรือนยอด ~375 ม. รอบจุด จาก data/chm15 ซูม 13 (แบบ chWin ของหน้าเว็บ) → chWinSum หรือ null
+const CHT = {}, chTile = (x, y) => { const k = x + '/' + y; if (!(k in CHT)) { try { CHT[k] = readPNG(fs.readFileSync(path.join(ROOT, 'data', 'chm15', '13', String(x), y + '.png'))).rgba } catch (e) { CHT[k] = null } } return CHT[k] };
+function chWin(lon, lat) {
+  const W = 256 * 2 ** 13, X = (lon + 180) / 360 * W, Y = (1 - Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360)) / Math.PI) / 2 * W, V = [];
+  for (let dy = -10; dy <= 10; dy += 2) for (let dx = -10; dx <= 10; dx += 2) { const x = Math.floor(X + dx), y = Math.floor(Y + dy), t = chTile(x >> 8, y >> 8); if (t) V.push(t[((y & 255) * 256 + (x & 255)) * 4]) }
+  const w = M.chWinSum(V); return w.n ? w : null;
+}
 M.setFT(JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'ftype', 'ftype.json'), 'utf8')));
 { const t = M.calc({ hr: 6, fuel: 0, u: 11, from: 90, rh: 61, T: 32.3, sl: 4, asp: null }); if (Math.abs(t.Rh - 4.7) > 1e-9) throw new Error('ค่าทดสอบ 7.3 ไม่ได้หัวไฟ 4.7 ม./นาที: ' + t.Rh) }
 
@@ -163,12 +171,12 @@ const stat = rs => { const l = rs.map(Math.log); return { n: rs.length, p10: r3(
   for (const p of P) {
     const w = WX[p.wd + '|' + p.cell], x = w && wxAt(w, p.hm);
     if (!x || x.T == null || x.rh == null || x.u == null || isNaN(x.from)) { p.skip = 1; cnt.noWx++; continue }
-    const s = await M.slopeAt(p.lo, p.la), g = M.geoAt(p.lo, p.la), ft = M.ftAt(p.lo, p.la), fu = M.fuelAt(g, s.el, ft);
+    const s = await M.slopeAt(p.lo, p.la), g = M.geoAt(p.lo, p.la), ft = M.ftAt(p.lo, p.la), cw = !ft && !NOCHM ? chWin(p.lo, p.la) : null, fu = M.fuelAt(g, s.el, ft, cw);
     const prm = { sm: 'g', hr: HR, fuel: fu.i, u: x.u, from: x.from, rh: x.rh, T: x.T, sl: Math.min(40, Math.round(s.s)), asp: s.s >= 1 ? s.asp : null };
     const r = M.calc(prm);
     M.setP({ ...prm, sm: 'l', hrly: 0 }, x.WS); const Hy = M.huy(r), ry = M.hyAdj(r, Hy);   /* Lagrangian เดิม: ลมรายชั่วโมง ความชื้น/อุณหภูมิคงที่ */
     M.setP({ ...prm, sm: 'l', hrly: 1 }, x.WS); const ry2 = M.hyAdj(r, M.huy(r));   /* F5 (7): + ความชื้น/อุณหภูมิรายชั่วโมง (EMC รายชั่วโมง) */
-    Object.assign(p, { T: x.T, rh: x.rh, u: x.u, from: x.from, sl: s.s, asp: s.asp, el: s.el, ft: ft ? ft.n : '', fuel: fu.i, fuelN: M.FUEL[fu.i].n, why: fu.why, E: r.E, Rh: r.Rh, m: r.rai, mh: ry.rai, mh2: ry2.rai, ratio: r.rai / p.rai, ratioH: ry.rai / p.rai, ratioH2: ry2.rai / p.rai });
+    Object.assign(p, { T: x.T, rh: x.rh, u: x.u, from: x.from, sl: s.s, asp: s.asp, el: s.el, ft: ft ? ft.n : '', fuel: fu.i, fuelN: M.FUEL[fu.i].n, why: fu.why, chw: cw && cw.n >= M.CHWN ? 1 : 0, E: r.E, Rh: r.Rh, m: r.rai, mh: ry.rai, mh2: ry2.rai, ratio: r.rai / p.rai, ratioH: ry.rai / p.rai, ratioH2: ry2.rai / p.rai });
   }
   const OK = P.filter(p => !p.skip);
 
@@ -204,6 +212,8 @@ const stat = rs => { const l = rs.map(Math.log); return { n: rs.length, p10: r3(
     raiModel: { hotspot: stat(OK.map(p => p.m)), fire: stat(fires.map(f => f.m)) }, raiReal: { hotspot: stat(OK.map(p => p.rai)), fire: stat(fires.map(f => f.rai)) },
     byFuel: by(OK, p => p.fuelN, p => p.ratio), byFuelR1: by(OK, p => p.fuelN, p => p.m / p.r1), byFuelAll: by(fires, f => f.fuelN, f => f.ratioAll), byDayNightR1: by(OK, p => isDay(p) ? 'กลางวัน' : 'กลางคืน', p => p.m / p.r1), byFuelFire: by(fires, f => f.fuelN, f => f.ratio),
     raiByFuel: { model: by(OK, p => p.fuelN, p => p.m), real: by(OK, p => p.fuelN, p => p.rai) },
+    /* เชื้อเพลิงที่เลือกจากเรือนยอด (ไม่ใช่ป่าตามชั้นชนิดป่า) — รัศมี 1 กม. */
+    chm: { n: OK.filter(p => p.chw).length, byFuelR1: by(OK.filter(p => p.chw), p => p.fuelN, p => p.m / p.r1), raiModel: by(OK.filter(p => p.chw), p => p.fuelN, p => p.m) },
     byDayNight: by(OK, p => isDay(p) ? 'กลางวัน' : 'กลางคืน', p => p.ratio), byDayNightFire: by(fires, f => f.day ? 'กลางวัน' : 'กลางคืน', f => f.ratio),
     byFY: by(OK, p => fyOf(p.d), p => p.ratio), byFYFire: by(fires, f => fyOf(f.first.d), f => f.ratio),
     wx: { T: stat(OK.map(p => p.T)), rh: stat(OK.map(p => p.rh)), u: stat(OK.map(p => p.u)), E: stat(OK.map(p => p.E)), Rh: stat(OK.map(p => p.Rh)), dist: stat(OK.map(p => p.dist)) },
@@ -221,6 +231,7 @@ const stat = rs => { const l = rs.map(Math.log); return { n: rs.length, p10: r3(
   for (const k in S.lagr) { const x = S.lagr[k]; console.log(`Lagrangian ${k} (n ${x.n}): ไร่มัธยฐาน ${Math.round(x.raiBefore)} → ${Math.round(x.raiAfter)} · ÷รัศมี 1 กม. ${x.r1Before.med} → ${x.r1After.med} (P90 ${x.r1Before.p90} → ${x.r1After.p90}) · ÷กลุ่มใกล้สุด ${x.nearBefore} → ${x.nearAfter} · <1 ไร่หลังปรับ ${x.zeroAfter}`) } L('รายจุด: กลุ่มรอยใหญ่สุด ≤1 กม.', S.alt.big); L('รายจุด: พิกเซลเผาในรัศมี 1 กม.', S.alt.r1);
   L('รายไฟ: กลุ่มรอยของไฟ', S.fire.g); L('รายไฟ: ทุกกลุ่มรอย ≤1 กม.', S.fire.all);
   for (const k in S.byFuelR1) L('เชื้อเพลิง (รัศมี 1 กม.): ' + k, S.byFuelR1[k]);
+  console.log(`เลือกเชื้อเพลิงจากเรือนยอด ${S.chm.n} คู่${NOCHM ? ' (--no-chm)' : ''}`); for (const k in S.chm.byFuelR1) L('  เรือนยอด → ' + k, S.chm.byFuelR1[k]);
   console.log('ไร่โมเดล มัธยฐาน', S.raiModel.hotspot.med, '· ไร่จริง (ใกล้สุด/รัศมี 1 กม./ไฟ ≤1 กม.)', S.raiReal.hotspot.med, S.alt.raiR1.med, S.fire.raiAll.med);
   console.log('ผลเต็ม:', OUT);
 })().catch(e => { console.error(e); process.exit(1) });

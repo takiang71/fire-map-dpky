@@ -45,3 +45,18 @@ test('readPNG อ่าน palettePNG กลับได้ทุกพิกเ
   for (let i = 0; i < px.length; i++) assert.deepEqual([...r.rgba.subarray(i * 4, i * 4 + 4)], C[px[i]]);
   assert.throws(() => readPNG(Buffer.from('not a png')), /PNG/);
 });
+
+test('fuelAt + เรือนยอดรอบจุด (แบบ ก 19 พ.ย. 69): ใช้เฉพาะเมื่อไม่ใช่ป่า · โล่ง ≥60% → เต็งรัง · >1,000 ม. → ดิบเขา · มัธยฐาน ≥10 ม. → ดิบแล้ง · อื่น → เบญจพรรณ · ค่าน้อยกว่า CHWN = กติกาเดิม', () => {
+  const M = loadModel(), w = (op, md, n = 121) => ({ n, op, md });
+  assert.equal(M.CHWN, 30);
+  assert.deepEqual(M.chWinSum([0, 1, 1, 3, 12, 255, null, 20]), { n: 6, op: 0.5, md: 3 });
+  assert.deepEqual(M.chWinSum([255, null]), { n: 0, op: 0, md: 0 });
+  assert.equal(M.fuelAt(null, 600, null, w(0.6, 1)).i, 1);
+  assert.match(M.fuelAt(null, 600, null, w(0.72, 1)).why, /โล่ง 72%.*เต็งรัง/);
+  assert.equal(M.fuelAt(null, 600, null, w(0.59, 10)).i, 2);
+  assert.equal(M.fuelAt(null, 600, null, w(0.3, 9)).i, 0);
+  assert.equal(M.fuelAt(null, 1200, null, w(0.9, 0)).i, 1);           /* สูงเกิน 1,000 ม. แต่โล่ง = เต็งรัง (หญ้า) */
+  assert.equal(M.fuelAt(null, 1200, null, w(0.2, 12)).i, 3);          /* สูงเกิน 1,000 ม. ไม่โล่ง = ดิบเขาตามเดิม */
+  assert.equal(M.fuelAt(null, 200, null, w(0.9, 0, 29)).i, M.fuelByElev(200)); /* ค่าน้อย = ตามความสูงเหมือนเดิม */
+  assert.equal(M.fuelAt(null, 600, { k: 3, n: 'ป่าดิบแล้ง', e: 0 }, w(0.9, 0)).i, 2); /* มีชนิดป่า = ชนิดป่ามาก่อนเสมอ */
+});

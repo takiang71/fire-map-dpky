@@ -999,7 +999,7 @@ body.wyon #attr{display:none}
  <div class="rb">
   <div class="dt" id="d-name"></div><div class="sm" id="d-nmn" style="margin:-6px 0 8px"></div><div class="sm" id="d-pa" style="margin:-2px 0 10px;line-height:1.5"></div><div class="cream" id="vf-box" style="margin:0 0 10px"></div>
   <div class="big"><div><svg class="i" style="color:var(--fire);width:26px;height:26px" viewBox="0 0 24 24"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.500 2-2 2 1-3 0-6-1-8z"/></svg><span id="d-age"></span><small>ที่แล้ว</small></div><div><small>ความแรงไฟ</small><b id="d-frp"></b><small>MW</small></div></div>
-  <hr class="l"><div class="kv"><div><span id="d-tl">เวลาที่ตรวจพบ</span><b id="d-t"></b></div><div><span>ความเชื่อมั่น</span><b id="d-cf"></b></div><div><span>พิกัด</span><b id="d-ll"></b></div><div><span>UTM</span><b id="d-utm"></b></div><div><span>ความสูง</span><b id="d-el">–</b></div><div><span>ความลาดชัน</span><b id="d-sl" title="จากแบบจำลองความสูง (GEM-15 ของ Google ในกลุ่มป่า · Terrarium นอกพื้นที่) เฉลี่ยรอบจุด ~150 ม. · ใช้ในการคาดการณ์การลามของไฟ (ปรับเองได้ที่ ปรับค่า)">–</b></div><div><span>สภาพอากาศ</span><b id="d-wx" style="font-weight:400;font-size:12px">ค่าตัวอย่าง</b></div></div>
+  <hr class="l"><div class="kv"><div><span id="d-tl">เวลาที่ตรวจพบ</span><b id="d-t"></b></div><div><span>ความเชื่อมั่น</span><b id="d-cf"></b></div><div><span>พิกัด</span><b id="d-ll"></b></div><div><span>UTM</span><b id="d-utm"></b></div><div><span>ความสูง</span><b id="d-el">–</b></div><div><span>เรือนยอด</span><b id="d-cy" title="ความสูงเรือนยอดไม้ GEM-15 (DSM − DTM, Google) · ที่จุด และสัดส่วนพื้นที่โล่ง (<2 ม.) รอบจุด ~375 ม. (ขนาดพิกเซล VIIRS) · ใช้เลือกเชื้อเพลิงเมื่อชั้นชนิดป่าบอกว่าไม่ใช่ป่า">–</b></div><div><span>ความลาดชัน</span><b id="d-sl" title="จากแบบจำลองความสูง (GEM-15 ของ Google ในกลุ่มป่า · Terrarium นอกพื้นที่) เฉลี่ยรอบจุด ~150 ม. · ใช้ในการคาดการณ์การลามของไฟ (ปรับเองได้ที่ ปรับค่า)">–</b></div><div><span>สภาพอากาศ</span><b id="d-wx" style="font-weight:400;font-size:12px">ค่าตัวอย่าง</b></div></div>
   <div class="cream" id="hx" style="margin:0 0 10px"><b style="font-size:13px">ประวัติในบริเวณนี้ <span class="sm">(ข้อมูลย้อนหลังปีงบ <span id="hx-r"></span>)</span></b>
    <div class="tb" id="hx-t" style="margin-top:6px"></div><div class="sm" style="margin:8px 0 2px">จำนวนจุดในรัศมี 2 กม. แยกตามปีงบประมาณ</div><div class="vc" id="hx-b" style="height:84px"></div>
    <div class="sm" id="hx-n" style="margin-top:6px"></div><button class="lk" id="hx-m" style="padding-left:0">แสดงจุดย้อนหลังบนแผนที่ →</button></div>
@@ -2006,10 +2006,10 @@ map.on('click',e=>{
  const g0=geoAt(e.lngLat.lng,e.lngLat.lat);
  const{lat,lng}=e.lngLat,ll=lat.toFixed(5)+', '+lng.toFixed(5);
  const FPH=typeof fwPop==='function'?fwPop(lng,lat):''; /* เปิดชั้น FWI = แสดงครบทุกดัชนี ไม่งั้นบรรทัด FWI/FFMC สั้น (.pfw) */
- const pop=new maplibregl.Popup({maxWidth:'270px'}).setLngLat(e.lngLat).setHTML(`${uh?uh.html:''}${wchHtml(e.lngLat)}${areaHtml(g0)}${bnAt(e.lngLat)}${rpAt(e.lngLat)}<span class="pft"></span><span class="pch"></span><b>พิกัด</b> ${ll}<br><div class="sm pw" style="margin:4px 0">กำลังดึงสภาพอากาศ…</div>${typeof vrPop==='function'?vrPop(lng,lat):''}${FPH||'<div class="sm pfw" style="margin:0 0 4px"></div>'}${typeof cmPop==='function'?cmPop(lng,lat):''}<span class="sm pt0">กำลังหาชื่อตำบล…</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}">นำทางด้วย Google Maps</a>`).addTo(map);if(uh)uh.bind(pop);
+ const pop=new maplibregl.Popup({maxWidth:'270px'}).setLngLat(e.lngLat).setHTML(`${uh?uh.html:''}${wchHtml(e.lngLat)}${areaHtml(g0)}${bnAt(e.lngLat)}${rpAt(e.lngLat)}<span class="pft"></span><span class="pcy"></span><b>พิกัด</b> ${ll}<br><div class="sm pw" style="margin:4px 0">กำลังดึงสภาพอากาศ…</div>${typeof vrPop==='function'?vrPop(lng,lat):''}${FPH||'<div class="sm pfw" style="margin:0 0 4px"></div>'}${typeof cmPop==='function'?cmPop(lng,lat):''}<span class="sm pt0">กำลังหาชื่อตำบล…</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}">นำทางด้วย Google Maps</a>`).addTo(map);if(uh)uh.bind(pop);
  if(!FPH&&typeof fwQuick==='function')fwQuick(lng,lat).then(x=>{const el=pop.getElement()&&pop.getElement().querySelector('.pfw');if(el){if(x)el.innerHTML=x;else el.remove()}}).catch(()=>{const el=pop.getElement()&&pop.getElement().querySelector('.pfw');if(el)el.remove()});
  ftLoad().then(()=>{const f=ftAt(lng,lat),el=pop.getElement()&&pop.getElement().querySelector('.pft');if(el&&f)el.innerHTML='<b>ชนิดป่า</b> '+ftTxt(f)+'<br>'}).catch(e=>dbg('ftLoad',e));
- chAt(lng,lat).then(v=>{const el=pop.getElement()&&pop.getElement().querySelector('.pch');if(el&&v!=null)el.innerHTML=chTxt(v)+'<br>'}).catch(e=>dbg('chAt',e));
+ chAt(lng,lat).then(v=>{const el=pop.getElement()&&pop.getElement().querySelector('.pcy');if(el&&v!=null)el.innerHTML=chTxt(v)+'<br>'}).catch(e=>dbg('chAt',e));
  admLoad().then(()=>{const a=admAt(lng,lat),el=pop.getElement()&&pop.getElement().querySelector('.pt0');if(el){const p=a?null:prvAt(lng,lat);el.innerHTML=a?'<b>'+esc(admTxt(a,1))+'</b>':p?'<b>จ.'+esc(p)+'</b>':'นอกขอบเขตข้อมูลตำบล'}}).catch(()=>{const el=pop.getElement()&&pop.getElement().querySelector('.pt0');if(el)el.textContent='โหลดชื่อตำบลไม่ได้'});
  fetchT(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,precipitation&wind_speed_unit=kmh`,{},FTO.aux).then(r=>r.json()).then(j=>{const c=j.current,el=pop.getElement().querySelector('.pw');
   if(el)el.innerHTML=`${nf(c.temperature_2m,1)} °C · ความชื้น ${Math.round(c.relative_humidity_2m)}%<br>ลมจากทิศ${DIRN[Math.round(c.wind_direction_10m/45)%8]} ${Math.round(c.wind_speed_10m)} กม./ชม.<br>สูง ${Math.round(j.elevation)} ม.`}).catch(()=>{const el=pop.getElement()&&pop.getElement().querySelector('.pw');if(el)el.textContent='ดึงสภาพอากาศไม่ได้'})});
@@ -2114,15 +2114,20 @@ const fuelByElev=z=>z>1000?3:z<250?1:0;
 // เลือกเชื้อเพลิงอัตโนมัติจากชนิดป่าของแปลงพื้นที่รับผิดชอบ (resp.ftype) ที่จุดอยู่ · แปลงที่มีหลายชนิด (เช่น "ป่าเบญจพรรณ/เต็งรัง") ใช้ชนิดแรก
 // เว้นแต่ความสูงชี้ชนิดอื่นในรายการ (ต่ำกว่า 250 ม. → เต็งรัง, ตั้งแต่ 500 ม. → ดิบแล้ง) · สูงกว่า 1,000 ม. = ดิบเขาเสมอ · ไม่อยู่ในแปลงใด → ตามความสูง
 // มีชั้นชนิดป่ากรมป่าไม้ 2561 (ftAt) → ใช้ก่อน: ดิบชื้น/บึงน้ำจืด ใช้ค่าดิบแล้ง · สวนป่า/ป่าที่ฟื้นฟูตามธรรมชาติ ใช้ค่าเบญจพรรณ · ป่าทุ่ง/ลานหิน ใช้ค่าเต็งรัง (ไฟลามตามหญ้า)
+// ความสูงเรือนยอด GEM-15 รอบจุด (ผู้ใช้เลือกแบบ ก 19 พ.ย. 69): ใช้เฉพาะจุดที่ชั้นชนิดป่า 2561 ไม่ใช่ป่า (31% ของจุดย้อนหลัง — เดิมเดาจากแปลงสถานีฯ/ความสูง)
+// หน้าต่าง ~375 ม. (พิกเซล VIIRS) = ซูม 13 ±10 พิกเซล ทุก 2 พิกเซล (121 ค่า) · ค่าน้อยกว่า CHWN = ไม่ใช้ · โล่ง = สัดส่วนพิกเซล <2 ม. · md = มัธยฐาน (ม.)
+const CHWN=30,chWinSum=V=>{const a=V.filter(v=>v!=null&&v!==255).sort((x,y)=>x-y),n=a.length;return n?{n,op:a.filter(v=>v<2).length/n,md:a[n>>1]}:{n:0,op:0,md:0}};
 const FTI={เบญจพรรณ:0,เต็งรัง:1,ดิบแล้ง:2,ดิบเขา:3,ไผ่:4},FTF={2:2,3:2,4:3,5:2,6:0,7:1,8:4,9:0,10:0,11:0,12:1,13:1};
-function fuelAt(g,z,f){if(f&&FTF[f.k]!=null){const i=FTF[f.k];return{i,why:'ชนิดป่า (กรมป่าไม้ 2561): '+f.n+(f.e?' (ประมาณจากป่าข้างเคียง)':'')+(FUEL[i].n.indexOf(f.n)<0?' → ใช้ค่า'+FUEL[i].n:'')}}
+function fuelAt(g,z,f,cw){if(f&&FTF[f.k]!=null){const i=FTF[f.k];return{i,why:'ชนิดป่า (กรมป่าไม้ 2561): '+f.n+(f.e?' (ประมาณจากป่าข้างเคียง)':'')+(FUEL[i].n.indexOf(f.n)<0?' → ใช้ค่า'+FUEL[i].n:'')}}
+ if(cw&&cw.n>=CHWN){const i=cw.op>=.6?1:z!=null&&z>1000?3:cw.md>=10?2:0; /* cw ส่งมาเฉพาะจุดที่ชั้นชนิดป่าโหลดแล้วและไม่ใช่ป่า: โล่ง ≥60% → เต็งรัง (ไฟลามตามหญ้า แบบป่าทุ่ง) · สูงเกิน 1,000 ม. → ดิบเขา (กติกาเดิม) · มัธยฐาน ≥10 ม. → ดิบแล้ง · อื่น → เบญจพรรณ */
+  return{i,why:'ไม่ใช่ป่าตามชั้นชนิดป่า · เรือนยอดรอบจุด ~375 ม. (GEM-15): โล่ง '+Math.round(cw.op*100)+'% สูงกลาง '+cw.md+' ม. → ใช้ค่า'+FUEL[i].n+(i===1?' (ไฟลามตามหญ้า)':'')}}
  const r=g&&(g.resp.find(f=>f.properties.ftype&&!/พื้นที่รอง/.test(f.properties.station))||g.resp.find(f=>f.properties.ftype)),ft=r?r.properties.ftype:'',
  c=[...ft.matchAll(/เบญจพรรณ|เต็งรัง|ดิบแล้ง|ดิบเขา|ไผ่/g)].map(m=>FTI[m[0]]),zt=z==null?'':' · สูง '+nf(Math.round(z))+' ม.';
  if(z!=null&&z>1000)return{i:3,why:'ความสูงเกิน 1,000 ม.'+(ft?' (แปลง: '+ft+')':'')};
  if(!c.length)return z==null?{i:0,why:'ค่าเริ่มต้น (รอข้อมูลความสูง)'}:{i:fuelByElev(z),why:'ตามความสูง'+zt};
  let i=c[0];if(c.length>1&&z!=null){if(c.includes(1)&&z<250)i=1;else if(c.includes(2)&&z>=500)i=2}
  return{i,why:'ชนิดป่าของแปลง: '+ft+(c.length>1?zt:'')}}
-function fuelAuto1(z){const f=fuelAt(CUR&&CUR.geo,z,CUR&&ftAt(CUR.lon,CUR.lat));P.fuel=f.i;fqWhy('เลือกอัตโนมัติ: '+f.why)}
+function fuelAuto1(z){const f0=CUR&&ftAt(CUR.lon,CUR.lat),c=CUR&&FT&&!f0&&ftIn(CUR.lon,CUR.lat)?CUR.chw:null,f=fuelAt(CUR&&CUR.geo,z,f0,c);P.fuel=f.i;fqWhy('เลือกอัตโนมัติ: '+f.why)}
 function syncSl(){const v=(i,val,u)=>{$('#s-'+i).value=val;tx('v-'+i,Math.round(val)+u)};v('u',P.u,' กม./ชม.');v('f',P.from,'°');v('r',P.rh,'%');v('s',P.sl,'°');$('#fuel').value=P.fuel;$$('#dur button').forEach(b=>b.classList.toggle('on',+b.dataset.h===P.hr));$$('#sm button').forEach(b=>b.classList.toggle('on',b.dataset.m===P.sm))}
 function upd(){
  if(!CUR)return;if(!ADM)admLoad().then(()=>CUR&&upd()).catch(e=>dbg('admLoad',e));const an=(lo,la)=>{const a=admAt(lo,la);return a?' <span style="font-weight:400">· '+esc(admTxt(a))+'</span>':''};
@@ -2164,7 +2169,7 @@ function openDetail(h){
  map.getSource('ring').setData({type:'FeatureCollection',features:[{type:'Feature',properties:{},geometry:{type:'Point',coordinates:[h.lon,h.lat]}}]});{const sp=map.getSource('selpt');sp&&sp.setData({type:'FeatureCollection',features:h.old?[{type:'Feature',properties:{},geometry:{type:'Point',coordinates:[h.lon,h.lat]}}]:[]})}
  MOVED=true;map.flyTo({center:[h.lon,h.lat],zoom:11.2,duration:dur(1600),essential:true,offset:padOff(innerWidth>767?homePad():{top:70,bottom:Math.round(innerHeight*.6)+16,left:0,right:0})}); /* เดสก์ท็อป: กลางช่องว่างระหว่างแผงซ้ายกับแผงรายละเอียด (homePad นับ #dp) · MOVED = พับ/เปิดแผงแล้ว panFit เลื่อนจุดนี้ไปกลางที่ว่างใหม่ ไม่ใช่ fitHome (18 พ.ย. 69) */
  syncSl();upd();fillAq(h);fqLoad(h);try{if(typeof vfBox==='function')vfBox(h)}catch(e){dbg('vfBox',e)}
- ftLoad().then(()=>{if(CUR===h&&fuelAuto){fuelAuto1(h.el);syncSl();upd()}}).catch(e=>dbg('openDetail',e));
+ tx('d-cy','–');Promise.all([ftLoad(),chWin(h.lon,h.lat).catch(e=>{dbg('chWin',e);return null})]).then(([,w])=>{h.chw=w;if(CUR!==h)return;tx('d-cy',chWTxt(w));if(fuelAuto){fuelAuto1(h.el);syncSl();upd()}}).catch(e=>dbg('openDetail',e));
  if(h.ns!=='api')admLoad().then(()=>{const a=CUR===h&&admAt(h.lon,h.lat);if(!a)return;tx('d-name','ตำบล'+esc(a.t)+' อำเภอ'+esc(a.a)+' จังหวัด'+esc(a.p));tx('d-nmn',(h.demo?'จุดตัวอย่างเพื่อดูการแสดงผล · ':'')+'ชื่อพื้นที่จากแนวเขตตำบล (กรมการปกครอง ผ่าน OCHA HDX)')}).catch(e=>dbg('admLoad',e));
  fetchT(`https://api.open-meteo.com/v1/forecast?latitude=${h.lat}&longitude=${h.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation&hourly=wind_speed_10m,wind_direction_10m,relative_humidity_2m,temperature_2m&forecast_hours=26&wind_speed_unit=kmh`,{},FTO.aux).then(r=>r.json()).then(j=>{
   if(CUR!==h||!j.current)return;const c=j.current;if(j.hourly&&j.hourly.wind_speed_10m)WS={u:j.hourly.wind_speed_10m,d:j.hourly.wind_direction_10m,rh:j.hourly.relative_humidity_2m,T:j.hourly.temperature_2m};FQ.om={T:c.temperature_2m,rh:c.relative_humidity_2m,u:c.wind_speed_10m,from:c.wind_direction_10m};fqApply();
@@ -2991,7 +2996,7 @@ async function LFT(){ // เรียกจาก apply() และปุ่ม�
   (j.e[0]+j.e[1]?`<div class="sm" style="margin-top:6px">ทั้งกริด (รวมป่านอกแนวเขต) เติมจากผืนป่าเดียวกัน ${nf(j.e[0])} ไร่ · จากป่าใกล้สุด ${nf(j.e[1])} ไร่</div>`:'')}
 /* ---------- ความสูงเรือนยอด GEM-15 (DSM − DTM, Google) — ผู้ใช้ขอ 19 พ.ย. 69 ----------
    scripts/build_chm15.js → data/chm15/{z}/{x}/{y}.png (PNG เทา ค่า = ม. 0–60, 255 = ไม่มีข้อมูล/นอกแนวเขต) ซูม 8–13 + index.json {rows, cl ขอบชั้น, st ไร่ต่อชั้นต่อพื้นที่, nd}
-   ชั้น 'chm' วาดผ่าน chm:// (ระบายสีตาม CHC) · chAt(lon,lat) = ค่าที่จุดจากไทล์ซูม 13 (แคช CHX.T ≤40 แผ่น) · ไม่ใช้ในโมเดลไฟ (ยังไม่ได้ตัดสินใจ) */
+   ชั้น 'chm' วาดผ่าน chm:// (ระบายสีตาม CHC) · chAt(lon,lat) = ค่าที่จุดจากไทล์ซูม 13 (แคช CHX.T ≤40 แผ่น) · chWin = หน้าต่าง ~375 ม. → fuelAt เมื่อไม่ใช่ป่า (แบบ ก) */
 const CHC=['#f1e4b3','#d9ef8b','#a6d96a','#66bd63','#1a9850','#006837','#00331f'],CHR=CHC.map(h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16))),
  CHL=['ต่ำกว่า 2 ม.','2–5 ม.','5–10 ม.','10–15 ม.','15–20 ม.','20–30 ม.','30 ม. ขึ้นไป'],CHB=BN_BASE.replace(/burn\/$/,'chm15/'),CHX={ix:null,p:null,T:new Map()};
 const chLoad=()=>CHX.p||(CHX.p=fetchT(CHB+'index.json',{},FTO.aux).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(j=>(CHX.ix=j&&j.rows?j:null)).catch(e=>{dbg('chLoad',e);CHX.p=null;return null}));
@@ -3004,9 +3009,15 @@ maplibregl.addProtocol('chm',async(p,ac)=>{const m=p.url.match(/^chm:\/\/(\d+)\/
  if(ixHas(await chLoad(),z,x,y)){const d=await chPx(z,x,y,ac),im=g.createImageData(256,256),o=im.data;
   for(let i=0;i<65536;i++){const v=d[i];if(v===255)continue;const q=CHR[chCls(v)];o[i*4]=q[0];o[i*4+1]=q[1];o[i*4+2]=q[2];o[i*4+3]=255}g.putImageData(im,0,0)}
  return{data:await (await bnBlob(c)).arrayBuffer()}});
-async function chAt(lon,lat){const j=await chLoad();if(!j)return null;const z=j.zmax,W=256*2**z,X=(lon+180)/360*W,Y=(1-Math.log(Math.tan(Math.PI/4+lat*Math.PI/360))/Math.PI)/2*W,tx=Math.floor(X/256),ty=Math.floor(Y/256);
- if(!ixHas(j,z,tx,ty))return null;const k=tx+'/'+ty;let p=CHX.T.get(k);if(!p){p=chPx(z,tx,ty).catch(e=>{CHX.T.delete(k);throw e});CHX.T.set(k,p);if(CHX.T.size>40)CHX.T.delete(CHX.T.keys().next().value)}
+const chTP=(j,tx,ty)=>{if(!ixHas(j,j.zmax,tx,ty))return null;const k=tx+'/'+ty;let p=CHX.T.get(k);if(!p){p=chPx(j.zmax,tx,ty).catch(e=>{CHX.T.delete(k);throw e});CHX.T.set(k,p);if(CHX.T.size>40)CHX.T.delete(CHX.T.keys().next().value)}return p};
+const chXY=(j,lon,lat)=>{const W=256*2**j.zmax;return[(lon+180)/360*W,(1-Math.log(Math.tan(Math.PI/4+lat*Math.PI/360))/Math.PI)/2*W]};
+async function chAt(lon,lat){const j=await chLoad();if(!j)return null;const [X,Y]=chXY(j,lon,lat),tx=Math.floor(X/256),ty=Math.floor(Y/256),p=chTP(j,tx,ty);if(!p)return null;
  const v=(await p)[Math.floor(Y-ty*256)*256+Math.floor(X-tx*256)];return v===255?null:v}
+// หน้าต่าง ~375 ม. รอบจุด → {n, op, md, v ค่าที่จุด} (chWinSum) หรือ null (นอกชุด/ไม่มีข้อมูล)
+async function chWin(lon,lat){const j=await chLoad();if(!j)return null;const [X,Y]=chXY(j,lon,lat),V=[],P=[];
+ for(let dy=-10;dy<=10;dy+=2)for(let dx=-10;dx<=10;dx+=2){const x=Math.floor(X+dx),y=Math.floor(Y+dy),p=chTP(j,x>>8,y>>8);if(p)P.push(p.then(a=>V.push(a[(y&255)*256+(x&255)])))}
+ if(!P.length)return null;await Promise.all(P);const w=chWinSum(V);if(!w.n)return null;w.v=await chAt(lon,lat);return w}
+const chWTxt=w=>w?(w.v!=null?'~'+w.v+' ม. · ':'')+'โล่ง '+Math.round(w.op*100)+'% รอบจุด':'– (นอกแนวเขต/ไม่มีข้อมูล)';
 const chTxt=v=>`<b>ความสูงเรือนยอด</b> <b style="color:${CHC[chCls(v)]};text-shadow:0 0 1px #0006">■</b> ~${v} ม.${v<2?' <span class="sm">(โล่ง/ทุ่งหญ้า/ไม้พุ่มเตี้ย)</span>':''} <span class="sm">GEM-15</span>`;
 function setupCH(){if(map.getSource('chm'))return;map.addSource('chm',{type:'raster',tiles:['chm://{z}/{x}/{y}'],tileSize:256,minzoom:8,maxzoom:13,bounds:BNB});
  map.addLayer({id:'chm',type:'raster',source:'chm',layout:{visibility:S.chm?'visible':'none'},paint:{'raster-opacity':.75,'raster-resampling':'nearest','raster-fade-duration':0}},['ftype','fuel','burn','cons-l'].find(id=>map.getLayer(id)))}
