@@ -27,7 +27,7 @@ test.before(async () => {
 const fyNow = () => { const d = new Date(Date.now() + 7 * 36e5); return d.getUTCFullYear() + 543 + (d.getUTCMonth() >= 9 ? 1 : 0) };
 
 let ADM, U1, U2;
-test('GET / บอกสถานะ kv/admin/rep/log', async () => { const r = await api('/'); assert.equal(r.s, 200); assert.deepEqual(r.j, { ok: true, app: 'fire-map layers', kv: true, admin: true, rep: true, log: true, trk: true, fd: true, max_mb: 8 }) });
+test('GET / บอกสถานะ kv/admin/rep/log', async () => { const r = await api('/'); assert.equal(r.s, 200); assert.deepEqual(r.j, { ok: true, app: 'fire-map layers', kv: true, admin: true, rep: true, log: true, trk: true, fd: 2, max_mb: 8 }) });
 test('login ผู้ดูแลหลักถูก/ผิด', async () => {
   const bad = await api('/login', { m: 'POST', body: { u: 'admin', p: 'wrong' } }); assert.equal(bad.s, 401);
   const ok = await api('/login', { m: 'POST', body: { u: 'admin', p: 'admin-secret-pass' } }); assert.equal(ok.s, 200); assert.ok(ok.j.token); assert.equal(ok.j.user.a, true); ADM = ok.j.token;
@@ -104,6 +104,16 @@ test('reports fd: tn/ag/crew/kd · ปีงบตามเวลารับแ
   assert.equal(JSON.parse(kv.m.get('rep:2570')).filter(y => y.id === x.id).length, 1, 'อยู่ดัชนีปีงบใหม่');
   assert.equal(JSON.parse(kv.m.get('r:' + x.id)).fy, 2570);
   assert.equal((await api('/reports/' + x.id + '?fy=2570', { m: 'DELETE', tok: U1 })).s, 200);
+});
+test('reports fd: csx/rn/rt · เบอร์โทรไม่ออกใน GET สาธารณะ (เห็นเฉพาะเจ้าของ/ผู้ดูแล)', async () => {
+  const r = await api('/reports', { m: 'POST', tok: U1, body: { kd: 'fd', res: 'out', tn: Date.now() - 36e5, csx: 'ฟ้าผ่า', rn: 'สมชาย ใจดี', rt: '081-234 5678', rai: 2 } });
+  assert.equal(r.s, 200, r.t); const x = r.j.report; assert.equal(x.csx, 'ฟ้าผ่า'); assert.equal(x.rn, 'สมชาย ใจดี'); assert.equal(x.rt, '0812345678');
+  const pub = (await api('/reports?fy=' + x.fy)).j.reports.find(y => y.id === x.id); assert.equal(pub.rn, 'สมชาย ใจดี'); assert.ok(!('rt' in pub), 'ไม่ล็อกอิน = ไม่เห็นเบอร์');
+  assert.ok(!('rt' in (await api('/reports?fy=' + x.fy, { tok: U2 })).j.reports.find(y => y.id === x.id)), 'ผู้ใช้อื่นไม่เห็นเบอร์');
+  assert.equal((await api('/reports?fy=' + x.fy, { tok: U1 })).j.reports.find(y => y.id === x.id).rt, '0812345678', 'เจ้าของเห็น');
+  assert.equal((await api('/reports?fy=' + x.fy, { tok: ADM })).j.reports.find(y => y.id === x.id).rt, '0812345678', 'ผู้ดูแลเห็น');
+  assert.equal((await api('/reports/' + x.id + '?fy=' + x.fy, { m: 'PUT', tok: U1, body: { rt: '12345' } })).j.report.rt, '', 'เบอร์ผิดรูป = ว่าง');
+  assert.equal((await api('/reports/' + x.id + '?fy=' + x.fy, { m: 'DELETE', tok: U1 })).s, 200);
 });
 // ---- F7 เส้นทางที่แนบกับรายงาน ----
 const TRK = n => { const c = []; for (let i = 0; i < n; i++) c.push(+(101.98 + i * 1e-4).toFixed(5), +(14.26 + Math.sin(i / 7) * 1e-3).toFixed(5)); return { c, t0: Date.UTC(2026, 10, 15, 6, 0), t1: Date.UTC(2026, 10, 15, 7, 12), km: 5.234, up: 120, dn: 98, n: n * 4 } };
