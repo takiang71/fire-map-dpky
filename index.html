@@ -3453,11 +3453,14 @@ function hCSV(){const F=hfilt(),A=HAM(),q=v=>'"'+String(v).replace(/"/g,'""')+'"
    r = [day, hhmm รับแจ้ง, lat*1e5, lon*1e5, xy(0 ปกติ/1 แก้อัตโนมัติ/2 ใช้ไม่ได้), pv, am, tm, ar(ตามพิกัด), st(ดำเนินการโดย), sb, ไร่, cs, rp, fr(พื้นที่ป่าตามรายงาน), hhmm เข้าดับ, hhmm เสร็จสิ้น, E, N, หมู่, สถานที่, รายละเอียดสาเหตุ, ลำดับในต้นฉบับ] */
 const XD={pv:[],am:[],tm:[],ar:[],st:[],sb:[],cs:[],rp:[],fr:[]};let XT=[],XQ={},XSRC='',XFC={type:'FeatureCollection',features:[]};
 const hm2m=t=>t==null||t<0?-1:Math.floor(t/100)*60+t%100;
+/* เปลี่ยนชื่อสถานีฯ (ผู้ใช้แจ้ง 19 พ.ย. 69): ตั้งแต่ปีงบ 2569 สถานีฯ นครนายก → เขาใหญ่ (ด้านทิศใต้), สถานีฯ ปราจีนบุรี → ทับลาน (ด้านทิศใต้) พร้อมพื้นที่รับผิดชอบใหม่ = แนวเขตปัจจุบันในเว็บ · ผู้ใช้เลือกให้เปลี่ยนทุกปีงบ (ถือเป็นหน่วยเดิมที่เปลี่ยนชื่อ) · ข้อความ "ผู้ดำเนินการตามรายงาน" คงตามต้นฉบับ — ข้อมูลฝัง fxdata ไม่แก้ (ไม่มีไฟล์ต้นฉบับให้นำเข้าใหม่) แปลงตอนโหลด · scripts/import_fx.js ใช้ชุดเดียวกัน */
+const STRN={'สถานีควบคุมไฟป่านครนายก':'สถานีควบคุมไฟป่าเขาใหญ่ (ด้านทิศใต้)','สถานีควบคุมไฟป่าปราจีนบุรี':'สถานีควบคุมไฟป่าทับลาน (ด้านทิศใต้)'};
 (function(){const e=document.getElementById('fxdata');if(!e)return;try{const j=JSON.parse(e.textContent);for(const k in XD)XD[k]=j[k]||[];XQ=j.q||{};XSRC=j.src||'';
+ const SA=XD.st.map((n,i)=>{const t=STRN[n];if(!t)return i;const k=XD.st.indexOf(t);if(k>=0)return k;XD.st[i]=t;return i}); /* ดัชนีชื่อเดิม → ชื่อใหม่ (มีอยู่แล้ว = รวมเข้าดัชนีเดิม) */
  XT=j.r.map((a,i)=>{const[y,m]=ymd(a[0]),t0=hm2m(a[1]),ts=hm2m(a[15]),te=hm2m(a[16]),rai=+a[11]||0;
   let ra=t0>=0&&ts>=0&&!(XQ.noArr||[]).includes(y+543+(m>=10?1:0))?ts-t0:null;if(ra!=null&&(ra<0||ra>720))ra=null; // เข้าดับก่อนรับแจ้ง/นานเกิน 12 ชม. = ข้อมูลผิด
   let du=ts>=0&&te>=0?te-ts:null;if(du!=null&&du<0)du+=1440;if(du!=null&&du>720)du=null; // เสร็จหลังเที่ยงคืน = บวก 1 วัน
-  return{i,d:a[0],t:a[1],la:a[2]/1e5,lo:a[3]/1e5,xy:a[4],pv:a[5],am:a[6],tm:a[7],ar:a[8],st:a[9],sb:a[10],rai,cs:a[12],rp:a[13],fr:a[14],ts:a[15],te:a[16],E:a[17],N:a[18],moo:a[19],pl:a[20],cd:a[21],seq:a[22],op:a[23]||'',ck:a[24]===1,
+  return{i,d:a[0],t:a[1],la:a[2]/1e5,lo:a[3]/1e5,xy:a[4],pv:a[5],am:a[6],tm:a[7],ar:a[8],st:SA[a[9]],sb:a[10],rai,cs:a[12],rp:a[13],fr:a[14],ts:a[15],te:a[16],E:a[17],N:a[18],moo:a[19],pl:a[20],cd:a[21],seq:a[22],op:a[23]||'',ck:a[24]===1,
    fy:y+543+(m>=10?1:0),mo:(m+2)%12,hg:t0<0?0:Math.min(3,Math.floor(t0/360)),sz:rai<=5?0:rai<=20?1:rai<=50?2:rai<=100?3:4,ra,du,rk:ra==null?4:ra<=30?0:ra<=60?1:ra<=120?2:3,dk:du==null?4:du<=60?0:du<=180?1:du<=360?2:3,hs:2,hd:null}});
  // จุดความร้อนกรมอุทยานฯ (HD, Suomi NPP) ห่างไม่เกิน 1 กม. ภายใน ±1 วันของวันรับแจ้ง
  const G=new Map(),ky=(a,o)=>a+'|'+o;HD.forEach(r=>{const k=ky(Math.floor(r.la/.01),Math.floor(r.lo/.01));(G.get(k)||G.set(k,[]).get(k)).push(r)});

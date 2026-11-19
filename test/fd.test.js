@@ -33,3 +33,14 @@ test('ปุ่มเมนูหลักแทนพยากรณ์อา�
   assert.match(HTML, /if\(typeof fdHit==='function'&&fdHit\(e\)\)return;/, 'ผูกกับตัวจัดการคลิกแผนที่หลัก');
   assert.ok(!/window\.ADM/.test(HTML), 'ADM ประกาศด้วย let ไม่อยู่บน window');
 });
+test('STRN เปลี่ยนชื่อสถานีฯ (19 พ.ย. 69): index.html กับ import_fx.js ชุดเดียวกัน · ข้อมูลดับไฟไม่เหลือชื่อเดิม', () => {
+  const fs = require('fs'), path = require('path');
+  const a = load(grab(/(const STRN=\{[^}]*\};)/), ['STRN']).STRN;
+  const b = load(grab(/(const STRN = \{[^}]*\};)/, fs.readFileSync(path.join(__dirname, '..', 'scripts', 'import_fx.js'), 'utf8')), ['STRN']).STRN;
+  assert.deepEqual(a, b);
+  assert.deepEqual(a, { 'สถานีควบคุมไฟป่านครนายก': 'สถานีควบคุมไฟป่าเขาใหญ่ (ด้านทิศใต้)', 'สถานีควบคุมไฟป่าปราจีนบุรี': 'สถานีควบคุมไฟป่าทับลาน (ด้านทิศใต้)' });
+  // ตัวแปลงดัชนีตอนโหลด: ชื่อใหม่มีอยู่แล้ว = รวมเข้าดัชนีเดิม · ไม่มี = เปลี่ยนชื่อในที่
+  const XD = { st: ['สถานีควบคุมไฟป่าทับลาน', 'สถานีควบคุมไฟป่านครนายก', 'สถานีควบคุมไฟป่าเขาใหญ่ (ด้านทิศใต้)', 'สถานีควบคุมไฟป่าปราจีนบุรี'] };
+  const SA = load('const STRN=' + JSON.stringify(a) + ';' + grab(/(const SA=XD\.st\.map\(.*?XD\.st\[i\]=t;return i\}\);)/), ['SA'], { XD }).SA;
+  assert.deepEqual(SA, [0, 2, 2, 3]); assert.equal(XD.st[3], 'สถานีควบคุมไฟป่าทับลาน (ด้านทิศใต้)');
+});
