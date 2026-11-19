@@ -24,6 +24,8 @@
     · sync สั่ง site ด้วย -f by=sync ผ่านแล้ว (รอบ 15:17 11 พ.ย. 69)
   - `.github/workflows/sync.yml` 4 รอบ `17 23,2,8,11 * * *` UTC (= 06:17/09:17/15:17/18:17 ไทย — เผื่อ GitHub ข้ามรอบ เช่นรอบ 15:00 ของ 28 ต.ค. 69 หายไป): รัน sync, commit index.html + data แล้วสั่ง `gh workflow run site.yml` (push ด้วย GITHUB_TOKEN ไม่ปลุก workflow อื่น)
 
+- **แบบรับแจ้งเหตุไฟป่า กรมอุทยานฯ (19 พ.ย. 69)**: build_site `dnpform()` → `_site/dnpform.json` ดึงตาราง Google Sheets สบอ.1/สบอ.7 (gviz ไม่เอาคอลัมน์ส่วนบุคคล) ทุก ≥15 นาที · ผลรอบก่อน `.state/dnpform.json` (site.yml load/save state) · health `dnp` → [dnp-form.md](dnp-form.md)
+
 ## live.json — จุด 48 ชม. (FIRMS สำรอง, ลดภาระ API, รอรอบดาวเทียม)
 
 - **จุด 48 ชม. สำรองด้วย NASA FIRMS** (ผู้ใช้ขอ 11 พ.ย. 69): build_site `live()` = `apiLive()` (เดิม) → ดาวเทียมที่ควรมี `SATS()` (SNPP ถึง `SNPP_END` 2 พ.ย. 69 13:00 UTC) แต่ API ไม่มีใน 48 ชม. ทั้งประเทศ (`meta.sats` นับต่อดวง) / API ดึงไม่ได้ / ตอบว่าง → `FM.recent(need, stat)` (CSV 7 วันสาธารณะ เฉพาะดวงที่ขาด, `FIRMS_PUB` ทดสอบ) เติมจุดในแนวเขต ≤48 ชม. เป็น feature รูป API (`fmFeat`, unique_id `firms|d|t|la|lo|sat` คงที่, `_src:'firms'`) + พื้นที่เฝ้าระวังลง WLIVE

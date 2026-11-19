@@ -62,3 +62,17 @@ test('hdFys อ่านปีงบจาก hdata จริงใน index.htm
   const y = H.hdFys();
   assert.ok(Array.isArray(y) && y.includes(2561) && y.includes(2569), JSON.stringify(y));
 });
+
+// DF (19 พ.ย. 69): แบบรับแจ้งเหตุไฟป่า กรมอุทยานฯ — _site/dnpform.json
+test('dnp: ดึงไม่ได้เกิน 6 ชม. / อ่านไม่ได้เลย / ช่วงไฟป่าไม่มีรายการปีงบนี้ → เตือน · ปกติ → ไม่เตือน', () => {
+  const t = at('2027-02-01T03:00:00Z'), ok = { generated: '2027-02-01T02:50:00Z', src: 'sheet', sheets: [{ k: 'สบอ.1', raw: 5, tab: 5, n: 3 }], rows: [{ fy: 2570 }] };
+  assert.equal(H.chkDnp(ok, t), null);
+  assert.match(H.chkDnp(null, t), /ไม่มี dnpform\.json/);
+  assert.match(H.chkDnp({ ...ok, src: 'none', err: 'HTTP 401' }, t), /อ่านตารางไม่ได้เลย: HTTP 401.*DF_SRC/);
+  assert.equal(H.chkDnp({ ...ok, src: 'state', generated: '2027-01-31T23:00:00Z' }, t), null, 'ดึงไม่ได้ 4 ชม. ยังไม่เตือน');
+  assert.match(H.chkDnp({ ...ok, src: 'state', generated: '2027-01-31T19:00:00Z', err: 'HTTP 403' }, t), /ดึงไม่ได้ตั้งแต่ .*\(8\.0 ชม\.\) HTTP 403/);
+  assert.match(H.chkDnp({ ...ok, sheets: [{ k: 'สบอ.1', raw: 5, tab: 5, n: 3 }, { k: 'สบอ.7', raw: 0, tab: 0, n: 0, err: 'แท็บคำตอบ: HTTP 404' }] }, t), /อ่านตาราง สบอ\.7 ไม่ได้/);
+  assert.match(H.chkDnp({ ...ok, rows: [{ fy: 2569 }] }, t), /ยังไม่มีรายการปีงบ 2570 .*มีถึงปีงบ 2569/);
+  assert.equal(H.chkDnp({ ...ok, rows: [{ fy: 2569 }] }, at('2026-12-20T03:00:00Z')), null, 'ธ.ค. ยังไม่ถึงช่วงไฟป่า');
+  assert.equal(H.chkDnp({ ...ok, rows: [] }, at('2027-06-01T03:00:00Z')), null, 'หลัง 30 เม.ย. ไม่เตือนเรื่องไม่มีรายการ');
+});

@@ -30,7 +30,9 @@ const CHECKS = { api: ['ดึงจุดความร้อนจาก API 
   cron: ['cron-job.org ไม่ได้สั่งรอบ site ตามเวลา', H],
   // ช่องที่ 3 = ทวนซ้ำทุกเท่าไร (ไม่ใส่ = REMIND 12 ชม.) — เรื่องที่แก้ไม่ได้ทันที เตือนห่าง ๆ (15 พ.ย. 69 ข้อ C1/A6 ของรายงานตรวจ)
   xlsx: ['ยังไม่ได้นำเข้า Excel จุดความร้อนกรมอุทยานฯ ปีงบที่จบแล้ว', 0, 30 * 24 * H], savi: ['แหล่งเชื้อเพลิง SAVI (ตามรอยเผา) ไม่มีเดือนใหม่', 0, 30 * 24 * H],
-  b4: ['พื้นที่เผาไหม้ราย 7 วัน (ตามรอยเผา B4) ไม่มีรอบใหม่', 0, 7 * 24 * H] };
+  b4: ['พื้นที่เผาไหม้ราย 7 วัน (ตามรอยเผา B4) ไม่มีรอบใหม่', 0, 7 * 24 * H],
+  // DF (19 พ.ย. 69): ตารางคำตอบแบบรับแจ้งเหตุไฟป่า กรมอุทยานฯ (build_site dnpform → _site/dnpform.json) อ่านไม่ได้เกิน 6 ชม. / ช่วงไฟป่าแต่ไม่มีรายการปีงบนี้
+  dnp: ['แบบรับแจ้งเหตุไฟป่า กรมอุทยานฯ (ตาราง Google Sheets) ดึงไม่ได้หรือไม่มีรายการใหม่', 0, 24 * H] };
 const now = +process.env.HEALTH_NOW || Date.now();
 const thTime = ms => { const d = new Date(ms + 7 * H); return `${d.getUTCDate()}/${d.getUTCMonth() + 1} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')} น.` };
 const hrs = ms => (ms / H).toFixed(ms < 10 * H ? 1 : 0);
@@ -71,6 +73,18 @@ function chkB4(bn, t = now) {
   if (src && src > L.p) return `ต้นทางมีรอบ ${thD8(src.slice(0, 8))}–${thD8(src.slice(9))} แล้วแต่เว็บยังเป็นรอบ ${thD8(L.d0)}–${thD8(L.d1)} — ดูขั้น sync_burn ใน workflow sync${ck}`;
   const age = Math.floor((t - Date.UTC(+L.d1.slice(0, 4), +L.d1.slice(4, 6) - 1, +L.d1.slice(6, 8) + 1)) / 864e5);
   return age > 21 ? `ตามรอยเผา (สสน.) ยังไม่ออกภาพรอบใหม่หลัง ${thD8(L.d1)} (${age} วัน)${ck}` : null;
+}
+// DF: df = _site/dnpform.json · ดึงไม่ได้ (src state/none) ต่อเนื่องเกิน 6 ชม. · 15 ม.ค.–30 เม.ย. แล้วยังไม่มีรายการปีงบปัจจุบันเลย = กรมฯ อาจใช้แบบฟอร์ม/ตารางใหม่
+function chkDnp(df, t = now) {
+  if (!df) return 'ไม่มี dnpform.json (build_site ขั้น dnpform ล้ม)';
+  const fix = ' — กรมฯ อาจปิดการแชร์หรือเปลี่ยนตาราง: แก้ DF_SRC ใน scripts/lib/dnpform.js (docs/arch/dnp-form.md)';
+  if (df.src === 'none') return `อ่านตารางไม่ได้เลย: ${String(df.err || (df.sheets || []).map(x => x.k + ' ' + (x.err || '')).join(' · ')).slice(0, 250)}${fix}`;
+  const g = Date.parse(df.generated);
+  if (df.src === 'state' && t - g > 6 * H) return `ดึงไม่ได้ตั้งแต่ ${thTime(g)} (${hrs(t - g)} ชม.) ${String(df.err || '').slice(0, 200)} — เว็บแสดงข้อมูลรอบนั้น${fix}`;
+  const bad = (df.sheets || []).filter(x => x.err && !x.raw && !x.tab); if (bad.length) return `อ่านตาราง ${bad.map(x => x.k).join(', ')} ไม่ได้: ${String(bad[0].err).slice(0, 200)}${fix}`;
+  const F = fyOf(t), d = new Date(t + 7 * H), md = (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
+  if (md >= 115 && md <= 430 && !(df.rows || []).some(r => r.fy === F)) return `ช่วงไฟป่าแล้วแต่ตารางยังไม่มีรายการปีงบ ${F} ในกลุ่มป่าเลย (มีถึงปีงบ ${Math.max(0, ...(df.rows || []).map(r => r.fy)) || '-'})${fix}`;
+  return null;
 }
 const hdFys = () => { try { const j = JSON.parse(fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').match(/id="hdata">([\s\S]*?)<\/script>/)[1]); return [...new Set(j.r.map(r => fyOf(r[0] * 864e5)))] } catch (e) { return null } };
 const { loadState } = require('./lib/state');
@@ -135,6 +149,7 @@ function problems(pg) {
   { const m = chkXlsx(hdFys()); if (m) P.xlsx = m }
   { const m = chkSavi(readJ(path.join(ROOT, 'data', 'fuel', 'index.json'))); if (m) P.savi = m }
   { const m = chkB4(readJ(path.join(ROOT, 'data', 'burn', 'index.json'))); if (m) P.b4 = m }
+  { const m = chkDnp(readJ(path.join(OUT, 'dnpform.json'))); if (m) P.dnp = m }
   if (nt && nt.line && nt.line.ok === 0 && TOKEN) P.line = nt.line.why || 'ตรวจโควตา/กลุ่มไม่ผ่าน';
   const tn = readJ(path.join(OUT, 'tg_notify.json'));
   if (tn && tn.tg && tn.tg.ok === 0) P.tg = tn.tg.why || 'ตรวจบอท/ห้องไม่ผ่าน';
@@ -152,7 +167,7 @@ function problems(pg) {
   return P;
 }
 
-module.exports = { CHECKS, problems, chkTgs, chkXlsx, chkSavi, chkB4, hdFys, now };
+module.exports = { CHECKS, problems, chkTgs, chkXlsx, chkSavi, chkB4, chkDnp, hdFys, now };
 if (require.main === module) (async () => {
   if (process.argv.includes('--site')) {
     const nt = await loadState('notify.json', SITE, now), up = nt && Date.parse(nt.updated);

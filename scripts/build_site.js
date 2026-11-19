@@ -187,6 +187,21 @@ async function reports() {
   return R;
 }
 
+// --- แบบรับแจ้งเหตุไฟป่า กรมอุทยานฯ (ผู้ใช้ขอ 19 พ.ย. 69 — docs/arch/dnp-form.md): ตารางคำตอบ Google Sheets สบอ.1/สบอ.7 → _site/dnpform.json ---
+// ดึงไม่บ่อยกว่า DF_MIN นาที (ใช้ผลรอบก่อนใน STATE_DIR — site.yml เก็บที่ branch state) · ดึงไม่ได้ = ใช้ผลรอบก่อน (src 'state') · ไม่ดาวน์โหลดคอลัมน์ข้อมูลส่วนบุคคล (lib/dnpform PRIV)
+const DF_MIN = +process.env.DF_MIN || 15;
+async function dnpform() {
+  const F = path.join(STATE_DIR, 'dnpform.json'); let prev = null; try { prev = JSON.parse(fs.readFileSync(F, 'utf8')) } catch (e) { }
+  if (prev && !process.env.DF_FORCE && Date.now() - Date.parse(prev.generated) < DF_MIN * 6e4) return { ...prev, cached: 1 };
+  const get = async u => { const r = await fetch(u, { signal: AbortSignal.timeout(30e3) }); if (!r.ok) throw new Error('HTTP ' + r.status); return r.text() };
+  let J;
+  try { J = await require('./lib/dnpform').dnpForm(get, { where, adm: require('./lib/burnsum').admIndex(), SBP: require('./lib/area').SBP }) } catch (e) { J = { sheets: [], rows: [], err: e.message } }
+  const ok = J.sheets.length && J.sheets.every(s => !s.err || s.raw || s.tab);
+  if (!ok) { if (!prev) return { ...J, generated: new Date().toISOString(), src: 'none' }; console.log('แบบรับแจ้งเหตุดึงไม่ได้:', J.err || J.sheets.map(s => s.err).join(' · '), '→ ใช้ผลรอบก่อน'); return { ...prev, src: 'state', err: J.err || J.sheets.map(s => s.k + ': ' + s.err).join(' · '), tried: new Date().toISOString() } }
+  try { fs.mkdirSync(STATE_DIR, { recursive: true }); fs.writeFileSync(F, JSON.stringify(J)) } catch (e) { }
+  return J;
+}
+
 function watchSum(W) {
   const wd = block('wdata'); if (!wd) return null;
   const Hh = JSON.parse(wd[1].split('<\\/').join('</')), wa = block('wadata'), A = wa ? JSON.parse(wa[1]) : { r: [], ids: [], sat: [], tm: [], to: null };
@@ -336,6 +351,11 @@ if (require.main === module) (async () => {
     const R = await reports();
     if (R) { fs.writeFileSync(path.join(OUT, 'reports.json'), JSON.stringify(R)); console.log(`reports.json: ${R.reports.length} รายงาน (ปีงบ ${R.fys.join('/')}) จาก${R.src === 'worker' ? 'เซิร์ฟเวอร์' : 'สำเนารอบก่อน'}`) }
   } catch (e) { console.log('reports.json ไม่สำเร็จ:', e.message) }
+  try {
+    const D = await dnpform(); const { cached, ...out } = D;
+    fs.writeFileSync(path.join(OUT, 'dnpform.json'), JSON.stringify(out));
+    console.log(`dnpform.json: ${D.rows.length} แถว · ${D.sheets.map(s => `${s.k} ${s.n}/${s.raw}${s.err ? ' (' + s.err + ')' : ''}`).join(' · ')}${cached ? ' · ผลรอบก่อน (ดึงทุก ' + DF_MIN + ' นาที)' : D.src === 'state' ? ' · ดึงไม่ได้ ใช้ผลรอบก่อน' : ''}`);
+  } catch (e) { console.log('dnpform.json ไม่สำเร็จ:', e.message) }
   // F2 ดัชนีเสี่ยงไฟป่าล่วงหน้า (ดัชนีของระบบนี้ ไม่ใช่ค่าทางการ) วันนี้/พรุ่งนี้ ต่อตำบล/แปลงสถานีฯ — scripts/lib/risksum.js (โมเดล M2) · FWI จากตาราง TFDRS ที่ขั้น load fwi grids วางไว้ใน data/fwi/g
   try {
     const K = require('./lib/risksum').riskDays({ live: L ? L.features : [] });
