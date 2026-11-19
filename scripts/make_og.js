@@ -5,7 +5,7 @@
 // ใช้: node scripts/make_og.js   (ต้องมี Chrome · เปิดหน้าเว็บจากโฟลเดอร์ repo ผ่านเซิร์ฟเวอร์ชั่วคราวในสคริปต์ · ต่อเน็ตเพื่อโหลดไทล์)
 'use strict';
 const fs = require('fs'), path = require('path'), os = require('os'), http = require('http');
-const { spawn } = require('child_process');
+const { spawn } = require('child_process'), CHP = require('./lib/chprof');
 const ROOT = path.join(__dirname, '..'), IMG = path.join(ROOT, 'img');
 const CH = [process.env.CHROME, 'C:/Program Files/Google/Chrome/Application/chrome.exe', '/usr/bin/google-chrome', '/usr/bin/chromium'].find(p => p && fs.existsSync(p));
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -15,6 +15,7 @@ const TY = { '.html': 'text/html; charset=utf-8', '.json': 'application/json', '
   const srv = http.createServer((q, r) => { let p = decodeURIComponent(q.url.split('?')[0]); if (p.endsWith('/')) p += 'index.html'; const f = path.join(ROOT, p);
     if (!f.startsWith(ROOT) || !fs.existsSync(f) || !fs.statSync(f).isFile()) { r.writeHead(404); return r.end() } r.writeHead(200, { 'Content-Type': TY[path.extname(f)] || 'application/octet-stream' }); fs.createReadStream(f).pipe(r) });
   await new Promise(r => srv.listen(0, '127.0.0.1', r));
+  CHP.sweep('og-');
   const port = 9500 + Math.floor(Math.random() * 300), prof = fs.mkdtempSync(path.join(os.tmpdir(), 'og-'));
   const ch = spawn(CH, ['--headless=new', `--remote-debugging-port=${port}`, `--user-data-dir=${prof}`, '--no-first-run', '--enable-unsafe-swiftshader', '--use-angle=swiftshader', '--hide-scrollbars', 'about:blank'], { stdio: 'ignore' });
   let wsu; for (let i = 0; i < 75 && !wsu; i++) { try { const l = await (await fetch(`http://127.0.0.1:${port}/json`)).json(); const p = l.find(x => x.type === 'page'); if (p) wsu = p.webSocketDebuggerUrl } catch (e) { } if (!wsu) await sleep(200) }
@@ -35,7 +36,7 @@ const TY = { '.html': 'text/html; charset=utf-8', '.json': 'application/json', '
     fs.writeFileSync(path.join(IMG, f), Buffer.from(data, 'base64')); console.log(f, n + '×' + n);
   }
   // แผนที่ทั้งกลุ่มป่า 1200×630 แล้ววาดแถบชื่อทับ
-  if (process.env.ONLY_ICONS === '1') { ws.close(); ch.kill(); srv.close(); setTimeout(() => process.exit(0), 1000); return }
+  if (process.env.ONLY_ICONS === '1') { ws.close(); srv.close(); await CHP.close(ch, prof); process.exit(0) }
   await send('Emulation.setDeviceMetricsOverride', { width: 1200, height: 630, deviceScaleFactor: 1, mobile: false });
   await send('Page.navigate', { url: base + 'index.html' });
   for (let i = 0; i < 120; i++) { await sleep(500); if (await ev(`typeof map!=='undefined'&&!!map&&map.isStyleLoaded&&map.isStyleLoaded()`)) break }
@@ -52,5 +53,5 @@ const TY = { '.html': 'text/html; charset=utf-8', '.json': 'application/json', '
     return c.toDataURL('image/jpeg',.86)})()`);
   fs.writeFileSync(path.join(IMG, 'og.jpg'), Buffer.from(url.split(',')[1], 'base64'));
   console.log('og.jpg', (fs.statSync(path.join(IMG, 'og.jpg')).size / 1024).toFixed(0), 'KB');
-  ws.close(); ch.kill(); srv.close(); setTimeout(() => { try { fs.rmSync(prof, { recursive: true, force: true }) } catch (e) { } process.exit(0) }, 1500);
+  ws.close(); srv.close(); await CHP.close(ch, prof); process.exit(0);
 })().catch(e => { console.error('ผิดพลาด:', e.message); process.exit(1) });

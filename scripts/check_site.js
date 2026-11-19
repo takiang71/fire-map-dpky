@@ -19,7 +19,7 @@
 'use strict';
 const fs = require('fs'), path = require('path'), os = require('os'), vm = require('vm'), http = require('http'), crypto = require('crypto');
 const { spawn } = require('child_process');
-const CSP = require('./lib/csp'), LINT = require('./lint_html');
+const CSP = require('./lib/csp'), LINT = require('./lint_html'), CHP = require('./lib/chprof');
 
 const ROOT = path.join(__dirname, '..');
 const args = process.argv.slice(2), CI = args.includes('--ci'), UNIT_FAIL = CI && process.env.UNIT === 'failure';
@@ -224,11 +224,12 @@ Q(s){const e=document.querySelector(s);if(!e)return 'ไม่พบ '+s;e.click
 async function browser(dir) {
   const CH = findChrome(); if (!CH) return { skip: 'ไม่พบ Chrome (ตั้งตัวแปร CHROME)' };
   const srv = await serve(dir), url = `http://127.0.0.1:${srv.address().port}/index.html`;
+  CHP.sweep('ck-'); /* โปรไฟล์ของรอบก่อนที่ค้าง (ไม่แก้ไขเกิน 1 ชม.) */
   const prof = fs.mkdtempSync(path.join(os.tmpdir(), 'ck-')), port = 9400 + Math.floor(Math.random() * 400);
   const flags = ['--headless=new', `--remote-debugging-port=${port}`, `--user-data-dir=${prof}`, '--no-first-run', '--no-default-browser-check', '--hide-scrollbars', '--enable-unsafe-swiftshader', '--use-angle=swiftshader', '--mute-audio'];
   if (process.platform === 'linux') flags.push('--no-sandbox', '--disable-dev-shm-usage');
   const ch = spawn(CH, [...flags, 'about:blank'], { stdio: 'ignore' });
-  const errs = [], warn = [], net = []; let ws, id = 0; const pend = new Map(), done = () => { try { ws && ws.close() } catch (e) { } try { ch.kill() } catch (e) { } srv.close(); setTimeout(() => { try { fs.rmSync(prof, { recursive: true, force: true }) } catch (e) { } }, 1500) };
+  const errs = [], warn = [], net = []; let ws, id = 0; const pend = new Map(), done = async () => { try { ws && ws.close() } catch (e) { } srv.close(); if (!await CHP.close(ch, prof)) console.log('⚠ ลบโปรไฟล์ Chrome ชั่วคราวไม่ได้: ' + prof) };
   try {
     let wsu; for (let i = 0; i < 75 && !wsu; i++) { try { const l = await (await fetch(`http://127.0.0.1:${port}/json`)).json(); const p = l.find(x => x.type === 'page'); if (p) wsu = p.webSocketDebuggerUrl } catch (e) { } if (!wsu) await sleep(200) }
     if (!wsu) return { skip: 'เปิด Chrome ไม่ได้' };
@@ -519,7 +520,7 @@ async function browser(dir) {
     await send('Page.navigate', { url: 'about:blank' });
     return { errs, warn, net, info };
   } catch (e) { return { skip: 'ตรวจในเบราว์เซอร์ไม่สำเร็จ: ' + e.message, errs, warn, net } }
-  finally { done() }
+  finally { await done() }
 }
 
 (async () => {

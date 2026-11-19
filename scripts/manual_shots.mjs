@@ -6,10 +6,13 @@ import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
+import { createRequire } from 'node:module';
+const CHP = createRequire(import.meta.url)('./lib/chprof.js');
 
 const OUT = process.argv[2];
 const JOBS = JSON.parse(fs.readFileSync(process.argv[3], 'utf8'));
 const CH = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
+CHP.sweep('chp-'); /* โปรไฟล์ของรอบก่อนที่ค้าง (ไม่แก้ไขเกิน 1 ชม.) */
 const prof = fs.mkdtempSync(path.join(os.tmpdir(), 'chp-'));
 const port = 9333;
 const ch = spawn(CH, ['--headless=new', `--remote-debugging-port=${port}`, `--user-data-dir=${prof}`, '--no-first-run', '--hide-scrollbars', '--force-device-scale-factor=1', '--enable-unsafe-swiftshader', 'about:blank'], { stdio: 'ignore' });
@@ -45,5 +48,5 @@ const ev = async (expr) => { const r = await send('Runtime.evaluate', { expressi
   }
   fs.writeFileSync(path.join(OUT, 'boxes.json'), JSON.stringify(res, null, 1));
   if (logs.length) console.log('page errors:', logs.slice(0, 5));
-  ch.kill(); process.exit(0);
-})().catch(e => { console.error(e); ch.kill(); process.exit(1) });
+  await CHP.close(ch, prof); process.exit(0);
+})().catch(async e => { console.error(e); await CHP.close(ch, prof); process.exit(1) });

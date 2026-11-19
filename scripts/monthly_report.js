@@ -171,7 +171,7 @@ function pdf(htmlFile, out) {
   if (process.platform === 'linux') fl.push('--no-sandbox', '--disable-dev-shm-usage');
   return new Promise(res => {
     const ch = spawn(CH, [...fl, 'file:///' + htmlFile.replace(/\\/g, '/').replace(/^\//, '')], { stdio: 'ignore' }), t = setTimeout(() => { try { ch.kill() } catch (e) { } }, 90e3);
-    ch.on('exit', () => { clearTimeout(t); setTimeout(() => { try { fs.rmSync(prof, { recursive: true, force: true }) } catch (e) { } }, 500); res(fs.existsSync(out) && fs.statSync(out).size > 1000 ? '' : 'Chrome ไม่ได้สร้าง PDF') });
+    ch.on('exit', () => { clearTimeout(t); try { fs.rmSync(prof, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 }) } catch (e) { } res(fs.existsSync(out) && fs.statSync(out).size > 1000 ? '' : 'Chrome ไม่ได้สร้าง PDF') });
   });
 }
 
