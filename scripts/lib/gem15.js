@@ -16,6 +16,12 @@ function consFeatures(root) {
   return G.cons.features.map(f => { const g = f.geometry, P = g.type === 'Polygon' ? [g.coordinates] : g.type === 'MultiPolygon' ? g.coordinates : []; return { name: f.properties.name, rings: P.flat() } });
 }
 
+// พื้นที่เฝ้าระวังพิเศษ (data/watch.json สำเนาของบล็อก wdata) เป็นรูปแบบเดียวกับ consFeatures — ชื่อขึ้นต้น "พื้นที่เฝ้าระวังพิเศษ " (ป้ายเดียวกับ tamroypao.WA_PRE)
+function watchFeatures(root) {
+  let W; try { W = JSON.parse(fs.readFileSync(path.join(root, 'data', 'watch.json'), 'utf8')).areas || [] } catch (e) { return [] }
+  return W.map(a => ({ name: 'พื้นที่เฝ้าระวังพิเศษ ' + a.n, rings: a.c.flat() }));
+}
+
 // ชุดไทล์ซูม z (Set 'x,y') ที่ห่างแนวเขตไม่เกิน buf กม.
 function tileSet(F, buf, z = 13) {
   const rings = F.flatMap(f => f.rings);
@@ -112,4 +118,4 @@ function at(per, z, x, y, i, j) {
 
 async function pool(items, n, fn) { let i = 0; await Promise.all(Array.from({ length: n }, async () => { while (i < items.length) { const k = i++; await fn(items[k], k) } })) }
 
-module.exports = { GCS, lon2x, lat2y, x2lon, y2lat, consFeatures, tileSet, maskFn, gemSrc, sample, need, loadFor, at, pool };
+module.exports = { GCS, lon2x, lat2y, x2lon, y2lat, consFeatures, watchFeatures, tileSet, maskFn, gemSrc, sample, need, loadFor, at, pool };

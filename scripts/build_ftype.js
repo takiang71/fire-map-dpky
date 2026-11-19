@@ -7,12 +7,12 @@
 // ระบายเซลล์จากจุดกลางเซลล์ (คู่-คี่ ทุกวงของแปลง วงใน = รู)
 //
 // ผล: { z:47, x0,y0 (มุมซ้ายบน UTM), px, w,h, cn[], col[], r: แถวละ run-length [ยาว,ค่า,…]
-//       (ค่า = ชนิด | 128 ถ้าอยู่ในแนวเขต cons/resp · 0 = ไม่ใช่ป่า — กริดครอบป่านอกแนวเขตด้วย ใช้กับโมเดลไฟ/ป๊อปอัป),
+//       (ค่า = ชนิด | 128 ถ้าอยู่ในแนวเขต cons/resp หรือพื้นที่เฝ้าระวังพิเศษ · 0 = ไม่ใช่ป่า — กริดครอบป่านอกแนวเขตด้วย ใช้กับโมเดลไฟ/ป๊อปอัป),
 //       ar[], st[], s:{"ar|st":[ไร่ต่อชนิด]}, e:[0,0] (รูปแบบเดิมมีการเติมชนิด — ชุดนี้ไม่มี) }
 const fs = require('fs'), path = require('path'), os = require('os'), { execFileSync } = require('child_process');
 const { llToUTM } = require('./lib/tiff');
-const { ROOT, GEO } = require('./lib/area');
-const { ARN, STN, rasterize, writeSafe } = require('./lib/tamroypao');
+const { ROOT, GEO, WATCH } = require('./lib/area');
+const { ARN, STN, isWA, rasterize, writeSafe } = require('./lib/tamroypao');
 
 const arg = k => { const a = process.argv.indexOf(k); return a > 0 ? process.argv[a + 1] : null };
 const OUT = path.join(ROOT, 'data', 'ftype', 'ftype.json'), PX = +(arg('--px') || 50), RAI = PX * PX / 1600;
@@ -56,9 +56,9 @@ function fillRings(R, w, h, cb) {
 
 (() => {
   const t0 = Date.now();
-  // กริด UTM 47N ครอบแนวเขต cons+resp
+  // กริด UTM 47N ครอบแนวเขต cons+resp + พื้นที่เฝ้าระวังพิเศษ (wdata — นอกแนวเขต แต่ต้องแสดงชั้นนี้ด้วย; ยอด s ไม่รวม ดู wa)
   const bb = [1e9, 1e9, -1e9, -1e9];
-  [...GEO.cons.features, ...GEO.resp.features].forEach(f => f.geometry.coordinates.forEach(p => p[0].forEach(([x, y]) => { const [E, N] = llToUTM(x, y, 47); bb[0] = Math.min(bb[0], E); bb[1] = Math.min(bb[1], N); bb[2] = Math.max(bb[2], E); bb[3] = Math.max(bb[3], N) })));
+  [...GEO.cons.features, ...GEO.resp.features, ...WATCH.map(a => ({ geometry: { coordinates: a.c } }))].forEach(f => f.geometry.coordinates.forEach(p => p[0].forEach(([x, y]) => { const [E, N] = llToUTM(x, y, 47); bb[0] = Math.min(bb[0], E); bb[1] = Math.min(bb[1], N); bb[2] = Math.max(bb[2], E); bb[3] = Math.max(bb[3], N) })));
   const x0 = Math.floor(bb[0] / PX) * PX, y0 = Math.ceil(bb[3] / PX) * PX, w = Math.ceil((bb[2] - x0) / PX), h = Math.ceil((y0 - bb[1]) / PX);
   const F = shpPath(), rec = dbf(F + '.dbf'), shx = fs.readFileSync(F + '.shx'), fd = fs.openSync(F + '.shp', 'r');
   const n = (shx.length - 100) / 8, hdr = Buffer.alloc(44), X1 = x0 + w * PX, Y0 = y0 - h * PX, g = new Uint8Array(w * h), bad = {};
@@ -80,8 +80,11 @@ function fillRings(R, w, h, cb) {
   console.log(`shapefile 2561: แปลงป่าทับกริด ${used} แปลง · ${w} × ${h} เซลล์ ${PX} ม.`);
   // สถิติไร่ต่อชนิด แยกพื้นที่อนุรักษ์|สถานีฯ (ตรรกะเดียวกับ sync_burn/sync_fuel)
   const { ar, st } = rasterize({ w, h, x0, y0, px: [PX, PX] }, 47), s = {}, r = [];
-  for (let k = 0; k < w * h; k++) if (g[k] && (ar[k] || st[k])) { const key = ar[k] + '|' + st[k], a = s[key] || (s[key] = Array(CL.length).fill(0)); a[g[k]] += RAI }
+  // s = ยอดของกลุ่มป่า (ไม่รวมพื้นที่เฝ้าระวังพิเศษ) · wa = ไร่ต่อชนิดของพื้นที่เฝ้าระวังพิเศษ แยก {ชื่อป้ายใน st: [ไร่ต่อชนิด]}
+  const wa = {};
+  for (let k = 0; k < w * h; k++) if (g[k] && (ar[k] || st[k])) { const W = isWA(STN[st[k]]), key = W ? STN[st[k]] : ar[k] + '|' + st[k], o = W ? wa : s, a = o[key] || (o[key] = Array(CL.length).fill(0)); a[g[k]] += RAI }
   for (const key in s) s[key] = s[key].map(v => Math.round(v));
+  for (const key in wa) wa[key] = wa[key].map(v => Math.round(v));
   const val = k => g[k] ? g[k] | (ar[k] || st[k] ? 128 : 0) : 0;
   for (let j = 0; j < h; j++) {
     const row = []; let i = 0;
@@ -89,9 +92,10 @@ function fillRings(R, w, h, cb) {
     if (row.length === 2 && row[1] === 0) row.length = 0; r.push(row);
   }
   const J = { v: 2, src: 'กรมป่าไม้ โครงการจัดทำข้อมูลสภาพพื้นที่ป่าไม้ ปี พ.ศ. 2560-2561 (ชนิดป่า 2561)', z: 47, x0, y0, px: PX, w, h,
-    cn: CL.map(c => c ? c[0] : ''), col: CL.map(c => c ? c[1] : ''), ar: ARN, st: STN, s, e: [0, 0], maps: [], r };
+    cn: CL.map(c => c ? c[0] : ''), col: CL.map(c => c ? c[1] : ''), ar: ARN, st: STN, s, wa, e: [0, 0], maps: [], r };
   fs.mkdirSync(path.dirname(OUT), { recursive: true }); writeSafe(OUT, JSON.stringify(J));
   const tot = Array(CL.length).fill(0); Object.values(s).forEach(a => a.forEach((v, i) => tot[i] += v));
   console.log(tot.map((v, i) => [v, i]).filter(x => x[0]).sort((a, b) => b[0] - a[0]).map(([v, i]) => CL[i][0] + ' ' + v.toLocaleString()).join(', '), '(ไร่ ในแนวเขต)');
+  for (const k in wa) console.log(k + ':', wa[k].map((v, i) => [v, i]).filter(x => x[0]).sort((a, b) => b[0] - a[0]).map(([v, i]) => CL[i][0] + ' ' + v.toLocaleString()).join(', '), '(ไร่ ไม่รวมในยอด)');
   console.log(path.relative(ROOT, OUT), (fs.statSync(OUT).size / 1024).toFixed(0), 'KB ·', ((Date.now() - t0) / 1000).toFixed(0), 'วิ');
 })();

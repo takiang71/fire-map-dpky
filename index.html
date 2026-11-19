@@ -1241,7 +1241,7 @@ function wjLib(){'use strict';
  function bnMerge(o){const{files,C,dy,ns,BNPX}=o,fs=files.map(t=>typeof t==='string'?JSON.parse(t):t),G={},pr=fs.map(()=>({all:0,x:0,ca:[0,0,0,0,0,0],cx:[0,0,0,0,0,0]})),DY=(a,s)=>dy[a*ns+s];
   fs.forEach((f,pi)=>{for(const g in f.g){const o=f.g[g],P=G[g]||(G[g]={z:o.z,x0:o.x0,y0:o.y0,px:o.px,m:new Map()}),r=o.r;let y=0,x=0,le=0;
    for(let i=0;i<r.length;i+=6){if(r[i]){y+=r[i];x=r[i+1]}else x=le+r[i+1];const n=r[i+2],v=r[i+3],a=r[i+4],s=r[i+5],R=pr[pi];le=x+n;
-    R.all+=n*BNPX;R.ca[v]+=n*BNPX;if(!DY(a,s)){R.x+=n*BNPX;R.cx[v]+=n*BNPX}
+    const w=DY(a,s);if(w!==2){R.all+=n*BNPX;R.ca[v]+=n*BNPX;if(!w){R.x+=n*BNPX;R.cx[v]+=n*BNPX}}
     for(let j=0;j<n;j++){const key=y*8192+x+j,q=P.m.get(key);if(q){if(!C)q[0]=Math.min(9,q[0]+v);q[4]=pi}else P.m.set(key,[v,a,s,pi,pi])}}}});
   const R=[];
   for(const g in G){const P=G[g];let c=null;
@@ -1250,7 +1250,7 @@ function wjLib(){'use strict';
     R.push(c={P,y,x,n:1,v:q[0],a:q[1],s:q[2],f:q[3],l:q[4]})}}
   const n=R.length,v=new Int32Array(n*8),q=new Float64Array(n*8),bb=new Float64Array(n*4),dyo=new Uint8Array(n);
   R.forEach((o,i)=>{const P=o.P,e0=P.x0+o.x*P.px,e1=e0+o.n*P.px,n0=P.y0-o.y*P.px,n1=n0-P.px,Q=[[e0,n0],[e1,n0],[e1,n1],[e0,n1]].flatMap(([E,N])=>bnM(bnLL(E,N,P.z)));
-   v.set([o.y,o.x,o.n,o.v,o.a,o.s,o.f,o.l],i*8);q.set(Q,i*8);bb.set([Math.min(Q[0],Q[6]),Math.min(Q[1],Q[3]),Math.max(Q[2],Q[4]),Math.max(Q[5],Q[7])],i*4);dyo[i]=DY(o.a,o.s)?1:0});
+   v.set([o.y,o.x,o.n,o.v,o.a,o.s,o.f,o.l],i*8);q.set(Q,i*8);bb.set([Math.min(Q[0],Q[6]),Math.min(Q[1],Q[3]),Math.max(Q[2],Q[4]),Math.max(Q[5],Q[7])],i*4);dyo[i]=DY(o.a,o.s)});
   return{n,v,q,bb,dy:dyo,pr,__t:[v.buffer,q.buffer,bb.buffer,dyo.buffer]}}
  // จุดความร้อนใกล้รอยเผา (สูตรเดียวกับ bnHot): แถว r มีจุด P=[lo,la,d,…] ห่างจากกรอบแถว bb ไม่เกิน R ม. และ d0[f] ≤ d ≤ d1[l] (fl = รอบแรก/ล่าสุดของแถว) → hs[r]=1
  function bnHotCalc(o){const{bb,fl,d0,d1,P,R}=o,G=new Map(),n=bb.length/4,hs=new Uint8Array(n),lat=y=>Math.atan(Math.sinh(Math.PI*(1-2*y)))*180/Math.PI,pad=.011;
@@ -1269,17 +1269,17 @@ function wjLib(){'use strict';
     const a=rr[i+4+o8],s=rr[i+5+o8];R.push({n,m:rr[i+3],b4:o8?rr[i+4]:-1,c:cnt(rr[i+3]),a,s,cl:rr[i+6+o8],q,dy:dy[a*ns+s]})}}
   R.sort((a,b)=>a.c-b.c);
   const N=R.length,iv=new Int32Array(N*7),q=new Float64Array(N*8),bb=new Float64Array(N*4),d=new Uint8Array(N);
-  R.forEach((r,i)=>{const Q=r.q;iv.set([r.n,r.m,r.b4,r.c,r.a,r.s,r.cl],i*7);q.set(Q,i*8);bb.set([Math.min(Q[0],Q[6]),Math.min(Q[1],Q[3]),Math.max(Q[2],Q[4]),Math.max(Q[5],Q[7])],i*4);d[i]=r.dy?1:0});
+  R.forEach((r,i)=>{const Q=r.q;iv.set([r.n,r.m,r.b4,r.c,r.a,r.s,r.cl],i*7);q.set(Q,i*8);bb.set([Math.min(Q[0],Q[6]),Math.min(Q[1],Q[3]),Math.max(Q[2],Q[4]),Math.max(Q[5],Q[7])],i*4);d[i]=r.dy});
   return{n:N,iv,q,bb,dy:d,fy:f.fy,hasB4:!!o8,__t:[iv.buffer,q.buffer,bb.buffer,d.buffer]}}
  /* ===== ไทล์ raster ของพื้นที่เผาไหม้/เผาซ้ำซาก: วาดบน OffscreenCanvas แล้วเข้ารหัส PNG (ใน Worker) =====
     ชั้นเก็บไว้ใน lib (Worker แต่ละตัว และ main thread ตอน fallback มีชุดของตัวเอง) ล่าสุด 8 ชั้น · ไม่มีชั้น = error 'tl-miss' → ผู้เรียกส่งชั้นใหม่แล้วลองอีกครั้ง
-    ชั้น: q (4 มุมเมอร์เคเตอร์ ×8) bb (×4) ci = ดัชนีสีใน pal · dy = ดงใหญ่ (ข้ามเมื่อ xd) · f = ค่ากรอง (ข้ามเมื่อ f<mn) · hs = มีจุดความร้อนใกล้ (0 = สี hv เมื่อมี hv) */
+    ชั้น: q (4 มุมเมอร์เคเตอร์ ×8) bb (×4) ci = ดัชนีสีใน pal · dy = 1 ดงใหญ่ (ข้ามเมื่อ xd) / 2 พื้นที่เฝ้าระวังพิเศษ (วาดเสมอ) · f = ค่ากรอง (ข้ามเมื่อ f<mn) · hs = มีจุดความร้อนใกล้ (0 = สี hv เมื่อมี hv) */
  const TL=new Map();
  function tlPut(id,o){TL.delete(id);TL.set(id,o);while(TL.size>8)TL.delete(TL.keys().next().value);return{n:o.bb.length/4}}
  // สูตรเดียวกับ bnPaint เดิม: สูง <1.5 px = สี่เหลี่ยมอย่างน้อย 1 px (ซูมไกล) · ไม่งั้นรูป 4 มุม fill + stroke 0.6 px · ลำดับแถวเดิม · ตั้งสีเฉพาะเมื่อเปลี่ยน (พิกเซลเท่าเดิม เร็วกว่า)
  async function tlTile(id,z,tx,ty,o){const L=TL.get(id);if(!L)throw new Error('tl-miss');if(typeof OffscreenCanvas==='undefined')throw new Error('tl-noc');
   const{q,bb,ci,dy,f,hs}=L,n=bb.length/4,W=256*2**z,ox=tx*256,oy=ty*256,x0=ox/W,x1=(ox+256)/W,y0=oy/W,y1=(oy+256)/W,c=new OffscreenCanvas(256,256),g=c.getContext('2d');g.lineWidth=.6;let cur='';
-  for(let i=0;i<n;i++){if(o.xd&&dy[i])continue;if(f&&f[i]<o.mn)continue;const b=4*i,a0=bb[b],a1=bb[b+1],a2=bb[b+2],a3=bb[b+3];if(a2<x0||a0>x1||a3<y0||a1>y1)continue;
+  for(let i=0;i<n;i++){if(o.xd&&dy[i]===1)continue;if(f&&f[i]<o.mn)continue;const b=4*i,a0=bb[b],a1=bb[b+1],a2=bb[b+2],a3=bb[b+3];if(a2<x0||a0>x1||a3<y0||a1>y1)continue;
    const col=o.hv&&hs&&!hs[i]?o.hv:o.pal[ci[i]];if(col!==cur){g.fillStyle=g.strokeStyle=col;cur=col}
    const bw=(a2-a0)*W,bh=(a3-a1)*W;if(bh<1.5)g.fillRect(a0*W-ox,a1*W-oy,Math.max(bw,1),Math.max(bh,1));
    else{const p=8*i;g.beginPath();for(let k=0;k<8;k+=2)g.lineTo(q[p+k]*W-ox,q[p+k+1]*W-oy);g.closePath();g.fill();g.stroke()}}
@@ -1433,6 +1433,10 @@ const inFeat=(q,f)=>f.geometry.coordinates.some(p=>inside(q,p[0])&&!p.slice(1).s
 const geoAt=(lon,lat)=>{const q=[lon,lat];return{cons:GEO.cons.features.find(f=>inFeat(q,f))||null,resp:GEO.resp.features.filter(f=>inFeat(q,f))}};
 /* ปุ่ม "ไม่รวม ขสป.ดงใหญ่" (S.xdy, ปุ่ม [data-xdy] ในการ์ดจุดความร้อน + การ์ดสถิติ ใช้สถานะเดียวกัน) — ขสป.ดงใหญ่สังกัด สบอ.7 ผู้ใช้อยากดูเฉพาะพื้นที่ สบอ.1 (29 ต.ค. 69)
    ตัดจุดในเขตฯ ดงใหญ่ และจุดนอกพื้นที่อนุรักษ์ที่อยู่ในพื้นที่รับผิดชอบสถานีฯ ดงใหญ่ — กติกาเดียวกับการ์ด LINE (จุดในพื้นที่อนุรักษ์อื่นที่ Excel ระบุสถานีฯ ดงใหญ่ยังนับ) */
+/* WAS(st) = ป้ายพื้นที่เฝ้าระวังพิเศษในชั้นราสเตอร์ (scripts/lib/tamroypao.js WA_PRE ต่อท้าย st[]) — แสดงบนแผนที่แต่ไม่นับในยอดกลุ่มป่าเสมอ (ผู้ใช้ขอ 19 พ.ย. 69) */
+const WAS=s=>/^พื้นที่เฝ้าระวังพิเศษ /.test(s||'');
+/* WAL(ป้าย,html) = กล่องเหลืองบรรทัดพื้นที่เฝ้าระวังพิเศษในแผงชั้นข้อมูล (ชื่อย่อจาก WAR, ไม่รวมในยอด) */
+const WAL=(k,h)=>{const n=String(k||'').replace(/^พื้นที่เฝ้าระวังพิเศษ /,''),a=(typeof WAR!=='undefined'?WAR:[]).find(x=>x.n===n);return`<div class="sm" style="margin-top:6px;padding:3px 6px;background:#fffbea;color:#3b3200;border:1px solid #f0d675;border-radius:8px">🎯 พื้นที่เฝ้าระวังพิเศษ ${esc(a&&a.s||n)} <span style="opacity:.75">(ไม่รวมในยอด)</span>${h}</div>`};
 const DYR=/ดงใหญ่/,dyAS=(ar,st)=>DYR.test(ar||'')||((!ar||ar==='นอกพื้นที่อนุรักษ์')&&DYR.test(st||'')),
  dyLive=h=>{const g=h.geo||(h.geo=geoAt(h.lon,h.lat));if(g.cons)return DYR.test(g.cons.properties.name);const m=g.resp.find(f=>!/พื้นที่รอง/.test(f.properties.station))||g.resp[0];return!!m&&DYR.test(m.properties.station)},
  xLive=h=>!(S.xdy&&dyLive(h)),xAD=r=>!(S.xdy&&dyAS(r.ar,r.st)),xHD=r=>!(S.xdy&&dyAS(DIC.ar[r.ar],DIC.st[r.st])),HB=()=>S.xdy?HD.filter(xHD):HD;
@@ -2486,9 +2490,9 @@ function bnData(k){if(BND[k])return BND[k];
  const ks=Object.keys(BND);if(ks.length>6)delete BND[ks[0]];
  return BND[k]=(async()=>{const I=await bnIndex(),C=bnIsC(k),ps=bnPer(I,k),fs=await Promise.all(ps.map(bnFile)),ns=I.st.length;
   if(k===BNK){const e=$('#bn-a');if(e&&/^กำลังโหลด/.test(e.textContent))e.innerHTML='<span class="sm">กำลังคำนวณ…</span>'}
-  // รวมพิกเซลทุกรอบ + แปลง UTM→เมอร์เคเตอร์ = wjLib.bnMerge ใน Worker (ไฟล์ส่งเป็นข้อความ JSON · dy[a*ns+s] = ดงใหญ่) → แถวพิกเซล R โครงเดิม (y,x,n,v,a,s,f,l,q,bb,dy)
-  const o=await WJ.job('bnMerge',()=>{const dy=new Uint8Array(I.ar.length*ns);I.ar.forEach((a,i)=>I.st.forEach((s,j)=>{dy[i*ns+j]=dyAS(a,s)?1:0}));return[[{files:fs,C,dy,ns,BNPX}],[dy.buffer]]}),R=[];
-  for(let i=0;i<o.n;i++){const b=i*8;R.push({y:o.v[b],x:o.v[b+1],n:o.v[b+2],v:o.v[b+3],a:o.v[b+4],s:o.v[b+5],f:o.v[b+6],l:o.v[b+7],q:o.q.subarray(b,b+8),bb:o.bb.subarray(i*4,i*4+4),dy:!!o.dy[i]})} // view ไม่คัดลอก (อ่านด้วยดัชนีเท่านั้น)
+  // รวมพิกเซลทุกรอบ + แปลง UTM→เมอร์เคเตอร์ = wjLib.bnMerge ใน Worker (ไฟล์ส่งเป็นข้อความ JSON · dy[a*ns+s] = 1 ดงใหญ่ / 2 พื้นที่เฝ้าระวังพิเศษ: วาดแต่ไม่นับใน pr/ยอด — แถว R มี dy/wa) → แถวพิกเซล R โครงเดิม (y,x,n,v,a,s,f,l,q,bb,dy)
+  const o=await WJ.job('bnMerge',()=>{const dy=new Uint8Array(I.ar.length*ns);I.ar.forEach((a,i)=>I.st.forEach((s,j)=>{dy[i*ns+j]=dyAS(a,s)?1:WAS(s)?2:0}));return[[{files:fs,C,dy,ns,BNPX}],[dy.buffer]]}),R=[];
+  for(let i=0;i<o.n;i++){const b=i*8;R.push({y:o.v[b],x:o.v[b+1],n:o.v[b+2],v:o.v[b+3],a:o.v[b+4],s:o.v[b+5],f:o.v[b+6],l:o.v[b+7],q:o.q.subarray(b,b+8),bb:o.bb.subarray(i*4,i*4+4),dy:o.dy[i]===1,wa:o.dy[i]===2})} // view ไม่คัดลอก (อ่านด้วยดัชนีเท่านั้น)
   return{k,C,I,ps,pr:ps.map((p,i)=>Object.assign({p},o.pr[i])),R,pk:{q:o.q,bb:o.bb,v:o.v,dy:o.dy}}})().catch(e=>{delete BND[k];throw e})}
 // จุดความร้อนใกล้รอยเผา (o.hs): ห่างจากแถวพิกเซลไม่เกิน BNR และวันที่อยู่ในช่วง [วันแรกของรอบแรกที่พบ − 10 วัน, วันสุดท้ายของรอบล่าสุดที่พบ]
 // ตั้งแต่ 1 ต.ค. 68 ใช้จุดจาก API ทุกดาวเทียม (AD) · ก่อนนั้นใช้จุดกรมอุทยานฯ (HD = Suomi NPP อย่างเดียว) จึงพบน้อยกว่า
@@ -2568,8 +2572,8 @@ const RPC=['#f6d365','#f08a1c','#c0301c','#5c0a14'],rpCol=n=>RPC[Math.min(n,4)-1
 function rpData(){return RPD||(RPD=(async()=>{const I=await bnIndex();if(!I.rep)throw new Error(I.err||'ยังไม่มีข้อมูล');
  const r=await fetchT(BN_BASE+'rep.json?v='+bnHash(I.rep.sig),{},FTO.big);if(!r.ok)throw new Error('HTTP '+r.status);
  // แปลง rep.json เป็นแถวพิกเซล (UTM→เมอร์เคเตอร์ + เรียงตามจำนวนปีงบ) = wjLib.rpMerge ใน Worker (B2 ต่อ) · แถวใช้ view ของ typed array
- const t=await r.text(),ns=I.st.length,o=await WJ.job('rpMerge',()=>{const dy=new Uint8Array(I.ar.length*ns);I.ar.forEach((a,i)=>I.st.forEach((s,j)=>{dy[i*ns+j]=dyAS(a,s)?1:0}));return[[{text:t,dy,ns}],[dy.buffer]]}),R=[];
- for(let i=0;i<o.n;i++){const b=i*7;R.push({n:o.iv[b],m:o.iv[b+1],b4:o.iv[b+2],c:o.iv[b+3],a:o.iv[b+4],s:o.iv[b+5],cl:o.iv[b+6],q:o.q.subarray(i*8,i*8+8),bb:o.bb.subarray(i*4,i*4+4),dy:!!o.dy[i]})}
+ const t=await r.text(),ns=I.st.length,o=await WJ.job('rpMerge',()=>{const dy=new Uint8Array(I.ar.length*ns);I.ar.forEach((a,i)=>I.st.forEach((s,j)=>{dy[i*ns+j]=dyAS(a,s)?1:WAS(s)?2:0}));return[[{text:t,dy,ns}],[dy.buffer]]}),R=[];
+ for(let i=0;i<o.n;i++){const b=i*7;R.push({n:o.iv[b],m:o.iv[b+1],b4:o.iv[b+2],c:o.iv[b+3],a:o.iv[b+4],s:o.iv[b+5],cl:o.iv[b+6],q:o.q.subarray(i*8,i*8+8),bb:o.bb.subarray(i*4,i*4+4),dy:o.dy[i]===1,wa:o.dy[i]===2})}
  // ช่วงข้อมูลจริงของแต่ละปีงบ (ปีงบแรก/ล่าสุดอาจไม่ครบปี)
  const span={};[...I.periods,...I.cls].forEach(p=>{const F=bnFY(p),a=bnDay(p.d0),b=bnDay(p.d1),s=span[F]||(span[F]=[a,b]);s[0]=Math.min(s[0],a);s[1]=Math.max(s[1],b)});
  return RPV={I,fy:o.fy,R,span,hasB4:o.hasB4,pk:{q:o.q,bb:o.bb,dy:o.dy}}})().catch(e=>{RPD=null;throw e}))}
@@ -2591,8 +2595,8 @@ async function LR(){const on=!!S.rep,vis=b=>map.getLayer('brep')&&map.setLayoutP
  let D;try{D=await rpData()}catch(e){$('#rp-a').innerHTML='<span class="sm">โหลดข้อมูลพื้นที่เผาซ้ำซากไม่สำเร็จ ('+esc(e.message)+')</span>';vis(false);return}
  rpStats(D)}
 // ไร่ที่ไหม้ในปีงบ F: t = ทุกชุด, b = เฉพาะที่พบในชุดราย 7 วัน (เท่ากับยอดสะสมปีงบของชั้นพื้นที่เผาไหม้) — ตามปุ่มดงใหญ่
-function rpYear(D,F){const i=D.fy.indexOf(F);let t=0,b=0;if(i<0)return{t,b};for(const o of D.R){if((S.xdy&&o.dy)||!(o.m>>i&1))continue;const r=o.n*BNPX;t+=r;if(o.b4>>i&1)b+=r}return{t,b}}
-function rpStats(D){const mn=S.rpm||2,I=D.I,keep=o=>!(S.xdy&&o.dy),cnt={},ar={},st={},cl=[0,0,0],yr=D.fy.map(()=>0);let all=0,rep=0;
+function rpYear(D,F){const i=D.fy.indexOf(F);let t=0,b=0;if(i<0)return{t,b};for(const o of D.R){if(o.wa||(S.xdy&&o.dy)||!(o.m>>i&1))continue;const r=o.n*BNPX;t+=r;if(o.b4>>i&1)b+=r}return{t,b}}
+function rpStats(D){const mn=S.rpm||2,I=D.I,keep=o=>!o.wa&&!(S.xdy&&o.dy),cnt={},ar={},st={},cl=[0,0,0],yr=D.fy.map(()=>0);let all=0,rep=0;
  for(const o of D.R){if(!keep(o))continue;const r=o.n*BNPX;all+=r;cnt[o.c]=(cnt[o.c]||0)+r;D.fy.forEach((f,i)=>{if(o.m>>i&1)yr[i]+=r});
   if(o.c>=Math.max(2,mn)){rep+=r;ar[o.a]=(ar[o.a]||0)+r;st[o.s]=(st[o.s]||0)+r;cl[o.cl===1?0:o.cl?1:2]+=r}}
  const rf=v=>v>0&&v<1?'<1':nf(v),
@@ -2810,8 +2814,8 @@ function bnSel(I){const sel=$('#bn-s'),fys=[...new Set(I.periods.map(bnFY))].sor
   `<optgroup label="ราย 7 วัน · รายรอบ (ปี 2568 รอบละ 15 วัน)">${I.periods.slice().reverse().map(p=>opt(p.p,bnLab(p))).join('')}</optgroup>`;
  if(sel.dataset.h!==h){sel.innerHTML=h;sel.dataset.h=h}sel.value=BNK}
 function bnStats(D,DF,F){
- const keep=o=>!(S.xdy&&o.dy),ar={},st={},cl={};let t=0,th=0;bnHot(D);
- for(const o of D.R)if(keep(o)){const r=o.n*BNPX;t+=r;if(o.hs)th+=r;ar[o.a]=(ar[o.a]||0)+r;st[o.s]=(st[o.s]||0)+r;cl[o.v]=(cl[o.v]||0)+r}
+ const keep=o=>!o.wa&&!(S.xdy&&o.dy),ar={},st={},cl={};let t=0,th=0;bnHot(D);
+ let wt=0;for(const o of D.R){if(o.wa){wt+=o.n*BNPX;continue}if(keep(o)){const r=o.n*BNPX;t+=r;if(o.hs)th+=r;ar[o.a]=(ar[o.a]||0)+r;st[o.s]=(st[o.s]||0)+r;cl[o.v]=(cl[o.v]||0)+r}}
  const I=D.I,rf=v=>v>0&&v<1?'<1':nf(v),
   rows=(m,lab,col)=>{const e=Object.entries(m).sort((a,b)=>b[1]-a[1]),mx=e.length?e[0][1]:1;return e.map(([i,v])=>`<div><span>${esc(lab(i))}</span><i style="width:${Math.max(3,Math.round(v/mx*60))}px${col?';background:'+col(i):''}"></i><b>${rf(v)}</b></div>`).join('')};
  const p0=D.ps[0],ttl=bnTtl(D,F);
@@ -2823,7 +2827,7 @@ function bnStats(D,DF,F){
  $('#bn-a').innerHTML=`<div class="bnh">${esc(ttl)}: <b>${nf(t)} ไร่</b> <span class="sm">(${nf(t/625,1)} ตร.กม.)</span></div>`+(/^fy/.test(D.k)?`<div class="sm" id="bn-rp" data-f="${F}" style="margin-bottom:4px">ยอดสะสมปีงบใช้ภาพราย 7 วันอย่างเดียว (ต้นทางเริ่ม ม.ค. 68)</div>`:'')+(miss?`<div class="sm" style="color:#b45309">${D.ps.length>1?miss+' รอบในช่วงนี้':'รอบนี้'}ต้นทางไม่มีภาพบางส่วนของพื้นที่ (เมฆมาก/ไม่มีภาพ) ตัวเลขจริงอาจมากกว่านี้</div>`:'')+(t?bnHsLine(D,t,th):'')+
   (t?(D.C?`<div class="bna">${rows(cl,i=>I.cn[i-1],i=>BCC[i-1])}</div><div class="sm" style="margin-top:6px">ตามพื้นที่อนุรักษ์ (ไร่)</div>`:'')+
    `<div class="bna">${rows(ar,i=>I.ar[i]==='นอกพื้นที่อนุรักษ์'?I.ar[i]:paShort(I.ar[i]))}</div><div class="sm" style="margin-top:6px">ตามพื้นที่รับผิดชอบสถานีฯ (ไร่)</div><div class="bna">${rows(st,i=>I.st[i]==='ไม่มี'?NOST:I.st[i].replace('สถานีควบคุมไฟป่า','สถานีฯ '))}</div>`
-   :'<div class="sm">ไม่พบรอยเผาไหม้ในแนวเขต'+(S.xdy?' (ไม่รวม ขสป.ดงใหญ่)':'')+'</div>')+
+   :'<div class="sm">ไม่พบรอยเผาไหม้ในแนวเขต'+(S.xdy?' (ไม่รวม ขสป.ดงใหญ่)':'')+'</div>')+(wt?WAL(I.st.find(WAS),`: รอยเผาไหม้ <b>${rf(wt)} ไร่</b>`):'')+
   (bars.length?`<div class="sm" style="margin-top:8px">ปีงบ ${F} ${D.C?'รายเดือน (ไร่ · แดง = ป่าไม้, ส้ม = เกษตร)':'รายรอบ (ไร่)'} · แตะแท่งเพื่อดู</div><div class="bnc">${bars.map(bar).join('')}</div>`+
    `<div class="bnx"><span>${esc(D.C?bnMon(bars[0].p.d0):dShort(bnDay(bars[0].p.d0)))}</span>${D.C?(sea?`<a role="button" tabindex="0" data-p="c${sea.p}">ดูทั้งฤดูฝุ่น</a>`:''):`<a role="button" tabindex="0" data-p="fy${F}">ดูสะสมทั้งปีงบ</a>`}<span>${esc(D.C?bnMon(bars[bars.length-1].p.d0):dShort(bnDay(bars[bars.length-1].p.d1)))}</span></div>`:'')}
 // หมายเหตุใต้ยอดสะสมปีงบ: เทียบกับยอดปีเดียวกันในชั้นพื้นที่เผาซ้ำซาก (รวมรายเดือน/รายฤดู) — โหลด rep.json เบื้องหลังเมื่อยังไม่มี
@@ -2837,7 +2841,7 @@ function bnAt(ll){const D=BNCUR;if(!S.burn||!D||D.k!==BNK)return'';const [x,y]=b
 // ---- พื้นที่เผาไหม้ในรายงาน PDF / CSV (ตัดดงใหญ่ตามปุ่ม) ----
 // สรุปของช่วง: ไร่ [รวม, มีจุดความร้อนใกล้] แยกพื้นที่อนุรักษ์/สถานีฯ/ประเภท
 function bnSum(D){bnHot(D);const add=(m,k,r,h)=>{const e=m[k]=m[k]||[0,0];e[0]+=r;if(h)e[1]+=r},ar={},st={},cl={};let t=0,th=0;
- for(const o of D.R){if(S.xdy&&o.dy)continue;const r=o.n*BNPX;t+=r;if(o.hs)th+=r;add(ar,o.a,r,o.hs);add(st,o.s,r,o.hs);add(cl,o.v,r,o.hs)}return{t,th,ar,st,cl}}
+ for(const o of D.R){if(o.wa||S.xdy&&o.dy)continue;const r=o.n*BNPX;t+=r;if(o.hs)th+=r;add(ar,o.a,r,o.hs);add(st,o.s,r,o.hs);add(cl,o.v,r,o.hs)}return{t,th,ar,st,cl}}
 // ไร่รายเดือนของปีงบ (ต.ค.–ก.ย.) จากผลรวมรายรอบ — รอยที่ไหม้ซ้ำหลายรอบนับทุกรอบ
 const bnMonths=DF=>{const m=Array(12).fill(0);DF.pr.forEach(b=>{const d=Math.floor((bnDay(b.p.d0)+bnDay(b.p.d1))/2);m[(ymd(d)[1]+2)%12]+=S.xdy?b.x:b.all});return m};
 const bnRai=v=>v>0&&v<1?'<1':nf(v),bnStLab=n=>n==='ไม่มี'?NOST:n.replace(/^สถานีควบคุมไฟป่า\s*/,''),bnArLab=n=>n==='นอกพื้นที่อนุรักษ์'?n:paShort(n);
@@ -2869,7 +2873,7 @@ async function printBReport(){toast('กำลังสร้างรายง�
 // CSV: แถวละ รอบ × พื้นที่อนุรักษ์ × สถานีฯ × ประเภท ของช่วงที่เลือก (ปีงบ = ทุกรอบในปีงบ แยกรอบ)
 async function bnCSVText(){const I=await bnIndex(),k=bnDefault(I),C=bnIsC(k),ps=bnPer(I,k),iso=d=>d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8),q=v=>/[",\n]/.test(v=String(v))?'"'+v.replace(/"/g,'""')+'"':v,rows=[];
  for(const p of ps){const D=await bnData(C?'c'+p.p:p.p),m={};await bnHotP(D);bnHot(D);
-  for(const o of D.R){if(S.xdy&&o.dy)continue;const key=o.a+'|'+o.s+'|'+o.v,e=m[key]=m[key]||[0,0];e[0]+=o.n*BNPX;if(o.hs)e[1]+=o.n*BNPX}
+  for(const o of D.R){if(o.wa||S.xdy&&o.dy)continue;const key=o.a+'|'+o.s+'|'+o.v,e=m[key]=m[key]||[0,0];e[0]+=o.n*BNPX;if(o.hs)e[1]+=o.n*BNPX}
   for(const key of Object.keys(m).sort()){const [a,st,v]=key.split('|').map(Number);
    rows.push([iso(p.d0),iso(p.d1),C?(p.p.length===6?'B2 รายเดือน':'B3 รายฤดูฝุ่น'):'B4 รายรอบ',C?I.cn[v-1]:'',C?'':v,I.ar[a],bnStLab(I.st[st]),m[key][0].toFixed(2),m[key][1].toFixed(2)].map(q).join(','))}}
  return{k,n:rows.length,t:['เริ่ม,สิ้นสุด,ผลิตภัณฑ์,ประเภทพื้นที่,จำนวนครั้งที่ตรวจพบ,พื้นที่อนุรักษ์,สถานีควบคุมไฟป่า,พื้นที่เผาไหม้ (ไร่),มีจุดความร้อนในรัศมี '+BNR/1000+' กม. (ไร่)'].concat(rows).join('\r\n')}}
@@ -2945,7 +2949,8 @@ async function LF(){ // เรียกจาก apply() และปุ่ม�
  const sum=a=>a.reduce((x,y)=>x+y,0),bar=a=>`<div class="fub">${a.map((v,i)=>v?`<i style="flex:${v};background:${FUG[i][1]}"></i>`:'').join('')}</div>`,T=sum(tot),hi=tot[0]+tot[1];
  $('#fu-a').innerHTML=`<div class="bnh">เดือน ${esc(ml(FUM))}: ระดับสูง–สูงมาก <b>${nf(hi)} ไร่</b> <span class="sm">(${T?Math.round(hi/T*100):0}% ของ ${nf(T)} ไร่ที่มีข้อมูล)</span></div>${bar(tot)}`+
   `<div class="sm" style="margin-top:6px">ตามพื้นที่อนุรักษ์ (% ระดับสูง–สูงมาก)</div><div class="fua">${Object.entries(ar).sort((x,y)=>(y[1][0]+y[1][1])/sum(y[1])-(x[1][0]+x[1][1])/sum(x[1])).map(([a,g])=>
-   `<div><span>${esc(I.ar[a]==='นอกพื้นที่อนุรักษ์'?I.ar[a]:paShort(I.ar[a]))}</span>${bar(g)}<b>${Math.round((g[0]+g[1])/sum(g)*100)}%</b></div>`).join('')}</div>`}
+   `<div><span>${esc(I.ar[a]==='นอกพื้นที่อนุรักษ์'?I.ar[a]:paShort(I.ar[a]))}</span>${bar(g)}<b>${Math.round((g[0]+g[1])/sum(g)*100)}%</b></div>`).join('')}</div>`+
+  Object.entries(M.wa||{}).map(([k,a])=>{const g=[0,0,0,0,0];a.forEach((v,i)=>g[i>>1]+=v);return WAL(k,`: ระดับสูง–สูงมาก <b>${nf(g[0]+g[1])} ไร่</b> (${sum(g)?Math.round((g[0]+g[1])/sum(g)*100):0}%)${bar(g)}`)}).join('')}
 $('#fu-s').onchange=e=>{FUM=e.target.value;LF()};
 /* ---------- ชนิดป่า (กรมป่าไม้ 2561) ----------
    scripts/build_ftype.js ทำ shapefile ชนิดป่า 2561 เป็นกริด → data/ftype/ftype.json (กริด UTM 47N ขนาดตาม px — ตอนนี้ 50 ม., run-length)
@@ -2993,6 +2998,7 @@ async function LFT(){ // เรียกจาก apply() และปุ่ม�
   `<div class="lgd" style="display:flex;flex-wrap:wrap;column-gap:12px">${ord.map(i=>`<div><i style="background:${j.col[i]}"></i>${esc(j.cn[i])} <span class="sm">${tot[i]/T<.01?'<1':Math.round(tot[i]/T*100)}%</span></div>`).join('')}</div>`+
   `<div class="sm" style="margin-top:6px">ตามพื้นที่อนุรักษ์ (ชนิดที่มากสุด)</div><div class="fua">${Object.entries(ar).sort((x,y)=>y[1].reduce((a,b)=>a+b,0)-x[1].reduce((a,b)=>a+b,0)).map(([a,g])=>
    `<div><span>${esc(j.ar[a]==='นอกพื้นที่อนุรักษ์'?j.ar[a]:paShort(j.ar[a]))}</span>${bar(g)}<b style="white-space:nowrap">${esc(top(g))}</b></div>`).join('')}</div>`+
+  Object.entries(j.wa||{}).map(([k,g])=>WAL(k,`: ป่า <b>${nf(g.reduce((a,b)=>a+b,0))} ไร่</b> · ${esc(top(g))}${bar(g)}`)).join('')+
   (j.e[0]+j.e[1]?`<div class="sm" style="margin-top:6px">ทั้งกริด (รวมป่านอกแนวเขต) เติมจากผืนป่าเดียวกัน ${nf(j.e[0])} ไร่ · จากป่าใกล้สุด ${nf(j.e[1])} ไร่</div>`:'')}
 /* ---------- ความสูงเรือนยอด GEM-15 (DSM − DTM, Google) — ผู้ใช้ขอ 19 พ.ย. 69 ----------
    scripts/build_chm15.js → data/chm15/{z}/{x}/{y}.png (PNG เทา ค่า = ม. 0–60, 255 = ไม่มีข้อมูล/นอกแนวเขต) ซูม 8–13 + index.json {rows, cl ขอบชั้น, st ไร่ต่อชั้นต่อพื้นที่, nd}
@@ -3024,14 +3030,15 @@ function setupCH(){if(map.getSource('chm'))return;map.addSource('chm',{type:'ras
 async function LCH(){ /* เรียกจาก apply() และปุ่มดงใหญ่ */
  const on=!!S.chm;if(map.getLayer('chm'))map.setLayoutProperty('chm','visibility',on?'visible':'none');$('#chbox').hidden=!on;if(!on)return;
  const j=await chLoad(),a=$('#ch-a');if(!j){a.innerHTML='<span class="sm">โหลดข้อมูลความสูงเรือนยอดไม่สำเร็จ</span>';return}
- const n=CHL.length,tot=Array(n).fill(0),E=Object.entries(j.st).filter(([k])=>!(S.xdy&&DYR.test(k)));E.forEach(([,g])=>g.forEach((v,i)=>tot[i]+=v));
+ const n=CHL.length,tot=Array(n).fill(0),E=Object.entries(j.st).filter(([k])=>!WAS(k)&&!(S.xdy&&DYR.test(k))),EW=Object.entries(j.st).filter(([k])=>WAS(k));E.forEach(([,g])=>g.forEach((v,i)=>tot[i]+=v));
  const T=tot.reduce((x,y)=>x+y,0),sum=g=>g.reduce((x,y)=>x+y,0),pc=(v,s)=>s?(v/s<.01&&v?'<1':Math.round(v/s*100))+'%':'–',
   bar=g=>`<div class="fub">${g.map((v,i)=>v?`<i style="flex:${v};background:${CHC[i]}" title="${CHL[i]} ${nf(Math.round(v))} ไร่"></i>`:'').join('')}</div>`,
   hi=g=>pc(g[4]+g[5]+g[6],sum(g)),lo=g=>pc(g[0],sum(g));
  a.innerHTML=`<div class="bnh">พื้นที่ในแนวเขตที่มีข้อมูล <b>${nf(Math.round(T))} ไร่</b>${S.xdy?' <span class="sm">(ไม่รวม ขสป.ดงใหญ่)</span>':''}</div>${bar(tot)}`+
   `<div class="lgd" style="display:flex;flex-wrap:wrap;column-gap:12px">${CHL.map((l,i)=>`<div><i style="background:${CHC[i]}"></i>${l} <span class="sm">${pc(tot[i],T)}</span></div>`).join('')}</div>`+
   `<div class="sm" style="margin-top:6px">ตามพื้นที่อนุรักษ์ (โล่ง &lt;2 ม. · สูง ≥15 ม.)</div><div class="fua">${E.sort((x,y)=>sum(y[1])-sum(x[1])).map(([k,g])=>
-   `<div><span>${esc(paShort(k))}</span>${bar(g)}<b style="white-space:nowrap">${lo(g)} · ${hi(g)}</b></div>`).join('')}</div>`}
+   `<div><span>${esc(paShort(k))}</span>${bar(g)}<b style="white-space:nowrap">${lo(g)} · ${hi(g)}</b></div>`).join('')}</div>`+
+  EW.map(([k,g])=>WAL(k,`: โล่ง &lt;2 ม. ${lo(g)} · สูง ≥15 ม. ${hi(g)}${bar(g)}`)).join('')}
 addEventListener('resize',()=>{if(wOn()){wsz();WP.forEach(wseed)}});
 map.on('movestart',()=>{if(wOn())wx2.clearRect(0,0,wc.width,wc.height)});
 map.on('moveend',()=>{if(!wOn())return;WP.forEach(wseed);if(WX)wgSet(wxH());if(RM)wstatic()});
@@ -4038,7 +4045,7 @@ function hsList(P,H){const tf=t=>new Date(t).toLocaleString('th-TH',{day:'numeri
  $('#md-b').querySelectorAll('[data-g]').forEach(a=>a.onclick=()=>{const I=a.dataset.g.split(',').map(Number),b=new maplibregl.LngLatBounds();I.forEach(i=>b.extend([P[i][1],P[i][0]]));closeModal();MOVED=true;map.fitBounds(b,{padding:linkPad(),maxZoom:14,duration:dur(800)})})}
 // ?burn= : เปิดชั้น + เลือกรอบ (รอบที่ยังไม่มีในข้อมูล = bnDefault ถอยไปปีงบปัจจุบันเอง) · เดสก์ท็อปเปิดแผงชั้นข้อมูลที่กล่องพื้นที่เผาไหม้ (ไร่/รายพื้นที่) · ซูมกรอบของรอยเผาตามปุ่มดงใหญ่
 async function bnLink(k){BNK=k;S.burn=true;if(innerWidth>767){closeDetail();$('#right').classList.add('open')}apply();sync();
- try{const I=await bnIndex(),D=await bnData(bnDefault(I)),R=D.R.filter(o=>!(S.xdy&&o.dy)),lat=y=>Math.atan(Math.sinh(Math.PI*(1-2*y)))*180/Math.PI;
+ try{const I=await bnIndex(),D=await bnData(bnDefault(I)),R=D.R.filter(o=>!o.wa&&!(S.xdy&&o.dy)),lat=y=>Math.atan(Math.sinh(Math.PI*(1-2*y)))*180/Math.PI;
   if(innerWidth>767)setTimeout(()=>$('#bnbox').scrollIntoView({block:'center'}),300);
   if(!R.length)return toast('ไม่พบรอยเผาไหม้ในรอบนี้');
   const b=R.reduce((m,o)=>[Math.min(m[0],o.bb[0]),Math.min(m[1],o.bb[1]),Math.max(m[2],o.bb[2]),Math.max(m[3],o.bb[3])],[1,1,0,0]);
@@ -7865,9 +7872,11 @@ function rkLayers(){if(map.getSource('rk'))return;const vis=S.rk?'visible':'none
  if(!RKHV){RKHV=true;const hv=e=>{if(!S.rk||!map.getLayer('rk-f'))return;const f=map.queryRenderedFeatures(e.point,{layers:['rk-f']})[0];if(!f){if(e.type==='click')tx('rk-dv','ไม่ได้อยู่ในหน่วยที่คำนวณ (ตำบล/แปลงที่เคยมีจุดความร้อนในแนวเขต)');return}const p=f.properties;
   tx('rk-dv',`<b>${esc(p.n)}</b> · <b style="color:${RKC[p.lv-1]}">${RISK.LVN[p.lv-1]}</b> · FWI ${p.fwi==null||p.fwi==='null'?'–':esc(p.fwi)}${+p.rec?' · มีจุดใน 3 วันก่อน':''} · อันดับ ${esc(p.rank)}`)};
   map.on('mousemove',hv);map.on('click',hv)}}
-function rkFeatures(u,rows){const R={};rows.forEach((x,i)=>{R[x[0]]={lv:x[3],fwi:x[5],rec:x[6],rank:i+1}});const out=[];
+/* wa = แถวพื้นที่เฝ้าระวังพิเศษของ risk.json (หน่วยแยก ไม่จัดอันดับ/ไม่นับในตาราง — ผู้ใช้ขอ 19 พ.ย. 69) วาดทั้งสองมุมมอง */
+function rkFeatures(u,rows,wa){const R={};rows.forEach((x,i)=>{R[x[0]]={lv:x[3],fwi:x[5],rec:x[6],rank:i+1}});const out=[];
  if(u==='st'){for(const f of GEO.resp.features){const k=rkNorm(f.properties.station),r=R[k];if(r)out.push({type:'Feature',geometry:f.geometry,properties:Object.assign({k,n:rkName(u,k)},r)})}}
  else if(ADM){for(const f of ADM.tm.features){const k=f.properties.t+'|'+f.properties.a,r=R[k];if(r)out.push({type:'Feature',geometry:f.geometry,properties:Object.assign({k,n:rkName(u,k)},r)})}}
+ for(const x of wa||[]){const n=String(x[0]).replace(/^พื้นที่เฝ้าระวังพิเศษ /,''),a=(typeof WAR!=='undefined'?WAR:[]).find(w=>w.n===n);if(a)out.push({type:'Feature',geometry:{type:'MultiPolygon',coordinates:a.c},properties:{k:x[0],n:'พื้นที่เฝ้าระวังพิเศษ '+(a.s||n),lv:x[3],fwi:x[5],rec:x[6],rank:'– (นอกแนวเขต ไม่จัดอันดับ)'}})}
  return {type:'FeatureCollection',features:out}}
 function rkDraw(){const d=rkDay(),u=S.rku;$$('#rk-u button').forEach(b=>b.classList.toggle('on',b.dataset.v===u));
  if(!d){tx('rk-dc','');tx('rk-lg','');tx('rk-tb','');tx('rk-th','');tx('rk-t','');tx('rk-n',RKJ?'ยังไม่มีข้อมูล FWI ของวันนี้ (ต้นทาง TFDRS) จึงคำนวณไม่ได้':'กำลังโหลด…');return}
@@ -7879,7 +7888,8 @@ function rkDraw(){const d=rkDay(),u=S.rku;$$('#rk-u button').forEach(b=>b.classL
  tx('rk-th',`${u==='st'?'แปลงสถานีฯ ทั้งหมด':'10 อันดับตำบล'} · ${d.d===today?'วันนี้':dl(d.d)} · แตะแถวเพื่อดูบนแผนที่`);
  tx('rk-tb','<table class="dt"><thead><tr><th>#</th><th style="text-align:left">'+(u==='st'?'แปลงสถานีฯ':'ตำบล')+'</th><th>ระดับ</th><th>FWI</th><th title="มีจุดความร้อนในพื้นที่ภายใน 3 วันก่อน">จุด 3 วัน</th></tr></thead><tbody>'+rows.slice(0,u==='st'?20:10).map((r,i)=>`<tr data-i="${i}" style="cursor:pointer"><td>${i+1}</td><td>${esc(rkName(u,r[0]))}</td><td style="text-align:center"><span style="display:inline-block;min-width:54px;border-radius:6px;padding:0 4px;background:${RKC[r[3]-1]};color:${RKTC[r[3]-1]}">${RISK.LVN[r[3]-1]}</span></td><td style="text-align:center">${r[5]==null?'–':r[5]}</td><td style="text-align:center">${r[6]?'มี':'–'}</td></tr>`).join('')+'</tbody></table>');
  tx('rk-n',`<b>ดัชนีของระบบนี้ ไม่ใช่ค่าทางการ</b> · ใช้จัดลำดับพื้นที่ที่ควรเฝ้าระวัง ไม่ใช่การพยากรณ์ว่าจะเกิดไฟ · คำนวณจากความถี่การเกิดจุดความร้อนช่วงเดียวกันของปีในอดีต (ปีงบ ${RKJ.fys?RKJ.fys.join('–'):'2561–'}) + FWI ของ TFDRS กรมป่าไม้${d.src==='grid'?'':' (ค่าเฉลี่ยกลุ่มป่า — ไม่มีตารางรายพื้นที่ของวันนี้)'} + จุดความร้อนภายใน 3 วัน · ตรวจย้อนหลังปีงบ 2569: AUC 0.91 · <a href="manual/index.html#m-risk" target="_blank" rel="noopener">วิธีคิด</a> · ปรับปรุง ${new Date(RKJ.generated).toLocaleString('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} น.`);
- RKFC=rkFeatures(u,rows);const s=map.getSource('rk');if(s)s.setData(RKFC)}
+ const tb=$('#rk-tb');if(tb&&d.wa&&d.wa.length)tb.insertAdjacentHTML('beforeend',d.wa.map(r=>WAL(r[0],`: <b style="color:${esc(RKC[r[3]-1])};text-shadow:0 0 1px #0006">${esc(RISK.LVN[r[3]-1])}</b> · FWI ${r[5]==null?'–':esc(r[5])}${r[6]?' · มีจุดใน 3 วันก่อน':''}`)).join(''));
+ RKFC=rkFeatures(u,rows,d.wa);const s=map.getSource('rk');if(s)s.setData(RKFC)}
 function rkApply(){const bx=$('#rkbox');if(!bx)return;bx.hidden=!S.rk;
  try{if(!map.getSource('rk')&&map.getSource('cons'))rkLayers();for(const id of ['rk-f','rk-l'])if(map.getLayer(id))map.setLayoutProperty(id,'visibility',S.rk?'visible':'none')}catch(e){}
  if(!S.rk){tx('rk-t','');return}rkDraw();

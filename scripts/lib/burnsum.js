@@ -1,5 +1,5 @@
 // สรุปพื้นที่เผาไหม้รอบล่าสุด (data/burn จาก sync_burn.js) สำหรับการ์ด LINE → build_site.js เขียนเป็น _site/burn_summary.json
-// ตัดดงใหญ่ด้วยกติกาเดียวกับการแจ้งเตือน LINE (ชื่อพื้นที่อนุรักษ์หรือสถานีฯ มีคำว่า "ดงใหญ่")
+// ตัดดงใหญ่ด้วยกติกาเดียวกับการแจ้งเตือน LINE (ชื่อพื้นที่อนุรักษ์หรือสถานีฯ มีคำว่า "ดงใหญ่") + ตัดพื้นที่เฝ้าระวังพิเศษ (ป้ายท้าย st[] ขึ้นต้น WA_PRE — นอกแนวเขตกลุ่มป่า)
 // "มีจุดความร้อนใกล้" = จุดใน adata (ทุกดาวเทียม) ห่างแถวพิกเซลไม่เกิน 1 กม. วันที่ใน [วันแรกของรอบ − 10, วันสุดท้ายของรอบ] — ตรรกะเดียวกับ bnHot ในหน้าเว็บ
 // ชื่อ จังหวัด/อำเภอ/ตำบล จากกลางแถวพิกเซลใน data/admin.json (scripts/build_admin.js) · ไม่มีไฟล์ = ไม่มีส่วนนี้
 // areas[ชื่อพื้นที่อนุรักษ์] = { rai, hs, fy (สะสมปีงบไม่นับซ้ำ), m[12] (ไร่รายเดือน ต.ค.–ก.ย. รวมรายรอบ), st {สถานีฯ: ไร่}, pv/am/tm {ชื่อ: ไร่} (อันดับ 1 เท่านั้น) }
@@ -7,7 +7,7 @@ const fs = require('fs'), path = require('path');
 const { utmToLL } = require('./tiff');
 const { ROOT, block } = require('./area');
 
-const EX = /ดงใหญ่/, RAI = 0.25, R_M = 1000;
+const WA = /^พื้นที่เฝ้าระวังพิเศษ /, EX = /ดงใหญ่/, RAI = 0.25, R_M = 1000;
 const day = s => Date.UTC(+s.slice(0, 4), +s.slice(4, 6) - 1, +s.slice(6, 8)) / 864e5;
 const fyOf = d => { const t = new Date(d * 864e5); return t.getUTCFullYear() + 543 + (t.getUTCMonth() >= 9 ? 1 : 0) };
 const mid = p => Math.floor((day(p.d0) + day(p.d1)) / 2), moOf = d => (new Date(d * 864e5).getUTCMonth() + 3) % 12; // ต.ค. = 0
@@ -45,7 +45,7 @@ function admIndex() {
 function burnSummary(dir = path.join(ROOT, 'data', 'burn')) {
   const idx = JSON.parse(fs.readFileSync(path.join(dir, 'index.json'), 'utf8')), P = idx.periods || [];
   if (!P.length) return null;
-  const ex = (a, s) => EX.test(idx.ar[a] || '') || EX.test(idx.st[s] || ''), file = p => JSON.parse(fs.readFileSync(path.join(dir, 'b4', p.p + '.json'), 'utf8'));
+  const ex = (a, s) => EX.test(idx.ar[a] || '') || EX.test(idx.st[s] || '') || WA.test(idx.st[s] || ''), file = p => JSON.parse(fs.readFileSync(path.join(dir, 'b4', p.p + '.json'), 'utf8'));
   const L = P[P.length - 1], d0 = day(L.d0) - 10, d1 = day(L.d1), adm = admIndex();
   // จุดความร้อนในช่วงเวลาของรอบ
   let hot = [];

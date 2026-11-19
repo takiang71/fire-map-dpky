@@ -1,5 +1,6 @@
 // เก็บพื้นที่เผาไหม้จากระบบ "ตามรอยเผา" (tamroypao.hii.or.th, สสน. + ม.เกษตรศาสตร์) เฉพาะในแนวเขตกลุ่มป่า
-// ใช้: node scripts/sync_burn.js [--from YYYY-MM-DD] [--to YYYY-MM-DD] [--redo] [--only b4|c]
+// ใช้: node scripts/sync_burn.js [--from YYYY-MM-DD] [--to YYYY-MM-DD] [--redo] [--only b4|c] [--grid 47PQR]
+//  --grid G = ทำเฉพาะกริด G ของรอบที่มีอยู่แล้ว แล้วรวมเข้ากับไฟล์รอบเดิม (กริดอื่นคงเดิม, ยอดคิดใหม่จากแถวพิกเซล) — ใช้เติมพื้นที่ใหม่โดยไม่ดาวน์โหลดทุกกริด
 //  - ต้นทาง: https://tamroypao.hii.or.th/product/<ผลิตภัณฑ์>/<ปี>/[<เดือน>/]BURNSCAR_<กริด>_20M_<ช่วง>_<ผลิตภัณฑ์>.tif
 //    GeoTIFF รายกริด Sentinel-2 (~110×110 กม., UTM, 20 ม./พิกเซล, LZW, int16)
 //    ชุด b4 = B4 ราย 7 วัน: แบนด์ 1 = จำนวนครั้งที่ตรวจพบรอยเผาไหม้ในรอบ (แบนด์ 2 = จำนวนภาพที่ผ่าน)
@@ -9,6 +10,7 @@
 //      มีตั้งแต่ ธ.ค. 2023 (บางเดือนช่วงฤดูฝนไม่มี)
 //  - กริดที่ทับแนวเขต: 47PQR 47PQS 47PRR 47PRS 48PTA 48PTB 48PUA — กริดซ้อนกันตามขอบ จึงให้แต่ละพิกเซลเป็นของกริดที่ศูนย์กลางใกล้ที่สุด (ไม่นับซ้ำ)
 //  - เก็บเฉพาะพิกเซลเผาไหม้ที่อยู่ในพื้นที่อนุรักษ์/พื้นที่รับผิดชอบสถานีฯ (GEO ใน index.html เหมือนจุดความร้อน)
+//    + พื้นที่เฝ้าระวังพิเศษ (wdata, ป้ายท้าย st[] — ผู้ใช้ขอ 19 พ.ย. 69) ซึ่ง**ไม่นับ**ใน rai/ar/st/c ของรอบ แต่แยกไว้ที่ wa {ชื่อป้าย: ไร่}
 //  - ผลลัพธ์: data/burn/index.json (periods = b4, cls = c: รายการรอบ + พื้นที่ไร่ แยกพื้นที่อนุรักษ์/สถานีฯ/ประเภท)
 //    และ data/burn/<b4|c>/<รอบ>.json แถวพิกเซลแบบ run-length ต่อกริด: r = [dy, dx, ยาว, ค่า, ar, st, …]
 //    (dy = แถวห่างจากรันก่อน, dx = คอลัมน์ห่างจากท้ายรันก่อนถ้าแถวเดียวกัน ไม่งั้นนับจาก 0,
@@ -17,11 +19,12 @@
 //  - จบแล้วสร้าง data/burn/rep.json (พื้นที่เผาซ้ำซาก) ใหม่ด้วย scripts/burn_rep.js
 const fs = require('fs'), path = require('path');
 const { readTiff, utmToLL } = require('./lib/tiff');
-const { SRC, GRIDS, RAI, writeSafe, get, listing, ARN, STN, rasterize, gridCenter, owner } = require('./lib/tamroypao');
+const { SRC, GRIDS, RAI, writeSafe, get, listing, ARN, STN, isWA, rasterize, gridCenter, owner } = require('./lib/tamroypao');
 
 const ROOT = path.join(__dirname, '..'), DIR = path.join(ROOT, 'data', 'burn'), IDX = path.join(DIR, 'index.json');
 const arg = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null };
-const FROM = (arg('--from') || '').replace(/-/g, ''), TO = (arg('--to') || '9999').replace(/-/g, ''), REDO = process.argv.includes('--redo'), ONLY = arg('--only');
+const FROM = (arg('--from') || '').replace(/-/g, ''), TO = (arg('--to') || '9999').replace(/-/g, ''), REDO = process.argv.includes('--redo'), ONLY = arg('--only'), GRID = arg('--grid');
+if (GRID && !GRIDS.includes(GRID)) throw new Error('--grid ต้องเป็นหนึ่งใน ' + GRIDS.join(' '));
 // ประเภทพื้นที่ของชุด c (ลำดับ = ค่าในไฟล์ เริ่ม 1)
 const CLS = ['ป่าไม้', 'ข้าว', 'อ้อย', 'ข้าวโพด', 'พืชผสม'], ACODE = { 1101: 2, 1203: 3, 1202: 4, 1201: 5 };
 const SETS = {
@@ -62,6 +65,20 @@ function mark(key, lat) {
   o.checked = checked; o.srcLatest = sl; writeSafe(IDX, JSON.stringify(o));
 }
 
+// ยอดของรอบจากแถวพิกเซลทุกกริด: n/ar/st/c = กลุ่มป่า (ไม่รวมพื้นที่เฝ้าระวังพิเศษ) · wa = {ชื่อป้าย: ไร่} ของพื้นที่เฝ้าระวังพิเศษ
+function tally(G) {
+  const T = { n: 0, ar: new Float64Array(ARN.length), st: new Float64Array(STN.length), c: new Float64Array(CLS.length + 1), wa: {} };
+  for (const g in G) {
+    const r = G[g].r;
+    for (let i = 0; i < r.length; i += 6) {
+      const n = r[i + 2], v = r[i + 3], a = r[i + 4], s = r[i + 5];
+      if (isWA(STN[s])) { T.wa[STN[s]] = (T.wa[STN[s]] || 0) + n * RAI; continue }
+      T.n += n; T.ar[a] += n * RAI; T.st[s] += n * RAI; T.c[v] += n * RAI;
+    }
+  }
+  return T;
+}
+
 async function run(key) {
   const S = SETS[key];
   fs.mkdirSync(path.join(DIR, key), { recursive: true });
@@ -69,14 +86,14 @@ async function run(key) {
   try { const o = JSON.parse(fs.readFileSync(IDX, 'utf8')); idx = { ...idx, periods: o.periods || [], cls: o.cls || [] } } catch (e) {}
   const per = await scan(S), old = Object.fromEntries(idx[S.idx].map(p => [p.p, p]));
   const sig = o => Object.keys(o).sort().map(g => o[g].map(f => `${g}:${f.s}:${f.m}`).sort().join('|')).join('|');
-  const todo = Object.keys(per).sort().filter(p => REDO || !old[p] || old[p].sig !== sig(per[p]));
+  const todo = Object.keys(per).sort().filter(p => GRID ? old[p] && per[p][GRID] : REDO || !old[p] || old[p].sig !== sig(per[p]));
   console.log(`ตามรอยเผา ${key}: ${Object.keys(per).length} รอบ · ต้องประมวลผล ${todo.length} รอบ`);
   const lat = Object.keys(per).sort().at(-1) || null;
   if (!todo.length) { mark(key, lat); return }
   // วนทีละกริด (สร้างแนวเขตครั้งเดียวต่อกริด) แล้วค่อยรวมผลรายรอบ
-  const res = Object.fromEntries(todo.map(p => [p, { g: {}, ar: new Float64Array(ARN.length), st: new Float64Array(STN.length), c: new Float64Array(CLS.length + 1), n: 0 }]));
+  const res = Object.fromEntries(todo.map(p => [p, { g: {} }]));
   const cen = Object.fromEntries(GRIDS.map(g => [g, gridCenter(g)]));
-  for (const g of GRIDS) {
+  for (const g of GRID ? [GRID] : GRIDS) {
     const ps = todo.filter(p => per[p][g]);
     if (!ps.length) continue;
     let M = null, t0 = Date.now();
@@ -99,7 +116,6 @@ async function run(key) {
         const [lon, lat] = utmToLL(t.x0 + (x + 0.5) * t.px[0], t.y0 - (y + 0.5) * t.px[1], zone);
         if (owner(lon, lat, gs) !== g) continue;
         const a = M.ar[i], s = M.st[i];
-        R.ar[a] += RAI; R.st[s] += RAI; R.c[c] += RAI; R.n++;
         // ต่อรันเดิมถ้าเป็นพิกเซลถัดไปที่ค่า/พื้นที่อนุรักษ์/สถานีฯ เดียวกัน
         const n = r.length;
         if (n && y === ly && x === le && r[n - 3] === c && r[n - 2] === a && r[n - 1] === s) { r[n - 4]++; le++; continue }
@@ -111,9 +127,12 @@ async function run(key) {
     console.log(`${g}: ${ps.length} รอบ ${((Date.now() - t0) / 1000).toFixed(0)} วิ`);
   }
   for (const p of todo) {
-    const R = res[p], rnd = a => Object.fromEntries([...a].map((v, i) => [i, Math.round(v)]).filter(([, v]) => v > 0)), [d0, d1] = span(p);
-    writeSafe(path.join(DIR, key, p + '.json'), JSON.stringify({ p, g: R.g }));
-    old[p] = { p, d0, d1, grids: Object.keys(per[p]).sort(), sig: sig(per[p]), rai: Math.round(R.n * RAI), ar: rnd(R.ar), st: rnd(R.st), ...(key === 'c' ? { c: rnd(R.c) } : {}) };
+    const F = path.join(DIR, key, p + '.json'), rnd = a => Object.fromEntries([...a].map((v, i) => [i, Math.round(v)]).filter(([, v]) => v > 0)), [d0, d1] = span(p);
+    let G = res[p].g;
+    if (GRID) { let o = {}; try { o = JSON.parse(fs.readFileSync(F, 'utf8')) } catch (e) {} G = { ...(o.g || {}) }; delete G[GRID]; if (res[p].g[GRID]) G[GRID] = res[p].g[GRID] }
+    const T = tally(G);
+    writeSafe(F, JSON.stringify({ p, g: G }));
+    old[p] = { p, d0, d1, grids: Object.keys(per[p]).sort(), sig: GRID ? old[p].sig : sig(per[p]), rai: Math.round(T.n * RAI), ar: rnd(T.ar), st: rnd(T.st), ...(key === 'c' ? { c: rnd(T.c) } : {}), ...(Object.keys(T.wa).length ? { wa: Object.fromEntries(Object.entries(T.wa).map(([k, v]) => [k, Math.round(v * 100) / 100])) } : {}) };
   }
   // อ่าน index ใหม่ก่อนเขียน (อีกชุดอาจเพิ่งเขียนไป) แล้วแทนเฉพาะรายการของชุดนี้
   try { const o = JSON.parse(fs.readFileSync(IDX, 'utf8')); idx.periods = o.periods || idx.periods; idx.cls = o.cls || idx.cls; if (o.checked) idx.checked = o.checked; if (o.srcLatest) idx.srcLatest = o.srcLatest } catch (e) {}

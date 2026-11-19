@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // สร้างไทล์ความสูงเรือนยอด (DSM − DTM) ของ GEM-15 (Google, 15 ม.) เฉพาะในแนวเขตพื้นที่อนุรักษ์ (data/geo.json → cons)
+//   + พื้นที่เฝ้าระวังพิเศษ (data/watch.json — ผู้ใช้ขอ 19 พ.ย. 69) ยอดใน index.st แยกชื่อ "พื้นที่เฝ้าระวังพิเศษ …" (หน้าเว็บไม่นับรวมกลุ่มป่า)
 // ที่มา: https://developers.google.com/earth-engine/datasets/catalog/projects_climate-and-sustainability_assets_gem-15_v1 · CC-BY 4.0 "This dataset is produced by Google"
 //   dsm = ค่าเฉลี่ยผิวบน (ยอดไม้/อาคาร) ในช่อง 15 ม. · dtm = พื้นดิน · ต่างกัน = ความสูงของสิ่งที่อยู่บนพื้น (ในป่า = เรือนยอดเฉลี่ยรวมช่องว่าง)
 // รันมือ (ไม่อยู่ใน workflow): node scripts/build_chm15.js [--out data/chm15] [--cache <แคช dtm ของ build_dem15>] [--dsm-cache <โฟลเดอร์>] [--zmin 8] [--limit N] [--dry]
@@ -9,7 +10,7 @@
 //   หน้าเว็บ: โปรโตคอล chm:// ระบายสีตาม CHC · chAt() อ่านค่าที่จุด → docs/arch/data-sources.md
 const fs = require('fs'), path = require('path'), os = require('os');
 const { grayPNG } = require('./lib/png');
-const { y2lat, consFeatures, tileSet, maskFn, gemSrc, loadFor, at, pool } = require('./lib/gem15');
+const { y2lat, consFeatures, watchFeatures, tileSet, maskFn, gemSrc, loadFor, at, pool } = require('./lib/gem15');
 
 const ROOT = path.join(__dirname, '..');
 const arg = (k, d) => { const i = process.argv.indexOf('--' + k); return i < 0 ? d : process.argv[i + 1] };
@@ -19,7 +20,7 @@ const CL = [2, 5, 10, 15, 20, 30], HMAX = 60, ND = 255;
 const cls = h => { let k = 0; while (k < CL.length && h >= CL[k]) k++; return k };
 
 (async () => {
-  const t0 = Date.now(), F = consFeatures(ROOT), mask = maskFn(F, ZMAX);
+  const t0 = Date.now(), F = [...consFeatures(ROOT), ...watchFeatures(ROOT)], mask = maskFn(F, ZMAX);
   let L = [...tileSet(F, 0.05, ZMAX)].map(k => k.split(',').map(Number)).sort((a, b) => a[1] - b[1] || a[0] - b[0]);
   console.log(`ไทล์ซูม 13 ที่แตะแนวเขต ${L.length} แผ่น`);
   if (LIMIT) L = L.slice(Math.floor(L.length / 2), Math.floor(L.length / 2) + LIMIT);
@@ -72,8 +73,8 @@ const cls = h => { let k = 0; while (k < CL.length && h >= CL[k]) k++; return k 
     lvl = next;
   }
   fs.writeFileSync(path.join(OUT, 'index.json'), JSON.stringify(ix));
-  const kb = n => (n / 1024).toFixed(0), tot = Object.values(ix.st).flat().reduce((a, b) => a + b, 0);
+  const kb = n => (n / 1024).toFixed(0), tot = Object.entries(ix.st).filter(([n]) => !/^พื้นที่เฝ้าระวังพิเศษ /.test(n)).map(([, v]) => v).flat().reduce((a, b) => a + b, 0);
   for (const z of Object.keys(S.n)) console.log(`ซูม ${z}: ${S.n[z]} แผ่น ${kb(S.bytes[z])} KB (เฉลี่ย ${kb(S.bytes[z] / S.n[z])} KB)`);
   for (const [n, v] of Object.entries(ix.st)) { const s = v.reduce((a, b) => a + b, 0); console.log(`  ${n}: ${Math.round(s).toLocaleString()} ไร่ · ${v.map(x => Math.round(x / s * 100) + '%').join(' ')} · ไม่มีข้อมูล ${ix.nd[n].toLocaleString()} ไร่`) }
-  console.log(`รวม ${(Object.values(S.bytes).reduce((a, b) => a + b, 0) / 1048576).toFixed(1)} MB · ในแนวเขตมีค่า ${Math.round(tot).toLocaleString()} ไร่ · ${((Date.now() - t0) / 1000).toFixed(0)} วิ`);
+  console.log(`รวม ${(Object.values(S.bytes).reduce((a, b) => a + b, 0) / 1048576).toFixed(1)} MB · ในแนวเขต (ไม่รวมพื้นที่เฝ้าระวังพิเศษ) มีค่า ${Math.round(tot).toLocaleString()} ไร่ · ${((Date.now() - t0) / 1000).toFixed(0)} วิ`);
 })().catch(e => { console.error(e); process.exit(1) });

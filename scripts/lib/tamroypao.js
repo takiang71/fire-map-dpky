@@ -2,7 +2,7 @@
 // GeoTIFF รายกริด Sentinel-2 (~110×110 กม., UTM, 20 ม./พิกเซล) · กริดที่ทับแนวเขตกลุ่มป่า 7 กริด
 const fs = require('fs');
 const { utmToLL, llToUTM } = require('./tiff');
-const { GEO } = require('./area');
+const { GEO, WATCH } = require('./area');
 
 const SRC = 'https://tamroypao.hii.or.th/product/';
 const GRIDS = ['47PQR', '47PQS', '47PRR', '47PRS', '48PTA', '48PTB', '48PUA'];
@@ -32,7 +32,10 @@ function listing(h) {
 const AR = { 'เตรียมประกาศเป็นเขตห้ามล่าสัตว์ป่าโคกสูง': 'เขตห้ามล่าสัตว์ป่าโคกสูง (เตรียมการ)', 'เตรียมประกาศเป็นเขตห้ามล่าสัตว์ป่าเขาฉกรรจ์': 'เขตห้ามล่าสัตว์ป่าเขาฉกรรจ์ (เตรียมการ)' };
 const CONS = GEO.cons.features, ARN = ['นอกพื้นที่อนุรักษ์', ...CONS.map(f => AR[f.properties.name] || f.properties.name)];
 const stName = f => f.properties.station.replace(/\s*\(พื้นที่รอง\)/, '').trim();
-const STN = ['ไม่มี', ...new Set(GEO.resp.features.map(stName))];
+// พื้นที่เฝ้าระวังพิเศษ (บล็อก wdata) ต่อท้าย STN เป็นป้ายของตัวเอง (ผู้ใช้ขอ 19 พ.ย. 69: ชั้นราสเตอร์ต้องแสดงในพื้นที่นี้ด้วย)
+//  — อยู่นอกแนวเขตกลุ่มป่า จึง ar = 0 · ต่อท้ายเพื่อให้ลำดับสถานีฯ เดิมในไฟล์เก่าไม่เลื่อน · ยอดของกลุ่มป่าต้องตัดป้ายนี้ออกเสมอ (isWA)
+const WA_PRE = 'พื้นที่เฝ้าระวังพิเศษ ', isWA = s => String(s || '').startsWith(WA_PRE);
+const STN = ['ไม่มี', ...new Set(GEO.resp.features.map(stName)), ...WATCH.map(a => WA_PRE + a.n)];
 function rasterize(t, zone) {
   const W = t.w, H = t.h, ar = new Uint8Array(W * H), st = new Uint8Array(W * H);
   const fill = (f, lab, v) => f.geometry.coordinates.forEach(poly => {
@@ -52,6 +55,8 @@ function rasterize(t, zone) {
   CONS.forEach((f, i) => fill(f, ar, i + 1));
   const R = GEO.resp.features, sec = f => /พื้นที่รอง/.test(f.properties.station);
   [...R.filter(sec), ...R.filter(f => !sec(f))].forEach(f => fill(f, st, STN.indexOf(stName(f))));
+  // พื้นที่เฝ้าระวังพิเศษ: ติดป้ายเฉพาะเซลล์ที่ยังไม่มีป้าย (รูปแปลงซ้อนขอบเขาใหญ่เล็กน้อย — ไม่ให้ยอดของกลุ่มป่าเปลี่ยน)
+  if (WATCH.length) { const w = new Uint8Array(W * H); WATCH.forEach(a => fill({ geometry: { coordinates: a.c } }, w, STN.indexOf(WA_PRE + a.n))); for (let i = 0; i < w.length; i++) if (w[i] && !ar[i] && !st[i]) st[i] = w[i] }
   return { ar, st };
 }
 
@@ -65,4 +70,4 @@ function gridCenter(g) {
 }
 const owner = (lon, lat, gs) => { let b = null, bd = Infinity; const c = Math.cos(lat * Math.PI / 180); for (const [g, [x, y]] of gs) { const d = ((lon - x) * c) ** 2 + (lat - y) ** 2; if (d < bd) { bd = d; b = g } } return b };
 
-module.exports = { SRC, GRIDS, RAI, writeSafe, get, listing, ARN, STN, rasterize, gridCenter, owner };
+module.exports = { SRC, GRIDS, RAI, writeSafe, get, listing, ARN, STN, WA_PRE, isWA, rasterize, gridCenter, owner };
