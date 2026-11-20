@@ -25,6 +25,9 @@
 const fs = require('fs'), path = require('path'), { pathToFileURL } = require('url');
 
 const ROOT = path.join(__dirname, '..'), OUT = process.env.LINE_OUT || path.join(ROOT, '_site');
+// SYS (20 พ.ย. 69) สวิตช์จากหลังบ้าน (_site/flags.json จาก build_site.js) → ตัวแปรที่ผู้ดูแลปิด = off / LINE_MODE=daily — ต้องอยู่ก่อนบรรทัดที่อ่านตัวแปร
+const FLAGS_ON = require('./lib/flags').applyEnv(process.env.FLAGS_FILE || path.join(OUT, 'flags.json'));
+if (FLAGS_ON.length) console.log('ปิดจากหลังบ้าน:', FLAGS_ON.join(' '));
 const SITE = process.env.SITE_URL || 'https://takiang71.github.io/fire-map-dpky/';
 const TOKEN = process.env.LINE_TOKEN, GROUP = process.env.LINE_GROUP_ID;
 const MAX_DAY = +(process.env.LINE_MAX_DAY || 0);      // ส่งได้ไม่เกินกี่ครั้งต่อวัน (0/ไม่ตั้ง = ไม่จำกัด; เดิมค่าเริ่มต้น 4)

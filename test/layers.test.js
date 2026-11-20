@@ -27,7 +27,7 @@ test.before(async () => {
 const fyNow = () => { const d = new Date(Date.now() + 7 * 36e5); return d.getUTCFullYear() + 543 + (d.getUTCMonth() >= 9 ? 1 : 0) };
 
 let ADM, U1, U2;
-test('GET / บอกสถานะ kv/admin/rep/log', async () => { const r = await api('/'); assert.equal(r.s, 200); assert.deepEqual(r.j, { ok: true, app: 'fire-map layers', kv: true, admin: true, rep: true, log: true, trk: true, fd: 2, max_mb: 8 }) });
+test('GET / บอกสถานะ kv/admin/rep/log', async () => { const r = await api('/'); assert.equal(r.s, 200); assert.deepEqual(r.j, { ok: true, app: 'fire-map layers', kv: true, admin: true, rep: true, log: true, trk: true, fd: 2, max_mb: 8, sys: 1, db: false, cf: false }) });
 test('login ผู้ดูแลหลักถูก/ผิด', async () => {
   const bad = await api('/login', { m: 'POST', body: { u: 'admin', p: 'wrong' } }); assert.equal(bad.s, 401);
   const ok = await api('/login', { m: 'POST', body: { u: 'admin', p: 'admin-secret-pass' } }); assert.equal(ok.s, 200); assert.ok(ok.j.token); assert.equal(ok.j.user.a, true); ADM = ok.j.token;

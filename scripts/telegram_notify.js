@@ -20,6 +20,9 @@ const fs = require('fs'), path = require('path'), { pathToFileURL } = require('u
 
 // NOTIFY_DIR = โฟลเดอร์เว็บอื่นแทน _site (scripts/verify_numbers.js เรียก --preview กับโฟลเดอร์ทดสอบ)
 const ROOT = path.join(__dirname, '..'), OUT = process.env.NOTIFY_DIR ? path.resolve(process.env.NOTIFY_DIR) : path.join(ROOT, '_site');
+// SYS (20 พ.ย. 69) สวิตช์จากหลังบ้าน (_site/flags.json จาก build_site.js) → TG_DAILY/TG_BURN/TG_REP/TG_MREP/TG_SUBS ที่ผู้ดูแลปิด = off — ต้องอยู่ก่อนบรรทัดที่อ่านตัวแปร
+const FLAGS_ON = require('./lib/flags').applyEnv(process.env.FLAGS_FILE || path.join(OUT, 'flags.json'));
+if (FLAGS_ON.length) console.log('ปิดจากหลังบ้าน:', FLAGS_ON.join(' '));
 const SITE = process.env.SITE_URL || 'https://takiang71.github.io/fire-map-dpky/';
 // TG_CHAT_ID: เก็บเฉพาะส่วนที่เป็นรหัสห้อง (ตัวเลข/@ชื่อช่อง) — กันวางทั้งบรรทัดจาก log "TG_CHAT_ID = -100… (supergroup) ชื่อกลุ่ม" (3 พ.ย. 69)
 const IDS = (process.env.TG_CHAT_ID || '').replace(/["'`]/g, ' ').split(/[\s,;]+/).filter(Boolean), isId = x => /^-?\d{5,}$|^@\w{4,}$/.test(x);

@@ -569,6 +569,19 @@
     · แถบบัญชี `#ul-acc`: เปลี่ยนรหัสผ่าน · ออกจากระบบ · **ออกจากระบบทุกอุปกรณ์** (`data-a="lall"` → `ulLogAll` confirm → `POST /logout-all` → ล้าง token ในเครื่อง) · `ulApi` ตรวจขนาด body ของ `/layers`, `/layers/<id>/data` ด้วย `ulBig` (> `ULMAX` 8 MB = error ข้อความเดียวกับ Worker ก่อนส่ง) → [layers-backend.md](../layers-backend.md)
     · ทดสอบ API กับ KV จำลองในเครื่องแล้ว 29 ข้อ (scratchpad mockworker.mjs/wtest.mjs) — บน Cloudflare จริง: GET / ตอบ kv/admin true แล้ว
 
+## SYS ภาพรวมระบบ · ตั้งค่าระบบ · ประกาศ · นับผู้เข้าชม (20 พ.ย. 69) — prefix `SY`/`sy*`/id `sy-*`
+
+ฝั่ง Worker/ติดตั้ง/รายละเอียดสวิตช์ → [../layers-backend.md](../layers-backend.md) หัวข้อ SYS · โค้ดต่อท้ายสคริปต์ UL (หลัง `setTimeout(ulSrvInit,1500)`)
+
+- หลังบ้าน `ulAdmin` มี 6 แท็บ: **sys ภาพรวมระบบ** (ค่าเริ่มต้นของลิงก์ "จัดการหลังบ้าน") · ชั้นข้อมูล · ผู้ใช้ · กลุ่ม · บันทึกการใช้งาน · **cfg ตั้งค่าระบบ** · บันทึกมีการกระทำ `flags` = "แก้ตั้งค่าระบบ" กรองประเภท `sys`
+- `syDash()` โหลดพร้อมกัน: `ulApi('/sys')` + ไฟล์บน Pages (`SY.base` = '' บน github.io, อื่นๆ = `EMB_SITE` เว็บจริง — เปิด localhost ก็เห็นสถานะจริง) health/notify/tg_notify/numcheck/summary/data/wxsrc/risk/sysinfo/flags.json (ไม่โหลด live.json/dnpform.json เพราะใหญ่ — ใช้ `liveFile.gen`/`HSRC.sys`/health `dnp`) + `syGh()` GitHub API ไม่ล็อกอิน 4 คำขอ (runs ของ site/sync/wx + repo) แคช 3 นาที (`SY.gh`) — กดโหลดใหม่ = ถามใหม่ (จำกัด 60/ชม.)
+- `syDraw()` 9 ส่วน: สถานะโดยรวม (health.checks — savi/b4/xlsx/dnp เหลือง อื่นแดง · site เงียบ >30 นาที · health เก่า >30 นาที · เซิร์ฟเวอร์ล่ม) · ตัวเลขหลัก · ผู้เข้าชม (`syChart` SVG 30 วัน คน/ครั้ง, `syHours` รายชั่วโมงวันนี้, สัดส่วนช่องทาง 30 วัน, ตารางรายเดือน) · GitHub Actions (`SYWF` เกณฑ์เงียบ site 15 นาที/sync 13 ชม./wx 30 ชม., สำเร็จ n/N, เวลาเฉลี่ย) · ความสดของข้อมูล (10 ชุด เกณฑ์เหลือง/แดงต่อชุด) · การแจ้งเตือน (LINE ok/โควตาเหลือจาก log `left`, Telegram, แจ้งผู้ดูแล, สวิตช์มีผลแล้วหรือรอรอบ — เทียบ `flags.upd` กับ `flags.json` `at`) · ความจุ/โควตา (`syMeter`: Worker/KV/D1 ถ้ามี `cfq`, Pages จาก sysinfo.json, repo, LINE 300/เดือน) · สมาชิก (`seen`, ล็อกจากรหัสผิดใน 7 วัน = เตือน) · ตั้งค่าที่ใช้อยู่
+  · สถานะมีข้อความซ่อน `.sy-vh` คู่จุดสี (ไม่สื่อด้วยสีอย่างเดียว) · ตารางอยู่ใน `.sy-tw` (overflow-x) — มือถือ 375 ไม่ล้น
+- `syCfg()` ฟอร์ม `#sy-f`: ประกาศ (ข้อความ/ระดับ/แสดงถึง datetime-local) · login · rep · ซ่อนชั้น (รายการจาก `#right .sw[data-k]` จริงในหน้า ยกเว้น hot/d3 + คีย์ใน hl ที่ไม่พบ) · การแจ้งเตือน (`SYNF` ติ๊ก = ส่ง) · `fm-nohit` (มีผลทันที ไม่ส่งเซิร์ฟเวอร์) · ปิด login ต้องยืนยัน
+- ทุกเครื่อง: `ulSrvList` → `syFlags(j.flags)` → `syAnn()` แถบ `#sy-ann` (z-index 35 ใต้ modal 40; มือถือ left 12/right 70 ไม่ทับคอลัมน์ปุ่ม; กดปิด = `fm-syann`=id) + `syHide()` (แถวที่ซ่อนเองมี `data-syh` — คืนเฉพาะแถวนั้น เพราะบางแถวซ่อนโดยปกติ เช่น d3; ผู้ดูแล = คลาส `.syh` กรอบประ) · `syGate(k)` ตรวจสวิตช์ (ผู้ดูแลผ่านเสมอ) ใช้ใน `vfForm`/`fdForm`
+- `syHit()` 4 วิหลังเปิด: เฉพาะ https ที่ไม่ใช่ localhost/IP ภายใน/.test/.localhost และไม่ใช่ `navigator.webdriver` (check_site/manual_shots ไม่ถูกนับ) · `fetchT` keepalive, content-type text/plain (ไม่มี preflight), `FTO.aux`
+- งบขนาด `_site/index.html` ขยาย 1.65 → 1.70 MB (SYS ~40 KB ทำให้ถึง 1.67 MB) — ถัดไปควรแยกโค้ดเฉพาะผู้ดูแล (UL admin + SY) เป็นไฟล์โหลดเมื่อใช้ (B1 เฟส 2)
+
 ## โมเดลไฟ / แผนที่ฐาน / เฟส 3
 
 - โมเดลไฟ (เฟส 2): `FUEL`, `calc`, `huy`, `hyAdj`, `lag`, `plumeImg`, `openDetail`

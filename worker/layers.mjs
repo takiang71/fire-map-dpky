@@ -152,11 +152,110 @@ function applyRep(r, b) {
 const repFy = (r, now) => fyOfMs(r.hs ? r.hs.t : r.tn || r.c || now); // ปีงบของระเบียน: เวลาจุดความร้อน → เวลารับแจ้งเหตุ → เวลาบันทึก
 const repPub = (r, U) => { if (!('rt' in r) || U && (U.a || r.by && r.by.u === U.u)) return r; const { rt, ...o } = r; return o }; // เบอร์โทรผู้รายงานเห็นเฉพาะผู้ดูแล/เจ้าของ
 const repOwn = (r, U, now) => !!U && (U.a || (r.by && r.by.u === U.u && now - r.c < REP_EDIT_MS));
+// ---- SYS ภาพรวมระบบสำหรับผู้ดูแล (20 พ.ย. 69 — docs/layers-backend.md หัวข้อ SYS) ----
+//  · สวิตช์ฟังก์ชัน meta.flags — ไม่เพิ่มการอ่าน KV: GET /layers (ทุกหน้าเว็บเรียกอยู่แล้ว) ส่ง flags ไปด้วย · GET /flags สำหรับ build_site.js (การแจ้งเตือน)
+//  · ผู้เข้าชม + สมาชิกที่ใช้งานล่าสุด เก็บใน D1 (binding DB ไม่บังคับ — ไม่มี = POST /hit ตอบ 204 เฉยๆ) เพราะ KV เขียนได้แค่ 1,000 ครั้ง/วัน
+//  · โควตา Cloudflare วันนี้ (Worker/KV/D1) ผ่าน GraphQL Analytics — ตั้ง Secret CF_API_TOKEN (สิทธิ์ Account Analytics: Read) + CF_ACCOUNT_ID (ไม่บังคับ)
+const NOFF = ['LINE_DAILY', 'LINE_BURN', 'LINE_REP', 'LINE_MREP', 'TG_DAILY', 'TG_BURN', 'TG_REP', 'TG_MREP', 'TG_SUBS']; // ปิดได้อย่างเดียว — scripts/lib/flags.js ตั้งตัวแปรเหล่านี้เป็น off
+const ANN_LV = ['info', 'warn', 'crit'], HL_RE = /^[a-zA-Z0-9_-]{1,24}$/;
+const pubFlags = (M, now = Date.now()) => { const f = M.flags || {}, a = f.ann && f.ann.t && !(f.ann.until && f.ann.until < now) ? f.ann : null;
+  return { ann: a, login: f.login !== false, rep: f.rep !== false, hl: f.hl || [], lnd: !!f.lnd, off: f.off || [], upd: f.upd || 0 } };
+function setFlags(M, b, U) {
+  const f = { ...(M.flags || {}) }, o = pubFlags(M, 0), ch = [];
+  if ('ann' in b) { const a = b.ann || {}, t = txt(a.t, 300).trim();
+    f.ann = t ? { t, lv: ANN_LV.includes(a.lv) ? a.lv : 'info', until: num(a.until, 0, 4e12) || 0, id: o.ann && o.ann.t === t ? o.ann.id : rid().slice(0, 8) } : null;
+    if (JSON.stringify(f.ann) !== JSON.stringify(o.ann)) ch.push(t ? 'ประกาศ' : 'ลบประกาศ') }
+  if ('login' in b) { f.login = b.login !== false; if (f.login !== o.login) ch.push(f.login ? 'เปิดเข้าสู่ระบบ' : 'ปิดเข้าสู่ระบบ') }
+  if ('rep' in b) { f.rep = b.rep !== false; if (f.rep !== o.rep) ch.push(f.rep ? 'เปิดรับรายงาน' : 'ปิดรับรายงาน') }
+  if ('hl' in b) { f.hl = [...new Set((Array.isArray(b.hl) ? b.hl : []).map(String).filter(k => HL_RE.test(k)))].slice(0, 80); if (f.hl.join() !== o.hl.join()) ch.push('ซ่อนชั้น ' + f.hl.length) }
+  if ('lnd' in b) { f.lnd = !!b.lnd; if (f.lnd !== o.lnd) ch.push(f.lnd ? 'LINE เฉพาะสรุป' : 'LINE ทุกแจ้งเตือน') }
+  if ('off' in b) { f.off = NOFF.filter(k => (Array.isArray(b.off) ? b.off : []).includes(k)); if (f.off.join() !== o.off.join()) ch.push('ปิด ' + (f.off.join(' ') || '-')) }
+  f.upd = Date.now(); f.by = U.u; M.flags = f; return ch;
+}
+const DBI = new WeakSet(), thDay = ms => new Date(ms + 7 * 36e5).toISOString().slice(0, 10);
+async function dbInit(env) {
+  if (DBI.has(env.DB)) return;
+  await env.DB.batch([
+    env.DB.prepare('CREATE TABLE IF NOT EXISTS hit (day TEXT NOT NULL, h INTEGER NOT NULL, pv INTEGER NOT NULL DEFAULT 0, uv INTEGER NOT NULL DEFAULT 0, nu INTEGER NOT NULL DEFAULT 0, mob INTEGER NOT NULL DEFAULT 0, app INTEGER NOT NULL DEFAULT 0, ln INTEGER NOT NULL DEFAULT 0, tg INTEGER NOT NULL DEFAULT 0, fb INTEGER NOT NULL DEFAULT 0, ot INTEGER NOT NULL DEFAULT 0, dl INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (day, h))'),
+    env.DB.prepare('CREATE TABLE IF NOT EXISTS seen (u TEXT PRIMARY KEY, t INTEGER NOT NULL, n INTEGER NOT NULL DEFAULT 0)')]);
+  DBI.add(env.DB);
+}
+const HIT_COLS = ['uv', 'nu', 'mob', 'app', 'ln', 'tg', 'fb', 'ot', 'dl'];
+const HIT_SQL = `INSERT INTO hit (day, h, pv, ${HIT_COLS.join(', ')}) VALUES (?, ?, 1, ${HIT_COLS.map(() => '?').join(', ')}) ON CONFLICT (day, h) DO UPDATE SET pv = pv + 1, ${HIT_COLS.map(c => `${c} = ${c} + excluded.${c}`).join(', ')}`;
+// 1 การเปิดหน้าเว็บ = เขียน D1 1 แถว (โควตาฟรี 100,000 แถว/วัน) · ไม่เก็บ IP/รหัสเครื่อง/ที่อยู่หน้า — เก็บแค่ตัวนับรายชั่วโมง
+async function hit(req, env, now = Date.now()) {
+  if (!env.DB || /bot|crawl|spider|slurp|headless|preview|lighthouse/i.test(req.headers.get('user-agent') || '')) return;
+  if (+(req.headers.get('content-length') || 0) > 512) return;
+  const t = await req.text(); if (te.encode(t).length > 512) return;
+  let b = {}; try { b = JSON.parse(t) || {} } catch { }
+  const s = String(b.s || ''), d = new Date(now + 7 * 36e5);
+  await dbInit(env);
+  await env.DB.prepare(HIT_SQL).bind(thDay(now), d.getUTCHours(), b.n ? 1 : 0, b.f ? 1 : 0, b.d === 'm' ? 1 : 0, b.a ? 1 : 0, s === 'ln' ? 1 : 0, s === 'tg' ? 1 : 0, s === 'fb' ? 1 : 0, s === 'ot' ? 1 : 0, b.l ? 1 : 0).run();
+}
+// สมาชิกที่ใช้งานล่าสุด: บันทึกตอน login และ GET /me (เปิดหน้าเว็บขณะล็อกอิน) — เขียนเมื่อห่างจากครั้งก่อนเกิน 1 ชม. เท่านั้น
+async function seen(env, U, now = Date.now()) {
+  if (!env.DB || !U) return;
+  try { await dbInit(env); await env.DB.prepare('INSERT INTO seen (u, t, n) VALUES (?, ?, 1) ON CONFLICT (u) DO UPDATE SET t = excluded.t, n = seen.n + 1 WHERE excluded.t - seen.t > 3600000').bind(U.u, now).run() } catch (e) { console.log('seen', e.message) }
+}
+const bg = (ctx, p) => ctx && ctx.waitUntil ? ctx.waitUntil(p) : p;
+async function cfQ(env, vars, body, v) {
+  const r = await fetch('https://api.cloudflare.com/client/v4/graphql', { method: 'POST', headers: { authorization: 'Bearer ' + String(env.CF_API_TOKEN).trim(), 'content-type': 'application/json' },
+    body: JSON.stringify({ query: `query($a:String!${vars}){viewer{accounts(filter:{accountTag:$a}){x:${body}}}}`, variables: { a: String(env.CF_ACCOUNT_ID).trim(), ...v } }) });
+  const j = await r.json().catch(() => null);
+  if (!r.ok || !j || j.errors && j.errors.length) throw new Error(j && j.errors && j.errors[0] ? j.errors[0].message : 'HTTP ' + r.status);
+  return ((j.data.viewer.accounts || [])[0] || {}).x || [];
+}
+// ยอดใช้วันนี้ (โควตาฟรีนับรอบวันตามเวลา UTC = 07:00 น. ไทย) — แต่ละชุดถามแยก ชุดใดผิดพลาดไม่ทำให้ชุดอื่นหาย
+async function cfStats(env, now = Date.now()) {
+  const d = new Date(now).toISOString().slice(0, 10), d0 = new Date(now - 2 * 864e5).toISOString().slice(0, 10), iso = ms => new Date(ms).toISOString().replace(/\.\d+Z$/, 'Z');
+  const latest = (rows, id, f) => { const m = {}; for (const r of rows) { const k = r.dimensions[id]; if (!m[k] || r.dimensions.date > m[k].dimensions.date) m[k] = r } return Object.values(m).reduce((s, r) => s + (+r.max[f] || 0), 0) };
+  const Q = {
+    w: ['$t0:Time!,$t1:Time!', 'workersInvocationsAdaptive(limit:100,filter:{datetime_geq:$t0,datetime_leq:$t1}){sum{requests errors subrequests}dimensions{scriptName}}', { t0: d + 'T00:00:00Z', t1: iso(now) },
+      R => { const s = {}; for (const r of R) { const k = r.dimensions.scriptName, o = s[k] || (s[k] = { s: k, r: 0, e: 0, sub: 0 }); o.r += r.sum.requests; o.e += r.sum.errors; o.sub += r.sum.subrequests } return Object.values(s).sort((a, b) => b.r - a.r) }],
+    kv: ['$d:Date!', 'kvOperationsAdaptiveGroups(limit:100,filter:{date:$d}){sum{requests}dimensions{actionType}}', { d }, R => { const o = { read: 0, write: 0, delete: 0, list: 0 }; for (const r of R) o[r.dimensions.actionType] = (o[r.dimensions.actionType] || 0) + r.sum.requests; return o }],
+    ks: ['$d:Date!', 'kvStorageAdaptiveGroups(limit:100,filter:{date_geq:$d}){max{keyCount byteCount}dimensions{namespaceId date}}', { d: d0 }, R => ({ keys: latest(R, 'namespaceId', 'keyCount'), bytes: latest(R, 'namespaceId', 'byteCount') })],
+    d1: ['$d:Date!', 'd1AnalyticsAdaptiveGroups(limit:100,filter:{date:$d}){sum{rowsRead rowsWritten readQueries writeQueries}dimensions{databaseId}}', { d }, R => R.reduce((o, r) => ({ rr: o.rr + r.sum.rowsRead, rw: o.rw + r.sum.rowsWritten }), { rr: 0, rw: 0 })],
+    ds: ['$d:Date!', 'd1StorageAdaptiveGroups(limit:100,filter:{date_geq:$d}){max{databaseSizeBytes}dimensions{databaseId date}}', { d: d0 }, R => ({ bytes: latest(R, 'databaseId', 'databaseSizeBytes') })],
+  };
+  const out = { day: d, err: {} };
+  await Promise.all(Object.entries(Q).map(async ([k, [vars, body, v, f]]) => { try { out[k] = f(await cfQ(env, ',' + vars, body, v)) } catch (e) { out.err[k] = String(e.message || e).slice(0, 200) } }));
+  return out;
+}
+async function sysInfo(env, M, now = Date.now()) {
+  const fy = fyOfMs(now), [R0, R1, LG] = await Promise.all([getRep(env, fy), getRep(env, fy - 1), env.LAYERS.get('log', { type: 'json' })]), us = Object.entries(M.users), lg = LG || [];
+  const o = { at: now, flags: pubFlags(M, now), fby: (M.flags || {}).by || '', noff: NOFF,
+    users: { n: us.length, adm: us.filter(([, r]) => r.a).length, off: us.filter(([, r]) => r.x).length },
+    groups: M.groups.length,
+    layers: { n: M.layers.length, kb: M.layers.reduce((s, L) => s + (L.kb || 0), 0), all: M.layers.filter(L => L.acl.m === 'all').length, some: M.layers.filter(L => L.acl.m === 'some').length },
+    reports: { fy, n: R0.length, fd: R0.filter(r => r.kd === 'fd').length, fire: R0.filter(r => r.res === 'fire').length, trk: R0.filter(r => r.trk).length, prev: R1.length, last: R0.reduce((t, r) => Math.max(t, r.c || 0), 0) },
+    log: { n: lg.length, max: LOG_MAX, last: lg[0] ? lg[0].t : 0, login7: lg.filter(e => e.a === 'login' && now - e.t < 7 * 864e5).length, lock7: lg.filter(e => e.a === 'lock' && now - e.t < 7 * 864e5).length },
+    kv: { meta: te.encode(JSON.stringify(M)).length },
+    db: !!env.DB, cf: !!(env.CF_API_TOKEN && env.CF_ACCOUNT_ID) };
+  if (env.DB) try {
+    await dbInit(env);
+    const day = n => thDay(now - n * 864e5), sumC = ['pv', ...HIT_COLS].map(c => `SUM(${c}) AS ${c}`).join(', ');
+    const [D, Hr, Mo, S, X] = await env.DB.batch([
+      env.DB.prepare(`SELECT day, ${sumC} FROM hit WHERE day >= ? GROUP BY day ORDER BY day`).bind(day(89)),
+      env.DB.prepare('SELECT day, h, pv, uv FROM hit WHERE day >= ? ORDER BY day, h').bind(day(1)),
+      env.DB.prepare('SELECT substr(day, 1, 7) AS mo, SUM(pv) AS pv, SUM(uv) AS uv FROM hit GROUP BY mo ORDER BY mo DESC LIMIT 13'),
+      env.DB.prepare('SELECT u, t, n FROM seen ORDER BY t DESC LIMIT 300'),
+      env.DB.prepare('DELETE FROM hit WHERE day < ?').bind(day(400))]); // เก็บ 400 วัน
+    o.visits = { days: D.results, hours: Hr.results, months: Mo.results, today: thDay(now) };
+    o.db_bytes = (X.meta && X.meta.size_after) || null;
+    const AU = env.ADMIN_USER || 'admin';
+    o.seen = S.results.filter(r => r.u === AU || M.users[r.u]).map(r => ({ u: r.u, d: r.u === AU ? 'ผู้ดูแลหลัก' : M.users[r.u].d || '', t: r.t, n: r.n }));
+  } catch (e) { o.db_err = String(e.message || e).slice(0, 200) }
+  if (o.cf) o.cfq = await cfStats(env, now);
+  return o;
+}
+
 export default {
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
     const url = new URL(req.url), P = url.pathname.replace(/\/+$/, '').split('/').filter(Boolean), m = req.method;
-    if (!P.length) return J({ ok: true, app: 'fire-map layers', kv: !!env.LAYERS, admin: !!env.ADMIN_PASS, rep: true, log: true, trk: true, fd: 2, max_mb: MAXD / 1048576 });
+    if (!P.length) return J({ ok: true, app: 'fire-map layers', kv: !!env.LAYERS, admin: !!env.ADMIN_PASS, rep: true, log: true, trk: true, fd: 2, max_mb: MAXD / 1048576, sys: 1, db: !!env.DB, cf: !!(env.CF_API_TOKEN && env.CF_ACCOUNT_ID) });
+    // SYS นับผู้เข้าชม — ก่อนอ่าน meta (ไม่ใช้ KV เลย) · ผิดพลาดก็ตอบ 204 (หน้าเว็บไม่ต้องรู้)
+    if (P[0] === 'hit' && P.length === 1 && m === 'POST') { try { await hit(req, env) } catch (e) { console.log('hit', e.message) } return new Response(null, { status: 204, headers: CORS }) }
     if (!env.LAYERS) return E('ยังไม่ได้ผูก KV ชื่อ LAYERS กับ Worker นี้', 500);
     if (!env.ADMIN_PASS) return E('ยังไม่ได้ตั้ง Secret ADMIN_PASS', 500);
     try {
@@ -172,14 +271,20 @@ export default {
         let ok = null;
         if (u === AU) { if (same(await sha(p, 99), await sha(env.ADMIN_PASS, 99))) ok = { u, v: await rootV(env, M), d: 'ผู้ดูแลหลัก', a: true, g: [], root: true } }
         else { const r = M.users[u]; if (r && !r.x && same(await pwHash(p, ub64(r.s), r.i || ITER), r.h)) ok = { u, v: r.v, d: r.d || u, a: !!r.a, g: r.g || [] } }
+        if (ok && !ok.a && !pubFlags(M).login) return E('ผู้ดูแลระบบปิดการเข้าสู่ระบบของผู้ใช้ทั่วไปชั่วคราว — ติดต่อผู้ดูแล', 403); // SYS สวิตช์ login (ผู้ดูแลยังเข้าได้)
         if (!ok) { await env.LAYERS.put(fk, JSON.stringify({ n: f.n + 1 }), { expirationTtl: 900 });
           if (f.n + 1 === 8 && (u === AU || M.users[u])) await audit(env, { u, d: (M.users[u] || {}).d || '' }, 'lock', { k: 'auth', x: 'ใส่รหัสผิด 8 ครั้ง ล็อก 15 นาที' }); // บันทึกเฉพาะชื่อที่มีจริง (กันรหัสผ่านที่พิมพ์ผิดช่องลงบันทึก)
           return E('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 401) }
-        await audit(env, ok, 'login', { k: 'auth' });
+        await audit(env, ok, 'login', { k: 'auth' }); await bg(ctx, seen(env, ok));
         const pay = b64u(te.encode(JSON.stringify({ u, v: ok.v, exp: Date.now() + 30 * 864e5 })));
         return J({ token: pay + '.' + await hmac(env, pay), user: { u, d: ok.d, a: ok.a, g: ok.g, root: !!ok.root } });
       }
-      if (r0 === 'me' && m === 'GET') return J({ user: U && { u: U.u, d: U.d, a: U.a, g: U.g, root: !!U.root } });
+      if (r0 === 'me' && m === 'GET') { if (U) await bg(ctx, seen(env, U)); return J({ user: U && { u: U.u, d: U.d, a: U.a, g: U.g, root: !!U.root } }) }
+      if (r0 === 'flags' && !r1) { // SYS สวิตช์ฟังก์ชัน: อ่านได้ทุกคน (build_site.js → _site/flags.json) · แก้ = ผู้ดูแล
+        if (m === 'GET') return J({ flags: pubFlags(M) });
+        if (m === 'PUT') { adm(); const ch = setFlags(M, await body(), U); await putMeta(env, M); if (ch.length) await audit(env, U, 'flags', { k: 'sys', x: ch.join(' · ') }); return J({ flags: pubFlags(M) }) }
+      }
+      if (r0 === 'sys' && !r1 && m === 'GET') { adm(); return J(await sysInfo(env, M)) }
       if (r0 === 'logout-all' && m === 'POST') { // E3 ออกจากระบบทุกอุปกรณ์ (รวมเครื่องนี้) — token ทุกใบของบัญชีนี้ใช้ไม่ได้ทันที
         if (!U) return E('กรุณาเข้าสู่ระบบ', 401);
         if (U.root) M.rv = rid(); else M.users[U.u].v = rid();
@@ -196,7 +301,7 @@ export default {
       }
 
       if (r0 === 'layers') {
-        if (!r1 && m === 'GET') return J({ layers: M.layers.filter(L => canSee(L, U)).map(L => pubL(L, U)), groups: U && U.a ? M.groups : undefined });
+        if (!r1 && m === 'GET') return J({ layers: M.layers.filter(L => canSee(L, U)).map(L => pubL(L, U)), groups: U && U.a ? M.groups : undefined, flags: pubFlags(M) });
         if (!r1 && m === 'POST') { // body = GeoJSON, x-meta = ข้อมูลชั้น (base64url JSON)
           adm(); const d = await readData(req), b = metaHdr(req), L = { id: rid(), name: 'ชั้นข้อมูล', color: '#e8741c', on: false, dl: true, acl: { m: 'login', g: [], u: [] } };
           applyLayer(L, b, M); L.kb = Math.round(d.length / 1024); L.upd = Date.now(); L.by = U.u;
@@ -263,6 +368,7 @@ export default {
         if (!r1 && m === 'GET') { const fy = +url.searchParams.get('fy') || fyOfMs(now); return J({ fy, reports: (await getRep(env, fy)).map(r => repPub(r, U)) }) }
         if (r1 && P[2] === 'trk' && m === 'GET') { const t = /^[a-f0-9]{1,32}$/.test(r1) ? await env.LAYERS.get('t:' + r1, { type: 'json' }) : null; return t ? J({ id: r1, trk: t }) : E('ไม่พบเส้นทางของรายงานนี้', 404) }
         if (!U) return E('กรุณาเข้าสู่ระบบ', 401);
+        if (!U.a && !pubFlags(M).rep) return E('ผู้ดูแลระบบปิดรับบันทึกผลตรวจสอบ/การดับไฟชั่วคราว', 403); // SYS สวิตช์ rep (ผู้ดูแลยังบันทึก/แก้ได้)
         if (!r1 && m === 'POST') {
           const b = await repBody(req);
           if (!RES.includes(b.res)) return E('กรุณาเลือกผลการตรวจสอบ');

@@ -368,5 +368,20 @@ if (require.main === module) (async () => {
     fs.writeFileSync(path.join(OUT, 'air4thai.json'), b);
     console.log('air4thai.json:', (b.length / 1024).toFixed(0), 'KB');
   } catch (e) { console.log('air4thai.json ไม่สำเร็จ:', e.message) }
+  // SYS (20 พ.ย. 69) สวิตช์ฟังก์ชันจากหลังบ้าน (Worker GET /flags) → _site/flags.json ให้ line_notify/telegram_notify (scripts/lib/flags.js) · ดึงไม่ได้ = ฉบับบนเว็บรอบก่อน
+  try {
+    const F = await require('./lib/flags').fetchFlags({ api: LAYERS_API, site: 'https://takiang71.github.io/fire-map-dpky/' });
+    if (F) { fs.writeFileSync(path.join(OUT, 'flags.json'), JSON.stringify(F)); console.log(`flags.json: จาก${F.src === 'worker' ? 'เซิร์ฟเวอร์' : 'ฉบับบนเว็บรอบก่อน (' + F.why + ')'} · ปิด ${[...(F.flags.off || []), ...(F.flags.lnd ? ['LINE_MODE=daily'] : [])].join(' ') || '-'}`) }
+    else console.log('flags.json: ดึงไม่ได้ทั้งเซิร์ฟเวอร์และเว็บ — การแจ้งเตือนใช้ตัวแปร Actions ตามเดิม');
+  } catch (e) { console.log('flags.json ไม่สำเร็จ:', e.message) }
+  // SYS แท็บภาพรวมระบบ: ขนาดเว็บบน Pages (ขีดจำกัด 1 GB) · ไฟล์ใหญ่สุด · รอบ build (commit/run) — ไม่มีข้อมูลส่วนบุคคล
+  try {
+    const all = [], walk = d => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walk(p); else all.push([path.relative(OUT, p).split(path.sep).join('/'), fs.statSync(p).size]) } };
+    walk(OUT); const dirs = {}; for (const [f, n] of all) { const k = f.includes('/') ? f.split('/').slice(0, f.startsWith('data/') ? 2 : 1).join('/') : '(หน้าแรก)'; dirs[k] = (dirs[k] || 0) + n }
+    const SI = { generated: new Date().toISOString(), sha: (process.env.GITHUB_SHA || '').slice(0, 7), run: process.env.GITHUB_RUN_ID || '', by: process.env.RUN_BY || '', ev: process.env.GITHUB_EVENT_NAME || 'local',
+      bytes: all.reduce((s, x) => s + x[1], 0), files: all.length, dirs: Object.entries(dirs).sort((a, b) => b[1] - a[1]).slice(0, 12), big: all.sort((a, b) => b[1] - a[1]).slice(0, 8), live: !!L };
+    fs.writeFileSync(path.join(OUT, 'sysinfo.json'), JSON.stringify(SI));
+    console.log(`sysinfo.json: ${(SI.bytes / 1048576).toFixed(1)} MB · ${SI.files} ไฟล์`);
+  } catch (e) { console.log('sysinfo.json ไม่สำเร็จ:', e.message) }
   if (!ok) process.exitCode = 1;
 })();
