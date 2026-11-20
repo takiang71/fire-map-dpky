@@ -108,6 +108,7 @@ Chrome headless 1440×900 · เสิร์ฟ `_site` จากเซิร์
 ## check_site ขั้นแดชบอร์ด ?dash (F4, 17 พ.ย. 69)
 
 - ต่อจากขั้นลิงก์มุมมอง D3 ก่อน ?debug=1: เปิด `?dash` ที่ **1920×1080** และ **390×844** (มือถือ+สัมผัส) รอ `DS.lt` ≤20 วิ แล้วตรวจ: แผ่น `#ds` เปิดเต็มจอ · `data-k` = `dsKpi(summary, S.xdy)` และตัวเลขบนไทล์ · **KPI (fy/prv/pfull/pct) = ผลรวม areas ใน `<โฟลเดอร์>/summary.json` ที่คิดใน Node แยกจากโค้ดหน้าเว็บ** (ไม่มี summary.json เช่นตรวจราก repo = เทียบกับไฟล์ที่หน้าโหลดจากเว็บ + คำเตือน) · ไทล์ 24 ชม. = `HS` ของการ์ดหลัก · ไม่ล้นแนวนอน · ไม่มีการ์ดว่าง · error ในขั้นนี้นับเป็นผิด
+  · การ์ดไฟป่าที่ตรวจพบ (20 พ.ย. 69): `#ds-fd` data-k n = ไทล์ `#ds-kfd` = XT ปีงบนี้ (xXT) · `#ds-yr` data-k แถวปีงบนี้ จุด = KPI fy, แถวปีก่อน ช่วงเดียวกัน = KPI prv (fyCum ของ HD), ไฟป่าปีนี้ = XT
   · คำเตือน (ไม่ผิด): เนื้อหาเกินจอ 1080 (จอ TV ต้องเลื่อน) · ยอดสะสมในการ์ดหลัก (`fyNow`) ≠ แดชบอร์ด (live.json/API คนละรอบกับ summary)
   · 1920: กด × ต้องปิด · `#bDash` ต้องเปิด · `#ds-xd` ต้องสลับ S.xdy (แล้วสลับคืน) · ผลใน `check.json info.dash`
 - verify_numbers คอลัมน์ `dash` (ดึง `dsKpi` จาก index.html) · `test/numbers.test.js` ตรวจว่ามีคอลัมน์ · `test/opendata.test.js` (F8: จับคู่ Excel, กติกา kpi, CSV BOM/หัว/อัญประกาศ, ยอด kpi = summary.json, w/pw/sn/psn รวมได้ fy/pfull/prv)
