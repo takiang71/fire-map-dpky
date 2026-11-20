@@ -5,19 +5,19 @@
 //   ความสูงอ้างอิงจีออยด์ EGM96 เท่ากับ Terrarium (SRTM) ที่เว็บใช้เดิม
 // รันมือ (ไม่อยู่ใน workflow): node scripts/build_dem15.js [--out data/dem15] [--cache <โฟลเดอร์>] [--buf 4] [--blend 96] [--q 0.25] [--zmin 10] [--limit N] [--dry]
 //   ครั้งแรกดึงแผ่น DTM ~300 MB เก็บใน --cache (ค่าเริ่มต้น <tmp>/gem15, ไม่ commit) ครั้งต่อไปใช้แคช
-// ผล: <out>/{z}/{x}/{y}.png ซูม zmin–13 เฉพาะไทล์ที่ห่างแนวเขตพื้นที่อนุรักษ์ (data/geo.json) ไม่เกิน --buf กม. + <out>/index.json
+// ผล: <out>/{z}/{x}/{y}.png ซูม zmin–13 เฉพาะไทล์ที่ห่างแนวเขตพื้นที่อนุรักษ์ (data/geo.json) + พื้นที่เฝ้าระวังพิเศษ (data/watch.json) ไม่เกิน --buf กม. + <out>/index.json
 //   ขอบชุดไทล์ ค่อยๆ ผสมกับ Terrarium (AWS) ในระยะ --blend พิกเซลซูม 13 (ไม่เกิดขั้นบันไดตรงรอยต่อ) · พิกเซลที่ GEM-15 ไม่มีค่า (ผิวน้ำ) ใช้ค่า AWS
 //   หน้าเว็บ: demURL()/โปรโตคอล dem15:// เลือกไทล์ในชุดนี้ก่อน นอกชุดใช้ AWS → docs/arch/data-sources.md
 const fs = require('fs'), path = require('path'), os = require('os');
 const { readPNG, rgbPNG, terrariumRGB } = require('./lib/png');
-const { consFeatures, tileSet: tileSetOf, gemSrc, loadFor, at, pool } = require('./lib/gem15');
+const { consFeatures, watchFeatures, tileSet: tileSetOf, gemSrc, loadFor, at, pool } = require('./lib/gem15');
 
 const ROOT = path.join(__dirname, '..');
 const arg = (k, d) => { const i = process.argv.indexOf('--' + k); return i < 0 ? d : process.argv[i + 1] };
 const OUT = path.resolve(ROOT, arg('out', 'data/dem15')), CACHE = arg('cache', process.env.GEM15_CACHE || path.join(os.tmpdir(), 'gem15')),
   BUF = +arg('buf', 4), BLEND = +arg('blend', 96), Q = +arg('q', 0.25), ZMIN = +arg('zmin', 10), LIMIT = +arg('limit', 0), DRY = process.argv.includes('--dry'), ZMAX = 13;
 const AWS = 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/';
-const tileSet = () => tileSetOf(consFeatures(ROOT), BUF, ZMAX);
+const tileSet = () => tileSetOf([...consFeatures(ROOT), ...watchFeatures(ROOT)], BUF, ZMAX); /* + พื้นที่เฝ้าระวังพิเศษ (20 พ.ย. 69) */
 const src = gemSrc('dtm', { cache: CACHE });
 
 // ---------- Terrarium (AWS) สำหรับเติม/ผสมขอบ ----------
