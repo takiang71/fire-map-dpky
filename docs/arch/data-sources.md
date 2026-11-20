@@ -116,6 +116,7 @@
 - `scripts/build_dem15.js` (รันมือ ไม่อยู่ใน workflow): ไทล์ซูม 13 ที่ห่างแนวเขต `geo.cons` ≤`--buf` 4 กม. (537 แผ่น) → bilinear จาก UTM → ผสมกับ AWS ที่ขอบชุด `--blend` 96 px (smoothstep ตามระยะถึงไทล์เพื่อนบ้านที่ไม่อยู่ในชุด) · NaN (ผิวน้ำ+บัฟเฟอร์ 9 ม.) = ค่า AWS · ซูม 12–10 = เฉลี่ย 2×2 (ลูกที่ไม่อยู่ในชุด = AWS ซูมแม่) · ปัด `--q` 0.25 ม. (ไฟล์ 108→49 KB/แผ่น)
   · ผล `data/dem15/{z}/{x}/{y}.png` + `index.json` {zmin,zmax,rows:{ty ซูม13:[x0,x1,…]}} · แคชแผ่นดิบ `--cache` (`<tmp>/gem15` ไม่ commit) · lib: `lib/cog.js` (openCOG ผ่าน HTTP Range), `lib/png.js` rgbPNG/terrariumRGB
   · build_site คัดลอก `data/dem15` ขึ้น Pages · PNG ไม่ผ่าน sw (index.json = data/**.json → SWR)
+- ข้อความในหน้าเว็บที่อ้างความละเอียดต้นทาง (แผงภูมิประเทศ ความละเอียด/เส้นชั้น, กล่องโปรไฟล์ `elBox`, บันทึกเส้นทาง TK, คู่มือ) = "GEM-15 15 ม. (นอกกลุ่มป่า ~30 ม.)" — แก้ 20 พ.ย. 69 (เดิมเขียน ~30 ม.) · `G.r<15` = ละเอียดกว่าต้นทาง
 - หน้าเว็บ (สคริปต์เดียวกับ `setup()` ก่อนประกาศ): `d15Load` (fetchT index.json; ไม่ได้ = null → AWS ทั้งหมด เช่นเปิดแบบดับเบิลคลิก) · `d15Has(z,x,y)` (ซูมต่ำ = มีลูกซูม 13 ในชุด) · `demURL` · โปรโตคอล `dem15://` ของ source `dem` (**maxzoom 13** เดิม 14 — AWS ซูม 14 ในไทยขยายจาก 30 ม. อยู่แล้ว) · `demTile` ใช้ demURL และโหลดไทล์ในชุดไม่ได้ → ลอง AWS
   · ชื่อที่ใช้แล้ว: `D15` `d15*` `DEMAWS` `awsUrl` `demURL` โปรโตคอล `dem15`
   · `fire_model_eval.js` อ่าน `data/dem15` ก่อน AWS (ตรงกับหน้าเว็บ) · เทสต์ `test/dem15.test.js`
