@@ -762,3 +762,5 @@
   · สัญลักษณ์เครื่องมือวาด = `PMSYM` (ย้ายจากบล็อก lz-pm มาสคริปต์หลัก — lz-pm ใช้เป็น global) ภาพ `ul-s-<k>` จาก Path2D evenodd (pixelRatio 1.6) · pin = ภาพเดิม `ul-pin` · ชื่อรอบแรก circle/square/tri → cir/sq/warn (`ULSA` + match ในชั้น)
   · `#rcol` แท็บซ่อน/แสดงแผงชั้นข้อมูล (`rcSync` + MutationObserver ของ #right/#dp/#ulm, body.rop) เดสก์ท็อปเท่านั้น
   · กล่อง `#hlg` เดสก์ท็อป: `HLGD` full/hd (`fm-hlgd`) คลิกสลับ, คลาส `dkh` = แท็บแบบ .mb.hd · มือถือใช้ HLGM เดิม
+- **20 พ.ย. 69 (รอบ 4):** `#rcol` อยู่นอกแผง (right 366, z 9) และใช้กับ `#ulm` ด้วย (`RCL` = แผงล่าสุด แท็บขอบจอเปิดแผงนั้น) · จุดย้อนหลัง/สะสม `h.hist` → `#dp.dhist .dfc` ซ่อนคาดการณ์/PM2.5/อากาศ/FWI/สถานีกรมอุตุฯ · upd() ไม่วาด fx/ควัน · ไม่ใส่ selpt · ไม่เรียก fillAq/fqLoad/fwNow/fwDetail/tmDetail · อายุ ≥365 วัน = ปี เดือน วัน
+  · **F1 UI ผลตรวจสอบจากหน้างานเอาออก** (ผู้ใช้ขอ — ใช้แบบรับแจ้งเหตุกรมอุทยานฯ DF แทน): `#vf-box` `#x-vf` `#ds-vf` `#tk-vf` และชั้น `vf-ic` (ไม่สร้าง) · ยังเก็บ VF.L/vfXT (รายงาน kd=fd ของฟอร์มดับไฟ) และ Worker /reports · LINE_REP/TG_REP ยังเปิด-ปิดได้ในหลังบ้าน
