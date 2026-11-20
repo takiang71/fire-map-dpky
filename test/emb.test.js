@@ -2,11 +2,11 @@
 // + D2/B3: meta แชร์ลิงก์ ไอคอน และฟอนต์ในเว็บเอง (ไม่มี googleapis)
 const test = require('node:test'), assert = require('node:assert/strict'), fs = require('fs'), os = require('os'), path = require('path');
 const { HTML, ROOT } = require('./helpers.cjs');
-const { splitEmb, EMB_IDS } = require('../scripts/build_site');
+const { splitEmb, EMB_IDS, splitLz } = require('../scripts/build_site');
 const { block } = require('../scripts/lib/area');
 const tagsOf = h => { const T = []; let i = 0; for (; ;) { const a = h.indexOf('<script', i); if (a < 0) break; const gt = h.indexOf('>', a), e = h.indexOf('</script>', gt); T.push({ attr: h.slice(a + 7, gt).trim(), body: h.slice(gt + 1, e) }); i = e + 9 } return T };
 
-test('splitEmb: ข้อมูลฝัง 6 ชุดแยกเป็นไฟล์ชื่อมี hash เนื้อหาตรงต้นฉบับทุกไบต์ · ข้อมูลออกครบ · index.html < 1.70 MB', () => {
+test('splitEmb: ข้อมูลฝัง 6 ชุดแยกเป็นไฟล์ชื่อมี hash เนื้อหาตรงต้นฉบับทุกไบต์ · ข้อมูลออกครบ · index.html (หลัง splitLz) < 1.65 MB', () => {
   const d = fs.mkdtempSync(path.join(os.tmpdir(), 'emb-'));
   try {
     const r = splitEmb(HTML, d);
@@ -21,8 +21,11 @@ test('splitEmb: ข้อมูลฝัง 6 ชุดแยกเป็นไ�
     // งบขนาดหน้าแรก: เกณฑ์ตรวจรับ B1 เฟส 1 คือ < 1.5 MB (ผ่านตอนนั้น 1.3 MB) · 18 พ.ย. 69 โค้ดแอปโตถึง 1.49 MB แล้ว F7 (บันทึกเส้นทาง) +40 KB → ขยับงบเป็น 1.6 MB
     //   ถ้าเกินอีก ให้พิจารณาแยกโค้ดโมดูลที่ไม่ได้ใช้ตอนเปิดหน้าออกเป็นไฟล์ (B1 เฟส 2) แทนการขยับเพดาน
     //   19 พ.ย. 69 เมนูไฟป่าที่ตรวจพบ + ฟอร์มบันทึกการดับไฟ (FD) ~40 KB ทำให้ถึง 1.60 MB → ขยายเป็น 1.65 MB (แจ้งผู้ใช้แล้ว; ถัดไปควรทำ B1 เฟส 2)
-    //   20 พ.ย. 69 หลังบ้าน SYS (แท็บภาพรวมระบบ/ตั้งค่าระบบ ~40 KB) ทำให้ถึง 1.67 MB → ขยายเป็น 1.70 MB (แจ้งผู้ใช้แล้ว; ถัดไปควรทำ B1 เฟส 2 — แยกโค้ดเฉพาะผู้ดูแล/ฟอร์มออกเป็นไฟล์โหลดเมื่อใช้)
-    assert.ok(Buffer.byteLength(r.html) < 1.70 * 1048576, (Buffer.byteLength(r.html) / 1048576).toFixed(2) + ' MB');
+    //   20 พ.ย. 69 หลังบ้าน SYS (แท็บภาพรวมระบบ/ตั้งค่าระบบ ~40 KB) ทำให้ถึง 1.67 MB → ขยายเป็น 1.70 MB ชั่วคราว
+    //   20 พ.ย. 69 B1 เฟส 2: โค้ดเฉพาะผู้ดูแล (หลังบ้าน UL + แดชบอร์ด SYS ~54 KB) แยกเป็น js/adm.<sha8>.js (build_site.splitLz — test/lazy.test.js) → 1.62 MB · งบกลับเป็น 1.65 MB
+    //   ถ้าเกินอีก: แยกโมดูลที่ใช้ตอนกดเท่านั้นเพิ่มเป็นบล็อก <script type="text/x-lazy" id="lz-<n>"> (docs/arch/data-blocks.md หัวข้อ B1 เฟส 2) แทนการขยับเพดาน
+    const z = splitLz(r.html, d);
+    assert.ok(Buffer.byteLength(z.html) < 1.65 * 1048576, (Buffer.byteLength(z.html) / 1048576).toFixed(3) + ' MB');
     // ข้อมูลเดิม = ชื่อไฟล์เดิม (แคชได้) · splitEmb ซ้ำได้ผลเดียวกัน
     assert.deepEqual(splitEmb(HTML, d).ix, r.ix);
     assert.deepEqual(fs.readdirSync(path.join(d, 'data', 'emb')).sort(), Object.values(r.ix).map(u => u.split('/').pop()).sort(), 'ไม่มีไฟล์ค้างจากรอบก่อน');

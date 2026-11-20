@@ -1,7 +1,7 @@
 # แผนที่สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่ (Dong Phayayen–Khao Yai Forest Complex)
 
-เว็บแอปไฟล์เดียว (`index.html` 2.4 MB ~8,000 บรรทัด, ข้อมูลฝัง ~1 MB · `_site/index.html` 1.5 MB: build_site แยกข้อมูลฝังเป็น `data/emb/*.json` → [data-blocks.md](docs/arch/data-blocks.md)) ภาษาไทย ใช้ MapLibre GL JS 4.7.1 จาก cdnjs
-เปิดด้วยดับเบิลคลิก หรือ `node scripts/serve.js` แล้วเข้า http://localhost:8000 (ไม่มี Python จริง · มี Node 24 → สคริปต์ใหม่ใช้ Node)
+เว็บแอปไฟล์เดียว (`index.html` 2.4 MB ~8,000 บรรทัด, ข้อมูลฝัง ~1 MB · `_site/index.html` 1.62 MB: build_site แยกข้อมูลฝัง → `data/emb/`, บล็อก `lz-*` → `js/`) ภาษาไทย MapLibre GL JS 4.7.1 (cdnjs)
+เปิดด้วยดับเบิลคลิก หรือ `node scripts/serve.js` แล้วเข้า http://localhost:8000 (ไม่มี Python · สคริปต์ใหม่ใช้ Node 24)
 ผู้ใช้สื่อสารภาษาไทย ตอบเป็นภาษาไทย · ข้อความบนหน้าเว็บเป็นภาษาไทยทั้งหมด
 สเปกตั้งต้นอยู่ที่ `docs/spec-v3.md` (เฟส 1–4)
 โฮสต์: https://takiang71.github.io/fire-map-dpky/ · repo สาธารณะ https://github.com/takiang71/fire-map-dpky (main, LF) · GitHub Pages + Actions · ผู้ใช้ยืนยันว่าเปิดเผยข้อมูลทั้งหมดเป็นสาธารณะได้
@@ -15,7 +15,7 @@
 
 1. **`git pull` ก่อนแก้ทุกครั้ง** (GitHub Actions commit เข้า main วันละหลายครั้ง) · เสร็จแล้ว commit + push (identity takiang71)
 2. **รัน `node --test test/` (ชุดทดสอบหน่วย <1 วิ) ทุกครั้งที่แก้ `scripts/` หรือ `index.html` · รัน `node scripts/check_site.js` ก่อน commit ทุกครั้งที่แก้ `index.html`** (~3 นาที; syntax + Chrome headless 1440/390 กดปุ่มหลัก) ต้องได้ `✅ ผ่าน` · เพิ่มปุ่ม/แผงใหม่ ต้องเพิ่มขั้นใน `DESK`/`MOB` ของสคริปต์ → [testing.md](docs/arch/testing.md)
-3. **ห้ามแก้บล็อกข้อมูลด้วยมือ**: `hdata` (Excel กรมอุทยานฯ — **ห้ามแก้ก่อนผู้ใช้อนุญาต**), `adata`, `wdata`, `wadata`, `fxdata` สร้างจากสคริปต์เท่านั้น (`excel_to_hdata.js`, `sync_hotspots.js`, `import_watch.js`, `import_fx.js`) · อ่านบล็อกด้วย `getElementById(id).textContent` ได้ตามเดิม (ใน `_site` ตัวโหลด `embGet` สร้างบล็อกให้ก่อนรันสคริปต์แอป) — สคริปต์ใหม่ต้องเป็น `<script>` ไม่มี attribute → [data-blocks.md](docs/arch/data-blocks.md)
+3. **ห้ามแก้บล็อกข้อมูลด้วยมือ**: `hdata` (Excel กรมอุทยานฯ — **ห้ามแก้ก่อนผู้ใช้อนุญาต**), `adata`, `wdata`, `wadata`, `fxdata` สร้างจากสคริปต์เท่านั้น (`excel_to_hdata.js`, `sync_hotspots.js`, `import_watch.js`, `import_fx.js`) · อ่านบล็อกด้วย `getElementById(id).textContent` ได้ตามเดิม (ใน `_site` ตัวโหลด `embGet` สร้างบล็อกให้ก่อนรันสคริปต์แอป) — สคริปต์ใหม่ต้องเป็น `<script>` ไม่มี attribute (ยกเว้น `text/x-lazy`) → [data-blocks.md](docs/arch/data-blocks.md)
 4. แก้ `index.html` ด้วย Node ใช้ `split(a).join(b)` **ห้ามใช้ `String.replace`** (`$$`/`$&` เพี้ยน) · แทรกก่อน `</body>` ต้องใช้ `lastIndexOf` (มี `</body>` ในสตริงของโมดูลพิมพ์แผนที่)
 4a. เรียกเครือข่ายใน index.html ใช้ `fetchT(url,opt,FTO.main|tile|big|aux)` ห้าม `fetch(` ตรง · catch ในเส้นทางโหลดข้อมูลใช้ `dbg('ชื่อ',e)` ไม่ปล่อยว่าง · สคริปต์แรกใน `<head>` (ตรวจเบราว์เซอร์เก่า) ต้อง ES5 → [gotchas.md](docs/arch/gotchas.md)
 5. **ห้ามใส่หมายเหตุ `//` ท้ายบรรทัดที่มีโค้ดต่อ** (เคยกลืนโค้ดจนปุ่มเสีย; `node --check` ไม่จับ) ใช้ `/* */`
@@ -33,7 +33,7 @@
 
 | ไฟล์ | เนื้อหา | คำค้นตัวอย่าง |
 |---|---|---|
-| [data-blocks.md](docs/arch/data-blocks.md) | บล็อก `geo` `hdata` `adata` `fxdata` `wdata` `wadata`, ไฟล์ต้นฉบับ, สคริปต์นำเข้า, กติกา HD/AD/ตัวชี้วัด/ปุ่มดาวเทียม/ดงใหญ่ | `IND_SW` `fyNow` `xHD` `satFy` `dyAS` `import_fx` |
+| [data-blocks.md](docs/arch/data-blocks.md) | บล็อก `geo` `hdata` `adata` `fxdata` `wdata` `wadata`, ไฟล์ต้นฉบับ, สคริปต์นำเข้า, กติกา HD/AD/ตัวชี้วัด/ปุ่มดาวเทียม/ดงใหญ่ | `IND_SW` `fyNow` `xHD` `satFy` `dyAS` `import_fx` `lzJs` |
 | [pipelines.md](docs/arch/pipelines.md) | site.yml / sync.yml / wx.yml, watchdog, branch `state`, live.json + FIRMS สำรอง, ลดภาระ API, `pass_wait`, `sync_hotspots`, ตัดจุดซ้ำ, fwi_local, API ต้นทาง | `apiLive` `dedup.js` `near.js` `wx_check` `SNPP_END` `opendata` |
 | [notify.md](docs/arch/notify.md) | LINE (carousel, Worker, โควตา, สรุปประจำวัน, การ์ดเผาไหม้), Telegram, `health.js`, ลิงก์ตรง `?hs` `?pts` `?burn` | `carousel` `burnCard` `hsLink` `LINE_MAX_DAY` `loadState` |
 | [ui-modules.md](docs/arch/ui-modules.md) | การ์ดหลัก, ตาราง/CSV/รายงาน, สถิติย้อนหลัง + เล่นย้อน, กองจุด, ดับไฟ, จปร., วัด, วาด/Layer Manager/หลังบ้าน, ภูมิประเทศ, ความสูง, พิมพ์แผนที่, ภาพดาวเทียม, โมเดลไฟ, คู่มือ | `renderCard` `hRender` `pbStart` `hcCalc` `wFocus` `msSet` `GIO` `PP` `dsKpi` `syDash` |

@@ -3,7 +3,7 @@
    → deploy ใหม่ = ไฟล์นี้เปลี่ยน = เบราว์เซอร์ติดตั้งรุ่นใหม่เอง (skipWaiting) แล้วลบแคช shell รุ่นเก่า · หน้าเว็บขึ้นป้าย "อัปเดตแล้ว แตะเพื่อโหลดใหม่"
    เปิดจากโฟลเดอร์ repo (serve.js) = SW_VERSION 'dev' → ไม่ precache, หน้าเว็บ/โค้ดใช้เครือข่ายก่อน (แก้โค้ดแล้วเห็นทันที) ถอยมาใช้แคชเมื่อออฟไลน์
    กติกาแคช
-     - app shell + ฟอนต์ + MapLibre (cdnjs) + data/emb/* (ชื่อมี hash) = cache-first (แคช shell-<รุ่น>)
+     - app shell + ฟอนต์ + MapLibre (cdnjs) + data/emb/* + js/* (โค้ดโหลดเมื่อใช้ B1 เฟส 2 — precache คู่กับ index.html รุ่นเดียวกัน, ชื่อมี hash) = cache-first (แคช shell-<รุ่น>)
      - live.json summary.json watch.json air4thai.json wxsrc.json data/**.json = stale-while-revalidate (แคช data-v1, คีย์ไม่รวม query)
        · คำขอที่หน้าเว็บสั่ง cache:'no-store'/'no-cache' (เช่น live.json ทุก 5 นาที — ต้องการข้อมูลสด) = เครือข่ายก่อน ถอยมาใช้แคชเมื่อล้ม/เกิน 8 วิ
      - ไทล์ OpenFreeMap ที่ผู้ใช้กด "เก็บพื้นที่นี้ไว้ดูออฟไลน์" (แคช ofm-v1 — หน้าเว็บเขียนเอง) = ไทล์ .pbf cache-first · style/TileJSON/sprite/glyph เครือข่ายก่อน
@@ -17,7 +17,7 @@ const withCSP = r => { if (!CSP || !r || r.type === 'opaque' || r.headers.has('C
 const DEV = SW_VERSION === 'dev', C_SHELL = 'shell-' + SW_VERSION, C_DATA = 'data-v1', C_OFM = 'ofm-v1';
 const SCOPE = new URL(self.registration.scope), ROOT = SCOPE.pathname;
 const MAPLIBRE = /^https:\/\/cdnjs\.cloudflare\.com\/ajax\/libs\/maplibre-gl\//, OFM = /^https:\/\/tiles\.openfreemap\.org\//;
-const SHELL_RE = /^(index\.html|manifest\.webmanifest|fonts\/.+\.woff2|img\/icon[\w-]*\.(png|svg)|data\/emb\/.+\.json)$/;
+const SHELL_RE = /^(index\.html|manifest\.webmanifest|fonts\/.+\.woff2|img\/icon[\w-]*\.(png|svg)|data\/emb\/.+\.json|js\/\w+\.[0-9a-f]{8}\.js)$/;
 const DATA_RE = /^(live|summary|watch|air4thai|wxsrc|burn_summary|risk)\.json$|^data\/.+\.json$/;
 
 self.addEventListener('install', e => {

@@ -51,14 +51,20 @@ function syntax(file) {
     const ty = (at.match(/type\s*=\s*["']?([^"'\s>]+)/i) || [])[1] || '';
     n++;
     if (/json/i.test(ty)) { try { JSON.parse(code) } catch (e) { errs.push(`${rel}:${line} ข้อมูล JSON ${(at.match(/id="([^"]+)"/) || [])[1] || ''} อ่านไม่ได้: ${e.message}`) } continue }
-    if (ty && !/javascript|module|x-emb-app/i.test(ty)) continue; // x-emb-app = สคริปต์แอปที่ build_site พักไว้ให้ตัวโหลดรันหลังข้อมูลฝังมาครบ (B1)
+    /* x-emb-app = สคริปต์แอปที่ build_site พักไว้ให้ตัวโหลดรันหลังข้อมูลฝังมาครบ (B1) · x-lazy = โค้ดโหลดเมื่อใช้ใน repo (B1 เฟส 2 — lzJs) */
+    if (ty && !/javascript|module|x-emb-app|x-lazy/i.test(ty)) continue;
     try { new vm.Script(code, { filename: rel, lineOffset: line - 1 }) }
     catch (e) { const w = (e.stack || '').split('\n')[0]; errs.push(`${w.includes(rel) ? w : rel + ':' + line} ${e.name}: ${e.message}`) }
   }
   // B1: _site/index.html มีดัชนี #emb → ไฟล์ data/emb/*.json ต้องมีและเป็น JSON
   const ix = h.match(/<script type="application\/json" id="emb">([\s\S]*?)<\/script>/);
   if (ix) for (const [id, u] of Object.entries(JSON.parse(ix[1]))) { try { JSON.parse(fs.readFileSync(path.join(path.dirname(file), u), 'utf8')) } catch (e) { errs.push(`${rel} ข้อมูลฝัง ${id} (${u}) อ่านไม่ได้: ${e.message.slice(0, 120)}`) } }
-  console.log(`syntax ${rel}: ${n} บล็อก${ix ? ' + ข้อมูลฝังแยกไฟล์ ' + Object.keys(JSON.parse(ix[1])).length : ''}, ผิด ${errs.length}`);
+  // B1 เฟส 2: _site/index.html มีดัชนี #lzix → ไฟล์ js/<n>.<sha8>.js ต้องมีและคอมไพล์ได้
+  const lz = h.match(/<script type="application\/json" id="lzix">([\s\S]*?)<\/script>/), LZ = lz ? Object.entries(JSON.parse(lz[1])) : [];
+  for (const [n, u] of LZ) { const f = path.join(path.dirname(file), u);
+    try { new vm.Script(fs.readFileSync(f, 'utf8'), { filename: path.relative(ROOT, f).replace(/\\/g, '/') }) }
+    catch (e) { errs.push(`${rel} โค้ดโหลดเมื่อใช้ ${n} (${u}) ${e.code === 'ENOENT' ? 'ไม่มีไฟล์' : (e.stack || '').split('\n')[0] + ' ' + e.name + ': ' + e.message}`) } }
+  console.log(`syntax ${rel}: ${n} บล็อก${ix ? ' + ข้อมูลฝังแยกไฟล์ ' + Object.keys(JSON.parse(ix[1])).length : ''}${LZ.length ? ' + โค้ดโหลดเมื่อใช้ ' + LZ.length + ' ไฟล์' : ''}, ผิด ${errs.length}`);
   return errs;
 }
 
@@ -150,7 +156,9 @@ const XSS = `(async()=>{const P='<img src=x onerror=alert(1)>',X=s=>s.replace(/&
  return e.length?'error: XSS — '+e.join(' · '):''})()`;
 // E3 (17 พ.ย. 69): หลังบ้านชั้นข้อมูล — แท็บ "บันทึกการใช้งาน" (ผู้ดูแล) + ปุ่ม "ออกจากระบบทุกอุปกรณ์" + ตรวจขนาด 8 MB ก่อนอัปโหลด
 // ใช้ ulApi จำลองในหน้า (ไม่ต่อ Worker จริง ไม่ล็อกอินจริง) แล้วคืนค่าเดิม · ชื่อชั้นในบันทึกเป็น HTML ต้องแสดงเป็นข้อความ · มือถือ: ตารางบันทึกต้องไม่ล้นแนวนอน
-const E3UI = `(async()=>{if(typeof ulALog!=='function'||typeof ulLogAll!=='function')return 'error: ไม่มี ulALog/ulLogAll';
+// B1 เฟส 2: โค้ดหลังบ้านอยู่ในบล็อก/ไฟล์ lz-adm — ขั้นนี้กด ulAdmin (สตับ → lzJs โหลด → ฟังก์ชันจริง) ตามทางของผู้ใช้จริง แล้วจึงตรวจว่า ulALog มีแล้ว
+const E3UI = `(async()=>{if(typeof ulAdmin!=='function'||typeof ulLogAll!=='function'||typeof lzJs!=='function')return 'error: ไม่มี ulAdmin/ulLogAll/lzJs';
+ window.__ckLZ={stub:typeof ulALog!=='function',via:document.getElementById('lzix')?'js/ (_site)':document.getElementById('lz-adm')?'บล็อกในหน้า':'?'};
  const o=ulApi,me=UL.me,tk=UL.tok,op=UL.open,sl=ms=>new Promise(r=>setTimeout(r,ms)),calls=[],c0=window.confirm,X='<img src=x onerror=alert(1)>';window.__xss=window.__xss||0;window.alert=()=>{window.__xss++};
  ulApi=async(p,x={})=>{calls.push(p);if(p==='/users')return{users:[],groups:[],root:'admin'};if(p==='/layers')return{layers:[],groups:[]};
   if(p==='/log')return{log:[{t:Date.now(),u:'admin',d:'ผู้ดูแลหลัก',a:'layer-add',k:'layer',id:'ab12',n:X,x:'12 KB'},{t:Date.now()-6e4,u:'somchai',d:'สมชาย',a:'rep-add',k:'report',id:'cd34',fy:2570,n:'บุพราหมณ์|นาดี|ปราจีนบุรี',x:'none'},{t:Date.now()-12e4,u:'somchai',d:'สมชาย',a:'login',k:'auth'}],max:200};
@@ -158,7 +166,7 @@ const E3UI = `(async()=>{if(typeof ulALog!=='function'||typeof ulLogAll!=='funct
  try{UL.me={u:'admin',d:'ผู้ดูแลหลัก',a:true,root:true,g:[]};UL.tok='ck-fake';
   const big='{"type":"FeatureCollection","features":[{"properties":{"n":"'+'ก'.repeat(2.9e6)+'"}}]}';let er='';try{await o('/layers',{method:'POST',body:big})}catch(e){er=e.message}
   if(!/ใหญ่เกิน 8 MB/.test(er))return 'error: ไม่ตรวจขนาด 8 MB ก่อนอัปโหลด ('+er+')';
-  await ulAdmin('log');for(let k=0;k<20&&!document.getElementById('ua-lt');k++)await sl(100);
+  await ulAdmin('log');if(typeof ulALog!=='function')return 'error: กดหลังบ้านแล้วโหลดโค้ด lz-adm ไม่ได้ (ไม่มี ulALog)';for(let k=0;k<20&&!document.getElementById('ua-lt');k++)await sl(100);
   const b=document.getElementById('ua-b'),t=b?b.textContent:'';if(!document.getElementById('ua-lt'))return 'error: แท็บบันทึกการใช้งานไม่มีตาราง: '+t.slice(0,100);
   if(!/อัปโหลดชั้นใหม่/.test(t)||!/บันทึกผลตรวจสอบ/.test(t)||!/ต\\.บุพราหมณ์ อ\\.นาดี/.test(t)||!/ไม่พบไฟ/.test(t)||!t.includes(X))return 'error: บันทึกแสดงไม่ครบ: '+t.slice(0,160);
   if(document.querySelector('img[src="x"]')||window.__xss)return 'error: XSS ในบันทึกการใช้งาน';
@@ -170,7 +178,7 @@ const E3UI = `(async()=>{if(typeof ulALog!=='function'||typeof ulLogAll!=='funct
   return ''}finally{window.confirm=c0;await sl(200);ulApi=o;UL.tok=tk;UL.me=me;try{closeModal()}catch(_){}if(!op&&UL.open)ulOpen(false);else ulList()}})()`;
 // SYS (20 พ.ย. 69): หลังบ้าน แท็บภาพรวมระบบ (health จำลองมีค่า XSS · กราฟผู้เข้าชม · ไม่ล้นแนวนอน) + ตั้งค่าระบบ (ซ่อนชั้นจุดความร้อนไม่ได้ · บันทึกส่งค่าถูก) + แถบประกาศ + สวิตช์ปิดรับรายงาน
 //  ulApi/fetchT/GitHub จำลองทั้งหมด (ไม่ต่อเน็ต) · คืนค่าเดิมทุกอย่างใน finally
-const SYUI = `(async()=>{if(typeof syDash!=='function'||typeof syCfg!=='function')return 'error: ไม่มี syDash/syCfg (SYS)';
+const SYUI = `(async()=>{try{await lzJs('adm')}catch(e){return 'error: โหลดโค้ดหลังบ้าน lz-adm ไม่ได้: '+e.message}if(typeof syDash!=='function'||typeof syCfg!=='function')return 'error: ไม่มี syDash/syCfg (SYS)';
  const o=ulApi,ft=fetchT,me=UL.me,tk=UL.tok,f0=SY.f,gh=SY.gh,ght=SY.ght,sl=ms=>new Promise(r=>setTimeout(r,ms)),X='<img src=x onerror=alert(1)>',c0=window.confirm;window.__xss=window.__xss||0;window.alert=()=>{window.__xss++};let put=null;
  const now=Date.now(),day=k=>new Date(now+7*36e5-k*864e5).toISOString().slice(0,10),FL={ann:null,login:true,rep:true,hl:[],lnd:false,off:[],upd:0};
  ulApi=async(p,x={})=>{if(p==='/users')return{users:[],groups:[],root:'admin'};if(p==='/layers')return{layers:[],groups:[],flags:FL};if(p==='/flags'&&x.method==='PUT'){put=x.json;Object.assign(FL,x.json,{ann:x.json.ann&&Object.assign({id:'ck1'},x.json.ann),upd:Date.now()});return{flags:Object.assign({},FL)}}if(p==='/flags')return{flags:FL};
@@ -596,6 +604,10 @@ async function browser(dir) {
       const ix = b.toString('utf8').match(/<script type="application\/json" id="emb">([\s\S]*?)<\/script>/);
       if (ix) for (const u of Object.values(JSON.parse(ix[1]))) { const t = path.join(DIR, u); if (fs.existsSync(t)) continue;
         const q = await fetch(SITE + u, { signal: AbortSignal.timeout(60e3) }); if (!q.ok) throw new Error('ข้อมูลฝัง ' + u + ' HTTP ' + q.status); fs.mkdirSync(path.dirname(t), { recursive: true }); fs.writeFileSync(t, Buffer.from(await q.arrayBuffer())) }
+      // B1 เฟส 2: โค้ดโหลดเมื่อใช้ js/<n>.<sha8>.js ของฉบับบนเว็บ (ไม่มี = หลังบ้านเปิดไม่ได้) — ดึงมาด้วย (ไฟล์รอบใหม่ยังอยู่ให้ sw.js precache ได้ · ไฟล์ของฉบับบนเว็บ sw แคชเมื่อใช้ตาม SHELL_RE)
+      const lz = b.toString('utf8').match(/<script type="application\/json" id="lzix">([\s\S]*?)<\/script>/);
+      if (lz) for (const u of Object.values(JSON.parse(lz[1]))) { const t = path.join(DIR, u); if (fs.existsSync(t)) continue;
+        const q = await fetch(SITE + u, { signal: AbortSignal.timeout(60e3) }); if (!q.ok) throw new Error('โค้ด ' + u + ' HTTP ' + q.status); fs.mkdirSync(path.dirname(t), { recursive: true }); fs.writeFileSync(t, Buffer.from(await q.arrayBuffer())) }
       fs.writeFileSync(file, b); res.fallback = crypto.createHash('sha1').update(b).digest('hex');
       console.log(`ใช้ index.html ฉบับบนเว็บแทน (${(b.length / 1024).toFixed(0)} KB) — live.json/ข้อมูลอื่นยังขึ้นตามปกติ`);
     } catch (e) { res.fallback = null; console.log('::warning::ดึง index.html ฉบับบนเว็บไม่ได้ (' + e.message + ') — ขึ้นฉบับใหม่ไปตามเดิม') }

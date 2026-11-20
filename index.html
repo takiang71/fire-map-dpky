@@ -1131,6 +1131,23 @@ function embGet(id){const C=embGet.c||(embGet.c={});if(C[id])return C[id];
   .catch(e=>{if(k>=2||(e.st&&e.st<500))throw e;dbg('embGet '+id+' ลองใหม่',e);return new Promise(r=>setTimeout(r,1500*(k+1))).then(()=>get(k+1))});
  return C[id]=get(0)
   .then(t=>{const e=b||document.createElement('script');e.type='application/json';e.id=id;e.textContent=t;if(!b)document.body.appendChild(e);return t})}
+/* B1 เฟส 2 (20 พ.ย. 69): โค้ดที่ใช้เมื่อกดเท่านั้น (ตอนนี้: adm = หลังบ้านผู้ดูแล + แดชบอร์ด SYS) — lzJs(n) คืน Promise (แคชต่อชื่อ · ล้ม = ลบแคช เรียกใหม่ได้)
+   มีบล็อก <script type="text/x-lazy" id="lz-<n>"> (repo/ดับเบิลคลิก) = สร้าง <script> จากข้อความทันที ไม่ต่อเน็ต
+   ไม่มี (_site: build_site.splitLz แยกเป็น js/<n>.<sha8>.js + ดัชนี #lzix) = <script src> ตามดัชนี (sw.js precache คู่กับ index.html รุ่นเดียวกัน) เกิน FTO.big = ล้ม
+   lzCall(n,f,a) = ตัวกลางของสตับ: โหลดแล้วเรียกฟังก์ชันจริงชื่อ f (บล็อกประกาศ function ชื่อเดิมทับสตับ) · โหลดไม่ได้ = toast ภาษาไทย + dbg (ไม่เงียบ) */
+const LZN={adm:'ส่วนหลังบ้าน'};
+function lzJs(n){const C=lzJs.c||(lzJs.c={});if(C[n])return C[n];
+ return C[n]=new Promise((ok,no)=>{const b=document.getElementById('lz-'+n),s=document.createElement('script');
+  if(b){s.textContent=b.textContent;document.head.appendChild(s);return ok()}
+  let u='';try{u=JSON.parse(document.getElementById('lzix').textContent)[n]||''}catch(e){}
+  if(!u)return no(new Error('ไม่มีโค้ด '+n));
+  const t=setTimeout(()=>s.onerror(),FTO.big);
+  s.onload=()=>{clearTimeout(t);ok()};
+  s.onerror=()=>{clearTimeout(t);s.onload=s.onerror=null;s.remove();no(new Error('โหลดไฟล์ '+u+' ไม่ได้'))};
+  s.src=u;document.head.appendChild(s)}).catch(e=>{delete C[n];throw e})}
+function lzCall(n,f,a){const s=window[f],bad=e=>{dbg('lzJs '+n,e);toast('โหลด'+(LZN[n]||'โค้ด '+n)+'ไม่ได้'+(navigator.onLine===false?' (ออฟไลน์)':'')+' — ตรวจการเชื่อมต่ออินเทอร์เน็ต แล้วลองใหม่หรือรีโหลดหน้า')};
+ /* error จากฟังก์ชันจริงส่งต่อให้ผู้เรียกตามเดิม (ไม่ขึ้นว่า "โหลดไม่ได้") · บล็อกไม่ทับสตับ = แจ้ง ไม่วนเรียกสตับซ้ำ */
+ return lzJs(n).then(()=>{const g=window[f];if(typeof g!=='function'||g===s)return bad(new Error('ไม่พบ '+f+' ในโค้ด '+n));return g.apply(null,a)},bad)}
 /* ข้อความเมื่อผู้ใช้รอผล: เกินเวลา → "ต้นทางตอบช้า ลองใหม่" แทนข้อความเดิม */
 const slowMsg=(e,m)=>e&&e.name==='TimeoutError'?'ต้นทางตอบช้า ลองใหม่':m;
 /* ?debug=1: คัดลอก JSON ของ __LOG + UA + เวอร์ชันหน้าเว็บ (วันที่ไฟล์/ข้อมูล) ไปส่งผู้ดูแล · คัดลอกอัตโนมัติไม่ได้ → แสดงกล่องข้อความให้คัดลอกเอง */
@@ -6067,6 +6084,55 @@ function ulPw(){openModal('เปลี่ยนรหัสผ่าน',`<form
 async function ulPublish(l){const s=l.srv&&UL.S.find(x=>x.id===l.srv);if(!s)return ulAdmin('layers',{from:l.id});
  if(!confirm(`แทนที่ข้อมูลของชั้น "${s.name}" บนเซิร์ฟเวอร์ด้วยชั้นในเครื่อง "${l.name}" (${l.fc.features.length.toLocaleString()} วัตถุ)?`))return;
  try{toast('กำลังอัปโหลด…');await ulApi('/layers/'+s.id+'/data',{method:'PUT',body:JSON.stringify(l.fc),meta:{n:l.fc.features.length,typ:ulTypes(l.fc)}});delete UL.SD[s.id];await ulSrvList();toast('อัปเดตชั้นบนเซิร์ฟเวอร์แล้ว')}catch(e){toast('อัปโหลดไม่ได้: '+e.message)}}
+/* ---------- หลังบ้าน (ผู้ดูแล) — B1 เฟส 2 (20 พ.ย. 69): โค้ดจริงอยู่ในบล็อก lz-adm ท้ายสคริปต์นี้ (โหลดเมื่อกด: lzJs/lzCall) ----------
+ ฟังก์ชันที่โค้ดหลักเรียก = สตับ (ถูกแทนด้วย function ชื่อเดิมในบล็อกเมื่อโหลดแล้ว) · ฟังก์ชันอื่นของหลังบ้าน/แดชบอร์ด SYS ใช้ได้หลัง await lzJs('adm') เท่านั้น */
+function ulAdmin(...a){return lzCall('adm','ulAdmin',a)}
+/* ---------- เริ่มต้น ---------- */
+UL.SV=ulLS('fm-ulv')||{};UL.tg=ulLS('fm-ultg');
+UL.rd=ULDB.all().then(A=>{UL.L=(A||[]).sort((a,b)=>a.t-b.t).map(o=>Object.assign({lab:false,vis:true},o));if(UL.tg&&!UL.L.some(l=>l.id===UL.tg))UL.tg=UL.L[0]?UL.L[0].id:null;UL.L.forEach(l=>ulRender('l'+l.id));ulList()}).catch(()=>{UL.db=false});
+if(map.getSource('dem'))ulLayers();
+setTimeout(()=>{if(!UL.st)ulSrvInit()},1500); // ชั้นจากเซิร์ฟเวอร์ที่ตั้งเปิดเป็นค่าเริ่มต้น
+/* ---------- SYS ภาพรวมระบบ · ตั้งค่าระบบ (สวิตช์ฟังก์ชัน/ประกาศ) · นับผู้เข้าชม (20 พ.ย. 69 — docs/layers-backend.md หัวข้อ SYS, docs/arch/ui-modules.md) ----------
+ Worker fire-layers: GET /sys (ผู้ดูแล) · GET /layers ส่ง flags มาด้วย (ไม่เพิ่มคำขอ) · PUT /flags · POST /hit (D1 ไม่บังคับ — ไม่เก็บ IP/รหัสเครื่อง)
+ สถานะอื่นอ่านจากไฟล์บน Pages (health/notify/tg_notify/numcheck/summary/wxsrc/risk/sysinfo/flags.json) + GitHub API ไม่ล็อกอิน 4 คำขอ แคช 3 นาที (จำกัด 60 ครั้ง/ชม.) */
+const SY={f:null,base:/github\.io$/.test(location.hostname)?'':EMB_SITE,gh:null,ght:0,repo:'takiang71/fire-map-dpky',d:null};
+const SYMSG={rep:'ผู้ดูแลระบบปิดรับบันทึกผลตรวจสอบ/การดับไฟจากหน้าเว็บชั่วคราว'};
+const syAdm=()=>!!(UL.me&&UL.me.a);
+function syGate(k){if(!SY.f||SY.f[k]!==false||syAdm())return false;toast(SYMSG[k]||'ผู้ดูแลระบบปิดฟังก์ชันนี้ชั่วคราว');return true}
+function syFlags(f){if(f&&typeof f==='object')SY.f=f;try{syAnn()}catch(e){dbg('syAnn',e)}try{syHide()}catch(e){dbg('syHide',e)}}
+/* ซ่อนแถวสวิตช์ชั้นข้อมูล (data-k ใน flags.hl) จากผู้ใช้ทั่วไป — ผู้ดูแลยังเห็นแบบกรอบประ · คืนเฉพาะแถวที่ซ่อนเอง (data-syh) เพราะบางแถวซ่อนอยู่แล้วโดยปกติ */
+function syHide(){const hl=new Set(SY.f&&SY.f.hl||[]),adm=syAdm();let ch=0;
+ $$('#right .sw[data-k]').forEach(b=>{const k=b.dataset.k,row=b.closest('.row');if(!row||k==='d3'||k==='hot')return;const h=hl.has(k);
+  if(h&&!adm){if(!row.hidden){row.hidden=true;row.dataset.syh='1'}if(S[k]){S[k]=false;ch=1}}
+  else if(row.dataset.syh){row.hidden=false;delete row.dataset.syh}
+  row.classList.toggle('syh',h&&adm)});
+ if(ch)try{apply()}catch(e){dbg('syHide apply',e)}}
+function syAnn(){let el=document.getElementById('sy-ann');const a=SY.f&&SY.f.ann;let x=null;try{x=localStorage.getItem('fm-syann')}catch(e){}
+ if(!a||!a.t||x===a.id||a.until&&a.until<Date.now()){if(el)el.remove();return}
+ if(!el){el=document.createElement('div');el.id='sy-ann';el.setAttribute('role','status');document.body.appendChild(el);
+  el.onclick=e=>{if(!e.target.closest('.sy-ax'))return;try{localStorage.setItem('fm-syann',SY.f.ann.id)}catch(er){}el.remove()}}
+ el.className='sy-'+(['info','warn','crit'].includes(a.lv)?a.lv:'info');
+ el.innerHTML=`<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg><span>${esc(a.t)}</span><button class="sy-ax" type="button" aria-label="ปิดประกาศ" title="ปิดประกาศ (ไม่แสดงข้อความนี้ซ้ำในเครื่องนี้)"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`;syAnnPos()}
+/* เดสก์ท็อป: วางแถบประกาศในช่องระหว่างแผงซ้าย (--lw) กับกล่องดาวเทียมรอบถัดไป #orb (ไม่ทับ) · มือถือใช้ CSS */
+function syAnnPos(){const el=document.getElementById('sy-ann');if(!el)return;if(innerWidth<768){el.style.left=el.style.maxWidth='';return}
+ const L=(parseFloat(getComputedStyle(document.body).getPropertyValue('--lw'))||0)+12,o=document.getElementById('orb'),q=o&&o.getClientRects().length&&o.getBoundingClientRect(),R=q&&q.top<140&&q.left>L+200?q.left-12:innerWidth-16;
+ el.style.maxWidth=Math.min(620,R-L)+'px';el.style.left=(L+Math.max(0,(R-L-el.offsetWidth)/2))+'px'}
+addEventListener('resize',()=>{try{syAnnPos()}catch(e){dbg('syAnnPos',e)}});
+try{new MutationObserver(()=>syAnnPos()).observe(document.body,{attributes:true,attributeFilter:['class']});const ob=document.getElementById('orb');if(ob&&window.ResizeObserver)new ResizeObserver(()=>syAnnPos()).observe(ob)}catch(e){dbg('syAnnPos obs',e)}
+/* นับผู้เข้าชม: 1 ครั้งต่อการเปิดหน้า (หลังเปิด 4 วิ) เฉพาะเว็บจริง (ไม่นับ localhost/file/เบราว์เซอร์อัตโนมัติ/เครื่องที่ผู้ดูแลติ๊กไม่นับ)
+ ส่งแค่ ชนิดอุปกรณ์ · ครั้งแรกของวัน/ครั้งแรก (จาก localStorage) · เปิดแบบแอป · ช่องทาง (LINE/Telegram/Facebook/เว็บอื่น) · มาจากลิงก์ตรง — ไม่มีรหัสเครื่อง */
+function syHit(){try{const hn=location.hostname;if(!UL_API||location.protocol!=='https:'||/^(localhost|127\.|\[::1\]|10\.|192\.168\.)/.test(hn)||/\.(localhost|test)$/.test(hn)||navigator.webdriver||ulLS('fm-nohit'))return;
+ const d=new Date(Date.now()+7*36e5).toISOString().slice(0,10),n=ulLS('fm-hitd')!==d,f=!ulLS('fm-hit1');ulLS('fm-hitd',d);if(f)ulLS('fm-hit1',1);
+ const ua=navigator.userAgent||'',r=document.referrer||'',ext=!!r&&r.indexOf(location.origin)!==0;
+ const s=/\bLine\//.test(ua)||/line\.me/.test(r)?'ln':/Telegram/i.test(ua)||/\/\/(t\.me|web\.telegram\.org)/.test(r)?'tg':/FBAN|FBAV|FB_IAB|Instagram/.test(ua)||/facebook\.|\/\/fb\./.test(r)?'fb':ext?'ot':'';
+ const mm=q=>{try{return matchMedia(q).matches}catch(e){return false}},b={d:mm('(pointer:coarse)')||/Mobi|Android/i.test(ua)?'m':'d',n:n?1:0,f:f?1:0,a:mm('(display-mode: standalone)')||navigator.standalone?1:0,s,l:/[?&](hs|pts|burn|ar|bb|v)=/.test(location.search)?1:0};
+ fetchT(UL_API.replace(/\/$/,'')+'/hit',{method:'POST',headers:{'content-type':'text/plain'},body:JSON.stringify(b),keepalive:true},FTO.aux).catch(e=>dbg('syHit',e))}catch(e){dbg('syHit',e)}}
+setTimeout(syHit,4000);
+</script>
+<script type="text/x-lazy" id="lz-adm">
+/* ===== B1 เฟส 2 (20 พ.ย. 69): โค้ดเฉพาะผู้ดูแล — หลังบ้านชั้นข้อมูล (ulAdmin แท็บชั้นข้อมูล/ผู้ใช้/กลุ่ม/บันทึกการใช้งาน) + แดชบอร์ด SYS (ภาพรวมระบบ/ตั้งค่าระบบ) =====
+ ไม่รันตอนเปิดหน้า: lzJs('adm') สร้าง <script> จากบล็อกนี้ (repo/ดับเบิลคลิก) หรือโหลด js/adm.<sha8>.js (_site — build_site.splitLz แยกออก) → docs/arch/data-blocks.md
+ ประกาศ function ชื่อเดียวกับสตับในโค้ดหลัก (ulAdmin) = ทับสตับ · ห้ามประกาศ const/let ชื่อที่โค้ดหลักมีแล้ว · โค้ดหลักห้ามอ้างชื่อในบล็อกนี้ตรง ๆ (test/lazy.test.js ตรวจ) */
 /* ---------- หลังบ้าน (ผู้ดูแล) ---------- */
 const UA={t:'layers',U:[],root:'admin'};
 const ulAclTxt=a=>!a?'':a.m==='all'?'<span class="pill all">ทุกคน</span>':a.m==='login'?'<span class="pill">ผู้ที่ล็อกอิน</span>':(a.g||[]).map(g=>`<span class="pill">${esc((UL.G.find(x=>x.id===g)||{}).n||g)}</span>`).join('')+(a.u||[]).map(u=>`<span class="pill">👤 ${esc(u)}</span>`).join('')||'<span class="pill off">ผู้ดูแลเท่านั้น</span>';
@@ -6139,51 +6205,10 @@ function ulAGs(){const cnt=id=>UA.U.filter(u=>u.g.includes(id)).length,lc=id=>UL
  $('#ua-b').onchange=async e=>{const g=e.target.dataset.g;if(!g||e.target.tagName!=='INPUT')return;try{const j=await ulApi('/groups/'+g,{method:'PUT',json:{n:e.target.value}});const o=UL.G.find(x=>x.id===g);if(o)o.n=j.group.n;toast('เปลี่ยนชื่อกลุ่มแล้ว')}catch(er){uaE(er.message)}};
  $('#ua-b').onclick=async e=>{const b=e.target.closest('[data-x=del]');if(!b)return;const g=UL.G.find(x=>x.id===b.dataset.g);if(!g||!confirm(`ลบกลุ่ม "${g.n}"? สมาชิกจะถูกนำออกจากกลุ่ม และชั้นที่แชร์ให้กลุ่มนี้จะไม่เห็นผ่านกลุ่มนี้อีก`))return;
   try{await ulApi('/groups/'+g.id,{method:'DELETE'});UL.G=UL.G.filter(x=>x!==g);UA.U.forEach(u=>u.g=u.g.filter(x=>x!==g.id));await ulSrvList();ulAGs()}catch(er){uaE(er.message)}}}
-/* ---------- เริ่มต้น ---------- */
-UL.SV=ulLS('fm-ulv')||{};UL.tg=ulLS('fm-ultg');
-UL.rd=ULDB.all().then(A=>{UL.L=(A||[]).sort((a,b)=>a.t-b.t).map(o=>Object.assign({lab:false,vis:true},o));if(UL.tg&&!UL.L.some(l=>l.id===UL.tg))UL.tg=UL.L[0]?UL.L[0].id:null;UL.L.forEach(l=>ulRender('l'+l.id));ulList()}).catch(()=>{UL.db=false});
-if(map.getSource('dem'))ulLayers();
-setTimeout(()=>{if(!UL.st)ulSrvInit()},1500); // ชั้นจากเซิร์ฟเวอร์ที่ตั้งเปิดเป็นค่าเริ่มต้น
-/* ---------- SYS ภาพรวมระบบ · ตั้งค่าระบบ (สวิตช์ฟังก์ชัน/ประกาศ) · นับผู้เข้าชม (20 พ.ย. 69 — docs/layers-backend.md หัวข้อ SYS, docs/arch/ui-modules.md) ----------
- Worker fire-layers: GET /sys (ผู้ดูแล) · GET /layers ส่ง flags มาด้วย (ไม่เพิ่มคำขอ) · PUT /flags · POST /hit (D1 ไม่บังคับ — ไม่เก็บ IP/รหัสเครื่อง)
- สถานะอื่นอ่านจากไฟล์บน Pages (health/notify/tg_notify/numcheck/summary/wxsrc/risk/sysinfo/flags.json) + GitHub API ไม่ล็อกอิน 4 คำขอ แคช 3 นาที (จำกัด 60 ครั้ง/ชม.) */
-const SY={f:null,base:/github\.io$/.test(location.hostname)?'':EMB_SITE,gh:null,ght:0,repo:'takiang71/fire-map-dpky',d:null};
 const SYQ={req:1e5,kvr:1e5,kvw:1e3,kvs:1073741824,d1r:5e6,d1w:1e5,d1s:5e9,pages:1073741824};
-const SYMSG={rep:'ผู้ดูแลระบบปิดรับบันทึกผลตรวจสอบ/การดับไฟจากหน้าเว็บชั่วคราว'};
 const SYHN={api:'ดึงจุดความร้อนจาก API',src:'ระบบต้นทางไม่อัปเดต',sync:'sync จุดความร้อนสะสม',gap:'ข้อมูลสะสมค้าง',line:'LINE',tg:'Telegram',tle:'วงโคจรดาวเทียม',vr:'อัตราการระบายอากาศ (GFS)',cams:'PM2.5 (CAMS)',fwi:'FWI/FFMC (TFDRS)',tgm:'กลุ่ม Telegram (supergroup)',tgs:'Telegram รับคำสั่ง /ตาม',pages:'หน้าเว็บ (GitHub Pages)',ci:'ตรวจหน้าเว็บฉบับใหม่',num:'ตัวเลขไม่ตรงกัน',cron:'cron-job.org',xlsx:'Excel กรมอุทยานฯ',savi:'SAVI (ตามรอยเผา)',b4:'พื้นที่เผาไหม้ B4',dnp:'แบบรับแจ้งเหตุ กรมอุทยานฯ'};
 const SYNF=[['LINE_DAILY','LINE: สรุปประจำวัน'],['LINE_BURN','LINE: การ์ดพื้นที่เผาไหม้รอบใหม่'],['LINE_REP','LINE: ผลตรวจสอบจากหน้างาน'],['LINE_MREP','LINE: รายงานประจำเดือน'],['TG_DAILY','Telegram: สรุปประจำวัน'],['TG_BURN','Telegram: พื้นที่เผาไหม้รอบใหม่'],['TG_REP','Telegram: ผลตรวจสอบจากหน้างาน'],['TG_MREP','Telegram: รายงานประจำเดือน'],['TG_SUBS','Telegram: แจ้งเตือนรายพื้นที่ทางแชตส่วนตัว (/ตาม)']];
 const SYWF=[['site.yml','สร้างหน้าเว็บ + แจ้งเตือน','ทุก 5 นาที',15],['sync.yml','ดึงจุดความร้อนสะสม','4 รอบ/วัน',13*60],['wx.yml','พยากรณ์ FWI · VR · PM2.5','ตามรอบต้นทาง',30*60]];
-const syAdm=()=>!!(UL.me&&UL.me.a);
-function syGate(k){if(!SY.f||SY.f[k]!==false||syAdm())return false;toast(SYMSG[k]||'ผู้ดูแลระบบปิดฟังก์ชันนี้ชั่วคราว');return true}
-function syFlags(f){if(f&&typeof f==='object')SY.f=f;try{syAnn()}catch(e){dbg('syAnn',e)}try{syHide()}catch(e){dbg('syHide',e)}}
-/* ซ่อนแถวสวิตช์ชั้นข้อมูล (data-k ใน flags.hl) จากผู้ใช้ทั่วไป — ผู้ดูแลยังเห็นแบบกรอบประ · คืนเฉพาะแถวที่ซ่อนเอง (data-syh) เพราะบางแถวซ่อนอยู่แล้วโดยปกติ */
-function syHide(){const hl=new Set(SY.f&&SY.f.hl||[]),adm=syAdm();let ch=0;
- $$('#right .sw[data-k]').forEach(b=>{const k=b.dataset.k,row=b.closest('.row');if(!row||k==='d3'||k==='hot')return;const h=hl.has(k);
-  if(h&&!adm){if(!row.hidden){row.hidden=true;row.dataset.syh='1'}if(S[k]){S[k]=false;ch=1}}
-  else if(row.dataset.syh){row.hidden=false;delete row.dataset.syh}
-  row.classList.toggle('syh',h&&adm)});
- if(ch)try{apply()}catch(e){dbg('syHide apply',e)}}
-function syAnn(){let el=document.getElementById('sy-ann');const a=SY.f&&SY.f.ann;let x=null;try{x=localStorage.getItem('fm-syann')}catch(e){}
- if(!a||!a.t||x===a.id||a.until&&a.until<Date.now()){if(el)el.remove();return}
- if(!el){el=document.createElement('div');el.id='sy-ann';el.setAttribute('role','status');document.body.appendChild(el);
-  el.onclick=e=>{if(!e.target.closest('.sy-ax'))return;try{localStorage.setItem('fm-syann',SY.f.ann.id)}catch(er){}el.remove()}}
- el.className='sy-'+(['info','warn','crit'].includes(a.lv)?a.lv:'info');
- el.innerHTML=`<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg><span>${esc(a.t)}</span><button class="sy-ax" type="button" aria-label="ปิดประกาศ" title="ปิดประกาศ (ไม่แสดงข้อความนี้ซ้ำในเครื่องนี้)"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`;syAnnPos()}
-/* เดสก์ท็อป: วางแถบประกาศในช่องระหว่างแผงซ้าย (--lw) กับกล่องดาวเทียมรอบถัดไป #orb (ไม่ทับ) · มือถือใช้ CSS */
-function syAnnPos(){const el=document.getElementById('sy-ann');if(!el)return;if(innerWidth<768){el.style.left=el.style.maxWidth='';return}
- const L=(parseFloat(getComputedStyle(document.body).getPropertyValue('--lw'))||0)+12,o=document.getElementById('orb'),q=o&&o.getClientRects().length&&o.getBoundingClientRect(),R=q&&q.top<140&&q.left>L+200?q.left-12:innerWidth-16;
- el.style.maxWidth=Math.min(620,R-L)+'px';el.style.left=(L+Math.max(0,(R-L-el.offsetWidth)/2))+'px'}
-addEventListener('resize',()=>{try{syAnnPos()}catch(e){dbg('syAnnPos',e)}});
-try{new MutationObserver(()=>syAnnPos()).observe(document.body,{attributes:true,attributeFilter:['class']});const ob=document.getElementById('orb');if(ob&&window.ResizeObserver)new ResizeObserver(()=>syAnnPos()).observe(ob)}catch(e){dbg('syAnnPos obs',e)}
-/* นับผู้เข้าชม: 1 ครั้งต่อการเปิดหน้า (หลังเปิด 4 วิ) เฉพาะเว็บจริง (ไม่นับ localhost/file/เบราว์เซอร์อัตโนมัติ/เครื่องที่ผู้ดูแลติ๊กไม่นับ)
- ส่งแค่ ชนิดอุปกรณ์ · ครั้งแรกของวัน/ครั้งแรก (จาก localStorage) · เปิดแบบแอป · ช่องทาง (LINE/Telegram/Facebook/เว็บอื่น) · มาจากลิงก์ตรง — ไม่มีรหัสเครื่อง */
-function syHit(){try{const hn=location.hostname;if(!UL_API||location.protocol!=='https:'||/^(localhost|127\.|\[::1\]|10\.|192\.168\.)/.test(hn)||/\.(localhost|test)$/.test(hn)||navigator.webdriver||ulLS('fm-nohit'))return;
- const d=new Date(Date.now()+7*36e5).toISOString().slice(0,10),n=ulLS('fm-hitd')!==d,f=!ulLS('fm-hit1');ulLS('fm-hitd',d);if(f)ulLS('fm-hit1',1);
- const ua=navigator.userAgent||'',r=document.referrer||'',ext=!!r&&r.indexOf(location.origin)!==0;
- const s=/\bLine\//.test(ua)||/line\.me/.test(r)?'ln':/Telegram/i.test(ua)||/\/\/(t\.me|web\.telegram\.org)/.test(r)?'tg':/FBAN|FBAV|FB_IAB|Instagram/.test(ua)||/facebook\.|\/\/fb\./.test(r)?'fb':ext?'ot':'';
- const mm=q=>{try{return matchMedia(q).matches}catch(e){return false}},b={d:mm('(pointer:coarse)')||/Mobi|Android/i.test(ua)?'m':'d',n:n?1:0,f:f?1:0,a:mm('(display-mode: standalone)')||navigator.standalone?1:0,s,l:/[?&](hs|pts|burn|ar|bb|v)=/.test(location.search)?1:0};
- fetchT(UL_API.replace(/\/$/,'')+'/hit',{method:'POST',headers:{'content-type':'text/plain'},body:JSON.stringify(b),keepalive:true},FTO.aux).catch(e=>dbg('syHit',e))}catch(e){dbg('syHit',e)}}
-setTimeout(syHit,4000);
 /* ---------- แท็บภาพรวมระบบ ---------- */
 const syN=n=>n==null||!isFinite(n)?'–':Math.round(n).toLocaleString('th-TH');
 const syMB=b=>b==null?'–':b>=1073741824?(b/1073741824).toFixed(2)+' GB':b>=1048576?(b/1048576).toFixed(1)+' MB':Math.max(1,Math.round(b/1024))+' KB';

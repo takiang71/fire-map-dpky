@@ -139,12 +139,22 @@ function rhs(src, mask, at, kind) {
 
 function lint(file) {
   const html = fs.readFileSync(file, 'utf8'), out = [], rel = path.relative(process.cwd(), file).replace(/\\/g, '/');
-  const re = /<script(\s[^>]*)?>([\s\S]*?)<\/script>/gi; let m;
+  const re = /<script(\s[^>]*)?>([\s\S]*?)<\/script>/gi, U = []; let m;
   while ((m = re.exec(html))) {
     const at = m[1] || '', ty = (at.match(/type\s*=\s*["']?([^"'\s>]+)/i) || [])[1] || '';
-    if (/\ssrc\s*=/.test(at) || (ty && !/javascript|module|x-emb-app/i.test(ty))) continue;
-    const src = m[2], base = m.index + m[0].indexOf('>') + 1, S = scan(src), ctx = { auto: autoSafe(src) };
-    const lineOf = i => html.slice(0, base + i).split('\n').length;
+    // x-emb-app = สคริปต์แอปที่ build_site พักไว้ (B1) · x-lazy = โค้ดโหลดเมื่อใช้ใน repo (B1 เฟส 2 — lzJs)
+    if (/\ssrc\s*=/.test(at) || (ty && !/javascript|module|x-emb-app|x-lazy/i.test(ty))) continue;
+    U.push({ text: html, base: m.index + m[0].indexOf('>') + 1, src: m[2], file: rel });
+  }
+  // B1 เฟส 2: _site — โค้ดที่ build_site.splitLz แยกเป็น js/<n>.<sha8>.js (ดัชนี #lzix) ตรวจทั้งไฟล์ (คีย์ใน lint_html_base.json = 'app' เหมือนตอนอยู่ใน index.html)
+  const lz = html.match(/<script type="application\/json" id="lzix">([\s\S]*?)<\/script>/);
+  if (lz) for (const u of Object.values(JSON.parse(lz[1]))) {
+    const f = path.join(path.dirname(file), u), t = fs.readFileSync(f, 'utf8');
+    U.push({ text: t, base: 0, src: t, file: path.relative(process.cwd(), f).replace(/\\/g, '/') });
+  }
+  for (const { text, base, src, file: fr } of U) {
+    const S = scan(src), ctx = { auto: autoSafe(src) }, n0 = out.length;
+    const lineOf = i => text.slice(0, base + i).split('\n').length;
     for (const { re: sr, kind } of SINK) {
       sr.lastIndex = 0; let s;
       while ((s = sr.exec(src))) {
@@ -159,10 +169,11 @@ function lint(file) {
         }
       }
     }
+    for (let k = n0; k < out.length; k++) out[k].file = fr;
   }
   // ตัดซ้ำ (template ซ้อนใน sink เดียวกันถูกนับครั้งเดียวต่อบรรทัด+นิพจน์)
   const seen = new Set();
-  return out.filter(x => { const k = x.line + '|' + x.expr; if (seen.has(k)) return false; seen.add(k); return true }).map(x => Object.assign(x, { file: rel }));
+  return out.filter(x => { const k = x.file + '|' + x.line + '|' + x.expr; if (seen.has(k)) return false; seen.add(k); return true });
 }
 
 // ---- รายการที่ตรวจด้วยตาแล้ว (ratchet): scripts/lint_html_base.json = คีย์ "sink|นิพจน์" (ไม่มีเลขบรรทัด — แก้บรรทัดอื่นแล้วไม่หลุด) ----

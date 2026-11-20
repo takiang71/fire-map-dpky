@@ -571,7 +571,7 @@
 
 ## SYS ภาพรวมระบบ · ตั้งค่าระบบ · ประกาศ · นับผู้เข้าชม (20 พ.ย. 69) — prefix `SY`/`sy*`/id `sy-*`
 
-ฝั่ง Worker/ติดตั้ง/รายละเอียดสวิตช์ → [../layers-backend.md](../layers-backend.md) หัวข้อ SYS · โค้ดต่อท้ายสคริปต์ UL (หลัง `setTimeout(ulSrvInit,1500)`)
+ฝั่ง Worker/ติดตั้ง/รายละเอียดสวิตช์ → [../layers-backend.md](../layers-backend.md) หัวข้อ SYS · โค้ดส่วนทุกเครื่อง (`SY` `syGate` `syFlags` `syHide` `syAnn` `syHit`) ต่อท้ายสคริปต์ UL (หลัง `setTimeout(ulSrvInit,1500)`) · **แดชบอร์ด/ตั้งค่า (`syDash` … `syCfg` + `SYQ` `SYHN` `SYNF` `SYWF`) และหลังบ้าน `ulAdmin` ทั้งชุด อยู่ในบล็อกโหลดเมื่อใช้ `lz-adm`** (B1 เฟส 2 → [data-blocks.md](data-blocks.md)) — `ulAdmin` ในโค้ดหลักเป็นสตับ `lzCall`
 
 - หลังบ้าน `ulAdmin` มี 6 แท็บ: **sys ภาพรวมระบบ** (ค่าเริ่มต้นของลิงก์ "จัดการหลังบ้าน") · ชั้นข้อมูล · ผู้ใช้ · กลุ่ม · บันทึกการใช้งาน · **cfg ตั้งค่าระบบ** · บันทึกมีการกระทำ `flags` = "แก้ตั้งค่าระบบ" กรองประเภท `sys`
 - `syDash()` โหลดพร้อมกัน: `ulApi('/sys')` + ไฟล์บน Pages (`SY.base` = '' บน github.io, อื่นๆ = `EMB_SITE` เว็บจริง — เปิด localhost ก็เห็นสถานะจริง) health/notify/tg_notify/numcheck/summary/data/wxsrc/risk/sysinfo/flags.json (ไม่โหลด live.json/dnpform.json เพราะใหญ่ — ใช้ `liveFile.gen`/`HSRC.sys`/health `dnp`) + `syGh()` GitHub API ไม่ล็อกอิน 4 คำขอ (runs ของ site/sync/wx + repo) แคช 3 นาที (`SY.gh`) — กดโหลดใหม่ = ถามใหม่ (จำกัด 60/ชม.)
@@ -580,7 +580,7 @@
 - `syCfg()` ฟอร์ม `#sy-f`: ประกาศ (ข้อความ/ระดับ/แสดงถึง datetime-local) · login · rep · ซ่อนชั้น (รายการจาก `#right .sw[data-k]` จริงในหน้า ยกเว้น hot/d3 + คีย์ใน hl ที่ไม่พบ) · การแจ้งเตือน (`SYNF` ติ๊ก = ส่ง) · `fm-nohit` (มีผลทันที ไม่ส่งเซิร์ฟเวอร์) · ปิด login ต้องยืนยัน
 - ทุกเครื่อง: `ulSrvList` → `syFlags(j.flags)` → `syAnn()` แถบ `#sy-ann` (z-index 35 ใต้ modal 40; มือถือ left 12/right 70 ไม่ทับคอลัมน์ปุ่ม; กดปิด = `fm-syann`=id) + `syHide()` (แถวที่ซ่อนเองมี `data-syh` — คืนเฉพาะแถวนั้น เพราะบางแถวซ่อนโดยปกติ เช่น d3; ผู้ดูแล = คลาส `.syh` กรอบประ) · `syGate(k)` ตรวจสวิตช์ (ผู้ดูแลผ่านเสมอ) ใช้ใน `vfForm`/`fdForm`
 - `syHit()` 4 วิหลังเปิด: เฉพาะ https ที่ไม่ใช่ localhost/IP ภายใน/.test/.localhost และไม่ใช่ `navigator.webdriver` (check_site/manual_shots ไม่ถูกนับ) · `fetchT` keepalive, content-type text/plain (ไม่มี preflight), `FTO.aux`
-- งบขนาด `_site/index.html` ขยาย 1.65 → 1.70 MB (SYS ~40 KB ทำให้ถึง 1.67 MB) — ถัดไปควรแยกโค้ดเฉพาะผู้ดูแล (UL admin + SY) เป็นไฟล์โหลดเมื่อใช้ (B1 เฟส 2)
+- งบขนาด `_site/index.html` ขยาย 1.65 → 1.70 MB ชั่วคราว (SYS ~40 KB ทำให้ถึง 1.67 MB) → **B1 เฟส 2 (20 พ.ย. 69) แยกหลังบ้าน UL + แดชบอร์ด SY เป็น `js/adm.<sha8>.js` แล้ว: 1.62 MB งบกลับเป็น 1.65 MB**
 
 ## โมเดลไฟ / แผนที่ฐาน / เฟส 3
 

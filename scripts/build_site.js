@@ -272,28 +272,51 @@ function splitEmb(html, outDir) {
   return { html: out.split('\u0000EMB\u0000').join(head), ix };
 }
 
+// --- B1 เฟส 2 (20 พ.ย. 69): โค้ดที่ใช้เมื่อกดเท่านั้น — บล็อก <script type="text/x-lazy" id="lz-<n>"> ใน index.html (repo/ดับเบิลคลิก: lzJs สร้าง <script> จากข้อความ)
+// → _site/js/<n>.<sha8>.js (ชื่อเปลี่ยนเมื่อโค้ดเปลี่ยน) + ดัชนี <script type="application/json" id="lzix">{n:url}</script> ที่ตำแหน่งบล็อกแรก → lzJs โหลดด้วย <script src>
+// เนื้อหาไฟล์ = ข้อความในบล็อกทุกไบต์ · lint_html/check_site ตรวจไฟล์ตามดัชนี · CSP คิดโดเมนจากโค้ดในไฟล์ด้วย (pwaFiles(html, ix, lz)) · sw.js precache คู่กับ index.html
+function splitLz(html, outDir) {
+  const crypto = require('crypto'), dir = path.join(outDir, 'js'), ix = {}, code = {}, TAG = /^<script type="text\/x-lazy" id="lz-(\w+)">$/;
+  fs.rmSync(dir, { recursive: true, force: true });
+  let out = '', last = 0, i = 0, first = -1;
+  for (; ;) {
+    const a = html.indexOf('<script', i); if (a < 0) break;
+    const gt = html.indexOf('>', a), e = html.indexOf('</script>', gt); i = e + 9;
+    const m = TAG.exec(html.slice(a, gt + 1)); if (!m) continue;
+    if (m[1] in ix) throw new Error('บล็อก lz-' + m[1] + ' ซ้ำ');
+    const body = html.slice(gt + 1, e), f = `${m[1]}.${crypto.createHash('sha1').update(body).digest('hex').slice(0, 8)}.js`;
+    fs.mkdirSync(dir, { recursive: true }); fs.writeFileSync(path.join(dir, f), body); ix[m[1]] = 'js/' + f; code[m[1]] = body;
+    out += html.slice(last, a); if (first < 0) { first = out.length; out += '\u0000LZ\u0000' }
+    last = e + 9; if (html[last] === '\n') last++;
+  }
+  if (first < 0) return { html, ix, code };
+  out += html.slice(last);
+  return { html: out.split('\u0000LZ\u0000').join(`<script type="application/json" id="lzix">${JSON.stringify(ix)}</script>\n`), ix, code };
+}
+
 // --- D1 (16 พ.ย. 69): PWA — sw.js ฉบับเผยแพร่ = รุ่น (sha ของ build: index.html + manifest + แม่แบบ sw.js + รายการไฟล์) + รายการ app shell ที่ precache
 // deploy ที่ index.html/ข้อมูลฝังเปลี่ยน = sw.js เปลี่ยน → เบราว์เซอร์ติดตั้งรุ่นใหม่ ลบแคช shell เก่า · sw.js ใน repo = รุ่น 'dev' (ไม่ precache, เครือข่ายก่อน)
-function pwaFiles(html, ix) {
+function pwaFiles(html, ix, lz = { ix: {}, code: {} }) {
   const crypto = require('crypto'), tpl = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8'), man = fs.readFileSync(path.join(ROOT, 'manifest.webmanifest'), 'utf8');
   const lib = [...html.matchAll(/(?:src|href)="(https:\/\/cdnjs\.cloudflare\.com\/ajax\/libs\/maplibre-gl\/[^"]+)"/g)].map(m => m[1]);
   const fonts = fs.existsSync(path.join(ROOT, 'fonts')) ? fs.readdirSync(path.join(ROOT, 'fonts')).filter(f => f.endsWith('.woff2')).sort().map(f => 'fonts/' + f) : [];
-  const shell = ['index.html', 'manifest.webmanifest', 'img/icon.svg', 'img/icon-192.png', 'img/icon-512.png', ...fonts, ...Object.values(ix), ...lib];
+  const shell = ['index.html', 'manifest.webmanifest', 'img/icon.svg', 'img/icon-192.png', 'img/icon-512.png', ...fonts, ...Object.values(ix), ...Object.values(lz.ix), ...lib];
   const ver = crypto.createHash('sha1').update(html).update(man).update(tpl).update(shell.join('|')).digest('hex').slice(0, 12);
   const a = "'dev'/*__SW_VERSION__*/", b = '/*__SW_SHELL__*/', c = "''/*__SW_CSP__*/";
   if (!tpl.includes(a) || !tpl.includes(b) || !tpl.includes(c)) throw new Error('sw.js ไม่มีตำแหน่งแทนรุ่น/รายการ shell/CSP');
   // E2: CSP แบบรายงานอย่างเดียว (scripts/lib/csp.js) ที่ service worker ใส่ให้หน้าแรก
-  const csp = require('./lib/csp').policy(html);
+  // B1 เฟส 2: โดเมนในโค้ดที่แยกเป็น js/*.js (เช่น api.github.com ของแดชบอร์ด SYS) ต้องอยู่ในนโยบายด้วย
+  const csp = require('./lib/csp').policy(html + '\n' + Object.values(lz.code).join('\n'));
   return { ver, shell, csp, sw: tpl.split(a).join(`'${ver}'`).split(b).join(shell.map(s => JSON.stringify(s)).join(',')).split(c).join(JSON.stringify(csp)) };
 }
 
-module.exports = { summary, watchSum, splitEmb, EMB_IDS, pwaFiles };
+module.exports = { summary, watchSum, splitEmb, EMB_IDS, splitLz, pwaFiles };
 if (require.main === module) (async () => {
   fs.mkdirSync(OUT, { recursive: true });
-  { const src = fs.readFileSync(H, 'utf8'), r = splitEmb(src, OUT);
-    fs.writeFileSync(path.join(OUT, 'index.html'), r.html);
-    console.log(`index.html: ${(Buffer.byteLength(src) / 1048576).toFixed(2)} → ${(Buffer.byteLength(r.html) / 1048576).toFixed(2)} MB · ข้อมูลฝังแยก ${Object.keys(r.ix).length} ไฟล์ (data/emb/)`);
-    const P = pwaFiles(r.html, r.ix); fs.copyFileSync(path.join(ROOT, 'manifest.webmanifest'), path.join(OUT, 'manifest.webmanifest')); fs.writeFileSync(path.join(OUT, 'sw.js'), P.sw);
+  { const src = fs.readFileSync(H, 'utf8'), r = splitEmb(src, OUT), z = splitLz(r.html, OUT);
+    fs.writeFileSync(path.join(OUT, 'index.html'), z.html);
+    console.log(`index.html: ${(Buffer.byteLength(src) / 1048576).toFixed(2)} → ${(Buffer.byteLength(z.html) / 1048576).toFixed(2)} MB · ข้อมูลฝังแยก ${Object.keys(r.ix).length} ไฟล์ (data/emb/) · โค้ดโหลดเมื่อใช้ ${Object.keys(z.ix).length} ไฟล์ (js/ ${(Object.values(z.code).reduce((s, c) => s + Buffer.byteLength(c), 0) / 1024).toFixed(0)} KB)`);
+    const P = pwaFiles(z.html, r.ix, z); fs.copyFileSync(path.join(ROOT, 'manifest.webmanifest'), path.join(OUT, 'manifest.webmanifest')); fs.writeFileSync(path.join(OUT, 'sw.js'), P.sw);
     console.log(`sw.js: รุ่น ${P.ver} · app shell ${P.shell.length} ไฟล์`) }
   fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
   // ไอคอน/ภาพแชร์ลิงก์ (D2), ฟอนต์ Noto Sans Thai (B3) และรายงานประจำเดือน (F3 — scripts/monthly_report.js สร้างใน sync.yml วันที่ 1 แล้ว commit ลง reports/; reports/*.html อ้างฟอนต์ ../fonts)

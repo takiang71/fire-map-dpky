@@ -26,8 +26,11 @@
 | `gz*` `GZ*` id `gz` `gz-*` `bSr` ชั้น `gz-hl` · `vw*` `VW*` (`VWD` `VWB` `VWO` `VWS` `VWX` `VWT` `VWU`) id `vw-*` localStorage `fm-vw` · `window.gzKB` | ค้นหา (D4) / ลิงก์มุมมอง (D3), 16 พ.ย. 69 | — |
 | `WJ` `wjLib` `wj*` เครื่องหมาย `/*WJ-LIB-BEGIN*/…END*/` · `HCJ` `hcFin` `hcSel` · `TR.job` `trJob` `trAbort` · `TL` `TLG` `tl*` (`tlPut` `tlTile` `tlPack` `tlTry`) `bnHotP` `bnHsPts` `BNHQ` `bnTile0` `bnTileW` `rpTile0` `rpTileW` `WJ.drop` `WJ.gen` | Web Worker งานหนัก (B2, 17 พ.ย. 69) — ฟังก์ชันใน wjLib ชื่อซ้ำกับของแอป (`hcLink` `hcHull` `trSA` `trHorn` `trElev` `trContours` `bnLL` `bnM` `trX`…) | สคริปต์ที่ค้น/แก้ index.html ด้วย indexOf/split ต้องเริ่มค้น**หลัง** `/*WJ-LIB-END*/` (เคยตัดโค้ดช่วงกว้างเพราะเจอ `function trSA(` ในบล็อก lib ก่อน) |
 | `TK` `TKDB` `TKC` `TKI` `TKA` `TKV` `TKN` `tk*` (`tkOk` `tkDP` `tkFix` `tkBar` `tkPos` `tkGpx` `tkPack` `tkView` `tkLenV` …) · id `tk` `tk-*` · source `tks` `tkv` ชั้น `tk-c` `tk-l` `tk-v` · IndexedDB `fm-tk` · localStorage `fm-tki` · `locOn` `LOC.q` `UL.rd` · เครื่องหมาย `/*TK-PURE-BEGIN*/…END*/` | F7 บันทึกเส้นทาง (18 พ.ย. 69) | ระวัง prefix `tr` = ภูมิประเทศ (อย่าใช้ `trk*` ในหน้าเว็บ; ช่องรายงาน `trk` อยู่ใน body/Worker เท่านั้น) |
+| `lzJs` `lzCall` `LZN` (`lzJs.c` แคช) · id `lz-*` (บล็อก `text/x-lazy`) `lzix` (ดัชนี _site) · โฟลเดอร์ `_site/js/` | B1 เฟส 2 โค้ดโหลดเมื่อใช้ (data-blocks.md) | — |
 
 ทุกโมดูลใหม่ตั้ง prefix เฉพาะ 2–3 ตัวอักษร และค้นด้วย grep ก่อนตั้งชื่อ
+
+- **บล็อกโหลดเมื่อใช้ `lz-<n>` (B1 เฟส 2)**: โค้ดหลักห้ามอ้างชื่อที่อยู่ในบล็อกตรง ๆ (ยังไม่ได้โหลด → ReferenceError ตอนกด) — ใช้สตับ `function X(...a){return lzCall('<n>','X',a)}` หรือ `await lzJs('<n>')` · บล็อกห้ามประกาศ const/let ชื่อที่โค้ดหลักมี · test/lazy.test.js ตรวจทั้งสองข้อ
 
 ## สรุป — บั๊ก/กับดักที่เคยเจอ
 
