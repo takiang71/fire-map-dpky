@@ -291,6 +291,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .ulacc{font-size:12.5px;margin-top:6px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}.ulacc a{cursor:pointer;color:#0b6bcb}
 .uldf{font-size:12.5px;padding-bottom:10px}.uldf .msrw{padding:1px 0}.uldf input[type=text],.uldf textarea,.uldf select,.ula input[type=text],.ula input[type=password],.ula textarea,.ula select{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;padding:6px 9px;font:13px 'Noto Sans Thai',sans-serif;background:var(--bg);color:var(--ink)}.uldf textarea,.ula textarea{min-height:52px;resize:vertical}
 .uldf .lb{display:block;font-size:11.5px;color:var(--mut);margin:6px 0 2px}
+.ulsy{display:flex;gap:6px;flex-wrap:wrap}.ulsy button{width:38px;height:32px;display:grid;place-items:center;border:1px solid var(--line);border-radius:9px;background:var(--bg);padding:0;cursor:pointer;color:var(--navy)}.ulsy button svg{width:22px;height:22px;fill:currentColor;stroke:currentColor;stroke-width:2}.ulsy button[data-ul] svg{fill:none;stroke-width:2.6}.ulsy button[aria-pressed=true]{border-color:var(--navy);box-shadow:0 0 0 1.5px var(--navy);background:#eef2fb}
 .ulsw{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.ulsw button{width:24px;height:24px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line);cursor:pointer;padding:0}.ulsw button[aria-pressed=true]{box-shadow:0 0 0 2px var(--navy)}.ulsw input[type=color]{width:30px;height:26px;border:0;padding:0;background:none;cursor:pointer}
 .udco{margin:2px 0 8px;font-size:12.5px}.udco summary{cursor:pointer;color:#0b6bcb;font-weight:600;font-size:12.5px}.udco .seg{margin:6px 0}.udco .seg button{min-height:30px}.udco textarea{width:100%;box-sizing:border-box;min-height:62px;border:1px solid var(--line);border-radius:10px;padding:6px 9px;font:12.5px/1.45 ui-monospace,Consolas,monospace;resize:vertical}.udco select{border:1px solid var(--line);border-radius:8px;padding:3px 6px;font:12.5px 'Noto Sans Thai',sans-serif;margin-left:6px}.udco .err{color:#b42318;font-size:12px;white-space:pre-line}.udco .sm{font-size:11.5px;margin:4px 0}
 .ulkv{display:grid;grid-template-columns:1fr 1.4fr 22px;gap:4px;margin-top:4px}.ulkv input{min-width:0;border:1px solid var(--line);border-radius:8px;padding:4px 6px;font:12px 'Noto Sans Thai',sans-serif}.ulkv button{border:0;background:none;color:var(--mut);cursor:pointer;font-size:15px;padding:0}
@@ -1441,7 +1442,7 @@ async function getHotspots(hr=48){HSERR=null;
   if(liveFile.old){try{const L=liveList(liveFile.old);getHotspots.at=Date.parse(liveFile.old.meta.generated);LASTLIVE=L;hsrcShow();return L}catch(e2){dbg('liveFile.old',e2)}}
   HSRC={live:false,msg,sats:[],last:0};hsrcShow();return[]}}
 function hsrcShow(){const e=document.getElementById('hsrc');if(!e)return;const f=HSRC,fm=t=>new Date(t).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'})+' น.';
- e.innerHTML=f.live?`Land Fire Alerts Thailand (WFSRU/ThaiREN) · VIIRS 375 ม. · ${esc(f.sats.join(', '))||'–'} · ${f.sys?`<span title="เวลาที่ระบบต้นทางประมวลผลข้อมูลล่าสุด (Last update ในหน้าแรกของ Land Fire Alerts Thailand) — เวลาที่ดาวเทียมสแกนดูได้ในแผงรายละเอียดจุด">ระบบต้นทางอัปเดต ${fm(f.sys)}</span>`:`สแกนล่าสุดทั้งประเทศ ${f.lastAll?fm(f.lastAll):'–'} <span title="ไม่พบเวลาอัปเดตของระบบต้นทาง จึงแสดงเวลาที่ดาวเทียมสแกนล่าสุดแทน">(ไม่พบเวลาอัปเดตของระบบ)</span>`} · ในกลุ่มป่าฯ ${f.inArea??0} จุด${f.fm?`<br><b style="color:#b45309" title="NASA FIRMS (VIIRS 375 ม. ชุดเดียวกัน) ล่าช้ากว่าการสแกน ~3 ชม. — จะกลับไปใช้ข้อมูลต้นทางเองเมื่อ API กลับมา">⚠ ${esc(f.fm.why)} — ${f.fm.err?'NASA FIRMS ก็ดึงไม่ได้':`จุดของ ${esc(f.fm.sats.map(x=>SATN[x]||x).join('/'))} มาจาก NASA FIRMS (${f.fm.n} จุดในกลุ่มป่าฯ, ล่าช้า ~3 ชม.)`}</b>`:''}${f.msg?`<br><b style="color:#c0392b">⚠ ${esc(f.msg)}</b>`:''}`
+ e.innerHTML=f.live?`Land Fire Alerts Thailand (WFSRU/ThaiREN) · ${esc([...new Set(['NOAA-20','NOAA-21',...f.sats])].join(' · '))} · VIIRS 375 ม. · ${f.sys?`<span title="เวลาที่ระบบต้นทางประมวลผลข้อมูลล่าสุด (Last update ในหน้าแรกของ Land Fire Alerts Thailand) — เวลาที่ดาวเทียมสแกนดูได้ในแผงรายละเอียดจุด">ระบบต้นทางอัปเดต ${fm(f.sys)}</span>`:`สแกนล่าสุดทั้งประเทศ ${f.lastAll?fm(f.lastAll):'–'} <span title="ไม่พบเวลาอัปเดตของระบบต้นทาง จึงแสดงเวลาที่ดาวเทียมสแกนล่าสุดแทน">(ไม่พบเวลาอัปเดตของระบบ)</span>`} · ในกลุ่มป่าฯ ${f.inArea??0} จุด${f.fm?`<br><b style="color:#b45309" title="NASA FIRMS (VIIRS 375 ม. ชุดเดียวกัน) ล่าช้ากว่าการสแกน ~3 ชม. — จะกลับไปใช้ข้อมูลต้นทางเองเมื่อ API กลับมา">⚠ ${esc(f.fm.why)} — ${f.fm.err?'NASA FIRMS ก็ดึงไม่ได้':`จุดของ ${esc(f.fm.sats.map(x=>SATN[x]||x).join('/'))} มาจาก NASA FIRMS (${f.fm.n} จุดในกลุ่มป่าฯ, ล่าช้า ~3 ชม.)`}</b>`:''}${f.msg?`<br><b style="color:#c0392b">⚠ ${esc(f.msg)}</b>`:''}`
   :`<b style="color:#c0392b">⚠ ดึงข้อมูลจริงไม่สำเร็จ</b>: ${esc(f.msg||'กำลังดึงข้อมูล…')}`;
  const nd=HS.filter(x=>x.demo).length;if(S.demo&&nd)e.innerHTML+=` · <b style="color:#b45309">+ จุดตัวอย่าง ${nd} จุด (ไม่ใช่ข้อมูลจริง)</b>`}
 const ageH=h=>(loadedAt-h.t)/H, grp=h=>ageH(h)<6?'r':ageH(h)<12?'o':ageH(h)<24?'y':'b'; // 4 ระดับ (ผู้ใช้เพิ่ม 6–12 ชม. 5 พ.ย. 69)
@@ -5703,7 +5704,7 @@ function ulEnts(){return UL.L.map(l=>({k:'l'+l.id,o:l,fc:l.fc,vis:l.vis,lab:l.la
 const ulEnt=k=>ulEnts().find(e=>e.k===k);
 const ulSVis=s=>UL.SV[s.id]!=null?UL.SV[s.id]:!!s.on;
 const ulBefore=()=>['hot-glow','hot-icon','hot-cl'].find(id=>map.getLayer(id));
-const ULSUF=['-f','-cs','-o','-p','-d','-c'],UGT=(...t)=>['match',['geometry-type'],t,true,false];
+const ULSUF=['-f','-cs','-o','-od','-ot','-p','-d','-c'],UGT=(...t)=>['match',['geometry-type'],t,true,false];
 function ulPinImg(){ // หมุด SDF (เปลี่ยนสีด้วย icon-color) + จุดขาวกลางหัวหมุด ขนาดเดียวกัน (วางทับด้วย anchor bottom)
  const W=56,H=72,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d'),cx=28,cy=26,r=17,ty=66;
  g.beginPath();g.arc(cx,cy,r,Math.PI*.78,Math.PI*2.22);g.lineTo(cx,ty);g.closePath();g.fill();
@@ -5713,24 +5714,42 @@ function ulPinImg(){ // หมุด SDF (เปลี่ยนสีด้ว�
   const i=y*W+x,d=(M[i]?-1:1)*Math.max(0,Math.sqrt(m)-.5),v=Math.max(0,Math.min(255,Math.round(255-255*(d/8+.25))));D[i*4]=D[i*4+1]=D[i*4+2]=255;D[i*4+3]=v}
  const d2=new Uint8Array(W*H*4);for(let y=0;y<H;y++)for(let x=0;x<W;x++){const q=Math.hypot(x+.5-cx,y+.5-cy),v=Math.max(0,Math.min(1,6.5-q));const i=(y*W+x)*4;d2[i]=d2[i+1]=d2[i+2]=255;d2[i+3]=Math.round(v*255)}
  return[{width:W,height:H,data:D},{width:W,height:H,data:d2}]}
-let ULPI=null;
+let ULPI=null,ULSI=null;
+/* สัญลักษณ์ของวัตถุที่วาด (20 พ.ย. 69 ผู้ใช้ขอ) — properties._s (หมุด: pin circle star tri square flag · พื้นที่: fill solid none) · _l (เส้น/ขอบ: solid dash dot) · ไม่ส่งออก (ขึ้นต้น _) */
+const ULSP=[['pin','หมุด'],['circle','วงกลม'],['square','สี่เหลี่ยม'],['tri','สามเหลี่ยม'],['star','ดาว'],['flag','ธง']],ULSL=[['solid','เส้นทึบ'],['dash','เส้นประ'],['dot','เส้นจุด']],ULSF=[['fill','โปร่งแสง'],['solid','ทึบ'],['none','ไม่เติม']];
+const ULSV={pin:'<path d="M12 22s-7-7.2-7-12a7 7 0 0114 0c0 4.8-7 12-7 12z"/>',circle:'<circle cx="12" cy="12" r="7"/>',square:'<rect x="5.5" y="5.5" width="13" height="13" rx="1.5"/>',tri:'<path d="M12 4l8.5 15h-17z"/>',star:'<path d="M12 3.5l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.1-5.4 3.1 1.3-6-4.6-4.1 6.1-.6z"/>',flag:'<path d="M7 21V4M7 4h11l-2.5 4 2.5 4H7"/>'};
+function ulSdf(W,H,draw){const c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');g.fillStyle='#000';draw(g);
+ const a=g.getImageData(0,0,W,H).data,M=new Uint8Array(W*H);for(let i=0;i<W*H;i++)M[i]=a[i*4+3]>127?1:0;
+ const B=[];for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;if(M[i]&&(x===0||y===0||x===W-1||y===H-1||!M[i-1]||!M[i+1]||!M[i-W]||!M[i+W]))B.push(x,y)}
+ const D=new Uint8Array(W*H*4);for(let y=0;y<H;y++)for(let x=0;x<W;x++){let m=1e9;for(let j=0;j<B.length;j+=2){const dx=B[j]-x,dy=B[j+1]-y,q=dx*dx+dy*dy;if(q<m)m=q}
+  const i=y*W+x,d=(M[i]?-1:1)*Math.max(0,Math.sqrt(m)-.5),v=Math.max(0,Math.min(255,Math.round(255-255*(d/8+.25))));D[i*4]=D[i*4+1]=D[i*4+2]=255;D[i*4+3]=v}
+ return{width:W,height:H,data:D}}
+function ulSymImgs(){const S=44,c=S/2,st=(g,n,R,r)=>{g.beginPath();for(let i=0;i<n*2;i++){const q=i%2?r:R,t=-Math.PI/2+i*Math.PI/n;g.lineTo(c+q*Math.cos(t),c+2+q*Math.sin(t))}g.closePath();g.fill()};
+ return{circle:ulSdf(S,S,g=>{g.beginPath();g.arc(c,c,13,0,7);g.fill()}),square:ulSdf(S,S,g=>g.fillRect(c-12,c-12,24,24)),
+  tri:ulSdf(S,S,g=>{g.beginPath();g.moveTo(c,c-14);g.lineTo(c+15,c+12);g.lineTo(c-15,c+12);g.closePath();g.fill()}),star:ulSdf(S,S,g=>st(g,5,16,7)),
+  flag:ulSdf(S,52,g=>{g.fillRect(c-1.5,8,3,42);g.beginPath();g.moveTo(c,8);g.lineTo(c+18,8);g.lineTo(c+12,16);g.lineTo(c+18,24);g.lineTo(c,24);g.closePath();g.fill()})}}
+const ulSymBtn=(k,lb,on,svg)=>`<button type="button" data-us="${k}" aria-pressed="${on}" title="${lb}" aria-label="${lb}">${svg}</button>`;
 function ulDrop(k){const id='ul-'+k;ULSUF.forEach(s=>map.getLayer(id+s)&&map.removeLayer(id+s));if(map.getSource(id))map.removeSource(id);ulLabels(k,1)}
 function ulData(e){if(UL.hide&&UL.hide.k===e.k){const f=UL.hide.fid;return{type:'FeatureCollection',features:e.fc.features.filter(x=>x.properties._id!==f)}}return e.fc}
 function ulRender(k){const e=ulEnt(k);if(!e){ulDrop(k);return}if(!map.getSource('dem'))return;const id='ul-'+k,np=e.fc.features.reduce((s,f)=>s+(/Point/.test(f.geometry.type)?1:0),0),dot=np>800;
  if(map.getSource(id)&&(UL.mm[k]!==dot||UL.mm[k+'c']!==e.color))ulDrop(k);
  const vis={visibility:e.vis?'visible':'none'};
  if(!map.getSource(id)){map.addSource(id,{type:'geojson',data:ulData(e)});const b=ulBefore(),C=['to-color',['coalesce',['get','_c'],e.color],e.color];UL.mm[k]=dot;UL.mm[k+'c']=e.color;
-  map.addLayer({id:id+'-f',type:'fill',source:id,filter:UGT('Polygon','MultiPolygon'),layout:vis,paint:{'fill-color':C,'fill-opacity':.22}},b);
+  map.addLayer({id:id+'-f',type:'fill',source:id,filter:UGT('Polygon','MultiPolygon'),layout:vis,paint:{'fill-color':C,'fill-opacity':['match',['get','_s'],'solid',.55,'none',0,.22]}},b);
   map.addLayer({id:id+'-cs',type:'line',source:id,filter:UGT('LineString','MultiLineString'),layout:Object.assign({'line-cap':'round','line-join':'round'},vis),paint:{'line-color':'#fff','line-width':5.5,'line-opacity':.85}},b);
-  map.addLayer({id:id+'-o',type:'line',source:id,filter:UGT('LineString','MultiLineString','Polygon','MultiPolygon'),layout:Object.assign({'line-cap':'round','line-join':'round'},vis),paint:{'line-color':C,'line-width':['match',['geometry-type'],['LineString','MultiLineString'],3,2.2]}},b);
+  const LS=v=>['all',UGT('LineString','MultiLineString','Polygon','MultiPolygon'),['==',['coalesce',['get','_l'],'solid'],v]],LW=['match',['geometry-type'],['LineString','MultiLineString'],3,2.2]; /* line-dasharray ไม่รับค่าตามวัตถุ → แยกชั้นตามรูปแบบเส้น */
+  map.addLayer({id:id+'-o',type:'line',source:id,filter:['all',UGT('LineString','MultiLineString','Polygon','MultiPolygon'),['!',['in',['coalesce',['get','_l'],'solid'],['literal',['dash','dot']]]]],layout:Object.assign({'line-cap':'round','line-join':'round'},vis),paint:{'line-color':C,'line-width':LW}},b);
+  map.addLayer({id:id+'-od',type:'line',source:id,filter:LS('dash'),layout:Object.assign({'line-join':'round'},vis),paint:{'line-color':C,'line-width':LW,'line-dasharray':[3,2]}},b);
+  map.addLayer({id:id+'-ot',type:'line',source:id,filter:LS('dot'),layout:Object.assign({'line-cap':'round','line-join':'round'},vis),paint:{'line-color':C,'line-width':LW,'line-dasharray':[.1,2]}},b);
   if(dot)map.addLayer({id:id+'-c',type:'circle',source:id,filter:UGT('Point','MultiPoint'),layout:vis,paint:{'circle-radius':['interpolate',['linear'],['zoom'],6,3,12,6],'circle-color':C,'circle-stroke-color':'#fff','circle-stroke-width':1.2}},b);
-  else{const L={'icon-anchor':'bottom','icon-offset':[0,4],'icon-allow-overlap':true,'icon-ignore-placement':true,'icon-size':['interpolate',['linear'],['zoom'],6,.62,12,.9]};
-   map.addLayer({id:id+'-p',type:'symbol',source:id,filter:UGT('Point','MultiPoint'),layout:Object.assign({'icon-image':'ul-pin'},L,vis),paint:{'icon-color':C,'icon-halo-color':'#fff','icon-halo-width':1.4}},b);
-   map.addLayer({id:id+'-d',type:'symbol',source:id,filter:UGT('Point','MultiPoint'),layout:Object.assign({'icon-image':'ul-pind'},L,vis)},b)}ulOrder()}
+  else{const SH=['circle','square','tri','star'],ps=['coalesce',['get','_s'],'pin'],L={'icon-anchor':['match',ps,SH,'center','bottom'],'icon-offset':['match',ps,SH,['literal',[0,0]],'flag',['literal',[0,2]],['literal',[0,4]]],'icon-allow-overlap':true,'icon-ignore-placement':true,'icon-size':['interpolate',['linear'],['zoom'],6,.62,12,.9]};
+   map.addLayer({id:id+'-p',type:'symbol',source:id,filter:UGT('Point','MultiPoint'),layout:Object.assign({'icon-image':['match',ps,[...SH,'flag'],['concat','ul-s-',ps],'ul-pin']},L,vis),paint:{'icon-color':C,'icon-halo-color':'#fff','icon-halo-width':1.4}},b);
+   map.addLayer({id:id+'-d',type:'symbol',source:id,filter:['all',UGT('Point','MultiPoint'),['==',ps,'pin']],layout:Object.assign({'icon-image':'ul-pind'},L,vis)},b)}ulOrder()}
  else{map.getSource(id).setData(ulData(e));ULSUF.forEach(s=>map.getLayer(id+s)&&map.setLayoutProperty(id+s,'visibility',vis.visibility))}
  ulLabels(k)}
 function ulLayers(){if(!map.getSource('dem'))return;
  if(!map.hasImage('ul-pin')){ULPI=ULPI||ulPinImg();map.addImage('ul-pin',ULPI[0],{sdf:true,pixelRatio:2});map.addImage('ul-pind',ULPI[1],{pixelRatio:2})}
+ if(!map.hasImage('ul-s-star')){ULSI=ULSI||ulSymImgs();for(const k in ULSI)map.addImage('ul-s-'+k,ULSI[k],{sdf:true,pixelRatio:2})}
  if(!map.getSource('ul-sel')){map.addSource('ul-sel',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
   map.addLayer({id:'ul-sel-l',type:'line',source:'ul-sel',filter:UGT('LineString','MultiLineString','Polygon','MultiPolygon'),layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ffd400','line-width':8,'line-opacity':.75}});
   map.addLayer({id:'ul-sel-c',type:'circle',source:'ul-sel',filter:UGT('Point','MultiPoint'),paint:{'circle-radius':16,'circle-color':'#ffd400','circle-opacity':.45,'circle-translate':[0,-14]}})}
@@ -5856,7 +5875,7 @@ function udBusy(){return!!UD.m}
 const UDN={pt:'หมุด',ln:'เส้นทาง',pg:'รูปหลายเหลี่ยม',at:'วัตถุ'};
 function udSet(m,ed){udClear();UD.m=m;UD.ed=ed||null;UD.form=false;UD.g0=null;UD.cz=null;
  if(UL.hide){const k=UL.hide.k;UL.hide=null;ulRender(k)}ulSel(null);
- if(m){msSet(false);if(ULP)ULP.remove();if(!map.getSource('uld'))ulLayers();if(!ed){UD.nm='';UD.ds='';UD.kv=[];const t=UL.L.find(l=>l.id===UL.tg);UD.c=t?t.color:UD.c||ULC[0]}
+ if(m){msSet(false);if(ULP)ULP.remove();if(!map.getSource('uld'))ulLayers();if(!ed){UD.nm='';UD.ds='';UD.kv=[];if(UD.m0!==m){UD.s='';UD.l=''}UD.m0=m;const t=UL.L.find(l=>l.id===UL.tg);UD.c=t?t.color:UD.c||ULC[0]}
   if(UD.dz==null)UD.dz=map.doubleClickZoom.isEnabled();map.doubleClickZoom.disable();$('#map').classList.add('udr');document.body.classList.add('udon');ulTop()}
  else{if(UD.dz)map.doubleClickZoom.enable();UD.dz=null;$('#map').classList.remove('udr');document.body.classList.remove('udon')}
  $$('#ulm [data-ud]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.ud===m&&!ed));$('#ulm').classList.toggle('drawing',!!m);$('#ulm').classList.remove('form');
@@ -5864,7 +5883,7 @@ function udSet(m,ed){udClear();UD.m=m;UD.ed=ed||null;UD.form=false;UD.g0=null;UD
 function udClear(){UD.mk.forEach(x=>x.remove());UD.md.forEach(x=>x.remove());UD.mk=[];UD.md=[];UD.pts=[];UD.cur=null;UD.snap=false;UD.drag=null;$('#mhud').hidden=true}
 function udEdit(k,fid){const x=ulFind(k,fid);if(!x||!x.f||k[0]!=='l')return;const f=x.f,g=f.geometry,p=f.properties;
  const m=g.type==='Point'?'pt':g.type==='LineString'?'ln':g.type==='Polygon'&&g.coordinates.length===1?'pg':'at';
- udSet(m,{k,fid});UD.c=p._c||x.e.color;UD.nm=p.name==null?'':String(p.name);UD.ds=p.description==null?'':String(p.description);UD.kv=Object.entries(ulPub(p)).filter(([a])=>a!=='name'&&a!=='description').map(([a,b])=>[a,typeof b==='object'&&b?JSON.stringify(b):b==null?'':b]);
+ udSet(m,{k,fid});UD.c=p._c||x.e.color;UD.s=p._s||'';UD.l=p._l||'';UD.nm=p.name==null?'':String(p.name);UD.ds=p.description==null?'':String(p.description);UD.kv=Object.entries(ulPub(p)).filter(([a])=>a!=='name'&&a!=='description').map(([a,b])=>[a,typeof b==='object'&&b?JSON.stringify(b):b==null?'':b]);
  UD.cz=p._z||null;UD.pts=m==='pt'?[g.coordinates.slice()]:m==='ln'?g.coordinates.map(c=>c.slice()):m==='pg'?ulOpen0(g.coordinates[0]).map(c=>c.slice()):[];UD.g0=g;UD.form=true;
  UL.hide={k,fid};ulRender(k);if(m==='at')ulSel(f);udMarks();udGeo();udPanel();udCross();const b=GIO.bbox([f]),v=map.getBounds();if(b&&!(v.contains([b[0],b[1]])&&v.contains([b[2],b[3]])))ulZoom(f)} // ซูมเฉพาะเมื่อวัตถุอยู่นอกจอ
 function udGeo(){const s=map.getSource('uld');if(!s)return;const P=UD.pts,n=P.length,F=[],c=UD.c||ULC[0],pg=UD.m==='pg',cl=pg&&(UD.form||UD.snap);
@@ -5946,15 +5965,23 @@ function udPanel(){const d=$('#ul-d'),tc=msTouch(),n=UD.pts.length;$('#ulm').cla
   <label class="lb" for="ud-n">ชื่อ</label><input type="text" id="ud-n" maxlength="200" value="${udTxt(UD.nm)}" placeholder="เช่น จุดเฝ้าระวัง, แนวกันไฟ, พื้นที่ไหม้">
   <label class="lb" for="ud-ds">รายละเอียด</label><textarea id="ud-ds" maxlength="4000" placeholder="ไม่บังคับ">${udTxt(UD.ds)}</textarea>
   <span class="lb">สี</span><div class="ulsw" id="ud-c">${ULC.map(c=>`<button data-c="${c}" style="background:${c}" aria-label="สี ${c}" aria-pressed="${c===UD.c}"></button>`).join('')}<input type="color" id="ud-cc" value="${esc(UD.c)}" aria-label="เลือกสีเอง"></div>
+  ${udSymBox()/*xss-ok*/}
   ${UD.ed?'':`<label class="lb" for="ud-tg">บันทึกลงชั้น</label><select id="ud-tg">${opts}</select>`}
   <details${UD.kv.length?' open':''}><summary class="lb" style="cursor:pointer">ข้อมูลเพิ่มเติม (${UD.kv.length})</summary><div class="ulkv" id="ud-kv"></div><a class="lk" data-ua="kv+" role="button" tabindex="0" style="font-size:12px;cursor:pointer">+ เพิ่มข้อมูล</a></details>
   <div class="msbt"><button class="btn pri" data-ua="save">บันทึก</button><button class="btn" data-ua="${UD.ed?'stop':'redo'}">${UD.ed?'ยกเลิก':'วาดใหม่'}</button>${UD.ed?'<button class="btn dng" data-ua="del">ลบ</button>':''}</div>
   <p class="sm" style="margin:6px 0 0">${UD.m==='pt'?'ลากหมุดเพื่อย้าย':UD.m==='at'?'วัตถุหลายส่วน/มีรู แก้ได้เฉพาะข้อมูล':'ลากจุดเพื่อย้าย · ลาก/คลิกจุดเล็กกลางเส้นเพื่อเพิ่มจุด · ดับเบิลคลิกจุดเพื่อลบ'}</p></div>`;
  udKV();udMeasure();if(!UD.ed&&!tc)setTimeout(()=>{const i=$('#ud-n');i&&i.focus()},30)}
+/* ตัวเลือกสัญลักษณ์ตามชนิดที่วาด (UD.m: pt ln pg) */
+function udSymBox(){const t=UD.m,sv=b=>'<svg viewBox="0 0 24 24">'+b+'</svg>',lv=k=>sv('<path d="M3 12h18"'+(k==='dash'?' stroke-dasharray="4 3"':k==='dot'?' stroke-dasharray=".1 3.5" stroke-linecap="round"':'')+'/>'),
+ row=(lb,L,cur,f)=>'<span class="lb">'+lb+'</span><div class="ulsy">'+L.map(([k,n])=>ulSymBtn(k,n,k===cur,f(k))).join('')+'</div>';
+ if(t==='pt')return row('สัญลักษณ์',ULSP,UD.s||'pin',k=>sv(ULSV[k]));
+ if(t==='ln')return row('รูปแบบเส้น',ULSL,UD.l||'solid',lv).split('data-us=').join('data-ul=');
+ if(t==='pg')return row('พื้น',ULSF,UD.s||'fill',k=>sv('<rect x="4" y="5" width="16" height="14" rx="2" style="fill:currentColor;fill-opacity:'+(k==='solid'?.6:k==='none'?0:.22)+'"/>'))+row('เส้นขอบ',ULSL,UD.l||'solid',lv).split('data-us=').join('data-ul=');
+ return''}
 function udSaveF(){const g=udGeom();if(!g)return;let l;
  if(UD.ed){l=UL.L.find(x=>'l'+x.id===UD.ed.k)}else{let t=($('#ud-tg')||{}).value||UL.tg;if(t==='+'||!UL.L.find(x=>x.id===t)){l=ulNewL();t=l.id}else l=UL.L.find(x=>x.id===t);UL.tg=t;ulLS('fm-ultg',t)}
  if(!l)return;const kv={};UD.kv.forEach(([a,b])=>{a=String(a).trim();if(!a||a[0]==='_'||a==='name'||a==='description')return;const s=String(b);kv[a]=/^-?(0|[1-9]\d*)(\.\d+)?$/.test(s)&&s.length<16?+s:s});
- const p=Object.assign(kv,{_id:UD.ed?UD.ed.fid:ulId(),_c:UD.c});if(UD.cz)p._z=UD.cz;if(UD.nm.trim())p.name=UD.nm.trim();if(UD.ds.trim())p.description=UD.ds.trim();
+ const p=Object.assign(kv,{_id:UD.ed?UD.ed.fid:ulId(),_c:UD.c});{const s=UD.m==='pt'?UD.s:UD.m==='pg'?UD.s:null;if(s&&s!=='pin'&&s!=='fill'&&(UD.m!=='pt'||ULSV[s])&&(UD.m!=='pg'||ULSF.some(x=>x[0]===s)))p._s=s;if(UD.m!=='pt'&&UD.l&&UD.l!=='solid')p._l=UD.l}if(UD.cz)p._z=UD.cz;if(UD.nm.trim())p.name=UD.nm.trim();if(UD.ds.trim())p.description=UD.ds.trim();
  const f={type:'Feature',properties:p,geometry:g};
  if(UD.ed){const i=l.fc.features.findIndex(x=>x.properties._id===UD.ed.fid);if(i>=0)l.fc.features[i]=f;else l.fc.features.push(f)}else l.fc.features.push(f);
  if(!l.vis)l.vis=true;ulSave(l);const k='l'+l.id,m=UD.m,ed=UD.ed;
@@ -5967,6 +5994,7 @@ $('#ul-d').addEventListener('change',e=>{if(e.target.id==='ud-cz'){UDCO.z=+e.tar
 function udCol(){$$('#ud-c [data-c]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===UD.c));const cc=$('#ud-cc');if(cc&&cc.value!==UD.c)cc.value=UD.c;udMarks();udGeo()}
 $('#ul-d').addEventListener('click',e=>{const cf=e.target.closest('[data-cf]');if(cf){UDCO.f=cf.dataset.cf;ulLS('fm-udco',UDCO);UD.co=true;if(!UD.form)UD.ct='';udPanel();return}
  const c=e.target.closest('[data-c]');if(c){UD.c=c.dataset.c;udCol();return}
+ const us=e.target.closest('[data-us],[data-ul]');if(us){if(us.dataset.us)UD.s=us.dataset.us;else UD.l=us.dataset.ul;const w=us.parentElement;[...w.children].forEach(b=>b.setAttribute('aria-pressed',b===us));return}
  const x=e.target.closest('[data-kvx]');if(x){UD.kv.splice(+x.dataset.kvx,1);udKV();return}
  const b=e.target.closest('[data-ua]');if(!b)return;const a=b.dataset.ua;
  if(a==='add'){const c=udCrossPt(),l=map.unproject([c.pt.x,c.pt.y]);udAdd(UD.snap?UD.pts[0]:[l.lng,l.lat],c.pt,22)}
@@ -7027,13 +7055,17 @@ function vrApply(){const bx=$('#vrbox');if(!bx)return;bx.hidden=!S.vr;gvSet();
  prvLoad().then(()=>{if(GVA&&GVA.length<2)GVA=null;gvDraw()}).catch(e=>dbg('prvLoad',e));
  gvLoad().then(()=>gvDraw()).catch(e=>{vrSt('โหลดข้อมูล GFS ไม่ได้ ('+esc(e.message||e)+')');tx('vr-dv','โหลดข้อมูลไม่ได้')})}
 /* บรรทัดในป๊อปอัปแตะแผนที่ (เฉพาะเมื่อเปิดชั้นนี้ ไม่ดึงข้อมูลเพิ่ม) */
+/* ช่วงเวลาที่ VR ≥2,000 ของวัน i ณ จุด (ชั่วโมงแรก–สุดท้าย) · null = อากาศปิดทั้งวัน */
+function gvOpen(i,lo,la){let a=null,z=null;for(const k of GV.days[i].k){const v=gvAt(gvField('h',k),lo,la);if(v!=null&&v>=2000){if(a==null)a=k;z=k}}return a==null?null:[GV.t[a],GV.t[z]]}
+const vrNx=(a,z)=>Math.floor((z+7*36e5)/864e5)>Math.floor((a+7*36e5)/864e5)?' (เช้าวันถัดไป)':''; /* วันของ GFS = วันที่ UTC (07:00–06:00 น.) แบบเดียวกับ vrsum/LINE */
+const gvOpenTx=o=>o?`ระบายได้ (≥2,000) ${thTime(o[0])}–${thTime(o[1])} น.${vrNx(o[0],o[1])}`:'อากาศปิดทั้งวัน (<2,000) ไม่ควรเผา';
 function vrPop(lo,la){if(!S.vr)return'';gvSet();if(!GV)return'';const i=gvDay(),mn=gvAt(gvField('mean',i),lo,la);if(mn==null)return'';
  const[bk,bv]=gvPeak(i,lo,la),h=vrGm()==='max'?gvHour():null,hk=h!=null?h:bk,hv=h!=null?gvAt(gvField('h',h),lo,la):null,rl=gvRel(i),c=VRC[vrCat(vrGm()==='mean'?mn:h!=null?hv:bv)];
  return`<div class="sm" style="margin:0 0 4px"><b>ระบายอากาศ</b> (GFS) ${gvDate(i,{day:'numeric',month:'short'})}${rl?' ('+rl+')':''}`+(h!=null?`<br>${thTime(GV.t[h])} น. ${vrB(hv)}`:'')+
-  `<br>เฉลี่ยทั้งวัน ${vrB(mn)} · สูงสุด ${vrB(bv)} ${thTime(GV.t[bk])} น.`+`<br>${c[4]}</div>`}
+  `<br>เฉลี่ยทั้งวัน ${vrB(mn)} · สูงสุด ${vrB(bv)} ${thTime(GV.t[bk])} น.<br>${gvOpenTx(gvOpen(i,lo,la))}`+`<br>${c[4]}</div>`}
 /* ป๊อปอัปแตะแผนที่ (ชั้น VR ปิด): ค่าเฉลี่ยวันนี้บรรทัดเดียว */
 async function vrQuick(lo,la){await gvLoad();gvSet();if(!GV)return'';const i=gvToday(),mn=gvAt(gvField('mean',i),lo,la);if(mn==null)return'';const[,bv]=gvPeak(i,lo,la);
- return`<b>ระบายอากาศ</b> วันนี้เฉลี่ย ${vrB(mn)} <span style="opacity:.75">· สูงสุด ${vrN(bv)} (GFS)</span>`}
+ return`<b>ระบายอากาศ</b> วันนี้เฉลี่ย ${vrB(mn)} <span style="opacity:.75">· สูงสุด ${vrN(bv)} (GFS)</span><br>${gvOpenTx(gvOpen(i,lo,la))}`}
 const gvGo=k=>{if(!GV)return;k=Math.max(0,Math.min(GV.t.length-1,k));VRGH=k;VRD=null;gvDraw()};
 const gvCurK=()=>{if(!GV)return 0;const h=gvHour();if(h!=null)return h;const c=vrPt();return gvPeak(gvDay(),c.lng,c.lat)[0]};
 $('#vr-gr').oninput=e=>gvGo(+e.target.value);$('#vr-gp').onclick=()=>gvGo(gvCurK()-1);$('#vr-gn').onclick=()=>gvGo(gvCurK()+1);
@@ -8239,7 +8271,7 @@ function dsRender(){if($('#ds').hidden)return;const x=!!S.xdy,J=DS.J,sum=J['summ
  const W=J['wx_today.json']||{},td=new Date(now+7*36e5).toISOString().slice(0,10),pick=o=>o&&o.days&&(o.days.find(d=>d.d===td)||null);
  const fw=pick(W.fwi),vr=pick(W.vr),pm=pick(W.pm),vk=v=>VRC[vrCat(v)];
  $('#ds-wx').innerHTML=`<h3>สภาพอากาศกับไฟวันนี้<small>เฉลี่ยกลุ่มป่า</small></h3><div class="ds-t3">`+
-  (vr?`<div style="--bgc:${vk(vr.mean)[2]};--tc:${vrCat(vr.mean)===1?'#3a2e00':'#fff'}"><span>อัตราการระบายอากาศ (GFS) เฉลี่ยทั้งวัน</span><b>${nf(vr.mean)} · ${vk(vr.mean)[1]}</b><small>สูงสุด ${nf(vr.max)} · ${vr.a?'ระบายได้ '+thTime(vr.a)+'–'+thTime(vr.z)+' น.':'อากาศปิดทั้งวัน ไม่ควรเผา'} · ตร.ม./วินาที</small></div>`:'<div><span>อัตราการระบายอากาศ</span><b>–</b><small>ไม่มีค่าของวันนี้</small></div>')+
+  (vr?`<div style="--bgc:${vk(vr.mean)[2]};--tc:${vrCat(vr.mean)===1?'#3a2e00':'#fff'}"><span>อัตราการระบายอากาศ (GFS) เฉลี่ยทั้งวัน</span><b>${nf(vr.mean)} · ${vk(vr.mean)[1]}</b><small>สูงสุด ${nf(vr.max)} · ${vr.a?'ระบายได้ (≥2,000) '+thTime(vr.a)+'–'+thTime(vr.z)+' น.'+vrNx(vr.a,vr.z):'อากาศปิดทั้งวัน (<2,000) ไม่ควรเผา'} · ตร.ม./วินาที</small></div>`:'<div><span>อัตราการระบายอากาศ</span><b>–</b><small>ไม่มีค่าของวันนี้</small></div>')+
   (fw?`<div style="--bgc:${FWC[fw.c]};--tc:${fw.c>=2?'#fff':'#1d2433'}"><span>ดัชนีอันตรายไฟป่า FWI (TFDRS)</span><b>${nf(fw.mean,1)} · ${FWN[fw.c]}</b><small>สูงสุด ${nf(fw.max,1)}${fw.cx>fw.c?' ('+FWN[fw.cx]+')':''}${fw.ffmc?' · FFMC '+nf(fw.ffmc.mean,1):''}${W.fwi.lfa?' · ค่าของวันจาก LFA':''}</small></div>`:'<div><span>FWI (TFDRS)</span><b>–</b><small>ไม่มีค่าของวันนี้</small></div>')+
   (pm?`<div style="--bgc:${DSPM[pm.c][1]};--tc:${DSPM[pm.c][2]}"><span>PM2.5 เฉลี่ย 24 ชม. (แบบจำลอง CAMS)</span><b>${nf(pm.mean,pm.mean<10?1:0)} · ${DSPM[pm.c][0]}</b><small>µg/m³${pm.top?' · สูงสุด '+esc(pm.top.n)+' '+nf(pm.top.v,pm.top.v<10?1:0):''}</small></div>`:'<div><span>PM2.5</span><b>–</b><small>ไม่มีค่าของวันนี้</small></div>')+
   `</div><div class="ds-n">TFDRS กรมป่าไม้ · NOAA GFS (เกณฑ์กรมอุตุฯ) · CAMS แบบจำลอง${W.generated?' · '+thTime(Date.parse(W.generated))+' น.':''}</div>`;
