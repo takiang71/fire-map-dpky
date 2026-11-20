@@ -30,6 +30,7 @@
 
 ทุกโมดูลใหม่ตั้ง prefix เฉพาะ 2–3 ตัวอักษร และค้นด้วย grep ก่อนตั้งชื่อ
 
+- **คัดลอกสไตล์แผนที่หลัก (`map.getStyle()`) ต้องรอสไตล์โหลดเสร็จ** — เพิ่งเปิดหน้า/เพิ่งสลับแผนที่ฐาน MapLibre 4.7 โยน "Cannot convert undefined or null to object" (พบ 20 พ.ย. 69 ที่พิมพ์แผนที่ — `pmMainOk`) · ตรวจด้วย `getSource('dem')` + try
 - **บล็อกโหลดเมื่อใช้ `lz-<n>` (B1 เฟส 2 — มี pm/adm/vf/fd)**: สตับ (`pmOpen` `ulAdmin` `vfForm` `vfDel` `vfXlsx` `fdForm`) คืน Promise เสมอ — ผู้เรียกที่ตรวจ DOM/ค่าทันทีหลังเรียกต้อง `await` · โค้ดหลัก**และบล็อกอื่น**ห้ามอ้างชื่อที่อยู่ในบล็อกตรง ๆ (ยังไม่ได้โหลด → ReferenceError ตอนกด) — ใช้สตับ `function X(...a){return lzCall('<n>','X',a)}` หรือ `await lzJs('<n>')` · บล็อกห้ามประกาศ const/let ชื่อที่โค้ดหลักมี · test/lazy.test.js ตรวจทั้งสองข้อ
 
 ## สรุป — บั๊ก/กับดักที่เคยเจอ

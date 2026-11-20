@@ -5236,7 +5236,16 @@ let PMK=[];function pmMarks(){PMK.forEach(m=>m.remove());PMK=[];[window.FSM,wind
  PMK.push(new maplibregl.Marker({element:c,anchor:m._anchor||'center',offset:m.getOffset()}).setLngLat(m.getLngLat()).addTo(PMAP))}));pmZc()}
 const pmZc=()=>{const z=PMAP.getZoom(),c=$('#pm-m').classList;c.toggle('z9',z>=9.3);c.toggle('z11',z>=10.5)};
 function pmView(){const{m,x0,x1,y0,y1}=visArea(),b=new maplibregl.LngLatBounds();[[x0,y0],[x1,y0],[x1,y1],[x0,y1]].forEach(p=>b.extend(map.unproject([p[0]-m.left,p[1]-m.top])));PMAP.fitBounds(b,{padding:8,duration:0})}
-async function pmOpen(){let o=$('#pm');if(!o){o=document.createElement('div');o.id='pm';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');o.setAttribute('aria-labelledby','pm-t');o.innerHTML=pmHtml();document.body.appendChild(o);pmBind()}
+/* แผนที่หลักพร้อมให้คัดลอกสไตล์ไหม — เพิ่งเปิดหน้า/กำลังสลับแผนที่ฐาน (setStyle) map.getStyle() ของ MapLibre โยน error
+   (พบ 20 พ.ย. 69: กดพิมพ์ก่อนแผนที่หลักโหลดเสร็จ → หน้าพิมพ์ขึ้นแต่แผนที่ว่าง + unhandledrejection ไม่มีข้อความถึงผู้ใช้; กดซ้ำทีหลังจึงได้)
+   ตัดสินด้วย getSource('dem') + getStyle() (กติกา: ไม่ใช้ isStyleLoaded) · รอสูงสุด 20 วิ แจ้งด้วย toast · กดซ้ำระหว่างรอ = ไม่ทำซ้ำ */
+const pmMainOk=()=>{try{return!!map.getSource('dem')&&!!map.getStyle()}catch(e){return false}};
+let PMW=0;
+async function pmOpen(){if(PMW)return;
+ if(!pmMainOk()){PMW=1;toast('กำลังรอแผนที่หลักโหลดเสร็จ แล้วจะเปิดหน้าพิมพ์…');try{for(let i=0;i<80&&!pmMainOk();i++)await new Promise(r=>setTimeout(r,250))}finally{PMW=0}
+  if(!pmMainOk()){toast('แผนที่หลักยังโหลดไม่เสร็จ — รอสักครู่แล้วกดพิมพ์แผนที่อีกครั้ง');return}}
+ try{await pmOpen0()}catch(e){dbg('pmOpen',e);toast('เปิดหน้าพิมพ์แผนที่ไม่สำเร็จ: '+(e&&e.message||e))}}
+async function pmOpen0(){let o=$('#pm');if(!o){o=document.createElement('div');o.id='pm';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');o.setAttribute('aria-labelledby','pm-t');o.innerHTML=pmHtml();document.body.appendChild(o);pmBind()}
  o.hidden=false;document.body.classList.add('pmon');if(PP.subA)PP.sub=pmSub();PMLEG=await pmLegAuto();
  try{await document.fonts.load(`700 20px ${PMF}`);await document.fonts.load(`400 20px ${PMF}`)}catch(e){}
  pmPanel();const M=pmL().E.map;Object.assign($('#pm-m').style,{left:M.x*PXMM+'px',top:M.y*PXMM+'px',width:Math.round(M.w*PXMM)+'px',height:Math.round(M.h*PXMM)+'px'});const st=pmStyle();
