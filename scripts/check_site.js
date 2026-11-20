@@ -288,6 +288,8 @@ async function browser(dir) {
     const send = (method, params = {}, to = 30e3) => new Promise((res, rej) => { const i = ++id; pend.set(i, { res, rej }); ws.send(JSON.stringify({ id: i, method, params })); setTimeout(() => pend.has(i) && (pend.delete(i), rej(new Error('CDP timeout ' + method))), to) });
     const ev = async (e, to) => { const r = await send('Runtime.evaluate', { expression: e, awaitPromise: true, returnByValue: true }, to); if (r.exceptionDetails) throw new Error((r.exceptionDetails.exception && r.exceptionDetails.exception.description) || r.exceptionDetails.text); return r.result.value };
     await send('Page.enable'); await send('Runtime.enable');
+    /* ปุ่มส่งออก (CSV ตรวจพิกัด, GPX ฯลฯ) ดาวน์โหลดจริง: เก็บในโปรไฟล์ชั่วคราว (ลบเมื่อจบ) ไม่ให้ลง Downloads ของเครื่อง */
+    try { await send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath: path.join(prof, 'dl') }) } catch (e) { warn.push('ตั้งโฟลเดอร์ดาวน์โหลดไม่ได้: ' + e.message) }
     await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
     const info = {};
     // รอแผนที่โหลดสไตล์ (สูงสุด 45 วิ)
