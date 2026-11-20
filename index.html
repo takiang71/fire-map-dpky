@@ -75,6 +75,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 #hlg svg{width:15px;height:15px;fill:var(--c);stroke:var(--c);stroke-width:1.2;stroke-linejoin:round;paint-order:stroke;filter:drop-shadow(0 0 .6px #fff) drop-shadow(0 0 .6px #fff)}
 body.wyon #hlg{opacity:.92}
 #hlg .hlt{display:none}
+#hlg[data-dk='1']{cursor:pointer}#hlg.dkh{min-width:0;padding:5px 8px 5px 6px;border-radius:99px 0 0 99px}#hlg.dkh>b,#hlg.dkh>div:not(.hlt){display:none}#hlg.dkh>.hlt{display:flex;align-items:center;gap:3px;line-height:20px}
 #hlg.mb{touch-action:none;user-select:none;-webkit-user-select:none;cursor:pointer;transition:transform .2s ease,opacity .2s}
 #hlg.mb.cp{display:flex;gap:6px;min-width:0;padding:4px 10px 4px 6px;border-radius:99px}#hlg.mb.cp>b,#hlg.mb.cp span{display:none}#hlg.mb.cp>div{gap:2px}#hlg.mb.cp em{min-width:8px}
 #hlg.mb.hd{min-width:0;padding:5px 8px 5px 6px;border-radius:99px 0 0 99px}#hlg.mb.hd>b,#hlg.mb.hd>div:not(.hlt){display:none}#hlg.mb.hd>.hlt{display:flex;align-items:center;gap:3px;line-height:20px}
@@ -82,14 +83,15 @@ body.wyon #hlg{opacity:.92}
 :root{--lw:420px}body.lc{--lw:0px}
 /* ปุ่มพับแผงซ้ายไปด้านข้าง (เดสก์ท็อป) */
 #lcol{position:fixed;z-index:6;top:50%;left:400px;transform:translateY(-50%);width:24px;height:56px;padding:0;border:0;border-radius:12px;background:var(--bg);box-shadow:var(--sh);display:grid;place-items:center;color:var(--navy);cursor:pointer;transition:left .25s}
-#lcol svg{width:18px;height:18px;transition:transform .25s}body.lc #lcol{left:8px}body.lc #lcol svg{transform:rotate(180deg)}
+#lcol svg,#rcol svg{width:18px;height:18px;transition:transform .25s}
+#rcol{position:fixed;z-index:6;top:50%;right:350px;transform:translateY(-50%);width:24px;height:56px;padding:0;border:0;border-radius:12px;background:var(--bg);box-shadow:var(--sh);display:grid;place-items:center;color:var(--navy);cursor:pointer;transition:right .25s}#rcol[hidden]{display:none}body:not(.rop) #rcol{right:8px}body:not(.rop) #rcol svg{transform:rotate(180deg)} /* 20 พ.ย. 69 ผู้ใช้ขอปุ่มซ่อนแผงขวาแบบแผงซ้าย */body.lc #lcol{left:8px}body.lc #lcol svg{transform:rotate(180deg)}
 /* กล่องลอยท้ายแผงซ้าย: ยังเลื่อนลงได้ = แสดง (ลูกศรขยับขึ้นลง) ถึงท้ายแล้วหาย */
 #more,#more2{position:fixed;z-index:6;transform:translateX(-50%);display:inline-flex;align-items:center;gap:5px;padding:5px 13px 5px 9px;border:1px solid var(--line);border-radius:99px;background:var(--bg);box-shadow:var(--sh);font-size:12.5px;color:var(--ink);white-space:nowrap;cursor:pointer}
 #more2{z-index:7}#more[hidden],#more2[hidden]{display:none}#more svg,#more2 svg{width:15px;height:15px;animation:mbob 1.1s ease-in-out infinite}
 @keyframes mbob{0%,100%{transform:translateY(-2px)}50%{transform:translateY(2px)}}
 @media(prefers-reduced-motion:reduce){#more svg,#more2 svg{animation:none}}
 @media(min-width:768px){#left{transition:transform .25s}body.lc #left{transform:translateX(calc(-100% - 12px))}}
-@media(max-width:767px){:root{--lw:0px}#lcol{display:none}}
+@media(max-width:767px){:root{--lw:0px}#lcol,#rcol{display:none}}
 /* ส่วนหัวแผงซ้าย = กล่องขาวทึบมุมมน 20 แบบการ์ดด้านล่าง (ผู้ใช้ขอ 2 พ.ย. 69) กว้างเท่าการ์ด ระยะห่าง 12 px เท่ากันทุกช่อง */
 .lhd{background:var(--bg);border-radius:20px;box-shadow:var(--sh);padding:14px 16px 10px}.lhd>.dmr{margin-bottom:0}
 /* iPad/จอสัมผัส: Safari ไม่เลื่อนกล่องที่ pointer-events:none แม้ลูกจะรับการแตะได้ */
@@ -291,7 +293,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:12px}.dt th{position:stic
 .ulacc{font-size:12.5px;margin-top:6px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}.ulacc a{cursor:pointer;color:#0b6bcb}
 .uldf{font-size:12.5px;padding-bottom:10px}.uldf .msrw{padding:1px 0}.uldf input[type=text],.uldf textarea,.uldf select,.ula input[type=text],.ula input[type=password],.ula textarea,.ula select{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;padding:6px 9px;font:13px 'Noto Sans Thai',sans-serif;background:var(--bg);color:var(--ink)}.uldf textarea,.ula textarea{min-height:52px;resize:vertical}
 .uldf .lb{display:block;font-size:11.5px;color:var(--mut);margin:6px 0 2px}
-.ulsy{display:flex;gap:6px;flex-wrap:wrap}.ulsy button{width:38px;height:32px;display:grid;place-items:center;border:1px solid var(--line);border-radius:9px;background:var(--bg);padding:0;cursor:pointer;color:var(--navy)}.ulsy button svg{width:22px;height:22px;fill:currentColor;stroke:currentColor;stroke-width:2}.ulsy button[data-ul] svg{fill:none;stroke-width:2.6}.ulsy button[aria-pressed=true]{border-color:var(--navy);box-shadow:0 0 0 1.5px var(--navy);background:#eef2fb}
+.ulsy{display:flex;gap:6px;flex-wrap:wrap}.ulsy button{width:38px;height:32px;display:grid;place-items:center;border:1px solid var(--line);border-radius:9px;background:var(--bg);padding:0;cursor:pointer;color:var(--navy)}.ulsy button svg{width:22px;height:22px;fill:currentColor;stroke:currentColor;stroke-width:2}.ulsy button[data-us] svg path[fill-rule]{stroke:none}.ulsy button[data-us]{color:#c0301c}.ulsy button[data-ul] svg{fill:none;stroke-width:2.6}.ulsy button[aria-pressed=true]{border-color:var(--navy);box-shadow:0 0 0 1.5px var(--navy);background:#eef2fb}
 .ulsw{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.ulsw button{width:24px;height:24px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line);cursor:pointer;padding:0}.ulsw button[aria-pressed=true]{box-shadow:0 0 0 2px var(--navy)}.ulsw input[type=color]{width:30px;height:26px;border:0;padding:0;background:none;cursor:pointer}
 .udco{margin:2px 0 8px;font-size:12.5px}.udco summary{cursor:pointer;color:#0b6bcb;font-weight:600;font-size:12.5px}.udco .seg{margin:6px 0}.udco .seg button{min-height:30px}.udco textarea{width:100%;box-sizing:border-box;min-height:62px;border:1px solid var(--line);border-radius:10px;padding:6px 9px;font:12.5px/1.45 ui-monospace,Consolas,monospace;resize:vertical}.udco select{border:1px solid var(--line);border-radius:8px;padding:3px 6px;font:12.5px 'Noto Sans Thai',sans-serif;margin-left:6px}.udco .err{color:#b42318;font-size:12px;white-space:pre-line}.udco .sm{font-size:11.5px;margin:4px 0}
 .ulkv{display:grid;grid-template-columns:1fr 1.4fr 22px;gap:4px;margin-top:4px}.ulkv input{min-width:0;border:1px solid var(--line);border-radius:8px;padding:4px 6px;font:12px 'Noto Sans Thai',sans-serif}.ulkv button{border:0;background:none;color:var(--mut);cursor:pointer;font-size:15px;padding:0}
@@ -2010,7 +2012,7 @@ map.on('click',e=>{
  if(typeof vfHit==='function'&&vfHit(e))return; /* ป้ายผลตรวจสอบจากหน้างาน (F1) */
  const cl=map.getLayer('hot-cl')&&map.queryRenderedFeatures(e.point,{layers:['hot-cl']})[0];
  if(cl){map.getSource('hot').getClusterExpansionZoom(cl.properties.cluster_id).then(z=>map.easeTo({offset:visOff(),center:cl.geometry.coordinates,zoom:z+.5,duration:dur(800)}));return}
- if($('#dp').classList.contains('open')&&!(map.queryRenderedFeatures(e.point,{layers:['hot-icon','hot-3d','wlv-icon','wlv-3d'].filter(id=>map.getLayer(id))})[0])){closeDetail();return}
+ if($('#dp').classList.contains('open')&&!(map.queryRenderedFeatures(e.point,{layers:['hot-icon','hot-3d','wlv-icon','wlv-3d','fypt','hist-c','histc-p'].filter(id=>map.getLayer(id))})[0])){closeDetail();return}
  const f=map.getLayer('hot-icon')&&map.queryRenderedFeatures(e.point,{layers:['hot-icon','hot-3d']})[0];
  if(f){openDetail(HS.find(x=>x.id===f.properties.id));return}
  const wl=map.queryRenderedFeatures(e.point,{layers:['wlv-icon','wlv-3d'].filter(id=>map.getLayer(id)&&map.getLayoutProperty(id,'visibility')==='visible')})[0];if(wl&&WLAST[wl.properties.i]){openDetail(WLAST[wl.properties.i]);return} // จุด 48 ชม. ในพื้นที่เฝ้าระวังพิเศษ
@@ -2018,7 +2020,7 @@ map.on('click',e=>{
  const wcl=(S.wst||S.hist)&&map.getLayer('wtc-cl')&&map.queryRenderedFeatures(e.point,{layers:['wtc-cl']})[0];if(wcl){map.getSource('wtc').getClusterExpansionZoom(wcl.properties.cluster_id).then(z=>map.easeTo({offset:visOff(),center:wcl.geometry.coordinates,zoom:z+.5,duration:dur(800)}));return}
  const wtf=(S.wst||S.hist)&&map.queryRenderedFeatures(e.point,{layers:['wt-c','wtc-p'].filter(id=>map.getLayer(id))})[0];if(wtf){wtPopup(WR[wtf.properties.i]);return}
  const fp=PM!=='24'&&map.getLayer('fypt')&&map.queryRenderedFeatures(e.point,{layers:['fypt']})[0];
- if(fp){const p=fp.properties,[lo,la]=fp.geometry.coordinates;ftFill(new maplibregl.Popup({maxWidth:'260px'}).setLngLat([lo,la]).setHTML(`<b>จุดความร้อนสะสมปีงบ ${fyOfDay(p.d)}</b><br>${dShort(p.d)} เวลา ${hhmmTh(p.t)} น. · ${esc(SATN[p.sat]||p.sat)}${p.fm?'<br><span class="sm">ที่มา: NASA FIRMS (ระบบไทยขัดข้องวันนั้น)</span>':''}<br>${p.tam?'ต.'+esc(p.tam)+' ':''}${p.amp?'อ.'+esc(p.amp)+' ':''}${p.prov?'จ.'+esc(p.prov):''}${ftRow(lo,la)}<span class="sm">พิกัด ${la.toFixed(5)}, ${lo.toFixed(5)}</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${la},${lo}">เปิดใน Google Maps</a>`).addTo(map));return}
+ if(fp){const p=fp.properties,[lo,la]=fp.geometry.coordinates,[tb,am]=[p.tam,p.amp];MOVED=true;openDetail({lat:la,lon:lo,t:p.d*864e5+(Math.floor(p.t/100)*60+p.t%100)*6e4-7*36e5,sat:SATN[p.sat]||p.sat||'ไม่ระบุ',conf:'n',prov:p.prov||'ไม่ระบุ',amp:am||'ไม่ระบุ',tam:tb||'ไม่ระบุ',ns:'api',old:true});return} /* จุดสะสมปีงบ = แผงรายละเอียดแบบจุด 48 ชม. (20 พ.ย. 69 ผู้ใช้ขอ — เดิมป๊อปอัปสั้น) */
  const hr=HSRF.features.length&&map.getLayer('hsring')&&map.queryRenderedFeatures(e.point,{layers:['hsring']})[0]; // วงล้อมจุดจากลิงก์แจ้งเตือน
  if(hr&&hr.properties.cluster){map.getSource('hsring').getClusterExpansionZoom(hr.properties.cluster_id).then(z=>map.easeTo({offset:visOff(),center:hr.geometry.coordinates,zoom:z+.3,duration:dur(800)}));return}
  if(hr){const [lo,la]=hr.geometry.coordinates,h=HS.find(x=>Math.hypot(x.lat-la,x.lon-lo)<.004)||hsAD(la,lo);if(h){MOVED=true;openDetail(h);return}} // จุดเก่ากว่า 48 ชม. หาใน AD (ผู้ใช้แจ้ง 5 พ.ย. 69: แตะวงแล้วได้แค่ป๊อปอัปตำแหน่ง)
@@ -2033,7 +2035,7 @@ map.on('click',e=>{
  const xf=S.xt&&map.queryRenderedFeatures(e.point,{layers:['xt-c','xtc-p'].filter(id=>map.getLayer(id))})[0];if(xf){xtPopup(XT[xf.properties.i]);return}
  const hcl=S.hist&&map.getLayer('histc-cl')&&map.queryRenderedFeatures(e.point,{layers:['histc-cl']})[0];
  if(hcl){map.getSource('histc').getClusterExpansionZoom(hcl.properties.cluster_id).then(z=>map.easeTo({offset:visOff(),center:hcl.geometry.coordinates,zoom:z+.5,duration:dur(800)}));return}
- const hf=S.hist&&map.queryRenderedFeatures(e.point,{layers:['hist-c','histc-p'].filter(id=>map.getLayer(id))})[0];if(hf){histPopup(hf);return}
+ const hf=S.hist&&map.queryRenderedFeatures(e.point,{layers:['hist-c','histc-p'].filter(id=>map.getLayer(id))})[0];if(hf){const r=STD[hf.properties.i];if(r){MOVED=true;openDetail(hsRecH(r))}return} /* จุดย้อนหลังในการ์ดสถิติ = แผงรายละเอียดแบบจุด 48 ชม. (20 พ.ย. 69) — histPopup เดิมยังเก็บไว้ */
  const uh=typeof ulHit==='function'?ulHit(e):null;if(uh&&uh.done)return; // ชั้นข้อมูลของผู้ใช้: หมุด/เส้น = ป๊อปอัปของวัตถุ, พื้นที่ = บรรทัดบนสุดของป๊อปอัปตำแหน่ง
  const g0=geoAt(e.lngLat.lng,e.lngLat.lat);
  const{lat,lng}=e.lngLat,ll=lat.toFixed(5)+', '+lng.toFixed(5);
@@ -3295,6 +3297,9 @@ function setup4(){const dotPaint={'circle-radius':['interpolate',['linear'],['zo
  if(map.getStyle().glyphs)map.addLayer({id:'histc-n',type:'symbol',source:'histc',filter:['has','point_count'],layout:{visibility:'none','text-field':['get','point_count_abbreviated'],'text-font':['Noto Sans Bold'],'text-size':12,'text-allow-overlap':true},paint:{'text-color':'#fff'}});
  map.addLayer({id:'histc-p',type:'circle',source:'histc',filter:['!',['has','point_count']],layout:{visibility:'none'},paint:dotPaint})}
 function L4(){const set=(id,b)=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',b?'visible':'none');set('hist-h',S.hist&&HM.mode==='heat');set('hist-c',S.hist&&HM.mode==='pt');['histc-cl','histc-n','histc-p'].forEach(id=>set(id,S.hist&&HM.mode==='cl'))}
+/* แถวข้อมูลย้อนหลัง (HD/HA) → รูปจุดแบบ HS สำหรับ openDetail (แบบ hsAD) */
+function hsRecH(r){const[tb,am]=String(STI.tm[r.tm]||'').split('|'),cf=HAM()?String(STI.cf[r.cf]||''):'';
+ return{lat:r.la,lon:r.lo,t:r.d*864e5+(Math.floor(r.t/100)*60+r.t%100)*6e4-7*36e5,sat:HAM()?String(STI.fu[r.fu]||'ไม่ระบุ'):'VIIRS (ข้อมูลกรมอุทยานฯ)',conf:/high|สูง/i.test(cf)?'h':/low|ต่ำ/i.test(cf)?'l':'n',prov:STI.pv[r.pv]||'ไม่ระบุ',amp:am||'ไม่ระบุ',tam:tb||'ไม่ระบุ',ns:'api',old:true}}
 function histPopup(f){const r=STD[f.properties.i];if(!r)return;const hh=Math.floor(r.t/100),tm=String(hh).padStart(2,'0')+':'+String(r.t%100).padStart(2,'0'),day=hh>=6&&hh<18;
  const[ta,am]=STI.tm[r.tm].split('|'),st=STI.st[r.st],row=(k,v)=>`<div><b>${k}:</b> ${v}</div>`;
  ftFill(new maplibregl.Popup({maxWidth:'300px'}).setLngLat([r.lo,r.la]).setHTML(`<div class="hpop"><div class="hpt"><i style="background:${fyColor(r.fy)}"></i>จุดความร้อน ปีงบฯ ${r.fy}${HAM()?' · '+esc(STI.fu[r.fu]):' · กรมอุทยานฯ'}</div>`
@@ -3388,6 +3393,8 @@ function pbExit(){pbStop();PB.on=false;pcVis();pbFrame()}
 /* ตำแหน่งกล่องสัญลักษณ์อายุจุด: ชิดขวาเหนือแถวปุ่มควบคุม (มือถือ: เหนือแผ่นล่าง) · แผงขวาเปิด = ไปทางซ้ายของแผง · ชนแถบเล่นย้อน/แถบ Windy = ยกขึ้นเหนือแถบ */
 // มือถือ (ผู้ใช้แจ้ง 8 พ.ย. 69 กล่องใหญ่บังแผนที่): ค่าเริ่มต้นย่อเป็นแถวเดียว (ไอคอน+ตัวเลข) · แตะ = ขยาย/ย่อ · ปัดขวา = ซ่อนเป็นแท็บเล็กชิดขอบ · แตะแท็บ/ปัดซ้าย = กลับมา · จำสถานะ
 let HLGM='cp';try{const v=localStorage.getItem('fm-hlg');if(v==='full'||v==='cp'||v==='hd')HLGM=v}catch(x){}
+let HLGD='full';try{if(localStorage.getItem('fm-hlgd')==='hd')HLGD='hd'}catch(x){} /* คอมพิวเตอร์: full/hd (20 พ.ย. 69 ผู้ใช้ขอ) */
+function hlgDSet(m){HLGD=m;try{localStorage.setItem('fm-hlgd',m)}catch(x){}hlgPos()}
 function hlgSet(m){HLGM=m;try{localStorage.setItem('fm-hlg',m)}catch(x){}hlgPos()}
 {const e=$('#hlg');let p0=null;
  e.addEventListener('pointerdown',v=>{if(!e.classList.contains('mb'))return;p0={x:v.clientX,y:v.clientY,id:v.pointerId};try{e.setPointerCapture(v.pointerId)}catch(x){}});
@@ -3395,8 +3402,9 @@ function hlgSet(m){HLGM=m;try{localStorage.setItem('fm-hlg',m)}catch(x){}hlgPos(
  const up=v=>{if(!p0||v.pointerId!==p0.id)return;const dx=v.clientX-p0.x,dy=v.clientY-p0.y;p0=null;e.style.transform='';if(v.type==='pointercancel')return;
   if(Math.abs(dx)<8&&Math.abs(dy)<8)return; // แตะ = จัดการใน click (เดิมย่อตอน pointerup กล่องหดก่อน click → click ตกลงแผนที่ เด้งป๊อปอัปตำแหน่ง ผู้ใช้แจ้ง 8 พ.ย. 69)
   if(dx>40&&HLGM!=='hd'){hlgSet('hd');toast('ซ่อนกล่องอายุจุดความร้อนแล้ว · แตะแท็บที่ขอบขวาเพื่อแสดง')}else if(dx<-30&&HLGM==='hd')hlgSet('cp')};
- e.addEventListener('pointerup',up);e.addEventListener('pointercancel',up);e.addEventListener('click',v=>{if(!e.classList.contains('mb'))return;v.stopPropagation();v.preventDefault();hlgSet(HLGM==='hd'?'cp':HLGM==='cp'?'full':'cp')})}
-function hlgPos(){const e=$('#hlg');if(!e||e.hidden)return;const W=innerWidth,H=innerHeight,mob=W<768,sm=mob||H<520;let r=12,b; /* sm = แบบย่อ/ปัดซ่อนได้ · จอเตี้ย (มือถือแนวนอน ผู้ใช้แจ้ง D7 18 พ.ย. 69 กล่องเต็มบังกลางจอ) ใช้ด้วย */
+ e.addEventListener('pointerup',up);e.addEventListener('pointercancel',up);e.addEventListener('click',v=>{if(e.dataset.dk){v.stopPropagation();v.preventDefault();hlgDSet(HLGD==='hd'?'full':'hd');return}if(!e.classList.contains('mb'))return;v.stopPropagation();v.preventDefault();hlgSet(HLGM==='hd'?'cp':HLGM==='cp'?'full':'cp')})}
+function hlgPos(){const e=$('#hlg');if(!e||e.hidden)return;const W=innerWidth,H=innerHeight,mob=W<768,sm=mob||H<520;let r=12,b;
+ {const dk=!sm;e.dataset.dk=dk?'1':'';e.classList.toggle('dkh',dk&&HLGD==='hd');if(dk){e.title=HLGD==='hd'?'คลิกเพื่อแสดงอายุจุดความร้อน':'คลิกเพื่อซ่อน';e.setAttribute('role','button');e.setAttribute('aria-expanded',String(HLGD!=='hd'))}} /* sm = แบบย่อ/ปัดซ่อนได้ · จอเตี้ย (มือถือแนวนอน ผู้ใช้แจ้ง D7 18 พ.ย. 69 กล่องเต็มบังกลางจอ) ใช้ด้วย */
  e.classList.toggle('mb',sm);['cp','hd'].forEach(k=>e.classList.toggle(k,sm&&HLGM===k));if(sm){e.setAttribute('role','button');e.setAttribute('aria-expanded',String(HLGM==='full'));e.title=HLGM==='hd'?'แตะเพื่อแสดงอายุจุดความร้อน':'แตะเพื่อ'+(HLGM==='cp'?'ขยาย':'ย่อ')+' · ปัดขวาเพื่อซ่อน'}else{e.setAttribute('role','group');e.removeAttribute('aria-expanded');e.removeAttribute('title')}
  {const t=$('#c-t');if(t)t.textContent=['r','o','y','b'].reduce((a,k)=>a+(+($('#c-'+k).textContent)||0),0)}
  const bc=document.body.classList,PO=$('#right').classList.contains('open')||!$('#ulm').hidden||$('#dp').classList.contains('open')||bc.contains('msron')||bc.contains('udon');e.classList.toggle('px',PO); /* วัด/วิเคราะห์ภูมิประเทศ/วาด = ซ่อนด้วย (D7 M1/M3: บังรูปที่กำลังวัด) */if(PO)return; // แผงขวาเปิด = ซ่อนกล่อง เพิ่มพื้นที่แผนที่ (ผู้ใช้ขอ 5 พ.ย. 69)
@@ -4116,6 +4124,11 @@ function lcSet(on,fit){document.body.classList.toggle('lc',on);if(fit)panFit(); 
  const t=on?'แสดงแผงด้านซ้าย':'ซ่อนแผงด้านซ้าย เพื่อดูแผนที่ได้กว้างขึ้น';LCOL.setAttribute('aria-label',t);LCOL.dataset.tip=t;LCOL.setAttribute('aria-expanded',String(!on));
  try{ttHide()}catch(e){}moreFit();setTimeout(()=>{try{pbPos()}catch(e){}moreFit()},300)}
 LCOL.onclick=()=>lcSet(!document.body.classList.contains('lc'),true);lcSet(false);
+/* ปุ่มซ่อน/แสดงแผงชั้นข้อมูล (#right) ที่ขอบซ้ายของแผง — ปิดแผงแล้วแท็บอยู่ขอบขวาจอ · ซ่อนแท็บเมื่อแผงรายละเอียดจุด/แผงวาดเปิด (อยู่ตำแหน่งเดียวกัน) */
+const RCOL=document.createElement('button');RCOL.id='rcol';RCOL.type='button';RCOL.innerHTML='<svg class="i" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>';document.body.append(RCOL);
+function rcSync(){const op=$('#right').classList.contains('open'),oth=$('#dp').classList.contains('open')||!$('#ulm').hidden;document.body.classList.toggle('rop',op);RCOL.hidden=oth&&!op;const t=op?'ซ่อนแผงชั้นข้อมูล เพื่อดูแผนที่ได้กว้างขึ้น':'แสดงแผงชั้นข้อมูล';RCOL.setAttribute('aria-label',t);RCOL.dataset.tip=t;RCOL.setAttribute('aria-expanded',String(op))}
+RCOL.onclick=()=>{const op=$('#right').classList.contains('open');if(!op)closeDetail();$('#right').classList.toggle('open',!op);sync();panFit();rcSync()};
+new MutationObserver(rcSync).observe($('#right'),{attributes:true,attributeFilter:['class']});new MutationObserver(rcSync).observe($('#dp'),{attributes:true,attributeFilter:['class']});new MutationObserver(rcSync).observe($('#ulm'),{attributes:true,attributeFilter:['hidden']});rcSync();
 /* แท็บเล็ต (จอ ≥768 สัมผัส): ปัดแผงซ้ายไปทางซ้าย = พับ · ปัดแผงชั้นข้อมูลไปทางขวา = ปิด · แผงเลื่อนตามนิ้ว ปล่อยเกิน 70 px หรือปัดเร็ว = ปิด ไม่งั้นเด้งกลับ
    ไม่เริ่มจากช่องกรอก/แถบเลื่อน/รายการที่เลื่อนแนวนอนได้ · ปุ่ม ‹ › ก็ปัดได้ทั้งสองทาง */
 function hScrollAt(t,stop){for(let n=t;n&&n!==stop;n=n.parentElement)if(n.scrollWidth>n.clientWidth+2&&/auto|scroll/.test(getComputedStyle(n).overflowX))return true;return false}
@@ -5142,10 +5155,7 @@ function pmInset(x,k,g,u){const mm=v=>v*k;let lo0=180,lo1=-180,la0=90,la1=-90;GE
  GEO.cons.features.forEach(f=>{const C=f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates;x.beginPath();C.forEach(pg=>pg.forEach(r=>r.forEach(([a,b],i)=>{const q=P(a,b);i?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1])})));x.fillStyle=KC[f.properties.kind]||'#4cae5c';x.globalAlpha=.55;x.fill('evenodd');x.globalAlpha=1;x.strokeStyle=KCD[f.properties.kind]||'#2f8a40';x.lineWidth=mm(.15);x.stroke()});
  const a=P(B.getWest(),B.getNorth()),b=P(B.getEast(),B.getSouth());x.strokeStyle='#d7191c';x.lineWidth=mm(.5);x.strokeRect(a[0],a[1],Math.max(mm(.8),b[0]-a[0]),Math.max(mm(.8),b[1]-a[1]));x.restore()}
 /* ---------- กล่องข้อความ/สัญลักษณ์ที่ผู้ใช้เพิ่ม ---------- */
-const PMSYM={fire:['ไฟ','M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.5 2-2 2 1-3 0-6-1-8z'],pin:['หมุด','M12 22s-7-6.2-7-12a7 7 0 0114 0c0 5.8-7 12-7 12zM12 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z'],star:['ดาว','M12 2.5l2.9 6.2 6.6.7-5 4.5 1.5 6.6L12 17.2 6 20.5l1.5-6.6-5-4.5 6.6-.7z'],
- flag:['ธง','M5 21V3h2v1h11l-2.5 4.5L18 13H7v8z'],warn:['สามเหลี่ยม','M12 2.5L22.5 20.5h-21zM11 9v5h2V9zm0 7v2h2v-2z'],cir:['วงกลม','M12 3a9 9 0 110 18 9 9 0 010-18z'],sq:['สี่เหลี่ยม','M4 4h16v16H4z'],
- x:['กากบาท','M5.6 3.5L12 9.9l6.4-6.4 2.1 2.1-6.4 6.4 6.4 6.4-2.1 2.1-6.4-6.4-6.4 6.4-2.1-2.1 6.4-6.4-6.4-6.4z'],arrow:['ลูกศร','M3 10.5h12V5l7 7-7 7v-5.5H3z'],tent:['ค่ายพัก','M12 3l10 17H2zM12 9l-4.5 11h9z'],
- home:['อาคาร','M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z'],drop:['แหล่งน้ำ','M12 2.5s7 7.6 7 12.5a7 7 0 01-14 0c0-4.9 7-12.5 7-12.5z'],heli:['ลานจอด ฮ.','M12 2a10 10 0 110 20 10 10 0 010-20zm-4 5v10h2v-4h4v4h2V7h-2v4h-4V7z']};
+/* PMSYM อยู่ในสคริปต์หลัก (ใช้ร่วมกับสัญลักษณ์ของเครื่องมือวาด 20 พ.ย. 69) */
 const pmSymSvg=(k,c)=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="${PMSYM[k][1]}" fill="${c}" fill-rule="evenodd" stroke="#fff" stroke-width="1.2" stroke-linejoin="round" paint-order="stroke"/></svg>`;
 /* กล่องข้อความ/สัญลักษณ์/รูปภาพของผู้ใช้ — วาดลง canvas ทั้งหน้าจอและไฟล์ (ภาพแคชใน PMIC) */
 const PMIC={};function pmIm(src){let i=PMIC[src];if(!i){i=PMIC[src]=new Image();i.onload=()=>pmRedraw();i.src=src}return i.complete&&i.naturalWidth?i:null}
@@ -5715,19 +5725,21 @@ function ulPinImg(){ // หมุด SDF (เปลี่ยนสีด้ว�
  const d2=new Uint8Array(W*H*4);for(let y=0;y<H;y++)for(let x=0;x<W;x++){const q=Math.hypot(x+.5-cx,y+.5-cy),v=Math.max(0,Math.min(1,6.5-q));const i=(y*W+x)*4;d2[i]=d2[i+1]=d2[i+2]=255;d2[i+3]=Math.round(v*255)}
  return[{width:W,height:H,data:D},{width:W,height:H,data:d2}]}
 let ULPI=null,ULSI=null;
+/* สัญลักษณ์ชุดเดียวกับ "เพิ่มสัญลักษณ์" ในเมนูพิมพ์แผนที่ (ผู้ใช้ขอ 20 พ.ย. 69) — lz-pm ใช้ตัวแปรนี้ */
+const PMSYM={fire:['ไฟ','M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-5-1 1-1.5 2-2 2 1-3 0-6-1-8z'],pin:['หมุด','M12 22s-7-6.2-7-12a7 7 0 0114 0c0 5.8-7 12-7 12zM12 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z'],star:['ดาว','M12 2.5l2.9 6.2 6.6.7-5 4.5 1.5 6.6L12 17.2 6 20.5l1.5-6.6-5-4.5 6.6-.7z'],
+ flag:['ธง','M5 21V3h2v1h11l-2.5 4.5L18 13H7v8z'],warn:['สามเหลี่ยม','M12 2.5L22.5 20.5h-21zM11 9v5h2V9zm0 7v2h2v-2z'],cir:['วงกลม','M12 3a9 9 0 110 18 9 9 0 010-18z'],sq:['สี่เหลี่ยม','M4 4h16v16H4z'],
+ x:['กากบาท','M5.6 3.5L12 9.9l6.4-6.4 2.1 2.1-6.4 6.4 6.4 6.4-2.1 2.1-6.4-6.4-6.4 6.4-2.1-2.1 6.4-6.4-6.4-6.4z'],arrow:['ลูกศร','M3 10.5h12V5l7 7-7 7v-5.5H3z'],tent:['ค่ายพัก','M12 3l10 17H2zM12 9l-4.5 11h9z'],
+ home:['อาคาร','M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z'],drop:['แหล่งน้ำ','M12 2.5s7 7.6 7 12.5a7 7 0 01-14 0c0-4.9 7-12.5 7-12.5z'],heli:['ลานจอด ฮ.','M12 2a10 10 0 110 20 10 10 0 010-20zm-4 5v10h2v-4h4v4h2V7h-2v4h-4V7z']};
 /* สัญลักษณ์ของวัตถุที่วาด (20 พ.ย. 69 ผู้ใช้ขอ) — properties._s (หมุด: pin circle star tri square flag · พื้นที่: fill solid none) · _l (เส้น/ขอบ: solid dash dot) · ไม่ส่งออก (ขึ้นต้น _) */
-const ULSP=[['pin','หมุด'],['circle','วงกลม'],['square','สี่เหลี่ยม'],['tri','สามเหลี่ยม'],['star','ดาว'],['flag','ธง']],ULSL=[['solid','เส้นทึบ'],['dash','เส้นประ'],['dot','เส้นจุด']],ULSF=[['fill','โปร่งแสง'],['solid','ทึบ'],['none','ไม่เติม']];
-const ULSV={pin:'<path d="M12 22s-7-7.2-7-12a7 7 0 0114 0c0 4.8-7 12-7 12z"/>',circle:'<circle cx="12" cy="12" r="7"/>',square:'<rect x="5.5" y="5.5" width="13" height="13" rx="1.5"/>',tri:'<path d="M12 4l8.5 15h-17z"/>',star:'<path d="M12 3.5l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.1-5.4 3.1 1.3-6-4.6-4.1 6.1-.6z"/>',flag:'<path d="M7 21V4M7 4h11l-2.5 4 2.5 4H7"/>'};
+const ULSP=Object.entries(PMSYM).map(([k,v])=>[k,v[0]]),ULSA={circle:'cir',square:'sq',tri:'warn'}/* ชื่อเดิมรอบแรก */,ULSL=[['solid','เส้นทึบ'],['dash','เส้นประ'],['dot','เส้นจุด']],ULSF=[['fill','โปร่งแสง'],['solid','ทึบ'],['none','ไม่เติม']];
+const ULSV=Object.fromEntries(Object.entries(PMSYM).map(([k,v])=>[k,'<path fill-rule="evenodd" d="'+v[1]+'"/>']));
 function ulSdf(W,H,draw){const c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');g.fillStyle='#000';draw(g);
  const a=g.getImageData(0,0,W,H).data,M=new Uint8Array(W*H);for(let i=0;i<W*H;i++)M[i]=a[i*4+3]>127?1:0;
  const B=[];for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;if(M[i]&&(x===0||y===0||x===W-1||y===H-1||!M[i-1]||!M[i+1]||!M[i-W]||!M[i+W]))B.push(x,y)}
  const D=new Uint8Array(W*H*4);for(let y=0;y<H;y++)for(let x=0;x<W;x++){let m=1e9;for(let j=0;j<B.length;j+=2){const dx=B[j]-x,dy=B[j+1]-y,q=dx*dx+dy*dy;if(q<m)m=q}
   const i=y*W+x,d=(M[i]?-1:1)*Math.max(0,Math.sqrt(m)-.5),v=Math.max(0,Math.min(255,Math.round(255-255*(d/8+.25))));D[i*4]=D[i*4+1]=D[i*4+2]=255;D[i*4+3]=v}
  return{width:W,height:H,data:D}}
-function ulSymImgs(){const S=44,c=S/2,st=(g,n,R,r)=>{g.beginPath();for(let i=0;i<n*2;i++){const q=i%2?r:R,t=-Math.PI/2+i*Math.PI/n;g.lineTo(c+q*Math.cos(t),c+2+q*Math.sin(t))}g.closePath();g.fill()};
- return{circle:ulSdf(S,S,g=>{g.beginPath();g.arc(c,c,13,0,7);g.fill()}),square:ulSdf(S,S,g=>g.fillRect(c-12,c-12,24,24)),
-  tri:ulSdf(S,S,g=>{g.beginPath();g.moveTo(c,c-14);g.lineTo(c+15,c+12);g.lineTo(c-15,c+12);g.closePath();g.fill()}),star:ulSdf(S,S,g=>st(g,5,16,7)),
-  flag:ulSdf(S,52,g=>{g.fillRect(c-1.5,8,3,42);g.beginPath();g.moveTo(c,8);g.lineTo(c+18,8);g.lineTo(c+12,16);g.lineTo(c+18,24);g.lineTo(c,24);g.closePath();g.fill()})}}
+function ulSymImgs(){const S=48,o={};for(const k in PMSYM){if(k==='pin')continue;const P=new Path2D(PMSYM[k][1]);o[k]=ulSdf(S,S,g=>{g.translate(3,3);g.scale(42/24,42/24);g.fill(P,'evenodd')})}return o}
 const ulSymBtn=(k,lb,on,svg)=>`<button type="button" data-us="${k}" aria-pressed="${on}" title="${lb}" aria-label="${lb}">${svg}</button>`;
 function ulDrop(k){const id='ul-'+k;ULSUF.forEach(s=>map.getLayer(id+s)&&map.removeLayer(id+s));if(map.getSource(id))map.removeSource(id);ulLabels(k,1)}
 function ulData(e){if(UL.hide&&UL.hide.k===e.k){const f=UL.hide.fid;return{type:'FeatureCollection',features:e.fc.features.filter(x=>x.properties._id!==f)}}return e.fc}
@@ -5742,14 +5754,14 @@ function ulRender(k){const e=ulEnt(k);if(!e){ulDrop(k);return}if(!map.getSource(
   map.addLayer({id:id+'-od',type:'line',source:id,filter:LS('dash'),layout:Object.assign({'line-join':'round'},vis),paint:{'line-color':C,'line-width':LW,'line-dasharray':[3,2]}},b);
   map.addLayer({id:id+'-ot',type:'line',source:id,filter:LS('dot'),layout:Object.assign({'line-cap':'round','line-join':'round'},vis),paint:{'line-color':C,'line-width':LW,'line-dasharray':[.1,2]}},b);
   if(dot)map.addLayer({id:id+'-c',type:'circle',source:id,filter:UGT('Point','MultiPoint'),layout:vis,paint:{'circle-radius':['interpolate',['linear'],['zoom'],6,3,12,6],'circle-color':C,'circle-stroke-color':'#fff','circle-stroke-width':1.2}},b);
-  else{const SH=['circle','square','tri','star'],ps=['coalesce',['get','_s'],'pin'],L={'icon-anchor':['match',ps,SH,'center','bottom'],'icon-offset':['match',ps,SH,['literal',[0,0]],'flag',['literal',[0,2]],['literal',[0,4]]],'icon-allow-overlap':true,'icon-ignore-placement':true,'icon-size':['interpolate',['linear'],['zoom'],6,.62,12,.9]};
-   map.addLayer({id:id+'-p',type:'symbol',source:id,filter:UGT('Point','MultiPoint'),layout:Object.assign({'icon-image':['match',ps,[...SH,'flag'],['concat','ul-s-',ps],'ul-pin']},L,vis),paint:{'icon-color':C,'icon-halo-color':'#fff','icon-halo-width':1.4}},b);
+  else{const s0=['coalesce',['get','_s'],'pin'],ps=['match',s0,'circle','cir','square','sq','tri','warn',s0],L={'icon-anchor':['match',ps,['pin','flag'],'bottom','center'],'icon-offset':['match',ps,'pin',['literal',[0,4]],'flag',['literal',[0,3]],['literal',[0,0]]],'icon-allow-overlap':true,'icon-ignore-placement':true,'icon-size':['interpolate',['linear'],['zoom'],6,.62,12,.9]};
+   map.addLayer({id:id+'-p',type:'symbol',source:id,filter:UGT('Point','MultiPoint'),layout:Object.assign({'icon-image':['match',ps,'pin','ul-pin',['concat','ul-s-',ps]]},L,vis),paint:{'icon-color':C,'icon-halo-color':'#fff','icon-halo-width':1.4}},b);
    map.addLayer({id:id+'-d',type:'symbol',source:id,filter:['all',UGT('Point','MultiPoint'),['==',ps,'pin']],layout:Object.assign({'icon-image':'ul-pind'},L,vis)},b)}ulOrder()}
  else{map.getSource(id).setData(ulData(e));ULSUF.forEach(s=>map.getLayer(id+s)&&map.setLayoutProperty(id+s,'visibility',vis.visibility))}
  ulLabels(k)}
 function ulLayers(){if(!map.getSource('dem'))return;
  if(!map.hasImage('ul-pin')){ULPI=ULPI||ulPinImg();map.addImage('ul-pin',ULPI[0],{sdf:true,pixelRatio:2});map.addImage('ul-pind',ULPI[1],{pixelRatio:2})}
- if(!map.hasImage('ul-s-star')){ULSI=ULSI||ulSymImgs();for(const k in ULSI)map.addImage('ul-s-'+k,ULSI[k],{sdf:true,pixelRatio:2})}
+ if(!map.hasImage('ul-s-heli')){ULSI=ULSI||ulSymImgs();for(const k in ULSI)map.addImage('ul-s-'+k,ULSI[k],{sdf:true,pixelRatio:1.6})}
  if(!map.getSource('ul-sel')){map.addSource('ul-sel',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
   map.addLayer({id:'ul-sel-l',type:'line',source:'ul-sel',filter:UGT('LineString','MultiLineString','Polygon','MultiPolygon'),layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ffd400','line-width':8,'line-opacity':.75}});
   map.addLayer({id:'ul-sel-c',type:'circle',source:'ul-sel',filter:UGT('Point','MultiPoint'),paint:{'circle-radius':16,'circle-color':'#ffd400','circle-opacity':.45,'circle-translate':[0,-14]}})}
@@ -5883,7 +5895,7 @@ function udSet(m,ed){udClear();UD.m=m;UD.ed=ed||null;UD.form=false;UD.g0=null;UD
 function udClear(){UD.mk.forEach(x=>x.remove());UD.md.forEach(x=>x.remove());UD.mk=[];UD.md=[];UD.pts=[];UD.cur=null;UD.snap=false;UD.drag=null;$('#mhud').hidden=true}
 function udEdit(k,fid){const x=ulFind(k,fid);if(!x||!x.f||k[0]!=='l')return;const f=x.f,g=f.geometry,p=f.properties;
  const m=g.type==='Point'?'pt':g.type==='LineString'?'ln':g.type==='Polygon'&&g.coordinates.length===1?'pg':'at';
- udSet(m,{k,fid});UD.c=p._c||x.e.color;UD.s=p._s||'';UD.l=p._l||'';UD.nm=p.name==null?'':String(p.name);UD.ds=p.description==null?'':String(p.description);UD.kv=Object.entries(ulPub(p)).filter(([a])=>a!=='name'&&a!=='description').map(([a,b])=>[a,typeof b==='object'&&b?JSON.stringify(b):b==null?'':b]);
+ udSet(m,{k,fid});UD.c=p._c||x.e.color;UD.s=ULSA[p._s]||p._s||'';UD.l=p._l||'';UD.nm=p.name==null?'':String(p.name);UD.ds=p.description==null?'':String(p.description);UD.kv=Object.entries(ulPub(p)).filter(([a])=>a!=='name'&&a!=='description').map(([a,b])=>[a,typeof b==='object'&&b?JSON.stringify(b):b==null?'':b]);
  UD.cz=p._z||null;UD.pts=m==='pt'?[g.coordinates.slice()]:m==='ln'?g.coordinates.map(c=>c.slice()):m==='pg'?ulOpen0(g.coordinates[0]).map(c=>c.slice()):[];UD.g0=g;UD.form=true;
  UL.hide={k,fid};ulRender(k);if(m==='at')ulSel(f);udMarks();udGeo();udPanel();udCross();const b=GIO.bbox([f]),v=map.getBounds();if(b&&!(v.contains([b[0],b[1]])&&v.contains([b[2],b[3]])))ulZoom(f)} // ซูมเฉพาะเมื่อวัตถุอยู่นอกจอ
 function udGeo(){const s=map.getSource('uld');if(!s)return;const P=UD.pts,n=P.length,F=[],c=UD.c||ULC[0],pg=UD.m==='pg',cl=pg&&(UD.form||UD.snap);
