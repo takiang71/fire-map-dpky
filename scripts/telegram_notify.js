@@ -388,10 +388,10 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
   //  รอบแรกที่เห็นไฟล์ (ไม่มี st.vf) = จำทั้งหมดโดยไม่ส่ง · ส่งไม่สำเร็จ = ลองรอบถัดไป (ยังไม่จำ) · TG_REP=off = ปิด · ข้อความจาก scripts/lib/vfmsg.js (ชุดเดียวกับ LINE)
   try {
     const VM = require('./lib/vfmsg'), rjs = JSON.parse(fs.readFileSync(path.join(OUT, 'reports.json'), 'utf8')), first = !st.vf; st.vf = st.vf || {};
-    const nw = VM.fresh(rjs.reports, st.vf, now), on2 = on && !/^(off|0|no)$/i.test(process.env.TG_REP || '');
+    const nw = VM.fresh(rjs.reports, st.vf, now), on2 = false; // ปิดถาวร 20 พ.ย. 69 (ผู้ใช้ขอ) · ยังจำรายงานว่าเห็นแล้ว
     if (first || seed) { for (const r of rjs.reports || []) st.vf[r.id] = r.c; if (nw.length) log({ vf: nw.length, why: 'เริ่มเก็บสถานะรายงาน (ไม่ส่ง)' }) }
     else if (nw.length) {
-      if (!on2) { nw.forEach(r => { st.vf[r.id] = r.c }); log({ vf: nw.length, why: on ? 'TG_REP=off' : off }) }
+      if (!on2) { nw.forEach(r => { st.vf[r.id] = r.c }); log({ vf: nw.length, why: on ? 'ปิดแจ้งผลตรวจสอบจากหน้างานแล้ว' : off }) }
       else try { const cs = (b => b ? JSON.parse(b[1]).cs || [] : [])(require('./lib/area').block('fxdata'));
         log({ vf: 1, ok: 1, n: nw.length, ...await sendB(s => msgOf(VM.vfText(nw, { site: SITE, now, html: true, cs, per: s ? 5 : 12 }), [[['🗺️ แผนที่ไฟป่า (แท็บการดับไฟป่า)', SITE + '?v=&l=xt']]])) }); nw.forEach(r => { st.vf[r.id] = r.c }) }
       catch (e) { log({ vf: 1, why: 'ส่งไม่สำเร็จ: ' + e.message.slice(0, 300), n: nw.length }) }

@@ -118,13 +118,7 @@ function build(m, D, F1) {
     const X = D.X, rs = X.r.filter(r => r[0] >= d0 && r[0] <= d1 && !dy(X.ar[r[8]], X.st[r[9]]));
     fx += `<p>บันทึกการดับไฟ (Excel สถิติดับไฟ อส.): <b>${nf(rs.length)} ครั้ง ${nf1(rs.reduce((a, r) => a + (+r[11] || 0), 0))} ไร่</b>${rs.length ? '' : ' <span class="mut">(ข้อมูลรายปีนำเข้าปลายปีงบ — เดือนล่าสุดมักยังไม่มี)</span>'}</p>`;
   }
-  if (F1 === null) fx += '<p class="mut">รายงานผลตรวจสอบจากหน้างาน: ดึงข้อมูลไม่ได้ในรอบที่สร้างรายงาน</p>';
-  else {
-    const RES = { fire: 'พบไฟกำลังไหม้', out: 'ดับแล้ว', none: 'ตรวจแล้วไม่พบไฟ', plan: 'เผาตามแผน (ชิงเผา)' };
-    const rs = F1.filter(r => { const t = r.hs && r.hs.t || r.c, d = Math.floor((t + 7 * 36e5) / 864e5); return d >= d0 && d <= d1 && !dy(r.ar, r.st) });
-    const c = cnt(rs, r => r.res);
-    fx += `<p>รายงานผลตรวจสอบจากหน้างาน (ระบบนี้): <b>${nf(rs.length)} รายการ</b>${rs.length ? ' — ' + Object.entries(c).map(([k, v]) => `${RES[k] || k} ${v}`).join(' · ') + ` · ${nf1(rs.filter(r => r.res !== 'none').reduce((a, r) => a + (+r.rai || 0), 0))} ไร่` : ''}</p>`;
-  }
+  // ผลตรวจสอบจากหน้างาน (F1) เอาออกจากรายงาน 20 พ.ย. 69 (ผู้ใช้ขอ)
   // FWI
   let fwi = '<p class="mut">ไม่มีข้อมูล FWI รายวันของเดือนนี้ (ระบบเริ่มเก็บค่ารายวัน 9 พ.ย. 2569)</p>';
   try {
@@ -186,7 +180,7 @@ function pdf(htmlFile, out) {
     if (fs.existsSync(path.join(RD, id + '.html'))) { console.log(`มีรายงาน ${id} แล้ว — ข้าม`); return }
   }
   if (!/^\d{4}-\d{2}$/.test(m)) throw new Error('--month ต้องเป็น YYYY-MM (ค.ศ.)');
-  const R = build(m, data(), await reportsF1());
+  const R = build(m, data(), null);
   fs.mkdirSync(RD, { recursive: true });
   const hf = path.join(RD, R.id + '.html'), pf = path.join(RD, R.id + '.pdf');
   fs.writeFileSync(hf, R.html);

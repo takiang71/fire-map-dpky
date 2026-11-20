@@ -208,10 +208,10 @@ async function quotaOk() {
   let vrec = null;
   try {
     const VM = require('./lib/vfmsg'), rjs = JSON.parse(fs.readFileSync(path.join(OUT, 'reports.json'), 'utf8')), first = !st.vf; st.vf = st.vf || {};
-    const nw = VM.fresh(rjs.reports, st.vf, now), REP = !/^(off|0|no)$/i.test(process.env.LINE_REP || '');
+    const nw = VM.fresh(rjs.reports, st.vf, now), REP = false; // ปิดถาวร 20 พ.ย. 69 (ผู้ใช้ขอ — ข้อมูลไฟจะมาจากแบบรับแจ้งเหตุกรมอุทยานฯ) · ยังจำรายงานว่าเห็นแล้ว ไม่ค้างส่งย้อนหลังถ้าเปิดกลับ
     if (first || seed) { for (const r of rjs.reports || []) st.vf[r.id] = r.c; if (nw.length) vrec = { vf: nw.length, why: 'เริ่มเก็บสถานะรายงาน (ไม่ส่ง)' } }
     else if (nw.length) {
-      if (!TOKEN || !GROUP || !REP || MODE === 'daily') { nw.forEach(r => { st.vf[r.id] = r.c }); vrec = { vf: nw.length, why: MODE === 'daily' ? MWHY : !REP ? 'LINE_REP=off' : 'ยังไม่ตั้ง LINE_TOKEN/LINE_GROUP_ID', ...(MODE === 'daily' ? { mode: 'daily' } : {}) } }
+      if (!TOKEN || !GROUP || !REP || MODE === 'daily') { nw.forEach(r => { st.vf[r.id] = r.c }); vrec = { vf: nw.length, why: MODE === 'daily' ? MWHY : !REP ? 'ปิดแจ้งผลตรวจสอบจากหน้างานแล้ว' : 'ยังไม่ตั้ง LINE_TOKEN/LINE_GROUP_ID', ...(MODE === 'daily' ? { mode: 'daily' } : {}) } }
       else if (MAX_DAY > 0 && (st.days[today] || 0) >= MAX_DAY) vrec = { vf: nw.length, why: `ครบ ${MAX_DAY} ครั้งของวันนี้แล้ว` };
       else try {
         const q = await quotaOk();
