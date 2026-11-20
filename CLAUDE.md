@@ -1,6 +1,6 @@
 # แผนที่สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่ (Dong Phayayen–Khao Yai Forest Complex)
 
-เว็บแอปไฟล์เดียว (`index.html` 2.4 MB ~8,000 บรรทัด, ข้อมูลฝัง ~1 MB · `_site/index.html` 1.62 MB: build_site แยกข้อมูลฝัง → `data/emb/`, บล็อก `lz-*` → `js/`) ภาษาไทย MapLibre GL JS 4.7.1 (cdnjs)
+เว็บแอปไฟล์เดียว (`index.html` 2.4 MB ~8,000 บรรทัด, ข้อมูลฝัง ~1 MB · `_site/index.html` 1.53 MB: build_site แยกข้อมูลฝัง → `data/emb/`, บล็อก `lz-*` → `js/`) ภาษาไทย MapLibre GL JS 4.7.1 (cdnjs)
 เปิดด้วยดับเบิลคลิก หรือ `node scripts/serve.js` แล้วเข้า http://localhost:8000 (ไม่มี Python · สคริปต์ใหม่ใช้ Node 24)
 ผู้ใช้สื่อสารภาษาไทย ตอบเป็นภาษาไทย · ข้อความบนหน้าเว็บเป็นภาษาไทยทั้งหมด
 สเปกตั้งต้นอยู่ที่ `docs/spec-v3.md` (เฟส 1–4)

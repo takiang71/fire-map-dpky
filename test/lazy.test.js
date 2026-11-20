@@ -26,10 +26,29 @@ function topNames(code) {
 }
 const strip = s => s.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/'(?:[^'\\\n]|\\.)*'/g, "''");
 
-test('บล็อก lz-adm: มีบล็อกเดียว · คอมไพล์ได้ · มีหลังบ้าน UL + แดชบอร์ด SYS · โค้ดหลักคงส่วนที่ทุกเครื่องใช้', () => {
-  assert.deepEqual(blocks.map(b => b.n), ['adm']);
-  const B = blocks[0].code;
-  new vm.Script(B, { filename: 'lz-adm' });
+const blk = n => (blocks.find(b => b.n === n) || {}).code;
+const fnIn = (code, f) => new RegExp('function ' + f + '\\(').test(code);
+
+test('บล็อก lz-*: pm/adm/vf/fd ตามลำดับในไฟล์ · คอมไพล์ได้ทุกบล็อก · ใส่ชื่อภาษาไทยใน LZN ครบ', () => {
+  assert.deepEqual(blocks.map(b => b.n), ['pm', 'adm', 'vf', 'fd']);
+  for (const { n, code } of blocks) { new vm.Script(code, { filename: 'lz-' + n }); assert.match(grab(/const LZN=\{[^}]*\}/), new RegExp(n + ":'[^']+'"), 'LZN.' + n) }
+});
+
+test('บล็อก lz-pm/vf/fd: พิมพ์แผนที่ทั้งโมดูล · ฟอร์ม VF/FD เท่านั้น (ส่วนวาดบนแผนที่/การ์ด/คลิกจุดยังอยู่ในโค้ดหลัก)', () => {
+  const P = blk('pm'), V = blk('vf'), D = blk('fd');
+  for (const f of ['pmOpen', 'pmClose', 'pmRedraw', 'pmRender', 'pmOut', 'pmPdf', 'pmBind']) assert.ok(fnIn(P, f), f);
+  for (const k of ['PP', 'PMQ', 'PMAP']) assert.match(P, new RegExp('^let ' + k + '=', 'm'), k);
+  assert.match(P, /addEventListener\('keydown'/, 'ปุ่ม Esc ผูกในบล็อก');
+  assert.match(mainCode, /\$\('#bPm'\)\.onclick=\(\)=>pmOpen\(\);/);
+  for (const f of ['vfForm', 'vfDel', 'vfXlsx']) assert.ok(fnIn(V, f), f);
+  for (const f of ['vfSetup', 'vfHit', 'vfBox', 'vfCard', 'vfApply', 'vfLoad', 'dfXT']) { assert.ok(fnIn(mainCode, f), f); assert.ok(!fnIn(V, f), f + ' ต้องอยู่ในโค้ดหลัก') }
+  for (const f of ['fdForm', 'fdMiss', 'fdCand', 'fdUseHs']) assert.ok(fnIn(D, f), f);
+  assert.match(D, /^const fdTimeChk=/m);
+  for (const f of ['fdSetup', 'fdHit', 'fdRender', 'fdOpen', 'fdFlush', 'fdQueue', 'fdSave']) { assert.ok(fnIn(mainCode, f), f); assert.ok(!fnIn(D, f), f + ' ต้องอยู่ในโค้ดหลัก') }
+});
+
+test('บล็อก lz-adm: มีหลังบ้าน UL + แดชบอร์ด SYS · โค้ดหลักคงส่วนที่ทุกเครื่องใช้', () => {
+  const B = blk('adm');
   for (const f of ['ulAdmin', 'ulALs', 'ulAL', 'ulAclForm', 'ulAUs', 'ulAU', 'ulALog', 'ualDraw', 'ulAGs', 'syDash', 'syDraw', 'syChart', 'syHours', 'syMeter', 'syGh', 'syCfg'])
     assert.match(B, new RegExp('function ' + f + '\\('), f);
   for (const k of ['SYQ', 'SYHN', 'SYNF', 'SYWF', 'UALA', 'UA']) assert.match(B, new RegExp('^const ' + k + '=', 'm'), k);
@@ -39,20 +58,21 @@ test('บล็อก lz-adm: มีบล็อกเดียว · คอม�
   for (const k of ['SY', 'SYMSG', 'syAdm']) assert.match(mainCode, new RegExp('^const ' + k + '=', 'm'), k);
 });
 
-test('บล็อก lz-*: โค้ดหลักไม่อ้างชื่อในบล็อกตรง ๆ (ต้องผ่านสตับ lzCall) · สตับถูกทับด้วย function ชื่อเดิม · ไม่มี const/let ชนกัน', () => {
-  const M = topNames(mainCode), mainTxt = strip(mainCode);
+test('บล็อก lz-*: โค้ดหลักและบล็อกอื่นไม่อ้างชื่อในบล็อกตรง ๆ (ต้องผ่านสตับ lzCall) · สตับถูกทับด้วย function ชื่อเดิม · ไม่มี const/let ชนกัน', () => {
   for (const { n, code } of blocks) {
+    // "ที่อื่น" = โค้ดหลัก + บล็อกอื่น (บล็อกอื่นอาจโหลดก่อน/ไม่โหลดบล็อกนี้)
+    const rest = mainCode + '\n' + blocks.filter(b => b.n !== n).map(b => b.code).join('\n'), M = topNames(rest), mainTxt = strip(rest);
     const { fn, lex } = topNames(code);
     const stubs = [...mainCode.matchAll(new RegExp(`function ([\\w$]+)\\(\\.\\.\\.a\\)\\{return lzCall\\('${n}','([\\w$]+)',a\\)\\}`, 'g'))];
     assert.ok(stubs.length >= 1, 'ไม่มีสตับของ ' + n);
     for (const s of stubs) { assert.equal(s[1], s[2], 'ชื่อสตับ = ชื่อฟังก์ชันจริง'); assert.ok(fn.has(s[1]), `บล็อก ${n} ไม่มี function ${s[1]} ทับสตับ`) }
     const stubN = new Set(stubs.map(s => s[1]));
-    for (const k of lex) assert.ok(!M.lex.has(k) && !M.fn.has(k), `บล็อก ${n} ประกาศ ${k} ซ้ำกับโค้ดหลัก (SyntaxError ตอนโหลด)`);
+    for (const k of lex) assert.ok(!M.lex.has(k) && !M.fn.has(k), `บล็อก ${n} ประกาศ ${k} ซ้ำกับโค้ดหลัก/บล็อกอื่น (SyntaxError ตอนโหลด)`);
     for (const k of [...fn, ...lex]) {
       if (stubN.has(k)) continue;
-      assert.ok(!M.fn.has(k), `${k} มีทั้งในโค้ดหลักและบล็อก ${n} — ทำเป็นสตับ lzCall หรือเก็บไว้ที่เดียว`);
+      assert.ok(!M.fn.has(k), `${k} มีทั้งในบล็อก ${n} และที่อื่น — ทำเป็นสตับ lzCall หรือเก็บไว้ที่เดียว`);
       const re = new RegExp(`(?<![\\w$.'"\\-])${k.replace(/\$/g, '\\$')}(?![\\w$])`);
-      assert.doesNotMatch(mainTxt, re, `โค้ดหลักอ้าง ${k} ซึ่งอยู่ในบล็อก lz-${n} (ยังไม่โหลดตอนเปิดหน้า) — ใช้สตับ lzCall หรือ await lzJs('${n}')`);
+      assert.doesNotMatch(mainTxt, re, `โค้ดหลัก/บล็อกอื่นอ้าง ${k} ซึ่งอยู่ในบล็อก lz-${n} (ยังไม่โหลด) — ใช้สตับ lzCall หรือ await lzJs('${n}')`);
     }
   }
 });
@@ -61,14 +81,19 @@ test('splitLz: บล็อกเป็นไฟล์ js/<n>.<sha8>.js เน�
   const d = fs.mkdtempSync(path.join(os.tmpdir(), 'lz-'));
   try {
     const e = splitEmb(HTML, d), r = splitLz(e.html, d);
-    assert.deepEqual(Object.keys(r.ix), ['adm']);
-    assert.match(r.ix.adm, /^js\/adm\.[0-9a-f]{8}\.js$/);
-    assert.equal(fs.readFileSync(path.join(d, r.ix.adm), 'utf8'), blocks[0].code);
+    assert.deepEqual(Object.keys(r.ix), blocks.map(b => b.n));
+    for (const { n, code } of blocks) {
+      assert.match(r.ix[n], new RegExp(`^js/${n}\\.[0-9a-f]{8}\\.js$`));
+      assert.equal(fs.readFileSync(path.join(d, r.ix[n]), 'utf8'), code, n);
+    }
     assert.doesNotMatch(r.html, /<script type="text\/x-lazy" id="lz-\w+">/);
+    assert.equal(r.html.split('id="lzix"').length, 2, 'ดัชนีเดียว');
     assert.ok(r.html.includes(`<script type="application/json" id="lzix">${JSON.stringify(r.ix)}</script>`));
-    assert.equal(Buffer.byteLength(e.html) - Buffer.byteLength(r.html) > 50e3, true, 'โค้ดออกจากหน้าแรก ≥ 50 KB');
+    const code = blocks.reduce((s, b) => s + Buffer.byteLength(b.code), 0);
+    assert.ok(Buffer.byteLength(e.html) - Buffer.byteLength(r.html) >= code, 'โค้ดในบล็อกออกจากหน้าแรกครบ');
+    assert.ok(code > 140e3, 'บล็อกรวม > 140 KB (pm ~57 + adm ~54 + vf ~12 + fd ~23)');
     assert.deepEqual(splitLz(e.html, d).ix, r.ix);
-    assert.deepEqual(fs.readdirSync(path.join(d, 'js')), [r.ix.adm.slice(3)]);
+    assert.deepEqual(fs.readdirSync(path.join(d, 'js')).sort(), Object.values(r.ix).map(u => u.slice(3)).sort());
     // ไม่มีบล็อก = html เดิม
     assert.equal(splitLz('<p>x</p>', d).html, '<p>x</p>');
   } finally { fs.rmSync(d, { recursive: true, force: true }) }
@@ -78,11 +103,14 @@ test('pwaFiles: sw.js precache js/* คู่กับ index.html · SHELL_RE �
   const d = fs.mkdtempSync(path.join(os.tmpdir(), 'lz-'));
   try {
     const e = splitEmb(HTML, d), r = splitLz(e.html, d), P = pwaFiles(r.html, e.ix, r);
-    assert.ok(P.shell.includes(r.ix.adm));
-    assert.ok(blocks[0].code.includes('https://api.github.com') && !r.html.includes('https://api.github.com'), 'ตัวอย่างโดเมนที่อยู่เฉพาะในบล็อก');
+    for (const u of Object.values(r.ix)) assert.ok(P.shell.includes(u), u);
+    assert.ok(blk('adm').includes('https://api.github.com') && !r.html.includes('https://api.github.com'), 'ตัวอย่างโดเมนที่อยู่เฉพาะในบล็อก');
     assert.match(P.csp, /connect-src [^;]*https:\/\/api\.github\.com/);
+    // ทุกโดเมนในบล็อก (เช่น ไทล์ของแผนที่พิมพ์) อยู่ในนโยบาย
+    for (const h of require('../scripts/lib/csp').cspHosts(blocks.map(b => b.code).join('\n'))) if (!require('../scripts/lib/csp').NAV_ONLY.has(h)) assert.ok(P.csp.includes(h), h);
     const re = new Function('return ' + grab(/const SHELL_RE = (\/.*\/);/, fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8')))();
-    assert.ok(re.test(r.ix.adm)); assert.ok(!re.test('js/x.js'));
+    for (const u of Object.values(r.ix)) assert.ok(re.test(u), u);
+    assert.ok(!re.test('js/x.js'));
   } finally { fs.rmSync(d, { recursive: true, force: true }) }
 });
 

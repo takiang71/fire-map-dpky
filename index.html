@@ -1135,7 +1135,7 @@ function embGet(id){const C=embGet.c||(embGet.c={});if(C[id])return C[id];
    มีบล็อก <script type="text/x-lazy" id="lz-<n>"> (repo/ดับเบิลคลิก) = สร้าง <script> จากข้อความทันที ไม่ต่อเน็ต
    ไม่มี (_site: build_site.splitLz แยกเป็น js/<n>.<sha8>.js + ดัชนี #lzix) = <script src> ตามดัชนี (sw.js precache คู่กับ index.html รุ่นเดียวกัน) เกิน FTO.big = ล้ม
    lzCall(n,f,a) = ตัวกลางของสตับ: โหลดแล้วเรียกฟังก์ชันจริงชื่อ f (บล็อกประกาศ function ชื่อเดิมทับสตับ) · โหลดไม่ได้ = toast ภาษาไทย + dbg (ไม่เงียบ) */
-const LZN={adm:'ส่วนหลังบ้าน'};
+const LZN={adm:'ส่วนหลังบ้าน',pm:'หน้าพิมพ์แผนที่',vf:'ฟอร์มผลตรวจสอบ',fd:'ฟอร์มบันทึกการดับไฟ'};
 function lzJs(n){const C=lzJs.c||(lzJs.c={});if(C[n])return C[n];
  return C[n]=new Promise((ok,no)=>{const b=document.getElementById('lz-'+n),s=document.createElement('script');
   if(b){s.textContent=b.textContent;document.head.appendChild(s);return ok()}
@@ -4997,6 +4997,13 @@ function elBig(R){openModal('โปรไฟล์ระดับความส
    แผนที่ในหน้าจัดพิมพ์ = MapLibre อีกตัวใช้สไตล์ที่คัดลอกจากแผนที่หลัก (getStyle + ภาพไอคอนผ่าน styleimagemissing + DOM marker ที่แสดงอยู่) ขนาดจริงที่ 96 dpi แล้วย่อด้วย CSS transform
    → ส่งออกสร้างแผนที่ขนาดเดียวกันนอกจอด้วย pixelRatio = dpi/96 (ภาพตรงกับหน้าจอทุกอย่าง แค่ละเอียดขึ้น) แล้ววาดส่วนประกอบลง canvas เดียว
    ส่งออก: พิมพ์ (iframe @page) · PDF (เขียนเอง: ภาพ JPEG หน้าเดียว) · PNG (pHYs) · JPEG (JFIF dpi) · KMZ (GroundOverlay) · PNG+PGW+PRJ (EPSG:3857) สำหรับ GIS */
+/* B1 เฟส 2 (20 พ.ย. 69): โค้ดทั้งโมดูลอยู่ในบล็อก lz-pm ถัดจากสคริปต์นี้ (โหลดเมื่อกดปุ่ม #bPm — lzJs/lzCall) · ปุ่ม Esc ผูกในบล็อก */
+function pmOpen(...a){return lzCall('pm','pmOpen',a)}
+$('#bPm').onclick=()=>pmOpen();
+</script>
+<script type="text/x-lazy" id="lz-pm">
+/* ===== B1 เฟส 2: โมดูลพิมพ์แผนที่ (คำอธิบายเต็มอยู่หัวสคริปต์ก่อนหน้า) — ไม่รันตอนเปิดหน้า: สตับ pmOpen → lzJs('pm') · PP/PMQ/PMAP… ประกาศเมื่อโหลด
+ ห้ามโค้ดหลักอ้างชื่อในบล็อกนี้ตรง ๆ (test/lazy.test.js) · มีสตริง </body> ในโค้ด (เขียน iframe พิมพ์) — แทรกก่อน </body> ของหน้าต้องใช้ lastIndexOf */
 const PMSZ={A4:[210,297],A3:[297,420],A2:[420,594],A1:[594,841],Letter:[215.9,279.4]},PXMM=96/25.4,PMF="'Noto Sans Thai',sans-serif";
 const PPD={sz:'A4',or:'p',dpi:200,title:'แผนที่แสดงสถานการณ์ไฟป่า\nกลุ่มป่าดงพญาเย็น-เขาใหญ่',sub:'',subA:1,org:'ส่วนควบคุมและปฏิบัติการไฟป่า สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)',
  grid:'g',north:1,sbar:1,leg:1,inset:1,date:1,frame:1,notes:'ข้อมูลจุดความร้อน: Land Fire Alerts Thailand (WFSRU/ThaiREN) ดาวเทียม VIIRS · แนวเขตพื้นที่อนุรักษ์: กรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช',items:[],legX:[],legOff:{},legLab:{},base:'cur',E:null,ek:''};
@@ -5347,7 +5354,6 @@ async function pmOut(k){const st=$('#pm-st'),B=$$('[data-out]');if(B.some(b=>b.d
   st.textContent=k==='print'?'ส่งไปยังหน้าต่างพิมพ์แล้ว (เลือกเครื่องพิมพ์ หรือ "บันทึกเป็น PDF") · ขนาดกระดาษ '+PP.sz+(PP.or==='l'?' แนวนอน':' แนวตั้ง'):'บันทึกไฟล์แล้ว ('+dpi+' dpi)'}
  catch(e){st.textContent='สร้างไฟล์ไม่ได้: '+(e&&e.message||e)}finally{B.forEach(b=>b.disabled=false)}}
 addEventListener('keydown',e=>{const o=$('#pm');if(e.key==='Escape'&&o&&!o.hidden&&!/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||''))pmClose()});
-$('#bPm').onclick=pmOpen;
 </script>
 <script>
 /* ===== GIO: อ่าน/เขียนไฟล์ภูมิสารสนเทศในเบราว์เซอร์ (ไม่ใช้ไลบรารีภายนอก ยกเว้น proj4 จาก cdnjs เมื่อเจอระบบพิกัดแปลก) =====
@@ -7791,6 +7797,61 @@ function vfBox(h){const e=document.getElementById('vf-box');if(!e||!h)return;con
  +`<div class="pbt" style="margin-top:8px"><button id="vf-add">${UL.me?'+ บันทึกผลตรวจสอบ':'เข้าสู่ระบบเพื่อบันทึกผลตรวจสอบ'}</button></div>`+(h.demo?'<div class="sm">จุดตัวอย่าง — บันทึกได้เพื่อทดลองระบบ</div>':'');
  $('#vf-add').onclick=()=>UL.me?vfForm(h,null):ulLogin();const fb=document.getElementById('vf-fd');if(fb)fb.onclick=()=>fdForm(null,h);
  e.querySelectorAll('button[data-vf]').forEach(bt=>bt.onclick=()=>{const r=VF.L.find(x=>x.id===bt.dataset.id);if(!r)return;if(bt.dataset.vf==='e')vfForm(h,r);else if(bt.dataset.vf==='t'){if(typeof tkView==='function')tkView(r)}else vfDel(r)})}
+/* B1 เฟส 2 (20 พ.ย. 69): vfForm vfDel vfXlsx อยู่ในบล็อก lz-vf ถัดจากสคริปต์นี้ (โหลดเมื่อใช้) — ทางเข้าเป็นสตับ lzCall */
+function vfForm(...a){return lzCall('vf','vfForm',a)}
+function vfDel(...a){return lzCall('vf','vfDel',a)}
+function vfXlsx(...a){return lzCall('vf','vfXlsx',a)}
+/* ---- รวมในแท็บการดับไฟ (XT): รายงานที่ไม่ใช่ "ไม่พบไฟ" เป็นแถวท้ายชุดข้อมูล (ลบ/เติมใหม่ทุกครั้งที่โหลด แถวเดิมของ Excel ดัชนี i คงเดิม) ---- */
+function vfXT(){if(typeof XT==='undefined'||typeof XD==='undefined')return;while(XT.length&&XT[XT.length-1].vf)XT.pop();
+ const xd=(k,v)=>{let i=XD[k].indexOf(v);if(i<0){i=XD[k].length;XD[k].push(v)}return i},hm=s=>s?+s.replace(':',''):-1;
+ for(const r of VF.L){if(r.res==='none')continue;const ll=vfLL(r);if(!ll)continue;const t0=r.hs?r.hs.t:r.tn||r.c,x=new Date(t0+7*36e5),d=Math.floor(x/864e5),t=x.getUTCHours()*100+x.getUTCMinutes(),[y,m]=ymd(d),[tb='',am='',pv='']=String(r.tm||'').split('|');
+  const ts=hm(r.ta),te=hm(r.te),t0m=hm2m(t),tsm=hm2m(ts),tem=hm2m(te);let ra=t0m>=0&&tsm>=0?tsm-t0m:null;if(ra!=null&&ra<0&&r.kd==='fd')ra+=1440; /* บันทึกจากฟอร์ม FD ตรวจลำดับแล้ว: ติดลบ = เข้าดับหลังเที่ยงคืน */if(ra!=null&&(ra<0||ra>720))ra=null;let du=tsm>=0&&tem>=0?tem-tsm:null;if(du!=null&&du<0)du+=1440;if(du!=null&&du>720)du=null;
+  const u=utm(ll[1],ll[0]),rai=+r.rai||0,ar=r.ar||'นอกพื้นที่อนุรักษ์',st=r.ag||r.st||'ไม่ระบุ',PV=pv||'ไม่ระบุ'; /* FD: หน่วยงานที่ปฏิบัติ (ag) แทนสถานีฯ ตามแนวเขต */
+  XT.push({i:XT.length,d,t,la:ll[1],lo:ll[0],xy:0,pv:xd('pv',PV),am:xd('am',(am||'ไม่ระบุ')+'|'+PV),tm:xd('tm',(tb||'ไม่ระบุ')+'|'+(am||'ไม่ระบุ')+'|'+PV),ar:xd('ar',ar),st:xd('st',st),sb:xd('sb',sbOf(pv,geoAt(ll[0],ll[1]))),rai,
+   cs:r.cs!=null&&XD.cs[r.cs]?r.cs:xd('cs',r.csx||'ไม่ระบุ'),rp:r.rp!=null&&XD.rp[r.rp]?r.rp:xd('rp','ไม่ระบุ'),fr:xd('fr',ar),ts,te,E:Math.round(u.E),N:Math.round(u.N),moo:r.moo||'',pl:r.pl||'',cd:r.note||'',seq:'',op:(r.rn||r.by&&r.by.d||'')+(r.crew?' '+r.crew+' คน':'')+(r.un&&r.un!=='-'?' · '+r.un:'')+' (ระบบรายงาน)',
+   fy:r.fy||(y+543+(m>=10?1:0)),mo:(m+2)%12,hg:t0m<0?0:Math.min(3,Math.floor(t0m/360)),sz:rai<=5?0:rai<=20?1:rai<=50?2:rai<=100?3:4,ra,du,rk:ra==null?4:ra<=30?0:ra<=60?1:ra<=120?2:3,dk:du==null?4:du<=60?0:du<=180?1:du<=360?2:3,hs:r.hk?0:2,hd:r.hk?0:null,vf:r})}
+ if(document.getElementById('x-kp')&&typeof xtRender==='function'){try{if(window.HOPEN&&window.HTAB==='xt')xtRender();else if(typeof xtMap==='function'&&map.getSource('xts'))xtMap()}catch(e){dbg('vfXT render',e)}}}
+/* ---- การ์ดในแท็บการดับไฟ: รายงานปีงบนี้ + สัดส่วน "ไม่พบไฟ" (false alarm ของดาวเทียม) รายพื้นที่ ---- */
+function vfCard(){const e=document.getElementById('x-vf');if(!e)return;if(!VF.L.length){e.hidden=true;return}e.hidden=false;const fy=vfFy(Date.now()),L=VF.L.filter(r=>r.fy===fy),n=k=>L.filter(r=>r.res===k).length,chk=L.filter(r=>r.res!=='plan'),fa=chk.length?Math.round(100*n('none')/chk.length):null;
+ const A=new Map();for(const r of chk){const k=paShort(r.ar||'นอกพื้นที่อนุรักษ์');const o=A.get(k)||{n:0,f:0};o.n++;if(r.res==='none')o.f++;A.set(k,o)}
+ e.innerHTML=`<b style="font-size:13px">ผลตรวจสอบจากหน้างาน ปีงบ ${fy}</b> <span class="sm">(${nf(L.length)} รายงาน · ข้อมูล ${vfTime(VF.gen)}${VF.src==='state'?' · สำเนารอบก่อน':''})</span>
+ <div class="vfc">${Object.entries(VFRES).map(([k,[nm,c]])=>`<div style="border-left:4px solid ${c}"><b>${nf(n(k))}</b>${nm}</div>`).join('')}<div><b>${fa==null?'–':fa+'%'}</b>ตรวจแล้วไม่พบไฟ (ไม่นับชิงเผา)</div></div>
+ ${A.size?`<div class="sm" style="margin-top:6px">ไม่พบไฟรายพื้นที่: ${[...A].sort((a,b)=>b[1].n-a[1].n).map(([k,o])=>`${esc(k)} ${o.f}/${o.n}`).join(' · ')}</div>`:''}
+ <div class="sm">แถวที่ไม่ใช่ "ไม่พบไฟ" รวมในกราฟ/ตารางแท็บนี้แล้ว (ผู้ดำเนินการลงท้าย "(ระบบรายงาน)") · บันทึกได้จากแผงรายละเอียดจุดเมื่อเข้าสู่ระบบ</div>`+vfList(L);
+ e.onclick=v=>{const b=v.target.closest('button[data-vfc]');if(!b)return;if(b.dataset.vfc==='login')return ulLogin();const r=VF.L.find(x=>x.id===b.dataset.id);if(r)vfAct(r,b.dataset.vfc)}}
+/* รายการรายงานปีงบนี้ ใหม่ → เก่า (D7 M17 18 พ.ย. 69 ผู้ใช้ถามว่าบันทึกผิดจะลบ/แก้อย่างไร) · ของตัวเองภายใน 24 ชม. หรือผู้ดูแล = มีปุ่มแก้ไข/ลบ */
+function vfList(L){if(!L.length)return'';const M=L.slice().sort((a,b)=>b.c-a.c),mine=UL.me?M.filter(vfCan).length:0,N=40;
+ return`<details class="vfls"${mine?' open':''}><summary>รายการรายงาน (${nf(L.length)})${mine?' · แก้ไข/ลบได้ '+nf(mine)+' รายการ':''}</summary>`
+  +M.slice(0,N).map(r=>{const[nm,c]=VFRES[r.res]||[r.res,'#888'];return`<div class="vfr"><span class="vfb" style="background:${esc(c)}">${esc(nm)}</span> <span>${r.hs?'จุด '+vfTime(r.hs.t):r.tn?'แจ้งเหตุ '+vfTime(r.tn):vfTime(r.c)} · ${esc(paShort(r.ar||'นอกพื้นที่อนุรักษ์'))}<br><span class="sm">โดย ${esc(r.by&&r.by.d||'–')} · ${vfTime(r.c)}</span></span>
+   <span class="vfa"><button class="lk" data-vfc="v" data-id="${esc(r.id)}">ดูบนแผนที่</button>${vfCan(r)?`<button class="lk" data-vfc="e" data-id="${esc(r.id)}">แก้ไข</button><button class="lk" data-vfc="d" data-id="${esc(r.id)}">ลบ</button>`:''}</span></div>`}).join('')
+  +(M.length>N?`<div class="sm">แสดง ${N} รายการล่าสุด</div>`:'')
+  +`<div class="sm" style="margin-top:4px">ผู้บันทึกแก้ไข/ลบรายงานของตนได้ภายใน 24 ชม. หลังบันทึก · เกินกำหนดหรือเป็นของผู้อื่น ให้ผู้ดูแลระบบหลังบ้านแก้ไข/ลบ${UL.me?'':' · <button class="lk" data-vfc="login" style="padding:0">เข้าสู่ระบบ</button> เพื่อแก้ไข/ลบรายงานของคุณ'}</div></details>`}
+{const b=document.getElementById('x-xls');if(b)b.onclick=()=>vfXlsx().catch(e=>{dbg('vfXlsx',e);toast('สร้างไฟล์ไม่สำเร็จ: '+e.message)})}
+try{vfSetup()}catch(e){dbg('vfSetup',e)}
+setTimeout(()=>vfLoad(true),1200);setInterval(()=>vfLoad(),5*60e3);
+/* ---- DF แบบรับแจ้งเหตุไฟป่า กรมอุทยานฯ (ผู้ใช้ขอ 19 พ.ย. 69 — docs/arch/dnp-form.md): dnpform.json จาก build_site (ตารางคำตอบ Google Sheets สบอ.1/สบอ.7 ไม่มีข้อมูลส่วนบุคคล)
+   → แถวท้าย XT (ป้าย df) เฉพาะปีงบที่ไม่มีในข้อมูล Excel อส. (ปีงบ 2569 ตารางกับ Excel เป็นชุดเดียวกัน) · แถว VF ต่อท้ายสุดเสมอ (vfXT ลบ/เติมเฉพาะ vf) · การ์ดไฟป่าที่ตรวจพบ/แท็บการดับไฟใช้ XT ชุดเดียวกัน */
+var DNF={L:[],gen:0,src:'',at:0,busy:false,fys:null,n:0};
+async function dfLoad(force){if(DNF.busy||(!force&&Date.now()-DNF.at<60e3))return;DNF.busy=true;
+ try{let j=null;const U=(/^https?:$/.test(location.protocol)?['dnpform.json']:[]).concat([EMB_SITE+'dnpform.json']);
+  for(const u of U){try{const r=await fetchT(u+'?t='+Date.now(),{cache:'no-store'},FTO.main);if(r.ok){const x=await r.json();if(x&&Array.isArray(x.rows)){j=x;break}}}catch(e){dbg('dnpform.json',e)}}
+  if(!j)return;DNF.L=j.rows;DNF.gen=Date.parse(j.generated)||0;DNF.src=j.src||'';DNF.at=Date.now();dfXT()}
+ catch(e){dbg('dfLoad',e)}finally{DNF.busy=false}}
+function dfXT(){if(typeof XT==='undefined'||typeof XD==='undefined')return;while(XT.length&&(XT[XT.length-1].vf||XT[XT.length-1].df))XT.pop();
+ if(!DNF.fys)DNF.fys=new Set(XT.map(x=>x.fy)); /* ปีงบที่ Excel อส. มีแล้ว = ไม่เติมซ้ำ */
+ const xd=(k,v)=>{v=v||'ไม่ระบุ';let i=XD[k].indexOf(v);if(i<0){i=XD[k].length;XD[k].push(v)}return i};let n=0;
+ for(const r of DNF.L){if(!(r.d>0)||DNF.fys.has(r.fy))continue;const[y,m]=ymd(r.d),t0m=hm2m(r.t),rai=+r.rai||0,du=r.du!=null&&r.du>=0&&r.du<=720?r.du:null,pv=r.pv||'ไม่ระบุ',am=r.am||'ไม่ระบุ';
+  XT.push({i:XT.length,d:r.d,t:r.t,la:+r.la||0,lo:+r.lo||0,xy:r.xy===2?2:0,pv:xd('pv',pv),am:xd('am',am+'|'+pv),tm:xd('tm',(r.tm||'ไม่ระบุ')+'|'+am+'|'+pv),ar:xd('ar',r.ar),st:xd('st',STRN[r.st]||r.st),sb:xd('sb',r.sb),rai,
+   cs:xd('cs',r.cs),rp:xd('rp',r.rp),fr:xd('fr',r.fr),ts:-1,te:r.te==null?-1:r.te,E:r.E||0,N:r.N||0,moo:r.moo||'',pl:r.pl||'',cd:r.cd||'',seq:'',op:r.op||'',
+   fy:r.fy||(y+543+(m>=10?1:0)),mo:(m+2)%12,hg:t0m<0?0:Math.min(3,Math.floor(t0m/360)),sz:rai<=5?0:rai<=20?1:rai<=50?2:rai<=100?3:4,ra:null,du,rk:4,dk:du==null?4:du<=60?0:du<=180?1:du<=360?2:3,hs:r.hs===0||r.hs===1?r.hs:2,hd:null,df:r});n++}
+ DNF.n=n;try{vfXT()}catch(e){dbg('dfXT vfXT',e)}try{if(typeof FD!=='undefined'&&FD.on)fdRender()}catch(e){dbg('dfXT fdRender',e)}try{srcUpd()}catch(e){dbg('dfXT srcUpd',e)}}
+/* ที่มาในป๊อปอัป: แหล่ง + สถานะ/ความรุนแรง/กลุ่มไฟ/ID จุดความร้อน/ชนิดป่า ตามที่ศูนย์ฯ บันทึก (ไม่มีชื่อ/เบอร์ผู้กรอก) */
+function dfSrc(d){return'แบบรับแจ้งเหตุไฟป่า กรมอุทยานฯ ('+esc(d.src||'')+')'+[d.sts,d.sev?'ความรุนแรง: '+d.sev:'',d.grp,d.hid?'ID จุดความร้อน '+d.hid:''].filter(Boolean).map(x=>' · '+esc(x)).join('')+(d.ft?'<br>ชนิดป่า: '+esc(d.ft):'')+(d.bad?'<br><span style="color:#b45309">วันที่รับแจ้งในแบบฟอร์มผิดรูป — ใช้เวลาที่ส่งแบบฟอร์มแทน</span>':'')}
+setTimeout(()=>dfLoad(true),1500);setInterval(()=>dfLoad(),5*60e3);
+</script>
+<script type="text/x-lazy" id="lz-vf">
+/* ===== B1 เฟส 2 (20 พ.ย. 69): F1 ฟอร์มผลตรวจสอบจากหน้างาน vfForm · ลบรายงาน vfDel · ส่งออก Excel vfXlsx (ส่วนอื่นของ VF อยู่ในสคริปต์ก่อนหน้า — วาดบนแผนที่/การ์ดตอนเปิดหน้า)
+ ไม่รันตอนเปิดหน้า: สตับในโค้ดหลัก → lzJs('vf') · ห้ามโค้ดหลักอ้างชื่ออื่นในบล็อกนี้ตรง ๆ (test/lazy.test.js) */
 /* ---- ฟอร์มบันทึก/แก้ไข (modal) ---- */
 function vfForm(h,r){if(syGate('rep'))return;if(r&&r.kd==='fd'&&typeof fdForm==='function')return fdForm(r);const g=geoAt(h.lon,h.lat),st=g.resp[0]?g.resp[0].properties.station.replace(/\s*\(พื้นที่รอง\)/,'').trim():'ไม่มี',ar=g.cons?g.cons.properties.name:'นอกพื้นที่อนุรักษ์',ad=(ADM&&admAt(h.lon,h.lat))||null,tm=ad?`${ad.t}|${ad.a}|${ad.p}`:`${h.tam||''}|${h.amp||''}|${h.prov||''}`;
  const o=r||{res:'',rai:'',cs:null,rp:Math.max(0,XD.rp.indexOf('ดาวเทียม (Hotspot)')),ta:'',te:'',un:'',pl:'',moo:'',note:'',pos:null};let pos=o.pos?o.pos.slice():null,usePos=!!o.pos;
@@ -7823,31 +7884,6 @@ function vfForm(h,r){if(syGate('rep'))return;if(r&&r.kd==='fd'&&typeof fdForm===
    if(r){const i=VF.L.indexOf(r);if(i>=0)VF.L[i]=j.report}else VF.L.push(j.report);VF.L.sort((a,b)=>a.c-b.c);closeModal();vfApply();toast((r?'แก้ไขผลตรวจสอบแล้ว':'บันทึกผลตรวจสอบแล้ว · จะแจ้งเข้ากลุ่มในรอบถัดไป (~5 นาที)')+(tv?j.report&&j.report.trk?' · แนบเส้นทางแล้ว':' — เซิร์ฟเวอร์ไม่ได้เก็บเส้นทาง':''))}
   catch(er){$('#vf-e').textContent=er.message;bt.disabled=false}}}
 async function vfDel(r){if(!confirm('ลบรายงานนี้ออกจากระบบ? (ลบแล้วกู้คืนไม่ได้)'))return;try{await ulApi(`/reports/${r.id}?fy=${r.fy}`,{method:'DELETE'});VF.L=VF.L.filter(x=>x!==r);closeModal();vfApply();toast('ลบรายงานแล้ว')}catch(e){toast('ลบไม่สำเร็จ: '+e.message)}}
-/* ---- รวมในแท็บการดับไฟ (XT): รายงานที่ไม่ใช่ "ไม่พบไฟ" เป็นแถวท้ายชุดข้อมูล (ลบ/เติมใหม่ทุกครั้งที่โหลด แถวเดิมของ Excel ดัชนี i คงเดิม) ---- */
-function vfXT(){if(typeof XT==='undefined'||typeof XD==='undefined')return;while(XT.length&&XT[XT.length-1].vf)XT.pop();
- const xd=(k,v)=>{let i=XD[k].indexOf(v);if(i<0){i=XD[k].length;XD[k].push(v)}return i},hm=s=>s?+s.replace(':',''):-1;
- for(const r of VF.L){if(r.res==='none')continue;const ll=vfLL(r);if(!ll)continue;const t0=r.hs?r.hs.t:r.tn||r.c,x=new Date(t0+7*36e5),d=Math.floor(x/864e5),t=x.getUTCHours()*100+x.getUTCMinutes(),[y,m]=ymd(d),[tb='',am='',pv='']=String(r.tm||'').split('|');
-  const ts=hm(r.ta),te=hm(r.te),t0m=hm2m(t),tsm=hm2m(ts),tem=hm2m(te);let ra=t0m>=0&&tsm>=0?tsm-t0m:null;if(ra!=null&&ra<0&&r.kd==='fd')ra+=1440; /* บันทึกจากฟอร์ม FD ตรวจลำดับแล้ว: ติดลบ = เข้าดับหลังเที่ยงคืน */if(ra!=null&&(ra<0||ra>720))ra=null;let du=tsm>=0&&tem>=0?tem-tsm:null;if(du!=null&&du<0)du+=1440;if(du!=null&&du>720)du=null;
-  const u=utm(ll[1],ll[0]),rai=+r.rai||0,ar=r.ar||'นอกพื้นที่อนุรักษ์',st=r.ag||r.st||'ไม่ระบุ',PV=pv||'ไม่ระบุ'; /* FD: หน่วยงานที่ปฏิบัติ (ag) แทนสถานีฯ ตามแนวเขต */
-  XT.push({i:XT.length,d,t,la:ll[1],lo:ll[0],xy:0,pv:xd('pv',PV),am:xd('am',(am||'ไม่ระบุ')+'|'+PV),tm:xd('tm',(tb||'ไม่ระบุ')+'|'+(am||'ไม่ระบุ')+'|'+PV),ar:xd('ar',ar),st:xd('st',st),sb:xd('sb',sbOf(pv,geoAt(ll[0],ll[1]))),rai,
-   cs:r.cs!=null&&XD.cs[r.cs]?r.cs:xd('cs',r.csx||'ไม่ระบุ'),rp:r.rp!=null&&XD.rp[r.rp]?r.rp:xd('rp','ไม่ระบุ'),fr:xd('fr',ar),ts,te,E:Math.round(u.E),N:Math.round(u.N),moo:r.moo||'',pl:r.pl||'',cd:r.note||'',seq:'',op:(r.rn||r.by&&r.by.d||'')+(r.crew?' '+r.crew+' คน':'')+(r.un&&r.un!=='-'?' · '+r.un:'')+' (ระบบรายงาน)',
-   fy:r.fy||(y+543+(m>=10?1:0)),mo:(m+2)%12,hg:t0m<0?0:Math.min(3,Math.floor(t0m/360)),sz:rai<=5?0:rai<=20?1:rai<=50?2:rai<=100?3:4,ra,du,rk:ra==null?4:ra<=30?0:ra<=60?1:ra<=120?2:3,dk:du==null?4:du<=60?0:du<=180?1:du<=360?2:3,hs:r.hk?0:2,hd:r.hk?0:null,vf:r})}
- if(document.getElementById('x-kp')&&typeof xtRender==='function'){try{if(window.HOPEN&&window.HTAB==='xt')xtRender();else if(typeof xtMap==='function'&&map.getSource('xts'))xtMap()}catch(e){dbg('vfXT render',e)}}}
-/* ---- การ์ดในแท็บการดับไฟ: รายงานปีงบนี้ + สัดส่วน "ไม่พบไฟ" (false alarm ของดาวเทียม) รายพื้นที่ ---- */
-function vfCard(){const e=document.getElementById('x-vf');if(!e)return;if(!VF.L.length){e.hidden=true;return}e.hidden=false;const fy=vfFy(Date.now()),L=VF.L.filter(r=>r.fy===fy),n=k=>L.filter(r=>r.res===k).length,chk=L.filter(r=>r.res!=='plan'),fa=chk.length?Math.round(100*n('none')/chk.length):null;
- const A=new Map();for(const r of chk){const k=paShort(r.ar||'นอกพื้นที่อนุรักษ์');const o=A.get(k)||{n:0,f:0};o.n++;if(r.res==='none')o.f++;A.set(k,o)}
- e.innerHTML=`<b style="font-size:13px">ผลตรวจสอบจากหน้างาน ปีงบ ${fy}</b> <span class="sm">(${nf(L.length)} รายงาน · ข้อมูล ${vfTime(VF.gen)}${VF.src==='state'?' · สำเนารอบก่อน':''})</span>
- <div class="vfc">${Object.entries(VFRES).map(([k,[nm,c]])=>`<div style="border-left:4px solid ${c}"><b>${nf(n(k))}</b>${nm}</div>`).join('')}<div><b>${fa==null?'–':fa+'%'}</b>ตรวจแล้วไม่พบไฟ (ไม่นับชิงเผา)</div></div>
- ${A.size?`<div class="sm" style="margin-top:6px">ไม่พบไฟรายพื้นที่: ${[...A].sort((a,b)=>b[1].n-a[1].n).map(([k,o])=>`${esc(k)} ${o.f}/${o.n}`).join(' · ')}</div>`:''}
- <div class="sm">แถวที่ไม่ใช่ "ไม่พบไฟ" รวมในกราฟ/ตารางแท็บนี้แล้ว (ผู้ดำเนินการลงท้าย "(ระบบรายงาน)") · บันทึกได้จากแผงรายละเอียดจุดเมื่อเข้าสู่ระบบ</div>`+vfList(L);
- e.onclick=v=>{const b=v.target.closest('button[data-vfc]');if(!b)return;if(b.dataset.vfc==='login')return ulLogin();const r=VF.L.find(x=>x.id===b.dataset.id);if(r)vfAct(r,b.dataset.vfc)}}
-/* รายการรายงานปีงบนี้ ใหม่ → เก่า (D7 M17 18 พ.ย. 69 ผู้ใช้ถามว่าบันทึกผิดจะลบ/แก้อย่างไร) · ของตัวเองภายใน 24 ชม. หรือผู้ดูแล = มีปุ่มแก้ไข/ลบ */
-function vfList(L){if(!L.length)return'';const M=L.slice().sort((a,b)=>b.c-a.c),mine=UL.me?M.filter(vfCan).length:0,N=40;
- return`<details class="vfls"${mine?' open':''}><summary>รายการรายงาน (${nf(L.length)})${mine?' · แก้ไข/ลบได้ '+nf(mine)+' รายการ':''}</summary>`
-  +M.slice(0,N).map(r=>{const[nm,c]=VFRES[r.res]||[r.res,'#888'];return`<div class="vfr"><span class="vfb" style="background:${esc(c)}">${esc(nm)}</span> <span>${r.hs?'จุด '+vfTime(r.hs.t):r.tn?'แจ้งเหตุ '+vfTime(r.tn):vfTime(r.c)} · ${esc(paShort(r.ar||'นอกพื้นที่อนุรักษ์'))}<br><span class="sm">โดย ${esc(r.by&&r.by.d||'–')} · ${vfTime(r.c)}</span></span>
-   <span class="vfa"><button class="lk" data-vfc="v" data-id="${esc(r.id)}">ดูบนแผนที่</button>${vfCan(r)?`<button class="lk" data-vfc="e" data-id="${esc(r.id)}">แก้ไข</button><button class="lk" data-vfc="d" data-id="${esc(r.id)}">ลบ</button>`:''}</span></div>`}).join('')
-  +(M.length>N?`<div class="sm">แสดง ${N} รายการล่าสุด</div>`:'')
-  +`<div class="sm" style="margin-top:4px">ผู้บันทึกแก้ไข/ลบรายงานของตนได้ภายใน 24 ชม. หลังบันทึก · เกินกำหนดหรือเป็นของผู้อื่น ให้ผู้ดูแลระบบหลังบ้านแก้ไข/ลบ${UL.me?'':' · <button class="lk" data-vfc="login" style="padding:0">เข้าสู่ระบบ</button> เพื่อแก้ไข/ลบรายงานของคุณ'}</div></details>`}
 /* ---- ส่งออก Excel คอลัมน์เดียวกับรายงานสถิติดับไฟรวม อส. (scripts/import_fx.js อ่านกลับได้) — เขียน .xlsx เองด้วย zip() ของ Layer Manager ---- */
 async function vfXlsx(){const R=xRows().slice().sort((a,b)=>a.d-b.d||a.t-b.t);if(!R.length)return toast('ไม่มีข้อมูลตามตัวกรอง');
  const MOF=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'],H=['ลำดับที่','ปีงบประมาณ','วัน','เดือน','ปี','เวลารับแจ้งเหตุ','รับแจ้งเหตุจาก','พื้นที่ป่า','สถานที่','หมู่ที่','ตำบล','อำเภอ','จังหวัด','E','N','เข้าดับไฟ','เสร็จสิ้น','พื้นที่เสียหาย(ไร่)','สาเหตุการเกิด','ดำเนินการโดย','ผู้รายงาน'];
@@ -7860,28 +7896,6 @@ async function vfXlsx(){const R=xRows().slice().sort((a,b)=>a.d-b.d||a.t-b.t);if
   {name:'xl/_rels/workbook.xml.rels',data:`${X}<Relationships xmlns="${NS}package/2006/relationships"><Relationship Id="rId1" Type="${NS}officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>`},
   {name:'xl/worksheets/sheet1.xml',data:sheet}];
  const b=await zip(files),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([b],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));a.download='fire_suppression_DPKY'+(S.xdy?'_ไม่รวมดงใหญ่':'')+'.xlsx';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000);toast('ดาวน์โหลด Excel '+nf(R.length)+' แถว (รวมแถวจากระบบรายงาน '+nf(R.filter(r=>r.vf).length)+')')}
-{const b=document.getElementById('x-xls');if(b)b.onclick=()=>vfXlsx().catch(e=>{dbg('vfXlsx',e);toast('สร้างไฟล์ไม่สำเร็จ: '+e.message)})}
-try{vfSetup()}catch(e){dbg('vfSetup',e)}
-setTimeout(()=>vfLoad(true),1200);setInterval(()=>vfLoad(),5*60e3);
-/* ---- DF แบบรับแจ้งเหตุไฟป่า กรมอุทยานฯ (ผู้ใช้ขอ 19 พ.ย. 69 — docs/arch/dnp-form.md): dnpform.json จาก build_site (ตารางคำตอบ Google Sheets สบอ.1/สบอ.7 ไม่มีข้อมูลส่วนบุคคล)
-   → แถวท้าย XT (ป้าย df) เฉพาะปีงบที่ไม่มีในข้อมูล Excel อส. (ปีงบ 2569 ตารางกับ Excel เป็นชุดเดียวกัน) · แถว VF ต่อท้ายสุดเสมอ (vfXT ลบ/เติมเฉพาะ vf) · การ์ดไฟป่าที่ตรวจพบ/แท็บการดับไฟใช้ XT ชุดเดียวกัน */
-var DNF={L:[],gen:0,src:'',at:0,busy:false,fys:null,n:0};
-async function dfLoad(force){if(DNF.busy||(!force&&Date.now()-DNF.at<60e3))return;DNF.busy=true;
- try{let j=null;const U=(/^https?:$/.test(location.protocol)?['dnpform.json']:[]).concat([EMB_SITE+'dnpform.json']);
-  for(const u of U){try{const r=await fetchT(u+'?t='+Date.now(),{cache:'no-store'},FTO.main);if(r.ok){const x=await r.json();if(x&&Array.isArray(x.rows)){j=x;break}}}catch(e){dbg('dnpform.json',e)}}
-  if(!j)return;DNF.L=j.rows;DNF.gen=Date.parse(j.generated)||0;DNF.src=j.src||'';DNF.at=Date.now();dfXT()}
- catch(e){dbg('dfLoad',e)}finally{DNF.busy=false}}
-function dfXT(){if(typeof XT==='undefined'||typeof XD==='undefined')return;while(XT.length&&(XT[XT.length-1].vf||XT[XT.length-1].df))XT.pop();
- if(!DNF.fys)DNF.fys=new Set(XT.map(x=>x.fy)); /* ปีงบที่ Excel อส. มีแล้ว = ไม่เติมซ้ำ */
- const xd=(k,v)=>{v=v||'ไม่ระบุ';let i=XD[k].indexOf(v);if(i<0){i=XD[k].length;XD[k].push(v)}return i};let n=0;
- for(const r of DNF.L){if(!(r.d>0)||DNF.fys.has(r.fy))continue;const[y,m]=ymd(r.d),t0m=hm2m(r.t),rai=+r.rai||0,du=r.du!=null&&r.du>=0&&r.du<=720?r.du:null,pv=r.pv||'ไม่ระบุ',am=r.am||'ไม่ระบุ';
-  XT.push({i:XT.length,d:r.d,t:r.t,la:+r.la||0,lo:+r.lo||0,xy:r.xy===2?2:0,pv:xd('pv',pv),am:xd('am',am+'|'+pv),tm:xd('tm',(r.tm||'ไม่ระบุ')+'|'+am+'|'+pv),ar:xd('ar',r.ar),st:xd('st',STRN[r.st]||r.st),sb:xd('sb',r.sb),rai,
-   cs:xd('cs',r.cs),rp:xd('rp',r.rp),fr:xd('fr',r.fr),ts:-1,te:r.te==null?-1:r.te,E:r.E||0,N:r.N||0,moo:r.moo||'',pl:r.pl||'',cd:r.cd||'',seq:'',op:r.op||'',
-   fy:r.fy||(y+543+(m>=10?1:0)),mo:(m+2)%12,hg:t0m<0?0:Math.min(3,Math.floor(t0m/360)),sz:rai<=5?0:rai<=20?1:rai<=50?2:rai<=100?3:4,ra:null,du,rk:4,dk:du==null?4:du<=60?0:du<=180?1:du<=360?2:3,hs:r.hs===0||r.hs===1?r.hs:2,hd:null,df:r});n++}
- DNF.n=n;try{vfXT()}catch(e){dbg('dfXT vfXT',e)}try{if(typeof FD!=='undefined'&&FD.on)fdRender()}catch(e){dbg('dfXT fdRender',e)}try{srcUpd()}catch(e){dbg('dfXT srcUpd',e)}}
-/* ที่มาในป๊อปอัป: แหล่ง + สถานะ/ความรุนแรง/กลุ่มไฟ/ID จุดความร้อน/ชนิดป่า ตามที่ศูนย์ฯ บันทึก (ไม่มีชื่อ/เบอร์ผู้กรอก) */
-function dfSrc(d){return'แบบรับแจ้งเหตุไฟป่า กรมอุทยานฯ ('+esc(d.src||'')+')'+[d.sts,d.sev?'ความรุนแรง: '+d.sev:'',d.grp,d.hid?'ID จุดความร้อน '+d.hid:''].filter(Boolean).map(x=>' · '+esc(x)).join('')+(d.ft?'<br>ชนิดป่า: '+esc(d.ft):'')+(d.bad?'<br><span style="color:#b45309">วันที่รับแจ้งในแบบฟอร์มผิดรูป — ใช้เวลาที่ส่งแบบฟอร์มแทน</span>':'')}
-setTimeout(()=>dfLoad(true),1500);setInterval(()=>dfLoad(),5*60e3);
 </script>
 <script>
 /*RISK-LIB-BEGIN*/
@@ -8485,16 +8499,10 @@ const FDAG=[['สถานีฯไฟป่าเขาใหญ่','สถา
 const fdAgL=a=>{const x=FDAG.find(y=>y[1]===a);return x?x[0]:fdSt(a).replace(/^สถานีฯ /,'สถานีฯไฟป่า').replace('หน่วยพิทักษ์ทรัพยากรป่าไม้และสัตว์ป่า','หน่วยพิทักษ์ฯ ')};
 /* ตัวกรองการ์ด: รายชื่อตามลำดับที่ผู้ใช้กำหนด แล้วตามด้วยชื่อเดิมในข้อมูลที่ไม่อยู่ในรายการ (เรียงตามจำนวน) */
 function fdAgs(){const m=new Map();XT.forEach(r=>{const n=XD.st[r.st];if(n&&!/ไม่ระบุ|^ไม่มี/.test(n))m.set(n,(m.get(n)||0)+1)});const F=FDAG.map(x=>x[1]);return F.concat([...m].filter(x=>!F.includes(x[0])).sort((a,b)=>b[1]-a[1]).map(x=>x[0]))}
-/* สาเหตุในฟอร์ม = รายการเดิมของ fxdata เท่านั้น (vfXT ต่อท้าย XD.cs ด้วยสาเหตุที่พิมพ์เอง ดัชนีไม่คงที่ จึงห้ามให้เลือก) */
-const FDCS=XD.cs.slice();
-const fdTel=s=>{const d=String(s||'').replace(/[\s-]/g,'');return/^0\d{8,9}$/.test(d)?d:''};
-const fdD0=()=>{const x=new Date(Date.now()+7*36e5),d=x.toISOString().slice(0,10),h=x.toISOString().slice(11,16);let rp={};try{rp=JSON.parse(fdLS('fm-fdrp')||'{}')||{}}catch(e){}
- return{rp:null,hk:null,hs:null,pos:null,pm:'',dt:d,tn:'',ta:'',te:h,res:'out',rai:'',cs:null,cso:false,csx:'',ag:fdLS('fm-fdmy')||fdMyAg(),agx:'',crew:'',un:'',pl:'',moo:'',note:'',rn:rp.rn||'',rt:rp.rt||''}};
-function fdMyAg(){try{const g=UL.me&&UL.me.g||[],G=(UL.G||[]).filter(x=>g.includes(x.id)).map(x=>x.n.replace(/\s+/g,'')),k=FDAG.find(([l,a])=>G.some(n=>n===l.replace(/\s+/g,'')||n===a.replace(/\s+/g,'')||n===a.replace('สถานีควบคุมไฟป่า','สถานีฯ').replace(/\s+/g,'')));if(k)return k[1]}catch(e){}return FD.ag&&FDAG.some(x=>x[1]===FD.ag)?FD.ag:''}
+/* B1 เฟส 2 (20 พ.ย. 69): FDCS fdTel fdD0 fdMyAg fdRt fdMs fdBk fdTimeChk fdCand fdForm fdMiss fdUseHs fdFromRep fdGot อยู่ในบล็อก lz-fd ถัดจากสคริปต์นี้ (โหลดเมื่อใช้) — ทางเข้าเป็นสตับ lzCall */
+function fdForm(...a){return lzCall('fd','fdForm',a)}
 /* เครื่องมือวัดพื้นที่ (ไม้บรรทัด) → ค่าไร่กลับมาที่ฟอร์ม (1 ไร่ = 1,600 ตร.ม.) · ปิดเครื่องมือ = เปิดฟอร์มคืน (hook ใน msSet) */
 function fdMsUse(m2){if(FD.dr){FD.dr.rai=String(Math.max(.01,Math.round(m2/1600*100)/100));fdSave()}toast('ใส่พื้นที่เสียหาย '+(FD.dr?FD.dr.rai:'')+' ไร่ จากการวัดแล้ว');msSet(false)}
-/* เบอร์โทรไม่อยู่ใน reports.json สาธารณะ — แก้ไขรายงานของตัวเอง ดึงจาก Worker (เจ้าของ/ผู้ดูแลเท่านั้น) */
-async function fdRt(r){if(r.rt!==undefined||!UL.me)return;try{const j=await ulApi('/reports?fy='+r.fy),x=(j.reports||[]).find(y=>y.id===r.id);if(x&&x.rt&&FD.dr&&FD.ed===r){FD.dr.rt=x.rt;const e=document.getElementById('fd-rt');if(e&&!e.value)e.value=x.rt}}catch(e){dbg('fd:rt',e)}}
 const fdIn=r=>xXT(r)&&(!FD.ag||XD.st[r.st]===FD.ag),fdRows=F=>XT.filter(r=>r.fy===F&&fdIn(r)),fdW=r=>FD.w==='a'?r.rai:1,fdU=()=>FD.w==='a'?'ไร่':'ครั้ง',fdN=v=>nf(v,FD.w==='a'&&v%1?1:0);
 function fdCum(F){const s=fy0(F),N=fy0(F+1)-s,a=new Float64Array(N);for(const r of fdRows(F)){const i=r.d-s;if(i>=0&&i<N)a[i]+=fdW(r)}for(let i=1;i<N;i++)a[i]+=a[i-1];return a}
 const fdAt=(a,i)=>a.length?a[Math.min(i,a.length-1)]:0;
@@ -8576,6 +8584,45 @@ function fdHide(){if(!FD.on)return;FD.on=false;$('#fcard').hidden=true;$('#bFd')
 function fdClose(){fdHide();$('#pcard').hidden=false;$('#bHide').setAttribute('aria-pressed',true);try{pbPos()}catch(e){}try{moreRun()}catch(e){}}
 /* ---- ฟอร์มบันทึกการดับไฟป่า ---- */
 function fdSave(){if(!FD.ed&&FD.dr)fdLS('fm-fdd',JSON.stringify(FD.dr))}
+async function fdCap(){if(FD.cap)return true;try{const j=await ulApi('/');FD.cap=!!(j&&j.fd>=2);return FD.cap}catch(e){return null}}
+/* ส่งรายการค้างในเครื่อง (ไม่มีสัญญาณตอนกดบันทึก) */
+async function fdFlush(){if(FD.busy||!FD.q.length||!UL.me||(navigator.onLine===false))return;FD.busy=true;let ok=0;
+ try{if((await fdCap())!==true)return;while(FD.q.length){const it=FD.q[0];try{const j=await ulApi('/reports',{method:'POST',json:it.b});VF.L.push(j.report);ok++}catch(e){if(/เชื่อมต่อเซิร์ฟเวอร์ไม่ได้/.test(e.message))break;toast('ส่งรายการค้างไม่สำเร็จ: '+e.message);break}FD.q.shift();fdLS('fm-fdq',JSON.stringify(FD.q))}}
+ finally{FD.busy=false;if(ok){VF.L.sort((a,b)=>a.c-b.c);vfApply();toast('ส่งบันทึกที่ค้างในเครื่องแล้ว '+ok+' รายการ')}fdQueue();if(FD.on)fdRender()}}
+addEventListener('online',()=>fdFlush());setInterval(()=>{if(FD.q.length)fdFlush()},6e4);
+/* ---- ผูกปุ่ม ---- */
+$('#bFd').onclick=()=>FD.on?fdClose():fdOpen();$('#fd-x').onclick=fdClose;
+{const o=$('#bHide').onclick;$('#bHide').onclick=e=>{if(FD.on){fdClose();return}o&&o(e)}}
+/* ฟอร์มบันทึกการดับไฟ (fdForm) ซ่อนแล้ว 19 พ.ย. 69 — ผู้ใช้ให้ใช้แบบรับแจ้งเหตุของกรมอุทยานฯ ที่เดียว (DF) · โค้ดฟอร์มคงไว้ให้แก้ไข/ลบบันทึกเดิม */
+$('#fd-fys').onchange=e=>{FD.fy=+e.target.value;fdRender();const L=fdRows(FD.fy).filter(r=>r.xy<2);if(L.length)fdFit(L)};
+$('#fd-ags').onchange=e=>{FD.ag=e.target.value;fdLS('fm-fdag',FD.ag||null);fdRender()};
+$('#fd-w').onclick=e=>{const b=e.target.closest('button[data-w]');if(!b)return;FD.w=b.dataset.w;fdRender()};
+$('#fd-tb').onclick=e=>{const b=e.target.closest('button[data-t]');if(!b)return;FD.tb=b.dataset.t;fdArea(fdRows(FD.fy))};
+$('#fd-pl').onclick=e=>{const b=e.target.closest('button[data-fz]');if(b&&FD.ar&&FD.ar[+b.dataset.fz])fdFit(FD.ar[+b.dataset.fz][1])};
+$('#fcard').addEventListener('click',e=>{const v=e.target.closest('[data-fv]'),ed=e.target.closest('[data-fe]');
+ if(v){const r=XT[+v.dataset.fv];if(!r)return;MOVED=true;map.easeTo({center:[r.lo,r.la],zoom:Math.max(map.getZoom(),13),offset:visOff(),duration:dur(700)});map.once('moveend',()=>xtPopup(r));return}
+ if(ed){const r=VF.L.find(x=>x.id===ed.dataset.fe);if(r)fdForm(r);return}
+ if(e.target.id==='fd-qs')fdFlush();
+ const x=e.target.closest('[data-xdy] button');if(x)setTimeout(fdRender,0)});
+$('#fd-more').onclick=()=>{fdHide();hOpen(false,'xt')};$('#fd-xls').onclick=()=>{try{vfXlsx()}catch(e){toast('ส่งออกไม่สำเร็จ: '+e.message)}};
+$('#fd-pkx').onclick=()=>{FD.pick=false;$('#fd-pk').hidden=true;fdForm(FD.ed,null,true)};
+addEventListener('keydown',e=>{if(e.key==='Escape'&&FD.pick){FD.pick=false;$('#fd-pk').hidden=true}});
+if(window.ResizeObserver)try{new ResizeObserver(()=>moreRun()).observe($('#fcard'))}catch(e){}
+try{fdSetup()}catch(e){dbg('fdSetup',e)}
+/* ลิงก์ตรง ?fd = เปิดการ์ดนี้ · ?fd=new = เปิดฟอร์มบันทึกทันที (ใช้ทำทางลัดบนมือถือ/QR ให้เจ้าหน้าที่) */
+try{const q=new URLSearchParams(location.search);if(q.has('fd')){setTimeout(()=>{fdOpen()},800)}}catch(e){dbg('fd:q',e)}
+</script>
+<script type="text/x-lazy" id="lz-fd">
+/* ===== B1 เฟส 2 (20 พ.ย. 69): FD ฟอร์มบันทึกการดับไฟป่า fdForm + ตัวช่วยที่ใช้เฉพาะในฟอร์ม (ส่วนเมนู/การ์ด/ชั้นแผนที่ของ FD อยู่ในสคริปต์ก่อนหน้า)
+ ไม่รันตอนเปิดหน้า: สตับ fdForm → lzJs('fd') · ห้ามโค้ดหลักอ้างชื่ออื่นในบล็อกนี้ตรง ๆ (test/lazy.test.js) */
+/* สาเหตุในฟอร์ม = รายการเดิมของ fxdata เท่านั้น (vfXT ต่อท้าย XD.cs ด้วยสาเหตุที่พิมพ์เอง ดัชนีไม่คงที่ จึงห้ามให้เลือก) */
+const FDCS=XD.cs.slice();
+const fdTel=s=>{const d=String(s||'').replace(/[\s-]/g,'');return/^0\d{8,9}$/.test(d)?d:''};
+const fdD0=()=>{const x=new Date(Date.now()+7*36e5),d=x.toISOString().slice(0,10),h=x.toISOString().slice(11,16);let rp={};try{rp=JSON.parse(fdLS('fm-fdrp')||'{}')||{}}catch(e){}
+ return{rp:null,hk:null,hs:null,pos:null,pm:'',dt:d,tn:'',ta:'',te:h,res:'out',rai:'',cs:null,cso:false,csx:'',ag:fdLS('fm-fdmy')||fdMyAg(),agx:'',crew:'',un:'',pl:'',moo:'',note:'',rn:rp.rn||'',rt:rp.rt||''}};
+function fdMyAg(){try{const g=UL.me&&UL.me.g||[],G=(UL.G||[]).filter(x=>g.includes(x.id)).map(x=>x.n.replace(/\s+/g,'')),k=FDAG.find(([l,a])=>G.some(n=>n===l.replace(/\s+/g,'')||n===a.replace(/\s+/g,'')||n===a.replace('สถานีควบคุมไฟป่า','สถานีฯ').replace(/\s+/g,'')));if(k)return k[1]}catch(e){}return FD.ag&&FDAG.some(x=>x[1]===FD.ag)?FD.ag:''}
+/* เบอร์โทรไม่อยู่ใน reports.json สาธารณะ — แก้ไขรายงานของตัวเอง ดึงจาก Worker (เจ้าของ/ผู้ดูแลเท่านั้น) */
+async function fdRt(r){if(r.rt!==undefined||!UL.me)return;try{const j=await ulApi('/reports?fy='+r.fy),x=(j.reports||[]).find(y=>y.id===r.id);if(x&&x.rt&&FD.dr&&FD.ed===r){FD.dr.rt=x.rt;const e=document.getElementById('fd-rt');if(e&&!e.value)e.value=x.rt}}catch(e){dbg('fd:rt',e)}}
 const fdMs=(d,t)=>{const m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(d||'');if(!m)return null;const[h,mi]=(t||'12:00').split(':').map(Number);return Date.UTC(+m[1],+m[2]-1,+m[3],h||0,mi||0)-7*36e5};
 const fdBk=ms=>{const x=new Date(ms+7*36e5).toISOString();return[x.slice(0,10),x.slice(11,16)]};
 /* ตรวจลำดับเวลา (ผู้ใช้ขอ 19 พ.ย. 69 หลังรายงานทดสอบกรอกเข้าดับ 11:46 > เวลาส่ง และเสร็จ 01:39 < เข้าดับ): รับแจ้ง → เข้าดับ → เสร็จ · เวลาน้อยกว่าเวลาก่อนหน้า = ข้ามเที่ยงคืน (ถามยืนยัน) · เข้าดับห่างรับแจ้งเกิน 12 ชม. = ผิด · ทุกเวลาต้องไม่อยู่ในอนาคต (เผื่อ 5 นาที)
@@ -8671,33 +8718,6 @@ function fdMiss(o){const M=[],a=(c,n,id)=>{if(c)M.push([n,id])},no=o.res==='none
 function fdUseHs(h,init){const o=FD.dr;o.hk=vfKey(h);o.hs={la:+h.lat.toFixed(5),lo:+h.lon.toFixed(5),t:h.t,sat:satKey(h.sat)};const[d,t]=fdBk(h.t);o.dt=d;o.tn=t;if(init||o.rp==null){const i=XD.rp.indexOf('ดาวเทียม (Hotspot)');if(i>=0)o.rp=i}}
 function fdFromRep(r){const[d,t]=fdBk(r.tn||(r.hs?r.hs.t:r.c));return{rp:r.rp,hk:r.hk,hs:r.hs,pos:r.pos,pm:'',dt:d,tn:(r.tn||r.hs)?t:'',ta:r.ta||'',te:r.te||'',res:r.res==='fire'?'out':r.res,rai:r.rai||'',cs:r.cs,cso:!!r.csx,csx:r.csx||'',ag:r.ag||'',agx:'',crew:r.crew==null?'':r.crew,un:r.un||'',pl:r.pl||'',moo:r.moo||'',note:r.note||'',rn:r.rn||'',rt:r.rt||''}}
 function fdGot(rep,old){if(old){const i=VF.L.indexOf(old);if(i>=0)VF.L[i]=rep;else VF.L.push(rep)}else VF.L.push(rep);VF.L.sort((a,b)=>a.c-b.c);vfApply();fdRender()}
-async function fdCap(){if(FD.cap)return true;try{const j=await ulApi('/');FD.cap=!!(j&&j.fd>=2);return FD.cap}catch(e){return null}}
-/* ส่งรายการค้างในเครื่อง (ไม่มีสัญญาณตอนกดบันทึก) */
-async function fdFlush(){if(FD.busy||!FD.q.length||!UL.me||(navigator.onLine===false))return;FD.busy=true;let ok=0;
- try{if((await fdCap())!==true)return;while(FD.q.length){const it=FD.q[0];try{const j=await ulApi('/reports',{method:'POST',json:it.b});VF.L.push(j.report);ok++}catch(e){if(/เชื่อมต่อเซิร์ฟเวอร์ไม่ได้/.test(e.message))break;toast('ส่งรายการค้างไม่สำเร็จ: '+e.message);break}FD.q.shift();fdLS('fm-fdq',JSON.stringify(FD.q))}}
- finally{FD.busy=false;if(ok){VF.L.sort((a,b)=>a.c-b.c);vfApply();toast('ส่งบันทึกที่ค้างในเครื่องแล้ว '+ok+' รายการ')}fdQueue();if(FD.on)fdRender()}}
-addEventListener('online',()=>fdFlush());setInterval(()=>{if(FD.q.length)fdFlush()},6e4);
-/* ---- ผูกปุ่ม ---- */
-$('#bFd').onclick=()=>FD.on?fdClose():fdOpen();$('#fd-x').onclick=fdClose;
-{const o=$('#bHide').onclick;$('#bHide').onclick=e=>{if(FD.on){fdClose();return}o&&o(e)}}
-/* ฟอร์มบันทึกการดับไฟ (fdForm) ซ่อนแล้ว 19 พ.ย. 69 — ผู้ใช้ให้ใช้แบบรับแจ้งเหตุของกรมอุทยานฯ ที่เดียว (DF) · โค้ดฟอร์มคงไว้ให้แก้ไข/ลบบันทึกเดิม */
-$('#fd-fys').onchange=e=>{FD.fy=+e.target.value;fdRender();const L=fdRows(FD.fy).filter(r=>r.xy<2);if(L.length)fdFit(L)};
-$('#fd-ags').onchange=e=>{FD.ag=e.target.value;fdLS('fm-fdag',FD.ag||null);fdRender()};
-$('#fd-w').onclick=e=>{const b=e.target.closest('button[data-w]');if(!b)return;FD.w=b.dataset.w;fdRender()};
-$('#fd-tb').onclick=e=>{const b=e.target.closest('button[data-t]');if(!b)return;FD.tb=b.dataset.t;fdArea(fdRows(FD.fy))};
-$('#fd-pl').onclick=e=>{const b=e.target.closest('button[data-fz]');if(b&&FD.ar&&FD.ar[+b.dataset.fz])fdFit(FD.ar[+b.dataset.fz][1])};
-$('#fcard').addEventListener('click',e=>{const v=e.target.closest('[data-fv]'),ed=e.target.closest('[data-fe]');
- if(v){const r=XT[+v.dataset.fv];if(!r)return;MOVED=true;map.easeTo({center:[r.lo,r.la],zoom:Math.max(map.getZoom(),13),offset:visOff(),duration:dur(700)});map.once('moveend',()=>xtPopup(r));return}
- if(ed){const r=VF.L.find(x=>x.id===ed.dataset.fe);if(r)fdForm(r);return}
- if(e.target.id==='fd-qs')fdFlush();
- const x=e.target.closest('[data-xdy] button');if(x)setTimeout(fdRender,0)});
-$('#fd-more').onclick=()=>{fdHide();hOpen(false,'xt')};$('#fd-xls').onclick=()=>{try{vfXlsx()}catch(e){toast('ส่งออกไม่สำเร็จ: '+e.message)}};
-$('#fd-pkx').onclick=()=>{FD.pick=false;$('#fd-pk').hidden=true;fdForm(FD.ed,null,true)};
-addEventListener('keydown',e=>{if(e.key==='Escape'&&FD.pick){FD.pick=false;$('#fd-pk').hidden=true}});
-if(window.ResizeObserver)try{new ResizeObserver(()=>moreRun()).observe($('#fcard'))}catch(e){}
-try{fdSetup()}catch(e){dbg('fdSetup',e)}
-/* ลิงก์ตรง ?fd = เปิดการ์ดนี้ · ?fd=new = เปิดฟอร์มบันทึกทันที (ใช้ทำทางลัดบนมือถือ/QR ให้เจ้าหน้าที่) */
-try{const q=new URLSearchParams(location.search);if(q.has('fd')){setTimeout(()=>{fdOpen()},800)}}catch(e){dbg('fd:q',e)}
 </script>
 </body>
 </html>
