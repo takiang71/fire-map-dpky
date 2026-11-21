@@ -8,18 +8,18 @@
 <!-- D2 (16 พ.ย. 69): คำอธิบาย + Open Graph/Twitter ให้แชร์ลิงก์ใน LINE/Telegram/Facebook มีภาพและข้อความ · ภาพสร้างด้วย scripts/make_og.js -->
 <meta name="description" content="แผนที่จุดความร้อนและสถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่ (อช.เขาใหญ่ ทับลาน ปางสีดา ตาพระยา ขสป.ดงใหญ่) — จุดความร้อนดาวเทียม VIIRS ล่าสุด ยอดสะสมปีงบ พื้นที่เผาไหม้ ดัชนีอันตรายไฟป่า FWI และ PM2.5 · สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="FireMap แผนที่สถานการณ์ไฟป่า สบอ.1">
+<meta property="og:site_name" content="FireMapDPKY แผนที่สถานการณ์ไฟป่า สบอ.1">
 <meta property="og:locale" content="th_TH">
-<meta property="og:title" content="FireMap · สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่">
+<meta property="og:title" content="FireMapDPKY · สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่">
 <meta property="og:description" content="จุดความร้อนดาวเทียมล่าสุด ยอดสะสมปีงบ พื้นที่เผาไหม้ ดัชนีอันตรายไฟป่า และ PM2.5 ของ อช.เขาใหญ่ ทับลาน ปางสีดา ตาพระยา และ ขสป.ดงใหญ่ — สบอ.1 (ปราจีนบุรี)">
 <meta property="og:url" content="https://takiang71.github.io/fire-map-dpky/">
 <meta property="og:image" content="https://takiang71.github.io/fire-map-dpky/img/og.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="แผนที่กลุ่มป่าดงพญาเย็น-เขาใหญ่ พร้อมชื่อเว็บ FireMap แผนที่สถานการณ์ไฟป่า">
+<meta property="og:image:alt" content="แผนที่กลุ่มป่าดงพญาเย็น-เขาใหญ่ พร้อมชื่อเว็บ FireMapDPKY แผนที่สถานการณ์ไฟป่า">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="FireMap · สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่">
+<meta name="twitter:title" content="FireMapDPKY · สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่">
 <meta name="twitter:image" content="https://takiang71.github.io/fire-map-dpky/img/og.jpg">
 <link rel="icon" href="img/icon.svg" type="image/svg+xml">
 <link rel="icon" href="img/icon-32.png" sizes="32x32" type="image/png">
@@ -28,9 +28,9 @@
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="FireMap">
+<meta name="apple-mobile-web-app-title" content="FireMapDPKY">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>FireMap · สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่</title>
+<title>FireMapDPKY · สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่</title>
 <script>/* D8: เบราว์เซอร์รุ่นเก่า — ต้องเป็นสคริปต์แรกสุดและเขียนแบบ ES5 ล้วน (สคริปต์อื่นใช้ ?? · regex lookbehind · Array.at · structuredClone · DecompressionStream
    ถ้าไม่รองรับจะ SyntaxError ทั้งบล็อก = หน้าขาวเงียบ) · รุ่นต่ำสุด Chrome/Edge 98 · Safari 16.4 (iOS 16.4) · Firefox 113 · ตรวจใน check_site (ลบ DecompressionStream ก่อนโหลดหน้า) */
 (function(){var ok=true;try{new Function('var a={b:1};a?.b;a??1;/(?<=x)y/;[1].at(-1)')}catch(e){ok=false}
@@ -98,7 +98,7 @@ body.wyon #hlg{opacity:.92}
 @media(any-pointer:coarse){#left{pointer-events:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}}
 h1{margin:0 0 10px;font-size:clamp(22px,3vw,36px);line-height:1.2;font-weight:800;color:var(--navy)}
 h1 small{display:block;font-size:.42em;font-weight:600;color:var(--mut);margin-top:4px}
-.hrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 2px}.h1a{display:inline-flex;align-items:center;gap:6px;font-size:clamp(24px,2.6vw,30px);font-weight:800;color:#1d2433;line-height:1.1;letter-spacing:-.5px}.h1a svg{width:1em;height:1em;flex:0 0 auto}.h1a b{font-weight:800;color:#D93A1F}.hrow .pill{flex:0 0 auto}.h1m{display:block;white-space:nowrap}
+.hrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 2px}.h1a{display:inline-flex;align-items:center;gap:6px;font-size:clamp(24px,2.6vw,30px);font-weight:800;color:#1d2433;line-height:1.1;letter-spacing:-.5px}.h1a svg{width:1em;height:1em;flex:0 0 auto}.h1a b{font-weight:800;color:#D93A1F}.h1a em{display:inline-flex;align-items:center;height:1.03em;padding:.06em .28em 0;margin-left:-.1em;border-radius:.2em;background:#1f8a5b;color:#fff;font-style:normal;font-size:.72em;letter-spacing:.02em;line-height:1}.hrow .pill{flex:0 0 auto}.h1m{display:block;white-space:nowrap}
 .st .sl{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:3px 12px;font-size:12.5px;color:var(--mut);margin:-1px 0 3px 58px;line-height:1.35}.st .sl span{white-space:nowrap}.zl{cursor:pointer;color:inherit;text-decoration:underline dotted rgba(0,0,0,.35);text-underline-offset:3px}.zl:hover{color:var(--fire)}.st .sl b{color:var(--fire);font-weight:800;font-size:13px}
 .dmr{display:flex;align-items:center;gap:8px;margin:6px 0 2px;font-size:12.5px;color:var(--mut)}.dmr .sw{flex:0 0 auto}h1 .h1o span{display:inline-block}h1 .h1o{margin-top:2px;color:var(--navy);font-weight:700}
 .pill{display:inline-flex;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:4px 12px;font-size:13px}
@@ -697,7 +697,7 @@ body.wyon #attr{display:none}
 <aside id="left">
  <button id="grab" aria-label="ขยายหรือย่อแผง"></button>
  <div class="lhd">
- <div class="hrow"><span class="h1a" role="img" aria-label="FireMap แผนที่สถานการณ์ไฟป่า" title="FireMap · แผนที่สถานการณ์ไฟป่า"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c1.2 4.2 6 6.3 6 11.8a6 6 0 0 1-12 0c0-2.6 1.3-4.4 2.6-5.6 0 2.3 1 3.6 2.3 3.8C10 8.3 10.6 4.7 12 1.5z" fill="#D93A1F"/><path d="M12 12.5c.6 1.8 2.6 2.7 2.6 5a2.6 2.6 0 0 1-5.2 0c0-1.4.8-2.2 1.5-2.7 0 1 .5 1.5 1 1.6-.3-1.4 0-2.7.1-3.9z" fill="#F5A623"/></svg><span><b>Fire</b>Map</span></span><div class="pill"><i></i><span>อัปเดต <span class="tm">--:--</span> น.</span></div></div>
+ <div class="hrow"><span class="h1a" role="img" aria-label="FireMapDPKY แผนที่สถานการณ์ไฟป่า" title="FireMapDPKY · แผนที่สถานการณ์ไฟป่า"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c1.2 4.2 6 6.3 6 11.8a6 6 0 0 1-12 0c0-2.6 1.3-4.4 2.6-5.6 0 2.3 1 3.6 2.3 3.8C10 8.3 10.6 4.7 12 1.5z" fill="#D93A1F"/><path d="M12 12.5c.6 1.8 2.6 2.7 2.6 5a2.6 2.6 0 0 1-5.2 0c0-1.4.8-2.2 1.5-2.7 0 1 .5 1.5 1 1.6-.3-1.4 0-2.7.1-3.9z" fill="#F5A623"/></svg><span><b>Fire</b>Map</span><em>DPKY</em></span><div class="pill"><i></i><span>อัปเดต <span class="tm">--:--</span> น.</span></div></div>
  <h1><span class="h1m">กลุ่มป่าดงพญาเย็น-เขาใหญ่</span><small>Dong Phayayen-Khao Yai Forest Complex</small><small class="h1o"><span>ส่วนควบคุมและปฏิบัติการไฟป่า</span> <span>สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)</span></small></h1>
  <div class="st" id="stats"></div>
  <div class="sm">ข้อมูลจาก <span id="hsrc">กำลังดึงข้อมูล…</span> · ย้อนหลัง 2 วัน</div>

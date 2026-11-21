@@ -46,7 +46,8 @@ const TY = { '.html': 'text/html; charset=utf-8', '.json': 'application/json', '
     const k=Math.max(1200/im.width,630/im.height),w=im.width*k,h=im.height*k;x.drawImage(im,(1200-w)/2,(630-h)/2,w,h);
     const g=x.createLinearGradient(0,380,0,630);g.addColorStop(0,'rgba(15,23,42,0)');g.addColorStop(1,'rgba(15,23,42,.88)');x.fillStyle=g;x.fillRect(0,380,1200,250);
     await document.fonts.load('800 60px "Noto Sans Thai"');await document.fonts.load('600 30px "Noto Sans Thai"');
-    x.font='800 72px "Noto Sans Thai",sans-serif';x.fillStyle='#FF5A36';x.fillText('Fire',56,500);const fw=x.measureText('Fire').width;x.fillStyle='#fff';x.fillText('Map',56+fw,500);
+    x.font='800 72px "Noto Sans Thai",sans-serif';x.fillStyle='#FF5A36';x.fillText('Fire',56,500);const fw=x.measureText('Fire').width;x.fillStyle='#fff';x.fillText('Map',56+fw,500);const bx=56+fw+x.measureText('Map').width+6;
+    x.font='800 52px "Noto Sans Thai",sans-serif';const bw=x.measureText('DPKY').width+30;x.fillStyle='#1f8a5b';x.beginPath();x.roundRect(bx,447,bw,56,10);x.fill();x.fillStyle='#fff';x.fillText('DPKY',bx+15,493);
     x.font='800 40px "Noto Sans Thai",sans-serif';x.fillText('สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่',56,560);
     x.font='600 24px "Noto Sans Thai",sans-serif';x.fillStyle='#fde68a';x.fillText('จุดความร้อนดาวเทียม · ยอดสะสมปีงบ · พื้นที่เผาไหม้ · FWI · PM2.5 — สบอ.1 (ปราจีนบุรี)',56,602);
     const ic=new Image();ic.src='img/icon.svg';await ic.decode();x.drawImage(ic,1200-56-84,630-56-84,84,84);
