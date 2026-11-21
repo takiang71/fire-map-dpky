@@ -212,3 +212,12 @@
 `province_name_th/en`, `district_name_th/en`, `subdistrict_name_th/en`, `protected_area_name_th`, `reserved_forest_name`, `utm_*`, `unique_id` — **ไม่มี FRP**
 หน้าเว็บต้นทางแสดง "Last update" (เช่น 13h47) = เวลาระบบประมวลผล ไม่อยู่ใน response ของ alerts — อยู่ใน HTML หน้าแรก (ดูงานค้างข้อ 1)
 
+
+## ความล่าช้าของ NASA FIRMS ต่อรอบดาวเทียม `scripts/firms_lag.js` (21 พ.ย. 69)
+
+- ผู้ใช้ขอ "ตามต่อข้อมูลให้ด้วย" หลังวัดมือ 21 พ.ย. 69 (NOAA-21 13:54 → FIRMS 125 นาที, NOAA-20 13:11 → 322 นาที; API ไทย 31–39 นาที) — ใช้ในสไลด์ `present/` (ui-modules.md)
+- ขั้น `firms lag` ใน **site.yml** หลัง build_site (continue-on-error, 2 นาที, env `FIRMS_KEY`) · state `firms_lag.json` (load/save state เหมือน pass_lag)
+- รอบที่ตาม = รอบใน `pass_lag.json` (API ไทยเห็นแล้ว) ที่ดาวเทียมผ่าน **หลัง `since`** (เวลาที่เริ่มตาม — สร้างไฟล์ครั้งแรก; รอบก่อนหน้าอาจขึ้น FIRMS นานแล้ว ตัวเลขจะเกินจริง) อายุ 45 นาที–12 ชม. → area API ดาวเทียมละ 1 คำขอ กรอบประเทศไทย 2 วัน UTC · มีแถวดวงเดียวกันเวลาสแกน ±8 นาที = ขึ้นแล้ว
+- log `{k, t, seen, lag, n, th}` (th = ความล่าช้า API ไทยรอบเดียวกัน) · เกิน 12 ชม. = `{miss:1}` · เก็บ 400 รายการ · ความละเอียด ≈ รอบ site 5 นาที
+- คำขอ: เฉพาะช่วงที่มีรอบค้าง ~2 คำขอ/รอบ site (≈ 50–150/วัน) ไม่ถึงโควตา 5,000/10 นาที
+- สรุป: `node scripts/firms_lag.js --report` (ดึง origin/state) — ค่ากลางแยกดวง/กลางวัน-กลางคืน + FIRMS ช้ากว่า API ไทย · เทสต์ `test/firms_lag.test.js` (FIRMS จำลอง)

@@ -46,7 +46,8 @@ jobs:
             # live_cache.json = จุดจาก API รอบก่อน (build_site.js ดึงแค่ 12 ชม. ล่าสุดแล้วรวมกับไฟล์นี้ ลดภาระ API ต้นทาง · ไม่มี = ดึงเต็ม 48 ชม.)
             # pass_lag.json = ความล่าช้าจริงของต้นทางต่อรอบดาวเทียม (scripts/pass_wait.js)
             # tg_subs.json = การสมัครแจ้งเตือน Telegram รายพื้นที่ + offset ของ getUpdates (F6 — ข้อมูลส่วนบุคคล: อยู่ใน .state/ ไม่ขึ้น Pages)
-            for f in notify.json tg_notify.json health.json live_cache.json pass_lag.json reports.json tg_subs.json dnpform.json; do git show FETCH_HEAD:$f > .state/$f 2>/dev/null || rm -f .state/$f; done
+            # firms_lag.json = ความล่าช้าของ NASA FIRMS ต่อรอบดาวเทียม เทียบ API ไทย (scripts/firms_lag.js)
+            for f in notify.json tg_notify.json health.json live_cache.json pass_lag.json firms_lag.json reports.json tg_subs.json dnpform.json; do git show FETCH_HEAD:$f > .state/$f 2>/dev/null || rm -f .state/$f; done
           else echo "ยังไม่มี branch state"; fi
           ls -l .state
       # ช่วงที่ข้อมูลรอบดาวเทียมกำลังเข้า (8–90 นาทีหลังผ่านกลุ่มป่า ตาม data/tle.json) และยังไม่เข้า → ถาม API ทุก 45 วิ ≤4 นาที
@@ -80,6 +81,14 @@ jobs:
         run: node scripts/wx_check.js --dispatch
         env:
           GH_TOKEN: ${{ github.token }}
+      # ความล่าช้าของ NASA FIRMS ต่อรอบดาวเทียม (ผู้ใช้ขอ 21 พ.ย. 69 ใช้ในสไลด์ present/) — รอบที่ API ไทยเห็นแล้ว (pass_lag.json) อายุ 45 นาที–12 ชม.
+      # ถาม FIRMS ดาวเทียมละ 1 คำขอเฉพาะช่วงที่มีรอบค้าง → .state/firms_lag.json · สรุป: node scripts/firms_lag.js --report
+      - name: firms lag
+        continue-on-error: true
+        timeout-minutes: 2
+        run: node scripts/firms_lag.js
+        env:
+          FIRMS_KEY: ${{ secrets.FIRMS_KEY }}
       # ตรวจหน้าเว็บก่อนขึ้น Pages (scripts/check_site.js): syntax ทุก <script> + เปิดใน Chrome headless เดสก์ท็อป/มือถือ กดปุ่มหลัก นับ error
       # ไม่ผ่าน = ใช้ index.html ฉบับบนเว็บแทน (ข้อมูลอื่นยังขึ้นปกติ) + health.js แจ้งผู้ดูแล · index.html ตรงกับรอบที่ตรวจแล้ว = ใช้ผลเดิม ไม่เปิด Chrome
       - name: check site
@@ -139,7 +148,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/st" && cd "$RUNNER_TEMP/st"
           n=0; for f in notify.json tg_notify.json health.json; do if [ -f "$GITHUB_WORKSPACE/_site/$f" ]; then cp "$GITHUB_WORKSPACE/_site/$f" .; n=$((n+1)); fi; done
           # แคช API ของ build_site.js อยู่ใน .state/ (ไม่ขึ้น Pages)
-          for f in live_cache.json pass_lag.json reports.json tg_subs.json dnpform.json; do if [ -f "$GITHUB_WORKSPACE/.state/$f" ]; then cp "$GITHUB_WORKSPACE/.state/$f" .; n=$((n+1)); fi; done
+          for f in live_cache.json pass_lag.json firms_lag.json reports.json tg_subs.json dnpform.json; do if [ -f "$GITHUB_WORKSPACE/.state/$f" ]; then cp "$GITHUB_WORKSPACE/.state/$f" .; n=$((n+1)); fi; done
           # การสมัคร F6 ห้ามหาย: ไม่มีใน .state (โหลดตอนต้นไม่ได้ / telegram_notify ข้ามรอบ) → ดึงฉบับเดิมจาก branch state ก่อน force push
           if [ ! -f tg_subs.json ]; then (cd "$GITHUB_WORKSPACE" && git fetch -q --depth=1 origin state && git show FETCH_HEAD:tg_subs.json) > tg_subs.json 2>/dev/null || rm -f tg_subs.json; fi
           [ "$n" -gt 0 ] || { echo "ไม่มีไฟล์สถานะ"; exit 0; }
