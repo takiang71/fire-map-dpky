@@ -112,6 +112,16 @@ table.t tr.hl td{color:var(--fire);font-weight:700}
 #notes b{color:#fff}
 #notes .h{font-size:13px;color:#ffb02e;margin-bottom:4px}
 
+/* ---------- หน้าต่างผู้บรรยาย (?p=1) ---------- */
+#pnext{display:none}
+body.pv #vp{left:16px;top:16px;right:auto;bottom:auto;width:58vw;height:calc(58vw * 9 / 16);border:1px solid var(--line);border-radius:10px}
+body.pv #notes{display:block;left:calc(58vw + 32px);top:16px;right:16px;bottom:60px;max-height:none;font-size:21px;line-height:1.75;border:1px solid var(--line);border-radius:12px;padding:18px 22px}
+body.pv #pnext{display:block;position:fixed;left:16px;top:calc(58vw * 9 / 16 + 30px);width:58vw;font-size:20px;color:var(--mut);line-height:1.6}
+body.pv #pnext b{color:var(--ink)}
+body.pv #hud{opacity:1!important}
+body.pv #hud #clock{font-size:22px;color:var(--ink)}
+body.pv #bar{display:none}
+
 /* ---------- หน้าเลือกโหมด ---------- */
 #pick{position:fixed;inset:0;z-index:10;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;overflow:auto}
 #pick.hide{display:none}
@@ -152,7 +162,7 @@ table.t tr.hl td{color:var(--fire);font-weight:700}
       <button class="opt" data-mode="f"><span class="meta">ประมาณ 25 นาที · <span class="cnt"></span></span><h3>เจ้าหน้าที่ภาคสนาม</h3><p class="mut">ติดตั้งบนมือถือ รับแจ้งเตือน อ่านจุด นำทาง ใช้ออฟไลน์ GPS วัดระยะ ภูมิประเทศ อากาศ และแผ่นพกติดตัว</p></button>
       <button class="opt" data-mode="a"><span class="meta">ประมาณ 20 นาที · <span class="cnt"></span></span><h3>รวมทุกกลุ่ม (ห้องเดียวกัน)</h3><p class="mut">ย่อจากสองชุด: ปัญหา → ทางแก้ → ภาพรวมสำหรับผู้บริหาร → การใช้งานหน้างานที่สำคัญ → สิ่งที่ขอ</p></button>
     </div>
-    <div class="keys">ปุ่ม: <span class="kbd">→</span> <span class="kbd">Space</span> ถัดไป · <span class="kbd">←</span> ก่อนหน้า · <span class="kbd">F</span> เต็มจอ · <span class="kbd">N</span> บันทึกผู้บรรยาย · <span class="kbd">T</span> สีพื้นสว่าง/มืด · <span class="kbd">M</span> กลับหน้านี้ · <span class="kbd">P</span> พิมพ์เป็นเอกสารแจก · มือถือ: ปัดซ้าย/ขวา</div>
+    <div class="keys">ปุ่ม: <span class="kbd">→</span> <span class="kbd">Space</span> ถัดไป · <span class="kbd">←</span> ก่อนหน้า · <span class="kbd">F</span> เต็มจอ · <span class="kbd">S</span> หน้าต่างผู้บรรยาย (ลากไปจอโน้ตบุ๊ก ผู้ฟังไม่เห็น) · <span class="kbd">N</span> บันทึกบนจอนี้ · <span class="kbd">T</span> สีพื้นสว่าง/มืด · <span class="kbd">M</span> กลับหน้านี้ · <span class="kbd">P</span> พิมพ์เป็นเอกสารแจก · มือถือ: ปัดซ้าย/ขวา</div>
   </div>
 </div>
 
@@ -698,6 +708,7 @@ table.t tr.hl td{color:var(--fire);font-weight:700}
 </div></div>
 
 <div id="notes"></div>
+<div id="pnext"></div>
 <div id="bar"><div id="prog"></div></div>
 <div id="hud">
   <span id="mlbl"></span>
@@ -705,7 +716,8 @@ table.t tr.hl td{color:var(--fire);font-weight:700}
   <span id="cnt"></span>
   <button id="bPrev" aria-label="ก่อนหน้า">‹</button>
   <button id="bNext" aria-label="ถัดไป">›</button>
-  <button id="bNotes" title="บันทึกผู้บรรยาย (N)">N</button>
+  <button id="bNotes" title="บันทึกผู้บรรยาย ในหน้าต่างนี้ (N)">N</button>
+  <button id="bPv" title="เปิดหน้าต่างผู้บรรยาย แยกจอ (S)">ผู้บรรยาย</button>
   <button id="bFs" title="เต็มจอ (F)">⛶</button>
   <button id="bMenu" title="เลือกชุด (M)">☰</button>
 </div>
@@ -730,8 +742,12 @@ table.t tr.hl td{color:var(--fire);font-weight:700}
     b.addEventListener('click',function(){start(m)});
   });
 
+  /* หน้าต่างผู้บรรยาย: ?p=1 · ซิงก์สไลด์กับหน้าต่างหลักผ่าน BroadcastChannel (ต้องเปิดจากเครื่องเดียวกัน เบราว์เซอร์เดียวกัน) */
+  var PV=new URLSearchParams(location.search).get('p')==='1';
+  if(PV)document.body.classList.add('pv');
+  var bc=null;try{bc=new BroadcastChannel('fmp-deck')}catch(e){}
   function fit(){
-    var w=window.innerWidth,h=window.innerHeight,k=Math.min(w/1280,h/720);
+    var vp=document.getElementById('vp'),w=vp.clientWidth,h=vp.clientHeight,k=Math.min(w/1280,h/720);
     stage.style.transform='translate(-50%,-50%) scale('+k+')';
   }
   window.addEventListener('resize',fit);fit();
@@ -745,17 +761,27 @@ table.t tr.hl td{color:var(--fire);font-weight:700}
     pick.classList.add('hide');
     var q=new URLSearchParams(location.search);var n=parseInt(q.get('s')||'1',10);
     idx=(q.get('m')===m&&n>0&&n<=list.length)?n-1:0;
-    t0=Date.now();show();
+    t0=Date.now();show(PV); /* หน้าต่างผู้บรรยายเปิดใหม่ไม่ดึงหน้าหลักกลับ — ถาม hello แล้วตามหน้าหลักแทน */
   }
-  function show(){
+  function show(silent){
     all.forEach(function(s){s.classList.remove('on')});
     var s=list[idx];s.classList.add('on');
     document.getElementById('cnt').textContent=(idx+1)+' / '+list.length;
     document.getElementById('prog').style.width=((idx+1)/list.length*100)+'%';
     var nt=s.querySelector('.nt');
     notes.innerHTML='<div class="h">บันทึกผู้บรรยาย · สไลด์ '+(idx+1)+'/'+list.length+' · ชุด'+MODES[mode].t+' (~'+MODES[mode].min+' นาที)</div>'+(nt?nt.innerHTML:'—');
-    try{history.replaceState(null,'','?m='+mode+'&s='+(idx+1))}catch(e){}
+    try{history.replaceState(null,'','?m='+mode+'&s='+(idx+1)+(PV?'&p=1':''))}catch(e){}
+    if(PV){var nx=list[idx+1],h=nx&&nx.querySelector('h2,h1');
+      document.getElementById('pnext').innerHTML=nx?'ถัดไป ▸ <b>'+(h?h.textContent:'สไลด์ '+(idx+2))+'</b>':'<b>สไลด์สุดท้าย</b>'}
+    if(bc&&!silent)bc.postMessage({m:mode,i:idx});
   }
+  function pvOpen(){if(!mode)return;window.open(location.pathname+'?m='+mode+'&s='+(idx+1)+'&p=1','fmp-pv','width=1200,height=760')}
+  if(bc)bc.onmessage=function(e){var d=e.data||{};
+    if(d.hello){if(mode)bc.postMessage({m:mode,i:idx});return}
+    if(!MODES[d.m])return;
+    if(mode!==d.m){mode=d.m;list=all.filter(function(s){return s.getAttribute('data-m').indexOf(d.m)>=0});pick.classList.add('hide');
+      document.getElementById('mlbl').textContent=MODES[d.m].t;if(!t0)t0=Date.now()}
+    if(d.i>=0&&d.i<list.length){idx=d.i;show(true)}};
   function go(d){if(!mode)return;var n=idx+d;if(n<0||n>=list.length)return;idx=n;show()}
   function menu(){pick.classList.remove('hide');mode=null}
   function fs(){var d=document;if(!d.fullscreenElement){(d.documentElement.requestFullscreen||function(){}).call(d.documentElement)}else{d.exitFullscreen()}}
@@ -771,6 +797,7 @@ table.t tr.hl td{color:var(--fire);font-weight:700}
     else if(k==='Home'){idx=0;show()}else if(k==='End'){idx=list.length-1;show()}
     else if(k==='f'||k==='F')fs();
     else if(k==='n'||k==='N')notes.classList.toggle('on');
+    else if(k==='s'||k==='S')pvOpen();
     else if(k==='t'||k==='T')theme();
     else if(k==='m'||k==='M'||k==='Escape'&&!document.fullscreenElement)menu();
     else if(k==='p'||k==='P')window.print();
@@ -779,6 +806,7 @@ table.t tr.hl td{color:var(--fire);font-weight:700}
   document.getElementById('bNext').onclick=function(){go(1)};
   document.getElementById('bNotes').onclick=function(){notes.classList.toggle('on')};
   document.getElementById('bFs').onclick=fs;
+  document.getElementById('bPv').onclick=pvOpen;
   document.getElementById('bMenu').onclick=menu;
   /* คลิกครึ่งขวา = ถัดไป, ครึ่งซ้าย = ก่อนหน้า (ยกเว้นลิงก์/ปุ่ม) */
   document.getElementById('vp').addEventListener('click',function(e){
@@ -858,6 +886,8 @@ table.t tr.hl td{color:var(--fire);font-weight:700}
   /* เปิดด้วย ?m=e|f|a ข้ามหน้าเลือก */
   var qm=new URLSearchParams(location.search).get('m');
   if(qm&&MODES[qm])start(qm);
+  if(PV&&bc)bc.postMessage({hello:1});
+  if(PV)document.getElementById('bPv').style.display='none';
 })();
 </script>
 </body>
