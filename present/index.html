@@ -291,8 +291,9 @@ table.t tr.hl td{color:var(--fire);font-weight:700}
   <div class="kick">ผลลัพธ์ที่วัดได้</div>
   <h2>ดาวเทียมรอบบ่าย — ข้อมูลถึงมือเมื่อไร?</h2>
   <svg class="svgc" id="tl" viewBox="0 0 1136 400" style="width:100%;flex:1"></svg>
-  <div class="foot">FireMap: เวลาจากดาวเทียมผ่านถึงข้อมูลเข้าระบบ ค่ากลาง 41 นาที (29–49 นาที) วัดจริง 32 รอบ NOAA-20/21 วันที่ 14–21 พ.ย. 69 · แจ้งเตือนส่งในรอบเดียวกัน · e-mail: ตามประสบการณ์ของสถานีฯ · เวลาดาวเทียมผ่านใช้ 13:30 น. เป็นตัวอย่าง</div>
-  <aside class="nt">อธิบายแถว ThaiREN ให้ชัด: ข้อมูลมาจากแหล่งเดียวกันและเร็วพอกัน — ความต่างคือ FireMap <b>ส่งมาหาเราเอง</b> ไม่ต้องมีคนเฝ้า และบอกล่วงหน้าว่าดาวเทียมรอบถัดไปจะผ่านกี่โมง · ส่วนแถวกลุ่ม LINE ของกรมฯ จะเติมตัวเลขเมื่อได้ข้อมูลจากสถานีฯ (แก้ค่า LINE_DNP_MIN ในไฟล์)</aside>
+  <p class="big" style="margin-top:4px">ข้อมูลพร้อมใช้ <b class="leaf">เร็วกว่าเส้นทางเดิมประมาณ 2–2.5 ชั่วโมง</b> · วันที่ FIRMS ล่าช้า เร็วกว่าถึง 5 ชั่วโมง</p>
+  <div class="foot">เวลาดาวเทียมผ่านใช้ 13:30 น. เป็นตัวอย่าง · FireMap: ค่ากลาง 41 นาที (29–49) วัดจริง 32 รอบ NOAA-20/21 14–21 พ.ย. 69 · กรมฯ: หมายเหตุ “รับข้อมูล” บนแผนที่ Hotspot ประจำวัน + เวลาบันทึกไฟล์ Excel 1–18 พ.ย. 69 (รอบกลางวัน 18 รอบ / 12 วัน) · FIRMS วัดตรง 21 พ.ย. 69: 2 ชม. 5 นาที – 5 ชม. 22 นาที · e-mail: ประสบการณ์ของสถานีฯ</div>
+  <aside class="nt">อธิบายทีละแถว: ① FireMap ได้ข้อมูลจาก API ไทย (ThaiREN) ภายใน ~40 นาที และ<b>ส่งแจ้งเตือนมาหาเราเอง</b> ② เว็บ ThaiREN เร็วพอกัน แต่ต้องมีคนเฝ้า ③ กรมฯ รับข้อมูลจาก NASA FIRMS ซึ่งปล่อยข้อมูลหลังดาวเทียมผ่านราว 2 ชม. (วัดจริง 21 พ.ย. รอบ NOAA-20 ช้าถึง 5 ชม. 22 นาที) ④ กรมฯ ทำ Excel เสร็จอีกราว 30 นาที — รอบบ่ายเสร็จราว 16:53 น. (ค่ากลาง 12 วัน) ⑤ สมัยส่ง e-mail ถึงสถานีฯ 17:00–18:00 น. · ย้ำว่ากรมฯ ไม่ได้ช้าเพราะทำงานช้า แต่<b>ต้นทาง FIRMS ปล่อยข้อมูลช้าเอง</b> · แถวกลุ่ม LINE ของกรมฯ จะขึ้นเมื่อใส่ค่า LINE_DNP_MIN ในไฟล์</aside>
 </section>
 
 <!-- ===== 8 วงจรใหม่ ===== -->
@@ -815,10 +816,12 @@ table.t tr.hl td{color:var(--fire);font-weight:700}
     function x(m){return X0+m*PX}
     var pass=30,rows=[
       {lbl:'FireMap',sub:'แจ้งเตือนส่งถึงเอง',a:pass+29,b:pass+49,m:pass+41,c:'var(--leaf)',txt:'≈ 14:11 น. · 41 นาที'},
-      {lbl:'เว็บ ThaiREN',sub:'ต้องมีคนเปิดดูเอง',a:pass+29,b:pass+49,m:pass+41,c:'var(--sky)',txt:'เร็วพอกัน แต่ต้องเฝ้า',hollow:true}
+      {lbl:'เว็บ ThaiREN',sub:'ต้องมีคนเปิดดูเอง',a:pass+29,b:pass+49,m:pass+41,c:'var(--sky)',txt:'เร็วพอกัน แต่ต้องเฝ้า',hollow:true},
+      {lbl:'NASA FIRMS',sub:'กรมฯ รับข้อมูลจากที่นี่',a:pass+125,b:pass+170,m:pass+143,c:'var(--ember)',txt:'≈ 2–2.8 ชม. (บางวัน 5 ชม.+)'},
+      {lbl:'กรมฯ ทำข้อมูลเสร็จ',sub:'ไฟล์ Excel รายวัน',a:pass+153,b:pass+262,m:pass+209,c:'var(--fire)',txt:'≈ 3.5 ชม. (รอบบ่ายเสร็จ ~16:53 น.)'}
     ];
     if(LINE_DNP_MIN&&LINE_DNP_MIN.length===2){var lm=(LINE_DNP_MIN[0]+LINE_DNP_MIN[1])/2;rows.push({lbl:'กลุ่ม LINE กรมฯ',sub:'หลังประมวลผลส่วนกลาง',a:pass+LINE_DNP_MIN[0],b:pass+LINE_DNP_MIN[1],m:pass+lm,c:'var(--ember)',txt:'≈ '+(Math.round(lm/6)/10)+' ชม.'})}
-    rows.push({lbl:'e-mail (เดิม)',sub:'ส่งต่อเป็นทอด',a:240,b:300,m:270,c:'var(--fire)',txt:'17:00–18:00 น. · ≈ 4 ชม.'});
+    rows.push({lbl:'e-mail (เดิม)',sub:'ส่งต่อเป็นทอด',a:240,b:300,m:270,c:'var(--bad)',txt:'17:00–18:00 น. · ≈ 4 ชม.'});
     /* แกนเวลา */
     for(var m=0;m<=330;m+=30){
       var hh=13+Math.floor(m/60),mm=m%60;
@@ -827,7 +830,7 @@ table.t tr.hl td{color:var(--fire);font-weight:700}
     }
     svg.appendChild(el('line',{x1:x(pass),x2:x(pass),y1:28,y2:330,stroke:'var(--ink)','stroke-width':2,'stroke-dasharray':'6 5'}));
     svg.appendChild(el('text',{x:x(pass)+8,y:30,'font-size':16,'font-weight':700,fill:'var(--ink)'},'🛰 ดาวเทียมผ่าน ~13:30'));
-    var rh=Math.min(80,280/rows.length);
+    var rh=Math.min(80,270/rows.length);
     rows.forEach(function(r,i){
       var y=62+i*rh+rh/2;
       svg.appendChild(el('text',{x:0,y:y-4,'font-size':21,'font-weight':800,fill:'var(--ink)'},r.lbl));
