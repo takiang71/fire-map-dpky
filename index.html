@@ -8,18 +8,18 @@
 <!-- D2 (16 พ.ย. 69): คำอธิบาย + Open Graph/Twitter ให้แชร์ลิงก์ใน LINE/Telegram/Facebook มีภาพและข้อความ · ภาพสร้างด้วย scripts/make_og.js -->
 <meta name="description" content="แผนที่จุดความร้อนและสถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่ (อช.เขาใหญ่ ทับลาน ปางสีดา ตาพระยา ขสป.ดงใหญ่) — จุดความร้อนดาวเทียม VIIRS ล่าสุด ยอดสะสมปีงบ พื้นที่เผาไหม้ ดัชนีอันตรายไฟป่า FWI และ PM2.5 · สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="แผนที่สถานการณ์ไฟป่า สบอ.1">
+<meta property="og:site_name" content="FireMap แผนที่สถานการณ์ไฟป่า สบอ.1">
 <meta property="og:locale" content="th_TH">
-<meta property="og:title" content="สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่">
+<meta property="og:title" content="FireMap · สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่">
 <meta property="og:description" content="จุดความร้อนดาวเทียมล่าสุด ยอดสะสมปีงบ พื้นที่เผาไหม้ ดัชนีอันตรายไฟป่า และ PM2.5 ของ อช.เขาใหญ่ ทับลาน ปางสีดา ตาพระยา และ ขสป.ดงใหญ่ — สบอ.1 (ปราจีนบุรี)">
 <meta property="og:url" content="https://takiang71.github.io/fire-map-dpky/">
 <meta property="og:image" content="https://takiang71.github.io/fire-map-dpky/img/og.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="แผนที่กลุ่มป่าดงพญาเย็น-เขาใหญ่ พร้อมชื่อเว็บสถานการณ์ไฟป่า">
+<meta property="og:image:alt" content="แผนที่กลุ่มป่าดงพญาเย็น-เขาใหญ่ พร้อมชื่อเว็บ FireMap แผนที่สถานการณ์ไฟป่า">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่">
+<meta name="twitter:title" content="FireMap · สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่">
 <meta name="twitter:image" content="https://takiang71.github.io/fire-map-dpky/img/og.jpg">
 <link rel="icon" href="img/icon.svg" type="image/svg+xml">
 <link rel="icon" href="img/icon-32.png" sizes="32x32" type="image/png">
@@ -28,9 +28,9 @@
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="ไฟป่า ดพย.-ขญ.">
+<meta name="apple-mobile-web-app-title" content="FireMap">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่</title>
+<title>FireMap · สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่</title>
 <script>/* D8: เบราว์เซอร์รุ่นเก่า — ต้องเป็นสคริปต์แรกสุดและเขียนแบบ ES5 ล้วน (สคริปต์อื่นใช้ ?? · regex lookbehind · Array.at · structuredClone · DecompressionStream
    ถ้าไม่รองรับจะ SyntaxError ทั้งบล็อก = หน้าขาวเงียบ) · รุ่นต่ำสุด Chrome/Edge 98 · Safari 16.4 (iOS 16.4) · Firefox 113 · ตรวจใน check_site (ลบ DecompressionStream ก่อนโหลดหน้า) */
 (function(){var ok=true;try{new Function('var a={b:1};a?.b;a??1;/(?<=x)y/;[1].at(-1)')}catch(e){ok=false}
