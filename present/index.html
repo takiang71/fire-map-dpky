@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>นำเสนอ FireMap</title>
+<meta name="description" content="สไลด์นำเสนอระบบแผนที่สถานการณ์ไฟป่า กลุ่มป่าดงพญาเย็น-เขาใหญ่ สำหรับผู้บริหาร เจ้าหน้าที่ภาคสนาม และแบบรวม">
+<link rel="icon" href="../img/icon-192.png">
+<style>
+@font-face{font-family:'Noto Sans Thai';font-weight:400;font-display:swap;src:url(../fonts/noto-sans-thai-thai-400.woff2) format('woff2');unicode-range:U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:'Noto Sans Thai';font-weight:400;font-display:swap;src:url(../fonts/noto-sans-thai-latin-400.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+2212}
+@font-face{font-family:'Noto Sans Thai';font-weight:600;font-display:swap;src:url(../fonts/noto-sans-thai-thai-600.woff2) format('woff2');unicode-range:U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:'Noto Sans Thai';font-weight:600;font-display:swap;src:url(../fonts/noto-sans-thai-latin-600.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+2212}
+@font-face{font-family:'Noto Sans Thai';font-weight:800;font-display:swap;src:url(../fonts/noto-sans-thai-thai-800.woff2) format('woff2');unicode-range:U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:'Noto Sans Thai';font-weight:800;font-display:swap;src:url(../fonts/noto-sans-thai-latin-800.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+2212}
+:root{
+  --bg:#0e1411;--bg2:#141d18;--card:#1a2620;--line:#2c3b33;
+  --ink:#f2f5f1;--mut:#a7b6ad;--dim:#73857a;
+  --fire:#ff6a2b;--ember:#ffb02e;--leaf:#4cc27e;--sky:#5aa9ff;--bad:#ff5a5a;
+  --fireS:rgba(255,106,43,.14);--leafS:rgba(76,194,126,.14);--skyS:rgba(90,169,255,.14);
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --bg:#f6f4ef;--bg2:#ecebe4;--card:#ffffff;--line:#d9d6cc;
+  --ink:#17201b;--mut:#4f5d55;--dim:#7c877f;
+  --fire:#d9480f;--ember:#b86e00;--leaf:#1f8a4c;--sky:#1d6fd1;--bad:#c92a2a;
+  --fireS:rgba(217,72,15,.1);--leafS:rgba(31,138,76,.1);--skyS:rgba(29,111,209,.1);
+  color-scheme:light;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Noto Sans Thai',system-ui,sans-serif;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+
+/* ---------- เวที 16:9 ---------- */
+#vp{position:fixed;inset:0;overflow:hidden}
+#stage{width:1280px;height:720px;position:absolute;left:50%;top:50%;transform-origin:center center;transform:translate(-50%,-50%)}
+.s{position:absolute;inset:0;padding:56px 72px 64px;display:none;flex-direction:column;background:var(--bg);overflow:hidden}
+.s.on{display:flex;animation:fi .35s ease}
+@keyframes fi{from{transform:translateY(10px)}to{transform:none}}
+.s .nt{display:none}
+.kick{font-size:17px;font-weight:600;color:var(--fire);letter-spacing:.02em;margin-bottom:6px}
+h1{font-size:62px;line-height:1.15;font-weight:800}
+h2{font-size:40px;line-height:1.25;font-weight:800;margin-bottom:22px}
+h3{font-size:22px;font-weight:700;margin-bottom:6px}
+p,li{font-size:21px;line-height:1.6;color:var(--mut)}
+b,strong{color:var(--ink);font-weight:700}
+.big{font-size:26px;line-height:1.55;color:var(--ink)}
+.mut{color:var(--mut)} .dim{color:var(--dim)}
+.fire{color:var(--fire)} .ember{color:var(--ember)} .leaf{color:var(--leaf)} .sky{color:var(--sky)}
+.row{display:flex;gap:28px;align-items:stretch}
+.col{display:flex;flex-direction:column;gap:14px}
+.grow{flex:1;min-width:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px}
+.card p,.card li{font-size:18px;line-height:1.55}
+.card.fireB{border-color:var(--fire);background:linear-gradient(var(--fireS),var(--fireS)),var(--card)}
+.card.leafB{border-color:var(--leaf);background:linear-gradient(var(--leafS),var(--leafS)),var(--card)}
+.ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;margin-bottom:12px;background:var(--fireS);color:var(--fire)}
+.ico.g{background:var(--leafS);color:var(--leaf)} .ico.b{background:var(--skyS);color:var(--sky)}
+.ico svg{width:26px;height:26px}
+ul.ck{list-style:none;display:flex;flex-direction:column;gap:8px}
+ul.ck li{padding-left:30px;position:relative}
+ul.ck li::before{content:"";position:absolute;left:4px;top:.55em;width:14px;height:8px;border-left:3px solid var(--leaf);border-bottom:3px solid var(--leaf);transform:rotate(-45deg)}
+ul.x li::before{border-color:var(--bad)}
+ul.dot{list-style:none;display:flex;flex-direction:column;gap:6px}
+ul.dot li{padding-left:22px;position:relative}
+ul.dot li::before{content:"";position:absolute;left:4px;top:.68em;width:8px;height:8px;border-radius:50%;background:var(--fire)}
+.num{font-size:64px;font-weight:800;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.num small{font-size:22px;font-weight:600;color:var(--mut);margin-left:6px}
+.tag{display:inline-block;font-size:14px;font-weight:600;padding:3px 12px;border-radius:99px;background:var(--fireS);color:var(--fire)}
+.tag.g{background:var(--leafS);color:var(--leaf)} .tag.b{background:var(--skyS);color:var(--sky)}
+.foot{position:absolute;left:72px;right:72px;bottom:22px;font-size:14px;color:var(--dim);line-height:1.5}
+.shot{border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--bg2);position:relative}
+.shot img{display:block;width:100%;height:100%;object-fit:cover;object-position:top left}
+.shot figcaption{position:absolute;left:10px;bottom:10px;font-size:13px;padding:3px 10px;border-radius:8px;background:rgba(0,0,0,.65);color:#fff}
+.quote{font-size:30px;line-height:1.5;font-weight:600;color:var(--ink);border-left:6px solid var(--fire);padding-left:24px}
+.step{display:flex;gap:16px;align-items:flex-start}
+.step .n{flex:none;width:42px;height:42px;border-radius:50%;background:var(--fire);color:#fff;font-weight:800;font-size:20px;display:grid;place-items:center}
+.step p{font-size:19px}
+.chev{display:flex;align-items:stretch;gap:0}
+.chev>div{flex:1;background:var(--card);border:1px solid var(--line);padding:16px 14px 16px 30px;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 50%,calc(100% - 18px) 100%,0 100%,18px 50%);margin-right:-10px}
+.chev>div:first-child{clip-path:polygon(0 0,calc(100% - 18px) 0,100% 50%,calc(100% - 18px) 100%,0 100%);padding-left:18px}
+.chev h3{font-size:18px;margin-bottom:2px}
+.chev p{font-size:15px;line-height:1.45}
+table.t{border-collapse:collapse;width:100%;font-size:19px}
+table.t th,table.t td{padding:9px 14px;text-align:right;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+table.t th:first-child,table.t td:first-child{text-align:left}
+table.t th{color:var(--mut);font-weight:600;font-size:16px}
+table.t tr.hl td{color:var(--fire);font-weight:700}
+.qr{width:100%;height:auto;display:block;border-radius:10px}
+.qrbox{width:190px;flex:none;text-align:center}
+.qrbox .cap{font-size:14px;color:var(--mut);margin-top:8px;word-break:break-all}
+.cover{background:radial-gradient(1000px 600px at 85% 110%,rgba(255,106,43,.35),transparent 60%),radial-gradient(700px 500px at 0% 0%,rgba(76,194,126,.18),transparent 60%),var(--bg)}
+.legend{display:flex;gap:18px;flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:8px;font-size:18px;color:var(--mut)}
+.legend i{width:18px;height:18px;border-radius:50%;display:inline-block}
+.svgc text{font-family:inherit}
+.kbd{display:inline-block;border:1px solid var(--line);border-bottom-width:3px;border-radius:6px;padding:0 8px;font-size:15px;color:var(--ink);background:var(--card)}
+
+/* ---------- แถบควบคุม ---------- */
+#bar{position:fixed;left:0;right:0;bottom:0;height:4px;background:transparent;z-index:5}
+#prog{height:100%;width:0;background:var(--fire);transition:width .3s}
+#hud{position:fixed;right:14px;bottom:12px;display:flex;gap:8px;align-items:center;z-index:6;font-size:14px;color:var(--dim);transition:opacity .4s}
+#hud.idle{opacity:0}
+#hud button{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:5px 11px;font-size:14px}
+#hud button:hover{border-color:var(--fire)}
+#clock{font-variant-numeric:tabular-nums}
+#notes{position:fixed;left:0;right:0;bottom:0;max-height:34vh;overflow:auto;background:rgba(10,14,12,.96);color:#e8eee9;border-top:2px solid var(--fire);padding:14px 22px 46px;font-size:17px;line-height:1.65;z-index:4;display:none}
+#notes.on{display:block}
+#notes b{color:#fff}
+#notes .h{font-size:13px;color:#ffb02e;margin-bottom:4px}
+
+/* ---------- หน้าเลือกโหมด ---------- */
+#pick{position:fixed;inset:0;z-index:10;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;overflow:auto}
+#pick.hide{display:none}
+#pick .in{max-width:1040px;width:100%}
+#pick h1{font-size:clamp(28px,4vw,46px);margin-bottom:6px}
+#pick .sub{font-size:clamp(16px,1.8vw,20px);color:var(--mut);margin-bottom:28px}
+#pick .opts{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+#pick .opt{text-align:left;background:var(--card);border:2px solid var(--line);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:8px}
+#pick .opt:hover,#pick .opt:focus-visible{border-color:var(--fire);outline:none}
+#pick .opt h3{font-size:22px}
+#pick .opt p{font-size:16px;line-height:1.55}
+#pick .opt .meta{font-size:14px;color:var(--fire);font-weight:600}
+#pick .keys{margin-top:24px;font-size:15px;color:var(--dim);line-height:2}
+@media (max-width:760px){#pick .opts{grid-template-columns:1fr}}
+
+/* ---------- พิมพ์เป็นเอกสารแจก ---------- */
+@media print{
+  @page{size:1280px 720px;margin:0}
+  html,body{overflow:visible;height:auto;background:#fff}
+  #vp{position:static;display:block}
+  #stage{transform:none!important;position:static;width:auto;height:auto}
+  .s{position:relative;display:none;width:1280px;height:720px;page-break-after:always;break-after:page;animation:none}
+  .s.inm{display:flex}
+  #hud,#bar,#notes,#pick{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- หน้าเลือกโหมด -->
+<div id="pick">
+  <div class="in">
+    <div class="kick">FireMap · กลุ่มป่าดงพญาเย็น-เขาใหญ่</div>
+    <h1>เลือกชุดการนำเสนอ</h1>
+    <div class="sub">เลือกตามผู้ฟัง เนื้อหาหลักเหมือนกัน ต่างกันที่จุดเน้นและความยาว</div>
+    <div class="opts">
+      <button class="opt" data-mode="e"><span class="meta">ประมาณ 15 นาที · <span class="cnt"></span></span><h3>ผู้บริหาร / หัวหน้าหน่วยงาน</h3><p class="mut">ปัญหาเดิม ความเร็วที่ได้ ภาพรวมสถานการณ์ สถิติย้อนหลัง รายงาน ต้นทุน และสิ่งที่ขอจากที่ประชุม</p></button>
+      <button class="opt" data-mode="f"><span class="meta">ประมาณ 25 นาที · <span class="cnt"></span></span><h3>เจ้าหน้าที่ภาคสนาม</h3><p class="mut">ติดตั้งบนมือถือ รับแจ้งเตือน อ่านจุด นำทาง ใช้ออฟไลน์ GPS วัดระยะ ภูมิประเทศ อากาศ และแผ่นพกติดตัว</p></button>
+      <button class="opt" data-mode="a"><span class="meta">ประมาณ 20 นาที · <span class="cnt"></span></span><h3>รวมทุกกลุ่ม (ห้องเดียวกัน)</h3><p class="mut">ย่อจากสองชุด: ปัญหา → ทางแก้ → ภาพรวมสำหรับผู้บริหาร → การใช้งานหน้างานที่สำคัญ → สิ่งที่ขอ</p></button>
+    </div>
+    <div class="keys">ปุ่ม: <span class="kbd">→</span> <span class="kbd">Space</span> ถัดไป · <span class="kbd">←</span> ก่อนหน้า · <span class="kbd">F</span> เต็มจอ · <span class="kbd">N</span> บันทึกผู้บรรยาย · <span class="kbd">T</span> สีพื้นสว่าง/มืด · <span class="kbd">M</span> กลับหน้านี้ · <span class="kbd">P</span> พิมพ์เป็นเอกสารแจก · มือถือ: ปัดซ้าย/ขวา</div>
+  </div>
+</div>
+
+<div id="vp"><div id="stage">
+
+<!-- ===== 1 ปก ===== -->
+<section class="s cover" data-m="efa">
+  <div class="row" style="flex:1;align-items:center">
+    <div class="grow">
+      <div class="kick">ส่วนควบคุมและปฏิบัติการไฟป่า · สำนักบริหารพื้นที่อนุรักษ์ที่ 1 (ปราจีนบุรี)</div>
+      <h1>FireMap<br><span class="fire">แผนที่สถานการณ์ไฟป่า</span><br>กลุ่มป่าดงพญาเย็น-เขาใหญ่</h1>
+      <p class="big" style="margin-top:22px">รู้เร็ว · เห็นครบ · ตัดสินใจได้ที่หน้างาน</p>
+      <p style="margin-top:26px;font-size:18px" class="mode-lbl"></p>
+    </div>
+    <div class="qrbox"><div class="qrslot" data-url="https://takiang71.github.io/fire-map-dpky/"></div><div class="cap">สแกนเปิดเว็บ<br>takiang71.github.io/fire-map-dpky</div></div>
+  </div>
+  <div class="foot">พัฒนาโดย นายเกรียงไกร โพธิงาม นักวิชาการป่าไม้ชำนาญการ</div>
+  <aside class="nt">เปิดด้วยคำถามสั้นๆ: “ปีที่แล้วเราได้ข้อมูลจุดความร้อนรอบบ่ายกี่โมง?” ให้ผู้ฟังนึกภาพก่อน แล้วบอกว่าวันนี้จะเล่า 3 เรื่อง: ปัญหาเดิม · ระบบช่วยอะไร · เริ่มใช้อย่างไร (ประมาณ 30 วินาที)</aside>
+</section>
+
+<!-- ===== 2 Hook ===== -->
+<section class="s" data-m="efa">
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:34px">
+    <div class="kick">ทำไมต้องเร็ว</div>
+    <div class="quote">ไฟไม่รอใคร — ทุกชั่วโมงที่ข้อมูลยังเดินทางมาไม่ถึง<br>คือพื้นที่ป่าที่ไหม้เพิ่มขึ้น และงานดับไฟที่ยากขึ้น</div>
+    <div class="grid3">
+      <div class="card"><div class="num">142<small>ครั้ง</small></div><p>ไฟป่าที่ตรวจพบ ปีงบ 2569</p></div>
+      <div class="card"><div class="num">5,226<small>ไร่</small></div><p>พื้นที่เสียหาย ปีงบ 2569</p></div>
+      <div class="card fireB"><div class="num">61<small>%</small></div><p>ของไฟป่าปีงบ 2569 รู้จาก<b>ดาวเทียม</b> — ดาวเทียมจึงเป็นตาหลักของเรา</p></div>
+    </div>
+  </div>
+  <div class="foot">ข้อมูล: การดับไฟป่า อส. + แบบรับแจ้งเหตุไฟป่า กรมอุทยานฯ · ไม่รวม ขสป.ดงใหญ่ · จากแดชบอร์ดสรุปของระบบ 21 พ.ย. 69</div>
+  <aside class="nt">ชี้ว่า 6 ใน 10 ของไฟที่เราเจอ มาจากการแจ้งของดาวเทียม (พบเองจากการลาดตระเวน 21%) — ถ้าข้อมูลดาวเทียมถึงมือช้า การเข้าดับก็ช้าตาม ค่ามัธยฐานเวลาดับไฟปีงบ 2569 = 4.5 ชม.</aside>
+</section>
+
+<!-- ===== 3a ปัญหา 3 ข้อ (รวม) ===== -->
+<section class="s" data-m="a">
+  <div class="kick">ปัญหาเดิม</div>
+  <h2>3 ปัญหาที่เราเจอมาตลอด</h2>
+  <div class="grid3" style="flex:1">
+    <div class="card fireB"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg></div><h3>1. รู้ช้า</h3><p>ข้อมูลส่งต่อเป็นทอด: FIRMS → กรมฯ ประมวลผล → สบอ. → สถานีฯ สมัย e-mail รอบบ่ายถึงมือ <b>5–6 โมงเย็น</b> · เว็บ ThaiREN เร็วที่สุดแต่<b>ต้องมีคนนั่งเฝ้า รีเฟรชเอง</b></p></div>
+    <div class="card"><div class="ico b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h12l4 4v12H4z"/><path d="M8 12h8M8 16h5"/></svg></div><h3>2. ข้อมูลมี แต่ไม่ได้ใช้</h3><p>จุดความร้อนและการดับไฟย้อนหลังเป็น<b>ไฟล์ตัวเลขพิกัดและกระดาษ</b>ที่ส่วนกลาง ไม่ได้วิเคราะห์ส่งต่อให้พื้นที่ ขอทีต้องรอคนทำแผนที่ให้</p></div>
+    <div class="card"><div class="ico g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg></div><h3>3. หน้างานข้อมูลไม่พอ</h3><p>ใช้<b>แผนที่กระดาษ</b>ที่ไม่ละเอียด อากาศ ลม ฝุ่น ต้อง<b>เปิดหลายแอป</b>หลายแหล่ง ไม่สะดวกตอนปฏิบัติงาน</p></div>
+  </div>
+  <aside class="nt">เล่าให้กระชับ 1 นาที — ทุกคนในห้องเคยเจอทั้ง 3 ข้อ ให้ผู้ฟังพยักหน้าก่อน แล้วค่อยไปทางแก้</aside>
+</section>
+
+<!-- ===== 3 ปัญหา 1 ===== -->
+<section class="s" data-m="ef">
+  <div class="kick">ปัญหาที่ 1</div>
+  <h2>รู้ช้า — ข้อมูลเดินทางหลายทอดกว่าจะถึงสถานีฯ</h2>
+  <div class="chev" style="margin-bottom:26px">
+    <div><h3>ดาวเทียม / FIRMS</h3><p>ตรวจพบจุดความร้อน</p></div>
+    <div><h3>กรมอุทยานฯ</h3><p>รับข้อมูลแล้วประมวลผลเอง</p></div>
+    <div><h3>สบอ.1</h3><p>รับต่อจากกรมฯ</p></div>
+    <div><h3>สถานีฯ ไฟป่า</h3><p>ได้ข้อมูล → ส่งชุดดับไฟ</p></div>
+  </div>
+  <div class="grid3" style="flex:1">
+    <div class="card"><span class="tag">สมัยก่อน</span><h3 style="margin-top:10px">ส่งทาง e-mail</h3><p>ข้อมูลดาวเทียม<b>รอบบ่าย</b> ถึงสถานีฯ ประมาณ <b class="fire">17:00–18:00 น.</b> ใกล้ค่ำแล้ว</p></div>
+    <div class="card"><span class="tag">ปัจจุบัน</span><h3 style="margin-top:10px">ส่งเข้ากลุ่ม LINE</h3><p>ประมวลผลเสร็จก็ส่งเข้ากลุ่มได้เลย เร็วขึ้น แต่<b>ยังต้องรอขั้นประมวลผลที่ส่วนกลาง</b></p></div>
+    <div class="card"><span class="tag">ปีที่แล้ว</span><h3 style="margin-top:10px">เว็บ WFSRU / ThaiREN</h3><p>เร็วที่สุดในประเทศ แต่<b>ไม่มีระบบแจ้งเตือน</b> ไม่รู้ว่าดาวเทียมผ่านเมื่อไร ต้อง<b>นั่งเฝ้า กดรีเฟรช</b>เอง</p></div>
+  </div>
+  <p style="margin-top:18px" class="big">ผลคือ <b class="fire">รู้ช้า → เข้าดับช้า → พื้นที่เสียหายมากขึ้น</b></p>
+  <aside class="nt">ย้ำว่าไม่ได้ตำหนิช่องทางของกรมฯ — ขั้นประมวลผลส่วนกลางมีเหตุผล (กรองข้อมูล) แต่ที่หน้างานต้องการรู้ก่อน แล้วค่อยยืนยันทีหลัง ช่องว่างตรงนี้คือสิ่งที่ระบบนี้เข้ามาเติม</aside>
+</section>
+
+<!-- ===== 4 ปัญหา 2 ===== -->
+<section class="s" data-m="e">
+  <div class="kick">ปัญหาที่ 2</div>
+  <h2>ข้อมูลย้อนหลังมีอยู่ แต่ไม่ได้ถูกใช้วางแผน</h2>
+  <div class="row" style="flex:1">
+    <div class="col grow">
+      <div class="card"><h3>เก็บเป็นไฟล์รวมที่ส่วนกลาง</h3><p>จุดความร้อนและการดับไฟย้อนหลัง เห็นแต่<b>ตัวเลขค่าพิกัด</b>และ<b>แผ่นกระดาษ</b></p></div>
+      <div class="card"><h3>พึ่งคนไม่กี่คน</h3><p>มีเจ้าหน้าที่ที่ทำแผนที่เป็น แต่ไม่มีการรวบรวม วิเคราะห์ และส่งต่อให้พื้นที่อนุรักษ์ / สถานีฯ อย่างเป็นระบบ</p></div>
+      <div class="card"><h3>ขอข้อมูลแต่ละครั้ง = รอ</h3><p>ต้องรอคนทำให้ ใช้เวลานาน และ<b>ไม่ทันสถานการณ์</b>ที่เปลี่ยนรายวัน</p></div>
+    </div>
+    <div class="card leafB grow" style="display:flex;flex-direction:column;justify-content:center">
+      <p class="dim" style="font-size:16px">คำถามที่ผู้บริหารควรตอบได้ทันที</p>
+      <ul class="dot" style="margin-top:10px">
+        <li>ปีนี้จุดความร้อนมากหรือน้อยกว่าปีก่อน?</li>
+        <li>พื้นที่ไหน สถานีฯ ไหน เจอไฟซ้ำทุกปี?</li>
+        <li>ดับไฟใช้เวลานานเท่าไร เสียหายกี่ไร่?</li>
+        <li>ควรวางกำลังและทำแนวกันไฟที่ไหนก่อน?</li>
+      </ul>
+      <p style="margin-top:14px">เดิมต้อง<b>สั่งทำรายงาน</b> · ตอนนี้<b class="leaf">เปิดดูได้เอง</b></p>
+    </div>
+  </div>
+  <aside class="nt">ชวนผู้บริหารคิดว่าถ้าวันนี้อยากรู้ 4 คำถามทางขวา ต้องรอกี่วัน — แล้วจะโชว์ในสไลด์ถัดๆ ไปว่าเปิดดูได้ในไม่กี่วินาที</aside>
+</section>
+
+<!-- ===== 5 ปัญหา 3 ===== -->
+<section class="s" data-m="ef">
+  <div class="kick">ปัญหาที่ 3</div>
+  <h2>หน้างาน: แผนที่กระดาษ และต้องเปิดหลายแอป</h2>
+  <div class="row" style="flex:1">
+    <div class="col grow">
+      <div class="card"><h3>แผนที่กระดาษ</h3><p>ไม่ละเอียด ไม่ครอบคลุมข้อมูลที่ใช้ตัดสินใจ เช่น ความลาดชัน ชนิดป่า ทางเข้า แนวเขตความรับผิดชอบ</p></div>
+      <div class="card"><h3>ข้อมูลอากาศกระจายหลายที่</h3><p>ลม ความชื้น ฝุ่น ดัชนีอันตรายไฟ — ต้อง<b>สลับหลายแอป</b> ระหว่างเตรียมตัวออกพื้นที่</p></div>
+      <div class="card"><h3>ไม่มีสัญญาณในป่า</h3><p>แอปทั่วไปใช้ไม่ได้เมื่อเข้าลึก</p></div>
+    </div>
+    <div class="grow" style="display:flex;flex-direction:column;justify-content:center;gap:14px">
+      <p class="dim" style="font-size:16px">ก่อนออกไปดับไฟ ต้องเปิด…</p>
+      <div class="grid2">
+        <div class="card" style="padding:14px 18px"><p>🗺️ แผนที่ / นำทาง</p></div>
+        <div class="card" style="padding:14px 18px"><p>🌬️ ลม / พยากรณ์อากาศ</p></div>
+        <div class="card" style="padding:14px 18px"><p>😷 ค่าฝุ่น PM2.5</p></div>
+        <div class="card" style="padding:14px 18px"><p>🔥 จุดความร้อน</p></div>
+        <div class="card" style="padding:14px 18px"><p>📄 แผนที่กระดาษ</p></div>
+        <div class="card" style="padding:14px 18px"><p>📏 วัดระยะ / พิกัด</p></div>
+      </div>
+      <p class="big">→ รวมเหลือ <b class="fire">แอปเดียว</b></p>
+    </div>
+  </div>
+  <aside class="nt">ถามเจ้าหน้าที่ภาคสนามว่าปกติเปิดกี่แอปก่อนออก — ส่วนใหญ่จะตอบ 3–5 แอป</aside>
+</section>
+
+<!-- ===== 6 FireMap คืออะไร ===== -->
+<section class="s" data-m="efa">
+  <div class="kick">ทางแก้</div>
+  <h2>FireMap: ทุกข้อมูลไฟป่าของกลุ่มป่า ในแผนที่เดียว</h2>
+  <div class="grid4" style="margin-bottom:22px">
+    <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><h3>แจ้งเตือนเอง</h3><p>ตรวจทุก ~5 นาที เจอจุดใหม่ส่ง LINE / Telegram ทันที</p></div>
+    <div class="card"><div class="ico b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M11 18h2"/></svg></div><h3>ทุกอุปกรณ์</h3><p>คอมพิวเตอร์ แท็บเล็ต มือถือ ติดตั้งเป็นแอปได้ ใช้ออฟไลน์ได้</p></div>
+    <div class="card"><div class="ico g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg></div><h3>ย้อนหลังครบ</h3><p>จุดความร้อนปีงบ 2561–2569 และการดับไฟ 2564–2569 บนแผนที่</p></div>
+    <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg></div><h3>ไม่มีค่าใช้จ่าย</h3><p>เปิดผ่านเว็บ ไม่ต้องลงทะเบียน ไม่ต้องซื้อโปรแกรม</p></div>
+  </div>
+  <p class="dim" style="font-size:16px;margin-bottom:10px">ดึงข้อมูลอัตโนมัติจาก</p>
+  <div class="legend" style="gap:10px">
+    <span class="tag">จุดความร้อน ThaiREN (สด)</span><span class="tag">NASA FIRMS (สำรอง)</span><span class="tag b">ตัวชี้วัด กรมอุทยานฯ (Excel)</span><span class="tag b">การดับไฟ อส. / แบบรับแจ้งเหตุกรมฯ</span><span class="tag g">พื้นที่เผาไหม้ สสน. / GISTDA</span><span class="tag g">FWI กรมป่าไม้</span><span class="tag g">อากาศ / ลม / เรดาร์</span><span class="tag g">PM2.5 CAMS / Air4Thai</span><span class="tag b">ชนิดป่า ความลาดชัน ความสูง</span>
+  </div>
+  <aside class="nt">เน้นคำว่า “ไม่ต้องเฝ้า” — ระบบเฝ้าให้ 24 ชั่วโมง และไม่ได้มาแทนช่องทางของกรมฯ แต่ช่วยให้หน้างานรู้ก่อน</aside>
+</section>
+
+<!-- ===== 7 ความเร็ว ===== -->
+<section class="s" data-m="efa">
+  <div class="kick">ผลลัพธ์ที่วัดได้</div>
+  <h2>ดาวเทียมรอบบ่าย — ข้อมูลถึงมือเมื่อไร?</h2>
+  <svg class="svgc" id="tl" viewBox="0 0 1136 400" style="width:100%;flex:1"></svg>
+  <div class="foot">FireMap: เวลาจากดาวเทียมผ่านถึงข้อมูลเข้าระบบ ค่ากลาง 41 นาที (29–49 นาที) วัดจริง 32 รอบ NOAA-20/21 วันที่ 14–21 พ.ย. 69 · แจ้งเตือนส่งในรอบเดียวกัน · e-mail: ตามประสบการณ์ของสถานีฯ · เวลาดาวเทียมผ่านใช้ 13:30 น. เป็นตัวอย่าง</div>
+  <aside class="nt">อธิบายแถว ThaiREN ให้ชัด: ข้อมูลมาจากแหล่งเดียวกันและเร็วพอกัน — ความต่างคือ FireMap <b>ส่งมาหาเราเอง</b> ไม่ต้องมีคนเฝ้า และบอกล่วงหน้าว่าดาวเทียมรอบถัดไปจะผ่านกี่โมง · ส่วนแถวกลุ่ม LINE ของกรมฯ จะเติมตัวเลขเมื่อได้ข้อมูลจากสถานีฯ (แก้ค่า LINE_DNP_MIN ในไฟล์)</aside>
+</section>
+
+<!-- ===== 8 วงจรใหม่ ===== -->
+<section class="s" data-m="efa">
+  <div class="kick">วิธีทำงานแบบใหม่</div>
+  <h2>จากดาวเทียม ถึงรายงาน — ในวงจรเดียว</h2>
+  <div class="chev" style="margin:10px 0 28px">
+    <div><h3>① ดาวเทียมพบจุด</h3><p>NOAA-20 / 21 / SNPP</p></div>
+    <div><h3>② ระบบแจ้งเตือน</h3><p>LINE / Telegram อัตโนมัติ</p></div>
+    <div><h3>③ เปิดแผนที่</h3><p>ดูพื้นที่ ลม ลาดชัน ทางเข้า</p></div>
+    <div><h3>④ ส่งชุดดับไฟ</h3><p>นำทาง + บันทึกเส้นทาง</p></div>
+    <div><h3>⑤ บันทึกผล</h3><p>แบบรับแจ้งเหตุกรมฯ</p></div>
+    <div><h3>⑥ สรุป / รายงาน</h3><p>แดชบอร์ด รายงานรายเดือน</p></div>
+  </div>
+  <div class="grid3">
+    <div class="card"><h3 class="fire">สถานีฯ / ภาคสนาม</h3><p>ข้อ ②–⑤ — รู้ก่อน เตรียมตัวได้ก่อน ข้อมูลอยู่ในมือถือ</p></div>
+    <div class="card"><h3 class="sky">ศูนย์ฯ / สบอ.</h3><p>ข้อ ②, ⑥ — เห็นภาพรวมทั้งกลุ่มป่า ไม่ต้องรวบรวมเอง</p></div>
+    <div class="card"><h3 class="leaf">ผู้บริหาร</h3><p>ข้อ ⑥ — ตัวเลขเทียบปีก่อน อันดับพื้นที่ พร้อมใช้รายงาน</p></div>
+  </div>
+  <aside class="nt">ทุกขั้นใช้ข้อมูลชุดเดียวกัน ตัวเลขบนเว็บ = LINE = Telegram (ระบบตรวจให้ทุกรอบ) จึงไม่มีปัญหาตัวเลขไม่ตรงกันระหว่างหน่วย</aside>
+</section>
+
+<!-- ===== 10 ภาพรวม ===== -->
+<section class="s" data-m="ea">
+  <div class="kick">สำหรับผู้บริหาร</div>
+  <h2>สถานการณ์ทั้งกลุ่มป่า ในหน้าจอเดียว</h2>
+  <div class="row" style="flex:1;min-height:0">
+    <figure class="shot" style="flex:1.7"><img src="../manual/img/overview.jpg" alt="หน้าจอหลัก FireMap" loading="lazy"><figcaption>หน้าจอจริง (จุดตัวอย่าง)</figcaption></figure>
+    <div class="col" style="flex:1">
+      <div class="card"><h3>เปิดแล้วรู้ทันที</h3><p>จุด 24 ชม. แยกตามพื้นที่อนุรักษ์ จังหวัด อำเภอ ตำบล</p></div>
+      <div class="card"><h3>สีบอกอายุจุด</h3><p>แดง = ใหม่ภายใน 6 ชม. ไล่ถึงน้ำตาล = เกิน 24 ชม.</p></div>
+      <div class="card"><h3>ดาวเทียมรอบถัดไป</h3><p>นับถอยหลังเวลาที่ดาวเทียมจะผ่านกลุ่มป่า</p></div>
+    </div>
+  </div>
+  <aside class="nt">ถ้ามีอินเทอร์เน็ตในห้อง เปิดเว็บจริงแทนภาพนี้ได้เลย (ภาพเป็นแผนสำรอง) · ในช่วงนอกฤดูไฟอาจไม่มีจุด — ใช้สวิตช์ “แสดงจุดความร้อนตัวอย่าง”</aside>
+</section>
+
+<!-- ===== 11 แดชบอร์ด TV ===== -->
+<section class="s" data-m="ea">
+  <div class="kick">สำหรับห้องปฏิบัติการ / ห้องผู้บริหาร</div>
+  <h2>แดชบอร์ดสรุป — เปิดค้างบนจอ TV</h2>
+  <div class="row" style="flex:1;min-height:0">
+    <figure class="shot" style="flex:1.9"><img src="../manual/img/dash.jpg" alt="แดชบอร์ดสรุปจอ TV" loading="lazy"><figcaption>แดชบอร์ดจริง</figcaption></figure>
+    <div class="col" style="flex:1">
+      <ul class="ck">
+        <li>สะสมปีงบ เทียบปีก่อน + เฉลี่ย 5 ปี</li>
+        <li>ไฟป่าที่ตรวจพบ / ไร่ที่เสียหาย</li>
+        <li>อันดับพื้นที่อนุรักษ์ และสถานีฯ</li>
+        <li>พื้นที่เผาไหม้รอบล่าสุด</li>
+        <li>FWI · การระบายอากาศ · PM2.5 วันนี้</li>
+        <li>อัปเดตเองทุก 5 นาที · จอไม่ดับ</li>
+      </ul>
+      <p style="font-size:16px">เปิดด้วยลิงก์ <b>…/fire-map-dpky/?dash</b></p>
+    </div>
+  </div>
+  <aside class="nt">แนะนำให้เปิดค้างไว้ในห้องศูนย์ฯ ช่วงฤดูไฟ ผู้บริหารเดินผ่านก็เห็นสถานการณ์ทันที</aside>
+</section>
+
+<!-- ===== 12 สถิติ 5 ปี ===== -->
+<section class="s" data-m="ea">
+  <div class="kick">ข้อมูลย้อนหลังที่ใช้ได้ทันที</div>
+  <h2>5 ปีงบที่ผ่านมา — ไฟไม่เคยเท่ากันสักปี</h2>
+  <div class="row" style="flex:1">
+    <div class="card grow"><h3>จุดความร้อน (ตัวชี้วัดกรมฯ) ทั้งปีงบ</h3><svg class="svgc bars" data-c="fire" data-v="82,419,289,138,83" viewBox="0 0 520 300" style="width:100%"></svg></div>
+    <div class="card grow"><h3>ไฟป่าที่ตรวจพบ (ครั้ง) ทั้งปีงบ</h3><svg class="svgc bars" data-c="ember" data-v="36,68,59,48,142" viewBox="0 0 520 300" style="width:100%"></svg></div>
+  </div>
+  <p style="margin-top:16px">พื้นที่เสียหาย (ไร่): 2565 <b>2,271</b> · 2566 <b>3,402</b> · 2567 <b>4,521</b> · 2568 <b>2,240.5</b> · 2569 <b class="fire">5,226</b> · เฉลี่ย 5 ปี <b>3,532</b></p>
+  <div class="foot">จุดความร้อน: กรมอุทยานฯ (Suomi NPP · ตั้งแต่ 2 พ.ย. 69 ใช้ NOAA-20) · ไฟป่า: อส. + แบบรับแจ้งเหตุ · ไม่รวม ขสป.ดงใหญ่ · เฉลี่ยจุดความร้อน 5 ปี 202 จุด/ปี</div>
+  <aside class="nt">จุดความร้อนขึ้นลงมาก (82–419 จุด) — การวางแผนต้องดูข้อมูลต่อเนื่อง ไม่ใช่ปีต่อปี · ปีงบ 2569 จุดความร้อนน้อยแต่ไฟที่บันทึกมากที่สุด (142 ครั้ง) ส่วนหนึ่งเพราะการบันทึกครบขึ้น — ไม่ควรสรุปว่าไฟเพิ่มขึ้นจากตัวเลขนี้อย่างเดียว · ระบบนับตามตัวชี้วัดกรมฯ (ดาวเทียมดวงเดียวกับที่กรมฯ ใช้) จึงอ้างอิงในรายงานได้</aside>
+</section>
+
+<!-- ===== 13 ไฟป่าปีงบ 69 / สถานีฯ ===== -->
+<section class="s" data-m="e">
+  <div class="kick">ปีงบ 2569 เราทำงานกันอย่างไร</div>
+  <h2>ดาวเทียมคือตาหลัก — เร็วขึ้นได้อีก</h2>
+  <div class="row" style="flex:1">
+    <div class="col" style="flex:1">
+      <div class="card fireB"><div class="num">61<small>%</small></div><p>ไฟป่าที่รู้จาก<b>การแจ้งของดาวเทียม</b></p></div>
+      <div class="card"><div class="num">21<small>%</small></div><p>พบเองจากการลาดตระเวน</p></div>
+      <div class="card"><div class="num">4.5<small>ชม.</small></div><p>เวลาดับไฟ (มัธยฐาน) รับแจ้ง → ดำเนินการเสร็จ</p></div>
+    </div>
+    <div class="card" style="flex:1.3">
+      <h3>สถานีฯ ที่ดับไฟมากที่สุด ปีงบ 2569</h3>
+      <table class="t" style="margin-top:8px">
+        <tr><th>สถานีควบคุมไฟป่า</th><th>ครั้ง</th><th>ไร่</th></tr>
+        <tr><td>ทับลาน</td><td>21</td><td>1,094</td></tr>
+        <tr><td>วังน้ำเขียว</td><td>20</td><td>1,251</td></tr>
+        <tr><td>เขาใหญ่ (ใต้)</td><td>11</td><td>290</td></tr>
+        <tr><td>ตาพระยา-ปางสีดา</td><td>8</td><td>191</td></tr>
+        <tr><td>ทับลาน (ใต้)</td><td>7</td><td>363</td></tr>
+      </table>
+      <p style="margin-top:12px;font-size:16px">ข้อมูลทั้งหมดนี้ <b>ระบบสรุปให้เอง</b> จากแบบรับแจ้งเหตุที่เจ้าหน้าที่กรอกอยู่แล้ว</p>
+    </div>
+  </div>
+  <div class="foot">ที่มา: แดชบอร์ดสรุปของระบบ 21 พ.ย. 69 · ไฟป่า = ครั้งที่สถานีฯ เป็นผู้ดำเนินการ · ไม่รวม ขสป.ดงใหญ่</div>
+  <aside class="nt">เมื่อ 61% ของไฟมาจากดาวเทียม ทุกนาทีที่ข้อมูลถึงเร็วขึ้นมีผลตรงต่อเวลาดับไฟและพื้นที่เสียหาย · ฟอร์มกรมฯ ไม่มีช่อง “เวลาเข้าดับ” จึงยังวัดเวลา รับแจ้ง→เข้าดับ ไม่ได้</aside>
+</section>
+
+<!-- ===== 15 รายงาน ===== -->
+<section class="s" data-m="ea">
+  <div class="kick">ลดงานเอกสาร</div>
+  <h2>รายงาน ตาราง แผนที่ — ไม่ต้องรอคนทำ</h2>
+  <div class="row" style="flex:1;min-height:0">
+    <figure class="shot" style="flex:1.5"><img src="../manual/img/print_composer.jpg" alt="หน้าจัดพิมพ์แผนที่" loading="lazy"><figcaption>จัดหน้าพิมพ์แผนที่</figcaption></figure>
+    <div class="col" style="flex:1">
+      <div class="card"><h3>รายงานประจำเดือน</h3><p>ระบบสร้างเองทุกวันที่ 1 (HTML / PDF)</p></div>
+      <div class="card"><h3>ตาราง + ดาวน์โหลด</h3><p>CSV / Excel / ภาพ ส่งต่อหรือแนบหนังสือได้ทันที</p></div>
+      <div class="card"><h3>พิมพ์แผนที่</h3><p>มีกรอบ ทิศเหนือ มาตราส่วน คำอธิบายสัญลักษณ์ จัดวางเองได้</p></div>
+      <div class="card"><h3>สรุปทุกเช้า 05:30 น.</h3><p>ส่งเข้ากลุ่มแจ้งเตือนอัตโนมัติ</p></div>
+    </div>
+  </div>
+  <aside class="nt">งานที่เคยต้องขอให้คนทำแผนที่ทำให้หลายวัน ตอนนี้ใครก็ทำได้เองในไม่กี่นาที</aside>
+</section>
+
+<!-- ===== 16 เชิงป้องกัน ===== -->
+<section class="s" data-m="e">
+  <div class="kick">จากตั้งรับ สู่การป้องกัน</div>
+  <h2>ใช้ข้อมูลวางแผนก่อนไฟมา</h2>
+  <div class="grid3" style="flex:1">
+    <div class="card"><figure class="shot" style="height:170px;margin-bottom:12px"><img src="../manual/img/sw_burn_h.jpg" alt="พื้นที่เผาซ้ำซาก" loading="lazy"></figure><h3>พื้นที่เผาซ้ำซาก</h3><p>เห็นจุดที่ไหม้ทุกปี → วางแนวกันไฟ ลาดตระเวน ประชาสัมพันธ์ชุมชน</p></div>
+    <div class="card"><figure class="shot" style="height:170px;margin-bottom:12px"><img src="../manual/img/sw_fwi.jpg" alt="ดัชนีอันตรายไฟป่า" loading="lazy"></figure><h3>ดัชนีอันตรายไฟ FWI</h3><p>จากกรมป่าไม้ รายวัน → เพิ่มกำลังเฝ้าระวังวันที่เสี่ยงสูง</p></div>
+    <div class="card"><figure class="shot" style="height:170px;margin-bottom:12px"><img src="../manual/img/sw_fuel.jpg" alt="เชื้อเพลิง" loading="lazy"></figure><h3>เชื้อเพลิง ชนิดป่า ลาดชัน</h3><p>ประกอบการจัดลำดับพื้นที่ทำแนวกันไฟ / ชิงเผา</p></div>
+  </div>
+  <p style="margin-top:14px;font-size:17px">มี <b>ดัชนีเสี่ยงรายตำบล</b> ของระบบช่วยจัดลำดับพื้นที่เฝ้าระวัง <span class="dim">(ไม่ใช่ค่าทางการ)</span></p>
+  <aside class="nt">ข้อมูลย้อนหลังมีค่าที่สุดตอนวางแผนก่อนฤดูไฟ (ต.ค.–ธ.ค.) — แนะนำให้แต่ละพื้นที่ใช้ชั้นเผาซ้ำซากประกอบแผนแนวกันไฟปีนี้</aside>
+</section>
+
+<!-- ===== 17 ต้นทุน ===== -->
+<section class="s" data-m="ea">
+  <div class="kick">ต้นทุนและความยั่งยืน</div>
+  <h2>ใช้งานได้ทันที โดยไม่มีค่าใช้จ่าย</h2>
+  <div class="row" style="flex:1">
+    <div class="col grow">
+      <div class="card leafB"><div class="num">0<small>บาท</small></div><p>ค่าเซิร์ฟเวอร์ ค่าโปรแกรม ค่าข้อมูล — ใช้บริการฟรี (GitHub Pages, Cloudflare) และข้อมูลเปิดของหน่วยงานรัฐ / NASA</p></div>
+      <div class="card"><h3>ทำงานเองอัตโนมัติ</h3><p>ดึงข้อมูลทุก 5 นาที มีระบบเฝ้าตัวเอง — ถ้ารอบไหนหยุด จะสั่งรันใหม่ให้</p></div>
+    </div>
+    <div class="col grow">
+      <div class="card"><h3>ข้อมูลเปิด / API</h3><p>หน่วยงานอื่นดึงข้อมูลไปใช้ต่อได้</p></div>
+      <div class="card"><h3>สิ่งที่มีข้อจำกัด</h3><ul class="dot"><li>LINE OA ฟรี 300 ข้อความ/เดือน (ตอนนี้ยังเป็นกลุ่มทดสอบ)</li><li>Telegram ไม่จำกัด — ใช้เป็นช่องทางหลักได้</li><li>ระบบดูแลโดยผู้พัฒนาคนเดียว</li></ul></div>
+    </div>
+  </div>
+  <aside class="nt">ข้อจำกัดสำคัญ: โควตา LINE และการพึ่งผู้พัฒนาคนเดียว — เป็นประเด็นที่ขอให้ที่ประชุมพิจารณาในสไลด์ “สิ่งที่ขอ”</aside>
+</section>
+
+<!-- ===== 18 ติดตั้ง ===== -->
+<section class="s" data-m="f">
+  <div class="kick">เริ่มใช้งาน · ขั้นที่ 1</div>
+  <h2>ติดตั้งเป็นแอปบนมือถือ (1 นาที)</h2>
+  <div class="row" style="flex:1">
+    <div class="col grow">
+      <div class="card"><h3>Android (Chrome)</h3><div class="step"><div class="n">1</div><p>สแกน QR หรือเปิดเว็บใน Chrome</p></div><div class="step" style="margin-top:8px"><div class="n">2</div><p>กดเมนู <b>⋮</b> → <b>ติดตั้งแอป</b> / เพิ่มลงในหน้าจอหลัก</p></div></div>
+      <div class="card"><h3>iPhone / iPad (Safari)</h3><div class="step"><div class="n">1</div><p>เปิดเว็บใน <b>Safari</b></p></div><div class="step" style="margin-top:8px"><div class="n">2</div><p>กดปุ่ม <b>แชร์</b> → <b>เพิ่มไปยังหน้าจอโฮม</b></p></div></div>
+      <p style="font-size:17px">ได้ไอคอน FireMap บนหน้าจอ เปิดเต็มจอเหมือนแอปทั่วไป</p>
+    </div>
+    <div class="col" style="width:300px;align-items:center">
+      <div class="qrbox" style="width:230px"><div class="qrslot" data-url="https://takiang71.github.io/fire-map-dpky/"></div><div class="cap">FireMap</div></div>
+      <figure class="shot" style="width:150px;height:230px"><img src="../manual/img/mobile.jpg" alt="หน้าจอบนมือถือ" loading="lazy"></figure>
+    </div>
+  </div>
+  <aside class="nt">ให้ทุกคนทำพร้อมกันตอนนี้เลย — เดินดูว่าใครติดขัด · iPhone ต้องใช้ Safari เท่านั้นจึงจะเพิ่มหน้าจอโฮมได้</aside>
+</section>
+
+<!-- ===== 19 แจ้งเตือน ===== -->
+<section class="s" data-m="fa">
+  <div class="kick">เริ่มใช้งาน · ขั้นที่ 2</div>
+  <h2>รับแจ้งเตือนจุดความร้อน — ไม่ต้องเฝ้าเว็บอีกต่อไป</h2>
+  <div class="grid3" style="flex:1">
+    <div class="card fireB"><span class="tag">Telegram</span><h3 style="margin-top:10px">กลุ่มแจ้งเตือน</h3><p>ขอลิงก์เข้ากลุ่มจากผู้ดูแล — เจอจุดใหม่ในแนวเขตจะได้ข้อความรายจุด พร้อมลิงก์ <b>📍 Google Maps</b> และ <b>🔥 แผนที่ไฟป่า</b></p></div>
+    <div class="card"><span class="tag b">Telegram ส่วนตัว</span><h3 style="margin-top:10px">เลือกเฉพาะพื้นที่ตัวเอง</h3><p>แชตกับบอท <b>@Hotspot_dnp1_bot</b> แล้วพิมพ์</p><p style="font-size:20px;color:var(--ink);margin-top:6px"><b>/ตาม ทับลาน</b><br><b>/ตาม สถานีวังน้ำเขียว</b><br><b>/ตาม ทั้งหมด</b></p></div>
+    <div class="card"><span class="tag g">ทุกเช้า 05:30 น.</span><h3 style="margin-top:10px">สรุปประจำวัน</h3><p>ยอด 24 ชม. สะสมปีงบเทียบปีก่อน <b>เวลาดาวเทียมรอบถัดไป</b> FWI ลม และฝุ่นวันนี้</p><p style="margin-top:8px;font-size:16px" class="dim">LINE ยังเป็นกลุ่มทดสอบ (โควตาจำกัด)</p></div>
+  </div>
+  <aside class="nt">ระบบตรวจทุกประมาณ 5 นาที แจ้งจุดที่ตรวจพบภายใน 12 ชม. ไม่แจ้งซ้ำจุดเดิม · แนะนำให้ทุกสถานีฯ ใช้ /ตาม เฉพาะพื้นที่ตัวเอง จะได้ไม่ถูกรบกวนด้วยจุดของพื้นที่อื่น</aside>
+</section>
+
+<!-- ===== 20 สัญลักษณ์ ===== -->
+<section class="s" data-m="f">
+  <div class="kick">อ่านแผนที่</div>
+  <h2>สีของจุด = อายุของจุด</h2>
+  <div class="row" style="flex:1;min-height:0">
+    <figure class="shot" style="flex:1.6"><img src="../manual/img/sw_hot.jpg" alt="จุดความร้อนบนแผนที่" loading="lazy"><figcaption>จุดความร้อนบนแผนที่</figcaption></figure>
+    <div class="col" style="flex:1;justify-content:center">
+      <div class="legend" style="flex-direction:column;gap:14px">
+        <span><i style="background:#e03131"></i><b>แดง</b> — ภายใน 6 ชม. <span class="fire">รีบดู</span></span>
+        <span><i style="background:#f76707"></i><b>ส้ม</b> — 6–12 ชม.</span>
+        <span><i style="background:#f2c200"></i><b>เหลือง</b> — 12–24 ชม.</span>
+        <span><i style="background:#8d6e63"></i><b>น้ำตาล</b> — เกิน 24 ชม. (แสดงถึง 48 ชม.)</span>
+      </div>
+      <div class="card" style="margin-top:14px"><p><b>จุดความร้อน ≠ ไฟป่าเสมอไป</b> อาจเป็นการเผาในที่เกษตร หรือจุดที่ดับแล้ว — ต้องตรวจสอบหน้างาน</p></div>
+    </div>
+  </div>
+  <aside class="nt">ปุ่มดาวเทียมด้านบนการ์ดเลือกได้ว่าจะดูดวงไหน · ค่าเริ่มต้นไม่รวม ขสป.ดงใหญ่ (สบอ.7)</aside>
+</section>
+
+<!-- ===== 21 รายละเอียดจุด ===== -->
+<section class="s" data-m="fa">
+  <div class="kick">กดที่จุด</div>
+  <h2>แตะจุดเดียว รู้ทุกอย่างที่ต้องใช้ตัดสินใจ</h2>
+  <div class="row" style="flex:1;min-height:0">
+    <figure class="shot" style="flex:1.7"><img src="../manual/img/detail.jpg" alt="แผงรายละเอียดจุดความร้อน" loading="lazy"><figcaption>แผงรายละเอียดจุด (จุดตัวอย่าง)</figcaption></figure>
+    <div class="col" style="flex:1">
+      <ul class="ck">
+        <li>ตรวจพบกี่ชั่วโมงแล้ว · ความแรงไฟ</li>
+        <li>พื้นที่อนุรักษ์ / สถานีฯ ที่รับผิดชอบ</li>
+        <li>พิกัด UTM · ความสูง · ความลาดชัน</li>
+        <li>อากาศ ลม ฝุ่น ณ จุดนั้น</li>
+        <li><b>ประวัติบริเวณนี้</b> เคยไหม้กี่ครั้ง</li>
+        <li><b>คาดการณ์ทิศทางการลาม</b></li>
+        <li>ปุ่มนำทาง Google Maps · แชร์ลิงก์</li>
+      </ul>
+    </div>
+  </div>
+  <aside class="nt">นี่คือหัวใจของการใช้งานหน้างาน — ถ้าสาธิตสดได้ ให้กดจุดจริงหนึ่งจุดแล้วเลื่อนให้ดูทีละส่วน · การคาดการณ์การลามเป็นค่าประมาณจากลมและความลาดชัน ใช้ประกอบการตัดสินใจ</aside>
+</section>
+
+<!-- ===== 22 นำทาง ===== -->
+<section class="s" data-m="f">
+  <div class="kick">ไปให้ถึงจุด</div>
+  <h2>นำทาง ค้นหาพิกัด และส่งตำแหน่งให้ทีม</h2>
+  <div class="grid3" style="flex:1">
+    <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m3 11 19-9-9 19-2-8z"/></svg></div><h3>นำทาง</h3><p>กดปุ่มนำทางที่จุด → เปิด Google Maps พาไปถึงพิกัด</p></div>
+    <div class="card"><div class="ico b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></div><h3>ค้นหา</h3><p>พิมพ์ชื่อสถานที่ หรือพิกัด UTM / ละติจูด-ลองจิจูด แล้วไปที่ตำแหน่งนั้น</p></div>
+    <div class="card"><div class="ico g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></div><h3>ลิงก์ตรง</h3><p>คัดลอกลิงก์มุมมองหรือจุด ส่งในกลุ่ม → คนรับเปิดแล้วเห็นตำแหน่งเดียวกัน</p></div>
+  </div>
+  <p style="margin-top:16px">แตะตำแหน่งใดก็ได้บนแผนที่ → บอก <b>พื้นที่อนุรักษ์ สถานีฯ ที่รับผิดชอบ ตำบล ชนิดป่า พิกัด UTM อากาศ</b> และลิงก์นำทาง</p>
+  <aside class="nt">ข้อความแจ้งเตือนทุกจุดมีลิงก์ Google Maps อยู่แล้ว กดจากแชตได้ทันที</aside>
+</section>
+
+<!-- ===== 23 ออฟไลน์ ===== -->
+<section class="s" data-m="fa">
+  <div class="kick">ในป่าไม่มีสัญญาณ</div>
+  <h2>ใช้งานออฟไลน์ได้ — แต่ต้องเตรียมก่อนออก</h2>
+  <div class="row" style="flex:1">
+    <div class="card grow"><h3 class="leaf">ใช้ได้เมื่อไม่มีสัญญาณ</h3><ul class="ck" style="margin-top:8px"><li>แนวเขตพื้นที่อนุรักษ์ / สถานีฯ</li><li>จุดความร้อนชุดล่าสุดที่เคยโหลด</li><li>การ์ดและสถิติย้อนหลัง</li><li>ชั้นข้อมูลที่เคยเปิดดูแล้ว</li><li><b>บันทึกเส้นทางด้วย GPS</b></li><li>แผนที่ฐานที่เก็บไว้ล่วงหน้า</li></ul></div>
+    <div class="card grow"><h3 class="fire">ใช้ไม่ได้</h3><ul class="ck x" style="margin-top:8px"><li>จุดความร้อนรอบใหม่</li><li>ภาพดาวเทียม / แผนที่ธรรมชาติ</li><li>อากาศ เรดาร์ ที่ดึงสด</li></ul>
+      <div class="card leafB" style="margin-top:16px"><h3>ก่อนออกพื้นที่ทุกครั้ง</h3><p>① เปิดแอปตอนมีสัญญาณ<br>② ซูมไปพื้นที่ที่จะไป → แผงชั้นข้อมูล → <b>⬇ เก็บพื้นที่นี้ไว้ดูออฟไลน์</b></p></div>
+    </div>
+  </div>
+  <aside class="nt">ขณะออฟไลน์จะมีแถบ “📴 ออฟไลน์ · จุดความร้อนเมื่อ…” บอกอายุข้อมูล · iPhone อาจล้างข้อมูลเว็บที่ไม่ได้เปิดหลายวัน จึงต้องเปิดก่อนออกทุกครั้ง</aside>
+</section>
+
+<!-- ===== 24 GPS ===== -->
+<section class="s" data-m="f">
+  <div class="kick">บันทึกการปฏิบัติงาน</div>
+  <h2>บันทึกเส้นทางเดินด้วย GPS</h2>
+  <div class="row" style="flex:1;min-height:0">
+    <figure class="shot" style="flex:1"><img src="../manual/img/track_bar.jpg" alt="แถบบันทึกเส้นทาง" loading="lazy"><figcaption>ระหว่างบันทึก</figcaption></figure>
+    <div class="col" style="flex:1.2">
+      <figure class="shot" style="height:200px"><img src="../manual/img/track_sum.jpg" alt="สรุปเส้นทาง" loading="lazy" style="object-fit:contain"><figcaption>สรุปเมื่อจบ</figcaption></figure>
+      <ul class="ck"><li>ระยะทาง เวลา ขึ้น/ลงสะสม</li><li>ใช้ได้แม้ไม่มีสัญญาณ (GPS ไม่ใช้เน็ต)</li><li>บันทึกต่อได้ถ้าแอปถูกปิดกลางทาง</li><li>ส่งออกเป็นไฟล์ไปใช้ต่อ / แนบรายงาน</li></ul>
+      <p style="font-size:16px" class="dim">ต้องเปิดจอไว้ระหว่างบันทึก</p>
+    </div>
+  </div>
+  <aside class="nt">ใช้เป็นหลักฐานเส้นทางเข้าดับไฟ และใช้วางแผนเส้นทางเข้าครั้งต่อไปได้</aside>
+</section>
+
+<!-- ===== 25 วัด ===== -->
+<section class="s" data-m="f">
+  <div class="kick">เครื่องมือหน้างาน</div>
+  <h2>วัดระยะ พื้นที่ และดูโปรไฟล์ความสูง</h2>
+  <div class="row" style="flex:1;min-height:0">
+    <figure class="shot grow"><img src="../manual/img/measure.jpg" alt="วัดระยะทางและพื้นที่" loading="lazy"><figcaption>วัดระยะ / พื้นที่ (ไร่)</figcaption></figure>
+    <figure class="shot grow"><img src="../manual/img/elev_profile.jpg" alt="โปรไฟล์ความสูง" loading="lazy"><figcaption>โปรไฟล์ความสูงตามเส้นทาง</figcaption></figure>
+  </div>
+  <p style="margin-top:16px">ประเมินพื้นที่ไหม้คร่าวๆ เป็นไร่ · ดูว่าทางเข้าชันแค่ไหน · ระยะจากถนนถึงจุดไฟ</p>
+  <aside class="nt">บนมือถือแตะทีละจุดเพื่อวาดเส้นหรือพื้นที่ · ค่าความสูงจากแบบจำลอง GEM-15</aside>
+</section>
+
+<!-- ===== 26 ภูมิประเทศ ===== -->
+<section class="s" data-m="f">
+  <div class="kick">ความปลอดภัย</div>
+  <h2>ภูมิประเทศ: ลาดชัน ทิศลาด เส้นชั้นความสูง</h2>
+  <div class="row" style="flex:1;min-height:0">
+    <figure class="shot" style="flex:1.6"><img src="../manual/img/terrain_slope.jpg" alt="ความลาดชัน" loading="lazy"><figcaption>ความลาดชัน</figcaption></figure>
+    <div class="col" style="flex:1">
+      <div class="card fireB"><h3>ไฟลามขึ้นเนินเร็วกว่า</h3><p>ดูความลาดชันและทิศทางลมก่อนเลือกทางเข้า / จุดตั้งแนวดับ</p></div>
+      <figure class="shot" style="flex:1"><img src="../manual/img/terrain_contours.jpg" alt="เส้นชั้นความสูง" loading="lazy"><figcaption>เส้นชั้นความสูง</figcaption></figure>
+    </div>
+  </div>
+  <aside class="nt">ใช้ประกอบการประเมินความเสี่ยงของทีมก่อนเข้าพื้นที่ — โดยเฉพาะพื้นที่ลาดชันสูงที่ไฟลามขึ้นเนิน</aside>
+</section>
+
+<!-- ===== 27 วาด แชร์ ===== -->
+<section class="s" data-m="f">
+  <div class="kick">ทำงานเป็นทีม</div>
+  <h2>วาดบนแผนที่ แล้วแชร์ให้ทีม</h2>
+  <div class="grid3" style="flex:1">
+    <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div><h3>วาด</h3><p>จุดนัดพบ แนวกันไฟ แนวดับไฟ พื้นที่ไหม้ ใส่ชื่อและสีได้</p></div>
+    <div class="card"><div class="ico b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg></div><h3>แชร์</h3><p>ส่งเป็นลิงก์ให้ทีม — เปิดแล้วเห็นสิ่งที่วาดบนแผนที่เดียวกัน</p></div>
+    <div class="card"><div class="ico g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></div><h3>นำเข้า / ส่งออก</h3><p>KML / KMZ / GeoJSON / GPX ใช้ร่วมกับ Google Earth และโปรแกรม GIS</p></div>
+  </div>
+  <aside class="nt">ตัวอย่างการใช้: หัวหน้าชุดวาดแนวดับไฟที่วางแผนไว้ แล้วส่งลิงก์ให้ลูกทีมก่อนเข้าพื้นที่</aside>
+</section>
+
+<!-- ===== 28 อากาศ ===== -->
+<section class="s" data-m="fa">
+  <div class="kick">ก่อนออกปฏิบัติงาน</div>
+  <h2>ลม อากาศ ฝุ่น ดัชนีไฟ — ดูที่เดียว</h2>
+  <div class="row" style="flex:1;min-height:0">
+    <figure class="shot" style="flex:1.6"><img src="../manual/img/windy.jpg" alt="พยากรณ์อากาศ Windy" loading="lazy"><figcaption>ลมและพยากรณ์อากาศ</figcaption></figure>
+    <div class="col" style="flex:1">
+      <div class="card"><h3>ลม / พยากรณ์รายชั่วโมง</h3><p>ทิศและความเร็วลม ฝน เรดาร์ ภาพเมฆ Himawari</p></div>
+      <div class="card"><h3>ดัชนีอันตรายไฟ FWI</h3><p>กรมป่าไม้ รายวัน 5 ระดับ</p></div>
+      <div class="card"><h3>การระบายอากาศ / PM2.5</h3><p>ช่วงเวลาที่ควัน “ระบายได้” และค่าฝุ่นรายพื้นที่</p></div>
+    </div>
+  </div>
+  <aside class="nt">แตะตำแหน่งบนแผนที่จะได้สภาพอากาศ ณ จุดนั้นทันที ไม่ต้องสลับแอป</aside>
+</section>
+
+<!-- ===== 29 แบบรับแจ้งเหตุ ===== -->
+<section class="s" data-m="fa">
+  <div class="kick">หลังดับไฟเสร็จ</div>
+  <h2>กรอกแบบรับแจ้งเหตุของกรมฯ ตามปกติ — ไม่ต้องกรอกซ้ำ</h2>
+  <div class="chev" style="margin:6px 0 26px">
+    <div><h3>เจ้าหน้าที่กรอก</h3><p>แบบรับแจ้งเหตุไฟป่า กรมอุทยานฯ (Google Forms)</p></div>
+    <div><h3>ระบบดึงเอง</h3><p>ทุก ~15 นาที เฉพาะในกลุ่มป่า</p></div>
+    <div><h3>ขึ้นแผนที่ + แดชบอร์ด</h3><p>สถิติ อันดับ ไร่ที่เสียหาย</p></div>
+  </div>
+  <div class="grid2">
+    <div class="card leafB"><h3>ยิ่งกรอกครบ ข้อมูลยิ่งมีค่า</h3><p>ช่อง <b>พื้นที่เสียหาย (ไร่)</b> <b>เวลาดับเสร็จ</b> <b>พิกัด</b> และ <b>ตรงกับ Hotspot หรือไม่</b> คือสิ่งที่ผู้บริหารใช้ดูผลงาน</p></div>
+    <div class="card"><h3>ปลอดภัยข้อมูลส่วนบุคคล</h3><p>ระบบไม่ดึงชื่อผู้กรอก อีเมล เบอร์โทร — อ่านเฉพาะข้อมูลเหตุการณ์</p></div>
+  </div>
+  <aside class="nt">นี่คือจุดเชื่อมระหว่างภาคสนามกับผู้บริหาร — ข้อมูลที่ภาคสนามกรอกวันนี้ จะกลายเป็นตัวเลขในแดชบอร์ดและรายงานโดยอัตโนมัติ</aside>
+</section>
+
+<!-- ===== 30 แผ่นพก ===== -->
+<section class="s" data-m="f">
+  <div class="kick">แผ่นพกติดตัว · พิมพ์แจกได้</div>
+  <h2>5 ขั้น เมื่อมีจุดความร้อน</h2>
+  <div class="col" style="flex:1;justify-content:center;gap:16px">
+    <div class="step"><div class="n">1</div><p class="big"><b>ได้รับแจ้งเตือน</b> Telegram / LINE → กดลิงก์ 🔥 แผนที่ไฟป่า</p></div>
+    <div class="step"><div class="n">2</div><p class="big"><b>แตะจุด</b> ดูอายุจุด ความแรง พื้นที่รับผิดชอบ ประวัติบริเวณนี้</p></div>
+    <div class="step"><div class="n">3</div><p class="big"><b>ประเมิน</b> ลม ความลาดชัน ทางเข้า ทิศทางการลาม</p></div>
+    <div class="step"><div class="n">4</div><p class="big"><b>ออกไป</b> กดนำทาง + เปิดบันทึกเส้นทาง GPS</p></div>
+    <div class="step"><div class="n">5</div><p class="big"><b>ดับเสร็จ</b> กรอกแบบรับแจ้งเหตุกรมฯ ให้ครบ (ไร่ / เวลา / พิกัด)</p></div>
+  </div>
+  <div class="foot">ก่อนออกพื้นที่ทุกครั้ง: เปิดแอปตอนมีสัญญาณ + เก็บแผนที่ฐานไว้ดูออฟไลน์ · คู่มือเต็ม: takiang71.github.io/fire-map-dpky/manual/</div>
+  <aside class="nt">กด P เพื่อพิมพ์ทั้งชุดเป็นเอกสารแจก (หน้านี้ใช้เป็นแผ่นพกได้)</aside>
+</section>
+
+<!-- ===== 31 สาธิต ===== -->
+<section class="s cover" data-m="efa">
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:20px">
+    <div class="kick">สาธิตสด · 2–3 นาที</div>
+    <h1>ลองดูของจริง</h1>
+    <p class="big">เปิดเว็บ → แตะจุด → ดูลม/ลาดชัน → กดนำทาง → แดชบอร์ดสรุป</p>
+    <a class="tag" style="font-size:18px;padding:8px 18px;text-decoration:none" href="../" target="_blank" rel="noopener">เปิด FireMap ในแท็บใหม่ ↗</a>
+  </div>
+  <aside class="nt">ถ้าเน็ตในห้องไม่พร้อม ข้ามสไลด์นี้ — ภาพหน้าจอในสไลด์ก่อนหน้าครอบคลุมแล้ว · ช่วงนอกฤดูไฟเปิดสวิตช์ “แสดงจุดความร้อนตัวอย่าง” เพื่อให้มีจุดให้กด</aside>
+</section>
+
+<!-- ===== 32 ข้อจำกัด ===== -->
+<section class="s" data-m="efa">
+  <div class="kick">บอกกันตรงๆ</div>
+  <h2>สิ่งที่ระบบนี้ <span class="fire">ไม่ใช่</span> และข้อจำกัด</h2>
+  <div class="grid2" style="flex:1">
+    <div class="card"><h3>จุดความร้อน ≠ ไฟป่าทุกจุด</h3><p>อาจเป็นการเผาในที่เกษตร หรือไฟที่ดับแล้ว — ต้องมีคนตรวจสอบหน้างานเสมอ และดาวเทียมมองไม่เห็นใต้เมฆหนา / ไฟเล็กมาก</p></div>
+    <div class="card"><h3>ดัชนีเสี่ยงไม่ใช่ค่าทางการ</h3><p>ใช้จัดลำดับพื้นที่เฝ้าระวังเท่านั้น · การคาดการณ์การลามเป็นค่าประมาณ</p></div>
+    <div class="card"><h3>ขึ้นกับแหล่งข้อมูลต้นทาง</h3><p>ถ้าต้นทางหยุดหรือช้า (เช่น ภาพพื้นที่เผาไหม้) ระบบจะช้าตาม — มีป้ายบอกเวลาข้อมูลล่าสุดทุกชั้น</p></div>
+    <div class="card fireB"><h3>เสริม ไม่ได้แทนช่องทางกรมฯ</h3><p>ตัวเลขตัวชี้วัดอิงกรมอุทยานฯ · การรายงานทางการยังเป็นไปตามระบบของกรมฯ ระบบนี้ช่วยให้<b>หน้างานรู้เร็วขึ้น</b></p></div>
+  </div>
+  <aside class="nt">สไลด์นี้สร้างความน่าเชื่อถือ — ผู้บริหารจะมั่นใจมากขึ้นเมื่อเห็นว่าเรารู้ขอบเขตของเครื่องมือ</aside>
+</section>
+
+<!-- ===== 33 สิ่งที่ขอ / ต่อไป ===== -->
+<section class="s" data-m="ea">
+  <div class="kick">ข้อเสนอต่อที่ประชุม</div>
+  <h2>สิ่งที่ขอ และก้าวต่อไป</h2>
+  <div class="row" style="flex:1">
+    <div class="card fireB grow"><h3>ขอให้ที่ประชุมพิจารณา</h3>
+      <div class="col" style="gap:12px;margin-top:10px">
+        <div class="step"><div class="n">1</div><p>ให้ทุกพื้นที่อนุรักษ์และสถานีฯ ใช้ FireMap ควบคู่ช่องทางของกรมฯ ในฤดูไฟนี้</p></div>
+        <div class="step"><div class="n">2</div><p>หัวหน้าสถานีฯ และชุดปฏิบัติการ เข้ากลุ่มแจ้งเตือน Telegram / สมัคร <b>/ตาม</b> พื้นที่ตัวเอง</p></div>
+        <div class="step"><div class="n">3</div><p>กรอกแบบรับแจ้งเหตุกรมฯ ให้ครบทุกช่อง (ไร่ เวลาดับเสร็จ พิกัด)</p></div>
+        <div class="step"><div class="n">4</div><p>มอบผู้รับผิดชอบสำรองดูแลระบบ และนำเข้าข้อมูล Excel กรมฯ ทุกปีงบ</p></div>
+        <div class="step"><div class="n">5</div><p>พิจารณาขยาย LINE จากกลุ่มทดสอบ (โควตาฟรี 300 ข้อความ/เดือน)</p></div>
+      </div>
+    </div>
+    <div class="card grow" style="flex:.8"><h3>ก้าวต่อไป (แผน)</h3>
+      <ul class="dot" style="margin-top:10px"><li>แอป Android</li><li>ขยายการแจ้งเตือนรายพื้นที่</li><li>ตรวจความแม่นยำดัชนีเสี่ยงหลังจบฤดูไฟ</li><li>รับข้อเสนอแนะจากผู้ใช้งานจริง</li></ul>
+    </div>
+  </div>
+  <aside class="nt">ปิดด้วยการขอมติชัดเจน อย่างน้อยข้อ 1–3 · ข้อ 4 สำคัญต่อความยั่งยืนของระบบ</aside>
+</section>
+
+<!-- ===== 34 ปิด ===== -->
+<section class="s cover" data-m="efa">
+  <div class="row" style="flex:1;align-items:center">
+    <div class="grow">
+      <div class="kick">ขอบคุณครับ</div>
+      <h1>เริ่มใช้ได้<br><span class="fire">ตั้งแต่วันนี้</span></h1>
+      <p class="big" style="margin-top:18px">สแกน → ติดตั้ง → รับแจ้งเตือน</p>
+      <p style="margin-top:18px">ซักถาม / ข้อเสนอแนะ: ส่วนควบคุมและปฏิบัติการไฟป่า สบอ.1 (ปราจีนบุรี)</p>
+    </div>
+    <div class="row" style="gap:22px">
+      <div class="qrbox"><div class="qrslot" data-url="https://takiang71.github.io/fire-map-dpky/"></div><div class="cap">FireMap</div></div>
+      <div class="qrbox"><div class="qrslot" data-url="https://takiang71.github.io/fire-map-dpky/manual/"></div><div class="cap">คู่มือการใช้งาน</div></div>
+    </div>
+  </div>
+  <aside class="nt">เปิดให้ซักถาม · ทิ้งสไลด์นี้ไว้ให้ผู้ฟังสแกน QR</aside>
+</section>
+
+</div></div>
+
+<div id="notes"></div>
+<div id="bar"><div id="prog"></div></div>
+<div id="hud">
+  <span id="mlbl"></span>
+  <span id="clock" title="เวลาที่ใช้ / เป้าหมาย">0:00</span>
+  <span id="cnt"></span>
+  <button id="bPrev" aria-label="ก่อนหน้า">‹</button>
+  <button id="bNext" aria-label="ถัดไป">›</button>
+  <button id="bNotes" title="บันทึกผู้บรรยาย (N)">N</button>
+  <button id="bFs" title="เต็มจอ (F)">⛶</button>
+  <button id="bMenu" title="เลือกชุด (M)">☰</button>
+</div>
+
+<script>
+(function(){
+  /* เวลาที่สถานีฯ ได้รับข้อมูลรอบบ่ายผ่านกลุ่ม LINE ของกรมฯ (นาทีหลังดาวเทียมผ่าน) — ใส่ตัวเลขเมื่อทราบ เช่น [90,150] = 1.5–2.5 ชม. · null = ไม่แสดงแถวนี้ */
+  var LINE_DNP_MIN = null;
+
+  var MODES = {e:{t:'ผู้บริหาร / หัวหน้าหน่วยงาน',min:15},f:{t:'เจ้าหน้าที่ภาคสนาม',min:25},a:{t:'รวมทุกกลุ่ม',min:20}};
+  var all = [].slice.call(document.querySelectorAll('.s'));
+  var mode = null, list = [], idx = 0, t0 = 0;
+  var stage = document.getElementById('stage'), pick = document.getElementById('pick');
+  var notes = document.getElementById('notes'), hud = document.getElementById('hud');
+
+  function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+
+  /* นับสไลด์แต่ละชุดในหน้าเลือก */
+  [].forEach.call(document.querySelectorAll('#pick .opt'),function(b){
+    var m=b.getAttribute('data-mode');
+    b.querySelector('.cnt').textContent=all.filter(function(s){return s.getAttribute('data-m').indexOf(m)>=0}).length+' สไลด์';
+    b.addEventListener('click',function(){start(m)});
+  });
+
+  function fit(){
+    var w=window.innerWidth,h=window.innerHeight,k=Math.min(w/1280,h/720);
+    stage.style.transform='translate(-50%,-50%) scale('+k+')';
+  }
+  window.addEventListener('resize',fit);fit();
+
+  function start(m){
+    mode=m;
+    list=all.filter(function(s){return s.getAttribute('data-m').indexOf(m)>=0});
+    all.forEach(function(s){s.classList.toggle('inm',list.indexOf(s)>=0)});
+    [].forEach.call(document.querySelectorAll('.mode-lbl'),function(e){e.textContent='ชุดนำเสนอ: '+MODES[m].t});
+    document.getElementById('mlbl').textContent=MODES[m].t;
+    pick.classList.add('hide');
+    var q=new URLSearchParams(location.search);var n=parseInt(q.get('s')||'1',10);
+    idx=(q.get('m')===m&&n>0&&n<=list.length)?n-1:0;
+    t0=Date.now();show();
+  }
+  function show(){
+    all.forEach(function(s){s.classList.remove('on')});
+    var s=list[idx];s.classList.add('on');
+    document.getElementById('cnt').textContent=(idx+1)+' / '+list.length;
+    document.getElementById('prog').style.width=((idx+1)/list.length*100)+'%';
+    var nt=s.querySelector('.nt');
+    notes.innerHTML='<div class="h">บันทึกผู้บรรยาย · สไลด์ '+(idx+1)+'/'+list.length+' · ชุด'+MODES[mode].t+' (~'+MODES[mode].min+' นาที)</div>'+(nt?nt.innerHTML:'—');
+    try{history.replaceState(null,'','?m='+mode+'&s='+(idx+1))}catch(e){}
+  }
+  function go(d){if(!mode)return;var n=idx+d;if(n<0||n>=list.length)return;idx=n;show()}
+  function menu(){pick.classList.remove('hide');mode=null}
+  function fs(){var d=document;if(!d.fullscreenElement){(d.documentElement.requestFullscreen||function(){}).call(d.documentElement)}else{d.exitFullscreen()}}
+  function theme(){var r=document.documentElement;var v=r.getAttribute('data-theme')==='light'?'dark':'light';r.setAttribute('data-theme',v);store('fmp-theme',v)}
+  if(store('fmp-theme')==='light')document.documentElement.setAttribute('data-theme','light');
+
+  document.addEventListener('keydown',function(e){
+    if(e.ctrlKey||e.metaKey||e.altKey)return;
+    var k=e.key;
+    if(!mode){if(k==='1'||k==='e')start('e');else if(k==='2'||k==='f')start('f');else if(k==='3'||k==='a')start('a');return}
+    if(k==='ArrowRight'||k===' '||k==='PageDown'||k==='Enter'){e.preventDefault();go(1)}
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){e.preventDefault();go(-1)}
+    else if(k==='Home'){idx=0;show()}else if(k==='End'){idx=list.length-1;show()}
+    else if(k==='f'||k==='F')fs();
+    else if(k==='n'||k==='N')notes.classList.toggle('on');
+    else if(k==='t'||k==='T')theme();
+    else if(k==='m'||k==='M'||k==='Escape'&&!document.fullscreenElement)menu();
+    else if(k==='p'||k==='P')window.print();
+  });
+  document.getElementById('bPrev').onclick=function(){go(-1)};
+  document.getElementById('bNext').onclick=function(){go(1)};
+  document.getElementById('bNotes').onclick=function(){notes.classList.toggle('on')};
+  document.getElementById('bFs').onclick=fs;
+  document.getElementById('bMenu').onclick=menu;
+  /* คลิกครึ่งขวา = ถัดไป, ครึ่งซ้าย = ก่อนหน้า (ยกเว้นลิงก์/ปุ่ม) */
+  document.getElementById('vp').addEventListener('click',function(e){
+    if(e.target.closest('a,button'))return;
+    go(e.clientX>window.innerWidth*0.35?1:-1);
+  });
+  var tx=null;
+  document.addEventListener('touchstart',function(e){tx=e.touches[0].clientX},{passive:true});
+  document.addEventListener('touchend',function(e){if(tx===null)return;var dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50)go(dx<0?1:-1);tx=null},{passive:true});
+  /* ซ่อนแถบควบคุมเมื่อไม่ขยับเมาส์ */
+  var idleT;function wake(){hud.classList.remove('idle');clearTimeout(idleT);idleT=setTimeout(function(){hud.classList.add('idle')},2500)}
+  document.addEventListener('mousemove',wake);wake();
+  setInterval(function(){if(!mode)return;var s=Math.floor((Date.now()-t0)/1000);document.getElementById('clock').textContent=Math.floor(s/60)+':'+('0'+s%60).slice(-2)+' / '+MODES[mode].min+':00'},1000);
+  window.addEventListener('beforeprint',function(){if(!mode)all.forEach(function(s){s.classList.add('inm')})});
+
+  /* ---------- กราฟแท่ง 5 ปีงบ ---------- */
+  var NS='http://www.w3.org/2000/svg';
+  function el(n,a,txt){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e}
+  [].forEach.call(document.querySelectorAll('svg.bars'),function(svg){
+    var v=svg.getAttribute('data-v').split(',').map(Number),c='var(--'+svg.getAttribute('data-c')+')';
+    var yrs=['2565','2566','2567','2568','2569'],mx=Math.max.apply(null,v),H=220,base=255,bw=64,gap=(520-5*bw)/6;
+    svg.appendChild(el('line',{x1:0,x2:520,y1:base,y2:base,stroke:'var(--line)','stroke-width':2}));
+    v.forEach(function(x,i){
+      var h=x/mx*H,X=gap+i*(bw+gap),last=i===v.length-1;
+      svg.appendChild(el('rect',{x:X,y:base-h,width:bw,height:h,rx:6,fill:c,opacity:last?1:.55}));
+      svg.appendChild(el('text',{x:X+bw/2,y:base-h-10,'text-anchor':'middle','font-size':22,'font-weight':800,fill:'var(--ink)'},x.toLocaleString('th-TH')));
+      svg.appendChild(el('text',{x:X+bw/2,y:base+28,'text-anchor':'middle','font-size':18,fill:'var(--mut)'},yrs[i]));
+    });
+  });
+
+  /* ---------- เส้นเวลาความเร็ว ---------- */
+  (function(){
+    var svg=document.getElementById('tl');if(!svg)return;
+    var X0=230,PX=2.6; /* 13:00 → x=230, 1 นาที = 2.6px, ถึง 18:30 */
+    function x(m){return X0+m*PX}
+    var pass=30,rows=[
+      {lbl:'FireMap',sub:'แจ้งเตือนส่งถึงเอง',a:pass+29,b:pass+49,m:pass+41,c:'var(--leaf)',txt:'≈ 14:11 น. · 41 นาที'},
+      {lbl:'เว็บ ThaiREN',sub:'ต้องมีคนเปิดดูเอง',a:pass+29,b:pass+49,m:pass+41,c:'var(--sky)',txt:'เร็วพอกัน แต่ต้องเฝ้า',hollow:true}
+    ];
+    if(LINE_DNP_MIN&&LINE_DNP_MIN.length===2){var lm=(LINE_DNP_MIN[0]+LINE_DNP_MIN[1])/2;rows.push({lbl:'กลุ่ม LINE กรมฯ',sub:'หลังประมวลผลส่วนกลาง',a:pass+LINE_DNP_MIN[0],b:pass+LINE_DNP_MIN[1],m:pass+lm,c:'var(--ember)',txt:'≈ '+(Math.round(lm/6)/10)+' ชม.'})}
+    rows.push({lbl:'e-mail (เดิม)',sub:'ส่งต่อเป็นทอด',a:240,b:300,m:270,c:'var(--fire)',txt:'17:00–18:00 น. · ≈ 4 ชม.'});
+    /* แกนเวลา */
+    for(var m=0;m<=330;m+=30){
+      var hh=13+Math.floor(m/60),mm=m%60;
+      svg.appendChild(el('line',{x1:x(m),x2:x(m),y1:40,y2:330,stroke:'var(--line)','stroke-width':1}));
+      svg.appendChild(el('text',{x:x(m),y:360,'text-anchor':'middle','font-size':16,fill:'var(--mut)'},hh+':'+(mm?'30':'00')));
+    }
+    svg.appendChild(el('line',{x1:x(pass),x2:x(pass),y1:28,y2:330,stroke:'var(--ink)','stroke-width':2,'stroke-dasharray':'6 5'}));
+    svg.appendChild(el('text',{x:x(pass)+8,y:30,'font-size':16,'font-weight':700,fill:'var(--ink)'},'🛰 ดาวเทียมผ่าน ~13:30'));
+    var rh=Math.min(80,280/rows.length);
+    rows.forEach(function(r,i){
+      var y=62+i*rh+rh/2;
+      svg.appendChild(el('text',{x:0,y:y-4,'font-size':21,'font-weight':800,fill:'var(--ink)'},r.lbl));
+      svg.appendChild(el('text',{x:0,y:y+20,'font-size':15,fill:'var(--mut)'},r.sub));
+      svg.appendChild(el('rect',{x:x(r.a),y:y-11,width:Math.max(8,x(r.b)-x(r.a)),height:22,rx:11,fill:r.hollow?'none':r.c,stroke:r.c,'stroke-width':r.hollow?2.5:0,opacity:r.hollow?1:.9}));
+      var right=x(r.b)+14,anchor='start',tx=right;
+      if(right>1000){anchor='end';tx=x(r.a)-14}
+      svg.appendChild(el('text',{x:tx,y:y+7,'text-anchor':anchor,'font-size':19,'font-weight':700,fill:r.c},r.txt));
+    });
+  })();
+
+  /* ---------- QR (ต้องมีเน็ตครั้งแรก · ไม่มี = แสดง URL แทน) ---------- */
+  function qrAll(){
+    [].forEach.call(document.querySelectorAll('.qrslot'),function(d){
+      try{var q=qrcode(0,'M');q.addData(d.getAttribute('data-url'));q.make();
+        var n=q.getModuleCount(),p='';for(var r=0;r<n;r++)for(var c=0;c<n;c++)if(q.isDark(r,c))p+='M'+c+' '+r+'h1v1h-1z';
+        d.innerHTML='<svg class="qr" viewBox="-2 -2 '+(n+4)+' '+(n+4)+'" role="img" aria-label="QR '+d.getAttribute('data-url')+'"><rect x="-2" y="-2" width="'+(n+4)+'" height="'+(n+4)+'" fill="#fff"/><path d="'+p+'" fill="#111"/></svg>';
+      }catch(e){d.innerHTML='<div class="card" style="font-size:14px;word-break:break-all">'+d.getAttribute('data-url')+'</div>'}
+    });
+  }
+  var sc=document.createElement('script');
+  sc.src='https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
+  sc.onload=qrAll;sc.onerror=qrAll;document.head.appendChild(sc);
+
+  /* เปิดด้วย ?m=e|f|a ข้ามหน้าเลือก */
+  var qm=new URLSearchParams(location.search).get('m');
+  if(qm&&MODES[qm])start(qm);
+})();
+</script>
+</body>
+</html>
