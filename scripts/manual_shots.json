@@ -85,6 +85,29 @@
   "pad": 0
  },
  {
+  "name": "walk_bar",
+  "url": "http://localhost:8000/",
+  "w": 390,
+  "h": 844,
+  "wait": 11000,
+  "q": 70,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\ncloseModal();for(const m of await TKDB.all())await TKDB.del(m.k);localStorage.setItem('fm-tki','1');localStorage.removeItem('fm-wk');\nconst G={cb:null,t:Date.now()-10*60e3};const feed=(lo,la)=>{G.t+=30e3;G.cb&&G.cb({coords:{longitude:lo,latitude:la,accuracy:6,altitude:null,heading:null,speed:null},timestamp:G.t})};\nnavigator.geolocation.watchPosition=ok=>{G.cb=ok;setTimeout(()=>feed(101.3712,14.4302),50);return 7};navigator.geolocation.clearWatch=()=>{};\nopenDetail({lat:14.4302+700/111195,lon:101.3712+0.003,t:Date.now()-2*36e5,sat:'NOAA-20',ns:'unk'});await W(1500);document.getElementById('d-wk').click();await W(2500);\nlet lo=101.3712,la=14.4302;for(let i=1;i<=10;i++){lo+=0.00011;la+=0.00016;feed(lo,la);await W(120)}\nsetInterval(()=>dispatchEvent(new DeviceOrientationEvent(WK.ori||'deviceorientationabsolute',{alpha:345,beta:10,gamma:0,absolute:true})),400);await W(1500);wkView();",
+  "after": 5000,
+  "dpr": 2
+ },
+ {
+  "name": "walk_info",
+  "url": "http://localhost:8000/",
+  "w": 1280,
+  "h": 760,
+  "wait": 11000,
+  "q": 80,
+  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\ncloseModal();for(const m of await TKDB.all())await TKDB.del(m.k);localStorage.setItem('fm-tki','1');localStorage.removeItem('fm-wk');\nconst G={cb:null,t:Date.now()-10*60e3};const feed=(lo,la)=>{G.t+=30e3;G.cb&&G.cb({coords:{longitude:lo,latitude:la,accuracy:6,altitude:null,heading:null,speed:null},timestamp:G.t})};\nnavigator.geolocation.watchPosition=ok=>{G.cb=ok;setTimeout(()=>feed(101.3712,14.4302),50);return 7};navigator.geolocation.clearWatch=()=>{};\nopenDetail({lat:14.4302+700/111195,lon:101.3712+0.003,t:Date.now()-2*36e5,sat:'NOAA-20',ns:'unk'});await W(1500);document.getElementById('d-wk').click();await W(2500);\nlet lo=101.3712,la=14.4302;for(let i=1;i<=10;i++){lo+=0.00011;la+=0.00016;feed(lo,la);await W(120)}\nsetInterval(()=>dispatchEvent(new DeviceOrientationEvent(WK.ori||'deviceorientationabsolute',{alpha:345,beta:10,gamma:0,absolute:true})),400);await W(1500);wkView();document.getElementById('wk-i').click();await W(4000);",
+  "after": 1500,
+  "clipSel": "#md .mc",
+  "pad": 0
+ },
+ {
   "name": "track_resume",
   "url": "http://localhost:8000/",
   "w": 1280,
@@ -294,16 +317,6 @@
   "wait": 11000,
   "q": 66,
   "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('ftype',true);await W(4000);row('ftype');map.jumpTo({center:[101.80,14.25],zoom:9.2});",
-  "after": 8000
- },
- {
-  "name": "sw_chm",
-  "url": "http://localhost:8000/",
-  "w": 1280,
-  "h": 760,
-  "wait": 11000,
-  "q": 66,
-  "js": "const W=ms=>new Promise(r=>setTimeout(r,ms));\nconst sw=k=>document.querySelector('.sw[data-k='+k+']');\nconst set=(k,v)=>{const b=sw(k);if(b&&(b.getAttribute('aria-checked')==='true')!==v)b.click()};\nconst row=k=>{const rb=document.querySelector('#right .rb'),r=sw(k).closest('.row');rb.scrollTop=r.offsetTop-70};\nconst demo=async()=>{const b=document.querySelector('#bDemo');if(b.getAttribute('aria-checked')!=='true')b.click();await W(2500)};\nconst lay=async()=>{lcSet(true);document.querySelector('#bLay').click();await W(700)};\nconst sel=(id,v)=>{const s=document.querySelector(id);const o=[...s.options].find(o=>o.value===v||o.value.startsWith(v));if(o){s.value=o.value;s.dispatchEvent(new Event('change'))}};\nawait lay();set('chm',true);await W(4000);row('chm');map.jumpTo({center:[101.42,14.42],zoom:11.2});",
   "after": 8000
  },
  {

@@ -444,6 +444,26 @@ async function browser(dir) {
       if (!m0 || !String(m0).startsWith('error')) {
         await step('มือถือ: ระหว่างบันทึก', `tkStart();await w(600);if(!TK.on)return 'error: เริ่มบันทึกไม่ได้';${lay}`);
         await step('มือถือ: หยุด (1 จุด = ไม่สร้างเส้น)', `TK.cf=1;tkStopAsk();for(let i=0;i<80&&TK.on;i++)await w(250);return TK.on?'error: ยังบันทึกอยู่':''`);
+        // WK นำทางเดินเท้า (22 พ.ย. 69): ปุ่ม #d-wk ในแผงรายละเอียด → แผง #wk (ระยะ/จุดจอดรถ/บันทึกเส้นทาง F7) ไม่ทับคอลัมน์ปุ่ม/แถบ #tk/ไม่ล้นจอ
+        //  · เข็มทิศจำลอง (หันตะวันตก เป้าหมายทิศเหนือ) = "เบี่ยงขวา 90° · ทาง 3 นาฬิกา" · เดินเข้าเขตพิกเซล 375 ม. = กล่องแจ้ง + ปุ่มบันทึกผลตรวจ · กลับจุดจอดรถ · จบ (แตะสองครั้ง) ล้าง fm-wk
+        await geo(0.1); await sleep(600);
+        const lw = `const R=s=>{const e=document.querySelector(s);if(!e||!e.getClientRects().length||getComputedStyle(e).display==='none')return null;const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}},X=(a,b)=>a&&b&&a.l<b.r-1&&b.l<a.r-1&&a.t<b.b-1&&b.t<a.b-1,
+          k=R('#wk'),c=R('#ctl'),t=R('#tk');(window.__ckWk=window.__ckWk||[]).push({k,c,t});if(!k)return 'error: ไม่มีแผง #wk';if(X(k,c))return 'error: แผงนำทางทับคอลัมน์ปุ่ม';if(X(k,t))return 'error: แผงนำทางทับแถบบันทึกเส้นทาง';if(k.b>innerHeight+1)return 'error: แผงนำทางล้นจอล่าง';`;
+        const w0 = await step('นำทางเดินเท้า (WK): เริ่มจากแผงรายละเอียด', `openDetail({lat:${LA}+600/111195.08,lon:${LO},t:Date.now()-36e5,sat:'NOAA-20',tam:'ทดสอบ',amp:'ทดสอบ',prov:'ทดสอบ',ns:'api'});await w(1200);const b=document.getElementById('d-wk');if(!b)return 'error: ไม่มีปุ่ม #d-wk';b.click();
+          for(let i=0;i<40&&!(WK.car&&document.getElementById('wk-d')&&/ม\\./.test(document.getElementById('wk-d').textContent));i++)await w(250);
+          if(!WK.on)return 'error: กดแล้วไม่เข้าโหมดนำทาง';if(!WK.car)return 'error: ไม่ปักจุดจอดรถ';const d=document.getElementById('wk-d').textContent;if(!/^(59|60)\\d ม\\.$/.test(d))return 'error: ระยะผิด (ควร ~600 ม.) '+d;if(!document.body.classList.contains('wkon'))return 'error: ไม่ซ่อนแผ่นล่าง (wkon)';
+          ${lw}return TK.on?'':'เตือน: ไม่ได้เริ่มบันทึกเส้นทางให้'`);
+        if (!w0 || !String(w0).startsWith('error')) {
+          await step('นำทางเดินเท้า (WK): เข็มทิศจำลอง', `dispatchEvent(new DeviceOrientationEvent(WK.ori,{alpha:90,beta:10,gamma:0,absolute:true}));wkUpd();const r=document.getElementById('wk-r').textContent;
+            return WK.h===270&&/ขวา 90°/.test(r)&&/3 นาฬิกา/.test(r)?'':'error: หันตะวันตก เป้าหมายทิศเหนือ ต้องได้ "เบี่ยงขวา 90° · ทาง 3 นาฬิกา" — ได้ h='+WK.h+' "'+r+'"'`);
+          await geo(60); await sleep(1200);
+          await step('นำทางเดินเท้า (WK): เข้าเขตพิกเซล', `const a=document.getElementById('wk-a');if(!(WK.arr&1)||!a||a.hidden||!/เขตพิกเซล/.test(a.textContent))return 'error: อยู่ห่างจุดกลาง 60 ม. ไม่แจ้งว่าอยู่ในเขตพิกเซล';if(!document.getElementById('wk-f'))return 'error: ไม่มีปุ่มบันทึกผลตรวจ';${lw}return ''`);
+          await step('นำทางเดินเท้า (WK): กลับจุดจอดรถ → จบ', `document.getElementById('wk-c').click();await w(300);if(WK.m!=='c'||!/จุดจอดรถ/.test(document.getElementById('wk-n').textContent))return 'error: สลับเป็นกลับจุดจอดรถไม่ได้';
+            const x=document.getElementById('wk-x');x.click();await w(150);if(!WK.on)return 'error: แตะจบครั้งแรกจบทันที (ต้องยืนยัน)';document.getElementById('wk-x').click();await w(300);
+            if(WK.on||!document.getElementById('wk').hidden||localStorage.getItem('fm-wk')||document.body.classList.contains('wkon'))return 'error: จบแล้วยังค้าง on='+WK.on;return ''`);
+        }
+        await step('นำทางเดินเท้า (WK): หยุดบันทึกเส้นทาง', `if(TK.on){TK.cf=1;tkStopAsk();for(let i=0;i<160&&TK.on;i++)await w(250)}closeModal();return TK.on?'error: ยังบันทึกอยู่':''`, 60e3);
+        tr.walk = await ev('window.__ckWk||null').catch(() => null);
       }
       tr.mob = await ev('window.__ckTk||null').catch(() => null);
       await send('Emulation.clearGeolocationOverride').catch(() => { });

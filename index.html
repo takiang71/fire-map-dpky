@@ -1010,7 +1010,8 @@ body.wyon #attr{display:none}
  <div class="rh"><span class="sm" id="d-sat" style="flex:1"></span>
   <button class="cb ib" id="d-wy" aria-label="ดูทิศทางลมรอบจุดนี้ (Windy)" title="ดูทิศทางลมรอบจุดนี้ (Windy)"><svg class="i" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 10-3-3M3 12h16a3 3 0 11-3 3M3 16h7"/></svg></button>
   <button class="cb ib" id="d-cp" aria-label="คัดลอกพิกัดและลิงก์"><svg class="i" viewBox="0 0 24 24"><path d="M9 9h10v10H9zM5 15V5h10"/></svg></button>
-  <button class="cb ib" id="d-go" aria-label="นำทางด้วย Google Maps"><svg class="i" viewBox="0 0 24 24"><path d="M5 12l14-7-5 14-2-6z"/></svg></button>
+  <button class="cb ib" id="d-wk" aria-label="เดินเท้าไปจุดนี้ (เข็มทิศนำทางในป่า)" title="เดินเท้าไปจุดนี้ (เข็มทิศนำทางในป่า)"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2.2 4.8-4.8 2.2 2.2-4.8z"/></svg></button>
+  <button class="cb ib" id="d-go" aria-label="นำทางด้วย Google Maps" title="นำทางด้วย Google Maps (ทางรถ)"><svg class="i" viewBox="0 0 24 24"><path d="M5 12l14-7-5 14-2-6z"/></svg></button>
   <button class="cb ib" id="d-x" aria-label="ปิดแผง"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
  <div class="rb">
   <div class="dt" id="d-name"></div><div class="sm" id="d-nmn" style="margin:-6px 0 8px"></div><div class="sm" id="d-pa" style="margin:-2px 0 10px;line-height:1.5"></div>
@@ -1059,7 +1060,7 @@ body.wyon #attr{display:none}
   <div class="cream"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="font-size:13px">ดัชนีอันตรายไฟป่า FWI วันนี้</b><span class="cap" id="fw-c"></span></div><div class="sm" id="fw-d" style="margin:6px 0"></div><div class="fwt" id="fw-t"></div><div class="sm" id="fw-tf" style="margin-top:6px"></div></div>
   <div class="sm" style="margin:8px 0">สภาพอากาศตอนนี้และ VPD จากแบบจำลอง Open-Meteo · ดัชนีอันตรายไฟป่า FWI System จากระบบ TFDRS กรมป่าไม้ (ค่าเที่ยงวัน เกณฑ์ปรับเทียบสำหรับประเทศไทย · * = พยากรณ์)</div>
   <div class="dh"><b>ค่าตรวจวัดจากสถานีกรมอุตุฯ ใกล้สุด</b></div><div id="tm-d"></div></div>
-  <div style="text-align:center;padding-bottom:6px"><a class="tl" style="display:inline;margin:0 10px" id="d-cp2" role="button" tabindex="0">คัดลอกพิกัด</a><a class="tl" style="display:inline;margin:0 10px" id="d-go2" role="button" tabindex="0">นำทางด้วย Google Maps</a></div>
+  <div style="text-align:center;padding-bottom:6px"><a class="tl" style="display:inline;margin:0 10px" id="d-cp2" role="button" tabindex="0">คัดลอกพิกัด</a><a class="tl" style="display:inline;margin:0 10px" id="d-go2" role="button" tabindex="0">นำทางด้วย Google Maps</a><a class="tl" style="display:inline;margin:0 10px" id="d-wk2" role="button" tabindex="0">เดินเท้าต่อในป่า (เข็มทิศ)</a></div>
   <div style="display:none"></div></div>
 </section>
 <!-- แผงเล่นย้อนตามวัน ลอยด้านล่างแผนที่ (เปิดจากปุ่ม "ย้อนดูการลามของไฟ") ตำแหน่งจัดโดย pbPos() -->
@@ -1621,7 +1622,7 @@ function setup(){ // เรียกทุกครั้งที่สลั�
  map.addSource('resp',{type:'geojson',data:respSmooth()});
  map.addLayer({id:'resp-f',type:'fill',source:'resp',paint:{'fill-color':['get','sc'],'fill-opacity':.07}});
  map.addLayer({id:'resp-l',type:'line',source:'resp',layout:{'line-join':'round'},paint:{'line-color':['get','sc'],'line-width':2.4,'line-dasharray':[3,1.6]}});
- setupBN();setupRP();setupFU();setupFT();try{setupCH()}catch(e){console.warn('setupCH',e)}setupAD();setupPV();setup3();setup4();try{setupXT()}catch(e){console.warn('setupXT',e)}try{if(typeof vfSetup==='function')vfSetup()}catch(e){console.warn('vfSetup',e)}try{if(typeof fdSetup==='function'){fdSetup();if(FD.on)fdRender()}}catch(e){console.warn('fdSetup',e)}try{if(typeof tkLayers==='function')tkLayers()}catch(e){console.warn('tkLayers',e)}try{if(typeof rkLayers==='function')rkLayers()}catch(e){console.warn('rkLayers',e)}try{setupWT()}catch(e){console.warn('setupWT',e)}setupHC();setupHR();try{pcLayers()}catch(e){console.warn('pcLayers',e)}
+ setupBN();setupRP();setupFU();setupFT();try{setupCH()}catch(e){console.warn('setupCH',e)}setupAD();setupPV();setup3();setup4();try{setupXT()}catch(e){console.warn('setupXT',e)}try{if(typeof vfSetup==='function')vfSetup()}catch(e){console.warn('vfSetup',e)}try{if(typeof fdSetup==='function'){fdSetup();if(FD.on)fdRender()}}catch(e){console.warn('fdSetup',e)}try{if(typeof tkLayers==='function')tkLayers()}catch(e){console.warn('tkLayers',e)}try{if(typeof wkLayers==='function')wkLayers()}catch(e){console.warn('wkLayers',e)}try{if(typeof rkLayers==='function')rkLayers()}catch(e){console.warn('rkLayers',e)}try{setupWT()}catch(e){console.warn('setupWT',e)}setupHC();setupHR();try{pcLayers()}catch(e){console.warn('pcLayers',e)}
  if(typeof ulLayers==='function')ulLayers(); // ชั้นข้อมูลของผู้ใช้ (สคริปต์ท้ายไฟล์)
  if(typeof trLayers==='function')trLayers(); // วิเคราะห์ภูมิประเทศ (สคริปต์ท้ายไฟล์)
  if(typeof msLayers==='function')msLayers(); // เครื่องมือวัด (สคริปต์ท้ายไฟล์) — บนสุด
@@ -1978,7 +1979,7 @@ function locFix(p){const c=p.coords;LOC.p=[c.longitude,c.latitude,c.accuracy||0]
   el.addEventListener('click',ev=>{ev.stopPropagation();if(!LOC.p)return;const ll=maplibregl.LngLat.convert(LOC.p);map.fire('click',{lngLat:ll,point:map.project(ll),originalEvent:ev});
    const pc=[...document.querySelectorAll('.maplibregl-popup-content')].pop();if(pc)pc.insertAdjacentHTML('afterbegin',`<b style="color:#1a73e8">ตำแหน่งของฉัน</b> <span class="sm">ความแม่นยำ ±${nf(Math.round(LOC.p[2]))} ม.</span><br>`)});
   LOC.m=new maplibregl.Marker({element:el,anchor:'center'}).setLngLat(LOC.p).addTo(map)}
- else LOC.m.setLngLat(LOC.p);locAccPx();if(LOC.fly){LOC.fly=false;locGo()}if(typeof tkFix==='function')try{tkFix(p)}catch(e){dbg('tkFix',e)}}
+ else LOC.m.setLngLat(LOC.p);locAccPx();if(LOC.fly){LOC.fly=false;locGo()}if(typeof tkFix==='function')try{tkFix(p)}catch(e){dbg('tkFix',e)}if(typeof wkFix==='function')try{wkFix(p)}catch(e){dbg('wkFix',e)}}
 map.on('zoom',locAccPx);
 /* F7 (18 พ.ย. 69) บันทึกเส้นทาง (TK) ใช้ watch ตัวนี้ตัวเดียว: locFix → tkFix · ระหว่างบันทึก กดปุ่มนี้ไม่ปิดตำแหน่ง และหาตำแหน่งไม่ได้ชั่วคราว (หมดเวลา) ไม่หยุด watch · ไม่อนุญาต = locStop → tkLocOff หยุดชั่วคราว */
 function locOn(){if(!navigator.geolocation){toast('อุปกรณ์ไม่รองรับการระบุตำแหน่ง');return false}if(LOC.w!=null)return true;
@@ -1988,7 +1989,7 @@ function locOn(){if(!navigator.geolocation){toast('อุปกรณ์ไม�
 $('#bLoc').onclick=()=>{if(!navigator.geolocation)return toast('อุปกรณ์ไม่รองรับการระบุตำแหน่ง');
  if(LOC.w!=null){if(!LOC.p)return;const a=map.project(LOC.p),pd=homePad(),W=map.getContainer().clientWidth,H=map.getContainer().clientHeight;
   const here=Math.hypot(a.x-(pd.left+(W-pd.left-pd.right)/2),a.y-(pd.top+(H-pd.top-pd.bottom)/2))<40&&map.getZoom()>=10.5;
-  if(here&&typeof TK!=='undefined'&&TK.on)return toast('กำลังบันทึกเส้นทาง — หยุดบันทึก (ปุ่ม ■) ก่อนจึงปิดตำแหน่งของฉันได้');return here?locStop('ปิดการแสดงตำแหน่งของฉันแล้ว'):locGo()}
+  if(here&&typeof WK!=='undefined'&&WK.on)return toast('กำลังนำทางเดินเท้า — กด จบ ในแผงนำทางก่อนจึงปิดตำแหน่งของฉันได้');if(here&&typeof TK!=='undefined'&&TK.on)return toast('กำลังบันทึกเส้นทาง — หยุดบันทึก (ปุ่ม ■) ก่อนจึงปิดตำแหน่งของฉันได้');return here?locStop('ปิดการแสดงตำแหน่งของฉันแล้ว'):locGo()}
  locOn()};
 function set3d(b){if(b&&S.wyl)return toast('ปิดชั้นสภาพอากาศ Windy ก่อนใช้มุมมอง 3 มิติ (ภาพ Windy เอียงตามไม่ได้)');S.d3=b;apply();map.easeTo({pitch:b?60:0,duration:dur(900)})}
 $('#b3d').onclick=()=>set3d(!S.d3);
@@ -8848,6 +8849,187 @@ function fdMiss(o){const M=[],a=(c,n,id)=>{if(c)M.push([n,id])},no=o.res==='none
 function fdUseHs(h,init){const o=FD.dr;o.hk=vfKey(h);o.hs={la:+h.lat.toFixed(5),lo:+h.lon.toFixed(5),t:h.t,sat:satKey(h.sat)};const[d,t]=fdBk(h.t);o.dt=d;o.tn=t;if(init||o.rp==null){const i=XD.rp.indexOf('ดาวเทียม (Hotspot)');if(i>=0)o.rp=i}}
 function fdFromRep(r){const[d,t]=fdBk(r.tn||(r.hs?r.hs.t:r.c));return{rp:r.rp,hk:r.hk,hs:r.hs,pos:r.pos,pm:'',dt:d,tn:(r.tn||r.hs)?t:'',ta:r.ta||'',te:r.te||'',res:r.res==='fire'?'out':r.res,rai:r.rai||'',cs:r.cs,cso:!!r.csx,csx:r.csx||'',ag:r.ag||'',agx:'',crew:r.crew==null?'':r.crew,un:r.un||'',pl:r.pl||'',moo:r.moo||'',note:r.note||'',rn:r.rn||'',rt:r.rt||''}}
 function fdGot(rep,old){if(old){const i=VF.L.indexOf(old);if(i>=0)VF.L[i]=rep;else VF.L.push(rep)}else VF.L.push(rep);VF.L.sort((a,b)=>a.c-b.c);vfApply();fdRender()}
+</script>
+<style>
+/* WK นำทางเดินเท้าไปจุดความร้อน (22 พ.ย. 69) #wk — ตำแหน่งจัดโดย wkPos(): ล่างซ้ายของแผนที่ที่มองเห็น (มือถือ = เหนือแผ่นล่าง ซ้ายของคอลัมน์ปุ่ม z 4) */
+#wk{position:fixed;z-index:6;left:12px;top:60%;width:340px;box-sizing:border-box;padding:8px 10px 8px 10px;border-radius:16px;font-size:13px;color:var(--ink);background:var(--glass);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(20,30,60,.22)}
+@media(max-width:767px){#wk{z-index:4}body.wkon #left{display:none}body.wkon .maplibregl-ctrl-bottom-right{bottom:calc(10px + env(safe-area-inset-bottom))!important}} /* มือถือ: ระหว่างนำทางซ่อนแผ่นล่าง (แบบเดียวกับเครื่องมือวัด msron) แผนที่เต็มจอ แผงนำทางอยู่ล่าง */
+#wk .wkt{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+#wk .wkt b{flex:1;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#wk .wkq{flex:none;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:700 14px/1 serif;font-style:italic;cursor:pointer}
+#wk .wkm{display:flex;gap:10px;align-items:center}
+#wk .wkc{flex:none;width:88px;height:88px}
+#wk .wkc svg{width:100%;height:100%;display:block}
+#wk .wki{flex:1;min-width:0}
+#wk .wkd{font-size:24px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+#wk .wkr{font-weight:700;font-size:13px;margin-top:2px;color:#b4500f}
+#wk .wks{font-size:12px;color:var(--mut);font-variant-numeric:tabular-nums;line-height:1.35}
+#wk .wka{background:#e3f4e7;color:#14532d;border-radius:10px;padding:6px 8px;margin-top:6px;font-size:12.5px;font-weight:600;line-height:1.35}
+#wk .wkw{font-size:11.5px;color:#8a5a00;margin-top:4px;line-height:1.35}
+#wk .wkh{font-size:11px;color:var(--mut);margin-top:4px}
+#wk .wkbt{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+#wk .wkbt button{flex:1 1 auto;min-height:34px;border-radius:10px;border:1px solid var(--line);background:var(--bg);font:inherit;font-weight:700;font-size:12px;cursor:pointer;color:var(--ink);padding:0 8px}
+#wk .wkbt .wkf{background:#14632b;border-color:#14632b;color:#fff}
+#wk .wkbt .wkx{color:#b42318}#wk .wkbt .wkx.cf{color:#fff;background:#7a0f0a;border-color:#7a0f0a}
+.wkcar{width:24px;height:24px;border-radius:7px;background:#1a73e8;color:#fff;font:700 14px/24px sans-serif;text-align:center;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)}
+.wkhp li{margin:4px 0}
+</style>
+<script>
+/* ===== WK นำทางเดินเท้าไปจุดความร้อน (ผู้ใช้ขอ 22 พ.ย. 69 เฟส 1) — prefix wk/WK =====
+   ปัญหา: Google Maps นำทางได้ถึงปลายถนน ต่อจากนั้นในป่าไม่มีทาง → เข็มทิศชี้เป้าหมาย + ระยะ/ทิศ/ต่างระดับ + ขอบเขตพิกเซล + จุดจอดรถ + บันทึกเส้นทาง F7
+   · ตำแหน่ง: watchPosition ตัวเดิมของ LOC (locFix → wkFix) ไม่เปิดตัวที่สอง
+   · ทิศที่หันหน้า: เข็มทิศเครื่อง (deviceorientationabsolute / iOS webkitCompassHeading ต้องขออนุญาตในการแตะ) → ไม่มี = ทิศการเดินจาก GPS
+     (coords.heading เมื่อเร็ว ≥0.6 ม./วิ หรือทิศจากการเคลื่อนที่ ≥10 ม.) → ไม่มีทั้งคู่ = วงกลมเหนือขึ้น (ผู้ใช้หัน N ไปทางเหนือเอง)
+   · จุดจอดรถ = ตำแหน่งแรกที่แม่นยำ ≤100 ม. หลังกดเริ่ม (ตั้งใหม่ได้ในกล่อง i) · เริ่มบันทึกเส้นทาง F7 ให้ด้วย (tkStart)
+   · เขตพิกเซล: VIIRS 375 ม. / MODIS 1 กม. กรอบสี่เหลี่ยมรอบจุดกลาง (ค่าประมาณ — พิกเซลจริงใหญ่ขึ้นเมื่อดาวเทียมมองเฉียง)
+   · สถานะใน localStorage fm-wk (เปิดหน้าใหม่ภายใน 24 ชม. = toast แตะเพื่อนำทางต่อ) · ไม่ส่งข้อมูลออกจากเครื่อง (ไม่มี fetch ในโมดูล) */
+/*WK-PURE-BEGIN*/
+const wkN=d=>((d%360)+360)%360;
+/* ระยะ (ม.) haversine ระหว่าง [lon,lat] */
+function wkM(a,b){const r=Math.PI/180,s=Math.sin((b[1]-a[1])*r/2)**2+Math.cos(a[1]*r)*Math.cos(b[1]*r)*Math.sin((b[0]-a[0])*r/2)**2;return 2*6371008.8*Math.asin(Math.min(1,Math.sqrt(s)))}
+/* ทิศ (องศาจากเหนือตามเข็มนาฬิกา) จาก a ไป b */
+function wkBrg(a,b){const r=Math.PI/180,f1=a[1]*r,f2=b[1]*r,dl=(b[0]-a[0])*r,y=Math.sin(dl)*Math.cos(f2),x=Math.cos(f1)*Math.sin(f2)-Math.sin(f1)*Math.cos(f2)*Math.cos(dl);return wkN(Math.atan2(y,x)/r)}
+/* มุมของเป้าหมายเทียบทิศที่หันหน้า −180..180 (บวก = ขวา) */
+function wkRel(b,h){return wkN(b-h+180)-180}
+function wkDir(d){return['เหนือ','ตะวันออกเฉียงเหนือ','ตะวันออก','ตะวันออกเฉียงใต้','ใต้','ตะวันตกเฉียงใต้','ตะวันตก','ตะวันตกเฉียงเหนือ'][Math.round(wkN(d)/45)%8]}
+function wkClock(r){return wkN(Math.round(r/30)*30)/30||12}
+function wkTurn(r){const a=Math.abs(r);if(a<=15)return'ตรงไปข้างหน้า';if(a>=165)return'หันหลังกลับ';return(r>0?'เบี่ยงขวา ':'เบี่ยงซ้าย ')+Math.round(a)+'°'}
+/* ขนาดพิกเซล (ม.) ตามดาวเทียม: MODIS (Terra/Aqua) 1 กม. · อื่น ๆ VIIRS 375 ม. */
+function wkPx(s){return /modis|terra|aqua/i.test(String(s||''))?1000:375}
+/* p อยู่ในกรอบพิกเซลขนาด s ม. รอบจุดกลาง t หรือไม่ */
+function wkIn(p,t,s){const dx=(p[0]-t[0])*111320*Math.cos(t[1]*Math.PI/180),dy=(p[1]-t[1])*110574;return Math.abs(dx)<=s/2&&Math.abs(dy)<=s/2}
+function wkFoot(t,s){const kx=s/2/(111320*Math.cos(t[1]*Math.PI/180)),ky=s/2/110574;return[[t[0]-kx,t[1]-ky],[t[0]+kx,t[1]-ky],[t[0]+kx,t[1]+ky],[t[0]-kx,t[1]+ky],[t[0]-kx,t[1]-ky]]}
+/* ทิศที่หันหน้าจากเหตุการณ์ deviceorientation · so = มุมหมุนจอ (screen.orientation.angle) · null = ไม่ใช่ทิศเทียบเหนือ */
+function wkHead(e,so){so=+so||0;if(!e)return null;const w=e.webkitCompassHeading;if(w!=null&&isFinite(w)&&w>=0)return wkN(w+so);
+ if((e.absolute===true||e.type==='deviceorientationabsolute')&&e.alpha!=null&&isFinite(e.alpha))return wkN(360-e.alpha+so);return null}
+/* กรองแกว่งแบบวงกลม (ข้าม 0/360 ได้) */
+function wkSm(p,n,k){if(p==null||isNaN(p))return wkN(n);return wkN(p+k*wkRel(n,p))}
+function wkDs(m){if(!(m>=0))return'–';if(m<1000){const r=m<100?5:10,v=Math.round(m/r)*r;if(v<1000)return v+' ม.'}return(m/1000).toFixed(m<1e4?2:1)+' กม.'}
+/*WK-PURE-END*/
+const WKC='#e8741c',WK={on:false,t:null,car:null,m:'f',arr:0,h:null,ht:0,ca:null,gh:null,gt:0,gp:null,te:null,tk:'',tq:0,tt:0,me:null,mp:null,mq:0,mt:0,raf:0,wl:null,cf:0,cft:0,dis:0,mk:null,ori:false,fit:0,ti:null,perm:'',rs:null};
+const wkSave=()=>ulLS('fm-wk',WK.on&&WK.t?{t:WK.t,car:WK.car,m:WK.m,at:Date.now()}:null);
+const wkTg=()=>WK.m==='c'&&WK.car?{p:[WK.car[0],WK.car[1]],c:1}:WK.t?{p:[WK.t.lo,WK.t.la],c:0}:null;
+/* ---- เริ่ม/จบ ---- */
+function wkStart(h){if(!h||!isFinite(h.lat)||!isFinite(h.lon))return;if(!navigator.geolocation)return toast('อุปกรณ์ไม่รองรับการระบุตำแหน่ง');wkPerm();
+ const sat=String(h.sat||''),nm=h.ns==='unk'||!h.tam?'':'ต.'+h.tam+(h.amp?' อ.'+h.amp:'');
+ if(!wkBegin({lo:+h.lon,la:+h.lat,sat,px:wkPx(sat),nm,h:{lat:+h.lat,lon:+h.lon,t:h.t||null,sat,tam:h.tam||'',amp:h.amp||'',prov:h.prov||''}},null,'f'))return;
+ try{closeDetail()}catch(e){dbg('wk:close',e)}
+ if(typeof TK!=='undefined'&&!TK.on)try{tkStart()}catch(e){dbg('wk:tk',e)}}
+function wkBegin(t,car,m){const same=WK.on&&WK.t&&WK.t.lo===t.lo&&WK.t.la===t.la;
+ Object.assign(WK,{on:true,rs:null,t,car:car||(same?WK.car:null),m:m==='c'&&(car||same&&WK.car)?'c':'f',arr:0,te:null,tk:'',tt:0,me:null,mp:null,mt:0,cf:0,dis:0,fit:1,gp:null});
+ if(!locOn()){WK.on=false;wkSave();wkBar();return false}LOC.fly=false;document.body.classList.add('wkon');wkSave();wkLayers();wkCarMk();wkOri(true);wkWake();wkTE();
+ clearInterval(WK.ti);WK.ti=setInterval(()=>{if(!WK.on){clearInterval(WK.ti);return}wkUpd();wkPos()},1000);wkBar();
+ if(LOC.q)wkFix(LOC.q);else toast('กำลังหาตำแหน่งของคุณ… (ใต้ร่มไม้ทึบ GPS อาจใช้เวลา 1–2 นาที)');return true}
+function wkStopAsk(){if(!WK.cf){WK.cf=1;wkBar();clearTimeout(WK.cft);WK.cft=setTimeout(()=>{WK.cf=0;wkBar()},3500);return}clearTimeout(WK.cft);WK.cf=0;wkStop()}
+function wkStop(){WK.on=false;document.body.classList.remove('wkon');WK.t=null;WK.car=null;WK.arr=0;WK.m='f';wkSave();wkOri(false);wkWakeOff();clearInterval(WK.ti);if(WK.mk){WK.mk.remove();WK.mk=null}wkMap();wkBar();
+ toast(typeof TK!=='undefined'&&TK.on?'จบการนำทางเดินเท้าแล้ว — ยังบันทึกเส้นทางอยู่ (หยุดได้ที่แถบบันทึกเส้นทาง ■)':'จบการนำทางเดินเท้าแล้ว')}
+function wkToggle(){if(WK.m==='f'){if(!WK.car)return toast('ยังไม่มีจุดจอดรถ — ตั้งได้ในปุ่ม i (ตั้งที่ตำแหน่งปัจจุบัน)');WK.m='c';WK.arr&=1}else WK.m='f';wkSave();wkTE();wkMap();wkBar()}
+function wkSetCar(){if(!LOC.p)return toast('ยังไม่มีตำแหน่งของคุณ');WK.car=[LOC.p[0],LOC.p[1],Date.now()];wkSave();wkCarMk();wkMap();wkBar();toast('ตั้งจุดจอดรถที่ตำแหน่งปัจจุบันแล้ว')}
+/* ---- รับตำแหน่งจาก locFix ---- */
+function wkFix(p){if(!WK.on||!p||!p.coords)return;const c=p.coords,q=[+c.longitude,+c.latitude],acc=c.accuracy==null?1e9:+c.accuracy;
+ if(!WK.car&&acc<=100){WK.car=[q[0],q[1],Date.now()];wkSave();wkCarMk();toast('ปักหมุดจุดจอดรถ (จุดเริ่มเดิน) แล้ว — ขากลับกด "กลับจุดจอดรถ"')}
+ if(c.heading!=null&&isFinite(c.heading)&&c.speed>=.6){WK.gh=+c.heading;WK.gt=Date.now();wkDis()}
+ else if(acc<=30){if(!WK.gp)WK.gp=q;else if(wkM(WK.gp,q)>=Math.max(10,acc)){WK.gh=wkBrg(WK.gp,q);WK.gt=Date.now();WK.gp=q;wkDis()}}
+ if(WK.fit){WK.fit=0;wkView()}wkMap();wkElMe(q);if(WK.te==null)wkTE();wkArr(q,acc);wkUpd()}
+/* เข็มทิศกับทิศการเดินต่างกันเกิน 45° ติดกัน = เตือน (ใกล้รถ/โลหะ หรือยังไม่ปรับเทียบ) */
+function wkDis(){if(WK.h==null||Date.now()-WK.ht>3000)return;if(Math.abs(wkRel(WK.gh,WK.h))>45)WK.dis++;else WK.dis=Math.max(0,WK.dis-1)}
+function wkArr(q,acc){const T=wkTg();if(!T)return;
+ if(T.c){const d=wkM(q,T.p);if(d<=Math.max(25,Math.min(acc,60))){if(!(WK.arr&2)){WK.arr|=2;wkBuzz();toast('ถึงจุดจอดรถแล้ว')}}else if(d>80)WK.arr&=1;return}
+ if(wkIn(q,T.p,WK.t.px)&&!(WK.arr&1)){WK.arr|=1;wkBuzz();wkBar();toast('เข้าเขตพิกเซลจุดความร้อนแล้ว — มองหาควัน ฟังเสียง ดมกลิ่นไหม้ แล้วบันทึกผลตรวจสอบ',null,8000)}}
+function wkBuzz(){try{navigator.vibrate&&navigator.vibrate([180,80,180])}catch(e){}}
+/* ---- ความสูง DEM (GEM-15 ซูม 13 แบบเดียวกับ elLine) ---- */
+function wkEl(lo,la){return elVals([[trX(lo,13),trY(la,13)]],13).then(E=>isNaN(E[0])?null:E[0]).catch(e=>{dbg('wk:el',e);return null})}
+function wkTE(){const T=wkTg();if(!T||WK.tq)return;const k=T.p.join();if(WK.tk===k&&(WK.te!=null||Date.now()-WK.tt<3e4))return;WK.tk=k;WK.te=null;WK.tq=1;WK.tt=Date.now();wkEl(T.p[0],T.p[1]).then(v=>{WK.tq=0;if(WK.tk===k){WK.te=v;wkUpd()}else wkTE()})}
+function wkElMe(q){if(WK.mq||WK.mp&&WK.me!=null&&wkM(WK.mp,q)<25||WK.me==null&&Date.now()-WK.mt<2e4)return;WK.mq=1;WK.mt=Date.now();wkEl(q[0],q[1]).then(v=>{WK.mq=0;if(v!=null){WK.me=v;WK.mp=q;wkUpd()}})}
+/* ---- เข็มทิศ ---- */
+function wkPerm(){try{const D=window.DeviceOrientationEvent;if(D&&typeof D.requestPermission==='function'&&WK.perm!=='granted')D.requestPermission().then(s=>{WK.perm=s;if(s!=='granted')toast('ไม่ได้รับอนุญาตใช้เข็มทิศ — ใช้ทิศการเดินจาก GPS แทน');wkUpd()}).catch(e=>{WK.perm='err';dbg('wk:perm',e)})}catch(e){dbg('wk:perm',e)}}
+function wkOri(on){const ev='ondeviceorientationabsolute' in window?'deviceorientationabsolute':'deviceorientation';if(on&&!WK.ori){addEventListener(ev,wkOnOri);WK.ori=ev}else if(!on&&WK.ori){removeEventListener(WK.ori,wkOnOri);WK.ori=false;WK.h=null}}
+function wkOnOri(e){const so=(screen.orientation&&screen.orientation.angle)||+window.orientation||0,h=wkHead(e,so);if(h==null)return;
+ WK.h=wkSm(WK.ht&&Date.now()-WK.ht<1500?WK.h:null,h,.25);WK.ht=Date.now();const a=e.webkitCompassAccuracy;WK.ca=a!=null&&isFinite(a)?+a:null;if(!WK.raf)WK.raf=requestAnimationFrame(()=>{WK.raf=0;wkUpd()})}
+function wkHd(){const n=Date.now();if(WK.h!=null&&n-WK.ht<3000)return{h:WK.h,s:'c'};if(WK.gh!=null&&n-WK.gt<3e4)return{h:WK.gh,s:'g'};return{h:null,s:''}}
+/* ---- กันจอดับ ---- */
+async function wkWake(){if(!WK.on||WK.wl||!('wakeLock' in navigator)||document.visibilityState!=='visible')return;try{const w=await navigator.wakeLock.request('screen');if(!WK.on){w.release().catch(()=>{});return}WK.wl=w;w.addEventListener('release',()=>{if(WK.wl===w)WK.wl=null})}catch(e){dbg('wk:wake',e)}}
+function wkWakeOff(){const w=WK.wl;WK.wl=null;try{if(w)w.release().catch(()=>{})}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(WK.on&&document.visibilityState==='visible')wkWake()});
+/* ---- ชั้นแผนที่: กรอบพิกเซล wk-pf/wk-po · เส้นตรงถึงเป้าหมาย wk-l · จุดเป้าหมาย wk-t · จุดจอดรถ = DOM marker .wkcar ---- */
+function wkFC(){const F=[];if(WK.on&&WK.t){const t=[WK.t.lo,WK.t.la],T=wkTg();F.push({type:'Feature',properties:{k:'px'},geometry:{type:'Polygon',coordinates:[wkFoot(t,WK.t.px)]}},{type:'Feature',properties:{k:'tg'},geometry:{type:'Point',coordinates:t}});
+ if(LOC.p&&T)F.push({type:'Feature',properties:{k:'ln'},geometry:{type:'LineString',coordinates:[[LOC.p[0],LOC.p[1]],T.p]}})}return{type:'FeatureCollection',features:F}}
+function wkLayers(){if(!map.getSource('wks'))map.addSource('wks',{type:'geojson',data:wkFC()});const K=k=>['==',['get','k'],k];
+ if(!map.getLayer('wk-pf'))map.addLayer({id:'wk-pf',type:'fill',source:'wks',filter:K('px'),paint:{'fill-color':WKC,'fill-opacity':.1}});
+ if(!map.getLayer('wk-po'))map.addLayer({id:'wk-po',type:'line',source:'wks',filter:K('px'),paint:{'line-color':WKC,'line-width':2,'line-dasharray':[2,1.5]}});
+ if(!map.getLayer('wk-l'))map.addLayer({id:'wk-l',type:'line',source:'wks',filter:K('ln'),layout:{'line-cap':'round'},paint:{'line-color':'#1a73e8','line-width':3,'line-dasharray':[1.2,1.4]}});
+ if(!map.getLayer('wk-t'))map.addLayer({id:'wk-t',type:'circle',source:'wks',filter:K('tg'),paint:{'circle-radius':5,'circle-color':WKC,'circle-stroke-color':'#fff','circle-stroke-width':2}})}
+function wkMap(){try{const s=map.getSource('wks');if(s)s.setData(wkFC());else wkLayers()}catch(e){}}
+function wkCarMk(){if(WK.mk){WK.mk.remove();WK.mk=null}if(!WK.on||!WK.car)return;const el=document.createElement('div');el.className='wkcar';el.textContent='P';el.title='จุดจอดรถ (จุดเริ่มเดิน)';WK.mk=new maplibregl.Marker({element:el}).setLngLat([WK.car[0],WK.car[1]]).addTo(map)}
+function wkView(){const P=[];if(LOC.p)P.push([LOC.p[0],LOC.p[1]]);if(WK.t)P.push([WK.t.lo,WK.t.la]);if(WK.car)P.push([WK.car[0],WK.car[1]]);if(!P.length)return;
+ const b=P.reduce((s,p)=>[Math.min(s[0],p[0]),Math.min(s[1],p[1]),Math.max(s[2],p[0]),Math.max(s[3],p[1])],[180,90,-180,-90]),pd=homePad(),e=document.getElementById('wk'),eh=e&&!e.hidden?e.offsetHeight+16:0,H=map.getContainer().clientHeight;
+ let top=pd.top+40,bot=(innerWidth<768?0:pd.bottom)+30+eh;if(top+bot>H-80){const f=(H-80)/(top+bot);top*=f;bot*=f}
+ try{map.fitBounds([[b[0]-.003,b[1]-.003],[b[2]+.003,b[3]+.003]],{padding:{top,bottom:bot,left:pd.left+30,right:pd.right+30},maxZoom:16,duration:dur(800)})}catch(x){dbg('wk:view',x)}}
+/* ---- แผง #wk ---- */
+{const e=document.createElement('div');e.id='wk';e.hidden=true;e.setAttribute('role','region');e.setAttribute('aria-label','นำทางเดินเท้า');document.body.appendChild(e)}
+const WKSVG='<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="47" fill="var(--bg)" stroke="#c9cedb" stroke-width="2"/><g id="wk-ro"><g stroke="#9aa3b5" stroke-width="1.6">'+Array.from({length:12},(_,i)=>`<line x1="50" y1="4" x2="50" y2="${i%3?9:13}" transform="rotate(${i*30} 50 50)"/>`).join('')+'</g><path d="M50 3l5 9h-10z" fill="#d93a1f"/><text x="50" y="24" text-anchor="middle" font-size="11" font-weight="700" fill="#d93a1f">N</text></g><g id="wk-ar"><path d="M50 14L64 62L50 53L36 62Z" fill="'+WKC+'" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></g><circle cx="50" cy="50" r="4" fill="#1a73e8" stroke="#fff" stroke-width="1.5"/></svg>';
+/* โครงแผงสร้างใหม่เฉพาะเมื่อสถานะเปลี่ยน (โหมด/มีจุดจอดรถ/ถึงเขตพิกเซล/ยืนยันจบ) — ระหว่างนำทางอัปเดตแค่ข้อความ/มุม */
+function wkBar(){const e=document.getElementById('wk');if(!e)return;e.hidden=!WK.on&&!WK.rs;if(e.hidden){e.dataset.s='';return}
+ if(!WK.on){if(e.dataset.s!=='rs'){e.dataset.s='rs';e.innerHTML=`<div class="wkt"><b>นำทางเดินเท้าค้างอยู่${WK.rs.t.nm?' · '+esc(WK.rs.t.nm):''}</b></div><div class="wks">หน้าเว็บถูกเปิดใหม่ระหว่างนำทาง — แตะ "นำทางต่อ" เพื่อเปิดตำแหน่งและเข็มทิศอีกครั้ง (จุดจอดรถยังอยู่)</div>
+  <div class="wkbt"><button type="button" class="wkf" id="wk-go">นำทางต่อ</button><button type="button" class="wkx" id="wk-x">จบ</button></div>`;
+  $('#wk-go').onclick=()=>{const r=WK.rs;WK.rs=null;wkPerm();if(!wkBegin(r.t,r.car,r.m)){WK.rs=r;wkBar()}};$('#wk-x').onclick=()=>{WK.rs=null;ulLS('fm-wk',null);wkBar()}}wkPos();return}
+ const s=[WK.m,!!WK.car,WK.arr&1,WK.cf].join('|');
+ if(e.dataset.s!==s){e.dataset.s=s;e.innerHTML=`<div class="wkt"><b id="wk-n"></b><button type="button" class="wkq" id="wk-i" aria-label="ข้อมูลและคำแนะนำการเดินเท้า" title="ข้อมูลและคำแนะนำ">i</button></div>
+  <div class="wkm"><div class="wkc">${WKSVG}</div><div class="wki"><div class="wkd" id="wk-d"></div><div class="wks" id="wk-b"></div><div class="wkr" id="wk-r"></div><div class="wks" id="wk-e"></div></div></div>
+  <div class="wka" id="wk-a" role="status" hidden></div><div class="wkw" id="wk-w" hidden></div><div class="wkh" id="wk-h"></div>
+  <div class="wkbt"><button type="button" id="wk-v" title="ซูมให้เห็นตำแหน่งของคุณ เป้าหมาย และจุดจอดรถ">ภาพรวม</button><button type="button" id="wk-c">${WK.m==='c'?'ไปจุดความร้อน':'กลับจุดจอดรถ'}</button>${WK.m==='f'&&WK.arr&1?'<button type="button" class="wkf" id="wk-f">บันทึกผลตรวจ</button>':''}<button type="button" class="wkx${WK.cf?' cf':''}" id="wk-x">${WK.cf?'แตะอีกครั้งเพื่อจบ':'จบ'}</button></div>`;
+  $('#wk-i').onclick=wkInfo;$('#wk-v').onclick=wkView;$('#wk-c').onclick=wkToggle;$('#wk-x').onclick=wkStopAsk;const f=document.getElementById('wk-f');if(f)f.onclick=wkReport}
+ wkUpd();wkPos()}
+function wkSt(id,v,att){const e=document.getElementById(id);if(!e)return;if(att){if(e.getAttribute(att)!==v)e.setAttribute(att,v)}else if(e.textContent!==v)e.textContent=v}
+function wkUpd(){if(!WK.on||!document.getElementById('wk-d'))return;const T=wkTg(),P=LOC.p,H=wkHd(),hr=H.h==null?0:H.h;
+ wkSt('wk-n',WK.m==='c'?'กลับจุดจอดรถ (จุดเริ่มเดิน)':'เดินเท้าไปจุดความร้อน'+(WK.t.nm?' · '+WK.t.nm:''));wkSt('wk-ro',`rotate(${(-hr).toFixed(1)} 50 50)`,'transform');
+ let w=[],a='';
+ if(!P||!T){wkSt('wk-d',LOC.w==null?'ตำแหน่งปิดอยู่':'รอ GPS…');wkSt('wk-ar','hidden','visibility');wkSt('wk-b',LOC.w==null?'กดปุ่มตำแหน่งของฉันเพื่อเปิด':'กำลังหาตำแหน่ง');wkSt('wk-r','');wkSt('wk-e','')}
+ else{const d=wkM(P,T.p),b=wkBrg(P,T.p),acc=P[2]||0;wkSt('wk-ar','visible','visibility');wkSt('wk-ar',`rotate(${(b-hr).toFixed(1)} 50 50)`,'transform');
+  wkSt('wk-d',wkDs(d));wkSt('wk-b',`ทิศ ${Math.round(b)}° · ${wkDir(b)} · เส้นตรง`);
+  wkSt('wk-r',d<=Math.max(10,acc)?`อยู่ใกล้มาก (ภายในความคลาดเคลื่อน GPS ±${nf(Math.round(acc))} ม.)`:H.h==null?'หันขีด N ไปทางทิศเหนือ แล้วเดินตามลูกศร':`${wkTurn(wkRel(b,H.h))} · ทาง ${wkClock(wkRel(b,H.h))} นาฬิกา`);
+  const te=WK.te,me=WK.me,x=te!=null&&me!=null?te-me:null;
+  wkSt('wk-e',x==null?(WK.tq||WK.mq?'ความสูง: กำลังโหลด…':'ความสูง: ไม่มีข้อมูล (ออฟไลน์?)'):Math.abs(x)<10?'ระดับความสูงใกล้กัน (ต่างไม่ถึง 10 ม.)':`เป้าหมาย${x>0?'สูงกว่า':'ต่ำกว่า'} ~${nf(Math.round(Math.abs(x)))} ม. (${x>0?'ขึ้นเขา':'ลงเขา'})`);
+  if(acc>50)w.push(`GPS คลาดเคลื่อน ±${nf(Math.round(acc))} ม. — ใต้ร่มไม้ทึบ/หุบเขา ลองหยุดรอที่โล่ง`);
+  if(T.c){if(WK.arr&2)a='ถึงจุดจอดรถแล้ว'}else if(wkIn([P[0],P[1]],T.p,WK.t.px))a=`อยู่ในเขตพิกเซลจุดความร้อน (~${nf(WK.t.px)} ม.) — ไฟอาจอยู่ตรงไหนก็ได้ในกรอบ มองหาควัน ฟังเสียง ดมกลิ่นไหม้`}
+ if(H.s==='c'&&WK.ca!=null&&(WK.ca<0||WK.ca>25))w.push('เข็มทิศยังไม่แม่น — โบกโทรศัพท์เป็นรูปเลข 8 สัก 2–3 รอบ');
+ if(H.s==='c'&&WK.dis>=3)w.push('เข็มทิศกับทิศการเดินไม่ตรงกัน — ถอยห่างรถ/โลหะ/วิทยุ แล้วโบกโทรศัพท์เป็นเลข 8');
+ if(WK.perm==='denied'&&H.s!=='c')w.push('ไม่ได้อนุญาตใช้เข็มทิศ — ลูกศรหันตามทิศการเดินจาก GPS แทน');
+ const A=document.getElementById('wk-a');if(A){A.hidden=!a;wkSt('wk-a',a)}const W=document.getElementById('wk-w');if(W){W.hidden=!w.length;wkSt('wk-w',w.join(' · '))}
+ wkSt('wk-h',(H.s==='c'?'ทิศจากเข็มทิศเครื่อง':H.s==='g'?'ทิศจากการเดิน (GPS) — ถือโทรศัพท์ชี้ไปทางที่เดิน':'ยังไม่มีทิศ — เดินตรงไป 10–20 ม. ลูกศรจะหันตาม')+(P?` · GPS ±${nf(Math.round(P[2]||0))} ม.`:''))}
+/* มือถือ: เหนือแผ่นล่าง ซ้ายของคอลัมน์ปุ่ม ไม่ทับแถบบันทึกเส้นทาง #tk · เดสก์ท็อป: มุมซ้ายล่างของแผนที่ที่ไม่ถูกแผงบัง */
+function wkPos(){const e=document.getElementById('wk');if(!e||e.hidden)return;let A;try{A=visArea()}catch(x){return}let left,w;
+ if(innerWidth<768){const c=$('#ctl'),cr=c&&getComputedStyle(c).display!=='none'?c.getBoundingClientRect():null;left=12;w=(cr&&cr.width?cr.left-8:innerWidth-12)-left}else{left=A.x0+12;w=Math.min(340,A.x1-A.x0-24)}
+ e.style.left=Math.round(left)+'px';e.style.width=Math.max(200,Math.round(w))+'px';let top=A.y1-10-e.offsetHeight;
+ const k=document.getElementById('tk');if(k&&!k.hidden&&k.getClientRects().length){const r=k.getBoundingClientRect();if(r.right>left&&top<r.bottom+6)top=r.bottom+6}
+ e.style.top=Math.round(Math.max(A.y0+4,top))+'px'}
+addEventListener('resize',wkPos);try{new ResizeObserver(()=>wkPos()).observe($('#left'))}catch(e){}
+/* ---- บันทึกผลตรวจสอบ (F1) ของจุดเป้าหมาย ---- */
+function wkReport(){const h=WK.t&&WK.t.h;if(!h)return;if(typeof UL!=='undefined'&&UL.me)vfForm(h,null);else if(typeof ulLogin==='function')ulLogin();else openDetail(h)}
+/* ---- กล่อง i: พิกัด/จุดจอดรถ/ภาคตัดความสูงตามแนวเส้นตรง/คำแนะนำ ---- */
+function wkInfo(){const t=WK.t;if(!t)return;const u=utm(t.la,t.lo),c=WK.car,cu=c&&utm(c[1],c[0]),T=wkTg();
+ openModal('นำทางเดินเท้า — ข้อมูลและคำแนะนำ',`<div class="ula wkhp">
+ <div><b>เป้าหมาย</b> จุดความร้อน ${esc(t.sat||'')}${t.nm?' · '+esc(t.nm):''}<br><span class="sm">${t.la.toFixed(5)}, ${t.lo.toFixed(5)} · UTM ${u.z}N ${nf(u.E)} ${nf(u.N)} · เขตพิกเซล ~${nf(t.px)} ม.</span></div>
+ <div style="margin-top:6px"><b>จุดจอดรถ</b> ${cu?`<span class="sm">${c[1].toFixed(5)}, ${c[0].toFixed(5)} · UTM ${cu.z}N ${nf(cu.E)} ${nf(cu.N)}</span>`:'<span class="sm">ยังไม่มี</span>'}
+ <div class="acts" style="margin-top:6px"><button class="btn" type="button" id="wk-cs">ตั้งจุดจอดรถที่ตำแหน่งปัจจุบัน</button><button class="btn" type="button" id="wk-gm">Google Maps (ทางรถ)</button></div></div>
+ <div id="wk-pf" style="margin-top:8px"><span class="sm">${LOC.p?'กำลังคำนวณภาคตัดความสูงตามแนวเส้นตรง…':'ยังไม่มีตำแหน่งของคุณ — ภาคตัดความสูงจะแสดงเมื่อได้ตำแหน่ง'}</span></div>
+ <ul style="padding-left:18px;margin:8px 0 0">
+ <li><b>ลูกศรชี้แนวเส้นตรง ไม่ใช่ทางเดินจริง</b> — ดูภาคตัดความสูงด้านบน ถ้าชันมาก มีหน้าผา/ลำห้วยขวาง ให้อ้อมตามสันเขา ด่านสัตว์ หรือทางตรวจการณ์ แล้วค่อยกลับมาตามลูกศร</li>
+ <li><b>เข็มทิศโทรศัพท์</b>: ถือให้ระนาบ ห่างรถ/อาวุธ/วิทยุอย่างน้อย 1–2 ม. ถ้าลูกศรแกว่งหรือผิดทาง โบกโทรศัพท์เป็นรูปเลข 8 · ทิศเหนือแม่เหล็กในพื้นที่นี้ต่างจากเหนือจริงไม่ถึง 1° (ไม่ต้องปรับ)</li>
+ <li>เครื่องไม่มีเข็มทิศหรือไม่อนุญาต = ลูกศรหันตาม<b>ทิศการเดินจาก GPS</b> (เดินตรงไป 10–20 ม. ก่อน)</li>
+ <li><b>จุดความร้อนคือจุดกลางของพิกเซลดาวเทียม</b> (กรอบสีส้ม ~${nf(t.px)} ม.) ไฟจริงอยู่ตรงไหนก็ได้ในกรอบ และอาจคลาดเพิ่มเมื่อดาวเทียมมองเฉียง</li>
+ <li><b>ความปลอดภัย</b>: อย่าเข้าหาไฟจากด้านบนลาดเขาเหนือไฟ หรือจากด้านใต้ลม (ไฟลามขึ้นเขาและตามลมเร็ว) · กำหนดทางหนีและพื้นที่ปลอดภัยก่อนเข้า · ไปเป็นทีม</li>
+ <li>จอดับหรือสลับแอป = เบราว์เซอร์หยุด GPS — แอปขอกันจอดับให้ระหว่างนำทาง · ระหว่างนำทางแอปเริ่ม<b>บันทึกเส้นทาง</b>ให้ (ย้อนดูทางเดิมได้)</li>
+ <li>ไม่มีสัญญาณเน็ต: GPS และเข็มทิศยังทำงาน แต่ภาพแผนที่/ความสูงที่ยังไม่เคยโหลดจะไม่ขึ้น — ก่อนออกจากที่มีสัญญาณ ซูมดูบริเวณเป้าหมาย แล้วเปิดแผงชั้นข้อมูล → "⬇ เก็บพื้นที่นี้ไว้ดูออฟไลน์" (แผนที่ฐาน)</li></ul></div>`);
+ $('#wk-cs').onclick=()=>{wkSetCar();closeModal()};$('#wk-gm').onclick=()=>open(`https://www.google.com/maps/dir/?api=1&destination=${t.la},${t.lo}`,'_blank','noopener');
+ if(LOC.p&&T){const pts=[[LOC.p[0],LOC.p[1]],T.p];elLine(pts).then(R=>{const el=document.getElementById('wk-pf');if(!el)return;if(!R||!R.E){el.innerHTML='<span class="sm">โหลดข้อมูลความสูงไม่ได้ (ออฟไลน์?)</span>';return}
+  el.innerHTML=`<b style="font-size:13px">ภาคตัดความสูงตามแนวเส้นตรง (คุณ → ${T.c?'จุดจอดรถ':'จุดความร้อน'})</b>${/*xss-ok*/elChart(R,300,112)}<div class="sm">ระยะ ${/*xss-ok*/wkDs(R.L)} · ขึ้นสะสม +${nf(Math.round(R.up))} ม. · ลงสะสม −${nf(Math.round(R.dn))} ม.${R.S?` · ชันสุด ${nf(Math.round(R.S.mx))}°${R.S.mx>=30?' — <b>มีช่วงชันมาก อาจต้องอ้อม</b>':''}`:''}</div>`;elBind(el,R)}).catch(e=>{dbg('wk:prof',e);const el=document.getElementById('wk-pf');if(el)el.innerHTML='<span class="sm">โหลดข้อมูลความสูงไม่ได้ (ออฟไลน์?)</span>'})}}
+/* ---- ปุ่มในแผงรายละเอียดจุดความร้อน ---- */
+$('#d-wk').onclick=()=>CUR&&wkStart(CUR);$('#d-wk2').onclick=()=>$('#d-wk').click();
+try{wkLayers()}catch(e){}
+/* เปิดหน้าใหม่ระหว่างนำทาง (≤24 ชม.) = แผงสถานะค้าง WK.rs ปุ่ม "นำทางต่อ" (การแตะของผู้ใช้ — iOS ขออนุญาตเข็มทิศได้) / "จบ" · ไม่ใช้ toast (ถูกกล่อง/ข้อความของบันทึกเส้นทางทับ) */
+setTimeout(()=>{const s=ulLS('fm-wk');if(!s)return;if(!s.t||!isFinite(s.t.lo)||!(Date.now()-(s.at||0)<864e5)){ulLS('fm-wk',null);return}
+ if(!WK.on){WK.rs=s;wkBar()}},1200);
 </script>
 </body>
 </html>

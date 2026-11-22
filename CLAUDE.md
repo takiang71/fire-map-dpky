@@ -61,7 +61,7 @@
 - Actions: site ~40 วิ/รอบ (cron-job.org 5 นาที + watchdog), sync 4 รอบ/วัน, wx ตามต้นทาง
 - FWI: TFDRS บล็อกเครื่อง GitHub (403) → Task Scheduler "fire-map FWI" บนเครื่องผู้ใช้ (`fwi_local.js`) · เก่า ≥2 วัน → LFA (`fwi_lfa.js`)
 - ต้นทางช้า/หยุด: SAVI มีแค่ 202601 · พื้นที่เผาไหม้ B4 รอบล่าสุด 22–28 ต.ค. 69
-- **F1** ผลตรวจหน้างาน (`VF` + Worker `/reports`) · **F7** บันทึกเส้นทาง `TK` · **FD** ไฟป่าที่ตรวจพบ → ui-modules.md · **DF** แบบรับแจ้งเหตุกรมฯ → dnp-form.md
+- **F1** ผลตรวจหน้างาน (`VF` + Worker `/reports`) · **F7** บันทึกเส้นทาง `TK` · **WK** เข็มทิศ · **FD** ไฟป่าที่ตรวจพบ → ui-modules.md · **DF** แบบรับแจ้งเหตุกรมฯ → dnp-form.md
 - **F2** ดัชนีเสี่ยง M2 (ผู้ใช้อนุมัติ) ชั้น `rk-*` + risk.json → risk.md · **F3** `monthly_report.js` (sync วันที่ 1 → `reports/`) → pipelines.md
 - **F6** รับ DM Telegram (`/ตาม`): getUpdates + `tg_subs.json` (branch state) **ห้ามตั้ง webhook** → notify.md
 - **B2** งานหนัก (กองจุด/ภูมิประเทศ/เผาไหม้) ใน Web Worker inline `WJ`/`wjLib` (ห้ามแตะ DOM) → gotchas.md testing.md

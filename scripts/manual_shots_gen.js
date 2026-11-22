@@ -32,6 +32,15 @@ for(let i=0;i<60&&TK.le==null;i++)await W(250);await W(6000);TK.ac=(42*60+17)*1e
 const B=TK.P.reduce((s,p)=>[Math.min(s[0],p[0]),Math.min(s[1],p[1]),Math.max(s[2],p[0]),Math.max(s[3],p[1])],[180,90,-180,-90]);`;
 job('track_bar', TKW + `map.jumpTo({center:[(B[0]+B[2])/2,(B[1]+B[3])/2],zoom:15,padding:{top:125,bottom:844-265,left:20,right:70}});`, { w: 390, h: 844, dpr: 2, q: 72, after: 7000, clip: { x: 0, y: 0, width: 390, height: 430 } });
 job('track_sum', TKW + `TK.cf=1;tkStopAsk();for(let i=0;i<120&&(TK.on||document.getElementById('md-t').textContent!=='บันทึกเส้นทางแล้ว');i++)await W(250);`, { q: 80, after: 1500, clipSel: '#md .mc' });
+// ---------- WK นำทางเดินเท้า (22 พ.ย. 69) — ตำแหน่งจำลอง เดินจากจุดจอดรถไปทางจุดเป้าหมาย ~700 ม. · เข็มทิศจำลอง (หันเกือบเหนือ) ป้อนทุก 0.4 วิ ----------
+const WKW = `closeModal();for(const m of await TKDB.all())await TKDB.del(m.k);localStorage.setItem('fm-tki','1');localStorage.removeItem('fm-wk');
+const G={cb:null,t:Date.now()-10*60e3};const feed=(lo,la)=>{G.t+=30e3;G.cb&&G.cb({coords:{longitude:lo,latitude:la,accuracy:6,altitude:null,heading:null,speed:null},timestamp:G.t})};
+navigator.geolocation.watchPosition=ok=>{G.cb=ok;setTimeout(()=>feed(101.3712,14.4302),50);return 7};navigator.geolocation.clearWatch=()=>{};
+openDetail({lat:14.4302+700/111195,lon:101.3712+0.003,t:Date.now()-2*36e5,sat:'NOAA-20',ns:'unk'});await W(1500);document.getElementById('d-wk').click();await W(2500);
+let lo=101.3712,la=14.4302;for(let i=1;i<=10;i++){lo+=0.00011;la+=0.00016;feed(lo,la);await W(120)}
+setInterval(()=>dispatchEvent(new DeviceOrientationEvent(WK.ori||'deviceorientationabsolute',{alpha:345,beta:10,gamma:0,absolute:true})),400);await W(1500);wkView();`;
+job('walk_bar', WKW, { w: 390, h: 844, dpr: 2, q: 70, after: 5000 });
+job('walk_info', WKW + `document.getElementById('wk-i').click();await W(4000);`, { q: 80, after: 1500, clipSel: '#md .mc' });
 job('track_resume', TKW + `clearInterval(TK.ti);TK.on=false;TK.k=null;await W(800);await tkCheck();`, { q: 80, after: 1500, clipSel: '#md .mc' });
 
 // ---------- แผนที่ฐาน (ตัดเฉพาะกลางแผนที่) ----------
