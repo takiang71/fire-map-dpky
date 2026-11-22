@@ -5,9 +5,11 @@
 //   sync: ผ่านเวลารอบตามตาราง (SYNC_SLOTS เวลาไทย) มาแล้ว 25 นาที–3 ชม. แต่ยังไม่มีรอบ sync ตั้งแต่เวลานั้น → สั่งรัน sync
 //   สั่งรันพร้อม inputs.by = "watchdog" → health.js รู้ว่า cron-job.org ไม่ได้สั่ง และแจ้งผู้ดูแลถ้าเป็นต่อเนื่องเกิน 1 ชม.
 //   ไม่สั่งซ้อนกับ cron-job.org: ถ้าทุกอย่างปกติ Worker นี้ไม่สั่งอะไรเลย
+//   รอบค้าง (เพิ่ม 23 พ.ย. 69 — รอบ site 01:25 น. ค้าง queued 5 ชม. กันกลุ่ม concurrency "pages" รอบหลังถูกยกเลิกหมด แจ้งเตือนหยุด):
+//     site/sync/wx ที่ค้าง queued เกิน STUCK นาที (ค่าเริ่มต้น 20) หรือ in_progress เกินเพดาน (site 40 · wx 60 · sync 150 นาที) → ยกเลิก (409 → force-cancel)
 // ตั้งค่าใน Cloudflare: Secret GH_TOKEN = token เดียวกับที่ใช้ใน cron-job.org (fine-grained PAT สิทธิ์ Actions: Read and write เฉพาะ repo นี้ — ใส่แค่ตัว token ไม่ต้องมีคำว่า Bearer)
 //   Triggers → Cron Triggers: */5 * * * *
-//   Variables (ไม่บังคับ): REPO (ค่าเริ่มต้น takiang71/fire-map-dpky) · SITE_GAP (นาที) · SYNC_SLOTS ("06:17,09:17,15:17,18:17") · OFF = "1" ปิดชั่วคราว
+//   Variables (ไม่บังคับ): REPO (ค่าเริ่มต้น takiang71/fire-map-dpky) · SITE_GAP (นาที) · STUCK (นาที) · SYNC_SLOTS ("06:17,09:17,15:17,18:17") · OFF = "1" ปิดชั่วคราว
 //   GH_API = ปลายทาง API (ใช้ทดสอบกับเซิร์ฟเวอร์จำลอง)
 // เปิด URL ของ Worker ในเบราว์เซอร์ = ดูสถานะ (รอบล่าสุด + Worker จะสั่งอะไรถ้าตื่นตอนนี้) โดยไม่สั่งรันจริง
 const MIN = 60e3;
@@ -18,14 +20,15 @@ function cfg(env) {
     repo: env.REPO || 'takiang71/fire-map-dpky',
     token: String(env.GH_TOKEN || '').replace(/^\s*Bearer\s+/i, '').trim(),
     gap: Math.max(8, +env.SITE_GAP || 15),
+    stuck: Math.max(10, +env.STUCK || 20),
     slots: String(env.SYNC_SLOTS || '06:17,09:17,15:17,18:17').split(',').map(s => s.trim().match(/^(\d{1,2}):(\d{2})$/)).filter(Boolean).map(m => +m[1] * 60 + +m[2]),
     off: /^(1|true|on|yes)$/i.test(String(env.OFF || '')),
   };
 }
 
-async function gh(c, p, body) {
+async function gh(c, p, body, post) {
   const r = await fetch(`${c.api}/repos/${c.repo}${p}`, {
-    method: body ? 'POST' : 'GET',
+    method: body || post ? 'POST' : 'GET',
     headers: { Authorization: `Bearer ${c.token}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'fire-map-watchdog', ...(body ? { 'Content-Type': 'application/json' } : {}) },
     body: body && JSON.stringify(body),
   });
@@ -35,6 +38,25 @@ async function gh(c, p, body) {
 }
 const lastRun = async (c, wf) => ((await gh(c, `/actions/workflows/${wf}/runs?per_page=1`)).workflow_runs || [])[0] || null;
 const dispatch = (c, wf) => gh(c, `/actions/workflows/${wf}/dispatches`, { ref: 'main', inputs: { by: 'watchdog' } });
+
+// รอบที่ค้าง: queued เกิน c.stuck นาที (ไม่ได้เครื่อง runner) หรือ in_progress เกินเพดาน (timeout ของงาน + เผื่อ)
+const RUN_MAX = { 'site.yml': 40, 'sync.yml': 150, 'wx.yml': 60 };
+async function stuckRuns(c, now) {
+  const out = [];
+  for (const wf of Object.keys(RUN_MAX)) for (const st of ['queued', 'in_progress']) {
+    const lim = st === 'queued' ? c.stuck : RUN_MAX[wf];
+    for (const r of (await gh(c, `/actions/workflows/${wf}/runs?status=${st}&per_page=10`)).workflow_runs || []) {
+      const age = (now - Date.parse(r.run_started_at || r.created_at)) / MIN;
+      if (r.status === st && age > lim) out.push({ wf, id: r.id, why: `${wf} รอบ ${thT(Date.parse(r.created_at))} ค้าง ${st} ${Math.round(age)} นาที (เกิน ${lim})` });
+    }
+  }
+  return out;
+}
+async function cancelRun(c, id) {
+  try { await gh(c, `/actions/runs/${id}/cancel`, null, 1); return 'ยกเลิกแล้ว' }
+  catch (e) { if (!/HTTP 409/.test(e.message)) throw e }
+  await gh(c, `/actions/runs/${id}/force-cancel`, null, 1); return 'บังคับยกเลิกแล้ว';
+}
 
 // เวลารอบ sync ล่าสุดที่ควรเริ่มไปแล้ว (มิลลิวินาที) ถ้าตอนนี้อยู่ในช่วง 25 นาที–3 ชม. หลังรอบนั้น ไม่งั้น null
 function syncSlot(c, now) {
@@ -61,7 +83,13 @@ export async function check(env, now = Date.now(), run = true) {
   const slot = syncSlot(c, now);
   if (slot != null && (!sync || Date.parse(sync.created_at) < slot - 10 * MIN)) out.actions.push(['sync.yml', `ยังไม่มีรอบตั้งแต่ ${thT(slot)}`]);
   out.sync_slot = slot == null ? null : thT(slot);
-  if (!run || c.off) { out.would = out.actions.map(a => a.join(': ')); out.actions = []; return out }
+  let stuck = [];
+  try { stuck = await stuckRuns(c, now) } catch (e) { out.stuck_error = e.message }
+  if (!run || c.off) { out.would = [...stuck.map(s => 'ยกเลิก ' + s.why), ...out.actions.map(a => a.join(': '))]; out.actions = []; return out }
+  out.cancels = [];
+  for (const s of stuck) {
+    try { out.cancels.push([s.why, await cancelRun(c, s.id)]) } catch (e) { out.cancels.push([s.why, 'ยกเลิกไม่สำเร็จ: ' + e.message]) }
+  }
   for (const a of out.actions) {
     try { await dispatch(c, a[0]); a.push('สั่งรันแล้ว') } catch (e) { a.push('สั่งไม่สำเร็จ: ' + e.message) }
   }

@@ -17,6 +17,7 @@
     · ปกติไม่สั่ง (ไม่ซ้อน cron-job.org)
     · dispatch ส่ง `inputs.by=watchdog` — site.yml/sync.yml มี input `by` (sync สั่ง site ด้วย `-f by=sync`) **ถ้าลบ input ออก dispatch ของ Worker จะได้ 422**
     · health.js รับ `RUN_BY`/`RUN_EV`: by=watchdog → ปัญหา `cron` (แจ้งเมื่อต่อเนื่อง 1 ชม.), หายเฉพาะรอบ workflow_dispatch ที่ไม่มี by (= cron-job.org/กดเอง), รอบ schedule/push/sync คงสถานะเดิม
+    · **ยกเลิกรอบค้าง (23 พ.ย. 69)**: เหตุจริง — site รอบ 01:25 น. 23 พ.ย. ค้าง queued 5 ชม. (ไม่ได้ runner) กันกลุ่ม concurrency `pages` รอบที่ cron-job.org/watchdog สั่งถูก cancelled หมด แจ้งเตือน LINE/Telegram หยุด (ผู้ใช้กด Cancel เองแล้วกลับมาปกติ) → Worker ดู `runs?status=queued|in_progress` ของ site/sync/wx ทุกรอบ: queued เกิน `STUCK` 20 นาที หรือ in_progress เกิน `RUN_MAX` (site 40 · wx 60 · sync 150) → `/cancel` (409 → `/force-cancel`) · รอบ pending (รอคิว concurrency) ไม่แตะ · ผลอยู่ใน `cancels` ของ log · หน้าสถานะแสดงใน `would` · เทสต์ `test/watchdog.test.js` · **ต้องวางโค้ดใหม่ใน Cloudflare dashboard เอง** (token เดิมมีสิทธิ์ Actions write พอ)
     · GET URL ของ Worker = สถานะ + `would` (ไม่สั่งจริง)
     · `OFF=1` ปิด
     · `GH_API` ทดสอบ
