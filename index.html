@@ -6649,13 +6649,13 @@ srcUpd();
 /* ---------- ดาวเทียมรอบถัดไป NOAA-20 / NOAA-21 (ผู้ใช้ขอ 13 พ.ย. 69) ----------
    ข้อมูลวงโคจร TLE จาก CelesTrak (data/tle.json — scripts/sync_tle.js ใน sync.yml) → คำนวณตำแหน่งด้วย SGP4 (ORB = scripts/lib/orbit.js ที่ฝังไว้ด้านบน)
    กล่อง #orb: นับถอยหลังถึงรอบที่แถบสแกน VIIRS ผ่านกลุ่มป่า (กึ่งกลางกรอบแนวเขต ORB.DPKY) ไม่นับขอบแถบ (มุมสแกน > ORB.EDGE 45° — ผู้ใช้เลือก)
-     + แผนที่โลกย่อ (canvas: ภาพ Esri ซูม 2 + เงากลางคืน + เส้นทางโคจร) · ย่อ/ขยายได้ จำใน localStorage fm-orb (มือถือเริ่มแบบย่อ)
+     + แผนที่โลกย่อ (canvas: ภาพ Esri ซูม 2 + เงากลางคืน + เส้นทางโคจร) · ย่อ/ขยายได้ (เปิดหน้าเว็บเริ่มแบบย่อเสมอ)
    ชั้นบนแผนที่หลัก (สวิตช์ S.orb ในแผงชั้นข้อมูล): เส้นทางโคจร (ประ = ผ่านไปแล้ว) + แถบสแกนของรอบถัดไป (ทึบ = ≤45°, ประ = ขอบแถบ 56°) + ไอคอนดาวเทียม (แตะ = ป๊อปอัป)
    สรุปประจำวัน LINE/Telegram ใช้ ORB.next() ชุดเดียวกัน */
 const OBC={NOAA20:'#ff7a1a',NOAA21:'#1fb6d9'},OBLAG=[20,40],OBTGT=ORB.DPKY,OB_URL=(/^https?:$/.test(location.protocol)?'':'https://takiang71.github.io/fire-map-dpky/')+'data/tle.json';
 let OBF=null,OBT=null,OBSR={},OBP={},OBPAT=0,OBTRK=null,OBTRKAT=0,OBMD=0,OBIMG=null,OBTI=null,OBERR='';
-let OBM=(()=>{try{return localStorage.getItem('fm-orb')}catch(e){return null}})(); // 'full' | 'cp' | null = ตามขนาดจอ
-const obMode=()=>OBM||(innerWidth<768?'cp':'full');
+let OBM='cp'; /* 'full' | 'cp' — เปิดหน้าเว็บทุกครั้งเริ่มแบบย่อ (ผู้ใช้ขอ 22 พ.ย. 69; ไม่จำค่าใน localStorage แล้ว) */
+const obMode=()=>OBM||'cp';
 const obHM=ms=>{const d=new Date(ms+7*36e5);return String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0')};
 const obCD=s=>{s=Math.max(0,Math.round(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60,z=v=>String(v).padStart(2,'0');return (h?z(h)+':':'')+z(m)+':'+z(x)};
 const obDay=(t,now)=>{const a=new Date(t+7*36e5),b=new Date(now+7*36e5);return a.getUTCDate()===b.getUTCDate()?'':a.getUTCDate()===new Date(now+31*36e5).getUTCDate()?'พรุ่งนี้ ':a.getUTCDate()+' '+THMS[a.getUTCMonth()]+' '};
@@ -6680,7 +6680,7 @@ function obBox(){let e=$('#orb');if(e)return e;e=document.createElement('div');e
  <div class="obn">นับทุกรอบที่แถบสแกนผ่านกลุ่มป่า · รอบที่มุมสแกนเกิน ${ORB.EDGE}° มีป้าย "ขอบแถบ" (พิกเซลใหญ่ขึ้น จับไฟเล็กได้ยากกว่า) · จุดความร้อนเข้าระบบราว ${OBLAG[0]}–${OBLAG[1]} นาทีหลังสแกน · ดาวเทียมผ่านไม่ได้แปลว่าจะพบจุดเสมอ (เมฆบัง / ไฟไม่ได้ลุกตอนสแกน)</div>
  <div class="dsrc obs" id="ob-src"></div></div>`;
  document.body.appendChild(e);
- const tg=()=>{OBM=obMode()==='cp'?'full':'cp';try{localStorage.setItem('fm-orb',OBM)}catch(x){}OBMD=0;obTick()};
+ const tg=()=>{OBM=obMode()==='cp'?'full':'cp';OBMD=0;obTick()};
  const sw=e.querySelector('#ob-sw'),lb=sw.parentNode;lb.onclick=x=>{x.stopPropagation();x.preventDefault();S.orbm=!S.orbm;OBMD=0;LO()};lb.onkeydown=x=>x.stopPropagation(); /* สวิตช์ไม่ย่อ/ขยายกล่อง */
  const h=e.querySelector('.obh');h.onclick=tg;h.onkeydown=x=>{if(x.key==='Enter'||x.key===' '){x.preventDefault();tg()}};
  e.querySelectorAll('.obr').forEach(r=>{const go=()=>obFocus(r.dataset.ob);r.onclick=go;r.onkeydown=x=>{if(x.key==='Enter'){x.preventDefault();go()}}});
