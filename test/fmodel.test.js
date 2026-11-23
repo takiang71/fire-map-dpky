@@ -60,3 +60,14 @@ test('fuelAt + เรือนยอดรอบจุด (แบบ ก 19 พ.
   assert.equal(M.fuelAt(null, 200, null, w(0.9, 0, 29)).i, M.fuelByElev(200)); /* ค่าน้อย = ตามความสูงเหมือนเดิม */
   assert.equal(M.fuelAt(null, 600, { k: 3, n: 'ป่าดิบแล้ง', e: 0 }, w(0.9, 0)).i, 2); /* มีชนิดป่า = ชนิดป่ามาก่อนเสมอ */
 });
+
+test('fmodel.mtRun (MTT จากหน้าเว็บ): DEM ราบ + ยังไม่โหลดชนิดป่า = วงรี calc ±5% · ไฟถึงขอบ = ขยายกริด', async () => {
+  const flat = async () => new Float32Array(65536);
+  const M = require('../scripts/lib/fmodel.js').loadModel({ demTile: flat });
+  const p = { sm: 'g', hr: 6, fuel: 0, u: 11, from: 90, rh: 61, T: 32.3, sl: 0, asp: null }; M.setP(p);
+  const r = M.calc(p), m = await M.mtRun({ lon: 101.4, lat: 14.4 }, r.head * 1.35);
+  assert.strictEqual(m.edge, false);
+  assert.ok(Math.abs(m.lv[2].a / 1e4 * M.EH / r.rai - 1) < .05, String(m.lv[2].a));
+  const s = await M.mtRun({ lon: 101.4, lat: 14.4 }, r.head * .3);
+  assert.ok(s.ext > r.head * .3 && !s.edge, 'ext ' + s.ext);
+});

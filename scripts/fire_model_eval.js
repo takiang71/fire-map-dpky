@@ -9,6 +9,7 @@
 //     · อากาศ Open-Meteo Historical Forecast (ชุดโมเดลเดียวกับ /v1/forecast ที่หน้าเว็บใช้) ณ เวลาที่พบจุด (สอดแทรกรายชั่วโมง)
 //     ต่างจากหน้าเว็บ: ความสูงสำหรับ fuelAt ใช้ DEM (หน้าเว็บใช้ elevation ของ Open-Meteo) · อากาศของช่อง 0.05° (หน้าเว็บใช้พิกัดจุด)
 //     + โหมด Lagrangian: huy() + hyAdj() ด้วยลมรายชั่วโมงหลังเวลาพบจุด (WS เหมือนหน้าเว็บ) ก่อน/หลัง F5 (7) ความชื้น/อุณหภูมิรายชั่วโมง (P.hrly)
+//     + วง MTT (23 พ.ย. 69, --no-mtt = ข้าม): พื้นที่ MTT Gaussian/Lagrangian + รูปร่างแบบเวลาเท่ากัน (recall/IoU เทียบวงรีและวงกลม) — ดู mtEval
 //  4) อัตราส่วน = ไร่โมเดล / ไร่จริง · รายจุด และรายไฟ (กลุ่มรอยของจุดทับกัน = ไฟเดียวกัน → จุดแรกสุดเทียบไร่รวมของไฟ)
 // ดึง Open-Meteo: รวมพิกัดคำขอละ ≤50 ช่อง ช่วง 14 วัน (= 1 call ต่อพิกัดตามเกณฑ์ ≤2 สัปดาห์) เว้น 7 วิ (<600 call/นาที) · แคชทุกอย่างใน --cache (ไม่ commit)
 const fs = require('fs'), os = require('os'), path = require('path');
@@ -139,6 +140,30 @@ function wxAt(w, hm) {
   return { T: L(w.t), rh: L(w.rh), u: L(w.ws), from: (Math.atan2(sx, cy) / r + 360) % 360, WS: { u: w.ws.slice(i), d: w.wd.slice(i), rh: w.rh.slice(i), T: w.t.slice(i) } };
 }
 
+// ---------- วง MTT (23 พ.ย. 69) ----------
+// พื้นที่: mt = MTT โหมด Gaussian (ค่าเริ่มต้นของหน้าเว็บ) · mtl = MTT โหมด Lagrangian + EMC รายชั่วโมง (P.hrly) — ทั้งคู่ HR ชม. ใช้ DEM + ชนิดป่ารายช่อง
+// รูปร่างแบบเวลาเท่ากัน: ลดเวลาเป็น t* = HR·√(ไร่จริง ÷ ไร่วงรี) (วงรีที่ t* มีพื้นที่เท่ารอยจริงพอดี — ตัดผลของการประเมินขนาดเกินออก)
+//   แล้วนับพิกเซลรอย (กลุ่มใกล้สุด) ที่ตกในวงรี / วง MTT ที่ t* / วงกลมพื้นที่เท่ารอยรอบจุด (ฐานเทียบ ไม่มีข้อมูลทิศ)
+//   recall = สัดส่วนพิกเซลรอยในวง · IoU = ส่วนทับ ÷ ส่วนรวม · พิกัดพิกเซลเทียบจุดในระบบ UTM ของพิกเซล (มุมเบี่ยงกริด <1° ไม่คิด)
+const NOMTT = process.argv.includes('--no-mtt');
+const inRing = (x, y, r) => { let c = false; for (let k = 0, l = r.length - 1; k < r.length; l = k++) { const a = r[k], b = r[l]; if ((a[1] > y) !== (b[1] > y) && x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0]) c = !c } return c };
+const inMulti = (x, y, P) => P.some(pl => inRing(x, y, pl[0]) && !pl.slice(1).some(h => inRing(x, y, h)));
+function scarXY(p) { const o = [], U = {}; for (const k of p.comp.px) { const z = Math.floor(k / 1e10), iy = Math.floor(k % 1e10 / 1e5), ix = k % 1e5, [E0, N0] = U[z] || (U[z] = llToUTM(p.lo, p.la, z)); o.push([ix * PX + PX / 2 - E0, iy * PX - PX / 2 - N0]) } return o }
+const shp = (xy, A, fn) => { const i = xy.filter(q => fn(q[0], q[1])).length, a = PX * PX; return { rc: i / xy.length, iou: i * a / (A + xy.length * a - i * a) } };
+async function mtEval(p, prm, r, x, Hy) {
+  const h0 = { lon: p.lo, lat: p.la };
+  try {
+    M.setP({ ...prm, sm: 'g' }); const g = await M.mtRun(h0, r.head * 1.35); p.mt = g.lv[2].a / 1e4 * M.EH; p.mtEdge = g.edge; p.mtWater = g.fc[g.fc.length - 1];
+    M.setP({ ...prm, sm: 'l', hrly: 1 }, x.WS); const L = Hy.snap[Hy.n].reduce((m, q) => Math.max(m, Math.hypot(q[0], q[1])), 0), l = await M.mtRun(h0, L * 1.35); p.mtl = l.lv[2].a / 1e4 * M.EH;
+    const hr = Math.min(HR, Math.max(.05, HR * Math.sqrt(p.rai / r.rai))), pe = { ...prm, sm: 'g', hr }, re = M.calc(pe), xy = scarXY(p), th = re.toDir * Math.PI / 180;
+    M.setP(pe); const e = await M.mtRun(h0, re.head * 1.35), Ar = p.rai / M.EH * 1e4, rc = Math.sqrt(Ar / Math.PI);
+    p.hrEq = hr;
+    p.shE = shp(xy, Math.PI * re.a * re.b, (X, Y) => { const a = X * Math.sin(th) + Y * Math.cos(th) - re.off, b = X * Math.cos(th) - Y * Math.sin(th); return (a / re.a) ** 2 + (b / re.b) ** 2 <= 1 });
+    p.shM = shp(xy, e.lv[2].a, (X, Y) => inMulti(X, Y, e.lv[2].p));
+    p.shC = shp(xy, Ar, (X, Y) => X * X + Y * Y <= rc * rc);
+  } catch (err) { p.mtErr = String(err && err.message || err) }
+}
+
 // ---------- สถิติ ----------
 const q = (a, p) => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y), k = (s.length - 1) * p, i = Math.floor(k); return s[i] + (s[Math.min(i + 1, s.length - 1)] - s[i]) * (k - i) };
 const r3 = v => v == null ? null : +v.toPrecision(3);
@@ -168,6 +193,7 @@ const stat = rs => { const l = rs.map(Math.log); return { n: rs.length, p10: r3(
   const calls = await fetchWx(need);
 
   // โมเดลรายจุด
+  let nDone = 0;
   for (const p of P) {
     const w = WX[p.wd + '|' + p.cell], x = w && wxAt(w, p.hm);
     if (!x || x.T == null || x.rh == null || x.u == null || isNaN(x.from)) { p.skip = 1; cnt.noWx++; continue }
@@ -177,6 +203,8 @@ const stat = rs => { const l = rs.map(Math.log); return { n: rs.length, p10: r3(
     M.setP({ ...prm, sm: 'l', hrly: 0 }, x.WS); const Hy = M.huy(r), ry = M.hyAdj(r, Hy);   /* Lagrangian เดิม: ลมรายชั่วโมง ความชื้น/อุณหภูมิคงที่ */
     M.setP({ ...prm, sm: 'l', hrly: 1 }, x.WS); const ry2 = M.hyAdj(r, M.huy(r));   /* F5 (7): + ความชื้น/อุณหภูมิรายชั่วโมง (EMC รายชั่วโมง) */
     Object.assign(p, { T: x.T, rh: x.rh, u: x.u, from: x.from, sl: s.s, asp: s.asp, el: s.el, ft: ft ? ft.n : '', fuel: fu.i, fuelN: M.FUEL[fu.i].n, why: fu.why, chw: cw && cw.n >= M.CHWN ? 1 : 0, E: r.E, Rh: r.Rh, m: r.rai, mh: ry.rai, mh2: ry2.rai, ratio: r.rai / p.rai, ratioH: ry.rai / p.rai, ratioH2: ry2.rai / p.rai });
+    if (!NOMTT) await mtEval(p, prm, r, x, Hy);
+    if (++nDone % 50 === 0) process.stderr.write(`  โมเดล ${nDone}/${P.length}\n`);
   }
   const OK = P.filter(p => !p.skip);
 
@@ -220,9 +248,27 @@ const stat = rs => { const l = rs.map(Math.log); return { n: rs.length, p10: r3(
     firesByN: by(fires, f => f.n === 1 ? '1 จุด' : f.n <= 3 ? '2–3 จุด' : '≥4 จุด', f => f.rai),
     ffmc, worst, under,
   };
+  /* MTT (23 พ.ย. 69) — เฉพาะคู่ที่คำนวณ MTT ได้ */
+  const MO = OK.filter(p => p.mt != null && p.shM), mf = fires.filter(f => f.first.mt != null), fd2 = (xs, f) => stat(xs.map(f));
+  if (!NOMTT) S.mtt = {
+    n: MO.length, err: OK.filter(p => p.mtErr).length, errEx: [...new Set(OK.filter(p => p.mtErr).map(p => p.mtErr))].slice(0, 3), edge: MO.filter(p => p.mtEdge).length, water: MO.filter(p => p.mtWater > 0).length,
+    near: { ell: fd2(MO, p => p.ratio), mtt: fd2(MO, p => p.mt / p.rai), huy: fd2(MO, p => p.ratioH2), mttL: fd2(MO, p => p.mtl / p.rai) },
+    r1: { ell: fd2(MO, p => p.m / p.r1), mtt: fd2(MO, p => p.mt / p.r1), huy: fd2(MO, p => p.mh2 / p.r1), mttL: fd2(MO, p => p.mtl / p.r1) },
+    fireAll: { ell: stat(mf.map(f => f.ratioAll)), mtt: stat(mf.map(f => f.first.mt / f.all)) },
+    mttOverEll: fd2(MO, p => p.mt / p.m), mttLOverHuy: fd2(MO, p => p.mtl / p.mh2),
+    rai: { ell: fd2(MO, p => p.m).med, mtt: fd2(MO, p => p.mt).med, huy: fd2(MO, p => p.mh2).med, mttL: fd2(MO, p => p.mtl).med },
+    byFuelR1: by(MO, p => p.fuelN, p => p.mt / p.r1),
+    /* รูปร่างแบบเวลาเท่ากัน: ค่าเฉลี่ยและมัธยฐานของ recall/IoU · win = สัดส่วนคู่ที่ MTT ได้ IoU มากกว่าวงรี (เท่ากันไม่นับ) */
+    shape: Object.fromEntries([['ell', 'shE'], ['mtt', 'shM'], ['circle', 'shC']].map(([k, f]) => [k, { recall: r3(MO.reduce((a, p) => a + p[f].rc, 0) / MO.length), recallMed: fd2(MO, p => p[f].rc).med, iou: r3(MO.reduce((a, p) => a + p[f].iou, 0) / MO.length), iouMed: fd2(MO, p => p[f].iou).med }])),
+    win: { mttVsEll: r3(MO.filter(p => p.shM.iou > p.shE.iou).length / MO.length), ellVsMtt: r3(MO.filter(p => p.shE.iou > p.shM.iou).length / MO.length), ellVsCircle: r3(MO.filter(p => p.shE.iou > p.shC.iou).length / MO.length), mttVsCircle: r3(MO.filter(p => p.shM.iou > p.shC.iou).length / MO.length) },
+    shapeBySlope: Object.fromEntries([['ลาด <5°', p => p.sl < 5], ['ลาด 5–15°', p => p.sl >= 5 && p.sl < 15], ['ลาด ≥15°', p => p.sl >= 15]].map(([k, fn]) => { const X = MO.filter(fn); return [k, { n: X.length, iouEll: X.length ? r3(X.reduce((a, p) => a + p.shE.iou, 0) / X.length) : null, iouMtt: X.length ? r3(X.reduce((a, p) => a + p.shM.iou, 0) / X.length) : null, win: X.length ? r3(X.filter(p => p.shM.iou > p.shE.iou).length / X.length) : null }] })),
+    hrEq: fd2(MO, p => p.hrEq),
+  };
   fs.writeFileSync(OUT, JSON.stringify(S, null, 1));
-  const csv = ['date,hhmm,lat,lon,sat,area,ft,fuel,T,rh,wind_kmh,wind_from,slope,emc,ros_head,model_rai,model_huy_rai,model_huy_hourly_rai,real_rai,real_big_1km,real_px_1km,dist_m,ratio,ratio_huy,fire_n'];
-  for (const p of OK) csv.push([iso(p.d), p.hm, p.la, p.lo, p.sat, `"${p.ar}"`, p.ft, p.fuelN, p.T, p.rh, p.u, Math.round(p.from), p.sl.toFixed(1), p.E.toFixed(1), p.Rh.toFixed(2), p.m.toFixed(1), p.mh.toFixed(1), p.mh2.toFixed(1), p.rai, p.big, p.r1, Math.round(p.dist), p.ratio.toFixed(3), p.ratioH.toFixed(3), p.nf].join(','));
+  const csv = ['date,hhmm,lat,lon,sat,area,ft,fuel,T,rh,wind_kmh,wind_from,slope,emc,ros_head,model_rai,model_huy_rai,model_huy_hourly_rai,real_rai,real_big_1km,real_px_1km,dist_m,ratio,ratio_huy,fire_n,model_mtt_rai,model_mtt_lag_rai,hr_eq,recall_ell,recall_mtt,recall_circle,iou_ell,iou_mtt,iou_circle'];
+  const f3 = v => v == null ? '' : v.toFixed(3);
+  for (const p of OK) csv.push([iso(p.d), p.hm, p.la, p.lo, p.sat, `"${p.ar}"`, p.ft, p.fuelN, p.T, p.rh, p.u, Math.round(p.from), p.sl.toFixed(1), p.E.toFixed(1), p.Rh.toFixed(2), p.m.toFixed(1), p.mh.toFixed(1), p.mh2.toFixed(1), p.rai, p.big, p.r1, Math.round(p.dist), p.ratio.toFixed(3), p.ratioH.toFixed(3), p.nf,
+    p.mt == null ? '' : p.mt.toFixed(1), p.mtl == null ? '' : p.mtl.toFixed(1), f3(p.hrEq), f3(p.shE && p.shE.rc), f3(p.shM && p.shM.rc), f3(p.shC && p.shC.rc), f3(p.shE && p.shE.iou), f3(p.shM && p.shM.iou), f3(p.shC && p.shC.iou)].join(','));
   fs.writeFileSync(OUT.replace(/\.json$/, '.csv'), '﻿' + csv.join('\n'));
   const L = (t, x) => console.log(`${t.padEnd(34)} n ${String(x.n).padStart(4)} · มัธยฐาน ${x.med} · P10 ${x.p10} · P90 ${x.p90} · โมเดลมากกว่า ${Math.round(x.over * 100)}% · อยู่ใน ×0.5–2 ${Math.round(x.in2 * 100)}%`);
   console.log(`จุด ${cnt.all} · คู่ ${OK.length} (ไฟ ${fires.length}) · ไม่พบรอย ≤${KM} กม. ${cnt.noScar} · นอกช่วง B4 ${cnt.noB4time} · Open-Meteo ${calls} call · gap ${GAP}`);
@@ -233,5 +279,12 @@ const stat = rs => { const l = rs.map(Math.log); return { n: rs.length, p10: r3(
   for (const k in S.byFuelR1) L('เชื้อเพลิง (รัศมี 1 กม.): ' + k, S.byFuelR1[k]);
   console.log(`เลือกเชื้อเพลิงจากเรือนยอด ${S.chm.n} คู่${NOCHM ? ' (--no-chm)' : ''}`); for (const k in S.chm.byFuelR1) L('  เรือนยอด → ' + k, S.chm.byFuelR1[k]);
   console.log('ไร่โมเดล มัธยฐาน', S.raiModel.hotspot.med, '· ไร่จริง (ใกล้สุด/รัศมี 1 กม./ไฟ ≤1 กม.)', S.raiReal.hotspot.med, S.alt.raiR1.med, S.fire.raiAll.med);
+  if (S.mtt) {
+    const T = S.mtt; console.log(`\nMTT (${T.n} คู่ · คำนวณไม่ได้ ${T.err} · ถึงขอบกริด ${T.edge} · มีแหล่งน้ำในกริด ${T.water})`);
+    L('รายจุด กลุ่มใกล้สุด: วงรี', T.near.ell); L('รายจุด กลุ่มใกล้สุด: MTT', T.near.mtt); L('รายจุด กลุ่มใกล้สุด: Huygens รายชม.', T.near.huy); L('รายจุด กลุ่มใกล้สุด: MTT Lagrangian', T.near.mttL);
+    L('รัศมี 1 กม.: วงรี', T.r1.ell); L('รัศมี 1 กม.: MTT', T.r1.mtt); L('รัศมี 1 กม.: Huygens รายชม.', T.r1.huy); L('รัศมี 1 กม.: MTT Lagrangian', T.r1.mttL); L('รายไฟ ทุกกลุ่ม ≤1 กม.: MTT', T.fireAll.mtt);
+    console.log('MTT ÷ วงรี', T.mttOverEll.med, `(P10 ${T.mttOverEll.p10} P90 ${T.mttOverEll.p90})`, '· MTT Lagrangian ÷ Huygens', T.mttLOverHuy.med, '· ไร่มัธยฐาน', JSON.stringify(T.rai));
+    console.log('รูปร่างเวลาเท่ากัน (t* มัธยฐาน', T.hrEq.med, 'ชม.):', JSON.stringify(T.shape)); console.log('  IoU ชนะ:', JSON.stringify(T.win)); console.log('  ตามความลาด:', JSON.stringify(T.shapeBySlope));
+  }
   console.log('ผลเต็ม:', OUT);
 })().catch(e => { console.error(e); process.exit(1) });

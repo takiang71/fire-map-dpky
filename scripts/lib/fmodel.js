@@ -17,11 +17,15 @@ const PIECES = {
   wind: /function windAt\(t\)\{[\s\S]*?return\[-P\.u\*Math\.sin\(a\)\/3\.6,-P\.u\*Math\.cos\(a\)\/3\.6\]\}/,
   huy: /function hull\(pts\)\{[\s\S]*?\nconst hyAdj=[^\n]*/,
   slope: /async function slopeAt\([\s\S]*?\n return\{s:[^\n]*\}\}/,
+  /* วง MTT (23 พ.ย. 69): mtSolve จาก wjLib + mtGrid/mtWx จากบล็อก lz-mt → mtRun = ลำดับเดียวกับ mtKick ของหน้าเว็บ (ขยายกริดเมื่อถึงขอบ) แต่รันตรง ไม่ผ่าน Worker */
+  mtn: /const MTN=\d+/,
+  mtSolve: /function mtSolve\(o\)\{[\s\S]*?\n  return\{lv:out\.map[^\n]*/,
+  mtGrid: /async function mtGrid\(h,ext\)\{[\s\S]*?(?=\nfunction mtKick\()/,
 };
 
 function source(html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8')) {
   const g = k => { const m = html.match(PIECES[k]); if (!m) throw new Error('ไม่พบโค้ดโมเดลไฟใน index.html: ' + k + ' ' + PIECES[k]); return m[0] };
-  return `let FT=null,WS=null,manualWind=false,P={};
+  return `let FT=null,WS=null,manualWind=false,P={},fuelAuto=true;
 ${g('nf')}
 ${g('model')}
 ${g('fuel')}
@@ -31,9 +35,13 @@ ${g('wind')}
 ${g('hr')}
 ${g('huy')}
 ${g('slope')}
+${g('mtn')}
+${g('mtSolve')}
+${g('mtGrid')}
+async function mtRun(h,ext){let x=Math.min(40000,Math.max(300,ext));for(let g=0;;g++){const G=await mtGrid(h,x),W=mtWx(),T=P.hr*60,r=mtSolve({N:G.N,cs:G.cs,kf:G.kf,sx:G.sx,sy:G.sy,bd:W.bd,wx:W.wx,wy:W.wy,et:W.et,T,lv:[T/3,2*T/3,T],pc:PWC,pb:PWB});if(!r.edge||g===3||x>=40000)return{...r,cs:G.cs,ext:x,fc:G.fc};x=Math.min(40000,x*1.7)}}
 function setFT(j){${g('ftDec')}j.g=g;FT=j;return j}
 function setP(p,ws){P=p;WS=ws||null;manualWind=false}
-return {calc,spreadVec,FUEL,R0,EH,MX,WAF,emc,eta,ffM,fuelAt,fuelByElev,chWinSum,CHWN,ftAt,geoAt,windAt,fqHr,huy,hyAdj,slopeAt,setFT,setP};`;
+return {mtRun,mtSolve,calc,spreadVec,FUEL,R0,EH,MX,WAF,emc,eta,ffM,fuelAt,fuelByElev,chWinSum,CHWN,ftAt,geoAt,windAt,fqHr,huy,hyAdj,slopeAt,setFT,setP};`;
 }
 
 // env: GEO (แนวเขตจากบล็อก geo) · demTile(z,x,y) → Promise<Float32Array 65536 ความสูง ม.> (เฉพาะเมื่อใช้ slopeAt)
