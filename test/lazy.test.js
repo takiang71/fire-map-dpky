@@ -29,8 +29,8 @@ const strip = s => s.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/'(?:[^'\\\n]|\\.
 const blk = n => (blocks.find(b => b.n === n) || {}).code;
 const fnIn = (code, f) => new RegExp('function ' + f + '\\(').test(code);
 
-test('บล็อก lz-*: pm/adm/vf/fd ตามลำดับในไฟล์ · คอมไพล์ได้ทุกบล็อก · ใส่ชื่อภาษาไทยใน LZN ครบ', () => {
-  assert.deepEqual(blocks.map(b => b.n), ['pm', 'adm', 'vf', 'fd']);
+test('บล็อก lz-*: mt/pm/adm/vf/fd ตามลำดับในไฟล์ · คอมไพล์ได้ทุกบล็อก · ใส่ชื่อภาษาไทยใน LZN ครบ', () => {
+  assert.deepEqual(blocks.map(b => b.n), ['mt', 'pm', 'adm', 'vf', 'fd']);
   for (const { n, code } of blocks) { new vm.Script(code, { filename: 'lz-' + n }); assert.match(grab(/const LZN=\{[^}]*\}/), new RegExp(n + ":'[^']+'"), 'LZN.' + n) }
 });
 

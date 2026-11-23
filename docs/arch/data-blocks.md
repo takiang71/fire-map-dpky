@@ -136,7 +136,8 @@
 
 ผู้ใช้สั่งให้แยกโค้ดเฉพาะผู้ดูแลออกจากหน้าแรก (หลังบ้าน SYS ทำให้ `_site/index.html` ถึง 1.67 MB) — **index.html ใน repo ยังเป็นไฟล์เดียว ดับเบิลคลิก/serve.js เปิดได้เหมือนเดิม (ไม่ต่อเน็ต)**
 
-- **ใน index.html**: โค้ดที่ใช้ตอนกดเท่านั้นอยู่ในบล็อก `<script type="text/x-lazy" id="lz-<n>">` (เบราว์เซอร์ไม่รัน — ไม่ใช่ JS type) วางต่อท้ายสคริปต์ของโมดูลเดิม · มี 4 บล็อก (ลำดับในไฟล์):
+- **ใน index.html**: โค้ดที่ใช้ตอนกดเท่านั้นอยู่ในบล็อก `<script type="text/x-lazy" id="lz-<n>">` (เบราว์เซอร์ไม่รัน — ไม่ใช่ JS type) วางต่อท้ายสคริปต์ของโมดูลเดิม · มี 5 บล็อก (ลำดับในไฟล์):
+  · **`lz-mt`** (23 พ.ย. 69) วงคาดการณ์ MTT `mtGrid` `mtWx` `mtKick` (~3 KB) — สตับ `mtKick` · `MT` `mtKey` `mtOn` `mtPoly` อยู่ในโค้ดหลัก · ตัวแก้ `mtSolve` อยู่ใน wjLib (Worker) → ui-modules.md หัวข้อ MTT
   · **`lz-pm`** พิมพ์แผนที่ทั้งโมดูล (~65 KB — `PMSZ`…`pmOut` + ปุ่ม Esc) · โค้ดหลักเหลือหัวคำอธิบาย + สตับ `pmOpen` + `$('#bPm').onclick=()=>pmOpen()` · `PP` `PMQ` `PMAP` ฯลฯ ประกาศเมื่อโหลด (ไม่มีโค้ดอื่นอ้าง)
   · **`lz-vf`** F1 ฟอร์ม `vfForm` + ลบ `vfDel` + ส่งออก Excel `vfXlsx` (~12 KB) — สตับทั้งสามในโค้ดหลัก · ส่วนอื่นของ VF (`vfSetup` `vfHit` `vfBox` `vfCard` `vfApply` `vfLoad` `dfXT` …) ยังอยู่ในโค้ดหลักเพราะวาดแผนที่/การ์ด/คลิกจุดตอนเปิดหน้า
   · **`lz-fd`** ฟอร์มบันทึกการดับไฟ `fdForm` + ตัวช่วยที่ใช้เฉพาะในฟอร์ม `FDCS` `fdTel` `fdD0` `fdMyAg` `fdRt` `fdMs` `fdBk` `fdTimeChk` `fdCand` `fdMiss` `fdUseHs` `fdFromRep` `fdGot` (~25 KB) — สตับ `fdForm` · เมนู/การ์ด/ชั้น/คิวออฟไลน์ (`fdSetup` `fdRender` `fdHit` `fdOpen` `fdFlush` `fdQueue` `fdSave` `FDAG` …) อยู่ในโค้ดหลัก

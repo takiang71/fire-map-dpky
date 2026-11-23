@@ -218,6 +218,14 @@ const FQCK = `(async()=>{if(typeof fqPick!=='function')return 'error: ไม่�
  if(!P.hrly)return 'error: ไม่ใช้ FFMC และไม่ได้ปรับเอง แต่ P.hrly ไม่ถูกตั้ง';document.querySelector('#fq-mm [data-m="f"]').click();if(Math.abs((P.fm||0)-ffM(88.5))>1e-9)return 'error: กลางคืนกดเลือก FFMC เองไม่ได้';if(P.hrly)return 'error: ใช้ FFMC แล้วยังใช้ EMC รายชั่วโมง';FQ.mp='f';
  const b=document.getElementById('fq-src'),ov=b.scrollWidth-b.clientWidth;window.__ckFq={st:FQ.st&&FQ.st.n,ff:FQ.ffOk,ov};if(ov>2)return 'error: ตารางที่มาล้นแนวนอน '+ov+' px';
  return ''})()`;
+// MTT (23 พ.ย. 69): จุดตัวอย่างเขาใหญ่ → วงคาดการณ์ 3 วงเป็น MultiPolygon k='mtt' จาก Worker (ล็อก lz-mt) · ไม่ถึงขอบกริด · พื้นที่ใกล้วงรีภายในสิบเท่า · ค่าทดสอบ = วงรีเดิม 1,999 ไร่
+const MTCK = `(async()=>{openDetail({id:9002,lat:14.4302,lon:101.3712,t:Date.now()-36e5,sat:'NOAA-20',frp:5,conf:'n',prov:'ไม่ระบุ',amp:'ไม่ระบุ',tam:'ไม่ระบุ',demo:true,ns:'sample'});
+ ${WAIT(`(MT.st==='ok'||MT.st==='err')&&MT.k===mtKey(CUR)`, 160)}
+ if(MT.st!=='ok')return 'error: วง MTT ไม่เสร็จใน 40 วิ: '+MT.st+' '+MT.e;const f=FXD.features.filter(x=>x.properties.k==='mtt');
+ if(f.length!==3||f.some(x=>x.geometry.type!=='MultiPolygon'||!x.geometry.coordinates.length))return 'error: วง MTT ไม่ครบ 3 วง';if(MT.r.edge)return 'error: วง MTT ถึงขอบกริด';
+ const q=LASTR.rai/calc(P).rai;if(!(q>.1&&q<10))return 'error: พื้นที่ MTT ต่างจากวงรีผิดปกติ '+q;if(!/MTT/.test(document.getElementById('mt-lg').textContent))return 'error: คำอธิบายสัญลักษณ์ไม่บอก MTT';
+ document.getElementById('d-test').click();if(Math.abs(LASTR.rai/1999-1)>.01||FXD.features.some(x=>x.properties.k==='mtt'))return 'error: ค่าทดสอบต้องเป็นวงรีเดิม 1,999 ไร่ ได้ '+Math.round(LASTR.rai);
+ window.__ckMt={cs:MT.r.cs,q};return ''})()`;
 // FD เมนูไฟป่าที่ตรวจพบ (18 พ.ย. 69): เลือกปีงบก่อน = ต้องมีตัวเลข + รายพื้นที่ · ฟอร์มเลือกแหล่งแจ้งแล้วกดบันทึก = ต้องเตือนให้ระบุตำแหน่ง (ไม่ส่งจริง)
 const FDFY = `(()=>{const s=document.getElementById('fd-fys');if(!s||s.options.length<2)return 'ไม่พบตัวเลือกปีงบ';s.value=s.options[1].value;s.dispatchEvent(new Event('change'));return /ครั้ง/.test(document.getElementById('fd-kp').textContent)&&document.querySelectorAll('#fd-pl .hb').length?'':'error: การ์ดไฟป่าที่ตรวจพบไม่แสดงตัวเลข/รายพื้นที่'})()`;
 // 19 พ.ย. 69 ฟอร์มบันทึกการดับไฟของเว็บซ่อนแล้ว (ผู้ใช้ให้ใช้แบบรับแจ้งเหตุ กรมอุทยานฯ — DF, docs/arch/dnp-form.md): ต้องไม่มีปุ่ม #fd-add และบรรทัดที่มาต้องบอกแหล่งแบบรับแจ้งเหตุ
@@ -251,6 +259,7 @@ const DESK = [
   ['คัดลอกลิงก์มุมมองนี้ (D3)', `(async()=>{const u0=location.href;document.getElementById('vw-cp').click();await new Promise(r=>setTimeout(r,300));return /[?]v=-?[0-9]+[.][0-9]{5},-?[0-9]+[.][0-9]{5},[0-9]+[.][0-9]{2}/.test(vwCopy.last||'')&&/[?&]v=/.test(location.search)?'':'error: ลิงก์มุมมองผิดรูปแบบ '+vwCopy.last})()`],
   ['ฟอร์มผลตรวจสอบจากหน้างาน (F1 — สตับ vfForm โหลดบล็อก lz-vf)', `(async()=>{await vfForm({lat:14.26532,lon:101.98765,t:Date.now()-36e5,sat:'NOAA-20',tam:'บุพราหมณ์',amp:'นาดี',prov:'ปราจีนบุรี'},null);return document.getElementById('vf-f')?'':'ไม่พบฟอร์ม #vf-f'})()`], ['  เลือกผล "ไม่พบไฟ"', `Q('#vf-res [data-v="none"]')`], ['  ปิด', `C('md-x',1)`],
   ['แผงรายละเอียดจุด: โมเดลไฟ ที่มาของค่า/FFMC/ค่าทดสอบ (F5)', FQCK], ['  ปิดแผงรายละเอียด', `C('d-x',1)`],
+  ['แผงรายละเอียดจุด: วงคาดการณ์ MTT บนภูมิประเทศจริง', MTCK], ['  ปิดแผงรายละเอียด', `C('d-x',1)`],
   ['กลับมุมมองกลุ่มป่า', `C('bHome')`],
 ];
 const MOB = [['ปุ่มเครื่องมือ (มือถือ)', `C('bTo')`], ['  ปิด', `C('bTo')`], ['ดาวเทียมรอบถัดไป: ขยาย/ย่อ', `Q('#orb .obh')`], ['  ย่อ/ขยาย', `Q('#orb .obh')`], ['แผงชั้นข้อมูล', `C('bLay')`], ['  กองจุดความร้อนรายวัน', `Q('.sw[data-k="hcl"]')`], ['  ปีงบ 2563 (รอ "กำลังคำนวณ…" หาย — Worker B2)', HC2563], ['  ปิดกองรายวัน', `Q('.sw[data-k="hcl"]')`], ['  ปิดแผง', `C('xr',1)`], ['การ์ดสถิติ', `C('bStat')`], ['  ปิด', `C('h-x',1)`], ['ย้อนดูการลามของไฟ', `C('bPlay')`], ['  เล่น', `C('pb-p')`], ['  ปิด', `C('pb-x',1)`],

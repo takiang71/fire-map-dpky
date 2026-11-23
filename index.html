@@ -1144,7 +1144,7 @@ function embGet(id){const C=embGet.c||(embGet.c={});if(C[id])return C[id];
    มีบล็อก <script type="text/x-lazy" id="lz-<n>"> (repo/ดับเบิลคลิก) = สร้าง <script> จากข้อความทันที ไม่ต่อเน็ต
    ไม่มี (_site: build_site.splitLz แยกเป็น js/<n>.<sha8>.js + ดัชนี #lzix) = <script src> ตามดัชนี (sw.js precache คู่กับ index.html รุ่นเดียวกัน) เกิน FTO.big = ล้ม
    lzCall(n,f,a) = ตัวกลางของสตับ: โหลดแล้วเรียกฟังก์ชันจริงชื่อ f (บล็อกประกาศ function ชื่อเดิมทับสตับ) · โหลดไม่ได้ = toast ภาษาไทย + dbg (ไม่เงียบ) */
-const LZN={adm:'ส่วนหลังบ้าน',pm:'หน้าพิมพ์แผนที่',vf:'ฟอร์มผลตรวจสอบ',fd:'ฟอร์มบันทึกการดับไฟ'};
+const LZN={adm:'ส่วนหลังบ้าน',pm:'หน้าพิมพ์แผนที่',vf:'ฟอร์มผลตรวจสอบ',fd:'ฟอร์มบันทึกการดับไฟ',mt:'วงคาดการณ์ MTT'};
 function lzJs(n){const C=lzJs.c||(lzJs.c={});if(C[n])return C[n];
  return C[n]=new Promise((ok,no)=>{const b=document.getElementById('lz-'+n),s=document.createElement('script');
   if(b){s.textContent=b.textContent;document.head.appendChild(s);return ok()}
@@ -1319,7 +1319,45 @@ function wjLib(){'use strict';
    const bw=(a2-a0)*W,bh=(a3-a1)*W;if(bh<1.5)g.fillRect(a0*W-ox,a1*W-oy,Math.max(bw,1),Math.max(bh,1));
    else{const p=8*i;g.beginPath();for(let k=0;k<8;k+=2)g.lineTo(q[p+k]*W-ox,q[p+k+1]*W-oy);g.closePath();g.fill();g.stroke()}}
   const png=await(await c.convertToBlob({type:'image/png'})).arrayBuffer();return{png,__t:[png]}}
- return{hcLink,hcHull,hcGroups,trW,trX,trY,trLo,trLa,trMpp,trBuild,trHorn,trSA,trElev,trContours,bnLL,bnM,bnMerge,bnHotCalc,rpMerge,tlPut,tlTile}}
+ /* ===== MTT วงคาดการณ์ไฟ (Finney 2002) — docs/arch/ui-modules.md หัวข้อ MTT ===== */
+ function mtSolve(o){const{N,cs,kf,sx,sy,bd,wx,wy,et,T,lv,pc,pb}=o,NN=N*N,nb=et.length,D=new Float64Array(NN).fill(Infinity),dn=new Uint8Array(NN),
+   cb=new Int32Array(NN).fill(-1),cR=new Float64Array(NN),cE=new Float64Array(NN),cD=new Float64Array(NN),h=N>>1,c0=h*N+h;
+  const par=(c,b)=>{if(cb[c]===b)return;cb[c]=b;const x=wx[b]+sx[c],y=wy[b]+sy[c],fe=Math.hypot(x,y),U=fe>0?Math.pow(fe/pc,1/pb)/196.85:0,
+    LB=.936*Math.exp(.2566*U)+.461*Math.exp(-.1548*U)-.397,s=Math.sqrt(Math.max(0,LB*LB-1));cR[c]=Math.max(.05,kf[c]*et[b]*(1+fe));cE[c]=LB>1?s/LB:0;cD[c]=Math.atan2(x,y)};
+  const rt=(c,b,th)=>{par(c,b);const e=cE[c];return cR[c]*(1-e)/(1-e*Math.cos(th-cD[c]))};
+  let hk=new Float64Array(1024),hv=new Int32Array(1024),hn=0;
+  const push=(k,v)=>{if(hn===hk.length){const a=new Float64Array(hn*2),b=new Int32Array(hn*2);a.set(hk);b.set(hv);hk=a;hv=b}let i=hn++;
+   while(i>0){const p=(i-1)>>1;if(hk[p]<=k)break;hk[i]=hk[p];hv[i]=hv[p];i=p}hk[i]=k;hv[i]=v};
+  const pop=()=>{const v=hv[0],k=hn>1?hk[--hn]:(hn--,0),w=hv[hn];let i=0;if(hn>0){for(;;){let l=2*i+1;if(l>=hn)break;if(l+1<hn&&hk[l+1]<hk[l])l++;if(hk[l]>=k)break;hk[i]=hk[l];hv[i]=hv[l];i=l}hk[i]=k;hv[i]=w}return v};
+  const ST=[],ok=(i,j)=>i>=0&&j>=0&&i<N&&j<N&&kf[j*N+i]>0;
+  for(let a=-3;a<=3;a++)for(let q=-3;q<=3;q++){const g=(x,y)=>y?g(y,x%y):Math.abs(x);if((!a&&!q)||g(a,q)!==1||Math.abs(a)+Math.abs(q)>5)continue;const m=[];
+   if(Math.abs(a)+Math.abs(q)>2)for(let k=1;k<16;k++){const x=Math.round(a*k/16),y=Math.round(q*k/16);if((x||y)&&(x!==a||y!==q)&&!m.some(z=>z[0]===x&&z[1]===y))m.push([x,y])}ST.push([a,q,m])}
+  const Tm=T*1.3;D[c0]=0;push(0,c0);let n=0;
+  while(hn){const c=pop();if(dn[c])continue;dn[c]=1;const d=D[c];if(d>Tm)break;n++;const i=c%N,j=(c-i)/N,b=Math.min(nb-1,Math.floor(d/bd));
+   for(const[a,q,m]of ST){const ii=i+a,jj=j+q;if(!ok(ii,jj))continue;const v=jj*N+ii;if(dn[v])continue;
+    if(m.length?m.some(z=>!ok(i+z[0],j+z[1])):a&&q&&!ok(ii,j)&&!ok(i,jj))continue;
+    const th=Math.atan2(a,q),t=d+cs*Math.hypot(a,q)*.5*(1/rt(c,b,th)+1/rt(v,b,th));if(t<D[v]){D[v]=t;push(t,v)}}}
+  let edge=false;for(let k=0;k<N&&!edge;k++)edge=D[k]<=T||D[(N-1)*N+k]<=T||D[k*N]<=T||D[k*N+N-1]<=T;
+  const M=N+2,C=T*1.5,V=(i,j)=>i<1||j<1||i>N||j>N?C:Math.min(C,D[(j-1)*N+i-1]),X=g=>(g-1-h)*cs;
+  const out=lv.map(L=>{const ep=id=>{const q=id>>1,i=q%M,j=(q-i)/M;if(id&1){const a=V(i,j),b=V(i,j+1);return[X(i),X(j+(L-a)/(b-a))]}const a=V(i,j),b=V(i+1,j);return[X(i+(L-a)/(b-a)),X(j)]};
+    const S=[],E=new Map(),add=(e1,e2)=>{const k=S.length;S.push([e1,e2]);for(const e of[e1,e2])(E.get(e)||E.set(e,[]).get(e)).push(k)};
+    for(let j=0;j<M-1;j++)for(let i=0;i<M-1;i++){const v0=V(i,j),v1=V(i+1,j),v2=V(i+1,j+1),v3=V(i,j+1),k=(v0<=L)|(v1<=L)<<1|(v2<=L)<<2|(v3<=L)<<3;if(!k||k===15)continue;
+     const e=[2*(j*M+i),2*(j*M+i+1)+1,2*((j+1)*M+i),2*(j*M+i)+1];
+     if(k===5||k===10){const ci=(v0+v1+v2+v3)/4<=L;if((k===5)===ci){add(e[0],e[1]);add(e[2],e[3])}else{add(e[3],e[0]);add(e[1],e[2])}continue}
+     const x=[];for(let s=0;s<4;s++)if(((k>>s)&1)!==((k>>((s+1)&3))&1))x.push(e[s]);add(x[0],x[1])}
+    const used=new Uint8Array(S.length),R=[];
+    for(let s0=0;s0<S.length;s0++){if(used[s0])continue;used[s0]=1;const st=S[s0][0],rg=[ep(st)];let cur=S[s0][1];
+     for(let g=0;g<=S.length&&cur!==st;g++){rg.push(ep(cur));const nx=(E.get(cur)||[]).find(z=>!used[z]);if(nx==null)break;used[nx]=1;cur=S[nx][0]===cur?S[nx][1]:S[nx][0]}
+     if(rg.length>=3)R.push(rg)}
+    const ar=r=>{let a=0;for(let k=0;k<r.length;k++){const p=r[k],q=r[(k+1)%r.length];a+=p[0]*q[1]-q[0]*p[1]}return Math.abs(a)/2},
+     ins=(p,r)=>{let c=false;for(let k=0,l=r.length-1;k<r.length;l=k++){const a=r[k],b=r[l];if((a[1]>p[1])!==(b[1]>p[1])&&p[0]<(b[0]-a[0])*(p[1]-a[1])/(b[1]-a[1])+a[0])c=!c}return c};
+    const A=R.map(ar),dp=R.map((r,k)=>R.filter((q,l)=>l!==k&&A[l]>A[k]&&ins(r[0],q)).length),P=[],pi=new Map();
+    R.forEach((r,k)=>{if(dp[k]%2===0){pi.set(k,P.length);P.push([r])}});
+    R.forEach((r,k)=>{if(dp[k]%2){let b=-1;R.forEach((q,l)=>{if(dp[l]===dp[k]-1&&A[l]>A[k]&&ins(r[0],q)&&(b<0||A[l]<A[b]))b=l});if(b>=0)P[pi.get(b)].push(r)}});
+    let a=0;R.forEach((r,k)=>{a+=dp[k]%2?-A[k]:A[k]});
+    return{p:P,a,per:R.reduce((s,r)=>s+r.reduce((t,p,k)=>{const q=r[(k+1)%r.length];return t+Math.hypot(p[0]-q[0],p[1]-q[1])},0),0)}});
+  return{lv:out.map(z=>({p:z.p,a:z.a})),per:out[out.length-1].per,edge,n}}
+ return{hcLink,hcHull,hcGroups,trW,trX,trY,trLo,trLa,trMpp,trBuild,trHorn,trSA,trElev,trContours,bnLL,bnM,bnMerge,bnHotCalc,rpMerge,tlPut,tlTile,mtSolve}}
 /*WJ-LIB-END*/
 var WJ={w:null,L:null,n:0,P:new Map(),Q:[],cur:0,dead:false,gen:0, // gen เพิ่มทุกครั้งที่สร้าง Worker ใหม่ (ชั้นไทล์ที่เก็บใน Worker เดิมหาย)
  lib(){return WJ.L||(WJ.L=wjLib())},
@@ -1633,8 +1671,9 @@ function setup(){ // เรียกทุกครั้งที่สลั�
  map.addLayer({id:'fx-pf',type:'fill',source:'fx',filter:['==',['get','k'],'plume'],paint:{'fill-color':['interpolate',['linear'],['get','c'],15,'#ffe08a',35,'#f7b32b',75,'#f07a2a',150,'#d93a1f',500,'#8a1c3a'],'fill-opacity':.55}});
  map.addLayer({id:'fx-tr',type:'line',source:'fx',filter:['==',['get','k'],'trace'],paint:{'line-color':'#1f2937','line-width':2,'line-dasharray':[2,2]}});
  map.addLayer({id:'fx-hd',type:'line',source:'fx',filter:['==',['get','k'],'head'],paint:{'line-color':'#d93a1f','line-width':3}});
- map.addLayer({id:'fx-ef',type:'fill',source:'fx',filter:['==',['get','k'],'ell'],paint:{'fill-color':['get','c'],'fill-opacity':.3}});
+ map.addLayer({id:'fx-ef',type:'fill',source:'fx',filter:['in',['get','k'],['literal',['ell','mtt']]],paint:{'fill-color':['get','c'],'fill-opacity':.3}});
  map.addLayer({id:'fx-el',type:'line',source:'fx',filter:['==',['get','k'],'ell'],paint:{'line-color':['get','c'],'line-width':2}});
+ map.addLayer({id:'fx-em',type:'line',source:'fx',filter:['==',['get','k'],'mtt'],paint:{'line-color':['get','c'],'line-width':2,'line-dasharray':[3,1.6]}});
  map.addSource('hot',{type:'geojson',cluster:true,clusterRadius:45,clusterMaxZoom:6,data:{type:'FeatureCollection',features:HS.map(pt)}});
  map.addSource('hot3',{type:'geojson',data:{type:'FeatureCollection',features:HS.map(h=>sq(h))}});
  map.addSource('ring',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
@@ -2173,12 +2212,14 @@ function fuelAuto1(z){const f0=CUR&&ftAt(CUR.lon,CUR.lat),c=CUR&&FT&&!f0&&ftIn(C
 function syncSl(){const v=(i,val,u)=>{$('#s-'+i).value=val;tx('v-'+i,Math.round(val)+u)};v('u',P.u,' กม./ชม.');v('f',P.from,'°');v('r',P.rh,'%');v('s',P.sl,'°');$('#fuel').value=P.fuel;$$('#dur button').forEach(b=>b.classList.toggle('on',+b.dataset.h===P.hr));$$('#sm button').forEach(b=>b.classList.toggle('on',b.dataset.m===P.sm))}
 function upd(){
  if(!CUR)return;if(!ADM)admLoad().then(()=>CUR&&upd()).catch(e=>dbg('admLoad',e));const an=(lo,la)=>{const a=admAt(lo,la);return a?' <span style="font-weight:400">· '+esc(admTxt(a))+'</span>':''};
- const r0=calc(P),h=CUR,HY=P.sm==='l'?huy(r0):null,r=HY?hyAdj(r0,HY):r0,L=LV[r.lvl];LASTR=r;const LG=P.sm==='l'?lag(h,r,HY):null,rch=LG?LG.reach:r.reach,fm=c=>c[1].toFixed(4)+', '+c[0].toFixed(4)+an(c[0],c[1]);
+ const r0=calc(P),h=CUR,mk=mtKey(h),MR=mtOn()&&MT.k===mk&&MT.st==='ok'?MT.r:null,HY=P.sm==='l'?huy(r0):null,r=MR?hyAdj(r0,{ha:MR.lv[2].a/1e4,per:MR.per}):HY?hyAdj(r0,HY):r0,L=LV[r.lvl];LASTR=r;const LG=P.sm==='l'?lag(h,r,HY):null,rch=LG?LG.reach:r.reach,fm=c=>c[1].toFixed(4)+', '+c[0].toFixed(4)+an(c[0],c[1]);
+ if(mtOn()&&MT.k!==mk)Promise.resolve(mtKick(h,mk,1.35*(HY?Math.max(...HY.snap[HY.n].map(q=>Math.hypot(q[0],q[1]))):r0.head))).then(()=>{if(MT.k!==mk&&CUR===h&&mtKey(h)===mk){MT={k:mk,st:'err',r:null,id:0,tm:0,e:'lz'};upd()}});
+ const mtL=mtOn()?MR?'วง = MTT ตามภูมิประเทศ'+(fuelAuto&&FT?'และชนิดป่า':'')+'จริง':MT.st==='err'?'วงรี (คำนวณ MTT ไม่ได้)':'กำลังคำนวณวง MTT…':'วง'+(HY?'แบบ Huygens':'รี')+' (ความลาดชันเท่ากันทั้งพื้นที่)';
  const st=i=>{const x=P.hr*i/3;return x<1?Math.round(x*60)+' นาที':nf(x,x%1?1:0)+' ชม.'};
  tx('k-ah','พื้นที่เผาไหม้ ('+P.hr+' ชม.)');tx('k-a',nf(r.rai));tx('k-a2',nf(r.ha,1)+' เฮกตาร์ · ขอบไฟ '+nf(r.per/1000,1)+' กม.');
  tx('k-r',nf(r.Rh,1));tx('k-r2','หัวไฟเคลื่อนไป '+nf((LG?LG.hLen:r.head)/1000,2)+' กม. '+(LG?'(ตามลมรายชั่วโมง)':'('+dn(r.toDir).split(' ')[0]+')'));
  tx('k-i',nf(r.I));tx('k-i2','เปลวไฟสูงเฉลี่ย ~'+nf(r.Lf,1)+' เมตร');tx('k-p',nf(r.pm,2));tx('k-p2','CO₂ '+nf(r.co)+' ตัน · ควัน'+(LG?'ส่วนใหญ่ (95% ของมวล) ไกล ':'ไกล ')+'~'+nf(rch)+' กม.');
- tx('lg',`<span><i style="background:#e0301e"></i>+${st(1)}</span><span><i style="background:#f08a1c"></i>+${st(2)}</span><span><i style="background:#e8b020"></i>+${st(3)}</span><span><i style="background:#9ca3af;border-radius:2px"></i>${LG?'กลุ่มควัน (Lagrangian) · เส้นประดำ = ทางควัน · เส้นแดง = ทางหัวไฟ':'กรวยควันใต้ลม'}</span>`);
+ tx('lg',`<span><i style="background:#e0301e"></i>+${st(1)}</span><span><i style="background:#f08a1c"></i>+${st(2)}</span><span><i style="background:#e8b020"></i>+${st(3)}</span><span><i style="background:#9ca3af;border-radius:2px"></i>${LG?'กลุ่มควัน (Lagrangian) · เส้นประดำ = ทางควัน · เส้นแดง = ทางหัวไฟ':'กรวยควันใต้ลม'}</span><span id="mt-lg">${mtL}</span>`);
  const q=r.E/MX,lab=q<.3?'แห้งมาก':q<.6?'แห้งปานกลาง':'ค่อนข้างชื้น',bc=q<.3?'#d93a1f':q<.6?'#e0a010':'#3b9a4c';
  tx('e-v',nf(r.E,1)+'% / จุดไฟดับเอง '+MX+'%');$('#e-b').style.cssText=`width:${Math.min(100,q*100)}%;background:${bc}`;tx('e-t',`เชื้อเพลิง${lab} ไฟลุกลามต่อเนื่องตามทิศลม · รูปทรงวงรีไฟป่า L/B = ${nf(r.LB,1)} : 1`);
  $('#lv').style.borderLeftColor=L[0];tx('lv-h',L[1]);tx('lv-b',L[2]);tx('lv-c',`กำลังพลที่แนะนำ: <b>อย่างน้อย ${r.crew} ชุดปฏิบัติการ</b> (สำหรับสกัดแนวขอบไฟ ${nf(r.per/1000,1)} กม.)`);
@@ -2190,12 +2231,12 @@ function upd(){
  tx('dw',`<span>หน้าไฟ (${nf((LG?LG.hLen:r.head)/1000,1)} กม.):</span><b>${LG?fm(LG.hEnd):pt(r.head,r.toDir)}</b><span>ใต้ลม 7 กม.:</span><b>${LG?fm(LG.p7):pt(7000)}</b><span>ปลาย${LG?'กลุ่ม':'กรวย'}ควัน (~${nf(rch)} กม.):</span><b>${LG?fm(LG.far):pt(r.reach*1000)}</b>`);
  tx('eq',`<p><b>1. ${P.fm!=null&&FQ.ff?`ความชื้นเชื้อเพลิงละเอียดจาก FFMC (Van Wagner 1987):</b> <code>m = 147.2 · (101 − FFMC) ÷ (59.5 + FFMC)</code> จาก FFMC ${nf(FQ.ff.v,1)} ของ TFDRS กรมป่าไม้ (${fwDate(FQ.ff.d,{day:'numeric',month:'short'})}${FQ.ff.f?' พยากรณ์':' ค่าเที่ยงวัน'}) ได้ <code>m = ${nf(r.E,1)}%</code> (ใช้แทน EMC · สลับเป็นค่าจากอากาศได้)`:`ความชื้นสมดุลเชื้อเพลิง (Simard 1968 EMC):</b> จากอุณหภูมิ (${nf(P.T,1)} °C) และความชื้นสัมพัทธ์ (${Math.round(P.rh)}%) ได้ <code>EMC = ${nf(r.E,1)}%</code>`} และตัวคูณลดทอนความชื้น <code>η_M = ${nf(r.eta,2)}</code></p>
  <p><b>2. อัตราการลุกลามไฟผิวดิน (Rothermel 1972):</b> <code>R = R₀ · η_M · (1 + |φ_W + φ_S|)</code> รวมผลของลม (ปรับด้วยค่าบังลมของป่า WAF = ${WAF}) กับความชัน ${P.sl}° แบบเวกเตอร์${P.asp==null?' (ไม่ทราบทิศลาด: ถือว่าลาดขึ้นไปทางเดียวกับลม)':` (ลาดขึ้นไป${dn((P.asp+180)%360)} · หัวไฟลามไป${dn(r.toDir)})`} ได้หัวไฟ ${nf(r.Rh,1)} ข้างไฟ ${nf(r.Rf,1)} ท้ายไฟ ${nf(r.Rb,1)} ม./นาที</p>
- <p><b>3. เรขาคณิตวงรีไฟป่า (Anderson 1983):</b> <code>L/B = 0.936·e^(0.2566·U) + 0.461·e^(-0.1548·U) - 0.397 = ${nf(r.LB,2)}</code> (U = ${nf(r.Um,2)} ม./วินาที = ${P.asp==null?'ลมที่ 10 ม. x WAF':'ลมประสิทธิผลที่รวมผลความชันแล้ว'})${HY?' · โหมด Lagrangian: ขอบไฟโตแบบ Huygens (คลื่นวงรีจากทุกจุดบนขอบไฟ) ตามลม'+(P.hrly&&WS&&WS.rh?' ความชื้นสัมพัทธ์และอุณหภูมิ (EMC)':'')+'รายชั่วโมง พื้นที่และเส้นรอบวงมาจากรูปขอบไฟนี้':''}</p>
+ <p><b>3. เรขาคณิตวงรีไฟป่า (Anderson 1983):</b> <code>L/B = 0.936·e^(0.2566·U) + 0.461·e^(-0.1548·U) - 0.397 = ${nf(r.LB,2)}</code> (U = ${nf(r.Um,2)} ม./วินาที = ${P.asp==null?'ลมที่ 10 ม. x WAF':'ลมประสิทธิผลที่รวมผลความชันแล้ว'})${HY?' · โหมด Lagrangian: ขอบไฟโตแบบ Huygens (คลื่นวงรีจากทุกจุดบนขอบไฟ) ตามลม'+(P.hrly&&WS&&WS.rh?' ความชื้นสัมพัทธ์และอุณหภูมิ (EMC)':'')+'รายชั่วโมง พื้นที่และเส้นรอบวงมาจากรูปขอบไฟนี้':''}${MR?` · <b>วงบนแผนที่ พื้นที่ และเส้นรอบวง: แบบจำลองคลื่นแนวไฟ 2 มิติ MTT (Minimum Travel Time, Finney 2002)</b> หาเวลาที่ไฟลามถึงแต่ละช่องกริด ${nf(MR.cs)} ม. (${MTN}×${MTN} ช่อง) ด้วยวงรีข้างต้น แต่คิดความลาดชันและทิศลาดรายช่องจากแบบจำลองความสูง${fuelAuto&&FT?' และเชื้อเพลิงรายช่องจากชั้นชนิดป่า 2561 (แหล่งน้ำไม่ติดไฟ)':''}${P.sm==='l'?' ลมและความชื้นเปลี่ยนตามเวลาที่ไฟลามถึง':''} แล้วลากเส้นเวลาถึงเท่ากัน ${st(1)} / ${st(2)} / ${st(3)}${MR.edge?' (ไฟถึงขอบกริด วงนอกอาจเล็กกว่าจริง)':''}`:''}</p>
  <p><b>4. ความรุนแรงหน้าไฟและเปลวไฟ (Byram 1959):</b> <code>I_B = H · w · r = ${nf(r.I)} kW/m</code> (H = ${nf(HC)} kJ/kg) และ <code>L_f = 0.0775 · I_B^0.46 = ${nf(r.Lf,1)} ม.</code></p>
  <p style="margin:0"><b>5. การปลดปล่อยมลพิษและกรวยควัน (Seiler & Crutzen 1980 / Gaussian Plume):</b> จากมวลชีวมวลที่เผาไหม้จริง (x Cf ${r.f.cf}) x สัมประสิทธิ์ของ${r.f.n} (<code>EF_PM2.5 = ${r.f.pm} g/kg</code>, <code>EF_CO₂ = ${r.f.co} g/kg</code>) ${LG?'· ควันใช้ Lagrangian: <code>X(t+Δt) = X(t) + V·Δt</code>, <code>V = u_mean + u′</code> (random walk, K = 50 m²/s) ลม 10 ม. x 1.25 ('+(WS&&!manualWind?'พยากรณ์รายชั่วโมง':'ลมคงที่ตามสไลเดอร์')+') ชั้นผสม 1,000 ม. อนุภาค 2,000 ตัว':'· ค่าคงที่ R₀ ระยะควัน และตัวคูณฝุ่นใต้ลม สอบเทียบกับค่าทดสอบ 7.3'}</p>`);
  fqRender(r);
  FXD={type:'FeatureCollection',features:[...(LG?LG.feats:[{type:'Feature',properties:{k:'cone'},geometry:{type:'Polygon',coordinates:[[[h.lon,h.lat],...[-18,-9,0,9,18].map(o=>dest(h,r.windTo+o,r.reach*1000)),[h.lon,h.lat]]]}}]),
-  ...[[3,'#e8b020'],[2,'#f08a1c'],[1,'#e0301e']].map(([i,c])=>({type:'Feature',properties:{k:'ell',c},geometry:{type:'Polygon',coordinates:[HY?hyPoly(h,HY,i):ell(h,r,i/3)]}}))]};
+  ...[[3,'#e8b020'],[2,'#f08a1c'],[1,'#e0301e']].map(([i,c])=>MR?{type:'Feature',properties:{k:'mtt',c},geometry:{type:'MultiPolygon',coordinates:mtPoly(h,MR.lv[i-1])}}:{type:'Feature',properties:{k:'ell',c},geometry:{type:'Polygon',coordinates:[HY?hyPoly(h,HY,i):ell(h,r,i/3)]}})]};
  const HX=!!(CUR&&CUR.hist),src=map.getSource('fx');src&&src.setData(HX?{type:'FeatureCollection',features:[]}:FXD); /* จุดย้อนหลัง: ไม่วาดวงคาดการณ์/ควัน */
  PLU=LG&&!HX?LG.url:BLANK;PLC=LG&&!HX?LG.co:CO;const pis=map.getSource('plimg');pis&&pis.updateImage({url:PLU,coordinates:PLC});map.getLayer('fx-pi')&&map.setLayoutProperty('fx-pi','visibility',LG&&!HX?'visible':'none');
 }
@@ -3163,6 +3204,12 @@ const hyPoly=(h,H,i)=>{const pl=H.snap[Math.round(H.n*i/3)].map(q=>xy2ll(h,q[0],
 function samp(H,tr,T,rnd){const pl=H.snap[Math.min(H.n,Math.round(tr/T*H.n))];let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
  for(const q of pl){x0=Math.min(x0,q[0]);x1=Math.max(x1,q[0]);y0=Math.min(y0,q[1]);y1=Math.max(y1,q[1])}
  for(let t=0;t<30;t++){const q=[x0+rnd()*(x1-x0),y0+rnd()*(y1-y0)];if(inside(q,pl))return q}return pl[0]}
+/* ---------- วงคาดการณ์ MTT บนภูมิประเทศจริง (23 พ.ย. 69) — docs/arch/ui-modules.md หัวข้อ MTT ---------- */
+const MTN=129;let MT={k:'',st:'',r:null,id:0,tm:0,e:''};
+const mtOn=()=>!slManual&&!!CUR;
+const mtKey=h=>[h.id,h.lat,h.lon,P.sm,P.hr,P.fuel,P.u,P.from,P.rh,P.T,P.fm,P.hrly?1:0,fuelAuto?1:0,manualWind?1:0,WS&&WS.u?WS.u.length+':'+WS.u[0]+':'+WS.d[0]:0,FT?1:0].join('|');
+function mtKick(...a){return lzCall('mt','mtKick',a)}
+const mtPoly=(h,L)=>L.p.map(pl=>pl.map(rg=>{const a=rg.map(q=>xy2ll(h,q[0],q[1]));a.push(a[0]);return a}));
 /* ---------- สถานีฝุ่น: ซูมไกลแสดงเป็นจุดสี ซูมใกล้แสดงตัวเลข ---------- */
 map.on('zoom',()=>{if(S.pm)drawStations()});
 /* ---------- bottom sheet บนมือถือลากขึ้นลงได้ ---------- */
@@ -4217,6 +4264,37 @@ map.on('zoom',()=>{const z=map.getZoom(),c=$('#map').classList;c.toggle('z9',z>=
 let POLLING=false;
 async function pollTick(){if(document.hidden||POLLING)return;const n=Date.now(),full=n-POLL.lastFull>=POLL.full;if(!full&&n-POLL.last<POLL.every)return;POLLING=true;try{await load(false,full?48:POLL.part)}finally{POLLING=false}}
 setInterval(pollTick,60e3);document.addEventListener('visibilitychange',pollTick);
+</script>
+<script type="text/x-lazy" id="lz-mt">
+/* ===== MTT (23 พ.ย. 69): mtGrid (DEM+ชนิดป่ารายช่อง) mtWx (อากาศรายช่วง) mtKick (ส่ง wjLib.mtSolve) — สตับ mtKick ในโค้ดหลัก · docs/arch/ui-modules.md หัวข้อ MTT ===== */
+async function mtGrid(h,ext){const N=MTN,c=N>>1,cs=2*ext/(N-1),cl=Math.cos(h.lat*Math.PI/180),mx=111320*cl,my=110574,NN=N*N;
+ const z=Math.max(8,Math.min(12,Math.ceil(Math.log2(40075017*cl/256/cs)))),W=256*2**z,
+  PX=lon=>(lon+180)/360*W,PY=lat=>(1-Math.log(Math.tan(Math.PI/4+lat*Math.PI/360))/Math.PI)/2*W,
+  lo0=h.lon-c*cs/mx,lo1=h.lon+c*cs/mx,la0=h.lat-c*cs/my,la1=h.lat+c*cs/my,tl=new Map(),ks=[];
+ for(let ty=Math.floor((PY(la1)-1)/256);ty<=Math.floor((PY(la0)+1)/256);ty++)for(let tx=Math.floor((PX(lo0)-1)/256);tx<=Math.floor((PX(lo1)+1)/256);tx++)ks.push([tx,ty]);
+ if(ks.length>16)throw new Error('กริด MTT ใหญ่เกิน ('+ks.length+' ไทล์)');
+ await Promise.all(ks.map(([tx,ty])=>demTile(z,tx,ty).then(t=>tl.set(tx+','+ty,t))));
+ const px=(x,y)=>{const tx=Math.floor(x/256),ty=Math.floor(y/256),t=tl.get(tx+','+ty);return t?t[(y-ty*256)*256+(x-tx*256)]:0},
+  el=(lon,lat)=>{const x=PX(lon)-.5,y=PY(lat)-.5,i=Math.floor(x),j=Math.floor(y),a=x-i,b=y-j;return px(i,j)*(1-a)*(1-b)+px(i+1,j)*a*(1-b)+px(i,j+1)*(1-a)*b+px(i+1,j+1)*a*b};
+ const E=new Float32Array(NN),kf=new Float32Array(NN),sx=new Float32Array(NN),sy=new Float32Array(NN),fc=new Uint32Array(FUEL.length+1);
+ for(let j=0;j<N;j++)for(let i=0;i<N;i++){const lon=h.lon+(i-c)*cs/mx,lat=h.lat+(j-c)*cs/my,k=j*N+i;E[k]=el(lon,lat);
+  const f=fuelAuto&&FT?ftAt(lon,lat):null,fi=f&&f.k===1&&k!==c*N+c?-1:f&&FTF[f.k]!=null?FTF[f.k]:P.fuel;kf[k]=fi<0?0:R0*FUEL[fi].k;fc[fi<0?FUEL.length:fi]++}
+ for(let j=0;j<N;j++)for(let i=0;i<N;i++){const k=j*N+i,gx=(E[j*N+Math.min(N-1,i+1)]-E[j*N+Math.max(0,i-1)])/(cs*(Math.min(N-1,i+1)-Math.max(0,i-1))),
+  gy=(E[Math.min(N-1,j+1)*N+i]-E[Math.max(0,j-1)*N+i])/(cs*(Math.min(N-1,j+1)-Math.max(0,j-1))),g=Math.hypot(gx,gy);if(g<1e-9)continue;
+  const fs=phiS(Math.min(40,Math.atan(g)*180/Math.PI));sx[k]=fs*gx/g;sy[k]=fs*gy/g}
+ return{N,cs,kf,sx,sy,z,fc}}
+function mtWx(){const T=P.hr*60,E0=(T_,rh)=>eta(P.fm!=null?P.fm:emc(T_,rh)),fw=u=>phiW(u/3.6*WAF*196.85);
+ if(P.sm!=='l'){const wt=((P.from+180)%360)*Math.PI/180,w=fw(P.u);return{bd:T,wx:[w*Math.sin(wt)],wy:[w*Math.cos(wt)],et:[E0(P.T,P.rh)]}}
+ const n=Math.max(1,Math.round(P.hr*3600/(P.hr>12?1800:900))),st=P.hr*3600/n,wx=[],wy=[],et=[];
+ for(let s=0;s<n;s++){const t=(s+.5)*st/3600,w=windAt(t),sp=Math.hypot(w[0],w[1]),q=fqHr(t),f=sp<.03?0:fw(sp*3.6);wx.push(sp<.03?0:f*w[0]/sp);wy.push(sp<.03?0:f*w[1]/sp);et.push(E0(q?q.T:P.T,q?q.rh:P.rh))}
+ return{bd:st/60,wx,wy,et}}
+function mtKick(h,k,ext){if(MT.k===k)return;if(MT.id)try{WJ.cancel(MT.id)}catch(_){}clearTimeout(MT.tm);MT={k,st:'run',r:null,id:0,tm:0,e:''};
+ MT.tm=setTimeout(async()=>{let x=Math.min(40000,Math.max(300,ext));
+  try{for(let g=0;g<4;g++){if(MT.k!==k)return;const G=await mtGrid(h,x),W=mtWx(),T=P.hr*60;if(MT.k!==k)return;
+    const o={N:G.N,cs:G.cs,kf:G.kf,sx:G.sx,sy:G.sy,bd:W.bd,wx:W.wx,wy:W.wy,et:W.et,T,lv:[T/3,2*T/3,T],pc:PWC,pb:PWB},p=WJ.job('mtSolve',()=>[[o],[]]);MT.id=p.id;
+    const r=await p;MT.id=0;if(MT.k!==k)return;if(!r.edge||g===3||x>=40000){MT.st='ok';MT.r={...r,cs:G.cs,ext:x,z:G.z,fc:G.fc,edge:r.edge};break}x=Math.min(40000,x*1.7)}}
+  catch(e){if(MT.k!==k)return;MT.st='err';MT.e=e&&e.message||String(e);dbg('mtt',e)}
+  if(CUR===h&&MT.k===k)upd()},250)}
 </script>
 <script>
 /* ===== หน้ากระดาน "ความสำคัญ" (#kb) — ความสำคัญ ประวัติ ทรัพยากร สัตว์ป่า แหล่งท่องเที่ยว ไฟป่า รายพื้นที่อนุรักษ์ + แผนที่ประกอบ (ผู้ใช้ขอ 1 พ.ย. 69 แทนเมนู "เรียนรู้ชนิดป่า")

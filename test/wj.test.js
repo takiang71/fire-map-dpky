@@ -12,7 +12,7 @@ const csr = (off, idx) => { const o = []; for (let i = 0; i < off.length - 1; i+
 
 test('wjLib ไม่อ้างถึง DOM/map/S/localStorage (ต้องรันใน Worker ได้)', () => {
   for (const re of [/\bdocument\b/, /\bwindow\b/, /\blocalStorage\b/, /\bmap\.(get|set|add|on)\w*\(/, /[^\w.]S\.(xdy|hc[lpdgr]|burn|sats|base)\b/, /\$\(/, /\bfetchT?\(/, /\bHCC\b|\bTR\.|\bBND\b|\bBNK\b/]) assert.ok(!re.test(SRC), 'พบ ' + re);
-  assert.deepStrictEqual(Object.keys(L).sort(), ['bnHotCalc', 'bnLL', 'bnM', 'bnMerge', 'hcGroups', 'hcHull', 'hcLink', 'rpMerge', 'tlPut', 'tlTile', 'trBuild', 'trContours', 'trElev', 'trHorn', 'trLa', 'trLo', 'trMpp', 'trSA', 'trW', 'trX', 'trY']);
+  assert.deepStrictEqual(Object.keys(L).sort(), ['bnHotCalc', 'bnLL', 'bnM', 'bnMerge', 'hcGroups', 'hcHull', 'hcLink', 'mtSolve', 'rpMerge', 'tlPut', 'tlTile', 'trBuild', 'trContours', 'trElev', 'trHorn', 'trLa', 'trLo', 'trMpp', 'trSA', 'trW', 'trX', 'trY']);
 });
 
 // ---------- กองจุดความร้อน ----------
