@@ -8,8 +8,8 @@ const ROOT = path.join(__dirname, '..'), SCRIPT = path.join(ROOT, 'scripts', 'li
 const GROUP = 'Cmockgroup0000000000000000000000';
 const INVITE = 'https://t.me/+AbCdEf123_-x';
 
-// เวลาจำลอง: 17 ม.ค. 2570 06:00 น. ไทย (ในช่วงส่งสรุปประจำวัน 05:30–09:30)
-const NOW = Date.parse('2027-01-17T06:00:00+07:00');
+// เวลาจำลอง: 17 ม.ค. 2570 07:30 น. ไทย (ในช่วงส่งสรุปประจำวัน 07:00–11:00)
+const NOW = Date.parse('2027-01-17T07:30:00+07:00');
 const thFD = ms => new Date(ms + 7 * 36e5).toISOString().slice(0, 19).replace('T', ' ');
 const today = new Date(NOW + 7 * 36e5).toISOString().slice(0, 10), yday = new Date(NOW + 7 * 36e5 - 864e5).toISOString().slice(0, 10);
 const pt = (id, la, lo, agoMin, ar = 'อุทยานแห่งชาติทับลาน') => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [lo, la] },
