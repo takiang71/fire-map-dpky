@@ -121,8 +121,8 @@ const carry = d => fs.copyFileSync(path.join(d.out, 'tg_notify.json'), path.join
 const subsOf = d => JSON.parse(fs.readFileSync(path.join(d.sd, 'tg_subs.json'), 'utf8'));
 const tnOf = d => JSON.parse(fs.readFileSync(path.join(d.out, 'tg_notify.json'), 'utf8'));
 const to = id => sent.filter(m => String(m.chat_id) === String(id));
-const ALR = /พบจุดความร้อนใหม่ \d+ จุด/, alerts = id => to(id).filter(m => ALR.test(m.text));
-const nPts = m => +m.text.match(/พบจุดความร้อนใหม่ (\d+) จุด/)[1];
+const ALR = /พบจุดความร้อนใหม่ทั้งหมด \d+ จุด/, alerts = id => to(id).filter(m => ALR.test(m.text));
+const nPts = m => +m.text.match(/พบจุดความร้อนใหม่ทั้งหมด (\d+) จุด/)[1];
 const getUp = () => calls.filter(c => c[0] === 'getUpdates');
 
 test('telegram_notify: สมัคร → DM เฉพาะพื้นที่ (ดงใหญ่ได้) · กลุ่มไม่รวมดงใหญ่ · เลิก/รายการ/บล็อกบอท · offset ต่อเนื่อง · ไม่ซ้ำ', async () => {
@@ -152,7 +152,8 @@ test('telegram_notify: สมัคร → DM เฉพาะพื้นที�
   assert.deepEqual([A, B, C, D, E, F].map(x => alerts(x).length), [1, 1, 1, 1, 0, 0]);
   assert.equal(nPts(alerts(A)[0]), 1); assert.match(alerts(A)[0].text, /ตามที่คุณติดตาม: อช\.ทับลาน/);
   assert.equal(nPts(alerts(B)[0]), 2, 'เขาใหญ่ + จุดนอกเขตในความรับผิดชอบสถานีฯ วังน้ำเขียว');
-  assert.equal(nPts(alerts(C)[0]), 2); assert.match(alerts(C)[0].text, /🌲 <b>ขสป\.ดงใหญ่<\/b> 1 จุด/);
+  assert.equal(nPts(alerts(C)[0]), 2); assert.match(alerts(C)[0].text, /🌲 <b>ขสป\.ดงใหญ่ — 1 จุด<\/b>/);
+  assert.ok(alerts(C)[0].text.includes("🌲 <b>อช.ทับลาน — 1 จุด</b>\n🚒 <b>สถานีฯ ทับลาน</b> 1 จุด"), "แยกรายสถานีฯ ใต้พื้นที่");
   assert.match(alerts(C)[0].text, /\/เลิกทั้งหมด หยุดรับ/);
   // สถานะ: offset · ไม่มีชื่อ · ไม่ขึ้น _site
   let db = subsOf(d);
