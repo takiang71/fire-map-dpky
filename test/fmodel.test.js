@@ -84,12 +84,17 @@ test('mtGrid: แหล่งน้ำจริง (water.json) ไม่ติ�
   assert.ok(G.wt && i0 > 100 && [...G.kf].filter(v => v === 0).length === i0, 'ช่องน้ำ ' + i0);
   const c = (G.N >> 1) * G.N + (G.N >> 1); assert.ok(G.kf[c] > 0, 'ช่องจุดไฟติดไฟเสมอ');
 });
-test('mtGrid: ช่องที่ไม่ใช่ป่าเลือกเชื้อเพลิงจากเรือนยอด (ไม่ใช่เชื้อเพลิงของจุด)', async () => {
-  const M = loadModel({ demTile: async () => new Float32Array(65536) }); M.setFT(JSON.parse(require('fs').readFileSync(require('path').join(__dirname, '..', 'data', 'ftype', 'ftype.json'), 'utf8')));
-  M.setP({ sm: 'g', hr: 6, fuel: 4, u: 11, from: 90, rh: 61, T: 32.3 });
-  let at = null; for (let k = 0; k < 400 && !at; k++) { const p = { lon: 101.5 + k * .004, lat: 14.4 }; if ([-1, 0, 1].every(a => [-1, 0, 1].every(b => !M.ftAt(p.lon + a * .005, p.lat + b * .005)))) at = p }
-  assert.ok(at); M.setMt(null, () => 0); const G = await M.mtGrid(at, 300);
-  assert.equal(G.fc[1], G.N * G.N - 1, 'โล่ง = เต็งรัง'); assert.equal(G.fc[4], 1);
+test('เชื้อเพลิงเริ่มต้นนอกป่า: นครราชสีมา/บุรีรัมย์ = อ้อย จังหวัดอื่น = ข้าว · ในป่า/ยังไม่รู้จังหวัด = กติกาเดิม · MTT ช่องนอกป่าใช้พืชเดียวกัน', async () => {
+  const M = loadModel({ demTile: async () => new Float32Array(65536) }), h = { lon: 102, lat: 14.3 };
+  assert.equal(M.cropAt(h), null, 'แนวเขตยังไม่โหลด');
+  assert.equal(M.cropAt({ ...h, prov: 'ไม่ระบุ' }), null);
+  assert.equal(M.cropAt({ ...h, prov: 'บุรีรัมย์' }).i, 7);
+  for (const [p, i] of [['นครราชสีมา', 7], ['บุรีรัมย์', 7], ['ปราจีนบุรี', 5], ['สระแก้ว', 5], ['สระบุรี', 5], ['นครนายก', 5]]) { M.setAdm(() => ({ p })); const c = M.cropAt({ ...h, prov: 'อื่น' }); assert.equal(c.i, i, p); const f = M.fuelAt(null, 600, null, { n: 99, op: 0, md: 20 }, c); assert.equal(f.i, i); assert.match(f.why, new RegExp('จ.' + p)) }
+  assert.equal(M.fuelAt(null, 600, { k: 3, n: 'ป่าดิบแล้ง', e: 0 }, null, { i: 7, p: 'x' }).i, 2, 'มีชนิดป่า = ชนิดป่าก่อน');
+  M.setFT(JSON.parse(require('fs').readFileSync(require('path').join(__dirname, '..', 'data', 'ftype', 'ftype.json'), 'utf8')));
+  M.setP({ sm: 'g', hr: 6, fuel: 2, u: 11, from: 90, rh: 61, T: 32.3 });
+  for (const [p, i] of [['นครราชสีมา', 7], ['ปราจีนบุรี', 5]]) { M.setAdm(() => ({ p })); const G = await M.mtGrid({ lon: 101.3712, lat: 14.4302 }, 300); assert.equal(G.cp, i); assert.ok(G.fc[i] > 1000, p + ' ' + G.fc) }
+  M.setAdm(null); const G = await M.mtGrid({ lon: 101.3712, lat: 14.4302 }, 300); assert.equal(G.cp, -1); assert.equal(G.fc[5] + G.fc[7], 0);
 });
 
 test('เชื้อเพลิงเกษตร: 3 แบบท้ายตาราง · ค่าตามที่มา · fuelAt ไม่เลือกอัตโนมัติ · MTT ช่องป่ายังเป็นป่า นอกป่า = พืช', async () => {

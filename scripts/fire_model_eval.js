@@ -7,7 +7,7 @@
 //  3) โมเดล = calc() ของหน้าเว็บ (ดึงโค้ดจาก index.html ด้วย lib/fmodel.js ไม่เขียนสูตรซ้ำ) ด้วย P แบบเดียวกับ openDetail:
 //     hr 6 · เชื้อเพลิง fuelAt(geoAt, ความสูง, ftAt, หน้าต่างเรือนยอด data/chm15 ±10 พิกเซลซูม 13 เมื่อไม่ใช่ป่า — chWinSum ของหน้าเว็บ) · ความลาด/ทิศลาด slopeAt (DEM Terrarium ซูม 12 — sl = min(40, ปัด), asp เมื่อ ≥1°)
 //     · อากาศ Open-Meteo Historical Forecast (ชุดโมเดลเดียวกับ /v1/forecast ที่หน้าเว็บใช้) ณ เวลาที่พบจุด (สอดแทรกรายชั่วโมง)
-//     ต่างจากหน้าเว็บ: ความสูงสำหรับ fuelAt ใช้ DEM (หน้าเว็บใช้ elevation ของ Open-Meteo) · อากาศของช่อง 0.05° (หน้าเว็บใช้พิกัดจุด)
+//     ต่างจากหน้าเว็บ: เชื้อเพลิงนอกป่ายังใช้กติกาเรือนยอดเดิม (หน้าเว็บใช้อ้อย/ข้าวตามจังหวัดตั้งแต่ 25 พ.ย. 69 — cropAt) · ความสูงสำหรับ fuelAt ใช้ DEM (หน้าเว็บใช้ elevation ของ Open-Meteo) · อากาศของช่อง 0.05° (หน้าเว็บใช้พิกัดจุด)
 //     + โหมด Lagrangian: huy() + hyAdj() ด้วยลมรายชั่วโมงหลังเวลาพบจุด (WS เหมือนหน้าเว็บ) ก่อน/หลัง F5 (7) ความชื้น/อุณหภูมิรายชั่วโมง (P.hrly)
 //     + วง MTT (23 พ.ย. 69, --no-mtt = ข้าม): พื้นที่ MTT Gaussian/Lagrangian + รูปร่างแบบเวลาเท่ากัน (recall/IoU เทียบวงรีและวงกลม) — ดู mtEval
 //  4) อัตราส่วน = ไร่โมเดล / ไร่จริง · รายจุด และรายไฟ (กลุ่มรอยของจุดทับกัน = ไฟเดียวกัน → จุดแรกสุดเทียบไร่รวมของไฟ)
@@ -59,7 +59,7 @@ function chWin(lon, lat) {
   const w = M.chWinSum(V); return w.n ? w : null;
 }
 M.setFT(JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'ftype', 'ftype.json'), 'utf8')));
-M.setMt(JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'ftype', 'water.json'), 'utf8')), NOCHM ? null : (lon, lat) => { const W = 256 * 2 ** 13, X = Math.floor((lon + 180) / 360 * W), Y = Math.floor((1 - Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360)) / Math.PI) / 2 * W), t = chTile(X >> 8, Y >> 8), v = t ? t[((Y & 255) * 256 + (X & 255)) * 4] : 255; return v === 255 ? null : v });
+M.setMt(JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'ftype', 'water.json'), 'utf8')));
 { const t = M.calc({ hr: 6, fuel: 0, u: 11, from: 90, rh: 61, T: 32.3, sl: 4, asp: null }); if (Math.abs(t.Rh - 4.7) > 1e-9) throw new Error('ค่าทดสอบ 7.3 ไม่ได้หัวไฟ 4.7 ม./นาที: ' + t.Rh) }
 
 // ---------- รอยเผา B4 ----------
