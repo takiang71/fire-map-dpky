@@ -12,7 +12,7 @@ const csr = (off, idx) => { const o = []; for (let i = 0; i < off.length - 1; i+
 
 test('wjLib ไม่อ้างถึง DOM/map/S/localStorage (ต้องรันใน Worker ได้)', () => {
   for (const re of [/\bdocument\b/, /\bwindow\b/, /\blocalStorage\b/, /\bmap\.(get|set|add|on)\w*\(/, /[^\w.]S\.(xdy|hc[lpdgr]|burn|sats|base)\b/, /\$\(/, /\bfetchT?\(/, /\bHCC\b|\bTR\.|\bBND\b|\bBNK\b/]) assert.ok(!re.test(SRC), 'พบ ' + re);
-  assert.deepStrictEqual(Object.keys(L).sort(), ['bnHotCalc', 'bnLL', 'bnM', 'bnMerge', 'hcGroups', 'hcHull', 'hcLink', 'mtSolve', 'rpMerge', 'tlPut', 'tlTile', 'trBuild', 'trContours', 'trElev', 'trHorn', 'trLa', 'trLo', 'trMpp', 'trSA', 'trW', 'trX', 'trY']);
+  assert.deepStrictEqual(Object.keys(L).sort(), ['bnHotCalc', 'bnLL', 'bnM', 'bnMerge', 'cmPaint', 'fwMaskDraw', 'fwPaint', 'hcGroups', 'hcHull', 'hcLink', 'mtSolve', 'rpMerge', 'tlPut', 'tlTile', 'trBuild', 'trContours', 'trElev', 'trHorn', 'trLa', 'trLo', 'trMpp', 'trSA', 'trW', 'trX', 'trY', 'wfAt']);
 });
 
 // ---------- กองจุดความร้อน ----------
@@ -169,4 +169,37 @@ test('tlPut/tlTile: เก็บล่าสุด 8 ชั้น · ไม่�
   await assert.rejects(lib.tlTile('t0', 1, 0, 0, { pal: ['#000'] }), /tl-miss/, 'ชั้นเก่าสุดถูกตัด');
   await assert.rejects(lib.tlTile('x', 1, 0, 0, { pal: ['#000'] }), /tl-miss/);
   if (typeof OffscreenCanvas === 'undefined') await assert.rejects(lib.tlTile('t8', 1, 0, 0, { pal: ['#000'] }), /tl-noc/);
+});
+
+// ---------- B2 (25 พ.ย. 69): ภาพ FWI / PM2.5 CAMS ใน Worker ----------
+// เทียบกับสำเนาลูประบายสีเดิม (fwImg/cmImg ก่อนย้าย ซึ่งใช้ fwAt/fwCat/cmAt บน main thread) ทุกพิกเซล · Node ไม่มี OffscreenCanvas → fwPaint/cmPaint คืน px
+const mY = la => Math.log(Math.tan(Math.PI / 4 + la * Math.PI / 360)), iY = y => (2 * Math.atan(Math.exp(y)) - Math.PI / 2) * 180 / Math.PI;
+test('fwPaint/cmPaint: พิกเซลเท่าลูปเดิม · ไม่มี OffscreenCanvas = px + __t · ไม่มีเกณฑ์ = โปร่งทั้งภาพ', () => {
+  const G = { x0: 101, y0: 15, dx: .03, dy: -.026, nx: 40, ny: 30 }, a = new Float32Array(G.nx * G.ny);
+  for (let i = 0; i < a.length; i++) a[i] = i % 37 === 0 ? NaN : (i * 7.3) % 60;
+  const b = [5, 15, 25, 40], RGB = [[46, 198, 112, 85], [241, 201, 91, 150], [240, 120, 0, 165], [255, 36, 36, 175], [113, 14, 14, 185]];
+  const fwAt = (lo, la) => { const fx = (lo - G.x0) / G.dx, fy = (la - G.y0) / G.dy; if (fx < 0 || fy < 0 || fx > G.nx - 1 || fy > G.ny - 1) return null;
+    const i = Math.min(G.nx - 2, Math.floor(fx)), j = Math.min(G.ny - 2, Math.floor(fy)), p = fx - i, q = fy - j, o = j * G.nx + i; let s = 0, w = 0;
+    const t = (v, ww) => { if (!isNaN(v) && ww > 0) { s += v * ww; w += ww } }; t(a[o], (1 - p) * (1 - q)); t(a[o + 1], p * (1 - q)); t(a[o + G.nx], (1 - p) * q); t(a[o + G.nx + 1], p * q); return w > .25 ? s / w : null };
+  const fwCat = x => x < b[0] ? 0 : x < b[1] ? 1 : x < b[2] ? 2 : x < b[3] ? 3 : 4;
+  const x0 = 101.1, x1 = 102, ya = mY(14.9), yb = mY(14.3), W = 97, H = 71, ref = new Uint8ClampedArray(W * H * 4);
+  for (let py = 0; py < H; py++) { const la = iY(ya + (yb - ya) * (py + .5) / H); for (let px = 0; px < W; px++) { const z = fwAt(x0 + (x1 - x0) * (px + .5) / W, la); if (z != null) ref.set(RGB[fwCat(z)], (py * W + px) * 4) } }
+  const o = { G, a, b, rgb: Uint8Array.from(RGB.flat()), x0, x1, ya, yb, W, H, M: f64([]), RN: new Int32Array(0), PN: new Int32Array(0) };
+  const r = L.fwPaint(o);
+  assert.ok(r.px instanceof Uint8ClampedArray && r.__t[0] === r.px.buffer);
+  assert.deepStrictEqual(Array.from(r.px), Array.from(ref));
+  assert.ok(ref.some(v => v), 'ภาพทดสอบต้องมีสี');
+  assert.ok(L.fwPaint(Object.assign({}, o, { b: null })).px.every(v => v === 0));
+  for (let k = 0; k < 40; k++) { const lo = 101 + k * .029, la = 15 - k * .02; assert.strictEqual(L.wfAt(G, a, lo, la), fwAt(lo, la)) }
+  // PM2.5: ตาราง 0.4° ค่าขอบ = จุดนอกสุด · lut 2001 ระดับ
+  const X = { x0: 100.8, y0: 13.2, d: .4, nx: 8, ny: 6 }, f = new Float32Array(X.nx * X.ny).map((_, i) => i === 9 ? NaN : 5 + i * 2.7);
+  const lut = new Uint8ClampedArray(2001 * 4).map((_, i) => (i * 13) % 256), CW = 64, CH = 50;
+  const cmAt = (lo, la) => { const fx = (lo - X.x0) / X.d, fy = (la - X.y0) / X.d; if (fx < 0 || fy < 0 || fx > X.nx - 1 || fy > X.ny - 1) return null;
+    const i = Math.min(X.nx - 2, Math.floor(fx)), k = Math.min(X.ny - 2, Math.floor(fy)), A = fx - i, B = fy - k, p = k * X.nx + i, v = f[p] * (1 - A) * (1 - B) + f[p + 1] * A * (1 - B) + f[p + X.nx] * (1 - A) * B + f[p + X.nx + 1] * A * B; return v === v ? v : null };
+  const d = X.d, cx0 = X.x0 - d / 2, cx1 = X.x0 + (X.nx - .5) * d, cy0 = X.y0 - d / 2, cy1 = X.y0 + (X.ny - .5) * d, cya = mY(cy1), cyb = mY(cy0), cl = (v, a, b) => v < a ? a : v > b ? b : v, cref = new Uint8ClampedArray(CW * CH * 4);
+  for (let py = 0; py < CH; py++) { const la = cl(iY(cya + (cyb - cya) * (py + .5) / CH), X.y0, X.y0 + (X.ny - 1) * d); for (let px = 0; px < CW; px++) { const v = cmAt(cl(cx0 + (cx1 - cx0) * (px + .5) / CW, X.x0, X.x0 + (X.nx - 1) * d), la);
+    if (v != null) { const k = Math.min(2000, Math.max(0, Math.round(v * 10))) * 4, q = (py * CW + px) * 4; cref[q] = lut[k]; cref[q + 1] = lut[k + 1]; cref[q + 2] = lut[k + 2]; cref[q + 3] = 255 } } }
+  const c = L.cmPaint({ f, X, W: CW, H: CH, lut });
+  assert.deepStrictEqual(Array.from(c.px), Array.from(cref));
+  assert.ok(cref.some((v, i) => i % 4 === 3 && v === 0) && cref.some((v, i) => i % 4 === 3 && v === 255), 'มีทั้งช่องว่าง (NaN) และช่องมีสี');
 });
