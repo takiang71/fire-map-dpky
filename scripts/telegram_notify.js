@@ -43,7 +43,7 @@ const hm = ms => new Date(ms + 7 * 36e5).toISOString().slice(11, 16);
 const dTh = ms => new Date(ms).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', timeZone: 'Asia/Bangkok' });
 const dateTh = ms => new Date(ms).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit', timeZone: 'Asia/Bangkok' });
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-const nf = v => Math.round(v).toLocaleString('en-US'), rai = v => v > 0 && v < 1 ? '<1' : nf(v);
+const nf = v => Math.round(v).toLocaleString('en-US'), rai = v => v > 0 && v < 1 ? '&lt;1' : /* HTML ของ Telegram — '<1' ดิบทำให้ทั้งข้อความถูกปฏิเสธ (25 พ.ย. 69) */ nf(v);
 const OUTA = 'นอกพื้นที่อนุรักษ์';
 const dPct = (c, p) => !p ? (c ? '▲ ใหม่' : '–') : c === p ? '= เท่าเดิม' : `${c > p ? '▲' : '▼'} ${Math.abs(Math.round((c - p) / p * 100))}%`;
 
@@ -394,10 +394,13 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
     try { log({ daily: 1, ok: 1, ...await sendB(dailyMsg) }); st.daily = today } catch (e) { log({ daily: 1, why: 'ส่งไม่สำเร็จ: ' + e.message.slice(0, 300) }) }
 
   // พื้นที่เผาไหม้รอบใหม่
+  // รอบที่ผู้ใช้สั่งไม่ส่งเข้ากลุ่ม (25 พ.ย. 69 — รอบ 12–18 พ.ย. เคยส่งไม่ได้เพราะ <1 ไร่ ผู้ใช้ให้ข้าม เริ่มส่งรอบถัดไป) = จำว่าแจ้งแล้วโดยไม่ส่ง
+  const BURN_SKIP = ['20261112_20261118'];
   if (BURN && bsum && bsum.p) {
     const nw = !st.burn || bsum.p > st.burn, old = now - (Date.UTC(+bsum.d1.slice(0, 4), +bsum.d1.slice(4, 6) - 1, +bsum.d1.slice(6, 8)) + 864e5) > 30 * 864e5;
     if (seed || !st.burn) st.burn = bsum.p;
     else if (!nw) { }
+    else if (BURN_SKIP.includes(bsum.p)) { st.burn = bsum.p; log({ burn: bsum.p, why: 'ผู้ใช้สั่งข้ามรอบนี้ (ไม่ส่ง)' }) }
     else if (bsum.rai < 1 || old) { st.burn = bsum.p; log({ burn: bsum.p, why: bsum.rai < 1 ? 'รอบใหม่ไม่มีรอยเผาไหม้ (ไม่ส่ง)' : 'รอบเก่ากว่า 30 วัน (ไม่ส่ง)' }) }
     else if (!on) { st.burn = bsum.p; log({ burn: bsum.p, why: off }) }
     else try { log({ burn: bsum.p, ok: 1, rai: bsum.rai, ...await send(burnMsg(bsum)) }); st.burn = bsum.p } catch (e) { log({ burn: bsum.p, why: 'ส่งไม่สำเร็จ: ' + e.message.slice(0, 300) }) }
