@@ -71,3 +71,23 @@ test('fmodel.mtRun (MTT จากหน้าเว็บ): DEM ราบ + ย�
   const s = await M.mtRun({ lon: 101.4, lat: 14.4 }, r.head * .3);
   assert.ok(s.ext > r.head * .3 && !s.edge, 'ext ' + s.ext);
 });
+
+test('mtGrid: แหล่งน้ำจริง (water.json) ไม่ติดไฟ ทั้งเชื้อเพลิงอัตโนมัติ/เลือกเอง · ไม่มีไฟล์ = wt false', async () => {
+  const fs = require('fs'), path = require('path'), W = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'ftype', 'water.json'), 'utf8'));
+  const F = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'ftype', 'ftype.json'), 'utf8'));
+  for (const k of ['x0', 'y0', 'px', 'w', 'h', 'z']) assert.equal(W[k], F[k], 'กริดตรง ftype: ' + k);
+  assert.ok(W.n > 5e4);
+  const M = loadModel({ demTile: async () => new Float32Array(65536) }); M.setP({ sm: 'g', hr: 6, fuel: 0, u: 11, from: 90, rh: 61, T: 32.3 });
+  const at = { lon: 102.2216, lat: 14.4043 };
+  assert.equal((await M.mtGrid(at, 1000)).wt, false);
+  M.setMt(W); const G = await M.mtGrid(at, 1000), i0 = G.fc[G.fc.length - 1];
+  assert.ok(G.wt && i0 > 100 && [...G.kf].filter(v => v === 0).length === i0, 'ช่องน้ำ ' + i0);
+  const c = (G.N >> 1) * G.N + (G.N >> 1); assert.ok(G.kf[c] > 0, 'ช่องจุดไฟติดไฟเสมอ');
+});
+test('mtGrid: ช่องที่ไม่ใช่ป่าเลือกเชื้อเพลิงจากเรือนยอด (ไม่ใช่เชื้อเพลิงของจุด)', async () => {
+  const M = loadModel({ demTile: async () => new Float32Array(65536) }); M.setFT(JSON.parse(require('fs').readFileSync(require('path').join(__dirname, '..', 'data', 'ftype', 'ftype.json'), 'utf8')));
+  M.setP({ sm: 'g', hr: 6, fuel: 4, u: 11, from: 90, rh: 61, T: 32.3 });
+  let at = null; for (let k = 0; k < 400 && !at; k++) { const p = { lon: 101.5 + k * .004, lat: 14.4 }; if ([-1, 0, 1].every(a => [-1, 0, 1].every(b => !M.ftAt(p.lon + a * .005, p.lat + b * .005)))) at = p }
+  assert.ok(at); M.setMt(null, () => 0); const G = await M.mtGrid(at, 300);
+  assert.equal(G.fc[1], G.N * G.N - 1, 'โล่ง = เต็งรัง'); assert.equal(G.fc[4], 1);
+});

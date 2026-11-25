@@ -338,6 +338,8 @@ if (require.main === module) (async () => {
     for (const f of L) fs.copyFileSync(path.join(ROOT, 'data', f), path.join(OUT, 'data', f));
     if (L.length) fs.copyFileSync(path.join(ROOT, 'data', L.at(-1)), path.join(OUT, 'data', 'firms_audit.json')) }
   if (fs.existsSync(path.join(ROOT, 'data', 'prov.json'))) fs.copyFileSync(path.join(ROOT, 'data', 'prov.json'), path.join(OUT, 'data', 'prov.json'));
+  // แหล่งน้ำของวงคาดการณ์ MTT (scripts/build_water.js)
+  { const f = path.join(ROOT, 'data', 'ftype', 'water.json'); if (fs.existsSync(f)) { fs.mkdirSync(path.join(OUT, 'data', 'ftype'), { recursive: true }); fs.copyFileSync(f, path.join(OUT, 'data', 'ftype', 'water.json')) } }
   // ชนิดป่า (scripts/build_ftype.js)
   if (fs.existsSync(path.join(ROOT, 'data', 'ftype', 'ftype.json'))) { fs.mkdirSync(path.join(OUT, 'data', 'ftype'), { recursive: true }); fs.copyFileSync(path.join(ROOT, 'data', 'ftype', 'ftype.json'), path.join(OUT, 'data', 'ftype', 'ftype.json')) }
   // สรุปพื้นที่เผาไหม้รอบล่าสุดสำหรับการ์ด LINE (line_notify.js และคำสั่ง "เผาไหม้" ของ Worker)

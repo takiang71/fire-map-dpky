@@ -222,7 +222,7 @@ const FQCK = `(async()=>{if(typeof fqPick!=='function')return 'error: ไม่�
 const MTCK = `(async()=>{openDetail({id:9002,lat:14.4302,lon:101.3712,t:Date.now()-36e5,sat:'NOAA-20',frp:5,conf:'n',prov:'ไม่ระบุ',amp:'ไม่ระบุ',tam:'ไม่ระบุ',demo:true,ns:'sample'});
  ${WAIT(`(MT.st==='ok'||MT.st==='err')&&MT.k===mtKey(CUR)`, 160)}
  if(MT.st!=='ok')return 'error: วง MTT ไม่เสร็จใน 40 วิ: '+MT.st+' '+MT.e;const f=FXD.features.filter(x=>x.properties.k==='mtt');
- if(f.length!==3||f.some(x=>x.geometry.type!=='MultiPolygon'||!x.geometry.coordinates.length))return 'error: วง MTT ไม่ครบ 3 วง';if(MT.r.edge)return 'error: วง MTT ถึงขอบกริด';
+ if(f.length!==3||f.some(x=>x.geometry.type!=='MultiPolygon'||!x.geometry.coordinates.length))return 'error: วง MTT ไม่ครบ 3 วง';if(MT.r.edge)return 'error: วง MTT ถึงขอบกริด';if(!MT.r.wt||!MT.r.ch)return 'error: วง MTT ไม่มีแหล่งน้ำ/เรือนยอด wt '+MT.r.wt+' ch '+MT.r.ch;
  const q=LASTR.rai/calc(P).rai;if(!(q>.1&&q<10))return 'error: พื้นที่ MTT ต่างจากวงรีผิดปกติ '+q;if(!/MTT/.test(document.getElementById('mt-lg').textContent))return 'error: คำอธิบายสัญลักษณ์ไม่บอก MTT';
  document.getElementById('d-test').click();if(Math.abs(LASTR.rai/1999-1)>.01||FXD.features.some(x=>x.properties.k==='mtt'))return 'error: ค่าทดสอบต้องเป็นวงรีเดิม 1,999 ไร่ ได้ '+Math.round(LASTR.rai);
  window.__ckMt={cs:MT.r.cs,q};return ''})()`;

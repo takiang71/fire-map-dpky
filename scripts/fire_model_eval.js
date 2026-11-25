@@ -59,6 +59,7 @@ function chWin(lon, lat) {
   const w = M.chWinSum(V); return w.n ? w : null;
 }
 M.setFT(JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'ftype', 'ftype.json'), 'utf8')));
+M.setMt(JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'ftype', 'water.json'), 'utf8')), NOCHM ? null : (lon, lat) => { const W = 256 * 2 ** 13, X = Math.floor((lon + 180) / 360 * W), Y = Math.floor((1 - Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360)) / Math.PI) / 2 * W), t = chTile(X >> 8, Y >> 8), v = t ? t[((Y & 255) * 256 + (X & 255)) * 4] : 255; return v === 255 ? null : v });
 { const t = M.calc({ hr: 6, fuel: 0, u: 11, from: 90, rh: 61, T: 32.3, sl: 4, asp: null }); if (Math.abs(t.Rh - 4.7) > 1e-9) throw new Error('ค่าทดสอบ 7.3 ไม่ได้หัวไฟ 4.7 ม./นาที: ' + t.Rh) }
 
 // ---------- รอยเผา B4 ----------
@@ -265,10 +266,10 @@ const stat = rs => { const l = rs.map(Math.log); return { n: rs.length, p10: r3(
     hrEq: fd2(MO, p => p.hrEq),
   };
   fs.writeFileSync(OUT, JSON.stringify(S, null, 1));
-  const csv = ['date,hhmm,lat,lon,sat,area,ft,fuel,T,rh,wind_kmh,wind_from,slope,emc,ros_head,model_rai,model_huy_rai,model_huy_hourly_rai,real_rai,real_big_1km,real_px_1km,dist_m,ratio,ratio_huy,fire_n,model_mtt_rai,model_mtt_lag_rai,hr_eq,recall_ell,recall_mtt,recall_circle,iou_ell,iou_mtt,iou_circle'];
+  const csv = ['date,hhmm,lat,lon,sat,area,ft,fuel,T,rh,wind_kmh,wind_from,slope,emc,ros_head,model_rai,model_huy_rai,model_huy_hourly_rai,real_rai,real_big_1km,real_px_1km,dist_m,ratio,ratio_huy,fire_n,model_mtt_rai,model_mtt_lag_rai,hr_eq,recall_ell,recall_mtt,recall_circle,iou_ell,iou_mtt,iou_circle,asp'];
   const f3 = v => v == null ? '' : v.toFixed(3);
   for (const p of OK) csv.push([iso(p.d), p.hm, p.la, p.lo, p.sat, `"${p.ar}"`, p.ft, p.fuelN, p.T, p.rh, p.u, Math.round(p.from), p.sl.toFixed(1), p.E.toFixed(1), p.Rh.toFixed(2), p.m.toFixed(1), p.mh.toFixed(1), p.mh2.toFixed(1), p.rai, p.big, p.r1, Math.round(p.dist), p.ratio.toFixed(3), p.ratioH.toFixed(3), p.nf,
-    p.mt == null ? '' : p.mt.toFixed(1), p.mtl == null ? '' : p.mtl.toFixed(1), f3(p.hrEq), f3(p.shE && p.shE.rc), f3(p.shM && p.shM.rc), f3(p.shC && p.shC.rc), f3(p.shE && p.shE.iou), f3(p.shM && p.shM.iou), f3(p.shC && p.shC.iou)].join(','));
+    p.mt == null ? '' : p.mt.toFixed(1), p.mtl == null ? '' : p.mtl.toFixed(1), f3(p.hrEq), f3(p.shE && p.shE.rc), f3(p.shM && p.shM.rc), f3(p.shC && p.shC.rc), f3(p.shE && p.shE.iou), f3(p.shM && p.shM.iou), f3(p.shC && p.shC.iou), p.asp == null ? '' : p.asp.toFixed(1)].join(','));
   fs.writeFileSync(OUT.replace(/\.json$/, '.csv'), '﻿' + csv.join('\n'));
   const L = (t, x) => console.log(`${t.padEnd(34)} n ${String(x.n).padStart(4)} · มัธยฐาน ${x.med} · P10 ${x.p10} · P90 ${x.p90} · โมเดลมากกว่า ${Math.round(x.over * 100)}% · อยู่ใน ×0.5–2 ${Math.round(x.in2 * 100)}%`);
   console.log(`จุด ${cnt.all} · คู่ ${OK.length} (ไฟ ${fires.length}) · ไม่พบรอย ≤${KM} กม. ${cnt.noScar} · นอกช่วง B4 ${cnt.noB4time} · Open-Meteo ${calls} call · gap ${GAP}`);

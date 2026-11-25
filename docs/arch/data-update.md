@@ -18,6 +18,7 @@
 | แนวเขตอำเภอ/ตำบล | `build_admin.js` (+ `--prov`) | OCHA HDX COD-AB (ดาวน์โหลดเองด้วย HTTP Range) | `data/admin.json`, `data/prov.json` | เมื่อกรมการปกครองออกชุดใหม่ | `test/search.test.js`, `test/fxcheck.test.js` |
 | ความสูง GEM-15 (Google) | `build_dem15.js [--cache <โฟลเดอร์>]` | COG สาธารณะของ Google (ดึงเองด้วย HTTP Range) | `data/dem15/` ~36 MB | เมื่อ Google ออกรุ่นใหม่/แนวเขตเปลี่ยน | `node --test test/dem15.test.js` (ไฟล์ครบตามดัชนี) |
 | ความสูงเรือนยอด GEM-15 (DSM−DTM) | `build_chm15.js [--cache <แคช dtm>]` | COG สาธารณะของ Google (DSM ~1 GB ไม่เก็บแคช) | `data/chm15/` ~10 MB | เมื่อ Google ออกรุ่นใหม่/แนวเขตเปลี่ยน | `node --test test/dem15.test.js` |
+| แหล่งน้ำ (วง MTT) | `build_water.js [--in]` | OpenStreetMap (Overpass) | `data/ftype/water.json` | เมื่อกริดชนิดป่าเปลี่ยน/ต้องการข้อมูลใหม่ | |
 | ชนิดป่า | `build_ftype.js [--shp]` | shapefile กรมป่าไม้ 2561 (.rar ใน data/) | `data/ftype/ftype.json` | เมื่อมีชุดใหม่ | การ์ดชนิดป่า/ป๊อปอัป |
 
 **อัตโนมัติ (ไม่ต้องทำมือ — อ้างอิง)**: จุดความร้อน API/FIRMS (`sync_hotspots.js`), พื้นที่เผาไหม้ (`sync_burn.js`), SAVI (`sync_fuel.js`), นักท่องเที่ยว/รายได้ (`sync_tourism.js`), TLE (`sync_tle.js`), รายงานประจำเดือน (`monthly_report.js`), **ความครบถ้วนของ API เทียบ FIRMS รายเดือน** (`firms_audit.js --from YYYY-MM` → `data/firms_audit_<YYYYMM>.json`) ใน sync.yml · FWI/VR/PM2.5 ใน wx.yml · FWI ของ TFDRS จากเครื่องผู้ใช้ (Task Scheduler "fire-map FWI") → [pipelines.md](pipelines.md)
