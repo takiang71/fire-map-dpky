@@ -2202,7 +2202,7 @@ const FTI={เบญจพรรณ:0,เต็งรัง:1,ดิบแล้
 /* นอกป่า (ผู้ใช้เลือก 25 พ.ย. 69): นครราชสีมา/บุรีรัมย์ = อ้อย · จังหวัดอื่น = ข้าว · null = ยังไม่รู้จังหวัด (แนวเขตยังไม่โหลด) */
 const cropAt=h=>{const a=admAt(h.lon,h.lat),p=a?a.p:h.prov&&h.prov!=='ไม่ระบุ'?h.prov:'';return p||ADM?{i:/นครราชสีมา|บุรีรัมย์/.test(p)?7:5,p}:null};
 function fuelAt(g,z,f,cw,cp){if(f&&FTF[f.k]!=null){const i=FTF[f.k];return{i,why:'ชนิดป่า (กรมป่าไม้ 2561): '+f.n+(f.e?' (ประมาณจากป่าข้างเคียง)':'')+(FUEL[i].n.indexOf(f.n)<0?' → ใช้ค่า'+FUEL[i].n:'')}}
- if(cp)return{i:cp.i,why:'ไม่ใช่ป่าตามชั้นชนิดป่า · '+(cp.p?'จ.'+cp.p:'ไม่ทราบจังหวัด')+' → ค่าเริ่มต้น'+FUEL[cp.i].n};
+ if(cp&&!(cw&&cw.n>=CHWN&&cw.md>=5))return{i:cp.i,why:'ไม่ใช่ป่าตามชั้นชนิดป่า · '+(cp.p?'จ.'+cp.p:'ไม่ทราบจังหวัด')+' → ค่าเริ่มต้น'+FUEL[cp.i].n};
  if(cw&&cw.n>=CHWN){const i=cw.op>=.6?1:z!=null&&z>1000?3:cw.md>=10?2:0;
   return{i,why:'ไม่ใช่ป่าตามชั้นชนิดป่า · เรือนยอดรอบจุด ~375 ม. (GEM-15): โล่ง '+Math.round(cw.op*100)+'% สูงกลาง '+cw.md+' ม. → ใช้ค่า'+FUEL[i].n+(i===1?' (ไฟลามตามหญ้า)':'')}}
  const r=g&&(g.resp.find(f=>f.properties.ftype&&!/พื้นที่รอง/.test(f.properties.station))||g.resp.find(f=>f.properties.ftype)),ft=r?r.properties.ftype:'',
@@ -4272,7 +4272,11 @@ setInterval(pollTick,60e3);document.addEventListener('visibilitychange',pollTick
 /* ===== MTT (23 พ.ย. 69): mtGrid (DEM+ชนิดป่ารายช่อง) mtWx (อากาศรายช่วง) mtKick (ส่ง wjLib.mtSolve) — สตับ mtKick ในโค้ดหลัก · docs/arch/ui-modules.md หัวข้อ MTT ===== */
 let MTW=null; /* แหล่งน้ำ OSM (data/ftype/water.json) */
 function mtWtr(){return MTW||(MTW=fetchT(FT_URL.replace(/ftype\.json$/,'water.json'),{cache:'no-cache'},FTO.big).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(mtWtrDec).catch(e=>{dbg('mtWtr',e);MTW=null;return null}))}
-const mtEq=MR=>(st,r)=>` · <b>วงบนแผนที่ พื้นที่ และเส้นรอบวง: แบบจำลองคลื่นแนวไฟ 2 มิติ MTT (Minimum Travel Time, Finney 2002)</b> หาเวลาที่ไฟลามถึงแต่ละช่องกริด ${nf(MR.cs)} ม. (${MTN}×${MTN} ช่อง) ด้วยวงรีข้างต้น แต่คิดความลาดชันและทิศลาดรายช่องจากแบบจำลองความสูง${(fuelAuto||r.f.cr)&&FT?' และเชื้อเพลิงรายช่องจากชั้นชนิดป่า 2561'+(MR.cp>=0?' · นอกป่าใช้ '+FUEL[MR.cp].n:''):''}${MR.wt?' · แหล่งน้ำ (OpenStreetMap) ไม่ติดไฟ':' · โหลดแหล่งน้ำไม่ได้ (ไฟลามผ่านน้ำได้)'}${P.sm==='l'?' ลมและความชื้นเปลี่ยนตามเวลาที่ไฟลามถึง':''} แล้วลากเส้นเวลาถึงเท่ากัน ${st(1)} / ${st(2)} / ${st(3)}${MR.edge?' (ไฟถึงขอบกริด วงนอกอาจเล็กกว่าจริง)':''}`;
+async function mtChm(lo0,la0,lo1,la1){const j=await chLoad();if(!j)return null;const[a,d]=chXY(j,lo0,la0),[c,b]=chXY(j,lo1,la1),T=new Map(),Q=[];
+ const x0=(a>>8)-1,x1=(c>>8)+1,y0=(b>>8)-1,y1=(d>>8)+1;if((x1-x0+1)*(y1-y0+1)>36)return null;
+ for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const p=chTP(j,x,y);if(p)Q.push(p.then(t=>T.set(x+','+y,t)).catch(e=>dbg('mtChm',e)))}
+ await Promise.all(Q);return(lon,lat)=>{const[X,Y]=chXY(j,lon,lat),t=T.get((X>>8)+','+(Y>>8));if(!t)return null;const q=t[(Math.floor(Y)&255)*256+(Math.floor(X)&255)];return q===255?null:q}}
+const mtEq=MR=>(st,r)=>` · <b>วงบนแผนที่ พื้นที่ และเส้นรอบวง: แบบจำลองคลื่นแนวไฟ 2 มิติ MTT (Minimum Travel Time, Finney 2002)</b> หาเวลาที่ไฟลามถึงแต่ละช่องกริด ${nf(MR.cs)} ม. (${MTN}×${MTN} ช่อง) ด้วยวงรีข้างต้น แต่คิดความลาดชันและทิศลาดรายช่องจากแบบจำลองความสูง${(fuelAuto||r.f.cr)&&FT?' และเชื้อเพลิงรายช่องจากชั้นชนิดป่า 2561'+(MR.cp>=0?' · นอกป่าใช้ '+FUEL[MR.cp].n+(MR.ch?' (เรือนยอดสูงกลาง ≥5 ม. ใช้ค่าป่า)':''):''):''}${MR.wt?' · แหล่งน้ำ (OpenStreetMap) ไม่ติดไฟ':' · โหลดแหล่งน้ำไม่ได้ (ไฟลามผ่านน้ำได้)'}${P.sm==='l'?' ลมและความชื้นเปลี่ยนตามเวลาที่ไฟลามถึง':''} แล้วลากเส้นเวลาถึงเท่ากัน ${st(1)} / ${st(2)} / ${st(3)}${MR.edge?' (ไฟถึงขอบกริด วงนอกอาจเล็กกว่าจริง)':''}`;
 async function mtGrid(h,ext){const N=MTN,c=N>>1,cs=2*ext/(N-1),cl=Math.cos(h.lat*Math.PI/180),mx=111320*cl,my=110574,NN=N*N;
  const z=Math.max(8,Math.min(12,Math.ceil(Math.log2(40075017*cl/256/cs)))),W=256*2**z,
   PX=lon=>(lon+180)/360*W,PY=lat=>(1-Math.log(Math.tan(Math.PI/4+lat*Math.PI/360))/Math.PI)/2*W,
@@ -4282,14 +4286,15 @@ async function mtGrid(h,ext){const N=MTN,c=N>>1,cs=2*ext/(N-1),cl=Math.cos(h.lat
  await Promise.all(ks.map(([tx,ty])=>demTile(z,tx,ty).then(t=>tl.set(tx+','+ty,t))));
  const px=(x,y)=>{const tx=Math.floor(x/256),ty=Math.floor(y/256),t=tl.get(tx+','+ty);return t?t[(y-ty*256)*256+(x-tx*256)]:0},
   el=(lon,lat)=>{const x=PX(lon)-.5,y=PY(lat)-.5,i=Math.floor(x),j=Math.floor(y),a=x-i,b=y-j;return px(i,j)*(1-a)*(1-b)+px(i+1,j)*a*(1-b)+px(i,j+1)*(1-a)*b+px(i+1,j+1)*a*b};
- const cr=FUEL[P.fuel].cr,wt=await mtWtr(),cp=fuelAuto&&FT&&!cr?cropAt(h):null;
+ const cr=FUEL[P.fuel].cr,cp=fuelAuto&&FT?cropAt(h):null,[wt,ch]=await Promise.all([mtWtr(),cp?mtChm(lo0,la0,lo1,la1):null]),FM=new Map();
+ const nf1=(lon,lat,z1)=>{if(!ch)return cp.i;const k=Math.round(lon*1e3)+','+Math.round(lat*1e3);let v=FM.get(k);if(v==null){const V=[];for(let b=-3;b<=3;b++)for(let a=-3;a<=3;a++)V.push(ch(lon+a*62/mx,lat+b*62/my));FM.set(k,v=fuelAt(null,z1,null,chWinSum(V),cp).i)}return v};
  const E=new Float32Array(NN),kf=new Float32Array(NN),sx=new Float32Array(NN),sy=new Float32Array(NN),fc=new Uint32Array(FUEL.length+1);
  for(let j=0;j<N;j++)for(let i=0;i<N;i++){const lon=h.lon+(i-c)*cs/mx,lat=h.lat+(j-c)*cs/my,k=j*N+i;E[k]=el(lon,lat);
-  const f=(fuelAuto||cr)&&FT?ftAt(lon,lat):null,fi=k===c*N+c?P.fuel:wt&&wt(lon,lat)?-1:f&&FTF[f.k]!=null?FTF[f.k]:cp&&ftIn(lon,lat)?cp.i:P.fuel;kf[k]=fi<0?0:R0*FUEL[fi].k;fc[fi<0?FUEL.length:fi]++}
+  const f=(fuelAuto||cr)&&FT?ftAt(lon,lat):null,fi=k===c*N+c?P.fuel:wt&&wt(lon,lat)?-1:f&&FTF[f.k]!=null?FTF[f.k]:cp&&ftIn(lon,lat)?nf1(lon,lat,E[k]):P.fuel;kf[k]=fi<0?0:R0*FUEL[fi].k;fc[fi<0?FUEL.length:fi]++}
  for(let j=0;j<N;j++)for(let i=0;i<N;i++){const k=j*N+i,gx=(E[j*N+Math.min(N-1,i+1)]-E[j*N+Math.max(0,i-1)])/(cs*(Math.min(N-1,i+1)-Math.max(0,i-1))),
   gy=(E[Math.min(N-1,j+1)*N+i]-E[Math.max(0,j-1)*N+i])/(cs*(Math.min(N-1,j+1)-Math.max(0,j-1))),g=Math.hypot(gx,gy);if(g<1e-9)continue;
   const fs=phiS(Math.min(40,Math.atan(g)*180/Math.PI));sx[k]=fs*gx/g;sy[k]=fs*gy/g}
- return{N,cs,kf,sx,sy,z,fc,wt:!!wt,cp:cr?P.fuel:cp?cp.i:-1}}
+ return{N,cs,kf,sx,sy,z,fc,wt:!!wt,cp:cp?cp.i:cr?P.fuel:-1,ch:!!ch}}
 /* water.json → ฟังก์ชัน (lon,lat) → true เมื่อเป็นแหล่งน้ำ */
 function mtWtrDec(j){const g=new Uint8Array(j.w*j.h);for(const y in j.r){const a=j.r[y];for(let i=0;i<a.length;i+=2)g.fill(1,y*j.w+a[i],y*j.w+a[i]+a[i+1])}
  return(lon,lat)=>{const[E,N]=ftUTM(lon,lat,j.z),x=Math.floor((E-j.x0)/j.px),y=Math.floor((j.y0-N)/j.px);return x>=0&&y>=0&&x<j.w&&y<j.h&&g[y*j.w+x]===1}}
@@ -4302,7 +4307,7 @@ function mtKick(h,k,ext){if(MT.k===k)return;if(MT.id)try{WJ.cancel(MT.id)}catch(
  MT.tm=setTimeout(async()=>{let x=Math.min(40000,Math.max(300,ext));
   try{for(let g=0;g<4;g++){if(MT.k!==k)return;const G=await mtGrid(h,x),W=mtWx(),T=P.hr*60;if(MT.k!==k)return;
     const o={N:G.N,cs:G.cs,kf:G.kf,sx:G.sx,sy:G.sy,bd:W.bd,wx:W.wx,wy:W.wy,et:W.et,T,lv:[T/3,2*T/3,T],pc:PWC,pb:PWB},p=WJ.job('mtSolve',()=>[[o],[]]);MT.id=p.id;
-    const r=await p;MT.id=0;if(MT.k!==k)return;if(!r.edge||g===3||x>=40000){MT.st='ok';MT.r={...r,cs:G.cs,ext:x,z:G.z,fc:G.fc,wt:G.wt,cp:G.cp,edge:r.edge};MT.r.eq=mtEq(MT.r);break}x=Math.min(40000,x*1.7)}}
+    const r=await p;MT.id=0;if(MT.k!==k)return;if(!r.edge||g===3||x>=40000){MT.st='ok';MT.r={...r,cs:G.cs,ext:x,z:G.z,fc:G.fc,wt:G.wt,cp:G.cp,ch:G.ch,edge:r.edge};MT.r.eq=mtEq(MT.r);break}x=Math.min(40000,x*1.7)}}
   catch(e){if(MT.k!==k)return;MT.st='err';MT.e=e&&e.message||String(e);dbg('mtt',e)}
   if(CUR===h&&MT.k===k)upd()},250)}
 </script>

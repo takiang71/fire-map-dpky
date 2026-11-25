@@ -89,11 +89,13 @@ test('เชื้อเพลิงเริ่มต้นนอกป่า: 
   assert.equal(M.cropAt(h), null, 'แนวเขตยังไม่โหลด');
   assert.equal(M.cropAt({ ...h, prov: 'ไม่ระบุ' }), null);
   assert.equal(M.cropAt({ ...h, prov: 'บุรีรัมย์' }).i, 7);
-  for (const [p, i] of [['นครราชสีมา', 7], ['บุรีรัมย์', 7], ['ปราจีนบุรี', 5], ['สระแก้ว', 5], ['สระบุรี', 5], ['นครนายก', 5]]) { M.setAdm(() => ({ p })); const c = M.cropAt({ ...h, prov: 'อื่น' }); assert.equal(c.i, i, p); const f = M.fuelAt(null, 600, null, { n: 99, op: 0, md: 20 }, c); assert.equal(f.i, i); assert.match(f.why, new RegExp('จ.' + p)) }
+  for (const [p, i] of [['นครราชสีมา', 7], ['บุรีรัมย์', 7], ['ปราจีนบุรี', 5], ['สระแก้ว', 5], ['สระบุรี', 5], ['นครนายก', 5]]) { M.setAdm(() => ({ p })); const c = M.cropAt({ ...h, prov: 'อื่น' }); assert.equal(c.i, i, p); for (const cw of [null, { n: 99, op: .9, md: 0 }, { n: 99, op: .1, md: 4 }, { n: 20, op: 0, md: 20 }]) { const f = M.fuelAt(null, 600, null, cw, c); assert.equal(f.i, i, p + JSON.stringify(cw)); assert.match(f.why, new RegExp('จ.' + p)) }
+    assert.equal(M.fuelAt(null, 600, null, { n: 99, op: .1, md: 5 }, c).i, 0, 'เรือนยอด ≥5 ม. = เบญจพรรณ'); assert.equal(M.fuelAt(null, 600, null, { n: 99, op: 0, md: 10 }, c).i, 2, '≥10 ม. = ดิบแล้ง') }
   assert.equal(M.fuelAt(null, 600, { k: 3, n: 'ป่าดิบแล้ง', e: 0 }, null, { i: 7, p: 'x' }).i, 2, 'มีชนิดป่า = ชนิดป่าก่อน');
   M.setFT(JSON.parse(require('fs').readFileSync(require('path').join(__dirname, '..', 'data', 'ftype', 'ftype.json'), 'utf8')));
   M.setP({ sm: 'g', hr: 6, fuel: 2, u: 11, from: 90, rh: 61, T: 32.3 });
-  for (const [p, i] of [['นครราชสีมา', 7], ['ปราจีนบุรี', 5]]) { M.setAdm(() => ({ p })); const G = await M.mtGrid({ lon: 101.3712, lat: 14.4302 }, 300); assert.equal(G.cp, i); assert.ok(G.fc[i] > 1000, p + ' ' + G.fc) }
+  for (const [p, i] of [['นครราชสีมา', 7], ['ปราจีนบุรี', 5]]) { M.setAdm(() => ({ p })); const G = await M.mtGrid({ lon: 101.3712, lat: 14.4302 }, 300); assert.equal(G.cp, i); assert.ok(G.fc[i] > 1000, p + ' ' + G.fc);
+    M.setMt(null, () => 8); const K = await M.mtGrid({ lon: 101.3712, lat: 14.4302 }, 300); assert.ok(K.ch && K.fc[i] === 0 && K.fc[0] >= G.fc[i], 'ช่องเรือนยอด 8 ม. = เบญจพรรณ ' + K.fc); M.setMt(null, () => 3); assert.equal((await M.mtGrid({ lon: 101.3712, lat: 14.4302 }, 300)).fc[i], G.fc[i], 'เรือนยอด 3 ม. = พืช'); M.setMt(null) }
   M.setAdm(null); const G = await M.mtGrid({ lon: 101.3712, lat: 14.4302 }, 300); assert.equal(G.cp, -1); assert.equal(G.fc[5] + G.fc[7], 0);
 });
 

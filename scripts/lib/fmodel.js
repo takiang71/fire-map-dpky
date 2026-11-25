@@ -40,9 +40,9 @@ ${g('slope')}
 ${g('mtn')}
 ${g('mtSolve')}
 ${g('mtGrid')}
-let mtWtr=async()=>null,ADM=null,admAt=()=>null;
+let mtWtr=async()=>null,mtChm=async()=>null,ADM=null,admAt=()=>null;
 function setAdm(f){ADM=f?1:null;admAt=f||(()=>null)}
-function setMt(w){const d=w?mtWtrDec(w):null;mtWtr=async()=>d}
+function setMt(w,c){const d=w?mtWtrDec(w):null;mtWtr=async()=>d;mtChm=async()=>c||null}
 async function mtRun(h,ext){let x=Math.min(40000,Math.max(300,ext));for(let g=0;;g++){const G=await mtGrid(h,x),W=mtWx(),T=P.hr*60,r=mtSolve({N:G.N,cs:G.cs,kf:G.kf,sx:G.sx,sy:G.sy,bd:W.bd,wx:W.wx,wy:W.wy,et:W.et,T,lv:[T/3,2*T/3,T],pc:PWC,pb:PWB});if(!r.edge||g===3||x>=40000)return{...r,cs:G.cs,ext:x,fc:G.fc,wt:G.wt,cp:G.cp};x=Math.min(40000,x*1.7)}}
 function setFT(j){${g('ftDec')}j.g=g;FT=j;return j}
 function setP(p,ws){P=p;WS=ws||null;manualWind=false}
