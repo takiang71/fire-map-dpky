@@ -91,3 +91,15 @@ test('mtGrid: ช่องที่ไม่ใช่ป่าเลือกเ
   assert.ok(at); M.setMt(null, () => 0); const G = await M.mtGrid(at, 300);
   assert.equal(G.fc[1], G.N * G.N - 1, 'โล่ง = เต็งรัง'); assert.equal(G.fc[4], 1);
 });
+
+test('เชื้อเพลิงเกษตร: 3 แบบท้ายตาราง · ค่าตามที่มา · fuelAt ไม่เลือกอัตโนมัติ · MTT ช่องป่ายังเป็นป่า นอกป่า = พืช', async () => {
+  const M = loadModel({ demTile: async () => new Float32Array(65536) }), C = M.FUEL.map((f, i) => [f, i]).filter(x => x[0].cr);
+  assert.deepEqual(C.map(x => [x[1], x[0].w, x[0].cf]), [[5, .3, .8], [6, .93, .8], [7, .92, .83]]);
+  for (const cw of [null, { n: 99, op: 1, md: 0 }, { n: 99, op: 0, md: 20 }]) assert.ok(M.fuelAt(null, 100, null, cw).i < 5);
+  M.setFT(JSON.parse(require('fs').readFileSync(require('path').join(__dirname, '..', 'data', 'ftype', 'ftype.json'), 'utf8')));
+  M.setP({ sm: 'g', hr: 6, fuel: 7, u: 11, from: 90, rh: 61, T: 32.3 }); M.setAuto(false);
+  const G = await M.mtGrid({ lon: 101.3712, lat: 14.4302 }, 300); const cl = Math.cos(14.4302 * Math.PI / 180) * 111320; let nf = 0; for (let j = 0; j < G.N; j++) for (let i = 0; i < G.N; i++) { const f = M.ftAt(101.3712 + (i - 64) * G.cs / cl, 14.4302 + (j - 64) * G.cs / 110574); if (!f || (i === 64 && j === 64)) nf++ } assert.ok(nf < G.N * G.N * .9); assert.equal(G.fc[7], nf, 'พืชเฉพาะช่องนอกป่า + ช่องจุดไฟ');
+  let at = null; for (let k = 0; k < 400 && !at; k++) { const p = { lon: 101.5 + k * .004, lat: 14.4 }; if ([-1, 0, 1].every(a => [-1, 0, 1].every(b => !M.ftAt(p.lon + a * .005, p.lat + b * .005)))) at = p }
+  const N = await M.mtGrid(at, 300); assert.equal(N.fc[7], N.N * N.N, 'นอกป่า = พืชทุกช่อง');
+  M.setP({ sm: 'g', hr: 6, fuel: 0, u: 11, from: 90, rh: 61, T: 32.3 }); const U = await M.mtGrid({ lon: 101.3712, lat: 14.4302 }, 300); assert.equal(U.fc[0], U.N * U.N, 'เลือกชนิดป่าเอง = ทุกช่องเหมือนเดิม');
+});

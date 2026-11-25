@@ -1025,7 +1025,7 @@ body.wyon #attr{display:none}
    <div class="sm">จำลองด้วยสมการฟิสิกส์ไฟป่า Rothermel (1972) · วงรี Anderson (1983) · ความรุนแรง Byram (1959) · กลุ่มควัน Gaussian Plume</div>
    <div class="wh"><div class="sm" style="color:#1d2433;font-weight:600">ระยะเวลาคาดการณ์</div>
     <div class="seg" id="dur"><button data-h="1">1 ชม.</button><button data-h="3">3 ชม.</button><button data-h="6">6 ชม.</button><button data-h="12">12 ชม.</button><button data-h="24">24 ชม.</button></div>
-    <div class="sm" style="color:#1d2433;font-weight:600">เชื้อเพลิงป่าไม้ <span style="font-weight:400;color:var(--mut)">(<span id="fuel-why">เลือกอัตโนมัติ</span> · ปรับเองได้)</span></div>
+    <div class="sm" style="color:#1d2433;font-weight:600">เชื้อเพลิง <span style="font-weight:400;color:var(--mut)">(<span id="fuel-why">เลือกอัตโนมัติ</span> · ปรับเองได้)</span></div>
     <select id="fuel" style="width:100%;min-height:40px;border:1px solid var(--line);border-radius:10px;margin:4px 0;font:inherit;padding:0 8px"></select>
     <div class="sm" style="color:#1d2433;font-weight:600;margin-top:6px">โมเดลกระจายควัน</div><div class="seg" id="sm"><button data-m="g">Gaussian (เร็ว)</button><button data-m="l">Lagrangian (ลมรายชั่วโมง)</button></div>
     <div class="tb fqs" id="fq-src" style="margin-top:8px"></div>
@@ -2104,7 +2104,11 @@ const FUEL=[{n:'ป่าเบญจพรรณ',w:.85,cf:.78,k:1,pm:10.5,co:1
  {n:'ป่าเต็งรัง',w:.6,cf:.79,k:1.15,pm:9.5,co:1620,t:'ป่าเต็งรังไฟลามเร็วตามหญ้าและใบไม้แห้ง ไม้ยืนต้นทนไฟได้ดีกว่า'},
  {n:'ป่าดิบแล้ง',w:1.3,cf:.4,k:.55,pm:12,co:1550,t:'ป่าดิบแล้งปกติชื้น ไฟลามช้า แต่ถ้าเกิดแล้วจะเผาลึกและฟื้นตัวนาน'},
  {n:'ป่าดิบเขา/ป่าสน',w:1.5,cf:.52,k:.5,pm:13,co:1530,t:'ป่าดิบเขามีมอสและอินทรียวัตถุหนา ไฟใต้ดินคุได้นาน ฟื้นตัวช้ามาก'},
- {n:'ป่าไผ่',w:.7,cf:.8,k:1.3,pm:10.5,co:1590,t:'ไฟในดงไผ่แห้งมีความร้อนสูงและเกิดเสียงลำไผ่ระเบิด อาจเปิดช่องว่างเรือนยอดและทำให้ไฟรุกพื้นที่ไม้ใหญ่'}];
+ {n:'ป่าไผ่',w:.7,cf:.8,k:1.3,pm:10.5,co:1590,t:'ไฟในดงไผ่แห้งมีความร้อนสูงและเกิดเสียงลำไผ่ระเบิด อาจเปิดช่องว่างเรือนยอดและทำให้ไฟรุกพื้นที่ไม้ใหญ่'},
+ /* cr = เศษวัสดุเกษตรหลังเก็บเกี่ยว (25 พ.ย. 69) เลือกเองเท่านั้น · ที่มา w/cf/pm/co และ k (สมมติ = ค่าพื้นที่โล่ง/เต็งรัง) → docs/arch/ui-modules.md */
+ {n:'ข้าว (ฟาง)',w:.3,cf:.8,k:1.15,pm:8.2,co:1430,cr:1,t:'ฟางคงเหลือเฉลี่ย (ส.ป.ก.) หลังหักที่นำไปใช้ · แปลงที่ไม่เก็บฟางราว 0.51 ตัน/ไร่ ไม่รวมตอซัง · อัตราลามยังไม่ได้สอบเทียบ'},
+ {n:'ข้าวโพด (ต้น+ยอด+ใบ)',w:.93,cf:.8,k:1.15,pm:8.2,co:1430,cr:1,t:'คงเหลือเฉลี่ย (ส.ป.ก.) ถือว่าไม่ได้นำไปใช้ · ไม่รวมซังและเปลือก · อัตราลามยังไม่ได้สอบเทียบ'},
+ {n:'อ้อย (ใบ+ยอด)',w:.92,cf:.83,k:1.15,pm:8.2,co:1430,cr:1,t:'คงเหลือเฉลี่ย (ส.ป.ก.) หลังหักที่นำไปใช้ · แปลงที่ไม่เก็บใบราว 1.47 ตัน/ไร่ · สัดส่วนไหม้ = เผาหลังตัด (ก่อนตัด 0.64) · อัตราลามยังไม่ได้สอบเทียบ'}];
 const LV=[['#3b9a4c','ระดับที่ 1 · ไฟความรุนแรงต่ำ (เข้าตบไฟตรงๆ ได้)','เปลวไฟต่ำ เข้าตบไฟที่หัวไฟด้วยไม้ตบไฟและเครื่องเป่าลมได้โดยตรง'],
  ['#e0a010','ระดับที่ 2 · ไฟความรุนแรงปานกลาง (ต้องทำแนวกันไฟดักด้านข้าง)','ความร้อนที่หัวไฟสูงเกินกว่าจะเข้าตบไฟตรง ๆ ให้เข้าตีขนาบจากท้ายไฟและด้านข้าง (Flank Attack) พร้อมทำแนวกันไฟดักล่วงหน้า'],
  ['#e8741c','ระดับที่ 3 · ไฟความรุนแรงสูง (ต้องใช้เครื่องจักร)','เปลวไฟสูงเกินกำลังคนเข้าสกัด ต้องใช้เครื่องจักรทำแนวกันไฟและสกัดจากด้านหลังและด้านข้างเท่านั้น'],
@@ -2190,7 +2194,7 @@ async function slopeAt(lon,lat,R=150){const z=12,W=256*2**z,X=(lon+180)/360*W,Y=
  const [a,b,c,d,e,f,g,h,i]=await Promise.all([-1,0,1].flatMap(j=>[-1,0,1].map(q=>el(X+q*k,Y+j*k))));
  const dx=((c+2*f+i)-(a+2*d+g))/(8*k*m),dy=((g+2*h+i)-(a+2*b+c))/(8*k*m); // dx ไปทางตะวันออก, dy ไปทางใต้
  return{s:Math.atan(Math.hypot(dx,dy))*180/Math.PI,asp:(Math.atan2(-dx,dy)*180/Math.PI+360)%360,el:e}}
-$('#fuel').innerHTML=FUEL.map((f,i)=>`<option value="${i}">${f.n} (${f.w} ตัน/ไร่)</option>`).join('');
+{const o=c=>FUEL.map((f,i)=>(f.cr||0)===c?'<option value="'+i+'">'+f.n+' ('+(+f.w)+' ตัน/ไร่)</option>':'').join('');$('#fuel').innerHTML=/*xss-ok*/'<optgroup label="ป่าไม้">'+o(0)+'</optgroup><optgroup label="พื้นที่เกษตร (เศษวัสดุหลังเก็บเกี่ยว)">'+o(1)+'</optgroup>'}
 const fuelByElev=z=>z>1000?3:z<250?1:0;
 // เลือกเชื้อเพลิงอัตโนมัติจากชนิดป่าของแปลงพื้นที่รับผิดชอบ (resp.ftype) ที่จุดอยู่ · แปลงที่มีหลายชนิด (เช่น "ป่าเบญจพรรณ/เต็งรัง") ใช้ชนิดแรก
 // เว้นแต่ความสูงชี้ชนิดอื่นในรายการ (ต่ำกว่า 250 ม. → เต็งรัง, ตั้งแต่ 500 ม. → ดิบแล้ง) · สูงกว่า 1,000 ม. = ดิบเขาเสมอ · ไม่อยู่ในแปลงใด → ตามความสูง
@@ -2214,7 +2218,7 @@ function upd(){
  if(!CUR)return;if(!ADM)admLoad().then(()=>CUR&&upd()).catch(e=>dbg('admLoad',e));const an=(lo,la)=>{const a=admAt(lo,la);return a?' <span style="font-weight:400">· '+esc(admTxt(a))+'</span>':''};
  const r0=calc(P),h=CUR,mk=mtKey(h),MR=mtOn()&&MT.k===mk&&MT.st==='ok'?MT.r:null,HY=P.sm==='l'?huy(r0):null,r=MR?hyAdj(r0,{ha:MR.lv[2].a/1e4,per:MR.per}):HY?hyAdj(r0,HY):r0,L=LV[r.lvl];LASTR=r;const LG=P.sm==='l'?lag(h,r,HY):null,rch=LG?LG.reach:r.reach,fm=c=>c[1].toFixed(4)+', '+c[0].toFixed(4)+an(c[0],c[1]);
  if(mtOn()&&MT.k!==mk)Promise.resolve(mtKick(h,mk,1.35*(HY?Math.max(...HY.snap[HY.n].map(q=>Math.hypot(q[0],q[1]))):r0.head))).then(()=>{if(MT.k!==mk&&CUR===h&&mtKey(h)===mk){MT={k:mk,st:'err',r:null,id:0,tm:0,e:'lz'};upd()}});
- const mtL=mtOn()?MR?'วง = MTT ตามภูมิประเทศ'+(fuelAuto&&FT?'และชนิดป่า':'')+'จริง':MT.st==='err'?'วงรี (คำนวณ MTT ไม่ได้)':'กำลังคำนวณวง MTT…':'วง'+(HY?'แบบ Huygens':'รี')+' (ความลาดชันเท่ากันทั้งพื้นที่)';
+ const mtL=mtOn()?MR?'วง = MTT ตามภูมิประเทศ'+((fuelAuto||r.f.cr)&&FT?'และชนิดป่า':'')+'จริง':MT.st==='err'?'วงรี (คำนวณ MTT ไม่ได้)':'กำลังคำนวณวง MTT…':'วง'+(HY?'แบบ Huygens':'รี')+' (ความลาดชันเท่ากันทั้งพื้นที่)';
  const st=i=>{const x=P.hr*i/3;return x<1?Math.round(x*60)+' นาที':nf(x,x%1?1:0)+' ชม.'};
  tx('k-ah','พื้นที่เผาไหม้ ('+P.hr+' ชม.)');tx('k-a',nf(r.rai));tx('k-a2',nf(r.ha,1)+' เฮกตาร์ · ขอบไฟ '+nf(r.per/1000,1)+' กม.');
  tx('k-r',nf(r.Rh,1));tx('k-r2','หัวไฟเคลื่อนไป '+nf((LG?LG.hLen:r.head)/1000,2)+' กม. '+(LG?'(ตามลมรายชั่วโมง)':'('+dn(r.toDir).split(' ')[0]+')'));
@@ -2225,13 +2229,13 @@ function upd(){
  $('#lv').style.borderLeftColor=L[0];tx('lv-h',L[1]);tx('lv-b',L[2]);tx('lv-c',`กำลังพลที่แนะนำ: <b>อย่างน้อย ${r.crew} ชุดปฏิบัติการ</b> (สำหรับสกัดแนวขอบไฟ ${nf(r.per/1000,1)} กม.)`);
  tx('tb',`${Math.abs(((r.toDir-r.windTo)%360+540)%360-180)<10?`<span>ทิศไฟและควันพัดไป:</span><b>${dn(r.toDir)}</b>`:`<span>หัวไฟลามไป:</span><b>${dn(r.toDir)} <span style="font-weight:400">(ลมพัดไป${dn(r.windTo).replace(/^ทิศ/,'ทิศ')} + ลาดชันขึ้นไป${dn(r.upDir)})</span></b><span>ควันพัดไป:</span><b>${dn(r.windTo)}</b>`}<span>มวลชีวมวลที่ถูกเผา:</span><b>${nf(r.bio,1)} ตัน (เชื้อเพลิง ${r.f.w} ตัน/ไร่ · ไหม้จริง ${Math.round(r.f.cf*100)}%)</b>
   <span>${LG?'ฝุ่นในกลุ่มควัน:':'ผลกระทบฝุ่นใต้ลม 5 กม.:'}</span><b>${LG?'PM2.5 สูงสุดราว '+nf(Math.round(LG.max/10)*10)+' µg/m³ (เฉลี่ยในชั้นผสม 1,000 ม. ของช่อง 1 กม.)':'PM2.5 เพิ่มขึ้นราว +'+nf(Math.round(r.conc/10)*10)+' µg/m³ ในแกนกรวยควัน'}</b>
-  <span>ความเสียหายของต้นไม้:</span><b>อัตราตายของไม้หนุ่ม/ไม้พื้นล่าง ${MORT[r.lvl]}</b><span>เวลาฟื้นตัวของป่า:</span><b>${REC[r.lvl]}</b>
-  <span>หมายเหตุตามชนิดป่า:</span><b style="font-weight:400">${r.f.t}</b>`);
+  <span>ความเสียหายของต้นไม้:</span><b>${r.f.cr?'– (แปลงเกษตร)':'อัตราตายของไม้หนุ่ม/ไม้พื้นล่าง '+MORT[r.lvl]}</b><span>เวลาฟื้นตัวของป่า:</span><b>${r.f.cr?'– (แปลงเกษตร)':REC[r.lvl]}</b>
+  <span>หมายเหตุตามชนิดเชื้อเพลิง:</span><b style="font-weight:400">${r.f.t}</b>`);
  const pt=(d,b=r.windTo)=>{const c=dest(h,b,d);return c[1].toFixed(4)+', '+c[0].toFixed(4)+an(c[0],c[1])};
  tx('dw',`<span>หน้าไฟ (${nf((LG?LG.hLen:r.head)/1000,1)} กม.):</span><b>${LG?fm(LG.hEnd):pt(r.head,r.toDir)}</b><span>ใต้ลม 7 กม.:</span><b>${LG?fm(LG.p7):pt(7000)}</b><span>ปลาย${LG?'กลุ่ม':'กรวย'}ควัน (~${nf(rch)} กม.):</span><b>${LG?fm(LG.far):pt(r.reach*1000)}</b>`);
  tx('eq',`<p><b>1. ${P.fm!=null&&FQ.ff?`ความชื้นเชื้อเพลิงละเอียดจาก FFMC (Van Wagner 1987):</b> <code>m = 147.2 · (101 − FFMC) ÷ (59.5 + FFMC)</code> จาก FFMC ${nf(FQ.ff.v,1)} ของ TFDRS กรมป่าไม้ (${fwDate(FQ.ff.d,{day:'numeric',month:'short'})}${FQ.ff.f?' พยากรณ์':' ค่าเที่ยงวัน'}) ได้ <code>m = ${nf(r.E,1)}%</code> (ใช้แทน EMC · สลับเป็นค่าจากอากาศได้)`:`ความชื้นสมดุลเชื้อเพลิง (Simard 1968 EMC):</b> จากอุณหภูมิ (${nf(P.T,1)} °C) และความชื้นสัมพัทธ์ (${Math.round(P.rh)}%) ได้ <code>EMC = ${nf(r.E,1)}%</code>`} และตัวคูณลดทอนความชื้น <code>η_M = ${nf(r.eta,2)}</code></p>
  <p><b>2. อัตราการลุกลามไฟผิวดิน (Rothermel 1972):</b> <code>R = R₀ · η_M · (1 + |φ_W + φ_S|)</code> รวมผลของลม (ปรับด้วยค่าบังลมของป่า WAF = ${WAF}) กับความชัน ${P.sl}° แบบเวกเตอร์${P.asp==null?' (ไม่ทราบทิศลาด: ถือว่าลาดขึ้นไปทางเดียวกับลม)':` (ลาดขึ้นไป${dn((P.asp+180)%360)} · หัวไฟลามไป${dn(r.toDir)})`} ได้หัวไฟ ${nf(r.Rh,1)} ข้างไฟ ${nf(r.Rf,1)} ท้ายไฟ ${nf(r.Rb,1)} ม./นาที</p>
- <p><b>3. เรขาคณิตวงรีไฟป่า (Anderson 1983):</b> <code>L/B = 0.936·e^(0.2566·U) + 0.461·e^(-0.1548·U) - 0.397 = ${nf(r.LB,2)}</code> (U = ${nf(r.Um,2)} ม./วินาที = ${P.asp==null?'ลมที่ 10 ม. x WAF':'ลมประสิทธิผลที่รวมผลความชันแล้ว'})${HY?' · โหมด Lagrangian: ขอบไฟโตแบบ Huygens (คลื่นวงรีจากทุกจุดบนขอบไฟ) ตามลม'+(P.hrly&&WS&&WS.rh?' ความชื้นสัมพัทธ์และอุณหภูมิ (EMC)':'')+'รายชั่วโมง พื้นที่และเส้นรอบวงมาจากรูปขอบไฟนี้':''}${MR?` · <b>วงบนแผนที่ พื้นที่ และเส้นรอบวง: แบบจำลองคลื่นแนวไฟ 2 มิติ MTT (Minimum Travel Time, Finney 2002)</b> หาเวลาที่ไฟลามถึงแต่ละช่องกริด ${nf(MR.cs)} ม. (${MTN}×${MTN} ช่อง) ด้วยวงรีข้างต้น แต่คิดความลาดชันและทิศลาดรายช่องจากแบบจำลองความสูง${fuelAuto&&FT?' และเชื้อเพลิงรายช่องจากชั้นชนิดป่า 2561'+(MR.ch?' · นอกป่าเลือกจากความสูงเรือนยอด':''):''}${MR.wt?' · แหล่งน้ำ (OpenStreetMap) ไม่ติดไฟ':' · โหลดแหล่งน้ำไม่ได้ (ไฟลามผ่านน้ำได้)'}${P.sm==='l'?' ลมและความชื้นเปลี่ยนตามเวลาที่ไฟลามถึง':''} แล้วลากเส้นเวลาถึงเท่ากัน ${st(1)} / ${st(2)} / ${st(3)}${MR.edge?' (ไฟถึงขอบกริด วงนอกอาจเล็กกว่าจริง)':''}`:''}</p>
+ <p><b>3. เรขาคณิตวงรีไฟป่า (Anderson 1983):</b> <code>L/B = 0.936·e^(0.2566·U) + 0.461·e^(-0.1548·U) - 0.397 = ${nf(r.LB,2)}</code> (U = ${nf(r.Um,2)} ม./วินาที = ${P.asp==null?'ลมที่ 10 ม. x WAF':'ลมประสิทธิผลที่รวมผลความชันแล้ว'})${HY?' · โหมด Lagrangian: ขอบไฟโตแบบ Huygens (คลื่นวงรีจากทุกจุดบนขอบไฟ) ตามลม'+(P.hrly&&WS&&WS.rh?' ความชื้นสัมพัทธ์และอุณหภูมิ (EMC)':'')+'รายชั่วโมง พื้นที่และเส้นรอบวงมาจากรูปขอบไฟนี้':''}${MR?MR.eq(st,r):''}</p>
  <p><b>4. ความรุนแรงหน้าไฟและเปลวไฟ (Byram 1959):</b> <code>I_B = H · w · r = ${nf(r.I)} kW/m</code> (H = ${nf(HC)} kJ/kg) และ <code>L_f = 0.0775 · I_B^0.46 = ${nf(r.Lf,1)} ม.</code></p>
  <p style="margin:0"><b>5. การปลดปล่อยมลพิษและกรวยควัน (Seiler & Crutzen 1980 / Gaussian Plume):</b> จากมวลชีวมวลที่เผาไหม้จริง (x Cf ${r.f.cf}) x สัมประสิทธิ์ของ${r.f.n} (<code>EF_PM2.5 = ${r.f.pm} g/kg</code>, <code>EF_CO₂ = ${r.f.co} g/kg</code>) ${LG?'· ควันใช้ Lagrangian: <code>X(t+Δt) = X(t) + V·Δt</code>, <code>V = u_mean + u′</code> (random walk, K = 50 m²/s) ลม 10 ม. x 1.25 ('+(WS&&!manualWind?'พยากรณ์รายชั่วโมง':'ลมคงที่ตามสไลเดอร์')+') ชั้นผสม 1,000 ม. อนุภาค 2,000 ตัว':'· ค่าคงที่ R₀ ระยะควัน และตัวคูณฝุ่นใต้ลม สอบเทียบกับค่าทดสอบ 7.3'}</p>`);
  fqRender(r);
@@ -2267,7 +2271,7 @@ $('#d-cp').onclick=()=>CUR&&navigator.clipboard.writeText(`${CUR.lat.toFixed(5)}
 $('#d-go').onclick=()=>CUR&&open(`https://www.google.com/maps/dir/?api=1&destination=${CUR.lat},${CUR.lon}`,'_blank','noopener');
 $$('#sm button').forEach(b=>b.onclick=()=>{P.sm=b.dataset.m;syncSl();upd()});
 $$('#dur button').forEach(b=>b.onclick=()=>{P.hr=+b.dataset.h;syncSl();upd()});
-$('#fuel').onchange=e=>{P.fuel=+e.target.value;fuelAuto=false;fqWhy('เลือกเอง');upd()};
+$('#fuel').onchange=e=>{P.fuel=+e.target.value;fuelAuto=false;const f=FUEL[P.fuel].cr&&CUR&&ftAt(CUR.lon,CUR.lat);fqWhy('เลือกเอง'+(f?' · ⚠ จุดนี้เป็น'+esc(f.n)+'ตามชั้นชนิดป่า ไม่ใช่พื้นที่เกษตร':''));upd()};
 $('#d-adj').onclick=()=>{$('#sl').hidden=!$('#sl').hidden};$('#d-eq').onclick=()=>{$('#eq').hidden=!$('#eq').hidden};
 [['u','u'],['f','from'],['r','rh'],['s','sl']].forEach(([i,k])=>$('#s-'+i).oninput=e=>{P[k]=+e.target.value;FQ.man[k]=1;FQ.test=0;if(k==='rh'&&fqMM()==='f')FQ.mo='e';if(k==='u'||k==='from')manualWind=true;if(k==='sl')slManual=true;fqApply();syncSl();upd()});
 $('#d-test').onclick=()=>{Object.assign(P,{hr:6,fuel:0,u:11,from:90,rh:61,T:32.3,sl:4,asp:null});fuelAuto=false;manualWind=true;slManual=true;FQ.test=1;FQ.man={T:1,rh:1,u:1,from:1};FQ.mo='e';fqApply();fqWhy('ค่าทดสอบ');syncSl();upd()};
@@ -4273,6 +4277,7 @@ async function mtChm(lo0,la0,lo1,la1){const j=await chLoad();if(!j)return null;c
  const x0=(a>>8)-1,x1=(c>>8)+1,y0=(b>>8)-1,y1=(d>>8)+1;if((x1-x0+1)*(y1-y0+1)>36)return null;
  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const p=chTP(j,x,y);if(p)Q.push(p.then(t=>T.set(x+','+y,t)).catch(e=>dbg('mtChm',e)))}
  await Promise.all(Q);return(lon,lat)=>{const[X,Y]=chXY(j,lon,lat),t=T.get((X>>8)+','+(Y>>8));if(!t)return null;const q=t[(Math.floor(Y)&255)*256+(Math.floor(X)&255)];return q===255?null:q}}
+const mtEq=MR=>(st,r)=>` · <b>วงบนแผนที่ พื้นที่ และเส้นรอบวง: แบบจำลองคลื่นแนวไฟ 2 มิติ MTT (Minimum Travel Time, Finney 2002)</b> หาเวลาที่ไฟลามถึงแต่ละช่องกริด ${nf(MR.cs)} ม. (${MTN}×${MTN} ช่อง) ด้วยวงรีข้างต้น แต่คิดความลาดชันและทิศลาดรายช่องจากแบบจำลองความสูง${(fuelAuto||r.f.cr)&&FT?' และเชื้อเพลิงรายช่องจากชั้นชนิดป่า 2561'+(MR.ch?' · นอกป่าเลือกจากความสูงเรือนยอด':r.f.cr?' · นอกป่าใช้ '+r.f.n:''):''}${MR.wt?' · แหล่งน้ำ (OpenStreetMap) ไม่ติดไฟ':' · โหลดแหล่งน้ำไม่ได้ (ไฟลามผ่านน้ำได้)'}${P.sm==='l'?' ลมและความชื้นเปลี่ยนตามเวลาที่ไฟลามถึง':''} แล้วลากเส้นเวลาถึงเท่ากัน ${st(1)} / ${st(2)} / ${st(3)}${MR.edge?' (ไฟถึงขอบกริด วงนอกอาจเล็กกว่าจริง)':''}`;
 async function mtGrid(h,ext){const N=MTN,c=N>>1,cs=2*ext/(N-1),cl=Math.cos(h.lat*Math.PI/180),mx=111320*cl,my=110574,NN=N*N;
  const z=Math.max(8,Math.min(12,Math.ceil(Math.log2(40075017*cl/256/cs)))),W=256*2**z,
   PX=lon=>(lon+180)/360*W,PY=lat=>(1-Math.log(Math.tan(Math.PI/4+lat*Math.PI/360))/Math.PI)/2*W,
@@ -4282,11 +4287,11 @@ async function mtGrid(h,ext){const N=MTN,c=N>>1,cs=2*ext/(N-1),cl=Math.cos(h.lat
  await Promise.all(ks.map(([tx,ty])=>demTile(z,tx,ty).then(t=>tl.set(tx+','+ty,t))));
  const px=(x,y)=>{const tx=Math.floor(x/256),ty=Math.floor(y/256),t=tl.get(tx+','+ty);return t?t[(y-ty*256)*256+(x-tx*256)]:0},
   el=(lon,lat)=>{const x=PX(lon)-.5,y=PY(lat)-.5,i=Math.floor(x),j=Math.floor(y),a=x-i,b=y-j;return px(i,j)*(1-a)*(1-b)+px(i+1,j)*a*(1-b)+px(i,j+1)*(1-a)*b+px(i+1,j+1)*a*b};
- const[wt,ch]=await Promise.all([mtWtr(),fuelAuto&&FT?mtChm(lo0,la0,lo1,la1):null]),FM=new Map();
+ const cr=FUEL[P.fuel].cr,[wt,ch]=await Promise.all([mtWtr(),fuelAuto&&FT?mtChm(lo0,la0,lo1,la1):null]),FM=new Map();
  const nf1=(lon,lat,z1)=>{if(!ch||!ftIn(lon,lat))return P.fuel;const k=Math.round(lon*1e3)+','+Math.round(lat*1e3);let v=FM.get(k);if(v==null){const V=[];for(let b=-3;b<=3;b++)for(let a=-3;a<=3;a++)V.push(ch(lon+a*62/mx,lat+b*62/my));const w=chWinSum(V);v=w.n>=CHWN?fuelAt(null,z1,null,w).i:P.fuel;FM.set(k,v)}return v};
  const E=new Float32Array(NN),kf=new Float32Array(NN),sx=new Float32Array(NN),sy=new Float32Array(NN),fc=new Uint32Array(FUEL.length+1);
  for(let j=0;j<N;j++)for(let i=0;i<N;i++){const lon=h.lon+(i-c)*cs/mx,lat=h.lat+(j-c)*cs/my,k=j*N+i;E[k]=el(lon,lat);
-  const f=fuelAuto&&FT?ftAt(lon,lat):null,fi=k===c*N+c?P.fuel:wt&&wt(lon,lat)?-1:f&&FTF[f.k]!=null?FTF[f.k]:fuelAuto&&FT?nf1(lon,lat,E[k]):P.fuel;kf[k]=fi<0?0:R0*FUEL[fi].k;fc[fi<0?FUEL.length:fi]++}
+  const f=(fuelAuto||cr)&&FT?ftAt(lon,lat):null,fi=k===c*N+c?P.fuel:wt&&wt(lon,lat)?-1:f&&FTF[f.k]!=null?FTF[f.k]:fuelAuto&&FT?nf1(lon,lat,E[k]):P.fuel;kf[k]=fi<0?0:R0*FUEL[fi].k;fc[fi<0?FUEL.length:fi]++}
  for(let j=0;j<N;j++)for(let i=0;i<N;i++){const k=j*N+i,gx=(E[j*N+Math.min(N-1,i+1)]-E[j*N+Math.max(0,i-1)])/(cs*(Math.min(N-1,i+1)-Math.max(0,i-1))),
   gy=(E[Math.min(N-1,j+1)*N+i]-E[Math.max(0,j-1)*N+i])/(cs*(Math.min(N-1,j+1)-Math.max(0,j-1))),g=Math.hypot(gx,gy);if(g<1e-9)continue;
   const fs=phiS(Math.min(40,Math.atan(g)*180/Math.PI));sx[k]=fs*gx/g;sy[k]=fs*gy/g}
@@ -4303,7 +4308,7 @@ function mtKick(h,k,ext){if(MT.k===k)return;if(MT.id)try{WJ.cancel(MT.id)}catch(
  MT.tm=setTimeout(async()=>{let x=Math.min(40000,Math.max(300,ext));
   try{for(let g=0;g<4;g++){if(MT.k!==k)return;const G=await mtGrid(h,x),W=mtWx(),T=P.hr*60;if(MT.k!==k)return;
     const o={N:G.N,cs:G.cs,kf:G.kf,sx:G.sx,sy:G.sy,bd:W.bd,wx:W.wx,wy:W.wy,et:W.et,T,lv:[T/3,2*T/3,T],pc:PWC,pb:PWB},p=WJ.job('mtSolve',()=>[[o],[]]);MT.id=p.id;
-    const r=await p;MT.id=0;if(MT.k!==k)return;if(!r.edge||g===3||x>=40000){MT.st='ok';MT.r={...r,cs:G.cs,ext:x,z:G.z,fc:G.fc,wt:G.wt,ch:G.ch,edge:r.edge};break}x=Math.min(40000,x*1.7)}}
+    const r=await p;MT.id=0;if(MT.k!==k)return;if(!r.edge||g===3||x>=40000){MT.st='ok';MT.r={...r,cs:G.cs,ext:x,z:G.z,fc:G.fc,wt:G.wt,ch:G.ch,edge:r.edge};MT.r.eq=mtEq(MT.r);break}x=Math.min(40000,x*1.7)}}
   catch(e){if(MT.k!==k)return;MT.st='err';MT.e=e&&e.message||String(e);dbg('mtt',e)}
   if(CUR===h&&MT.k===k)upd()},250)}
 </script>
