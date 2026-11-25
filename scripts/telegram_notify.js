@@ -107,8 +107,8 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
   // ใต้บรรทัดจุดมีลิงก์ Google Maps (นำทาง) + แผนที่ไฟป่า (?hs= เปิดแผงรายละเอียดจุดบนหน้าเว็บ) — ผู้ใช้ขอ 3 พ.ย. 69 (เดิมแตะเวลาเปิด Google Maps อย่างเดียว)
   // เวลาตัวหนาให้แยกจุดง่าย · ลิงก์บรรทัดใหม่ · NBSP หลังไอคอน กัน Telegram ตัดบรรทัดระหว่างอีโมจิกับคำ (ผู้ใช้ส่งภาพ 🔥 ค้างท้ายบรรทัด 3 พ.ย. 69)
   const hsUrl = f => { const [lo, la] = f.geometry.coordinates; return `${SITE}?hs=${la.toFixed(5)},${lo.toFixed(5)}` };
-  const ptLine = (f, ar = false) => { const p = f.properties, t = thMs(p.full_date);
-    return `• <b>${hm(t)} น. ${dTh(t)}</b> ${esc(SATN[satKey(p.satellite_name)] || p.satellite_name)}${p._src === 'firms' ? ' (NASA FIRMS)' : ''}${ar ? ' · ' + esc(arS(p._ar)) : ''} · ต.${esc(p.subdistrict_name_th || '-')} อ.${esc(p.district_name_th || '-')} จ.${esc(p.province_name_th || '-')}${p._st ? ' · ' + esc(stShort(p._st)) : ''}
+  const ptLine = (f, ar = false, st = true) => { const p = f.properties, t = thMs(p.full_date);
+    return `• <b>${hm(t)} น. ${dTh(t)}</b> ${esc(SATN[satKey(p.satellite_name)] || p.satellite_name)}${p._src === 'firms' ? ' (NASA FIRMS)' : ''}${ar ? ' · ' + esc(arS(p._ar)) : ''} · ต.${esc(p.subdistrict_name_th || '-')} อ.${esc(p.district_name_th || '-')} จ.${esc(p.province_name_th || '-')}${st && p._st ? ' · ' + esc(stShort(p._st)) : ''}
    📍 <a href="${gm(f)}">Google Maps</a>  ·  🔥 <a href="${hsUrl(f)}">แผนที่ไฟป่า</a>` };
   // ปุ่มแผนที่ของชุดจุด (ลิงก์ตรงแบบเดียวกับการ์ด LINE): 1 จุด = เปิดจุดนั้น, หลายจุด = ซูมกรอบ
   // ป้ายปุ่มสั้น: ปุ่มครึ่งจอบนมือถือตัด "ดู 5 จุดบนแผนที่" เป็น "ดู 5 จุดบนแผนท…" (ผู้ใช้ส่งภาพ 3 พ.ย. 69)
@@ -138,7 +138,7 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
   const vis = t => t.replace(/<[^>]+>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&');
   const ents = t => (t.match(/<(a|b|i|blockquote)[\s>]/g) || []).length;
   const fit = (f, strict) => { let t; for (let per = 20; per >= 0; per--) { t = f(per); if ((strict ? t.length : vis(t).length) <= MAXLEN && ents(t) <= MAXENT) break } return t };
-  const list = (L, per, ar) => [...L.slice(0, per).map(f => ptLine(f, ar)), ...(L.length > per ? [`  …และอีก ${L.length - per} จุด`] : [])];
+  const list = (L, per, ar, st) => [...L.slice(0, per).map(f => ptLine(f, ar, st)), ...(L.length > per ? [`  …และอีก ${L.length - per} จุด`] : [])];
   const byNew = L => L.slice().sort((a, b) => thMs(b.properties.full_date) - thMs(a.properties.full_date));
 
   // dm = รายชื่อที่ผู้รับสมัครไว้ (ข้อความส่วนตัว F6 — รูปแบบเดียวกับข้อความกลุ่ม + บรรทัดบอกการติดตาม/วิธีเลิก)
@@ -157,6 +157,33 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
     ].join('\n'), strict);
     return msgOf(text, [[mapBtn(fresh), ['🗺️ แผนที่ไฟป่า', SITE]]]);
   };
+  // ตัวอย่างรูปแบบใหม่ (ผู้ใช้ขอ 25 พ.ย. 69 — ใช้กับ --test-st เท่านั้น ยังไม่ใช้ในรอบจริง): ยอดรวม → รายพื้นที่อนุรักษ์ → รายสถานีฯ ในพื้นที่นั้น → ไม่มีสถานีฯ ดูแล → พื้นที่ถัดไป
+  const byStation = L => { const M = {}; for (const f of L) { const k = f.properties._st || 'ไม่มี'; (M[k] = M[k] || []).push(f) }
+    return Object.entries(M).sort((a, b) => (a[0] === 'ไม่มี') - (b[0] === 'ไม่มี') || b[1].length - a[1].length) };
+  const stationMsg = (fresh, test = false, strict = false, note = '') => {
+    const G = groups(fresh), ins = G.filter(g => g[0] !== 'นอกเขตอนุรักษ์').sort((a, b) => b[1].length - a[1].length), out = G.filter(g => g[0] === 'นอกเขตอนุรักษ์');
+    const all = [...ins, ...out].map(([n, L]) => [n, L, byStation(L)]);
+    const text = fit(per => [
+      `${test ? '🧪 <b>ทดสอบ</b> · ' : ''}🔥 <b>พบจุดความร้อนใหม่ทั้งหมด ${fresh.length} จุด</b>`,
+      'กลุ่มป่าดงพญาเย็น-เขาใหญ่' + (test ? '' : ` · ${dateTh(now)} ${hm(now)} น.`),
+      ...(note ? [`<i>${esc(note)}</i>`] : []),
+      '', '📊 <b>สรุปรายพื้นที่</b>',
+      ...all.flatMap(([n, L, S]) => [`🌲 ${esc(n)} <b>${L.length}</b> จุด`, ...S.map(([k, P]) => `   ${k === 'ไม่มี' ? '▫️' : '🚒'} ${esc(stShort(k))} ${P.length}`)]),
+      ...all.flatMap(([n, L, S]) => ['', `🌲 <b>${esc(n)} — ${L.length} จุด</b>`, ...S.flatMap(([k, P]) => [`${k === 'ไม่มี' ? '▫️' : '🚒'} <b>${esc(stShort(k))}</b> ${P.length} จุด`, ...list(byNew(P), per, false, false)])]),
+      '', `${test ? '' : `🕐 จุดใน 24 ชม.: ${h24.length} จุด · `}<i>ไม่รวม ขสป.ดงใหญ่</i>`,
+    ].join('\n'), strict);
+    return msgOf(text, [[mapBtn(fresh), ['🗺️ แผนที่ไฟป่า', SITE]]]);
+  };
+  // จุดตัวอย่างของ --test-st: รอบดาวเทียมจริงใน adata (วัน+เวลา+ดาวเทียมเดียวกัน ≤15 จุด ไม่รวมดงใหญ่) ที่มีคู่พื้นที่×สถานีฯ หลากหลายที่สุด (เท่ากัน = รอบใหม่กว่า)
+  const stationSample = () => {
+    const { block } = require('./lib/area'), j = JSON.parse(block('adata')[1]), iso = d => new Date(d * 864e5).toISOString().slice(0, 10), R = {};
+    for (const r of j.r) { const [tb, am] = String(j.tm[r[8]]).split('|');
+      const f = { type: 'Feature', geometry: { type: 'Point', coordinates: [r[3] / 1e5, r[2] / 1e5] }, properties: { full_date: `${iso(r[0])} ${String(r[1]).padStart(4, '0').replace(/(..)$/, ':$1')}:00`, satellite_name: j.sat[r[4]], subdistrict_name_th: tb, district_name_th: am || j.am[r[7]], province_name_th: j.pv[r[6]], _ar: j.ar[r[9]], _st: j.st[r[10]] } };
+      if (!excluded(f.properties)) { const k = f.properties.full_date + '|' + r[4]; (R[k] = R[k] || []).push(f) } }
+    const score = L => L.length > 15 ? 0 : new Set(L.map(f => f.properties._ar + '|' + f.properties._st)).size;
+    return Object.entries(R).sort((a, b) => score(b[1]) - score(a[1]) || (a[0] < b[0] ? 1 : -1))[0][1];
+  };
+  const stationNote = L => `ตัวอย่างรูปแบบใหม่ — จุดจริงย้อนหลัง ${dateTh(thMs(L[0].properties.full_date))} ไม่ใช่เหตุวันนี้`;
   // ดาวเทียมรอบถัดไปที่แถบสแกนผ่านกลุ่มป่า (ทุกรอบรวมขอบแถบ) 24 ชม. ข้างหน้า — บรรทัดในสรุปประจำวัน (ผู้ใช้ขอ 13 พ.ย. 69)
   const orb = () => { try { return require('./lib/orbit').next(JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'tle.json'), 'utf8')), now, 24) } catch (e) { return null } };
   // FWI / อัตราระบายอากาศ / PM2.5 ในสรุปประจำวัน (ผู้ใช้ขอ 18 พ.ย. 69 — เดิม 14 พ.ย. 69 แสดงพยากรณ์หลายวัน):
@@ -259,6 +286,7 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
     for (const [n, m] of [['แจ้งเตือน', ex.length ? alertMsg(ex) : null], ['ข้อความส่วนตัว (ผู้สมัคร F6 ตัวอย่าง)', ex.length ? alertMsg(ex, false, false, ['อช.ทับลาน', 'สถานีฯ วังน้ำเขียว']) : null], ['สรุปประจำวัน', dailyMsg()], ['พื้นที่เผาไหม้', bsum ? burnMsg(bsum) : null], ['พื้นที่เฝ้าระวังพิเศษ', watchMsg(null)], ['พื้นที่เฝ้าระวังพิเศษ (แจ้งเตือน)', wpts.length ? watchMsg(wpts.slice(0, 3)) : null]]) if (m) console.log(`===== ${n} (${m.text.length} ตัวอักษร) =====\n${m.text}\n[ปุ่ม] ${m.reply_markup.inline_keyboard.flat().map(b => b.text + ' → ' + b.url).join('  |  ')}\n`);
     return;
   }
+  if (A0.includes('--preview-st')) { const ex = stationSample(), m = stationMsg(ex, true, false, stationNote(ex)); console.log(m.text, '\n', vis(m.text).length, ents(m.text), JSON.stringify(m.reply_markup)); return }
   if (A0.includes('--chats')) {
     if (!TOKEN) { console.log('ต้องตั้ง TG_TOKEN'); process.exitCode = 1; return }
     // getUpdates ไม่ส่ง offset = ไม่ยืนยัน/ไม่ลบ update ใด (รอบ site ยังอ่านคำสั่งได้ครบ) · แต่รอบ site ยืนยันทุก ~5 นาที จึงรวมห้องที่รอบ site เคยเห็น (tg_subs.json ช่อง seen 3 วัน)
@@ -274,11 +302,12 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
     if (!grp.length) console.log('ไม่พบกลุ่ม — เชิญบอทเข้ากลุ่ม (หรือตั้งเป็นผู้ดูแล channel) แล้วพิมพ์ /start@' + me.username + ' ในกลุ่ม จากนั้นรันใหม่ (หรือพิมพ์ /id@' + me.username + ' ในกลุ่ม บอทจะตอบรหัสกลุ่มภายใน ~5 นาที)');
     return;
   }
-  const testMode = ['--test-push', '--daily', '--burn', '--watch'].find(a => A0.includes(a));
+  const testMode = ['--test-push', '--test-st', '--daily', '--burn', '--watch'].find(a => A0.includes(a));
   if (testMode) {
     if (!TOKEN || !CHATS.length) { console.log('ต้องตั้ง TG_TOKEN และ TG_CHAT_ID'); process.exitCode = 1; return }
     let m;
     if (testMode === '--daily') m = dailyMsg;
+    else if (testMode === '--test-st') { const ex = stationSample(); m = s => stationMsg(ex, true, s, stationNote(ex)) }
     else if (testMode === '--watch') { if (!watchMsg(null)) { console.log('ไม่มี _site/watch.json — รัน node scripts/build_site.js ก่อน'); process.exitCode = 1; return } m = s => watchMsg(null, true, s) }
     else if (testMode === '--burn') { if (!bsum) { console.log('ไม่มี _site/burn_summary.json — รัน node scripts/build_site.js ก่อน'); process.exitCode = 1; return } m = () => burnMsg(bsum, true) }
     else {   // จุดจริงล่าสุด 5 จุดจาก adata (แบบเดียวกับ line_notify.js --test-push)
@@ -289,7 +318,7 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
       m = s => alertMsg(ex, true, s);
     }
     const r = await sendB(m);
-    console.log(`ส่ง${{ '--daily': 'สรุปประจำวัน', '--burn': 'พื้นที่เผาไหม้', '--test-push': 'แจ้งเตือนทดสอบ', '--watch': 'พื้นที่เฝ้าระวังพิเศษ' }[testMode]}แล้ว ${r.ok}/${CHATS.length} ห้อง${r.err ? ' · ไม่สำเร็จ: ' + r.err : ''}${Object.keys(MIG).length ? ' · ⚠ กลุ่มถูกอัปเกรด แก้ TG_CHAT_ID เป็น ' + JSON.stringify(MIG) : ''}`);
+    console.log(`ส่ง${{ '--daily': 'สรุปประจำวัน', '--burn': 'พื้นที่เผาไหม้', '--test-push': 'แจ้งเตือนทดสอบ', '--test-st': 'ตัวอย่างแจ้งเตือนรายสถานีฯ', '--watch': 'พื้นที่เฝ้าระวังพิเศษ' }[testMode]}แล้ว ${r.ok}/${CHATS.length} ห้อง${r.err ? ' · ไม่สำเร็จ: ' + r.err : ''}${Object.keys(MIG).length ? ' · ⚠ กลุ่มถูกอัปเกรด แก้ TG_CHAT_ID เป็น ' + JSON.stringify(MIG) : ''}`);
     return;
   }
 

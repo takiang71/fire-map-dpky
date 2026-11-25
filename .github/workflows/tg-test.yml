@@ -11,6 +11,7 @@ on:
         options:
           - chats       # แสดงรหัสห้อง (ไม่ส่งข้อความ)
           - test-push   # ข้อความแจ้งเตือน (จุดจริงย้อนหลัง 5 จุด ติดป้าย ทดสอบ)
+          - test-st     # ตัวอย่างแจ้งเตือนแยกรายพื้นที่ > รายสถานีฯ (ส่งถึงผู้ดูแลเสมอ ไม่ว่าเลือก to อะไร)
           - daily       # สรุปประจำวัน
           - burn        # พื้นที่เผาไหม้รอบล่าสุด
           - watch       # พื้นที่เฝ้าระวังพิเศษ (โรงเรียนนายร้อยพระจุลจอมเกล้า)
@@ -37,11 +38,11 @@ jobs:
           node-version: 22
       - run: node scripts/build_site.js || true
       # to=admin แต่ยังไม่ตั้ง TG_ADMIN_ID → หยุด (ไม่ตกกลับไปส่งเข้ากลุ่ม)
-      - if: inputs.to == 'admin'
+      - if: inputs.to == 'admin' || inputs.kind == 'test-st'
         run: test -n "$A" || { echo 'ยังไม่ได้ตั้ง TG_ADMIN_ID'; exit 1; }
         env:
           A: ${{ vars.TG_ADMIN_ID || secrets.TG_ADMIN_ID }}
       - run: node scripts/telegram_notify.js --${{ inputs.kind }}
         env:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
-          TG_CHAT_ID: ${{ inputs.to == 'admin' && (vars.TG_ADMIN_ID || secrets.TG_ADMIN_ID) || vars.TG_CHAT_ID || secrets.TG_CHAT_ID }}
+          TG_CHAT_ID: ${{ (inputs.to == 'admin' || inputs.kind == 'test-st') && (vars.TG_ADMIN_ID || secrets.TG_ADMIN_ID) || vars.TG_CHAT_ID || secrets.TG_CHAT_ID }}
