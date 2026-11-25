@@ -160,6 +160,9 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
   // ตัวอย่างรูปแบบใหม่ (ผู้ใช้ขอ 25 พ.ย. 69 — ใช้กับ --test-st เท่านั้น ยังไม่ใช้ในรอบจริง): ยอดรวม → รายพื้นที่อนุรักษ์ → รายสถานีฯ ในพื้นที่นั้น → ไม่มีสถานีฯ ดูแล → พื้นที่ถัดไป
   const byStation = L => { const M = {}; for (const f of L) { const k = f.properties._st || 'ไม่มี'; (M[k] = M[k] || []).push(f) }
     return Object.entries(M).sort((a, b) => (a[0] === 'ไม่มี') - (b[0] === 'ไม่มี') || b[1].length - a[1].length) };
+  // จุดจากดาวเทียมที่ไม่ใช่ตัวชี้วัดไม่เข้ายอดสะสม — บอกไว้ใต้บรรทัดรวม ไม่ให้ดูขัดกับยอดที่พบ (ผู้ใช้ขอ 25 พ.ย. 69) · ทุกจุดเป็นตัวชี้วัด = ไม่มีบรรทัด
+  const notInd = L => { const C = {}; let n = 0; for (const f of L) { const k = SATN[satKey(f.properties.satellite_name)] || String(f.properties.satellite_name || '-'); if (sum.ind && k !== sum.ind) { C[k] = (C[k] || 0) + 1; n++ } }
+    return !n ? [] : [`⚠️ รอบนี้${n === L.length ? 'ทั้งหมด' : ''} ${n} จุดจาก ${esc(Object.keys(C).sort().join('/'))} ไม่นับในยอดสะสม`] };
   const stationMsg = (fresh, test = false, strict = false, note = '') => {
     const G = groups(fresh), ins = G.filter(g => g[0] !== 'นอกเขตอนุรักษ์').sort((a, b) => b[1].length - a[1].length), out = G.filter(g => g[0] === 'นอกเขตอนุรักษ์');
     const Z = [...ins, ...out].map(([n, L]) => [n, L, byStation(L)]);
@@ -171,18 +174,18 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
       ...Z.map(([n, L]) => `🌲 ${esc(n)} <b>${L.length}</b> จุด`),
       ...Z.flatMap(([n, L, S]) => ['', `🌲 <b>${esc(n)} — ${L.length} จุด</b>`, ...S.flatMap(([k, P]) => [`${k === 'ไม่มี' ? '▫️' : '🚒'} <b>${esc(stShort(k))}</b> ${P.length} จุด`, ...list(byNew(P), per, false, false)])]),
       // ท้ายข้อความตามที่ผู้ใช้กำหนด 25 พ.ย. 69: สะสมปีงบนี้ | ทั้งปีงบก่อน (ตัวเลขชุดเดียวกับสรุปประจำวัน) → จุดใน 24 ชม. → หมายเหตุ
-      ...(sum ? ['', `รวม <b>${all.fy}</b> | ${all.pfull}  ${dPct(all.fy, all.pfull)}`] : []),
+      ...(sum ? ['', `รวมปีงบ ${fy % 100} | ทั้งปีงบ ${(fy - 1) % 100}: <b>${all.fy}</b> | ${all.pfull}  ${dPct(all.fy, all.pfull)}`, ...notInd(fresh)] : []),
       '', `🕐 จุดใน 24 ชม.: ${h24.length} จุด`, `<i>ไม่รวม ขสป.ดงใหญ่${sum && sum.ind ? ` · สะสมนับเฉพาะ ${esc(sum.ind)} (ตัวชี้วัด)` : ''}</i>`,
     ].join('\n'), strict);
     return msgOf(text, [[mapBtn(fresh), ['🗺️ แผนที่ไฟป่า', SITE]]]);
   };
-  // จุดตัวอย่างของ --test-st: รอบดาวเทียมจริงใน adata (วัน+เวลา+ดาวเทียมเดียวกัน ≤15 จุด ไม่รวมดงใหญ่) ที่มีคู่พื้นที่×สถานีฯ หลากหลายที่สุด (เท่ากัน = รอบใหม่กว่า)
+  // จุดตัวอย่างของ --test-st: รอบดาวเทียมจริงใน adata (วันเดียวกัน ครึ่งวันเดียวกัน ≤15 จุด ไม่รวมดงใหญ่) มีทั้ง NOAA-20/NOAA-21 และคู่พื้นที่×สถานีฯ หลากหลายที่สุด (เท่ากัน = รอบใหม่กว่า)
   const stationSample = () => {
     const { block } = require('./lib/area'), j = JSON.parse(block('adata')[1]), iso = d => new Date(d * 864e5).toISOString().slice(0, 10), R = {};
     for (const r of j.r) { const [tb, am] = String(j.tm[r[8]]).split('|');
       const f = { type: 'Feature', geometry: { type: 'Point', coordinates: [r[3] / 1e5, r[2] / 1e5] }, properties: { full_date: `${iso(r[0])} ${String(r[1]).padStart(4, '0').replace(/(..)$/, ':$1')}:00`, satellite_name: j.sat[r[4]], subdistrict_name_th: tb, district_name_th: am || j.am[r[7]], province_name_th: j.pv[r[6]], _ar: j.ar[r[9]], _st: j.st[r[10]] } };
-      if (!excluded(f.properties)) { const k = f.properties.full_date + '|' + r[4]; (R[k] = R[k] || []).push(f) } }
-    const score = L => L.length > 15 ? 0 : new Set(L.map(f => f.properties._ar + '|' + f.properties._st)).size;
+      if (!excluded(f.properties) && f.properties.satellite_name !== 'SNPP') { const k = iso(r[0]) + (r[1] < 1200 ? 'a' : 'p'); (R[k] = R[k] || []).push(f) } }
+    const score = L => L.length > 15 ? 0 : (new Set(L.map(f => f.properties.satellite_name)).size > 1 ? 100 : 0) + new Set(L.map(f => f.properties._ar + '|' + f.properties._st)).size;
     return Object.entries(R).sort((a, b) => score(b[1]) - score(a[1]) || (a[0] < b[0] ? 1 : -1))[0][1];
   };
   const stationNote = L => `ตัวอย่างรูปแบบใหม่ — จุดจริงย้อนหลัง ${dateTh(thMs(L[0].properties.full_date))} ไม่ใช่เหตุวันนี้`;
