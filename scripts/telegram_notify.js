@@ -162,15 +162,17 @@ const msgOf = (text, rows, o = {}) => ({ text, parse_mode: 'HTML', link_preview_
     return Object.entries(M).sort((a, b) => (a[0] === 'ไม่มี') - (b[0] === 'ไม่มี') || b[1].length - a[1].length) };
   const stationMsg = (fresh, test = false, strict = false, note = '') => {
     const G = groups(fresh), ins = G.filter(g => g[0] !== 'นอกเขตอนุรักษ์').sort((a, b) => b[1].length - a[1].length), out = G.filter(g => g[0] === 'นอกเขตอนุรักษ์');
-    const all = [...ins, ...out].map(([n, L]) => [n, L, byStation(L)]);
+    const Z = [...ins, ...out].map(([n, L]) => [n, L, byStation(L)]);
     const text = fit(per => [
       `${test ? '🧪 <b>ทดสอบ</b> · ' : ''}🔥 <b>พบจุดความร้อนใหม่ทั้งหมด ${fresh.length} จุด</b>`,
       'กลุ่มป่าดงพญาเย็น-เขาใหญ่' + (test ? '' : ` · ${dateTh(now)} ${hm(now)} น.`),
       ...(note ? [`<i>${esc(note)}</i>`] : []),
       '', '📊 <b>สรุปรายพื้นที่</b>',
-      ...all.flatMap(([n, L, S]) => [`🌲 ${esc(n)} <b>${L.length}</b> จุด`, ...S.map(([k, P]) => `   ${k === 'ไม่มี' ? '▫️' : '🚒'} ${esc(stShort(k))} ${P.length}`)]),
-      ...all.flatMap(([n, L, S]) => ['', `🌲 <b>${esc(n)} — ${L.length} จุด</b>`, ...S.flatMap(([k, P]) => [`${k === 'ไม่มี' ? '▫️' : '🚒'} <b>${esc(stShort(k))}</b> ${P.length} จุด`, ...list(byNew(P), per, false, false)])]),
-      '', `${test ? '' : `🕐 จุดใน 24 ชม.: ${h24.length} จุด · `}<i>ไม่รวม ขสป.ดงใหญ่</i>`,
+      ...Z.map(([n, L]) => `🌲 ${esc(n)} <b>${L.length}</b> จุด`),
+      ...Z.flatMap(([n, L, S]) => ['', `🌲 <b>${esc(n)} — ${L.length} จุด</b>`, ...S.flatMap(([k, P]) => [`${k === 'ไม่มี' ? '▫️' : '🚒'} <b>${esc(stShort(k))}</b> ${P.length} จุด`, ...list(byNew(P), per, false, false)])]),
+      // ท้ายข้อความตามที่ผู้ใช้กำหนด 25 พ.ย. 69: สะสมปีงบนี้ | ทั้งปีงบก่อน (ตัวเลขชุดเดียวกับสรุปประจำวัน) → จุดใน 24 ชม. → หมายเหตุ
+      ...(sum ? ['', `รวม <b>${all.fy}</b> | ${all.pfull}  ${dPct(all.fy, all.pfull)}`] : []),
+      '', `🕐 จุดใน 24 ชม.: ${h24.length} จุด`, `<i>ไม่รวม ขสป.ดงใหญ่${sum && sum.ind ? ` · สะสมนับเฉพาะ ${esc(sum.ind)} (ตัวชี้วัด)` : ''}</i>`,
     ].join('\n'), strict);
     return msgOf(text, [[mapBtn(fresh), ['🗺️ แผนที่ไฟป่า', SITE]]]);
   };
