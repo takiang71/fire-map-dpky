@@ -2182,13 +2182,24 @@ function lag(h,r,H){
 
 const tx=(id,v)=>{$('#'+id).innerHTML=v};
 let CUR=null,P={sm:'g',hr:6,fuel:0,u:11,from:90,rh:61,T:32.3,sl:4},fuelAuto=true,LASTR=null,slManual=false;
+/* ถอด PNG เองไม่ผ่าน canvas: Safari ใส่สัญญาณรบกวนใน getImageData → gotchas.md */
+async function pngRaw(ab){const b=new Uint8Array(ab),v=new DataView(ab);if(b.length<33||v.getUint32(0)!==0x89504e47)throw new Error('ไม่ใช่ PNG');
+ let o=8,w=0,h=0,bd=0,ct=-1,il=0;const I=[];while(o+8<=b.length){const n=v.getUint32(o),t=String.fromCharCode(b[o+4],b[o+5],b[o+6],b[o+7]);
+  if(t==='IHDR'){w=v.getUint32(o+8);h=v.getUint32(o+12);bd=b[o+16];ct=b[o+17];il=b[o+20]}else if(t==='IDAT')I.push(b.subarray(o+8,o+8+n));else if(t==='IEND')break;o+=12+n}
+ const ch={0:1,2:3,4:2,6:4}[ct];if(bd!==8||il||!ch||!I.length)throw new Error('PNG ชนิดนี้ถอดเองไม่ได้');
+ const r=new Uint8Array(await new Response(new Blob(I).stream().pipeThrough(new DecompressionStream('deflate'))).arrayBuffer()),st=w*ch,px=new Uint8Array(st*h);
+ if(r.length<(st+1)*h)throw new Error('PNG ไม่ครบ');
+ for(let y=0;y<h;y++){const f=r[y*(st+1)],s0=y*(st+1)+1,c=y*st,p=c-st;
+  for(let i=0;i<st;i++){const a=i>=ch?px[c+i-ch]:0,u=y?px[p+i]:0,q=y&&i>=ch?px[p+i-ch]:0;let x=r[s0+i];
+   if(f===1)x+=a;else if(f===2)x+=u;else if(f===3)x+=(a+u)>>1;else if(f===4){const e=a+u-q,pa=Math.abs(e-a),pb=Math.abs(e-u),pc=Math.abs(e-q);x+=pa<=pb&&pa<=pc?a:pb<=pc?u:q}
+   px[c+i]=x&255}}
+ return{w,h,ch,px}}
 // ความลาดชันจริง ณ จุดความร้อน จากแบบจำลองความสูง (GEM-15 ในกลุ่มป่า/Terrarium AWS นอกพื้นที่ — demURL · ชุดเดียวกับมุมมอง 3 มิติ) ซูม 12 (~37 ม./พิกเซลที่ละติจูด 14°)
 // วิธี Horn บนจุดรอบข้างห่าง ~150 ม. (ราวครึ่งพิกเซล VIIRS 375 ม.) → ความชันเฉลี่ยของพื้นที่ที่ไหม้ ไม่ใช่หน้าผาจุดเดียว · ทิศลาด = ทิศที่ลาดลง
 const DEMC={};
-function demTile(z,x,y){const k=z+'/'+x+'/'+y;return DEMC[k]||(DEMC[k]=demURL(z,x,y).then(u=>new Promise((res,rej)=>{const im=new Image();im.crossOrigin='anonymous';
- im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(im,0,0);const d=g.getImageData(0,0,256,256).data,e=new Float32Array(65536);
-  for(let i=0;i<65536;i++)e[i]=d[i*4]*256+d[i*4+1]+d[i*4+2]/256-32768;res(e)};
- im.onerror=()=>{const A=awsUrl(z,x,y);if(im.src!==A&&u!==A){im.src=A;return}delete DEMC[k];rej(new Error('โหลดข้อมูลความสูงไม่ได้'))};im.src=u})))}
+const demRaw=async u=>{const r=await fetchT(u,{},FTO.tile);if(!r.ok)throw new Error('HTTP '+r.status);const P=await pngRaw(await r.arrayBuffer()),e=new Float32Array(65536);
+ for(let i=0;i<65536;i++){const j=i*P.ch;e[i]=P.px[j]*256+P.px[j+1]+P.px[j+2]/256-32768}return e};
+function demTile(z,x,y){const k=z+'/'+x+'/'+y,A=awsUrl(z,x,y);return DEMC[k]||(DEMC[k]=demURL(z,x,y).then(u=>demRaw(u).catch(e=>{if(u===A)throw e;return demRaw(A)})).catch(e=>{delete DEMC[k];dbg('demTile',e);throw new Error('โหลดข้อมูลความสูงไม่ได้')}))}
 async function slopeAt(lon,lat,R=150){const z=12,W=256*2**z,X=(lon+180)/360*W,Y=(1-Math.log(Math.tan(Math.PI/4+lat*Math.PI/360))/Math.PI)/2*W,m=40075017*Math.cos(lat*Math.PI/180)/W,k=Math.max(1,Math.round(R/m));
  const el=async(px,py)=>{const tx=Math.floor(px/256),ty=Math.floor(py/256),t=await demTile(z,tx,ty);return t[Math.floor(py-ty*256)*256+Math.floor(px-tx*256)]};
  const [a,b,c,d,e,f,g,h,i]=await Promise.all([-1,0,1].flatMap(j=>[-1,0,1].map(q=>el(X+q*k,Y+j*k))));
@@ -3100,8 +3111,7 @@ const chLoad=()=>CHX.p||(CHX.p=fetchT(CHB+'index.json',{cache:'no-cache'},FTO.au
 const chCls=v=>{const c=(CHX.ix&&CHX.ix.cl)||[2,5,10,15,20,30];let k=0;while(k<c.length&&v>=c[k])k++;return k};
 /* ไทล์ → Uint8Array 65536 (ค่าดิบ) · ถอดด้วย createImageBitmap แบบไม่แปลงสี (ค่าเทาตรงตามไฟล์) */
 async function chPx(z,x,y,ac){const r=await fetchT(CHB+z+'/'+x+'/'+y+'.png?v='+encodeURIComponent((CHX.ix&&(CHX.ix.ver||CHX.ix.built))||''),ac?{signal:ac.signal}:{},FTO.tile);if(!r.ok)throw new Error('HTTP '+r.status);
- const bm=await createImageBitmap(await r.blob(),{colorSpaceConversion:'none',premultiplyAlpha:'none'}),c=bnCanvas(),g=c.getContext('2d',{willReadFrequently:true});g.drawImage(bm,0,0);
- const d=g.getImageData(0,0,256,256).data,o=new Uint8Array(65536);for(let i=0;i<65536;i++)o[i]=d[i*4];return o}
+ const P=await pngRaw(await r.arrayBuffer()),o=new Uint8Array(65536);for(let i=0;i<65536;i++)o[i]=P.px[i*P.ch];return o}
 maplibregl.addProtocol('chm',async(p,ac)=>{const m=p.url.match(/^chm:\/\/(\d+)\/(\d+)\/(\d+)/),z=+m[1],x=+m[2],y=+m[3],c=bnCanvas(),g=c.getContext('2d');
  if(ixHas(await chLoad(),z,x,y)){const d=await chPx(z,x,y,ac),im=g.createImageData(256,256),o=im.data;
   for(let i=0;i<65536;i++){const v=d[i];if(v===255)continue;const q=CHR[chCls(v)];o[i*4]=q[0];o[i*4+1]=q[1];o[i*4+2]=q[2];o[i*4+3]=255}g.putImageData(im,0,0)}
