@@ -3,7 +3,7 @@
 //   + พื้นที่เฝ้าระวังพิเศษ (data/watch.json — ผู้ใช้ขอ 19 พ.ย. 69) ยอดใน index.st แยกชื่อ "พื้นที่เฝ้าระวังพิเศษ …" (หน้าเว็บไม่นับรวมกลุ่มป่า)
 // ที่มา: https://developers.google.com/earth-engine/datasets/catalog/projects_climate-and-sustainability_assets_gem-15_v1 · CC-BY 4.0 "This dataset is produced by Google"
 //   dsm = ค่าเฉลี่ยผิวบน (ยอดไม้/อาคาร) ในช่อง 15 ม. · dtm = พื้นดิน · ต่างกัน = ความสูงของสิ่งที่อยู่บนพื้น (ในป่า = เรือนยอดเฉลี่ยรวมช่องว่าง)
-// รันมือ (ไม่อยู่ใน workflow): node scripts/build_chm15.js [--out data/chm15] [--cache <แคช dtm ของ build_dem15>] [--dsm-cache <โฟลเดอร์>] [--zmin 8] [--limit N] [--dry]
+// รันมือ (ไม่อยู่ใน workflow): node scripts/build_chm15.js [--out data/chm15] [--cache <แคช dtm ของ build_dem15>] [--dsm-cache <โฟลเดอร์>] [--zmin 8] [--limit N] [--dry] [--no-filt]
 //   แผ่น DSM (5 แบนด์ ~5 MB/แผ่น รวม ~1 GB) ไม่เก็บลงดิสก์ถ้าไม่ใส่ --dsm-cache (อ่านแล้วถอดในหน่วยความจำ ≤--max แผ่น)
 // ผล: <out>/{z}/{x}/{y}.png PNG เทา 8 บิต ค่า = ความสูง ม. (ปัดเต็ม, 0–60) · 255 = ไม่มีข้อมูล/นอกแนวเขต + <out>/index.json
 //   index: ver (รุ่น ISO → ?v= ของไทล์), rows (ไทล์ซูม 13 ที่มีข้อมูล, รูปแบบเดียวกับ data/dem15), cl (ขอบชั้นความสูง ม.), st {ชื่อพื้นที่: ไร่ต่อชั้น}, nd {ชื่อ: ไร่ที่ไม่มีข้อมูล}
@@ -11,11 +11,12 @@
 const fs = require('fs'), path = require('path'), os = require('os');
 const { grayPNG } = require('./lib/png');
 const { y2lat, consFeatures, watchFeatures, tileSet, maskFn, gemSrc, loadFor, at, pool } = require('./lib/gem15');
+const { destripeAll, chmStats, pyramid, OPT } = require('./lib/chmfilt'); /* กรองแถบเส้นของ GEM-15 (26 พ.ย. 69) — ใส่ --no-filt เพื่อไม่กรอง */
 
 const ROOT = path.join(__dirname, '..');
 const arg = (k, d) => { const i = process.argv.indexOf('--' + k); return i < 0 ? d : process.argv[i + 1] };
 const OUT = path.resolve(ROOT, arg('out', 'data/chm15')), CACHE = arg('cache', process.env.GEM15_CACHE || path.join(os.tmpdir(), 'gem15')),
-  DSMC = arg('dsm-cache', null), MAX = +arg('max', 40), ZMIN = +arg('zmin', 8), LIMIT = +arg('limit', 0), DRY = process.argv.includes('--dry'), ZMAX = 13;
+  DSMC = arg('dsm-cache', null), MAX = +arg('max', 40), ZMIN = +arg('zmin', 8), LIMIT = +arg('limit', 0), DRY = process.argv.includes('--dry'), FILT = !process.argv.includes('--no-filt'), ZMAX = 13;
 const CL = [2, 5, 10, 15, 20, 30], HMAX = 60, ND = 255;
 const cls = h => { let k = 0; while (k < CL.length && h >= CL[k]) k++; return k };
 
@@ -48,30 +49,21 @@ const cls = h => { let k = 0; while (k < CL.length && h >= CL[k]) k++; return k 
         const h = Math.min(HMAX, Math.max(0, s - t)); px[k] = Math.round(h); st[fi][cls(h)] += a;
       }
     }
-    lvl.set(x + ',' + y, px); write(ZMAX, x, y, px);
+    lvl.set(x + ',' + y, px);
   });
+  /* กรองแถบเส้นบนไทล์ซูม 13 ทั้งชุด (ต้องใช้ไทล์ข้างเคียง) · st += ผลต่างที่การกรองทำ (คิดจากค่าปัดเต็มทั้งก่อน/หลัง) */
+  if (FILT) {
+    const f = destripeAll(lvl), area = (y, j) => (40075016.686 * Math.cos(y2lat(y + (j + .5) / 256, ZMAX) * Math.PI / 180) / (256 * 2 ** ZMAX)) ** 2 / 1600;
+    const s1 = chmStats(f, F.length, mask, area), s0 = chmStats(lvl, F.length, mask, area);
+    st.forEach((r, i) => r.forEach((v, k) => { r[k] = Math.max(0, v + s1[i][k] - s0[i][k]) })); lvl = f;
+  }
+  for (const [k, px] of lvl) { const [x, y] = k.split(',').map(Number); write(ZMAX, x, y, px) }
   const W = [...lvl.keys()].map(k => k.split(',').map(Number));
-  const ix = { v: 1, src: 'GEM-15 v1 DSM−DTM (Google, CC-BY 4.0)', built: new Date().toISOString().slice(0, 10), ver: new Date().toISOString(), /* ver = รุ่นไทล์ (หน้าเว็บต่อท้าย ?v= กันแคชไทล์เก่า) */ zmin: ZMIN, zmax: ZMAX, hmax: HMAX, cl: CL, rows: {}, st: {}, nd: {} };
+  const ix = { v: 1, src: 'GEM-15 v1 DSM−DTM (Google, CC-BY 4.0)', built: new Date().toISOString().slice(0, 10), ver: new Date().toISOString(), /* ver = รุ่นไทล์ (หน้าเว็บต่อท้าย ?v= กันแคชไทล์เก่า) */ zmin: ZMIN, zmax: ZMAX, hmax: HMAX, cl: CL, rows: {}, st: {}, nd: {}, ...(FILT ? { filt: { ...OPT, at: new Date().toISOString().slice(0, 10) } } : {}) };
   for (const [x, y] of W) (ix.rows[y] = ix.rows[y] || []).push(x);
   for (const y in ix.rows) { const X = ix.rows[y].sort((a, b) => a - b), R = []; for (const x of X) { if (R.length && R[R.length - 1] === x - 1) R[R.length - 1] = x; else R.push(x, x) } ix.rows[y] = R }
   F.forEach((f, i) => { if (st[i].some(v => v)) { ix.st[f.name] = st[i].map(v => Math.round(v)); ix.nd[f.name] = Math.round(nd[i]) } });
-  // ซูมต่ำลง: เฉลี่ย 2×2 เฉพาะพิกเซลที่มีค่า (ไม่มีเลย = 255)
-  for (let z = ZMAX - 1; z >= ZMIN; z--) {
-    const P = new Set(); for (const k of lvl.keys()) { const [x, y] = k.split(',').map(Number); P.add((x >> 1) + ',' + (y >> 1)) }
-    const next = new Map();
-    for (const k of P) {
-      const [x, y] = k.split(',').map(Number), px = new Uint8Array(65536).fill(ND);
-      for (let q = 0; q < 4; q++) {
-        const c = lvl.get((2 * x + (q & 1)) + ',' + (2 * y + (q >> 1))), ox = (q & 1) * 128, oy = (q >> 1) * 128; if (!c) continue;
-        for (let j = 0; j < 128; j++) for (let i = 0; i < 128; i++) {
-          let s = 0, n = 0; for (const o of [(2 * j) * 256 + 2 * i, (2 * j) * 256 + 2 * i + 1, (2 * j + 1) * 256 + 2 * i, (2 * j + 1) * 256 + 2 * i + 1]) if (c[o] !== ND) { s += c[o]; n++ }
-          if (n) px[(oy + j) * 256 + ox + i] = Math.round(s / n);
-        }
-      }
-      next.set(k, px); write(z, x, y, px);
-    }
-    lvl = next;
-  }
+  pyramid(lvl, ZMAX, ZMIN, write); /* ซูมต่ำลง: เฉลี่ย 2×2 เฉพาะพิกเซลที่มีค่า → lib/chmfilt.js */
   fs.writeFileSync(path.join(OUT, 'index.json'), JSON.stringify(ix));
   const kb = n => (n / 1024).toFixed(0), tot = Object.entries(ix.st).filter(([n]) => !/^พื้นที่เฝ้าระวังพิเศษ /.test(n)).map(([, v]) => v).flat().reduce((a, b) => a + b, 0);
   for (const z of Object.keys(S.n)) console.log(`ซูม ${z}: ${S.n[z]} แผ่น ${kb(S.bytes[z])} KB (เฉลี่ย ${kb(S.bytes[z] / S.n[z])} KB)`);
